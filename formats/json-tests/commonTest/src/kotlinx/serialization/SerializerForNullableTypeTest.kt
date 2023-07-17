@@ -112,7 +112,6 @@ public class SerializerForNullableTypeTest : JsonTestBase() {
 
     @Test
     fun testGenericBoxNullable() {
-        if (isJsLegacy()) return
         val data = GenericBox<StringHolder?>(null)
         val json = Json.encodeToString(data)
         assertEquals("""{"value":"nullable"}""", Json.encodeToString(data))
@@ -121,13 +120,11 @@ public class SerializerForNullableTypeTest : JsonTestBase() {
 
     @Test
     fun testGenericNullableBoxFromNull() {
-        if (isJsLegacy()) return
         assertEquals(GenericBox(StringHolder("nullable")), Json.decodeFromString("""{"value":null}"""))
     }
 
     @Test
     fun testGenericNullableBoxNullable() {
-        if (isJsLegacy()) return
         val data = GenericNullableBox<StringHolder>(null)
         val json = Json.encodeToString(data)
         assertEquals("""{"value":"nullable"}""", Json.encodeToString(data))
@@ -136,7 +133,6 @@ public class SerializerForNullableTypeTest : JsonTestBase() {
 
     @Test
     fun testGenericBoxNullableFromNull() {
-        if (isJsLegacy()) return
         assertEquals(GenericNullableBox(StringHolder("nullable")), Json.decodeFromString("""{"value":null}"""))
     }
 

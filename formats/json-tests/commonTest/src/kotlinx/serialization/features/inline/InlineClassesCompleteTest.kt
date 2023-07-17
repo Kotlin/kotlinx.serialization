@@ -61,7 +61,7 @@ data class WithGenerics(
 
 class InlineClassesCompleteTest {
     @Test
-    fun testAllVariantsWithoutNull() = noLegacyJs {
+    fun testAllVariantsWithoutNull() {
         val withAll = WithAll(
             MyInt(1),
             MyInt(2),
@@ -72,15 +72,15 @@ class InlineClassesCompleteTest {
             OverSerializableNullable(IntData(7)),
             OverSerializableNullable(IntData(8)),
             WithT(Box(9)),
-            WithT<Int>(Box(10)),
-            WithT<Int?>(Box(11)),
-            WithTNullable<Int?>(Box(12))
+            WithT(Box(10)),
+            WithT(Box(11)),
+            WithTNullable(Box(12))
         )
         assertSerializedAndRestored(withAll, WithAll.serializer())
     }
 
     @Test
-    fun testAllVariantsWithNull() = noLegacyJs {
+    fun testAllVariantsWithNull() {
         assertSerializedAndRestored(
             WithAll(
                 MyInt(1),
@@ -93,14 +93,14 @@ class InlineClassesCompleteTest {
                 null,
                 WithT(Box(9)),
                 null,
-                WithT<Int?>(Box(null)),
-                WithTNullable<Int?>(Box(null))
+                WithT(Box(null)),
+                WithTNullable(Box(null))
             ), WithAll.serializer()
         )
     }
 
     @Test
-    fun testAllGenericVariantsWithoutNull() = noLegacyJs {
+    fun testAllGenericVariantsWithoutNull() {
         assertSerializedAndRestored(
             WithGenerics(
                 Box(MyInt(1)),
@@ -117,7 +117,7 @@ class InlineClassesCompleteTest {
     }
 
     @Test
-    fun testAllGenericVariantsWithNull() = noLegacyJs {
+    fun testAllGenericVariantsWithNull() {
         assertSerializedAndRestored(
             WithGenerics(
                 Box(MyInt(1)),

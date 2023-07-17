@@ -24,7 +24,6 @@ class ProtobufNothingTest {
     @Test
     fun testNothing() {
         testConversion(NullableNothingBox(null), "")
-        if (isJsLegacy()) return
         testConversion(ParameterizedBox(null), "")
     }
 }

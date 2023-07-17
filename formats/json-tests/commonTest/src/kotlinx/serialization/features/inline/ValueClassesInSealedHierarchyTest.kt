@@ -12,7 +12,7 @@ import kotlin.test.*
 
 class ValueClassesInSealedHierarchyTest : JsonTestBase() {
     @Test
-    fun testSingle() = noLegacyJs {
+    fun testSingle() {
         val single = "foo"
         assertJsonFormAndRestored(
             AnyValue.serializer(),
@@ -22,7 +22,7 @@ class ValueClassesInSealedHierarchyTest : JsonTestBase() {
     }
 
     @Test
-    fun testComplex() = noLegacyJs {
+    fun testComplex() {
         val complexJson = """{"id":"1","name":"object"}"""
         assertJsonFormAndRestored(
             AnyValue.serializer(),
@@ -32,9 +32,13 @@ class ValueClassesInSealedHierarchyTest : JsonTestBase() {
     }
 
     @Test
-    fun testMulti() = noLegacyJs {
+    fun testMulti() {
         val multiJson = """["list","of","strings"]"""
-        assertJsonFormAndRestored(AnyValue.serializer(), AnyValue.Multi(listOf("list", "of", "strings")), multiJson)
+        assertJsonFormAndRestored(
+            AnyValue.serializer(),
+            AnyValue.Multi(listOf("list", "of", "strings")),
+            multiJson
+        )
     }
 }
 

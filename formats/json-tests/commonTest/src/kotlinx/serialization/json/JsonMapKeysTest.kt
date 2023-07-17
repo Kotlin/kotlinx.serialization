@@ -71,10 +71,8 @@ class JsonMapKeysTest : JsonTestBase() {
 
     @Test
     fun testStructuredMapKeysShouldBeProhibitedByDefault() = parametrizedTest { streaming ->
-        noLegacyJs {
-            verifyProhibition(WithComplexKey(mapOf(IntData(42) to "42")), streaming)
-            verifyProhibition(WithComplexValueKey(mapOf(ComplexCarrier(IntData(42)) to "42")), streaming)
-        }
+        verifyProhibition(WithComplexKey(mapOf(IntData(42) to "42")), streaming)
+        verifyProhibition(WithComplexValueKey(mapOf(ComplexCarrier(IntData(42)) to "42")), streaming)
     }
 
     private inline fun <reified T: Any> verifyProhibition(value: T, streaming: JsonTestingMode) {
@@ -92,7 +90,7 @@ class JsonMapKeysTest : JsonTestBase() {
     )
 
     @Test
-    fun testStructuredValueMapKeysAllowedWithFlag() =  noLegacyJs {
+    fun testStructuredValueMapKeysAllowedWithFlag() {
         assertJsonFormAndRestored(
             WithComplexValueKey.serializer(),
             WithComplexValueKey(mapOf(ComplexCarrier(IntData(42)) to "42")),
@@ -110,7 +108,7 @@ class JsonMapKeysTest : JsonTestBase() {
     )
 
     @Test
-    fun testPrimitivesAreAllowedAsValueMapKeys() =  noLegacyJs {
+    fun testPrimitivesAreAllowedAsValueMapKeys() {
         assertJsonFormAndRestored(
             WithValueKeyMap.serializer(),
             WithValueKeyMap(mapOf(PrimitiveCarrier("fooKey") to 1)),
@@ -120,7 +118,7 @@ class JsonMapKeysTest : JsonTestBase() {
     }
 
     @Test
-    fun testContextualValuePrimitivesAreAllowedAsValueMapKeys() =  noLegacyJs {
+    fun testContextualValuePrimitivesAreAllowedAsValueMapKeys() {
         assertJsonFormAndRestored(
             WithContextualValueKey.serializer(),
             WithContextualValueKey(mapOf(PrimitiveCarrier("fooKey") to 1)),

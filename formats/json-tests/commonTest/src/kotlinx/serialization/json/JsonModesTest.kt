@@ -120,11 +120,9 @@ class JsonModesTest : JsonTestBase() {
 
     @Test
     fun testIgnoreUnknownKeysObject() = parametrizedTest { jsonTestingMode ->
-        noLegacyJs {
-            assertEquals(Holder(Object), lenient.decodeFromString("""{"o":{}}""", jsonTestingMode))
-            assertEquals(Holder(Object), lenient.decodeFromString("""{"o":{"unknown":{"b":"c"}}}""", jsonTestingMode))
-            assertEquals(Object, lenient.decodeFromString("""{}""", jsonTestingMode))
-            assertEquals(Object, lenient.decodeFromString("""{"o":{"unknown":{"b":"c"}}}""", jsonTestingMode))
-        }
+        assertEquals(Holder(Object), lenient.decodeFromString("""{"o":{}}""", jsonTestingMode))
+        assertEquals(Holder(Object), lenient.decodeFromString("""{"o":{"unknown":{"b":"c"}}}""", jsonTestingMode))
+        assertEquals(Object, lenient.decodeFromString("""{}""", jsonTestingMode))
+        assertEquals(Object, lenient.decodeFromString("""{"o":{"unknown":{"b":"c"}}}""", jsonTestingMode))
     }
 }

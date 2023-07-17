@@ -49,7 +49,7 @@ class SerializersModuleTest {
     class ContextualHolder(@Contextual val contextual: ContextualType)
 
     @Test
-    fun testCompiled() = noJsLegacy {
+    fun testCompiled() {
         assertSame<KSerializer<*>>(Object.serializer(), serializer(Object::class, emptyList(), false))
         assertSame<KSerializer<*>>(SealedParent.serializer(), serializer(SealedParent::class, emptyList(), false))
         assertSame<KSerializer<*>>(

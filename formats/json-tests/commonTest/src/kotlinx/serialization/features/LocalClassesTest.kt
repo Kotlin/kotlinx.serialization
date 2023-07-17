@@ -1,16 +1,11 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.descriptors.buildSerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.test.jvmOnly
-import kotlinx.serialization.test.noLegacyJs
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
+import kotlinx.serialization.json.*
+import kotlinx.serialization.test.*
+import kotlin.test.*
 
 class LocalClassesTest {
     object ObjectCustomSerializer: KSerializer<Any?> {
@@ -42,10 +37,8 @@ class LocalClassesTest {
 
         val origin = Local(42)
 
-        noLegacyJs {
-            val decoded: Local = Json.decodeFromString(Json.encodeToString(origin))
-            assertEquals(origin, decoded)
-        }
+        val decoded: Local = Json.decodeFromString(Json.encodeToString(origin))
+        assertEquals(origin, decoded)
     }
 
     @Test
@@ -56,10 +49,8 @@ class LocalClassesTest {
 
             val origin = Local(it)
 
-            noLegacyJs {
-                val decoded: Local = Json.decodeFromString(Json.encodeToString(origin))
-                assertEquals(origin, decoded)
-            }
+            val decoded: Local = Json.decodeFromString(Json.encodeToString(origin))
+            assertEquals(origin, decoded)
         }
     }
 
@@ -71,10 +62,8 @@ class LocalClassesTest {
 
         val origin: Local? = null
 
-        noLegacyJs {
-            val decoded: Local? = Json.decodeFromString(Json.encodeToString(origin))
-            assertEquals(origin, decoded)
-        }
+        val decoded: Local? = Json.decodeFromString(Json.encodeToString(origin))
+        assertEquals(origin, decoded)
     }
 
     @Suppress("SERIALIZER_TYPE_INCOMPATIBLE")

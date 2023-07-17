@@ -7,7 +7,6 @@ package kotlinx.serialization.features
 import kotlinx.serialization.*
 import kotlinx.serialization.EncodeDefault.Mode.*
 import kotlinx.serialization.json.*
-import kotlinx.serialization.test.noLegacyJs
 import kotlin.test.*
 
 class SkipDefaultsTest {
@@ -59,7 +58,7 @@ class SkipDefaultsTest {
     }
 
     @Test
-    fun encodeDefaultsAnnotationWithFlag() = noLegacyJs {
+    fun encodeDefaultsAnnotationWithFlag() {
         val data = DifferentModes()
         assertEquals("""{"a":"a","b":"b","c":"c"}""", jsonEncodeDefaults.encodeToString(data))
         assertEquals("""{"b":"b","c":"c"}""", jsonDropDefaults.encodeToString(data))

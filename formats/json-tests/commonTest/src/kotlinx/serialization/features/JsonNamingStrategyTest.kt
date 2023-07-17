@@ -132,7 +132,7 @@ class JsonNamingStrategyTest : JsonTestBase() {
     data class CollisionCheckAlternate(val testCase: String, @JsonNames("test_case") val testCase2: String)
 
     @Test
-    fun testNamingStrategyPrioritizesOverAlternative() = noLegacyJs { // @JsonNames not supported on legacy
+    fun testNamingStrategyPrioritizesOverAlternative() {
         val json = Json(jsonWithNaming) {
             ignoreUnknownKeys = true
         }
@@ -153,7 +153,7 @@ class JsonNamingStrategyTest : JsonTestBase() {
     data class OriginalAsFallback(@JsonNames("testCase") val testCase: String)
 
     @Test
-    fun testCanUseOriginalNameAsAlternative() = noLegacyJs { // @JsonNames not supported on legacy
+    fun testCanUseOriginalNameAsAlternative() {
         val json = Json(jsonWithNaming) {
             ignoreUnknownKeys = true
         }
@@ -181,7 +181,7 @@ class JsonNamingStrategyTest : JsonTestBase() {
     data class Holder(val testBase: SealedBase, val testMid: SealedBase.SealedMid)
 
     @Test
-    fun testNamingStrategyDoesNotAffectPolymorphism() = noLegacyJs { // @JsonClassDiscriminator
+    fun testNamingStrategyDoesNotAffectPolymorphism() {
         val json = Json(jsonWithNaming) {
             classDiscriminator = "typeBase"
         }

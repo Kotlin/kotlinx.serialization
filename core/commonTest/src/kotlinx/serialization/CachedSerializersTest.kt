@@ -38,27 +38,27 @@ class CachedSerializersTest {
     }
 
     @Test
-    fun testObjectSerializersAreSame() = noJsLegacy {
+    fun testObjectSerializersAreSame() {
         assertSame(Object.serializer(), Object.serializer())
     }
 
     @Test
-    fun testSerializableEnumSerializersAreSame() = noJsLegacy {
+    fun testSerializableEnumSerializersAreSame() {
         assertSame(SerializableEnum.serializer(), SerializableEnum.serializer())
     }
 
     @Test
-    fun testSerializableMarkedEnumSerializersAreSame() = noJsLegacy {
+    fun testSerializableMarkedEnumSerializersAreSame() {
         assertSame(SerializableMarkedEnum.serializer(), SerializableMarkedEnum.serializer())
     }
 
     @Test
-    fun testSealedSerializersAreSame() = noJsLegacy {
+    fun testSealedSerializersAreSame() {
         assertSame(SealedParent.serializer(), SealedParent.serializer())
     }
 
     @Test
-    fun testAbstractSerializersAreSame() = noJsLegacy {
+    fun testAbstractSerializersAreSame() {
         assertSame(Abstract.serializer(), Abstract.serializer())
     }
 

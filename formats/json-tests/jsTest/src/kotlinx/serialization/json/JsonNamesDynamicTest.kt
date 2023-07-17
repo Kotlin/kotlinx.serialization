@@ -29,7 +29,7 @@ class JsonNamesDynamicTest {
     }
 
     @Test
-    fun testParsesAllAlternativeNamesDynamic() = noLegacyJs {
+    fun testParsesAllAlternativeNamesDynamic() {
         for (input in listOf(inputString1, inputString2)) {
             parameterizedCoercingTest { json, msg ->
                 val data = json.decodeFromDynamic(JsonNamesTest.WithNames.serializer(), input)
@@ -39,7 +39,7 @@ class JsonNamesDynamicTest {
     }
 
     @Test
-    fun testEnumSupportsAlternativeNames() = noLegacyJs {
+    fun testEnumSupportsAlternativeNames() {
         val input = js("""{"enumList":["VALUE_A", "someValue", "some_value", "VALUE_B"], "checkCoercion":"someValue"}""")
         val expected = JsonNamesTest.WithEnumNames(
             listOf(
@@ -55,14 +55,14 @@ class JsonNamesDynamicTest {
     }
 
     @Test
-    fun topLevelEnumSupportAlternativeNames() = noLegacyJs {
+    fun topLevelEnumSupportAlternativeNames() {
         parameterizedCoercingTest { json, msg ->
             assertEquals(JsonNamesTest.AlternateEnumNames.VALUE_A, json.decodeFromDynamic(js("\"someValue\"")), msg)
         }
     }
 
     @Test
-    fun testThrowsAnErrorOnDuplicateNames2() = noLegacyJs {
+    fun testThrowsAnErrorOnDuplicateNames2() {
         val serializer = JsonNamesTest.CollisionWithAlternate.serializer()
         parameterizedCoercingTest { json, _ ->
             assertFailsWithMessage<SerializationException>(

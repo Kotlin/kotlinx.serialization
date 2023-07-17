@@ -29,7 +29,7 @@ class SealedInterfacesJsonSerializationTest : JsonTestBase() {
     object NoResponse: I
 
     @Test
-    fun testSealedInterfaceJson() = noLegacyJs {
+    fun testSealedInterfaceJson() {
         val messages = listOf(Response.ResponseInt(10), NoResponse, Response.ResponseString("foo"))
         assertJsonFormAndRestored(
             serializer(),
