@@ -39,7 +39,11 @@ public sealed class Cbor(
 ) : BinaryFormat {
 
     /**
-     * The default instance of [Cbor]
+     * The default instance of [Cbor], with the following behavior. It ...
+     * - does not encode defaults (see [encodeDefaults])
+     * - does not ignore unknown keys (see [ignoreUnknownKeys])
+     * - does prefer serial labels over names (see [preferSerialLabelsOverNames])
+     * - has an empty serializers module (see [EmptySerializersModule])
      */
     public companion object Default : Cbor(false, false, true, EmptySerializersModule())
 
@@ -105,7 +109,8 @@ public class CborBuilder internal constructor(cbor: Cbor) {
     public var ignoreUnknownKeys: Boolean = cbor.ignoreUnknownKeys
 
     /**
-     * Specifies whether to serialize element labels (i.e. Long from [SerialLabel]) instead of the element names (i.e. String from [SerialName]) for map keys
+     * Specifies whether to serialize element labels (i.e. Long from [SerialLabel])
+     * instead of the element names (i.e. String from [SerialName]) for map keys
      */
     public var preferSerialLabelsOverNames: Boolean = cbor.preferSerialLabelsOverNames
 
