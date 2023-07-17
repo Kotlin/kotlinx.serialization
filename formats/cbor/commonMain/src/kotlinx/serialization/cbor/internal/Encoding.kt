@@ -440,15 +440,14 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
     }
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-
         val index = if (cbor.ignoreUnknownKeys) {
             val knownIndex: Int
             while (true) {
                 if (isDone()) return CompositeDecoder.DECODE_DONE
-                val (elemName, tags) = decoder.nextTaggedString()
+                val (elemName, tags) = decodeElementNameWithTagsLenient(descriptor)
                 readProperties++
 
-                val index = descriptor.getElementIndex(elemName)
+                val index = elemName?.let { descriptor.getElementIndex(it) } ?: CompositeDecoder.UNKNOWN_NAME
                 if (index == CompositeDecoder.UNKNOWN_NAME) {
                     decoder.skipElement(tags)
                 } else {
@@ -464,14 +463,7 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
             knownIndex
         } else {
             if (isDone()) return CompositeDecoder.DECODE_DONE
-            val (elemName, tags) = runCatching {
-                decoder.nextTaggedString()
-            }.getOrElse {
-                val serialLabel = decoder.nextNumber(null)
-                val elemName = descriptor.getElementNameForSerialLabel(serialLabel)
-                    ?: throw CborDecodingException("SerialLabel unknown: $serialLabel")
-                elemName to ulongArrayOf() // TODO Tags?
-            }
+            val (elemName, tags) = decodeElementNameWithTags(descriptor)
             readProperties++
             descriptor.getElementIndexOrThrow(elemName).also { index ->
                 if (cbor.verifyKeyTags) {
@@ -485,6 +477,26 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
         decodeByteArrayAsByteString = descriptor.isByteString(index)
         tags = if (cbor.verifyValueTags) descriptor.getValueTags(index) else null
         return index
+    }
+
+    private fun decodeElementNameWithTags(descriptor: SerialDescriptor): Pair<String, ULongArray?> {
+        var (elemName, serialLabel, tags) = decoder.nextTaggedStringOrNumber()
+        if (elemName == null && serialLabel != null) {
+            elemName = descriptor.getElementNameForSerialLabel(serialLabel)
+                ?: throw CborDecodingException("SerialLabel unknown: $serialLabel")
+        }
+        if (elemName == null) {
+            throw CborDecodingException("Expected (tagged) string or number, got nothing")
+        }
+        return elemName to tags
+    }
+
+    private fun decodeElementNameWithTagsLenient(descriptor: SerialDescriptor): Pair<String?, ULongArray?> {
+        var (elemName, serialLabel, tags) = decoder.nextTaggedStringOrNumber()
+        if (elemName == null && serialLabel != null) {
+            elemName = descriptor.getElementNameForSerialLabel(serialLabel)
+        }
+        return elemName to tags
     }
 
     @OptIn(ExperimentalSerializationApi::class)
@@ -659,12 +671,37 @@ internal class CborDecoder(private val input: ByteArrayInput) {
         }
     }
 
+    /**
+     * Used for reading the tags and either string (element name) or number (serial label)
+     */
+    fun nextTaggedStringOrNumber(): Triple<String?, Long?, ULongArray?> {
+        val collectedTags = processTags(null)
+        if ((curByte and 0b111_00000) == HEADER_STRING.toInt()) {
+            val arr = readBytes()
+            val ans = arr.decodeToString()
+            readByte()
+            return Triple(ans, null, collectedTags)
+        } else {
+            val res = readNumber()
+            readByte()
+            return Triple(null, res, collectedTags)
+        }
+    }
+
     fun nextNumber(tag: ULong): Long = nextNumber(ulongArrayOf(tag))
     fun nextNumber(tags: ULongArray? = null): Long {
         processTags(tags)
         val res = readNumber()
         readByte()
         return res
+    }
+    fun nextTaggedNumber() = nextTaggedNumber(null)
+
+    private fun nextTaggedNumber(tags: ULongArray?): Pair<Long, ULongArray?> {
+        val collectedTags = processTags(tags)
+        val res = readNumber()
+        readByte()
+        return res to collectedTags
     }
 
     private fun readNumber(): Long {
