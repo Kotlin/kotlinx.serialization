@@ -166,6 +166,6 @@ class JsonEnumsCaseInsensitiveTest: JsonTestBase() {
             coerceInputValues = false
             decodeEnumsCaseInsensitive = false
         }
-        assertEquals(ListBadEnum(listOf(BadEnum.Bad, BadEnum.BAD)), disabled.decodeFromString("""{"l":["Bad","BAD"]}"""))
+        assertEquals(ListBadEnum(listOf(BadEnum.Bad, BadEnum.BAD)), disabled.decodeFromString("""{"l":["Bad","BAD"]}""", mode))
     }
 }
