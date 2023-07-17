@@ -44,6 +44,28 @@ class CborSerialLabelTest {
         assertEquals(reference, cbor.decodeFromHexString(ClassWithSerialLabel.serializer(), referenceHexNameString))
     }
 
+    @Test
+    fun writeReadVerifySerialLabelAndUnknownKeys() {
+        val referenceWithTag = ClassWithSerialLabel(alg = -7)
+
+        /**
+         * A2           # map(2)
+         *    01        # unsigned(1)
+         *    26        # negative(6)
+         *    02        # unsigned(2)
+         *    63        # text(3)
+         *       62617A # "baz"
+         */
+        val referenceHexLabelWithTagString = "a20126026362617a"
+        val cbor = Cbor {
+            preferSerialLabelsOverNames = true
+            ignoreUnknownKeys = true
+        }
+        assertEquals(
+            referenceWithTag,
+            cbor.decodeFromHexString(ClassWithSerialLabel.serializer(), referenceHexLabelWithTagString)
+        )
+    }
 
     @Serializable
     data class ClassWithSerialLabel(

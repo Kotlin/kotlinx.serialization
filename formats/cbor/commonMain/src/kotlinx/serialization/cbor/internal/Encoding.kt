@@ -254,10 +254,10 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
             val knownIndex: Int
             while (true) {
                 if (isDone()) return CompositeDecoder.DECODE_DONE
-                val elemName = decoder.nextString()
+                val elemName = decodeElementNameLenient(descriptor)
                 readProperties++
 
-                val index = descriptor.getElementIndex(elemName)
+                val index = elemName?.let { descriptor.getElementIndex(it) } ?: CompositeDecoder.UNKNOWN_NAME
                 if (index == CompositeDecoder.UNKNOWN_NAME) {
                     decoder.skipElement()
                 } else {
@@ -268,20 +268,33 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
             knownIndex
         } else {
             if (isDone()) return CompositeDecoder.DECODE_DONE
-            val elemName = runCatching {
-                decoder.nextString()
-            }.getOrElse {
-                val serialLabel = decoder.nextNumber()
-                val elemName = descriptor.getElementNameForSerialLabel(serialLabel)
-                    ?: throw CborDecodingException("SerialLabel unknown: $serialLabel")
-                elemName
-            }
+            val elemName = decodeElementName(descriptor)
             readProperties++
             descriptor.getElementIndexOrThrow(elemName)
         }
 
         decodeByteArrayAsByteString = descriptor.isByteString(index)
         return index
+    }
+
+    private fun decodeElementName(descriptor: SerialDescriptor): String {
+        var (elemName, serialLabel) = decoder.nextStringOrNumber()
+        if (elemName == null && serialLabel != null) {
+            elemName = descriptor.getElementNameForSerialLabel(serialLabel)
+                ?: throw CborDecodingException("SerialLabel unknown: $serialLabel")
+        }
+        if (elemName == null) {
+            throw CborDecodingException("Expected (tagged) string or number, got nothing")
+        }
+        return elemName
+    }
+
+    private fun decodeElementNameLenient(descriptor: SerialDescriptor): String? {
+        var (elemName, serialLabel) = decoder.nextStringOrNumber()
+        if (elemName == null && serialLabel != null) {
+            elemName = descriptor.getElementNameForSerialLabel(serialLabel)
+        }
+        return elemName
     }
 
     @OptIn(ExperimentalSerializationApi::class)
@@ -408,6 +421,23 @@ internal class CborDecoder(private val input: ByteArrayInput) {
         while ((curByte and 0b111_00000) == HEADER_TAG) {
             readNumber() // This is the tag number
             readByte()
+        }
+    }
+
+    /**
+     * Used for reading the tags and either string (element name) or number (serial label)
+     */
+    fun nextStringOrNumber(): Pair<String?, Long?> {
+        skipOverTags()
+        if ((curByte and 0b111_00000) == HEADER_STRING.toInt()) {
+            val arr = readBytes()
+            val ans = arr.decodeToString()
+            readByte()
+            return Pair(ans, null)
+        } else {
+            val res = readNumber()
+            readByte()
+            return Pair(null, res)
         }
     }
 
