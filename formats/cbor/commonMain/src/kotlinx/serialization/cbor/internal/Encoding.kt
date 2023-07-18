@@ -58,6 +58,60 @@ private open class CborListWriter(cbor: Cbor, encoder: CborEncoder) : CborWriter
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean = true
 }
 
+internal class CborTree(private val cbor: Cbor) : AbstractEncoder() {
+
+    class Node(val descriptor: SerialDescriptor?, var data: Any?, val parent: Node?) {
+        val children = mutableListOf<Node>()
+
+        override fun toString(): String {
+            return "(${descriptor?.serialName}:${descriptor?.kind}, $data, ${children.joinToString { it.toString() }})"
+        }
+    }
+
+    private var currentNode = Node(null, null, null)
+    val root = currentNode
+    override val serializersModule: SerializersModule
+        get() = cbor.serializersModule
+
+    override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = cbor.encodeDefaults
+
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
+        println("Begin Structure for ${descriptor.serialName}")
+        if (currentNode == root)
+            currentNode = Node(descriptor, null, currentNode).apply { currentNode.children += this }
+        else {
+            currentNode = currentNode.children.last()
+            //   currentNode.parent?.children?.removeLast()
+        }
+        return this
+    }
+
+    override fun endStructure(descriptor: SerialDescriptor) {
+        println("End Structure for ${descriptor.serialName}")
+        currentNode = currentNode.parent ?: throw SerializationException("Root node reached!")
+
+        if (currentNode.parent == null)
+            println(currentNode)
+
+    }
+
+    override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
+        println("EncodeElement for ${descriptor.getElementDescriptor(index)}")
+        currentNode.children += Node(descriptor.getElementDescriptor(index), null, currentNode)
+        return true
+    }
+
+    override fun encodeNull() {
+        println("EncodeNull")
+    }
+
+    override fun encodeValue(value: Any) {
+        println("EncodeValue $value")
+        currentNode.children.last().data = value
+    }
+}
+
+
 // Writes class as map [fieldName, fieldValue]
 internal open class CborWriter(private val cbor: Cbor, protected val encoder: CborEncoder) : AbstractEncoder() {
     override val serializersModule: SerializersModule
