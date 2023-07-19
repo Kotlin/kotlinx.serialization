@@ -46,21 +46,6 @@ private const val SINGLE_PRECISION_MAX_EXPONENT = 0xFF
 
 private const val SINGLE_PRECISION_NORMALIZE_BASE = 0.5f
 
-/*
-// Differs from List only in start byte
-private class CborMapWriter(cbor: Cbor, encoder: CborEncoder) : CborListWriter(cbor, encoder) {
-    override fun writeBeginToken() = encoder.startMap()
-}
-
-// Writes all elements consequently, except size - CBOR supports maps and arrays of indefinite length
-private open class CborListWriter(cbor: Cbor, encoder: CborEncoder) : CborWriter(cbor, encoder) {
-    override fun writeBeginToken() = encoder.startArray()
-
-    override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean = true
-}
-*/
-
-
 // Writes class as map [fieldName, fieldValue]
 internal open class CborWriter(private val cbor: Cbor, protected val encoder: CborEncoder) : AbstractEncoder() {
 
@@ -86,18 +71,19 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
                 if (children.isNotEmpty()) {
                     if (descriptor != null)
                         when (descriptor.kind) {
-                            StructureKind.LIST, is PolymorphicKind -> encoder.startArray()
-                            else -> encoder.startMap()
+                            StructureKind.LIST, is PolymorphicKind -> encoder.startArray(children.size.toULong())
+                            is StructureKind.MAP -> encoder.startMap((children.size/2).toULong())
+                            else -> encoder.startMap(children.size.toULong())
                         }
 
 
                 }
 
                 children.forEach { it.encode() }
-                if (children.isNotEmpty() && descriptor != null) encoder.end()
+                //if (children.isNotEmpty() && descriptor != null) encoder.end()
 
             }
-            //byteStrings are encoded into the data already
+            //byteStrings are encoded into the data already, as are primitives
             data?.let {
                 it as ByteArray; it.forEach { encoder.writeByte(it.toInt()) }
             }
@@ -130,13 +116,11 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
 
 
     private var currentNode = Node(null, null, null, -1, null)
-    val root: Node get() = currentNode//.children.first().apply { parent = null }
+    val root: Node get() = currentNode
 
 
     override val serializersModule: SerializersModule
         get() = cbor.serializersModule
-
-    //private var encodeByteArrayAsByteString = false
 
     @OptIn(ExperimentalSerializationApi::class)
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
@@ -150,7 +134,6 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
 
     override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = cbor.encodeDefaults
 
-    //  protected open fun writeBeginToken() = encoder.startMap()
 
     //todo: Write size of map or array if known
     @OptIn(ExperimentalSerializationApi::class)
@@ -166,49 +149,17 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
         else {
             currentNode = currentNode.children.last()
         }
-        /*
-        val writer = when (descriptor.kind) {
-            StructureKind.LIST, is PolymorphicKind -> CborListWriter(cbor, encoder)
-            StructureKind.MAP -> CborMapWriter(cbor, encoder)
-            else -> CborWriter(cbor, encoder)
-        }
-        writer = this
-        writer.writeBeginToken()
-        return writer*/
         return this
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
-        //       encoder.end()
         currentNode = currentNode.parent ?: throw SerializationException("Root node reached!")
-        /*if (currentNode.parent == null) {
-            currentNode.encode()
-        }*/
+
     }
 
 
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
         encodeByteArrayAsByteString = descriptor.isByteString(index)
-        /*      val name = descriptor.getElementName(index)
-
-              if (cbor.writeKeyTags) {
-                  descriptor.getKeyTags(index)?.forEach { tag ->
-                      val encodedTag = encoder.composePositive(tag)
-                      encodedTag[0] = encodedTag[0] or HEADER_TAG.toUByte().toByte()
-                      encodedTag.forEach { encoder.writeByte(it.toUByte().toInt()) }
-                  }
-              }
-
-              encoder.encodeString(name)
-
-              if (cbor.writeValueTags) {
-                  descriptor.getValueTags(index)?.forEach { tag ->
-                      val encodedTag = encoder.composePositive(tag)
-                      encodedTag[0] = encodedTag[0] or HEADER_TAG.toUByte().toByte()
-                      encodedTag.forEach { encoder.writeByte(it.toUByte().toInt()) }
-                  }
-              }
-      */
         currentNode.children += Node(
             descriptor.getElementDescriptor(index),
             null,
@@ -219,6 +170,8 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
         return true
     }
 
+    //If any of the following functions are called for serializing raw primitives (i.e. something other than a class,
+    // list, map or array, no children exist and the root node needs the data
     override fun encodeString(value: String) {
         (currentNode.children.lastOrNull() ?: currentNode).apply {
             data =
@@ -307,7 +260,21 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
 internal class CborEncoder(private val output: ByteArrayOutput) {
 
     fun startArray() = output.write(BEGIN_ARRAY)
+
+    fun startArray(size: ULong) {
+        val encodedNumber = composePositive(size)
+        encodedNumber[0] = encodedNumber[0] or HEADER_ARRAY.toUByte().toByte()
+        encodedNumber.forEach { writeByte(it.toUByte().toInt()) }
+    }
     fun startMap() = output.write(BEGIN_MAP)
+
+    fun startMap(size: ULong) {
+        val encodedNumber = composePositive(size)
+        encodedNumber[0] = encodedNumber[0] or HEADER_MAP.toUByte().toByte()
+        encodedNumber.forEach { writeByte(it.toUByte().toInt()) }
+    }
+
+
     fun end() = output.write(BREAK)
 
     fun encodeNull() = output.write(NULL)
