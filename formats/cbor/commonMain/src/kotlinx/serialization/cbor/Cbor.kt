@@ -30,6 +30,8 @@ import kotlinx.serialization.modules.*
  *                      [KeyTags] annotation during the deserialization process. Useful for lenient parsing
  * @param verifyValueTags Specifies whether tags preceding values should be matched against the [ValueTags]
  *                      annotation during the deserialization process. Useful for lenient parsing.
+ * @param alwaysUseByteString Specifies whether to always use the compact [ByteString] encoding when serializing
+ *                            or deserializing byte arrays.
  * @param preferSerialLabelsOverNames Specifies whether to serialize element labels (i.e. Long from [SerialLabel])
  *                                    instead of the element names (i.e. String from [SerialName]) for map keys
  */
@@ -44,13 +46,14 @@ public sealed class Cbor(
     internal val explicitNulls: Boolean,
     internal val writeDefiniteLengths: Boolean,
     internal val preferSerialLabelsOverNames: Boolean,
+    internal val alwaysUseByteString: Boolean,
     override val serializersModule: SerializersModule
 ) : BinaryFormat {
 
     /**
      * The default instance of [Cbor]
      */
-    public companion object Default : Cbor(false, false, true, true, true, true, true, false, true, EmptySerializersModule())
+    public companion object Default : Cbor(false, false, true, true, true, true, true, false, true, false, EmptySerializersModule())
 
     override fun <T> encodeToByteArray(serializer: SerializationStrategy<T>, value: T): ByteArray {
         val output = ByteArrayOutput()
@@ -78,6 +81,7 @@ private class CborImpl(
     encodeNullProperties: Boolean,
     writeDefiniteLengths: Boolean,
     preferSerialLabelsOverNames: Boolean,
+    alwaysUseByteString: Boolean,
     serializersModule: SerializersModule
 ) :
     Cbor(
@@ -90,6 +94,7 @@ private class CborImpl(
         encodeNullProperties,
         writeDefiniteLengths,
         preferSerialLabelsOverNames,
+        alwaysUseByteString,
         serializersModule
     )
 
@@ -111,6 +116,7 @@ public fun Cbor(from: Cbor = Cbor, builderAction: CborBuilder.() -> Unit): Cbor 
         builder.explicitNulls,
         builder.writeDefiniteLengths,
         builder.preferSerialLabelsOverNames,
+        builder.alwaysUseByteString,
         builder.serializersModule
     )
 }
@@ -167,6 +173,11 @@ public class CborBuilder internal constructor(cbor: Cbor) {
      * Specifies whether to serialize element labels (i.e. Long from [SerialLabel]) instead of the element names (i.e. String from [SerialName]) for map keys
      */
     public var preferSerialLabelsOverNames: Boolean = cbor.preferSerialLabelsOverNames
+
+    /**
+     * Specifies whether to always use the compact [ByteString] encoding when serializing or deserializing byte arrays.
+     */
+    public var alwaysUseByteString: Boolean = cbor.alwaysUseByteString
 
     /**
      * Module with contextual and polymorphic serializers to be used in the resulting [Cbor] instance.
