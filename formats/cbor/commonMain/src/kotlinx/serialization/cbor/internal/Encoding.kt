@@ -60,25 +60,38 @@ private open class CborListWriter(cbor: Cbor, encoder: CborEncoder) : CborWriter
 
 internal class CborTree(private val cbor: Cbor) : AbstractEncoder() {
 
-    class Node(val descriptor: SerialDescriptor?, var data: Any?, val parent: Node?) {
+    class Node(
+        val descriptor: SerialDescriptor?,
+        var data: Any?,
+        val parent: Node?,
+        val index: Int,
+        val name: String?
+    ) {
         val children = mutableListOf<Node>()
 
         override fun toString(): String {
             return "(${descriptor?.serialName}:${descriptor?.kind}, $data, ${children.joinToString { it.toString() }})"
         }
+
+        internal fun pass2PruneNulls() {
+            if (descriptor?.kind == StructureKind.CLASS || descriptor?.kind == StructureKind.OBJECT) {
+                children.removeAll { it.data == null && it.children.isEmpty() }
+                children.forEach { it.pass2PruneNulls() }
+            }
+        }
     }
 
-    private var currentNode = Node(null, null, null)
-    val root = currentNode
+    private var currentNode = Node(null, null, null, -1, null)
+    val root: Node get() = currentNode.children.first()
     override val serializersModule: SerializersModule
         get() = cbor.serializersModule
 
     override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = cbor.encodeDefaults
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
-        println("Begin Structure for ${descriptor.serialName}")
-        if (currentNode == root)
-            currentNode = Node(descriptor, null, currentNode).apply { currentNode.children += this }
+        //println("Begin Structure for ${descriptor.serialName}")
+        if (currentNode.parent == null)
+            currentNode = Node(descriptor, null, currentNode, -1, null).apply { currentNode.children += this }
         else {
             currentNode = currentNode.children.last()
             //   currentNode.parent?.children?.removeLast()
@@ -87,27 +100,36 @@ internal class CborTree(private val cbor: Cbor) : AbstractEncoder() {
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
-        println("End Structure for ${descriptor.serialName}")
+        //println("End Structure for ${descriptor.serialName}")
         currentNode = currentNode.parent ?: throw SerializationException("Root node reached!")
-
-        if (currentNode.parent == null)
-            println(currentNode)
 
     }
 
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
-        println("EncodeElement for ${descriptor.getElementDescriptor(index)}")
-        currentNode.children += Node(descriptor.getElementDescriptor(index), null, currentNode)
+        //    println("EncodeElement for ${descriptor.getElementDescriptor(index)}")
+        currentNode.children += Node(
+            descriptor.getElementDescriptor(index),
+            null,
+            currentNode,
+            index,
+            descriptor.getElementName(index)
+        )
         return true
     }
 
     override fun encodeNull() {
-        println("EncodeNull")
+        //  println("EncodeNull")
     }
 
     override fun encodeValue(value: Any) {
-        println("EncodeValue $value")
+        //println("EncodeValue $value")
         currentNode.children.last().data = value
+    }
+
+    fun <T> pass1Accumulate(serializer: SerializationStrategy<T>, value: T): Node {
+        encodeSerializableValue(serializer, value)
+        return root
+
     }
 }
 

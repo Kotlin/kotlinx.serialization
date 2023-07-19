@@ -48,8 +48,9 @@ public sealed class Cbor(
     public companion object Default : Cbor(false, false, true, true, true, true, EmptySerializersModule())
 
     override fun <T> encodeToByteArray(serializer: SerializationStrategy<T>, value: T): ByteArray {
-        val tree =CborTree(this)
-            tree.encodeSerializableValue(serializer,value)
+        val tree =CborTree(this).pass1Accumulate(serializer,value)
+        tree.pass2PruneNulls()
+        println(tree)
 
         val output = ByteArrayOutput()
         val dumper = CborWriter(this, CborEncoder(output))
