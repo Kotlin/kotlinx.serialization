@@ -141,6 +141,11 @@ class CborReaderTest {
         )
     }
 
+    @Test
+    fun testNullables() {
+        Cbor { explicitNulls = false }.decodeFromHexString<NullableByteString>("a0")
+    }
+
     /**
      * CBOR hex data represents serialized versions of [TypesUmbrella] (which does **not** have a root property 'a') so
      * decoding to [Simple] (which has the field 'a') is expected to fail.

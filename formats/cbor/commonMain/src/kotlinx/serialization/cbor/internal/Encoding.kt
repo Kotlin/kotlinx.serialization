@@ -66,21 +66,36 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
         }
 
         fun encode() {
+            val childNodes =
+                if (!cbor.explicitNulls && (descriptor?.kind is StructureKind.CLASS || descriptor?.kind is StructureKind.OBJECT)) {
+                    children.filterNot { (it.data as ByteArray?)?.contentEquals(byteArrayOf(NULL.toByte())) == true }
+                } else children
+
             encodeElementPreamble()
+
             if (parent?.descriptor?.isByteString(index) != true) {
-                if (children.isNotEmpty()) {
+                if (children.isNotEmpty()) { //TODO: base this on structurekind not on emptyiness
                     if (descriptor != null)
                         when (descriptor.kind) {
-                            StructureKind.LIST, is PolymorphicKind -> encoder.startArray(children.size.toULong())
-                            is StructureKind.MAP -> encoder.startMap((children.size/2).toULong())
-                            else -> encoder.startMap(children.size.toULong())
+                            StructureKind.LIST, is PolymorphicKind -> {
+                                if (cbor.writeDefiniteLengths) encoder.startArray(childNodes.size.toULong())
+                                else encoder.startArray()
+                            }
+
+                            is StructureKind.MAP -> {
+                                if (cbor.writeDefiniteLengths) encoder.startMap((childNodes.size / 2).toULong()) else encoder.startMap()
+                            }
+
+                            else -> {
+                                if (cbor.writeDefiniteLengths) encoder.startMap(childNodes.size.toULong()) else encoder.startMap()
+                            }
                         }
 
 
                 }
 
-                children.forEach { it.encode() }
-                //if (children.isNotEmpty() && descriptor != null) encoder.end()
+                childNodes.forEach { it.encode() }
+                if (children.isNotEmpty() && descriptor != null && !cbor.writeDefiniteLengths) encoder.end()
 
             }
             //byteStrings are encoded into the data already, as are primitives
@@ -116,7 +131,9 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
 
 
     private var currentNode = Node(null, null, null, -1, null)
-    val root: Node get() = currentNode
+    fun encode() {
+        currentNode.encode()
+    }
 
 
     override val serializersModule: SerializersModule
@@ -266,6 +283,7 @@ internal class CborEncoder(private val output: ByteArrayOutput) {
         encodedNumber[0] = encodedNumber[0] or HEADER_ARRAY.toUByte().toByte()
         encodedNumber.forEach { writeByte(it.toUByte().toInt()) }
     }
+
     fun startMap() = output.write(BEGIN_MAP)
 
     fun startMap(size: ULong) {

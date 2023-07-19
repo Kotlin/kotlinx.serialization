@@ -82,6 +82,32 @@ class CborTaggedTest {
         "bf6161cc1a0fffffffd822616220d8386163d84e42cafe6164d85acc6b48656c6c6f20576f726c64ff"
 
     /*
+     * A4                                 # map(4)
+     *    61                              # text(1)
+     *       61                           # "a"
+     *    CC                              # tag(12)
+     *       1A 0FFFFFFF                  # unsigned(268435455)
+     *    D8 22                           # tag(34)
+     *       61                           # text(1)
+     *          62                        # "b"
+     *    20                              # negative(0)
+     *    D8 38                           # tag(56)
+     *       61                           # text(1)
+     *          63                        # "c"
+     *    D8 4E                           # tag(78)
+     *       42                           # bytes(2)
+     *          CAFE                      # "\xCA\xFE"
+     *    61                              # text(1)
+     *       64                           # "d"
+     *    D8 5A                           # tag(90)
+     *       CC                           # tag(12)
+     *          6B                        # text(11)
+     *             48656C6C6F20576F726C64 # "Hello World"
+     */
+    private val referenceHexStringDefLen =
+        "a46161cc1a0fffffffd822616220d8386163d84e42cafe6164d85acc6b48656c6c6f20576f726c64"
+
+    /*
      * BF                                 # map(*)
      *    61                              # text(1)
      *       61                           # "a"
@@ -104,6 +130,31 @@ class CborTaggedTest {
      *    FF                              # primitive(*)
      */
     private val noKeyTags = "bf6161cc1a0fffffff6162206163d84e42cafe6164d85acc6b48656c6c6f20576f726c64ff"
+
+    /*
+     * A4                                 # map(4)
+     *    61                              # text(1)
+     *       61                           # "a"
+     *    CC                              # tag(12)
+     *       1A 0FFFFFFF                  # unsigned(268435455)
+     *    61                              # text(1)
+     *       62                           # "b"
+     *    20                              # negative(0)
+     *    61                              # text(1)
+     *       63                           # "c"
+     *    D8 4E                           # tag(78)
+     *       42                           # bytes(2)
+     *          CAFE                      # "\xCA\xFE"
+     *    61                              # text(1)
+     *       64                           # "d"
+     *    D8 5A                           # tag(90)
+     *       CC                           # tag(12)
+     *          6B                        # text(11)
+     *             48656C6C6F20576F726C64 # "Hello World"
+     *
+     *
+     */
+    private val noKeyTagsDefLen = "a46161cc1a0fffffff6162206163d84e42cafe6164d85acc6b48656c6c6f20576f726c64"
 
     /*
      * BF                           # map(*)
@@ -148,16 +199,49 @@ class CborTaggedTest {
      */
     private val noTags = "bf61611a0fffffff616220616342cafe61646b48656c6c6f20576f726c64ff"
 
+    /*
+     * A4                           # map(4)
+     *    61                        # text(1)
+     *       61                     # "a"
+     *    1A 0FFFFFFF               # unsigned(268435455)
+     *    61                        # text(1)
+     *       62                     # "b"
+     *    20                        # negative(0)
+     *    61                        # text(1)
+     *       63                     # "c"
+     *    42                        # bytes(2)
+     *       CAFE                   # "\xCA\xFE"
+     *    61                        # text(1)
+     *       64                     # "d"
+     *    6B                        # text(11)
+     *       48656C6C6F20576F726C64 # "Hello World"
+     *
+     */
+    private val noTagsDefLen = "a461611a0fffffff616220616342cafe61646b48656c6c6f20576f726c64"
+
     @Test
     fun writeReadVerifyTaggedClass() {
         assertEquals(referenceHexString, Cbor.encodeToHexString(DataWithTags.serializer(), reference))
+        assertEquals(
+            referenceHexStringDefLen,
+            Cbor { writeDefiniteLengths = true }.encodeToHexString(DataWithTags.serializer(), reference)
+        )
         assertEquals(reference, Cbor.decodeFromHexString(DataWithTags.serializer(), referenceHexString))
+        assertEquals(reference, Cbor.decodeFromHexString(DataWithTags.serializer(), referenceHexStringDefLen))
     }
 
     @Test
     fun writeReadUntaggedKeys() {
         assertEquals(noKeyTags, Cbor { writeKeyTags = false }.encodeToHexString(DataWithTags.serializer(), reference))
+        assertEquals(
+            noKeyTagsDefLen,
+            Cbor { writeKeyTags = false;writeDefiniteLengths = true }.encodeToHexString(
+                DataWithTags.serializer(),
+                reference
+            )
+        )
         assertEquals(reference, Cbor { verifyKeyTags = false }.decodeFromHexString(noKeyTags))
+        assertEquals(reference, Cbor { verifyKeyTags = false }.decodeFromHexString(noKeyTagsDefLen))
         assertEquals(reference, Cbor { verifyKeyTags = false }.decodeFromHexString(referenceHexString))
         assertFailsWith(CborDecodingException::class) { Cbor.decodeFromHexString(DataWithTags.serializer(), noKeyTags) }
         assertFailsWith(CborDecodingException::class) {
@@ -201,10 +285,36 @@ class CborTaggedTest {
                 writeKeyTags = false
             }.encodeToHexString(DataWithTags.serializer(), reference)
         )
+        assertEquals(
+            noTagsDefLen,
+            Cbor {
+                writeValueTags = false
+                writeKeyTags = false
+                writeDefiniteLengths = true
+            }.encodeToHexString(DataWithTags.serializer(), reference)
+        )
+
         assertEquals(reference, Cbor {
             verifyKeyTags = false
             verifyValueTags = false
         }.decodeFromHexString(noTags))
+
+        assertEquals(reference, Cbor {
+            verifyKeyTags = false
+            verifyValueTags = false
+        }.decodeFromHexString(noTagsDefLen))
+
+        assertEquals(reference, Cbor {
+            verifyKeyTags = false
+            verifyValueTags = false
+            writeDefiniteLengths = true
+        }.decodeFromHexString(noTags))
+
+        assertEquals(reference, Cbor {
+            verifyKeyTags = false
+            verifyValueTags = false
+            writeDefiniteLengths = true
+        }.decodeFromHexString(noTagsDefLen))
 
         assertEquals(reference, Cbor {
             verifyKeyTags = false
@@ -233,12 +343,24 @@ class CborTaggedTest {
     @Test
     fun wrongTags() {
         val wrongTag55ForPropertyC = "A46161CC1A0FFFFFFFD822616220D8376163D84E42CAFE6164D85ACC6B48656C6C6F20576F726C64"
-        assertFailsWith(CborDecodingException::class, message = "CBOR tags [55] do not match expected tags [56]") {
-            Cbor.decodeFromHexString(
-                DataWithTags.serializer(),
-                wrongTag55ForPropertyC
-            )
+        listOf(
+            Cbor,
+            Cbor { writeDefiniteLengths = true },
+            Cbor { writeDefiniteLengths = true;explicitNulls = false },
+            Cbor { explicitNulls = false }).forEach { cbor ->
+
+            assertFailsWith(CborDecodingException::class, message = "CBOR tags [55] do not match expected tags [56]") {
+                Cbor.decodeFromHexString(
+                    DataWithTags.serializer(),
+                    wrongTag55ForPropertyC
+                )
+            }
         }
-        assertEquals(reference, Cbor { verifyKeyTags = false }.decodeFromHexString(wrongTag55ForPropertyC))
+        listOf(
+            Cbor { verifyKeyTags = false },
+            Cbor { verifyKeyTags = false;writeDefiniteLengths = true },
+            Cbor { verifyKeyTags = false;explicitNulls = false }).forEach { cbor ->
+            assertEquals(reference, cbor.decodeFromHexString(wrongTag55ForPropertyC))
+        }
     }
 }
