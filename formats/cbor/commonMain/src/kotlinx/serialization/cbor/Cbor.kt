@@ -55,6 +55,7 @@ public sealed class Cbor(
         val output = ByteArrayOutput()
         val dumper = CborWriter(this, CborEncoder(output))
         dumper.encodeSerializableValue(serializer, value)
+        dumper.root.encode()
         return output.toByteArray().also {bytes->
             println(bytes.joinToString(separator = "", prefix = "", postfix = "") {
                 it.toUByte().toString(16).let { if (it.length == 1) "0$it" else it }

@@ -97,13 +97,14 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
                 if (children.isNotEmpty() && descriptor != null) encoder.end()
 
             }
+            //byteStrings are encoded into the data already
             data?.let {
                 it as ByteArray; it.forEach { encoder.writeByte(it.toInt()) }
             }
 
         }
 
-        fun encodeElementPreamble() {
+        private fun encodeElementPreamble() {
 
 
             if (cbor.writeKeyTags) {
@@ -114,7 +115,7 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
                 }
             }
             if ((parent?.descriptor?.kind !is StructureKind.LIST) && (parent?.descriptor?.kind !is StructureKind.MAP)) //TODO polymorphicKind?
-                name?.let { encoder.encodeString(it) }
+                name?.let { encoder.encodeString(it) } //indieces are put into the name field. we don't want to write those, as it would result in double writes
 
             if (cbor.writeValueTags) {
                 parent?.descriptor?.getValueTags(index)?.forEach { tag ->
@@ -129,7 +130,7 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
 
 
     private var currentNode = Node(null, null, null, -1, null)
-    val root: Node get() = currentNode.children.first().apply { parent = null }
+    val root: Node get() = currentNode//.children.first().apply { parent = null }
 
 
     override val serializersModule: SerializersModule
@@ -180,9 +181,9 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
     override fun endStructure(descriptor: SerialDescriptor) {
         //       encoder.end()
         currentNode = currentNode.parent ?: throw SerializationException("Root node reached!")
-        if (currentNode.parent == null) {
+        /*if (currentNode.parent == null) {
             currentNode.encode()
-        }
+        }*/
     }
 
 
@@ -219,53 +220,73 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
     }
 
     override fun encodeString(value: String) {
-        currentNode.children.last().data =
-            ByteArrayOutput().also { CborEncoder(it).encodeString(value) }.toByteArray()
+        (currentNode.children.lastOrNull() ?: currentNode).apply {
+            data =
+                ByteArrayOutput().also { CborEncoder(it).encodeString(value) }.toByteArray()
 
+        }
     }
 
     override fun encodeFloat(value: Float) {
-        currentNode.children.last().data =
-            ByteArrayOutput().also { CborEncoder(it).encodeFloat(value) }.toByteArray()
+        (currentNode.children.lastOrNull() ?: currentNode).apply {
+            data =
+                ByteArrayOutput().also { CborEncoder(it).encodeFloat(value) }.toByteArray()
+        }
     }
 
     override fun encodeDouble(value: Double) {
-        currentNode.children.last().data =
-            ByteArrayOutput().also { CborEncoder(it).encodeDouble(value) }.toByteArray()
+        (currentNode.children.lastOrNull() ?: currentNode).apply {
+            data =
+                ByteArrayOutput().also { CborEncoder(it).encodeDouble(value) }.toByteArray()
+        }
     }
 
     override fun encodeChar(value: Char) {
-        currentNode.children.last().data =
-            ByteArrayOutput().also { CborEncoder(it).encodeNumber(value.code.toLong()) }.toByteArray()
+        (currentNode.children.lastOrNull() ?: currentNode).apply {
+            data =
+                ByteArrayOutput().also { CborEncoder(it).encodeNumber(value.code.toLong()) }.toByteArray()
+        }
     }
 
     override fun encodeByte(value: Byte) {
-        currentNode.children.last().data =
-            ByteArrayOutput().also { CborEncoder(it).encodeNumber(value.toLong()) }.toByteArray()
+        (currentNode.children.lastOrNull() ?: currentNode).apply {
+            data =
+                ByteArrayOutput().also { CborEncoder(it).encodeNumber(value.toLong()) }.toByteArray()
+        }
     }
 
     override fun encodeShort(value: Short) {
-        currentNode.children.last().data =
-            ByteArrayOutput().also { CborEncoder(it).encodeNumber(value.toLong()) }.toByteArray()
+        (currentNode.children.lastOrNull() ?: currentNode).apply {
+            data =
+                ByteArrayOutput().also { CborEncoder(it).encodeNumber(value.toLong()) }.toByteArray()
+        }
     }
 
     override fun encodeInt(value: Int) {
-        currentNode.children.last().data =
-            ByteArrayOutput().also { CborEncoder(it).encodeNumber(value.toLong()) }.toByteArray()
+        (currentNode.children.lastOrNull() ?: currentNode).apply {
+            data =
+                ByteArrayOutput().also { CborEncoder(it).encodeNumber(value.toLong()) }.toByteArray()
+        }
     }
 
     override fun encodeLong(value: Long) {
-        currentNode.children.last().data =
-            ByteArrayOutput().also { CborEncoder(it).encodeNumber(value) }.toByteArray()
+        (currentNode.children.lastOrNull() ?: currentNode).apply {
+            data =
+                ByteArrayOutput().also { CborEncoder(it).encodeNumber(value) }.toByteArray()
+        }
     }
 
     override fun encodeBoolean(value: Boolean) {
-        currentNode.children.last().data =
-            ByteArrayOutput().also { CborEncoder(it).encodeBoolean(value) }.toByteArray()
+        (currentNode.children.lastOrNull() ?: currentNode).apply {
+            data =
+                ByteArrayOutput().also { CborEncoder(it).encodeBoolean(value) }.toByteArray()
+        }
     }
 
     override fun encodeNull() {
-        currentNode.children.last().data = ByteArrayOutput().also { CborEncoder(it).encodeNull() }.toByteArray()
+        (currentNode.children.lastOrNull() ?: currentNode).apply {
+            data = ByteArrayOutput().also { CborEncoder(it).encodeNull() }.toByteArray()
+        }
     }
 
     @OptIn(ExperimentalSerializationApi::class) // KT-46731
@@ -273,9 +294,11 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
         enumDescriptor: SerialDescriptor,
         index: Int
     ) {
-        currentNode.children.last().data =
-            ByteArrayOutput().also { CborEncoder(it).encodeString(enumDescriptor.getElementName(index)) }
-                .toByteArray()
+        (currentNode.children.lastOrNull() ?: currentNode).apply {
+            data =
+                ByteArrayOutput().also { CborEncoder(it).encodeString(enumDescriptor.getElementName(index)) }
+                    .toByteArray()
+        }
     }
 
 }
