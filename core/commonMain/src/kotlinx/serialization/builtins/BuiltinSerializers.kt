@@ -34,7 +34,7 @@ public fun <K, V> PairSerializer(
  * Returns built-in serializer for [Map.Entry].
  * Resulting serializer represents entry as a structure with a single key-value pair.
  * E.g. `Pair(1, 2)` and `Map.Entry(1, 2)` will be serialized to JSON as
- * `{"first": 1, "second": 2}` and {"1": 2} respectively.
+ * `{"first": 1, "second": 2}` and `{"1": 2}` respectively.
  */
 public fun <K, V> MapEntrySerializer(
     keySerializer: KSerializer<K>,
