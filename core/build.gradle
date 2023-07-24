@@ -65,10 +65,4 @@ tasks.withType(Jar).named(kotlin.jvm().artifactsTaskName) {
     }
 }
 
-tasks.withType(Kotlin2JsCompile.class).configureEach {
-    if (it.name == "compileTestKotlinJsLegacy") {
-        it.exclude("**/SerializersModuleTest.kt")
-    }
-}
-
 Java9Modularity.configureJava9ModuleInfo(project)

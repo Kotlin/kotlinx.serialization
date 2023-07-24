@@ -95,25 +95,25 @@ class InlineClassesTest : JsonTestBase() {
     private val precedent: UInt = Int.MAX_VALUE.toUInt() + 10.toUInt()
 
     @Test
-    fun withList() = noLegacyJs {
+    fun withList() {
         val withList = WithList(listOf(1, 2, 3))
         assertJsonFormAndRestored(WithList.serializer(), withList, """[1,2,3]""")
     }
 
     @Test
-    fun testOuterInner() = noLegacyJs {
+    fun testOuterInner() {
         val o = Outer(Inner(10))
         assertJsonFormAndRestored(Outer.serializer(), o, """{"n":10}""")
     }
 
     @Test
-    fun testOuterOuterInner() = noLegacyJs {
+    fun testOuterOuterInner() {
         val o = OuterOuter(Outer(Inner(10)))
         assertJsonFormAndRestored(OuterOuter.serializer(), o, """{"outer":{"n":10}}""")
     }
 
     @Test
-    fun testTopLevel() = noLegacyJs {
+    fun testTopLevel() {
         assertJsonFormAndRestored(
             ResourceType.serializer(),
             ResourceType("foo"),
@@ -122,7 +122,7 @@ class InlineClassesTest : JsonTestBase() {
     }
 
     @Test
-    fun testTopLevelOverEnum() = noLegacyJs {
+    fun testTopLevelOverEnum() {
         assertJsonFormAndRestored(
             ResourceKind.serializer(),
             ResourceKind(SampleEnum.OptionC),
@@ -131,7 +131,7 @@ class InlineClassesTest : JsonTestBase() {
     }
 
     @Test
-    fun testTopLevelWrapper() = noLegacyJs {
+    fun testTopLevelWrapper() {
         assertJsonFormAndRestored(
             ValueWrapper.serializer(),
             ValueWrapper(ResourceType("foo")),
@@ -140,7 +140,7 @@ class InlineClassesTest : JsonTestBase() {
     }
 
     @Test
-    fun testTopLevelContextual() = noLegacyJs {
+    fun testTopLevelContextual() {
         val module = SerializersModule {
             contextual<ResourceType>(ResourceType.serializer())
         }
@@ -155,7 +155,7 @@ class InlineClassesTest : JsonTestBase() {
 
 
     @Test
-    fun testSimpleContainer() = noLegacyJs {
+    fun testSimpleContainer() {
         assertJsonFormAndRestored(
             SimpleContainerForUInt.serializer(),
             SimpleContainerForUInt(precedent),
@@ -171,7 +171,7 @@ class InlineClassesTest : JsonTestBase() {
     )
 
     @Test
-    fun testSimpleContainerForList() = noLegacyJs {
+    fun testSimpleContainerForList() {
         assertJsonFormAndRestored(
             ContainerForList.serializer(UInt.serializer()),
             ContainerForList(MyList(listOf(precedent))),
@@ -180,7 +180,7 @@ class InlineClassesTest : JsonTestBase() {
     }
 
     @Test
-    fun testInlineClassesWithStrings() = noLegacyJs {
+    fun testInlineClassesWithStrings() {
         assertJsonFormAndRestored(
             ResourceIdentifier.serializer(),
             ResourceIdentifier(ResourceId("resId"), ResourceType("resType"), ValueWrapper(ResourceType("wrappedType"))),

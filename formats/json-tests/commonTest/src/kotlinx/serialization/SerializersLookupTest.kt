@@ -53,7 +53,7 @@ class SerializersLookupTest : JsonTestBase() {
     }
 
     @Test
-    fun testUnsigned() = noLegacyJs {
+    fun testUnsigned() {
         assertSame(UByte.serializer(), serializer<UByte>())
         assertSame(UShort.serializer(), serializer<UShort>())
         assertSame(UInt.serializer(), serializer<UInt>())
@@ -130,19 +130,19 @@ class SerializersLookupTest : JsonTestBase() {
     }
 
     @Test
-    fun testTriple() = noLegacyJs { // because of Box
+    fun testTriple() {
         val myTriple = Triple("1", 2, Box(42))
         assertSerializedWithType("""{"first":"1","second":2,"third":{"boxed":42}}""", myTriple)
     }
 
     @Test
-    fun testLookupDuration() = noLegacyJs {
+    fun testLookupDuration() {
         assertNotNull(serializerOrNull(typeOf<Duration>()))
         assertSame(Duration.serializer(), serializer<Duration>())
     }
 
     @Test
-    fun testCustomGeneric() = noLegacyJs {
+    fun testCustomGeneric() {
         val intBox = Box(42)
         val intBoxSerializer = serializer<Box<Int>>()
         assertEquals(Box.serializer(Int.serializer()).descriptor, intBoxSerializer.descriptor)
@@ -152,13 +152,13 @@ class SerializersLookupTest : JsonTestBase() {
     }
 
     @Test
-    fun testRecursiveGeneric() = noLegacyJs {
+    fun testRecursiveGeneric() {
         val boxBox = Box(Box(Box(IntData(42))))
         assertSerializedWithType("""{"boxed":{"boxed":{"boxed":{"intV":42}}}}""", boxBox)
     }
 
     @Test
-    fun testMixedGeneric() = noLegacyJs {
+    fun testMixedGeneric() {
         val listOfBoxes = listOf(Box("foo"), Box("bar"))
         assertSerializedWithType("""[{"boxed":"foo"},{"boxed":"bar"}]""", listOfBoxes)
         val boxedList = Box(listOf("foo", "bar"))
@@ -170,10 +170,8 @@ class SerializersLookupTest : JsonTestBase() {
         assertSerializedWithType("[1,2,3]", Array<Int>(3) { it + 1 }, default)
         assertSerializedWithType("""["1","2","3"]""", Array<String>(3) { (it + 1).toString() }, default)
         assertSerializedWithType("[[0],[1],[2]]", Array<Array<Int>>(3) { cnt -> Array(1) { cnt } }, default)
-        noLegacyJs {
-            assertSerializedWithType("""[{"boxed":"foo"}]""", Array(1) { Box("foo") }, default)
-            assertSerializedWithType("""[[{"boxed":"foo"}]]""", Array(1) { Array(1) { Box("foo") } }, default)
-        }
+        assertSerializedWithType("""[{"boxed":"foo"}]""", Array(1) { Box("foo") }, default)
+        assertSerializedWithType("""[[{"boxed":"foo"}]]""", Array(1) { Array(1) { Box("foo") } }, default)
     }
 
     @Test
@@ -187,7 +185,7 @@ class SerializersLookupTest : JsonTestBase() {
     }
 
     @Test
-    fun testSerializableObject() = noLegacyJs {
+    fun testSerializableObject() {
         assertSerializedWithType("{}", SampleObject)
     }
 

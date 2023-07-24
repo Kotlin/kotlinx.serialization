@@ -26,6 +26,7 @@ public abstract interface annotation class kotlinx/serialization/EncodeDefault :
 public final class kotlinx/serialization/EncodeDefault$Mode : java/lang/Enum {
 	public static final field ALWAYS Lkotlinx/serialization/EncodeDefault$Mode;
 	public static final field NEVER Lkotlinx/serialization/EncodeDefault$Mode;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lkotlinx/serialization/EncodeDefault$Mode;
 	public static fun values ()[Lkotlinx/serialization/EncodeDefault$Mode;
 }

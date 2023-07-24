@@ -136,7 +136,7 @@ class PolymorphicOnClassesTest {
     fun testSerializerLookupForInterface() {
         // On JVM and JS IR it can be supported via reflection/runtime hacks
         // on Native, unfortunately, only with intrinsics.
-        if (currentPlatform == Platform.NATIVE || currentPlatform == Platform.JS_LEGACY) return
+        if (isNative()) return
         val msgSer = serializer<IMessage>()
         assertEquals(IMessage::class, (msgSer as AbstractPolymorphicSerializer).baseClass)
     }

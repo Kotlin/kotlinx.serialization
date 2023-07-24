@@ -26,7 +26,6 @@ class SerializersLookupInterfaceTest {
 
     @Test
     fun testSealedInterfaceLookup() {
-        if (currentPlatform == Platform.JS_LEGACY) return
         val serializer = serializer<S>()
         assertTrue(serializer is SealedClassSerializer)
         assertEquals("S", serializer.descriptor.serialName)
@@ -35,7 +34,7 @@ class SerializersLookupInterfaceTest {
     @Test
     fun testInterfaceLookup() {
         // Native does not have KClass.isInterface
-        if (currentPlatform == Platform.NATIVE || currentPlatform == Platform.JS_LEGACY) return
+        if (isNative()) return
 
         val serializer1 = serializer<I>()
         assertTrue(serializer1 is PolymorphicSerializer)

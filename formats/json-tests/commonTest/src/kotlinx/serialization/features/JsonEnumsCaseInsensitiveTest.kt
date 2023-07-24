@@ -37,7 +37,7 @@ class JsonEnumsCaseInsensitiveTest: JsonTestBase() {
     val json = Json(default) { decodeEnumsCaseInsensitive = true }
 
     @Test
-    fun testCases() = noLegacyJs { parametrizedTest { mode ->
+    fun testCases() = parametrizedTest { mode ->
         val input =
             """{"cases":["ALL_CAPS","all_caps","mixed","MIXED","miXed","all_lower","ALL_LOWER","all_Lower","hasAltNames","HASALTNAMES","altname","ALTNAME","AltName","SERIAL_NAME","serial_name"]}"""
         val target = listOf(
@@ -64,23 +64,23 @@ class JsonEnumsCaseInsensitiveTest: JsonTestBase() {
             """{"cases":["ALL_CAPS","ALL_CAPS","MiXed","MiXed","MiXed","all_lower","all_lower","all_lower","hasAltNames","hasAltNames","hasAltNames","hasAltNames","hasAltNames","SERIAL_NAME","SERIAL_NAME"]}""",
             encoded
         )
-    }}
+    }
 
     @Test
-    fun testTopLevelList() = noLegacyJs { parametrizedTest { mode ->
+    fun testTopLevelList() = parametrizedTest { mode ->
         val input = """["all_caps","serial_name"]"""
         val decoded = json.decodeFromString<List<Cases>>(input, mode)
         assertEquals(listOf(Cases.ALL_CAPS, Cases.hasSerialName), decoded)
         assertEquals("""["ALL_CAPS","SERIAL_NAME"]""", json.encodeToString(decoded, mode))
-    }}
+    }
 
     @Test
-    fun testTopLevelEnum() = noLegacyJs { parametrizedTest { mode ->
+    fun testTopLevelEnum() = parametrizedTest { mode ->
         val input = """"altName""""
         val decoded = json.decodeFromString<Cases>(input, mode)
         assertEquals(Cases.hasAltNames, decoded)
         assertEquals(""""hasAltNames"""", json.encodeToString(decoded, mode))
-    }}
+    }
 
     @Test
     fun testSimpleCase() = parametrizedTest { mode ->
@@ -93,7 +93,7 @@ class JsonEnumsCaseInsensitiveTest: JsonTestBase() {
     enum class E { VALUE_A, @JsonNames("ALTERNATIVE") VALUE_B }
 
     @Test
-    fun testDocSample() = noLegacyJs {
+    fun testDocSample() {
 
         val j = Json { decodeEnumsCaseInsensitive = true }
         @Serializable
@@ -152,11 +152,10 @@ class JsonEnumsCaseInsensitiveTest: JsonTestBase() {
     @Test
     fun testLowercaseClashThrowsException() = parametrizedTest { mode ->
         assertFailsWithMessage<SerializationException>("""The suggested name 'bad' for enum value BAD is already one of the names for enum value Bad""") {
-            // an explicit serializer is required for JSLegacy
-            json.decodeFromString(Box.serializer(BadEnum.serializer()),"""{"boxed":"bad"}""", mode)
+            json.decodeFromString<Box<BadEnum>>("""{"boxed":"bad"}""", mode)
         }
         assertFailsWithMessage<SerializationException>("""The suggested name 'bad' for enum value BAD is already one of the names for enum value Bad""") {
-            json.decodeFromString(Box.serializer(BadEnum.serializer()),"""{"boxed":"unrelated"}""", mode)
+            json.decodeFromString<Box<BadEnum>>("""{"boxed":"unrelated"}""", mode)
         }
     }
 
