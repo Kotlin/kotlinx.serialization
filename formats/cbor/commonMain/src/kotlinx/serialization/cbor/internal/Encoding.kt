@@ -147,7 +147,7 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
         if ((encodeByteArrayAsByteString || cbor.alwaysUseByteString)
             && serializer.descriptor == ByteArraySerializer().descriptor) {
-            currentNode.children.last().data =
+            (currentNode.children.lastOrNull() ?: currentNode).data =
                 ByteArrayOutput().also { CborEncoder(it).encodeByteString(value as ByteArray) }.toByteArray()
         } else {
             super.encodeSerializableValue(serializer, value)
