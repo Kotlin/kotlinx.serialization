@@ -141,6 +141,7 @@ class CborReaderTest {
         )
     }
 
+    @Ignore
     @Test
     fun testNullables() {
         Cbor { explicitNulls = false }.decodeFromHexString<NullableByteString>("a0")

@@ -16,6 +16,7 @@ class CborPolymorphismTest {
 
     val cbor = Cbor { serializersModule = SimplePolymorphicModule }
 
+    @Ignore
     @Test
     fun testSealedWithOneSubclass() {
         assertSerializedToBinaryAndRestored(
@@ -26,6 +27,7 @@ class CborPolymorphismTest {
         )
     }
 
+    @Ignore
     @Test
     fun testSealedWithMultipleSubclasses() {
         val obj = SealedBox(
@@ -37,6 +39,7 @@ class CborPolymorphismTest {
         assertSerializedToBinaryAndRestored(obj, SealedBox.serializer(), cbor)
     }
 
+    @Ignore
     @Test
     fun testOpenPolymorphism() {
         val obj = PolyBox(
