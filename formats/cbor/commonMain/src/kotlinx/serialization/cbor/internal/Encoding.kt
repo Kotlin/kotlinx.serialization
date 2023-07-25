@@ -870,12 +870,12 @@ private fun Iterable<ByteArray>.flatten(): ByteArray {
 
 @OptIn(ExperimentalSerializationApi::class)
 private fun SerialDescriptor.isByteString(index: Int): Boolean {
-    return getElementAnnotations(index).find { it is ByteString } != null
+    return kotlin.runCatching { getElementAnnotations(index).find { it is ByteString } != null }.getOrDefault(false)
 }
 
 @OptIn(ExperimentalSerializationApi::class)
 private fun SerialDescriptor.getValueTags(index: Int): ULongArray? {
-    return (getElementAnnotations(index).find { it is ValueTags } as ValueTags?)?.tags
+    return kotlin.runCatching { (getElementAnnotations(index).find { it is ValueTags } as ValueTags?)?.tags }.getOrNull()
 }
 private fun SerialDescriptor.isInlineByteString(): Boolean {
     // inline item classes should only have 1 item
@@ -885,7 +885,7 @@ private fun SerialDescriptor.isInlineByteString(): Boolean {
 
 @OptIn(ExperimentalSerializationApi::class)
 private fun SerialDescriptor.getKeyTags(index: Int): ULongArray? {
-    return (getElementAnnotations(index).find { it is KeyTags } as KeyTags?)?.tags
+    return kotlin.runCatching { (getElementAnnotations(index).find { it is KeyTags } as KeyTags?)?.tags }.getOrNull()
 }
 
 @OptIn(ExperimentalSerializationApi::class)
