@@ -16,6 +16,7 @@ import kotlin.experimental.*
 private const val FALSE = 0xf4
 private const val TRUE = 0xf5
 private const val NULL = 0xf6
+private const val EMPTY_MAP = 0xa0
 
 private const val NEXT_HALF = 0xf9
 private const val NEXT_FLOAT = 0xfa
@@ -261,7 +262,11 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
 
     override fun encodeNull() {
         (currentNode.children.lastOrNull() ?: currentNode).apply {
-            data = ByteArrayOutput().also { CborEncoder(it).encodeNull() }.toByteArray()
+            if (this.descriptor?.kind == StructureKind.CLASS) {
+                data = ByteArrayOutput().also { CborEncoder(it).encodeEmptyMap() }.toByteArray()
+            } else {
+                data = ByteArrayOutput().also { CborEncoder(it).encodeNull() }.toByteArray()
+            }
         }
     }
 
@@ -307,6 +312,8 @@ internal class CborEncoder(private val output: ByteArrayOutput) {
     fun end() = output.write(BREAK)
 
     fun encodeNull() = output.write(NULL)
+
+    fun encodeEmptyMap() = output.write(EMPTY_MAP)
 
     internal fun writeByte(byteValue: Int) = output.write(byteValue)
 
@@ -553,12 +560,16 @@ internal class CborDecoder(private val input: ByteArrayInput) {
         readByte()
     }
 
-    fun isNull() = curByte == NULL
+    fun isNull() = (curByte == NULL || curByte == EMPTY_MAP)
 
     fun nextNull(tag: ULong) = nextNull(ulongArrayOf(tag))
     fun nextNull(tags: ULongArray? = null): Nothing? {
         processTags(tags)
-        skipByte(NULL)
+        if (curByte == NULL) {
+            skipByte(NULL)
+        } else if (curByte == EMPTY_MAP) {
+            skipByte(EMPTY_MAP)
+        }
         return null
     }
 
