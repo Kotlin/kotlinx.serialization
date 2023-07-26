@@ -7,4 +7,9 @@ package kotlinx.serialization.json.internal;
 import kotlinx.serialization.InternalSerializationApi
 
 @InternalSerializationApi
-public actual typealias FormatLanguage = org.intellij.lang.annotations.Language
+public actual annotation class FormatLanguage(
+    public actual val value: String,
+    // default parameters are not used due to https://youtrack.jetbrains.com/issue/KT-25946/
+    public actual val prefix: String,
+    public actual val suffix: String,
+)
