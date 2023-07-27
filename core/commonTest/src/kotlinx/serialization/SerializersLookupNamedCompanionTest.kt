@@ -16,13 +16,13 @@ class SerializersLookupNamedCompanionTest {
     @Serializable
     class Plain(val i: Int) {
         @NamedCompanion
-        companion object NamedCompanion
+        companion object Named
     }
 
     @Serializable
     class Parametrized<T>(val value: T) {
         @NamedCompanion
-        companion object NamedCompanion
+        companion object Named
     }
 
 
@@ -32,11 +32,11 @@ class SerializersLookupNamedCompanionTest {
     @Serializable(PlainSerializer::class)
     class PlainWithCustom(val i: Int) {
         @NamedCompanion
-        companion object NamedCompanion
+        companion object Named
     }
 
     class ParametrizedSerializer<T: Any>(val serializer: KSerializer<T>): KSerializer<ParametrizedWithCustom<T>> {
-        override val descriptor: SerialDescriptor = kotlinx.serialization.descriptors.PrimitiveSerialDescriptor("parametrized (${serializer.descriptor})", PrimitiveKind.STRING)
+        override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("parametrized (${serializer.descriptor})", PrimitiveKind.STRING)
         override fun deserialize(decoder: Decoder): ParametrizedWithCustom<T> = TODO("Not yet implemented")
         override fun serialize(encoder: Encoder, value: ParametrizedWithCustom<T>) = TODO("Not yet implemented")
     }
@@ -44,7 +44,7 @@ class SerializersLookupNamedCompanionTest {
     @Serializable(ParametrizedSerializer::class)
     class ParametrizedWithCustom<T>(val i: T) {
         @NamedCompanion
-        companion object NamedCompanion
+        companion object Named
     }
 
 
