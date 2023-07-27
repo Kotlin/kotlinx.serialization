@@ -76,7 +76,7 @@ private fun <T: Any> Class<T>.findInNamedCompanion(vararg args: KSerializer<Any?
 
 private fun <T: Any> Class<T>.findNamedCompanionByAnnotation(): Any? {
     val companionClass = declaredClasses.firstOrNull { clazz ->
-        clazz.getAnnotation(Named::class.java) != null
+        clazz.getAnnotation(NamedCompanion::class.java) != null
     } ?: return null
 
     return try {

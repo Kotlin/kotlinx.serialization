@@ -12,4 +12,4 @@ import kotlinx.serialization.*
 @InternalSerializationApi
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
-public annotation class Named
+public annotation class NamedCompanion

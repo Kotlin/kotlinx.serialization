@@ -9,20 +9,19 @@ package kotlinx.serialization
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
-import kotlinx.serialization.internal.*
 import kotlin.reflect.*
 import kotlin.test.*
 
 class SerializersLookupNamedCompanionTest {
     @Serializable
     class Plain(val i: Int) {
-        @Named
+        @NamedCompanion
         companion object NamedCompanion
     }
 
     @Serializable
     class Parametrized<T>(val value: T) {
-        @Named
+        @NamedCompanion
         companion object NamedCompanion
     }
 
@@ -32,7 +31,7 @@ class SerializersLookupNamedCompanionTest {
 
     @Serializable(PlainSerializer::class)
     class PlainWithCustom(val i: Int) {
-        @Named
+        @NamedCompanion
         companion object NamedCompanion
     }
 
@@ -44,7 +43,7 @@ class SerializersLookupNamedCompanionTest {
 
     @Serializable(ParametrizedSerializer::class)
     class ParametrizedWithCustom<T>(val i: T) {
-        @Named
+        @NamedCompanion
         companion object NamedCompanion
     }
 
