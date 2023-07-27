@@ -8,7 +8,9 @@ package kotlinx.serialization
 
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.*
+import kotlinx.serialization.internal.*
 import kotlin.reflect.*
 import kotlin.test.*
 
