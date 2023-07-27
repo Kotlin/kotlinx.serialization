@@ -892,7 +892,7 @@ public abstract class kotlinx/serialization/internal/MapLikeSerializer : kotlinx
 	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
 }
 
-public abstract interface annotation class kotlinx/serialization/internal/Named : java/lang/annotation/Annotation {
+public abstract interface annotation class kotlinx/serialization/internal/NamedCompanion : java/lang/annotation/Annotation {
 }
 
 public abstract class kotlinx/serialization/internal/NamedValueDecoder : kotlinx/serialization/internal/TaggedDecoder {
