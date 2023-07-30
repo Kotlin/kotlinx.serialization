@@ -90,6 +90,53 @@ data class NullableByteString(
     }
 }
 
+@Serializable
+data class RepeatedByteString(@ByteString val byteStrings: List<ByteArray>) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as RepeatedByteString
+
+        return byteStrings.toTypedArray().contentDeepEquals(other.byteStrings.toTypedArray())
+    }
+
+    override fun hashCode(): Int {
+        return byteStrings.hashCode()
+    }
+
+    override fun toString(): String {
+        return "RepeatedByteString(byteStrings=${byteStrings.map { it.contentToString() }}"
+    }
+}
+
+@Serializable
+data class RepeatedByteStringWithByteArray(
+    @ByteString val byteStrings: List<ByteArray>,
+    val byteArray: ByteArray,
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as RepeatedByteStringWithByteArray
+
+        if (!byteStrings.toTypedArray().contentDeepEquals(other.byteStrings.toTypedArray())) return false
+        return byteArray.contentEquals(other.byteArray)
+    }
+
+    override fun hashCode(): Int {
+        var result = byteStrings.hashCode()
+        result = 31 * result + byteArray.contentHashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "RepeatedByteStringWithByteArray(byteStrings=${byteStrings.map { it.contentToString() }}, " +
+            "byteArray=${byteArray.contentToString()})"
+    }
+}
+
 @Serializable(with = CustomByteStringSerializer::class)
 data class CustomByteString(val a: Byte, val b: Byte, val c: Byte)
 

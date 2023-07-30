@@ -195,11 +195,19 @@ internal class CborEncoder(private val output: ByteArrayOutput) {
     }
 }
 
-private class CborMapReader(cbor: Cbor, decoder: CborDecoder) : CborListReader(cbor, decoder) {
+private class CborMapReader(
+    cbor: Cbor,
+    decoder: CborDecoder,
+    decodeByteArrayAsByteString: Boolean,
+) : CborListReader(cbor, decoder, decodeByteArrayAsByteString) {
     override fun skipBeginToken() = setSize(decoder.startMap() * 2)
 }
 
-private open class CborListReader(cbor: Cbor, decoder: CborDecoder) : CborReader(cbor, decoder) {
+private open class CborListReader(
+    cbor: Cbor,
+    decoder: CborDecoder,
+    decodeByteArrayAsByteString: Boolean,
+) : CborReader(cbor, decoder, decodeByteArrayAsByteString) {
     private var ind = 0
 
     override fun skipBeginToken() = setSize(decoder.startArray())
@@ -207,15 +215,17 @@ private open class CborListReader(cbor: Cbor, decoder: CborDecoder) : CborReader
     override fun decodeElementIndex(descriptor: SerialDescriptor) = if (!finiteMode && decoder.isEnd() || (finiteMode && ind >= size)) CompositeDecoder.DECODE_DONE else ind++
 }
 
-internal open class CborReader(private val cbor: Cbor, protected val decoder: CborDecoder) : AbstractDecoder() {
+internal open class CborReader(
+    private val cbor: Cbor,
+    protected val decoder: CborDecoder,
+    private var decodeByteArrayAsByteString: Boolean = false,
+) : AbstractDecoder() {
 
     protected var size = -1
         private set
     protected var finiteMode = false
         private set
     private var readProperties: Int = 0
-
-    private var decodeByteArrayAsByteString = false
 
     protected fun setSize(size: Int) {
         if (size >= 0) {
@@ -232,9 +242,9 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
     @OptIn(ExperimentalSerializationApi::class)
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
         val re = when (descriptor.kind) {
-            StructureKind.LIST, is PolymorphicKind -> CborListReader(cbor, decoder)
-            StructureKind.MAP -> CborMapReader(cbor, decoder)
-            else -> CborReader(cbor, decoder)
+            StructureKind.LIST, is PolymorphicKind -> CborListReader(cbor, decoder, decodeByteArrayAsByteString)
+            StructureKind.MAP -> CborMapReader(cbor, decoder, decodeByteArrayAsByteString)
+            else -> CborReader(cbor, decoder, decodeByteArrayAsByteString)
         }
         re.skipBeginToken()
         return re
