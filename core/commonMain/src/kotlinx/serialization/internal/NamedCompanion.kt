@@ -7,7 +7,7 @@ package kotlinx.serialization.internal
 import kotlinx.serialization.*
 
 /**
- * An annotation added by the compiler to the named companion class.
+ * An annotation added by the compiler to the companion object of [Serializable] class, if it has a non-default name.
  */
 @InternalSerializationApi
 @Target(AnnotationTarget.CLASS)

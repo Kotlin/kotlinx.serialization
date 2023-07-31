@@ -2,7 +2,7 @@
  * Copyright 2017-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-@file:Suppress("RUNTIME_ANNOTATION_NOT_SUPPORTED")
+@file:Suppress("RUNTIME_ANNOTATION_NOT_SUPPORTED") // KT-41082
 
 package kotlinx.serialization
 
