@@ -79,13 +79,7 @@ private fun <T: Any> Class<T>.findNamedCompanionByAnnotation(): Any? {
         clazz.getAnnotation(NamedCompanion::class.java) != null
     } ?: return null
 
-    return try {
-        val companion = getDeclaredField(companionClass.simpleName)
-        companion.isAccessible = true
-        companion.get(null)
-    } catch (e: Throwable) {
-        return null
-    }
+    return companionOrNull(companionClass.simpleName)
 }
 
 private fun <T: Any> Class<T>.isNotAnnotated(): Boolean {
@@ -125,7 +119,7 @@ private fun <T: Any> Class<T>.interfaceSerializer(): KSerializer<T>? {
 }
 
 private fun <T : Any> invokeSerializerOnDefaultCompanion(jClass: Class<*>, vararg args: KSerializer<Any?>): KSerializer<T>? {
-    val companion = jClass.companionOrNull() ?: return null
+    val companion = jClass.companionOrNull("Companion") ?: return null
     return invokeSerializerOnCompanion(companion, *args)
 }
 
@@ -143,9 +137,9 @@ private fun <T : Any> invokeSerializerOnCompanion(companion: Any, vararg args: K
     }
 }
 
-private fun Class<*>.companionOrNull() =
+private fun Class<*>.companionOrNull(companionName: String) =
     try {
-        val companion = getDeclaredField("Companion")
+        val companion = getDeclaredField(companionName)
         companion.isAccessible = true
         companion.get(null)
     } catch (e: Throwable) {

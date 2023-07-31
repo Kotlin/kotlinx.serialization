@@ -2,28 +2,24 @@
  * Copyright 2017-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-@file:Suppress("RUNTIME_ANNOTATION_NOT_SUPPORTED") // KT-41082
-
 package kotlinx.serialization
 
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.*
-import kotlinx.serialization.internal.*
+import kotlinx.serialization.test.runSince
 import kotlin.reflect.*
 import kotlin.test.*
 
 class SerializersLookupNamedCompanionTest {
     @Serializable
     class Plain(val i: Int) {
-        @NamedCompanion
         companion object Named
     }
 
     @Serializable
     class Parametrized<T>(val value: T) {
-        @NamedCompanion
         companion object Named
     }
 
@@ -33,7 +29,6 @@ class SerializersLookupNamedCompanionTest {
 
     @Serializable(PlainSerializer::class)
     class PlainWithCustom(val i: Int) {
-        @NamedCompanion
         companion object Named
     }
 
@@ -45,14 +40,13 @@ class SerializersLookupNamedCompanionTest {
 
     @Serializable(ParametrizedSerializer::class)
     class ParametrizedWithCustom<T>(val i: T) {
-        @NamedCompanion
         companion object Named
     }
 
 
 
     @Test
-    fun testPlainClass() {
+    fun testPlainClass() = runSince("1.9.20") {
         assertSame<KSerializer<*>>(Plain.serializer(), serializer(typeOf<Plain>()))
 
         assertEquals(
