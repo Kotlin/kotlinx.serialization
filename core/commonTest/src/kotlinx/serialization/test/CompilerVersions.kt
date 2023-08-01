@@ -4,9 +4,7 @@
 
 package kotlinx.serialization.test
 
-import kotlin.test.Test
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 private val currentKotlinVersion = KotlinVersion.CURRENT
 
@@ -21,6 +19,46 @@ private fun String.toKotlinVersion(): KotlinVersion {
 internal fun runSince(kotlinVersion: String, test: () -> Unit) {
     if (currentKotlinVersion >= kotlinVersion.toKotlinVersion()) {
         test()
+    }
+}
+
+internal inline fun <reified T: Throwable> failBefore(kotlinVersion: String, test: () -> Unit) {
+    val boundVersion = kotlinVersion.toKotlinVersion()
+
+    var error: Throwable? = null
+    try {
+        test()
+    } catch (e: Throwable) {
+        error = e
+    }
+
+    if (currentKotlinVersion < boundVersion) {
+        if (error == null) {
+            throw Exception("Exception with type '${T::class.qualifiedName}' expected for version '$currentKotlinVersion' < '$boundVersion'")
+        }
+        if (error !is T) throw Exception("Illegal exception type, expected '${T::class.qualifiedName}' actual '${error::class.qualifiedName}' in version '$currentKotlinVersion' < '$boundVersion'", error)
+    } else {
+        if (error != null) throw Exception("Unexpected error in version '$currentKotlinVersion' >= '$boundVersion'", error)
+    }
+}
+
+internal inline fun <reified T: Throwable> failSince(kotlinVersion: String, test: () -> Unit) {
+    val boundVersion = kotlinVersion.toKotlinVersion()
+
+    var error: Throwable? = null
+    try {
+        test()
+    } catch (e: Throwable) {
+        error = e
+    }
+
+    if (currentKotlinVersion >= boundVersion) {
+        if (error == null) {
+            throw Exception("Exception with type '${T::class.simpleName}' expected for version '$currentKotlinVersion' >= '$boundVersion'")
+        }
+        if (error !is T) throw Exception("Illegal exception type, expected '${T::class.qualifiedName}' actual '${error::class.qualifiedName}' in version '$currentKotlinVersion' >= '$boundVersion'", error)
+    } else {
+        if (error != null) throw Exception("Unexpected error in version '$currentKotlinVersion' < '$boundVersion'", error)
     }
 }
 
@@ -40,4 +78,59 @@ internal class CompilerVersionTest {
         }
         assertFalse(executed)
     }
+
+    @Test
+    fun testFailBefore() {
+        // ok if there is no exception if current version greater is before of the specified
+        failBefore<IllegalArgumentException>("0.0.0") {
+            // no-op
+        }
+
+        // error if there is no exception and if current version is before of the specified
+        assertFails {
+            failBefore<IllegalArgumentException>("255.255.255") {
+                // no-op
+            }
+        }
+
+        // ok if thrown expected exception if current version is before of the specified
+        failBefore<IllegalArgumentException>("255.255.255") {
+            throw IllegalArgumentException()
+        }
+
+        // ok if thrown unexpected exception if current version is before of the specified
+        assertFails {
+            failBefore<IllegalArgumentException>("255.255.255") {
+                throw Exception()
+            }
+        }
+    }
+
+    @Test
+    fun testFailSince() {
+        // ok if there is no exception if current version less then specified
+        failSince<IllegalArgumentException>("255.255.255") {
+            // no-op
+        }
+
+        // error if there is no exception and if current version is greater or equals specified
+        assertFails {
+            failSince<IllegalArgumentException>("0.0.0") {
+                // no-op
+            }
+        }
+
+        // ok if thrown expected exception if current version is greater or equals specified
+        failSince<IllegalArgumentException>("0.0.0") {
+            throw IllegalArgumentException()
+        }
+
+        // ok if thrown unexpected exception if current version is greater or equals specified
+        assertFails {
+            failSince<IllegalArgumentException>("0.0.0") {
+                throw Exception()
+            }
+        }
+    }
+
 }
