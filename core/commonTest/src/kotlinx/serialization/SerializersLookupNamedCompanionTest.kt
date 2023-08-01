@@ -12,7 +12,6 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.test.*
-import kotlinx.serialization.test.failBefore
 import kotlin.reflect.*
 import kotlin.test.*
 
@@ -65,25 +64,25 @@ class SerializersLookupNamedCompanionTest {
     fun test() {
         assertSame<KSerializer<*>>(Plain.serializer(), serializer(typeOf<Plain>()))
 
-        failBefore<SerializationException>("1.9.20") {
+        shouldFail<SerializationException>(beforeKotlin = "1.9.20", onJs = false, onNative = false) {
             assertSame<KSerializer<*>>(PlainSerializer, serializer(typeOf<PlainWithCustom>()))
         }
 
-        failBefore<SerializationException>("1.9.20") {
+        shouldFail<SerializationException>(beforeKotlin = "1.9.20", onJs = false, onNative = false) {
             assertEquals(
                 Parametrized.serializer(Int.serializer()).descriptor.toString(),
                 serializer(typeOf<Parametrized<Int>>()).descriptor.toString()
             )
         }
 
-        failBefore<SerializationException>("1.9.20") {
+        shouldFail<SerializationException>(beforeKotlin = "1.9.20", onJs = false, onNative = false) {
             assertEquals(
                 ParametrizedWithCustom.serializer(Int.serializer()).descriptor.toString(),
                 serializer(typeOf<ParametrizedWithCustom<Int>>()).descriptor.toString()
             )
         }
 
-        failBefore<SerializationException>("1.9.20") {
+        shouldFail<SerializationException>(beforeKotlin = "1.9.20", onJs = false, onNative = false) {
             assertEquals(
                 SealedInterface.serializer().descriptor.toString(),
                 serializer(typeOf<SealedInterface>()).descriptor.toString()
@@ -92,7 +91,7 @@ class SerializersLookupNamedCompanionTest {
 
         // should fail because annotation @NamedCompanion will be placed again by the compilation plugin
         // and they both will be placed into @Container annotation - thus they will be invisible to the runtime
-        failSince<SerializationException>("1.9.20") {
+        shouldFail<SerializationException>(sinceKotlin = "1.9.20", onJs = false, onNative = false) {
             serializer(typeOf<SealedInterfaceWithExplicitAnnotation>())
         }
     }

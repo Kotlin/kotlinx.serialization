@@ -22,8 +22,30 @@ internal fun runSince(kotlinVersion: String, test: () -> Unit) {
     }
 }
 
-internal inline fun <reified T: Throwable> failBefore(kotlinVersion: String, test: () -> Unit) {
-    val boundVersion = kotlinVersion.toKotlinVersion()
+
+internal inline fun <reified T : Throwable> shouldFail(
+    sinceKotlin: String? = null,
+    beforeKotlin: String? = null,
+    onJvm: Boolean = true,
+    onJs: Boolean = true,
+    onNative: Boolean = true,
+    test: () -> Unit
+) {
+    val args = mapOf(
+        "since" to sinceKotlin,
+        "before" to beforeKotlin,
+        "onJvm" to onJvm,
+        "onJs" to onJs,
+        "onNative" to onNative
+    )
+
+    val sinceVersion = sinceKotlin?.toKotlinVersion()
+    val beforeVersion = beforeKotlin?.toKotlinVersion()
+
+    val version = (sinceVersion != null && currentKotlinVersion >= sinceVersion)
+        || (beforeVersion != null && currentKotlinVersion < beforeVersion)
+
+    val platform = (isJvm() && onJvm) || (isJs() && onJs) || (isNative() && onNative)
 
     var error: Throwable? = null
     try {
@@ -32,33 +54,19 @@ internal inline fun <reified T: Throwable> failBefore(kotlinVersion: String, tes
         error = e
     }
 
-    if (currentKotlinVersion < boundVersion) {
+    if (version && platform) {
         if (error == null) {
-            throw Exception("Exception with type '${T::class.simpleName}' expected for version '$currentKotlinVersion' < '$boundVersion'")
+            throw Exception("Exception with type '${T::class.simpleName}' expected for $args")
         }
-        if (error !is T) throw Exception("Illegal exception type, expected '${T::class.simpleName}' actual '${error::class.simpleName}' in version '$currentKotlinVersion' < '$boundVersion'", error)
+        if (error !is T) throw Exception(
+            "Illegal exception type, expected '${T::class.simpleName}' actual '${error::class.simpleName}' for $args",
+            error
+        )
     } else {
-        if (error != null) throw Exception("Unexpected error in version '$currentKotlinVersion' >= '$boundVersion'", error)
-    }
-}
-
-internal inline fun <reified T: Throwable> failSince(kotlinVersion: String, test: () -> Unit) {
-    val boundVersion = kotlinVersion.toKotlinVersion()
-
-    var error: Throwable? = null
-    try {
-        test()
-    } catch (e: Throwable) {
-        error = e
-    }
-
-    if (currentKotlinVersion >= boundVersion) {
-        if (error == null) {
-            throw Exception("Exception with type '${T::class.simpleName}' expected for version '$currentKotlinVersion' >= '$boundVersion'")
-        }
-        if (error !is T) throw Exception("Illegal exception type, expected '${T::class.simpleName}' actual '${error::class.simpleName}' in version '$currentKotlinVersion' >= '$boundVersion'", error)
-    } else {
-        if (error != null) throw Exception("Unexpected error in version '$currentKotlinVersion' < '$boundVersion'", error)
+        if (error != null) throw Exception(
+            "Unexpected error for $args",
+            error
+        )
     }
 }
 
@@ -82,53 +90,89 @@ internal class CompilerVersionTest {
     @Test
     fun testFailBefore() {
         // ok if there is no exception if current version greater is before of the specified
-        failBefore<IllegalArgumentException>("0.0.0") {
+        shouldFail<IllegalArgumentException>(beforeKotlin = "0.0.0") {
             // no-op
         }
 
         // error if there is no exception and if current version is before of the specified
         assertFails {
-            failBefore<IllegalArgumentException>("255.255.255") {
+            shouldFail<IllegalArgumentException>(beforeKotlin = "255.255.255") {
                 // no-op
             }
         }
 
         // ok if thrown expected exception if current version is before of the specified
-        failBefore<IllegalArgumentException>("255.255.255") {
+        shouldFail<IllegalArgumentException>(beforeKotlin = "255.255.255") {
             throw IllegalArgumentException()
         }
 
         // ok if thrown unexpected exception if current version is before of the specified
         assertFails {
-            failBefore<IllegalArgumentException>("255.255.255") {
+            shouldFail<IllegalArgumentException>(beforeKotlin = "255.255.255") {
+                throw Exception()
+            }
+        }
+
+    }
+
+    @Test
+    fun testFailSince() {
+        // ok if there is no exception if current version less then specified
+        shouldFail<IllegalArgumentException>(sinceKotlin = "255.255.255") {
+            // no-op
+        }
+
+        // error if there is no exception and if current version is greater or equals specified
+        assertFails {
+            shouldFail<IllegalArgumentException>(sinceKotlin = "0.0.0") {
+                // no-op
+            }
+        }
+
+        // ok if thrown expected exception if current version is greater or equals specified
+        shouldFail<IllegalArgumentException>(sinceKotlin = "0.0.0") {
+            throw IllegalArgumentException()
+        }
+
+        // ok if thrown unexpected exception if current version is greater or equals specified
+        assertFails {
+            shouldFail<IllegalArgumentException>(sinceKotlin = "0.0.0") {
                 throw Exception()
             }
         }
     }
 
     @Test
-    fun testFailSince() {
-        // ok if there is no exception if current version less then specified
-        failSince<IllegalArgumentException>("255.255.255") {
-            // no-op
-        }
-
-        // error if there is no exception and if current version is greater or equals specified
-        assertFails {
-            failSince<IllegalArgumentException>("0.0.0") {
+    fun testExcludePlatform() {
+        if (isJvm()) {
+            shouldFail<IllegalArgumentException>(beforeKotlin = "255.255.255", onJvm = false) {
                 // no-op
             }
-        }
-
-        // ok if thrown expected exception if current version is greater or equals specified
-        failSince<IllegalArgumentException>("0.0.0") {
-            throw IllegalArgumentException()
-        }
-
-        // ok if thrown unexpected exception if current version is greater or equals specified
-        assertFails {
-            failSince<IllegalArgumentException>("0.0.0") {
-                throw Exception()
+            shouldFail<IllegalArgumentException>(sinceKotlin = "0.0.0", onJvm = false) {
+                // no-op
+            }
+            shouldFail<IllegalArgumentException>(sinceKotlin = "0.0.0", beforeKotlin = "255.255.255", onJvm = false) {
+                // no-op
+            }
+        } else if (isJs()) {
+            shouldFail<IllegalArgumentException>(beforeKotlin = "255.255.255", onJs = false) {
+                // no-op
+            }
+            shouldFail<IllegalArgumentException>(sinceKotlin = "0.0.0", onJs = false) {
+                // no-op
+            }
+            shouldFail<IllegalArgumentException>(sinceKotlin = "0.0.0", beforeKotlin = "255.255.255", onJs = false) {
+                // no-op
+            }
+        } else if (isNative()) {
+            shouldFail<IllegalArgumentException>(beforeKotlin = "255.255.255", onNative = false) {
+                // no-op
+            }
+            shouldFail<IllegalArgumentException>(sinceKotlin = "0.0.0", onNative = false) {
+                // no-op
+            }
+            shouldFail<IllegalArgumentException>(sinceKotlin = "0.0.0", beforeKotlin = "255.255.255", onNative = false) {
+                // no-op
             }
         }
     }
