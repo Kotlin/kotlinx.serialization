@@ -34,9 +34,9 @@ internal inline fun <reified T: Throwable> failBefore(kotlinVersion: String, tes
 
     if (currentKotlinVersion < boundVersion) {
         if (error == null) {
-            throw Exception("Exception with type '${T::class.qualifiedName}' expected for version '$currentKotlinVersion' < '$boundVersion'")
+            throw Exception("Exception with type '${T::class.simpleName}' expected for version '$currentKotlinVersion' < '$boundVersion'")
         }
-        if (error !is T) throw Exception("Illegal exception type, expected '${T::class.qualifiedName}' actual '${error::class.qualifiedName}' in version '$currentKotlinVersion' < '$boundVersion'", error)
+        if (error !is T) throw Exception("Illegal exception type, expected '${T::class.simpleName}' actual '${error::class.simpleName}' in version '$currentKotlinVersion' < '$boundVersion'", error)
     } else {
         if (error != null) throw Exception("Unexpected error in version '$currentKotlinVersion' >= '$boundVersion'", error)
     }
@@ -56,7 +56,7 @@ internal inline fun <reified T: Throwable> failSince(kotlinVersion: String, test
         if (error == null) {
             throw Exception("Exception with type '${T::class.simpleName}' expected for version '$currentKotlinVersion' >= '$boundVersion'")
         }
-        if (error !is T) throw Exception("Illegal exception type, expected '${T::class.qualifiedName}' actual '${error::class.qualifiedName}' in version '$currentKotlinVersion' >= '$boundVersion'", error)
+        if (error !is T) throw Exception("Illegal exception type, expected '${T::class.simpleName}' actual '${error::class.simpleName}' in version '$currentKotlinVersion' >= '$boundVersion'", error)
     } else {
         if (error != null) throw Exception("Unexpected error in version '$currentKotlinVersion' < '$boundVersion'", error)
     }
