@@ -56,14 +56,14 @@ internal inline fun <reified T : Throwable> shouldFail(
 
     if (version && platform) {
         if (error == null) {
-            throw Exception("Exception with type '${T::class.simpleName}' expected for $args")
+            throw AssertionError("Exception with type '${T::class.simpleName}' expected for $args")
         }
-        if (error !is T) throw Exception(
+        if (error !is T) throw AssertionError(
             "Illegal exception type, expected '${T::class.simpleName}' actual '${error::class.simpleName}' for $args",
             error
         )
     } else {
-        if (error != null) throw Exception(
+        if (error != null) throw AssertionError(
             "Unexpected error for $args",
             error
         )
