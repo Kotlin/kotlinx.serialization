@@ -7,6 +7,7 @@ apply plugin: 'org.jetbrains.dokka'
 
 def documentedSubprojects = ["kotlinx-serialization-core",
                              "kotlinx-serialization-json",
+                             "kotlinx-serialization-json-okio",
                              "kotlinx-serialization-cbor",
                              "kotlinx-serialization-properties",
                              "kotlinx-serialization-hocon",
@@ -64,6 +65,12 @@ subprojects {
                     matchingRegex.set("org\\.jetbrains\\.kotlinx\\.serialization\\.config(\$|\\.).*")
                     reportUndocumented.set(false)
                     skipDeprecated.set(true)
+                }
+
+                // JS/Native implementation of JVM-only `org.intellij.lang.annotations.Language` class to add syntax support by IDE.
+                perPackageOption {
+                    matchingRegex.set("org\\.intellij\\.lang\\.annotations(\$|\\.).*")
+                    suppress.set(true)
                 }
             }
         }
