@@ -35,7 +35,6 @@ internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vara
     return java.constructSerializerForGivenTypeArgs(*args)
 }
 
-@Suppress("UNCHECKED_CAST")
 internal fun <T: Any> Class<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? {
     if (isEnum && isNotAnnotated()) {
         return createEnumSerializer()
@@ -43,18 +42,13 @@ internal fun <T: Any> Class<T>.constructSerializerForGivenTypeArgs(vararg args: 
     // Fall-through if the serializer is not found -- lookup on companions (for sealed interfaces) or fallback to polymorphic if applicable
     if (isInterface) interfaceSerializer()?.let { return it }
     // Search for serializer defined on companion object.
-    val serializer = invokeSerializerOnCompanion<T>(this, *args)
+    val serializer = invokeSerializerOnDefaultCompanion<T>(this, *args)
     if (serializer != null) return serializer
     // Check whether it's serializable object
     findObjectSerializer()?.let { return it }
     // Search for default serializer if no serializer is defined in companion object.
     // It is required for named companions
-    val fromNamedCompanion = try {
-        declaredClasses.singleOrNull { it.simpleName == ("\$serializer") }
-            ?.getField("INSTANCE")?.get(null) as? KSerializer<T>
-    } catch (e: NoSuchFieldException) {
-        null
-    }
+    val fromNamedCompanion = findInNamedCompanion(*args)
     if (fromNamedCompanion != null) return fromNamedCompanion
     // Check for polymorphic
     return if (isPolymorphicSerializer()) {
@@ -62,6 +56,30 @@ internal fun <T: Any> Class<T>.constructSerializerForGivenTypeArgs(vararg args: 
     } else {
         null
     }
+}
+
+@Suppress("UNCHECKED_CAST")
+private fun <T: Any> Class<T>.findInNamedCompanion(vararg args: KSerializer<Any?>): KSerializer<T>? {
+    val namedCompanion = findNamedCompanionByAnnotation()
+    if (namedCompanion != null) {
+        invokeSerializerOnCompanion<T>(namedCompanion, *args)?.let { return it }
+    }
+
+    // fallback strategy for old compiler - try to locate plugin-generated singleton (without type parameters) serializer
+    return try {
+        declaredClasses.singleOrNull { it.simpleName == ("\$serializer") }
+            ?.getField("INSTANCE")?.get(null) as? KSerializer<T>
+    } catch (e: NoSuchFieldException) {
+        null
+    }
+}
+
+private fun <T: Any> Class<T>.findNamedCompanionByAnnotation(): Any? {
+    val companionClass = declaredClasses.firstOrNull { clazz ->
+        clazz.getAnnotation(NamedCompanion::class.java) != null
+    } ?: return null
+
+    return companionOrNull(companionClass.simpleName)
 }
 
 private fun <T: Any> Class<T>.isNotAnnotated(): Boolean {
@@ -100,9 +118,13 @@ private fun <T: Any> Class<T>.interfaceSerializer(): KSerializer<T>? {
     return null
 }
 
+private fun <T : Any> invokeSerializerOnDefaultCompanion(jClass: Class<*>, vararg args: KSerializer<Any?>): KSerializer<T>? {
+    val companion = jClass.companionOrNull("Companion") ?: return null
+    return invokeSerializerOnCompanion(companion, *args)
+}
+
 @Suppress("UNCHECKED_CAST")
-private fun <T : Any> invokeSerializerOnCompanion(jClass: Class<*>, vararg args: KSerializer<Any?>): KSerializer<T>? {
-    val companion = jClass.companionOrNull() ?: return null
+private fun <T : Any> invokeSerializerOnCompanion(companion: Any, vararg args: KSerializer<Any?>): KSerializer<T>? {
     return try {
         val types = if (args.isEmpty()) emptyArray() else Array(args.size) { KSerializer::class.java }
         companion.javaClass.getDeclaredMethod("serializer", *types)
@@ -115,9 +137,9 @@ private fun <T : Any> invokeSerializerOnCompanion(jClass: Class<*>, vararg args:
     }
 }
 
-private fun Class<*>.companionOrNull() =
+private fun Class<*>.companionOrNull(companionName: String) =
     try {
-        val companion = getDeclaredField("Companion")
+        val companion = getDeclaredField(companionName)
         companion.isAccessible = true
         companion.get(null)
     } catch (e: Throwable) {
