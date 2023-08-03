@@ -76,7 +76,7 @@ You can find auto-generated documentation website on [kotlinlang.org](https://ko
 
 ## Setup
 
-Kotlin serialization plugin is shipped with the Kotlin compiler distribution, and the IDEA plugin is bundled into the Kotlin plugin.
+[New versions](https://plugins.gradle.org/plugin/org.jetbrains.kotlin.plugin.serialization) of the serialization plugin are released in tandem with each new Kotlin compiler version.
 
 Using Kotlin Serialization requires Kotlin compiler `1.4.0` or higher.
 Make sure you have the corresponding Kotlin plugin installed in the IDE, no additional plugins for IDE are required.
