@@ -1,4 +1,36 @@
 
+1.6.0-RC / 2023-08-03
+==================
+
+This release is based on the Kotlin 1.9.0.
+
+### Removal of Legacy JS target
+Some time ago, in Kotlin 1.8, [JS IR compiler was promoted to stable and old JS compiler was deprecated](https://kotlinlang.org/docs/whatsnew18.html#stable-js-ir-compiler-backend).
+Kotlin 1.9 promotes the usage of deprecated JS compiler to an error. As a result, kotlinx.serialization no longer builds with the legacy compiler
+and does not distribute artifacts for it. You can read the migration guide for JS IR compiler [here](https://kotlinlang.org/docs/js-ir-migration.html).
+
+Also pay attention to the fact that Kotlin/Native also has some [deprecated targets](https://kotlinlang.org/docs/native-target-support.html#deprecated-targets) 
+that are going to be removed in the Kotlin 1.9.20. Therefore, kotlinx.serialization 1.6.0-RC and 1.6.0 are likely the last releases that support these targets.
+
+### Case insensitivity for enums in Json
+
+This release features a new configuration flag for Json: `decodeEnumsCaseInsensitive`
+that allows you to decode enum values in a case-insensitive manner.
+For example, when decoding `enum class Foo { VALUE_A , VALUE_B}` both inputs `"value_a"` and `"value_A"` will yield `Foo.VALUE_A`.
+You can read more about this feature in the documentation and corresponding [PR](https://github.com/Kotlin/kotlinx.serialization/pull/2345).
+
+### Other bugfixes and enhancements
+
+  * Add support to decode numeric literals containing an exponent (#2227) (thanks to [Roberto Blázquez](https://github.com/xBaank))
+  * Fix NoSuchMethodError related to Java 8 API compatibility (#2328, #2350) (thanks to [Björn Kautler](https://github.com/Vampire))
+  * Changed actual FormatLanguage annotation for JS and Native to avoid problems with duplicating org.intellij.lang.annotations.Language (#2390, #2379)
+  * Fix error triggered by 'consume leading class discriminator' polymorphic parsing optimization (#2362)
+  * Fix runtime error with Serializer for Nothing on the JS target (#2330) (thanks to [Shreck Ye](https://github.com/ShreckYe))
+  * Fix beginStructure in JsonTreeDecoder when inner structure descriptor is same as outer (#2346) (thanks to [Ugljesa Jovanovic](https://github.com/ionspin))
+  * Actualize 'serializer not found' platform-specific message (#2339)
+  * Fixed regression with serialization using a list parametrized with contextual types (#2331)
+
+
 1.5.1 / 2023-05-11
 ==================
 This release contains an important Native targets overhaul, as well as numerous enhancements and bugfixes.
