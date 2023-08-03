@@ -7,6 +7,16 @@ package kotlinx.serialization.json.internal;
 import kotlinx.serialization.InternalSerializationApi
 
 @InternalSerializationApi
+@Retention(AnnotationRetention.BINARY)
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.FIELD,
+    AnnotationTarget.VALUE_PARAMETER,
+    AnnotationTarget.LOCAL_VARIABLE,
+    AnnotationTarget.ANNOTATION_CLASS
+)
 public actual annotation class FormatLanguage(
     public actual val value: String,
     // default parameters are not used due to https://youtrack.jetbrains.com/issue/KT-25946/
