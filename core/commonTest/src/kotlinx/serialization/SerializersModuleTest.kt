@@ -37,21 +37,19 @@ class SerializersModuleTest {
     @Serializable
     class Parametrized<T : Any>(val a: T)
 
-    class ContextualType(val i: Int)
+    @Serializable
+    class ParametrizedOfNullable<T>(val a: T)
 
-    class ParametrizedContextual<T : Any>(val a: T)
+    class ContextualType(val i: Int)
 
     @Serializer(forClass = ContextualType::class)
     object ContextualSerializer
-
-    @Serializer(forClass = ParametrizedContextual::class)
-    object ParametrizedContextualSerializer
 
     @Serializable
     class ContextualHolder(@Contextual val contextual: ContextualType)
 
     @Test
-    fun testCompiled() = noJsLegacy {
+    fun testCompiled() {
         assertSame<KSerializer<*>>(Object.serializer(), serializer(Object::class, emptyList(), false))
         assertSame<KSerializer<*>>(SealedParent.serializer(), serializer(SealedParent::class, emptyList(), false))
         assertSame<KSerializer<*>>(
@@ -86,6 +84,27 @@ class SerializersModuleTest {
         assertEquals(PrimitiveKind.INT, mapSerializer.descriptor.getElementDescriptor(1).kind)
     }
 
+    @Suppress("UNCHECKED_CAST")
+    @Test
+    fun testNothingAndParameterizedOfNothing() {
+        assertEquals(NothingSerializer, Nothing::class.serializer())
+        //assertEquals(NothingSerializer, serializer<Nothing>()) // prohibited by compiler
+        assertEquals(NothingSerializer, serializer(Nothing::class, emptyList(), false) as KSerializer<Nothing>)
+        //assertEquals(NullableSerializer(NothingSerializer), serializer<Nothing?>()) // prohibited by compiler
+        assertEquals(
+            NullableSerializer(NothingSerializer),
+            serializer(Nothing::class, emptyList(), true) as KSerializer<Nothing?>
+        )
+
+        val parameterizedNothingSerializer = serializer<Parametrized<Nothing>>()
+        val nothingDescriptor = parameterizedNothingSerializer.descriptor.getElementDescriptor(0)
+        assertEquals(NothingSerialDescriptor, nothingDescriptor)
+
+        val parameterizedNullableNothingSerializer = serializer<ParametrizedOfNullable<Nothing?>>()
+        val nullableNothingDescriptor = parameterizedNullableNothingSerializer.descriptor.getElementDescriptor(0)
+        assertEquals(SerialDescriptorForNullable(NothingSerialDescriptor), nullableNothingDescriptor)
+    }
+
     @Test
     fun testUnsupportedArray() {
         assertFails {
@@ -98,7 +117,6 @@ class SerializersModuleTest {
     fun testContextual() {
         val m = SerializersModule {
             contextual<ContextualType>(ContextualSerializer)
-            contextual<ParametrizedContextual<*>>(ParametrizedContextualSerializer as KSerializer<ParametrizedContextual<*>>)
             contextual(ContextualGenericsTest.ThirdPartyBox::class) { args -> ContextualGenericsTest.ThirdPartyBoxSerializer(args[0]) }
         }
 
@@ -108,9 +126,6 @@ class SerializersModuleTest {
         val boxSerializer = m.serializer(ContextualGenericsTest.ThirdPartyBox::class, listOf(Int.serializer()), false)
         assertIs<ContextualGenericsTest.ThirdPartyBoxSerializer<Int>>(boxSerializer)
         assertEquals(PrimitiveKind.INT, boxSerializer.descriptor.getElementDescriptor(0).kind)
-
-        val parametrizedSerializer = m.serializer(ParametrizedContextual::class, listOf(Int.serializer()), false)
-        assertSame<KSerializer<*>>(ParametrizedContextualSerializer, parametrizedSerializer)
 
         val holderSerializer = m.serializer(ContextualHolder::class, emptyList(), false)
         assertSame<KSerializer<*>>(ContextualHolder.serializer(), holderSerializer)

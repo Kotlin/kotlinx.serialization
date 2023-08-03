@@ -92,7 +92,7 @@ class SealedInterfacesSerializationTest {
     }
 
     @Test
-    fun testResolved() = noJsLegacy {
+    fun testResolved() {
         serializer<C>().descriptor.haveSealedSubclasses()
     }
 

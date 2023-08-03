@@ -48,7 +48,7 @@ class InlineMapQuotedTest : JsonTestBase() {
     )
 
     @Test
-    fun testInlineClassAsMapKey() = noLegacyJs {
+    fun testInlineClassAsMapKey() {
         println(Long.MAX_VALUE.toULong() + 2UL)
         val c = Carrier(
             mapOf(1L to 1L),
@@ -58,7 +58,7 @@ class InlineMapQuotedTest : JsonTestBase() {
             mapOf(CustomULong(Long.MAX_VALUE.toULong() + 5UL) to 5L)
         )
         assertJsonFormAndRestored(
-            serializer(),
+            serializer<Carrier>(),
             c,
             """{"mapLong":{"1":1},"mapULong":{"9223372036854775809":2},"wrappedLong":{"3":3},"mapWrappedU":{"9223372036854775811":4},"mapCustom":{"9223372036854775812":5}}"""
         )

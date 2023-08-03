@@ -12,14 +12,6 @@ plugins {
 apply(from = rootProject.file("gradle/native-targets.gradle"))
 apply(from = rootProject.file("gradle/configure-source-sets.gradle"))
 
-tasks.withType<Kotlin2JsCompile> {
-    if (this.name == "compileTestKotlinJsLegacy") {
-        this.exclude("**/PropertyInitializerTest.kt")
-        // Partially custom serializers without 'implicit customisation by companion' annotation are not supported on Legacy JS
-        this.exclude("**/PartiallyCustomSerializerTest.kt", "**/JsonCustomSerializersTest.kt")
-    }
-}
-
 // disable kover tasks because there are no non-test classes in the project
 tasks.named("koverHtmlReport") {
     enabled = false

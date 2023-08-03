@@ -41,8 +41,8 @@ object WithUnsignedSerializer : KSerializer<WithUnsigned> {
 
 class EncodeInlineElementTest {
     @Test
-    fun wrapper() = noLegacyJs {
+    fun wrapper() {
         val w = WithUnsigned(Int.MAX_VALUE.toUInt() + 1.toUInt())
-        assertStringFormAndRestored("""{"u":2147483648}""", w, WithUnsignedSerializer, printResult = true)
+        assertStringFormAndRestored<WithUnsigned>("""{"u":2147483648}""", w, WithUnsignedSerializer, printResult = true)
     }
 }

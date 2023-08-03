@@ -65,7 +65,6 @@ internal fun SerialDescriptor.cachedSerialNames(): Set<String> {
     return result
 }
 
-@SharedImmutable
 private val EMPTY_DESCRIPTOR_ARRAY: Array<SerialDescriptor> = arrayOf()
 
 /**

@@ -16,7 +16,6 @@ import kotlin.reflect.*
 import kotlin.time.Duration
 
 @OptIn(ExperimentalUnsignedTypes::class)
-@SharedImmutable
 private val BUILTIN_SERIALIZERS = mapOf(
     String::class to String.serializer(),
     Char::class to Char.serializer(),

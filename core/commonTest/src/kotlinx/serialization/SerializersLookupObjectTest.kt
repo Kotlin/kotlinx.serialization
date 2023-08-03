@@ -46,26 +46,19 @@ class SerializersLookupObjectTest {
 
     @Test
     fun testPlainObject() {
-        if (!isJsLegacy()) {
-            assertSame(PlainObject.serializer(), serializer<PlainObject>())
-        }
+        assertSame(PlainObject.serializer(), serializer<PlainObject>())
     }
 
 
     @Test
     fun testObjectExternalObject() {
         assertSame(ObjectCustomObjectSerializer, ObjectExternalObject.serializer())
-        if (!isJsLegacy()) {
-            assertSame(ObjectCustomObjectSerializer, serializer<ObjectExternalObject>())
-        }
+        assertSame(ObjectCustomObjectSerializer, serializer<ObjectExternalObject>())
     }
 
     @Test
     fun testObjectExternalClass() {
         assertIs<ObjectCustomClassSerializer>(ObjectExternalClass.serializer())
-
-        if (!isJsLegacy()) {
-            assertIs<ObjectCustomClassSerializer>(serializer<ObjectExternalClass>())
-        }
+        assertIs<ObjectCustomClassSerializer>(serializer<ObjectExternalClass>())
     }
 }

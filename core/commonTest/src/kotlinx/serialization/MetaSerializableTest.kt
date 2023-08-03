@@ -34,20 +34,20 @@ class MetaSerializableTest {
     )
 
     @Test
-    fun testMetaSerializable() = noJsLegacy {
+    fun testMetaSerializable() {
         val serializer = serializer<Project1>()
         assertNotNull(serializer)
     }
 
     @Test
-    fun testMetaSerializableWithInfo() = noJsLegacy {
+    fun testMetaSerializableWithInfo() {
         val info = serializer<Project2>().descriptor.annotations.filterIsInstance<MySerializableWithInfo>().first()
         assertEquals(123, info.value)
         assertEquals(String::class, info.kclass)
     }
 
     @Test
-    fun testMetaSerializableOnProperty() = noJsLegacy {
+    fun testMetaSerializableOnProperty() {
         val info = serializer<Wrapper>().descriptor
             .getElementAnnotations(0).filterIsInstance<MySerializableWithInfo>().first()
         assertEquals(234, info.value)

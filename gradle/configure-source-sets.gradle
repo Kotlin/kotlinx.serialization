@@ -2,12 +2,23 @@
  * Copyright 2017-2022 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(11))
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 8
+}
+
 kotlin {
     jvm {
         withJava()
-        configure([compilations.main, compilations.test]) {
+        compilations.configureEach {
             kotlinOptions {
                 jvmTarget = '1.8'
+                freeCompilerArgs += '-Xjdk-release=1.8'
             }
         }
     }
@@ -95,6 +106,14 @@ kotlin {
     }
 
     targets.all {
+        compilations.all {
+            kotlinOptions {
+                if (rootProject.ext.kotlin_lv_override != null) {
+                    languageVersion = rootProject.ext.kotlin_lv_override
+                    freeCompilerArgs += "-Xsuppress-version-warnings"
+                }
+            }
+        }
         compilations.main {
             kotlinOptions {
                 allWarningsAsErrors = true
@@ -102,6 +121,7 @@ kotlin {
         }
     }
 
+    // TODO: Remove deprecated linuxArm32Hfp and mingwX86 targets in 1.9.20.
     def targetsWithoutTestRunners = ["linuxArm32Hfp", "linuxArm64", "mingwX86"]
     configure(targets) {
         // Configure additional binaries to run tests in the background

@@ -73,7 +73,6 @@ public sealed class SerializersModule {
 /**
  * A [SerializersModule] which is empty and always returns `null`.
  */
-@SharedImmutable
 @Deprecated("Deprecated in the favour of 'EmptySerializersModule()'",
     level = DeprecationLevel.WARNING,
     replaceWith = ReplaceWith("EmptySerializersModule()"))

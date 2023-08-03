@@ -8,7 +8,6 @@ import kotlinx.serialization.*
 import kotlin.jvm.*
 import kotlin.native.concurrent.*
 
-@SharedImmutable
 @JvmField
 internal val EMPTY_SERIALIZER_ARRAY: Array<KSerializer<*>> = arrayOf()
 

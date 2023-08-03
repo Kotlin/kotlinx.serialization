@@ -3,7 +3,20 @@
  */
 
 buildscript {
-    if (project.hasProperty("bootstrap")) {
+    /**
+     * Overrides for Teamcity 'K2 User Projects' + 'Aggregate build / Kotlinx libraries compilation' configuration:
+     * kotlin_repo_url - local repository with snapshot Kotlin compiler
+     * kotlin_version - kotlin version to use
+     * kotlin_language_version - LV to use
+     */
+    ext.snapshotRepoUrl = rootProject.properties["kotlin_repo_url"]
+    ext.kotlin_lv_override = rootProject.properties["kotlin_language_version"]
+    if (snapshotRepoUrl != null && snapshotRepoUrl != "") {
+        ext.kotlin_version = rootProject.properties["kotlin_version"]
+        repositories {
+            maven { url snapshotRepoUrl }
+        }
+    } else if (project.hasProperty("bootstrap")) {
         ext.kotlin_version = property('kotlin.version.snapshot')
         ext["kotlin.native.home"] = System.getenv("KONAN_LOCAL_DIST")
     } else {
@@ -125,6 +138,13 @@ allprojects {
         }
     }
 
+    if (snapshotRepoUrl != null && snapshotRepoUrl != "") {
+        // Snapshot-specific for K2 CI configurations
+        repositories {
+            maven { url snapshotRepoUrl }
+        }
+    }
+
     configurations.all {
         resolutionStrategy.eachDependency { DependencyResolveDetails details ->
             if (details.requested.group == 'org.jetbrains.kotlin') {
@@ -171,6 +191,11 @@ subprojects {
     if (excludedFromBomProjects.contains(project.name)) return
 
     // Animalsniffer setup
+    // Animalsniffer requires java plugin to be applied, but Kotlin 1.9.20
+    // relies on `java-base` for Kotlin Multiplatforms `withJava` implementation
+    // https://github.com/xvik/gradle-animalsniffer-plugin/issues/84
+    // https://youtrack.jetbrains.com/issue/KT-59595
+    JavaPluginUtil.applyJavaPlugin(project)
     apply plugin: 'ru.vyarus.animalsniffer'
 
     afterEvaluate { // Can be applied only when the project is evaluated
@@ -184,6 +209,8 @@ subprojects {
                 case "kotlinx-serialization-hocon":
                     annotationValue = "kotlinx.serialization.hocon.internal.SuppressAnimalSniffer"
                     break
+                case "kotlinx-serialization-protobuf":
+                    annotationValue = "kotlinx.serialization.protobuf.internal.SuppressAnimalSniffer"
             }
             annotation = annotationValue
         }

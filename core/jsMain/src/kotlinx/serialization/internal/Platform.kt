@@ -16,9 +16,12 @@ internal actual fun BooleanArray.getChecked(index: Int): Boolean {
     if (index !in indices) throw IndexOutOfBoundsException("Index $index out of bounds $indices")
     return get(index)
 }
-@Suppress("UNCHECKED_CAST")
+
 internal actual fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>? =
-    this.constructSerializerForGivenTypeArgs() ?: this.js.asDynamic().Companion?.serializer() as? KSerializer<T>
+    this.constructSerializerForGivenTypeArgs() ?: (
+        if (this === Nothing::class) NothingSerializer // Workaround for KT-51333
+        else this.js.asDynamic().Companion?.serializer()
+        ) as? KSerializer<T>
 
 internal actual fun <T> createCache(factory: (KClass<*>) -> KSerializer<T>?): SerializerCache<T> {
     return object: SerializerCache<T> {
@@ -40,8 +43,8 @@ internal actual fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KCl
 
 internal actual fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing {
     throw SerializationException(
-        "${notRegisteredMessage()}\n" +
-                "On Kotlin/JS explicitly declared serializer should be used for interfaces and enums without @Serializable annotation"
+        notRegisteredMessage() +
+                "To get enum serializer on Kotlin/JS, it should be annotated with @Serializable annotation."
     )
 }
 

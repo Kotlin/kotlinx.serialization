@@ -193,13 +193,7 @@ private fun SerializersModule.serializerByKTypeImpl(
     val cachedSerializer = if (typeArguments.isEmpty()) {
         findCachedSerializer(rootClass, isNullable)
     } else {
-        val cachedResult = findParametrizedCachedSerializer(rootClass, typeArguments, isNullable)
-        if (failOnMissingTypeArgSerializer) {
-            cachedResult.getOrNull()
-        } else {
-            // return null if error occurred - serializer for parameter(s) was not found
-            cachedResult.getOrElse { return null }
-        }
+        findParametrizedCachedSerializer(rootClass, typeArguments, isNullable).getOrNull()
     }
     cachedSerializer?.let { return it }
 

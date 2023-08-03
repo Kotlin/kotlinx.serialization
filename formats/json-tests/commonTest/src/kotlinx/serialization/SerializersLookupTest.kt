@@ -53,12 +53,13 @@ class SerializersLookupTest : JsonTestBase() {
     }
 
     @Test
-    fun testUnsigned() = noLegacyJs {
+    fun testUnsigned() {
         assertSame(UByte.serializer(), serializer<UByte>())
         assertSame(UShort.serializer(), serializer<UShort>())
         assertSame(UInt.serializer(), serializer<UInt>())
         assertSame(ULong.serializer(), serializer<ULong>())
     }
+
     @Test
     @OptIn(ExperimentalUnsignedTypes::class)
     fun testUnsignedArrays() {
@@ -129,19 +130,19 @@ class SerializersLookupTest : JsonTestBase() {
     }
 
     @Test
-    fun testTriple() = noLegacyJs { // because of Box
+    fun testTriple() {
         val myTriple = Triple("1", 2, Box(42))
         assertSerializedWithType("""{"first":"1","second":2,"third":{"boxed":42}}""", myTriple)
     }
 
     @Test
-    fun testLookupDuration() = noLegacyJs {
+    fun testLookupDuration() {
         assertNotNull(serializerOrNull(typeOf<Duration>()))
         assertSame(Duration.serializer(), serializer<Duration>())
     }
 
     @Test
-    fun testCustomGeneric() = noLegacyJs {
+    fun testCustomGeneric() {
         val intBox = Box(42)
         val intBoxSerializer = serializer<Box<Int>>()
         assertEquals(Box.serializer(Int.serializer()).descriptor, intBoxSerializer.descriptor)
@@ -151,13 +152,13 @@ class SerializersLookupTest : JsonTestBase() {
     }
 
     @Test
-    fun testRecursiveGeneric() = noLegacyJs {
+    fun testRecursiveGeneric() {
         val boxBox = Box(Box(Box(IntData(42))))
         assertSerializedWithType("""{"boxed":{"boxed":{"boxed":{"intV":42}}}}""", boxBox)
     }
 
     @Test
-    fun testMixedGeneric() = noLegacyJs {
+    fun testMixedGeneric() {
         val listOfBoxes = listOf(Box("foo"), Box("bar"))
         assertSerializedWithType("""[{"boxed":"foo"},{"boxed":"bar"}]""", listOfBoxes)
         val boxedList = Box(listOf("foo", "bar"))
@@ -169,10 +170,8 @@ class SerializersLookupTest : JsonTestBase() {
         assertSerializedWithType("[1,2,3]", Array<Int>(3) { it + 1 }, default)
         assertSerializedWithType("""["1","2","3"]""", Array<String>(3) { (it + 1).toString() }, default)
         assertSerializedWithType("[[0],[1],[2]]", Array<Array<Int>>(3) { cnt -> Array(1) { cnt } }, default)
-        noLegacyJs {
-            assertSerializedWithType("""[{"boxed":"foo"}]""", Array(1) { Box("foo") }, default)
-            assertSerializedWithType("""[[{"boxed":"foo"}]]""", Array(1) { Array(1) { Box("foo") } }, default)
-        }
+        assertSerializedWithType("""[{"boxed":"foo"}]""", Array(1) { Box("foo") }, default)
+        assertSerializedWithType("""[[{"boxed":"foo"}]]""", Array(1) { Array(1) { Box("foo") } }, default)
     }
 
     @Test
@@ -186,7 +185,7 @@ class SerializersLookupTest : JsonTestBase() {
     }
 
     @Test
-    fun testSerializableObject() = noLegacyJs {
+    fun testSerializableObject() {
         assertSerializedWithType("{}", SampleObject)
     }
 
@@ -210,12 +209,49 @@ class SerializersLookupTest : JsonTestBase() {
         }
     }
 
+    class GenericHolder<T>(value: T)
+
+    class GenericSerializer<T>(typeSerializer: KSerializer<T>) : KSerializer<GenericHolder<T>> {
+        override val descriptor: SerialDescriptor =
+            PrimitiveSerialDescriptor(
+                "Generic Serializer parametrized by ${typeSerializer.descriptor}",
+                PrimitiveKind.STRING
+            )
+
+        override fun deserialize(decoder: Decoder): GenericHolder<T> {
+            TODO()
+        }
+
+        override fun serialize(encoder: Encoder, value: GenericHolder<T>) {
+            TODO()
+        }
+    }
+
     @Test
     fun testContextualLookup() {
         val module = SerializersModule { contextual(CustomIntSerializer(false).cast<IntBox>()) }
         val json = Json { serializersModule = module }
         val data = listOf(listOf(IntBox(1)))
         assertEquals("[[42]]", json.encodeToString(data))
+    }
+
+    @Test
+    fun testGenericOfContextual() {
+        val module = SerializersModule {
+            contextual(CustomIntSerializer(false).cast<IntBox>())
+            contextual(GenericHolder::class) { args -> GenericSerializer(args[0]) }
+        }
+
+        val listSerializer = module.serializerOrNull(typeOf<List<IntBox>>())
+        assertNotNull(listSerializer)
+        assertEquals("kotlin.collections.ArrayList(PrimitiveDescriptor(CIS))", listSerializer.descriptor.toString())
+
+        val genericSerializer = module.serializerOrNull(typeOf<GenericHolder<IntBox>>())
+        assertNotNull(genericSerializer)
+        assertEquals(
+            "PrimitiveDescriptor(Generic Serializer parametrized by PrimitiveDescriptor(CIS))",
+            genericSerializer.descriptor.toString()
+        )
     }
 
     @Test

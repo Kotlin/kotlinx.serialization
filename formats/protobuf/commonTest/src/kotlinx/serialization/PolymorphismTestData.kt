@@ -46,7 +46,6 @@ data class SimpleStringInheritor(val s: String, val i: Int) : SimpleAbstract()
 @Serializable
 data class PolyBox(@Polymorphic val boxed: SimpleAbstract)
 
-@SharedImmutable
 val SimplePolymorphicModule = SerializersModule {
     polymorphic(SimpleAbstract::class) {
         subclass(SimpleIntInheritor.serializer())

@@ -8,7 +8,6 @@ import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
-import kotlinx.serialization.test.noLegacyJs
 import kotlin.test.*
 
 class JsonClassDiscriminatorTest : JsonTestBase() {
@@ -38,7 +37,7 @@ class JsonClassDiscriminatorTest : JsonTestBase() {
 
 
     @Test
-    fun testSealedClassesHaveCustomDiscriminator() = noLegacyJs {
+    fun testSealedClassesHaveCustomDiscriminator() {
         val messages = listOf(
             SealedMessage.StringMessage("string message", "foo"),
             SealedMessage.EOF
@@ -53,7 +52,7 @@ class JsonClassDiscriminatorTest : JsonTestBase() {
     }
 
     @Test
-    fun testAbstractClassesHaveCustomDiscriminator() = noLegacyJs {
+    fun testAbstractClassesHaveCustomDiscriminator() {
         val messages = listOf(
             AbstractMessage.StringMessage("string message", "foo"),
             AbstractMessage.IntMessage("int message", 42),
@@ -67,7 +66,11 @@ class JsonClassDiscriminatorTest : JsonTestBase() {
         val json = Json { serializersModule = module }
         val expected =
             """[{"abstractType":"Message.StringMessage","description":"string message","message":"foo"},{"abstractType":"Message.IntMessage","description":"int message","message":42}]"""
-        assertJsonFormAndRestored(ListSerializer(AbstractMessage.serializer()), messages, expected, json)
+        assertJsonFormAndRestored(
+            ListSerializer(
+                AbstractMessage.serializer()
+            ), messages, expected, json
+        )
     }
 
     @Serializable
@@ -90,7 +93,7 @@ class JsonClassDiscriminatorTest : JsonTestBase() {
 
 
     @Test
-    fun testDocumentationInheritanceSample() = noLegacyJs {
+    fun testDocumentationInheritanceSample() {
         val module = SerializersModule {
             polymorphic(Base::class) {
                 subclass(BaseMessage.serializer())
