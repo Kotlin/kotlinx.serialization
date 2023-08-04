@@ -24,6 +24,7 @@ In this chapter we'll take a look at serializers in more detail, and we'll see h
   * [Serializing 3rd party classes](#serializing-3rd-party-classes)
   * [Passing a serializer manually](#passing-a-serializer-manually)
   * [Specifying serializer on a property](#specifying-serializer-on-a-property)
+  * [Specifying serializer for a particular type](#specifying-serializer-for-a-particular-type)
   * [Specifying serializers for a file](#specifying-serializers-for-a-file)
   * [Specifying serializer globally using typealias](#specifying-serializer-globally-using-typealias)
   * [Custom serializers for a generic type](#custom-serializers-for-a-generic-type)
@@ -713,7 +714,7 @@ because we don't control the `Date` source code. There are several ways to work 
 ### Passing a serializer manually
  
 All `encodeToXxx` and `decodeFromXxx` functions have an overload with the first serializer parameter. 
-When a non-serializable class, like `Date`, is the top-level class being serialized we can use those.
+When a non-serializable class, like `Date`, is the top-level class being serialized, we can use those.
 
 ```kotlin
 fun main() {                                              
@@ -770,6 +771,45 @@ The `stableReleaseDate` property is serialized with the serialization strategy t
 
 <!--- TEST -->
 
+### Specifying serializer for a particular type
+
+[`@Serializable`][Serializable] annotation can also be applied directly to the types. 
+This is handy when a class that requires a custom serializer, such as `Date`, happens to be a generic type argument.
+The most common use case for that is when you have a list of dates:
+
+<!--- INCLUDE 
+import java.util.Date
+import java.text.SimpleDateFormat
+  
+object DateAsLongSerializer : KSerializer<Date> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Date", PrimitiveKind.LONG)
+    override fun serialize(encoder: Encoder, value: Date) = encoder.encodeLong(value.time)
+    override fun deserialize(decoder: Decoder): Date = Date(decoder.decodeLong())
+}
+-->
+
+```kotlin
+@Serializable          
+class ProgrammingLanguage(
+    val name: String,
+    val releaseDates: List<@Serializable(DateAsLongSerializer::class) Date>
+)
+
+fun main() {
+    val df = SimpleDateFormat("yyyy-MM-ddX")
+    val data = ProgrammingLanguage("Kotlin", listOf(df.parse("2023-07-06+00"), df.parse("2023-04-25+00"), df.parse("2022-12-28+00")))
+    println(Json.encodeToString(data))
+}
+```
+
+> You can get the full code [here](../guide/example/example-serializer-16.kt).
+
+```text
+{"name":"Kotlin","releaseDates":[1688601600000,1682380800000,1672185600000]}
+```   
+
+<!--- TEST -->
+
 ### Specifying serializers for a file 
 
 A serializer for a specific type, like `Date`, can be specified for a whole source code file with the file-level
@@ -803,7 +843,7 @@ fun main() {
     println(Json.encodeToString(data))
 }
 ```   
-> You can get the full code [here](../guide/example/example-serializer-16.kt).
+> You can get the full code [here](../guide/example/example-serializer-17.kt).
 
 ```text
 {"name":"Kotlin","stableReleaseDate":1455494400000}
@@ -857,7 +897,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-serializer-17.kt).
+> You can get the full code [here](../guide/example/example-serializer-18.kt).
 
 ```text
 {"stableReleaseDate":"2016-02-15","lastReleaseTimestamp":1657152000000}
@@ -905,7 +945,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-serializer-18.kt).
+> You can get the full code [here](../guide/example/example-serializer-19.kt).
 
 The resulting JSON looks like the `Project` class was serialized directly.
 
@@ -969,7 +1009,7 @@ fun main() {
 To actually serialize this class we must provide the corresponding context when calling the `encodeToXxx`/`decodeFromXxx`
 functions. Without it we'll get a "Serializer for class 'Date' is not found" exception.
 
-> See [here](../guide/example/example-serializer-19.kt) for an example that produces that exception.
+> See [here](../guide/example/example-serializer-20.kt) for an example that produces that exception.
  
 <!--- TEST LINES_START 
 Exception in thread "main" kotlinx.serialization.SerializationException: Serializer for class 'Date' is not found.
@@ -1028,7 +1068,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-serializer-20.kt).
+> You can get the full code [here](../guide/example/example-serializer-21.kt).
 ```text
 {"name":"Kotlin","stableReleaseDate":1455494400000}
 ```
@@ -1087,7 +1127,7 @@ fun main() {
 }
 ```          
 
-> You can get the full code [here](../guide/example/example-serializer-21.kt).
+> You can get the full code [here](../guide/example/example-serializer-22.kt).
 
 This gets all the `Project` properties serialized:
 
@@ -1128,7 +1168,7 @@ fun main() {
 }
 ```             
 
-> You can get the full code [here](../guide/example/example-serializer-22.kt).
+> You can get the full code [here](../guide/example/example-serializer-23.kt).
 
 The output is shown below.
 
