@@ -82,7 +82,7 @@ object Java9Modularity {
                         )
 
                         // add the resulting module descriptor to this target's artifact
-                        artifactTask.from(compileModuleTask) {
+                        artifactTask.from(compileModuleTask.map { it.destinationDirectory }) {
                             if (multiRelease) {
                                 into("META-INF/versions/9/")
                             }
