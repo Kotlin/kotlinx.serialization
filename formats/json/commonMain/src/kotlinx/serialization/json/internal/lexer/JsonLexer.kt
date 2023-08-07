@@ -6,7 +6,6 @@
 
 package kotlinx.serialization.json.internal
 
-@PublishedApi
 internal const val BATCH_SIZE: Int = 16 * 1024
 private const val DEFAULT_THRESHOLD = 128
 

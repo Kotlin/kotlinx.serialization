@@ -101,7 +101,7 @@ internal class JsonTreeReader(
                 result
             }
             TC_BEGIN_LIST -> readArray()
-            else -> lexer.fail("Cannot begin reading element, unexpected token: $token")
+            else -> lexer.fail("Cannot read Json element because of unexpected ${tokenDescription(token)}")
         }
     }
 
