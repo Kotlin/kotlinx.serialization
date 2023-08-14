@@ -80,7 +80,7 @@ internal open class ProtobufDecoder(
 
     private fun findIndexByTag(descriptor: SerialDescriptor, protoTag: Int): Int {
         // Fast-path: tags are incremental, 1-based
-        if (protoTag < descriptor.elementsCount) {
+        if (protoTag < descriptor.elementsCount && protoTag >= 0) {
             val protoId = extractProtoId(descriptor, protoTag, true)
             if (protoId == protoTag) return protoTag
         }
