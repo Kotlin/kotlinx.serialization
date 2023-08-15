@@ -14,7 +14,7 @@ class EmojiTest : JsonTestBase() {
 
     @Test
     fun testEmojiString() {
-        if (isWasm()) return
+        if (isWasm()) return //https://github.com/square/okio/issues/1333
         assertJsonFormAndRestored(
             String.serializer(),
             "\uD83C\uDF34",
