@@ -26,17 +26,22 @@ kotlin {
                 api project(":kotlinx-serialization-core")
             }
         }
+        jsWasmMain {
+            dependsOn(sourceSets.commonMain)
+        }
         jsMain {
-            kotlin {
-                srcDir 'jsWasmMain/src'
-            }
+            dependsOn(sourceSets.jsWasmMain)
         }
         wasmMain {
-            kotlin {
-                srcDir 'jsWasmMain/src'
-            }
+            dependsOn(sourceSets.jsWasmMain)
         }
     }
 }
 
 Java9Modularity.configureJava9ModuleInfo(project)
+
+tasks.whenTaskAdded { task ->
+    if (task.name == 'compileJsWasmMainKotlinMetadata') {
+        task.enabled = false
+    }
+}
