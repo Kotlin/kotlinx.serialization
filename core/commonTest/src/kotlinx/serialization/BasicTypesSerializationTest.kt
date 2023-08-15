@@ -10,6 +10,7 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.encoding.CompositeDecoder.Companion.UNKNOWN_NAME
 import kotlinx.serialization.modules.*
+import kotlinx.serialization.test.*
 import kotlin.test.*
 import kotlin.time.Duration
 
@@ -158,8 +159,7 @@ class BasicTypesSerializationTest {
         }
     }
 
-    @Test
-    fun testKvSerialization() {
+    private fun testKvSerializationImpl(umbrellaInstance: TypesUmbrella) {
         // serialize to string
         val sb = StringBuilder()
         val out = KeyValueOutput(sb)
@@ -171,6 +171,17 @@ class BasicTypesSerializationTest {
         // assert we've got it back from string
         assertEquals(umbrellaInstance, other)
         assertNotSame(umbrellaInstance, other)
+    }
+
+    @Test
+    fun testKvSerialization() {
+        if (isWasm()) return
+        testKvSerializationImpl(umbrellaInstance)
+    }
+
+    @Test
+    fun testKvSerialization2() {
+        testKvSerializationImpl(umbrellaInstance2)
     }
 
     @Test
