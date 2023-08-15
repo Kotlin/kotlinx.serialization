@@ -26,6 +26,16 @@ kotlin {
                 api project(":kotlinx-serialization-core")
             }
         }
+        jsMain {
+            kotlin {
+                srcDir 'jsWasmMain/src'
+            }
+        }
+        wasmMain {
+            kotlin {
+                srcDir 'jsWasmMain/src'
+            }
+        }
     }
 }
 
