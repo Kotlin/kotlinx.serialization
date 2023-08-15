@@ -32,7 +32,7 @@ internal actual fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing
 internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? =
     when (val assocObject = findAssociatedObject<SerializableWith>()) {
         is KSerializer<*> -> assocObject as KSerializer<T>
-        is kotlinx.serialization.internal.SerializerFactory -> assocObject.serializer(*args) as KSerializer<T>
+        is SerializerFactory -> assocObject.serializer(*args) as KSerializer<T>
         else -> null
     }
 
@@ -57,15 +57,6 @@ internal actual fun <T> createParametrizedCache(factory: (KClass<Any>, List<KTyp
     }
 }
 
-internal actual fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KClass<T>): Array<E> {
-    val result = arrayOfAnyNulls<E>(size)
-    var index = 0
-    for (element in this) result[index++] = element
-    @Suppress("USELESS_CAST")
-    return result as Array<E>
-}
-
-@Suppress("UNCHECKED_CAST")
-private fun <T> arrayOfAnyNulls(size: Int): Array<T> = arrayOfNulls<Any>(size) as Array<T>
+internal actual fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KClass<T>): Array<E> = toTypedArray()
 
 internal actual fun isReferenceArray(rootClass: KClass<Any>): Boolean = rootClass == Array::class
