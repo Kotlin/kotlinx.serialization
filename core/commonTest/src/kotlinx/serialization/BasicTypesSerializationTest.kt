@@ -159,7 +159,8 @@ class BasicTypesSerializationTest {
         }
     }
 
-    private fun testKvSerializationImpl(umbrellaInstance: TypesUmbrella) {
+    @Test
+    fun testKvSerialization() {
         // serialize to string
         val sb = StringBuilder()
         val out = KeyValueOutput(sb)
@@ -171,17 +172,6 @@ class BasicTypesSerializationTest {
         // assert we've got it back from string
         assertEquals(umbrellaInstance, other)
         assertNotSame(umbrellaInstance, other)
-    }
-
-    @Test
-    fun testKvSerialization() {
-        if (isWasm()) return
-        testKvSerializationImpl(umbrellaInstance)
-    }
-
-    @Test
-    fun testKvSerialization2() {
-        testKvSerializationImpl(umbrellaInstance2)
     }
 
     @Test

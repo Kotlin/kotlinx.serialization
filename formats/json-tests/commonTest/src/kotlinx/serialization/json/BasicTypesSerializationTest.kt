@@ -28,7 +28,7 @@ class BasicTypesSerializationTest : JsonTestBase() {
 
     @Test
     fun testSerialization() {
-        if (isWasm()) return
+        if (isWasm()) return //https://youtrack.jetbrains.com/issue/KT-59118/WASM-floating-point-toString-inconsistencies
         testSerializationImpl(umbrellaInstance, goldenValue)
     }
 
