@@ -126,8 +126,8 @@ class CbrWriterTest {
         assertEquals(
             expected = "bfff",
             actual = Cbor { explicitNulls = false }.encodeToHexString(
-                serializer = NullableByteString.serializer(),
-                value = NullableByteString(byteString = null)
+                serializer = NullableByteStringDefaultNull.serializer(),
+                value = NullableByteStringDefaultNull(byteString = null)
             )
         )
     }
@@ -139,8 +139,8 @@ class CbrWriterTest {
         assertEquals(
             expected = "a0",
             actual = Cbor { explicitNulls = false;writeDefiniteLengths = true }.encodeToHexString(
-                serializer = NullableByteString.serializer(),
-                value = NullableByteString(byteString = null)
+                serializer = NullableByteStringDefaultNull.serializer(),
+                value = NullableByteStringDefaultNull(byteString = null)
             )
         )
     }

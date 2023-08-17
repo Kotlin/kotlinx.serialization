@@ -91,6 +91,29 @@ data class NullableByteString(
     }
 }
 
+@Serializable
+data class NullableByteStringDefaultNull(
+    @ByteString val byteString: ByteArray ? = null
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as NullableByteString
+
+        if (byteString != null) {
+            if (other.byteString == null) return false
+            if (!byteString.contentEquals(other.byteString)) return false
+        } else if (other.byteString != null) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return byteString?.contentHashCode() ?: 0
+    }
+}
+
 @Serializable(with = CustomByteStringSerializer::class)
 data class CustomByteString(val a: Byte, val b: Byte, val c: Byte)
 
