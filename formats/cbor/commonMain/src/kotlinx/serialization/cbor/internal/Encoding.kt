@@ -48,17 +48,6 @@ private const val SINGLE_PRECISION_MAX_EXPONENT = 0xFF
 
 private const val SINGLE_PRECISION_NORMALIZE_BASE = 0.5f
 
-@JvmInline
-internal value class Stack<T>(private val list: MutableList<T> = mutableListOf()) {
-    fun push(value: T) {
-        list += value
-    }
-
-    fun pop() = list.removeLast()
-
-    fun peek() = list.last()
-}
-
 // Writes class as map [fieldName, fieldValue]
 internal open class CborWriter(
     private val cbor: Cbor,
@@ -66,9 +55,21 @@ internal open class CborWriter(
 ) : AbstractEncoder() {
 
 
-    var encodeByteArrayAsByteString = false
+    private var encodeByteArrayAsByteString = false
 
     private val structureStack: Stack<Token> = Stack()
+
+    @JvmInline
+    private value class Stack<T>(private val list: MutableList<T> = mutableListOf()) {
+        fun push(value: T) {
+            list += value
+        }
+
+        fun pop() = list.removeLast()
+
+        fun peek() = list.last()
+    }
+
 
     inner class Token(
         var descriptor: SerialDescriptor?,
