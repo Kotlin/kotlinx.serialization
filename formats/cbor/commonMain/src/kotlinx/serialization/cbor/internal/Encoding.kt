@@ -167,22 +167,26 @@ internal open class CborWriter(
         val buffer = ByteArrayOutput()
         val encoder= CborEncoder(buffer)
 
-            if (beginToken.descriptor!!.hasArrayTag()) {
-                beginToken.descriptor!!.getArrayTags()?.forEach { encoder.encodeTag(it) }
-                if (cbor.writeDefiniteLengths) encoder.startArray(beginToken.numChildren!!.toULong()) else encoder.startArray()
+        //If this nullpointers, we have a structural problem anyhow
+        val beginDescriptor = beginToken.descriptor!!
+        val numChildren = beginToken.numChildren!!
+
+        if (beginDescriptor.hasArrayTag()) {
+                beginDescriptor.getArrayTags()?.forEach { encoder.encodeTag(it) }
+                if (cbor.writeDefiniteLengths) encoder.startArray(numChildren.toULong()) else encoder.startArray()
             } else {
-                when (beginToken.descriptor!!.kind) {
+                when (beginDescriptor.kind) {
                     StructureKind.LIST, is PolymorphicKind -> {
-                        if (cbor.writeDefiniteLengths) encoder.startArray(beginToken.numChildren!!.toULong())
+                        if (cbor.writeDefiniteLengths) encoder.startArray(numChildren.toULong())
                         else encoder.startArray()
                     }
 
                     is StructureKind.MAP -> {
-                        if (cbor.writeDefiniteLengths) encoder.startMap((beginToken.numChildren!! / 2).toULong()) else encoder.startMap()
+                        if (cbor.writeDefiniteLengths) encoder.startMap((numChildren / 2).toULong()) else encoder.startMap()
                     }
 
                     else -> {
-                        if (cbor.writeDefiniteLengths) encoder.startMap(beginToken.numChildren!!.toULong()) else encoder.startMap()
+                        if (cbor.writeDefiniteLengths) encoder.startMap(numChildren.toULong()) else encoder.startMap()
                     }
                 }
             }

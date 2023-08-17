@@ -345,9 +345,7 @@ class CborTaggedTest {
         val wrongTag55ForPropertyC = "A46161CC1A0FFFFFFFD822616220D8376163D84E42CAFE6164D85ACC6B48656C6C6F20576F726C64"
         listOf(
             Cbor,
-            Cbor { writeDefiniteLengths = true },
-            Cbor { writeDefiniteLengths = true;explicitNulls = false },
-            Cbor { explicitNulls = false }).forEach { cbor ->
+            Cbor { writeDefiniteLengths = true }).forEach { cbor ->
 
             assertFailsWith(CborDecodingException::class, message = "CBOR tags [55] do not match expected tags [56]") {
                 Cbor.decodeFromHexString(
@@ -357,9 +355,8 @@ class CborTaggedTest {
             }
         }
         listOf(
-            Cbor { verifyKeyTags = false },
-            Cbor { verifyKeyTags = false;writeDefiniteLengths = true },
-            Cbor { verifyKeyTags = false;explicitNulls = false }).forEach { cbor ->
+            Cbor { verifyKeyTags = false; writeDefiniteLengths = true },
+            Cbor { verifyKeyTags = false }).forEach { cbor ->
             assertEquals(reference, cbor.decodeFromHexString(wrongTag55ForPropertyC))
         }
     }

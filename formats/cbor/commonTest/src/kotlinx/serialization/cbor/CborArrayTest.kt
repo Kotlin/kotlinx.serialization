@@ -56,7 +56,6 @@ class CborArrayTest {
 
         val cbor = Cbor {
             writeDefiniteLengths = true
-            explicitNulls = true
         }
 
         assertEquals(referenceHexString, cbor.encodeToHexString(ClassAs4ArrayNullable.serializer(), reference))
