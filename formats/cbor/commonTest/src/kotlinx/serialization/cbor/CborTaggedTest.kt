@@ -2,6 +2,7 @@
  * Copyright 2017-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@file:OptIn(ExperimentalUnsignedTypes::class)
 package kotlinx.serialization.cbor
 
 import kotlinx.serialization.*
@@ -348,7 +349,7 @@ class CborTaggedTest {
             Cbor { writeDefiniteLengths = true }).forEach { cbor ->
 
             assertFailsWith(CborDecodingException::class, message = "CBOR tags [55] do not match expected tags [56]") {
-                Cbor.decodeFromHexString(
+                cbor.decodeFromHexString(
                     DataWithTags.serializer(),
                     wrongTag55ForPropertyC
                 )
