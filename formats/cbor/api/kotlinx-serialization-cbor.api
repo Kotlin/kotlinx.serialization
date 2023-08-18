@@ -5,9 +5,23 @@ public synthetic class kotlinx/serialization/cbor/ByteString$Impl : kotlinx/seri
 	public fun <init> ()V
 }
 
+public final class kotlinx/serialization/cbor/ByteStringWrapper {
+	public fun <init> (Ljava/lang/Object;[B)V
+	public synthetic fun <init> (Ljava/lang/Object;[BILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun component2 ()[B
+	public final fun copy (Ljava/lang/Object;[B)Lkotlinx/serialization/cbor/ByteStringWrapper;
+	public static synthetic fun copy$default (Lkotlinx/serialization/cbor/ByteStringWrapper;Ljava/lang/Object;[BILjava/lang/Object;)Lkotlinx/serialization/cbor/ByteStringWrapper;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getSerialized ()[B
+	public final fun getValue ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public abstract class kotlinx/serialization/cbor/Cbor : kotlinx/serialization/BinaryFormat {
 	public static final field Default Lkotlinx/serialization/cbor/Cbor$Default;
-	public synthetic fun <init> (ZZLkotlinx/serialization/modules/SerializersModule;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (ZZZZZZZZZLkotlinx/serialization/modules/SerializersModule;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun decodeFromByteArray (Lkotlinx/serialization/DeserializationStrategy;[B)Ljava/lang/Object;
 	public fun encodeToByteArray (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)[B
 	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
@@ -16,17 +30,103 @@ public abstract class kotlinx/serialization/cbor/Cbor : kotlinx/serialization/Bi
 public final class kotlinx/serialization/cbor/Cbor$Default : kotlinx/serialization/cbor/Cbor {
 }
 
+public abstract interface annotation class kotlinx/serialization/cbor/CborArray : java/lang/annotation/Annotation {
+	public abstract fun tag ()[J
+}
+
+public synthetic class kotlinx/serialization/cbor/CborArray$Impl : kotlinx/serialization/cbor/CborArray {
+	public synthetic fun <init> ([JLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final synthetic fun tag ()[J
+}
+
 public final class kotlinx/serialization/cbor/CborBuilder {
+	public final fun getAlwaysUseByteString ()Z
 	public final fun getEncodeDefaults ()Z
 	public final fun getIgnoreUnknownKeys ()Z
+	public final fun getPreferSerialLabelsOverNames ()Z
 	public final fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public final fun getVerifyKeyTags ()Z
+	public final fun getVerifyValueTags ()Z
+	public final fun getWriteDefiniteLengths ()Z
+	public final fun getWriteKeyTags ()Z
+	public final fun getWriteValueTags ()Z
+	public final fun setAlwaysUseByteString (Z)V
 	public final fun setEncodeDefaults (Z)V
 	public final fun setIgnoreUnknownKeys (Z)V
+	public final fun setPreferSerialLabelsOverNames (Z)V
 	public final fun setSerializersModule (Lkotlinx/serialization/modules/SerializersModule;)V
+	public final fun setVerifyKeyTags (Z)V
+	public final fun setVerifyValueTags (Z)V
+	public final fun setWriteDefiniteLengths (Z)V
+	public final fun setWriteKeyTags (Z)V
+	public final fun setWriteValueTags (Z)V
 }
 
 public final class kotlinx/serialization/cbor/CborKt {
 	public static final fun Cbor (Lkotlinx/serialization/cbor/Cbor;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/cbor/Cbor;
 	public static synthetic fun Cbor$default (Lkotlinx/serialization/cbor/Cbor;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/cbor/Cbor;
+}
+
+public abstract interface annotation class kotlinx/serialization/cbor/KeyTags : java/lang/annotation/Annotation {
+	public abstract fun tags ()[J
+}
+
+public synthetic class kotlinx/serialization/cbor/KeyTags$Impl : kotlinx/serialization/cbor/KeyTags {
+	public synthetic fun <init> ([JLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final synthetic fun tags ()[J
+}
+
+public abstract interface annotation class kotlinx/serialization/cbor/SerialLabel : java/lang/annotation/Annotation {
+	public abstract fun label ()J
+}
+
+public synthetic class kotlinx/serialization/cbor/SerialLabel$Impl : kotlinx/serialization/cbor/SerialLabel {
+	public fun <init> (J)V
+	public final synthetic fun label ()J
+}
+
+public abstract interface annotation class kotlinx/serialization/cbor/ValueTags : java/lang/annotation/Annotation {
+	public static final field BASE16 J
+	public static final field BASE64 J
+	public static final field BASE64_URL J
+	public static final field BIGFLOAT J
+	public static final field BIGNUM_NEGAIVE J
+	public static final field BIGNUM_POSITIVE J
+	public static final field CBOR_ENCODED_DATA J
+	public static final field CBOR_SELF_DESCRIBE J
+	public static final field Companion Lkotlinx/serialization/cbor/ValueTags$Companion;
+	public static final field DATE_TIME_EPOCH J
+	public static final field DATE_TIME_STANDARD J
+	public static final field DECIMAL_FRACTION J
+	public static final field MIME_MESSAGE J
+	public static final field REGEX J
+	public static final field STRING_BASE64 J
+	public static final field STRING_BASE64_URL J
+	public static final field URI J
+	public abstract fun tags ()[J
+}
+
+public final class kotlinx/serialization/cbor/ValueTags$Companion {
+	public static final field BASE16 J
+	public static final field BASE64 J
+	public static final field BASE64_URL J
+	public static final field BIGFLOAT J
+	public static final field BIGNUM_NEGAIVE J
+	public static final field BIGNUM_POSITIVE J
+	public static final field CBOR_ENCODED_DATA J
+	public static final field CBOR_SELF_DESCRIBE J
+	public static final field DATE_TIME_EPOCH J
+	public static final field DATE_TIME_STANDARD J
+	public static final field DECIMAL_FRACTION J
+	public static final field MIME_MESSAGE J
+	public static final field REGEX J
+	public static final field STRING_BASE64 J
+	public static final field STRING_BASE64_URL J
+	public static final field URI J
+}
+
+public synthetic class kotlinx/serialization/cbor/ValueTags$Impl : kotlinx/serialization/cbor/ValueTags {
+	public synthetic fun <init> ([JLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final synthetic fun tags ()[J
 }
 
