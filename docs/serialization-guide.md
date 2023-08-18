@@ -147,6 +147,8 @@ Once the project is set up, we can start serializing some classes.
 * <a name='cbor-experimental'></a>[CBOR (experimental)](formats.md#cbor-experimental)
   * <a name='ignoring-unknown-keys'></a>[Ignoring unknown keys](formats.md#ignoring-unknown-keys)
   * <a name='byte-arrays-and-cbor-data-types'></a>[Byte arrays and CBOR data types](formats.md#byte-arrays-and-cbor-data-types)
+  * <a name='definite-vs-indefinite-length-encoding'></a>[Definite vs. Indefinite Length Encoding](formats.md#definite-vs-indefinite-length-encoding)
+  * <a name='tags-and-labels'></a>[Tags and Labels](formats.md#tags-and-labels)
 * <a name='protobuf-experimental'></a>[ProtoBuf (experimental)](formats.md#protobuf-experimental)
   * <a name='field-numbers'></a>[Field numbers](formats.md#field-numbers)
   * <a name='integer-types'></a>[Integer types](formats.md#integer-types)

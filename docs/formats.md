@@ -13,6 +13,8 @@ stable, these are currently experimental features of Kotlin Serialization.
 * [CBOR (experimental)](#cbor-experimental)
   * [Ignoring unknown keys](#ignoring-unknown-keys)
   * [Byte arrays and CBOR data types](#byte-arrays-and-cbor-data-types)
+  * [Definite vs. Indefinite Length Encoding](#definite-vs-indefinite-length-encoding)
+  * [Tags and Labels](#tags-and-labels)
 * [ProtoBuf (experimental)](#protobuf-experimental)
   * [Field numbers](#field-numbers)
   * [Integer types](#integer-types)
@@ -237,12 +239,12 @@ modes of encoding.
 CBOR allows for optionally defining *tags* for properties and their values. These tags are encoded into the resulting
 byte string to transport additional information
 (see [RFC 8949 Tagging of Items](https://datatracker.ietf.org/doc/html/rfc8949#name-tagging-of-items) for more info).
-The  [`@KeyTags`][Tags.kt] and [`@ValueTags`][Tags.kt] annotations can be used to define such tags while.
+The  [`@KeyTags`](Tags.kt) and [`@ValueTags`](Tags.kt) annotations can be used to define such tags while.
 Writing and verifying such tags can be toggled using the  `writeKeyTags`, `writeValueTags`, `verifyKeyTags`, and
 `verifyValueTags` configuration switches respectively.
 
 In addition, CBOR supports *labels*, which work just as `SerialNames`. The key difference is that labels are not strings,
-but integer numbers. Labels can be assigned using the [`@SerialLabel`][SerialLabel.kt] annotation, while the
+but integer numbers. Labels can be assigned using the [`@SerialLabel`](SerialLabel.kt) annotation, while the
 `preferSerialLabelsOverNames` configuration switch can be used to prefer them over SerialNames in case both are present
 for a property.
 
