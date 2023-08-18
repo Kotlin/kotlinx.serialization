@@ -164,6 +164,8 @@ Per the [RFC 7049 Major Types] section, CBOR supports the following data types:
 
 By default, Kotlin `ByteArray` instances are encoded as **major type 4**.
 When **major type 2** is desired, then the [`@ByteString`][ByteString] annotation can be used.
+Moreover, the `alwaysUseByteString` configuration switch allows for globally preferring ** major type 2** without needing
+to annotate every `ByteArray` in a class hierarchy.
 
 <!--- INCLUDE
 import kotlinx.serialization.*
@@ -220,6 +222,29 @@ BF               # map(*)
       FF         # primitive(*)
    FF            # primitive(*)
 ```
+
+### Definite vs. Indefinite Length Encoding
+CBOR supports two encodings for maps and arrays: definite and indefinite length encoding. kotlinx.serialization defaults
+to the latter, which means that a map's or array's number of elements is not encoded, but instead a terminating byte is
+appended after the last element.
+Definite length encoding, on the other hand, omits this terminating byte, but instead prepends number of elements
+to the contents of a map or array. The `writeDefiniteLengths` configuration switch allows for toggling between the two
+modes of encoding.
+
+
+### Tags and Labels
+
+CBOR allows for optionally defining *tags* for properties and their values. These tags are encoded into the resulting
+byte string to transport additional information
+(see [RFC 8949 Tagging of Items](https://datatracker.ietf.org/doc/html/rfc8949#name-tagging-of-items) for more info).
+The  [`@KeyTags`][Tags.kt] and [`@ValueTags`][Tags.kt] annotations can be used to define such tags while.
+Writing and verifying such tags can be toggled using the  `writeKeyTags`, `writeValueTags`, `verifyKeyTags`, and
+`verifyValueTags` configuration switches respectively.
+
+In addition, CBOR supports *labels*, which work just as `SerialNames`. The key difference is that labels are not strings,
+but integer numbers. Labels can be assigned using the [`@SerialLabel`][SerialLabel.kt] annotation, while the
+`preferSerialLabelsOverNames` configuration switch can be used to prefer them over SerialNames in case both are present
+for a property.
 
 ## ProtoBuf (experimental)
 
