@@ -207,20 +207,23 @@ internal open class CborWriter(
         val preamble = ByteArrayOutput()
         val encoder = CborEncoder(preamble)
 
-        if (parentDescriptor?.hasArrayTag() != true) {
-            if (cbor.writeKeyTags) {
-                index.let { parentDescriptor?.getKeyTags(it)?.forEach { encoder.encodeTag(it) } }
-            }
-            if ((parentDescriptor?.kind !is StructureKind.LIST) && (parentDescriptor?.kind !is StructureKind.MAP)) { //TODO polymorphicKind?
-                //indices are put into the name field. we don't want to write those, as it would result in double writes
-                if (cbor.preferSerialLabelsOverNames && label != null) {
-                    encoder.encodeNumber(label)
-                } else if (name != null) {
-                    encoder.encodeString(name)
+        parentDescriptor?.let { descriptor ->
+
+
+            if (!descriptor.hasArrayTag()) {
+                if (cbor.writeKeyTags) {
+                    index.let { descriptor.getKeyTags(it)?.forEach { encoder.encodeTag(it) } }
+                }
+                if ((descriptor.kind !is StructureKind.LIST) && (descriptor.kind !is StructureKind.MAP) && (descriptor.kind !is PolymorphicKind)) {
+                    //indices are put into the name field. we don't want to write those, as it would result in double writes
+                    if (cbor.preferSerialLabelsOverNames && label != null) {
+                        encoder.encodeNumber(label)
+                    } else if (name != null) {
+                        encoder.encodeString(name)
+                    }
                 }
             }
         }
-
         if (cbor.writeValueTags) {
             index.let { parentDescriptor?.getValueTags(it)?.forEach { encoder.encodeTag(it) } }
         }
