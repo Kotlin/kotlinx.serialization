@@ -1,10 +1,24 @@
 
+1.6.0 / 2023-08-22
+==================
+
+This release contains all features and bugfixes from [1.6.0-RC](https://github.com/Kotlin/kotlinx.serialization/releases/tag/v1.6.0-RC) plus some bugfixes on its own (see below).
+Kotlin 1.9.0 is used as a default, while 1.9.10 is also supported.
+
+### Bugfixes
+
+  * Improve error messages from Json parser (#2406)
+  * Mark @SerialName, @Required and @Transient with @MustBeDocumented (#2407)
+  * Ensure that no additional files except java compiler output get into multi-release jar (#2405)
+  * Fix enums with negative numbers in protobuf not serializing & de-serializing (#2400) (thanks to [Doğaç Eldenk](https://github.com/Dogacel))
+
 1.6.0-RC / 2023-08-03
 ==================
 
 This release is based on the Kotlin 1.9.0.
 
 ### Removal of Legacy JS target
+
 Some time ago, in Kotlin 1.8, [JS IR compiler was promoted to stable and old JS compiler was deprecated](https://kotlinlang.org/docs/whatsnew18.html#stable-js-ir-compiler-backend).
 Kotlin 1.9 promotes the usage of deprecated JS compiler to an error. As a result, kotlinx.serialization no longer builds with the legacy compiler
 and does not distribute artifacts for it. You can read the migration guide for JS IR compiler [here](https://kotlinlang.org/docs/js-ir-migration.html).

@@ -59,6 +59,7 @@ message TestEnum {
         Americano = 0;
         Latte = 1;
         Capuccino = 2;
+        NoCoffee = -1;
     }
     required Coffee a = 1;
 }

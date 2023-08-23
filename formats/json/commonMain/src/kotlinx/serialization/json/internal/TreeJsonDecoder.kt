@@ -143,7 +143,7 @@ private sealed class AbstractJsonTreeDecoder(
     }
 
     private fun unparsedPrimitive(primitive: String): Nothing {
-        throw JsonDecodingException(-1, "Failed to parse '$primitive'", currentObject().toString())
+        throw JsonDecodingException(-1, "Failed to parse literal as '$primitive' value", currentObject().toString())
     }
 
     override fun decodeTaggedString(tag: String): String {
@@ -159,7 +159,7 @@ private sealed class AbstractJsonTreeDecoder(
     }
 
     private fun JsonPrimitive.asLiteral(type: String): JsonLiteral {
-        return this as? JsonLiteral ?: throw JsonDecodingException(-1, "Unexpected 'null' when $type was expected")
+        return this as? JsonLiteral ?: throw JsonDecodingException(-1, "Unexpected 'null' literal when non-nullable $type was expected")
     }
 
     override fun decodeTaggedInline(tag: String, inlineDescriptor: SerialDescriptor): Decoder =

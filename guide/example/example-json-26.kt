@@ -15,10 +15,10 @@ sealed class Response<out T> {
 
 class ResponseSerializer<T>(private val dataSerializer: KSerializer<T>) : KSerializer<Response<T>> {
     override val descriptor: SerialDescriptor = buildSerialDescriptor("Response", PolymorphicKind.SEALED) {
-        element("Ok", buildClassSerialDescriptor("Ok") {
-            element<String>("message")
+        element("Ok", dataSerializer.descriptor)
+        element("Error", buildClassSerialDescriptor("Error") {
+          element<String>("message")
         })
-        element("Error", dataSerializer.descriptor)
     }
 
     override fun deserialize(decoder: Decoder): Response<T> {

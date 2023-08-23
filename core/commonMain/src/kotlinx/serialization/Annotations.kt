@@ -1,8 +1,6 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2023 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
-
-@file:Suppress("NO_EXPLICIT_VISIBILITY_IN_API_MODE_WARNING") // Parameters of annotations should probably be ignored, too
 
 package kotlinx.serialization
 
@@ -149,6 +147,7 @@ public annotation class Serializer(
  * If a name of class or property is overridden with this annotation, original source code name is not available for the library.
  * Tools like `JsonNamingStrategy` and `ProtoBufSchemaGenerator` would see and transform [value] from [SerialName] annotation.
  */
+@MustBeDocumented
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.CLASS)
 // @Retention(AnnotationRetention.RUNTIME) still runtime, but KT-41082
 public annotation class SerialName(val value: String)
@@ -156,6 +155,7 @@ public annotation class SerialName(val value: String)
 /**
  * Indicates that property must be present during deserialization process, despite having a default value.
  */
+@MustBeDocumented
 @Target(AnnotationTarget.PROPERTY)
 // @Retention(AnnotationRetention.RUNTIME) still runtime, but KT-41082
 public annotation class Required
@@ -164,6 +164,7 @@ public annotation class Required
  * Marks this property invisible for the whole serialization process, including [serial descriptors][SerialDescriptor].
  * Transient properties must have default values.
  */
+@MustBeDocumented
 @Target(AnnotationTarget.PROPERTY)
 // @Retention(AnnotationRetention.RUNTIME) still runtime, but KT-41082
 public annotation class Transient
@@ -189,6 +190,7 @@ public annotation class Transient
  * @see EncodeDefault.Mode.ALWAYS
  * @see EncodeDefault.Mode.NEVER
  */
+@MustBeDocumented
 @Target(AnnotationTarget.PROPERTY)
 @ExperimentalSerializationApi
 public annotation class EncodeDefault(val mode: Mode = Mode.ALWAYS) {
@@ -266,7 +268,6 @@ public annotation class SerialInfo
 @Retention(AnnotationRetention.BINARY)
 @ExperimentalSerializationApi
 public annotation class InheritableSerialInfo
-
 
 /**
  * Instructs the plugin to use [ContextualSerializer] on a given property or type.

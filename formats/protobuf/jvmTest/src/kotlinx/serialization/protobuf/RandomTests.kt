@@ -162,11 +162,11 @@ class RandomTest : ShouldSpec() {
             }
         }
 
-        enum class KCoffee { AMERICANO, LATTE, CAPPUCCINO }
+        enum class KCoffee(val value: Int) { AMERICANO(0), LATTE(1), CAPPUCCINO(2), @ProtoNumber(-1) NO_COFFEE(-1) }
 
         @Serializable
         data class KTestEnum(@ProtoNumber(1) val a: KCoffee): IMessage {
-            override fun toProtobufMessage() = TestEnum.newBuilder().setA(TestEnum.Coffee.forNumber(a.ordinal)).build()
+            override fun toProtobufMessage() = TestEnum.newBuilder().setA(TestEnum.Coffee.forNumber(a.value)).build()
 
             companion object : Gen<KTestEnum> {
                 override fun generate(): KTestEnum = KTestEnum(Gen.oneOf<KCoffee>().generate())
