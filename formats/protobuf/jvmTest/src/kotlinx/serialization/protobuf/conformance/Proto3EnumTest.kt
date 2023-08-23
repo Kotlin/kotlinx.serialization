@@ -23,9 +23,10 @@ data class KTestMessagesProto3Enum(
         BAR,
 
         @ProtoNumber(2)
-        BAZ;
-//        @ProtoNumber(-1)
-//        NEG;
+        BAZ,
+
+        @ProtoNumber(-1)
+        NEG;
 
         fun toProto() = TestMessagesProto3.TestAllTypesProto3.NestedEnum.valueOf(this.name)
     }
@@ -71,7 +72,7 @@ class Proto3EnumTest {
     @Test
     fun default() {
         val message = KTestMessagesProto3Enum(
-            optionalNestedEnum = KTestMessagesProto3Enum.KNestedEnum.BAR,
+            optionalNestedEnum = KTestMessagesProto3Enum.KNestedEnum.NEG,
             optionalForeignEnum = KForeignEnum.FOREIGN_BAR,
             optionalAliasedEnum = KTestMessagesProto3Enum.KAliasedEnum.ALIAS_BAR
         )

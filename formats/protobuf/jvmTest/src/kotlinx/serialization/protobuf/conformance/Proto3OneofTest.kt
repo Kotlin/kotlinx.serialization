@@ -54,18 +54,18 @@ class Proto3OneofTest {
         ).forEach { message ->
             val bytes = ProtoBuf.encodeToByteArray(message)
             val restored = TestMessagesProto3.TestAllTypesProto3.parseFrom(bytes)
-            if (restored.hasOneofUint32()) assertEquals(message.oneofUint32, restored.oneofUint32.toUInt())
-            if (restored.hasOneofNestedMessage()) assertEquals(
-                message.oneofNestedMessage?.a,
+            if (message.oneofUint32 != null) assertEquals(message.oneofUint32, restored.oneofUint32.toUInt())
+            if (message.oneofNestedMessage != null) assertEquals(
+                message.oneofNestedMessage.a,
                 restored.oneofNestedMessage?.a
             )
-            if (restored.hasOneofString()) assertEquals(message.oneofString, restored.oneofString)
-            if (restored.hasOneofBytes()) assertContentEquals(message.oneofBytes, restored.oneofBytes.toByteArray())
-            if (restored.hasOneofBool()) assertEquals(message.oneofBool, restored.oneofBool)
-            if (restored.hasOneofUint64()) assertEquals(message.oneofUint64, restored.oneofUint64.toULong())
-            if (restored.hasOneofFloat()) assertEquals(message.oneofFloat, restored.oneofFloat)
-            if (restored.hasOneofDouble()) assertEquals(message.oneofDouble, restored.oneofDouble)
-            if (restored.hasOneofEnum()) assertEquals(message.oneofEnum?.name, restored.oneofEnum?.name)
+            if (message.oneofString != null) assertEquals(message.oneofString, restored.oneofString)
+            if (message.oneofBytes != null) assertContentEquals(message.oneofBytes, restored.oneofBytes.toByteArray())
+            if (message.oneofBool != null) assertEquals(message.oneofBool, restored.oneofBool)
+            if (message.oneofUint64 != null) assertEquals(message.oneofUint64, restored.oneofUint64.toULong())
+            if (message.oneofFloat != null) assertEquals(message.oneofFloat, restored.oneofFloat)
+            if (message.oneofDouble != null) assertEquals(message.oneofDouble, restored.oneofDouble)
+            if (message.oneofEnum != null) assertEquals(message.oneofEnum.name, restored.oneofEnum?.name)
 
             val restoredMessage = ProtoBuf.decodeFromByteArray<KTestMessageProto3Oneof>(restored.toByteArray())
             assertEquals(message, restoredMessage.copy(oneofBytes = message.oneofBytes))
