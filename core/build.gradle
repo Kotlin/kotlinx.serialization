@@ -67,10 +67,6 @@ tasks.withType(Jar).named(kotlin.jvm().artifactsTaskName) {
 
 Java9Modularity.configureJava9ModuleInfo(project)
 
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile.class).configureEach {
-    if (it.name.equals("compileTestDevelopmentExecutableKotlinWasm") || it.name.equals("compileTestProductionExecutableKotlinWasm")) {
-        kotlinOptions {
-            freeCompilerArgs += "-Xwasm-enable-array-range-checks"
-        }
-    }
+tasks.withType(org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrLink.class).configureEach {
+    kotlinOptions.freeCompilerArgs += "-Xwasm-enable-array-range-checks"
 }

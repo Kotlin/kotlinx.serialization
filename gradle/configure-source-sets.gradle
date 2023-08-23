@@ -2,6 +2,8 @@
  * Copyright 2017-2022 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
+import static KotlinVersion.*
+
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(11))
@@ -11,6 +13,9 @@ java {
 tasks.withType(JavaCompile).configureEach {
     options.release = 8
 }
+
+// Right now it is used for conditional support of kotlin 1.9.0 and 1.9.20+
+def isNewWasmTargetEnabled = isKotlinVersionAtLeast(rootProject.properties["kotlin_version"], 1, 9, 20)
 
 kotlin {
     jvm {
@@ -40,8 +45,14 @@ kotlin {
         }
     }
 
-    wasm {
-        d8()
+    if (isNewWasmTargetEnabled) {
+        wasmJs {
+            d8()
+        }
+    } else {
+        wasm {
+            d8()
+        }
     }
 
     sourceSets.all {
@@ -94,15 +105,35 @@ kotlin {
             }
         }
 
-        wasmMain {
-            dependencies {
-                api 'org.jetbrains.kotlin:kotlin-stdlib-wasm'
+        if(isNewWasmTargetEnabled) {
+            wasmJsMain {
+                kotlin {
+                    srcDir 'wasmMain/src'
+                }
+                dependencies {
+                    api 'org.jetbrains.kotlin:kotlin-stdlib-wasm-js'
+                }
             }
-        }
 
-        wasmTest {
-            dependencies {
-                api 'org.jetbrains.kotlin:kotlin-test-wasm'
+            wasmJsTest {
+                kotlin {
+                    srcDir 'wasmTest/src'
+                }
+                dependencies {
+                    api 'org.jetbrains.kotlin:kotlin-test-wasm-js'
+                }
+            }
+        } else {
+            wasmMain {
+                dependencies {
+                    api 'org.jetbrains.kotlin:kotlin-stdlib-wasm'
+                }
+            }
+
+            wasmTest {
+                dependencies {
+                    api 'org.jetbrains.kotlin:kotlin-test-wasm'
+                }
             }
         }
 

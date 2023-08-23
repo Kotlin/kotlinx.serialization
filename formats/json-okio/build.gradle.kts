@@ -44,3 +44,18 @@ tasks.named<DokkaTaskPartial>("dokkaHtmlPartial") {
         }
     }
 }
+
+
+// Right now it is used for conditional support of kotlin 1.9.0 and 1.9.20+
+// TODO: Remove this after okio will be updated to the version with 1.9.20 stdlib dependency
+val kotlin_version: String by project
+val isNewWasmTargetEnabled = isKotlinVersionAtLeast(kotlin_version, 1, 9, 20)
+if (isNewWasmTargetEnabled) {
+    configurations.all {
+        resolutionStrategy.eachDependency {
+            if (requested.name == "kotlin-stdlib-wasm") {
+                useTarget("org.jetbrains.kotlin:kotlin-stdlib-wasm-js:${requested.version}")
+            }
+        }
+    }
+}
