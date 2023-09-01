@@ -2,8 +2,7 @@
  * Copyright 2017-2022 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 import Java9Modularity.configureJava9ModuleInfo
-import org.jetbrains.kotlin.gradle.targets.js.ir.*
-import org.jetbrains.kotlin.gradle.tasks.*
+import org.jetbrains.kotlin.gradle.targets.js.testing.*
 
 plugins {
     kotlin("multiplatform")
@@ -56,5 +55,13 @@ if (isNewWasmTargetEnabled) {
                 useTarget("org.jetbrains.kotlin:kotlin-stdlib-wasm-js:${requested.version}")
             }
         }
+    }
+}
+
+// TODO: Remove this after default kotlin will be updated to 1.9.20
+// https://youtrack.jetbrains.com/issue/KT-60212
+if (!isNewWasmTargetEnabled) {
+    tasks.named("wasmD8Test", KotlinJsTest::class) {
+        filter.excludePatterns += "kotlinx.serialization.features.EmojiTest"
     }
 }
