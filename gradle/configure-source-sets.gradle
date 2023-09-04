@@ -112,6 +112,7 @@ kotlin {
                     languageVersion = rootProject.ext.kotlin_lv_override
                     freeCompilerArgs += "-Xsuppress-version-warnings"
                 }
+                freeCompilerArgs += "-Xexpect-actual-classes"
             }
         }
         compilations.main {
