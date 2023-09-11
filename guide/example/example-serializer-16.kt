@@ -1,4 +1,3 @@
-@file:UseSerializers(DateAsLongSerializer::class)
 // This file was automatically generated from serializers.md by Knit tool. Do not edit.
 package example.exampleSerializer16
 
@@ -17,9 +16,13 @@ object DateAsLongSerializer : KSerializer<Date> {
 }
 
 @Serializable          
-class ProgrammingLanguage(val name: String, val stableReleaseDate: Date)
+class ProgrammingLanguage(
+    val name: String,
+    val releaseDates: List<@Serializable(DateAsLongSerializer::class) Date>
+)
 
 fun main() {
-    val data = ProgrammingLanguage("Kotlin", SimpleDateFormat("yyyy-MM-ddX").parse("2016-02-15+00"))
+    val df = SimpleDateFormat("yyyy-MM-ddX")
+    val data = ProgrammingLanguage("Kotlin", listOf(df.parse("2023-07-06+00"), df.parse("2023-04-25+00"), df.parse("2022-12-28+00")))
     println(Json.encodeToString(data))
 }
