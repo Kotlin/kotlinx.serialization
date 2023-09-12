@@ -1,3 +1,5 @@
+import static KotlinVersion.isKotlinVersionAtLeast
+
 /*
  * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
@@ -18,6 +20,9 @@ tasks.named("koverVerify") {
     enabled = false
 }
 
+// Right now it is used for conditional support of kotlin 1.9.0 and 1.9.20+
+def isNewWasmTargetEnabled = isKotlinVersionAtLeast(rootProject.properties["kotlin_version"], 1, 9, 20)
+
 kotlin {
 
     sourceSets {
@@ -26,7 +31,29 @@ kotlin {
                 api project(":kotlinx-serialization-core")
             }
         }
+        jsWasmMain {
+            dependsOn(sourceSets.commonMain)
+        }
+        jsMain {
+            dependsOn(sourceSets.jsWasmMain)
+        }
+        if (isNewWasmTargetEnabled) {
+            wasmJsMain {
+                dependsOn(sourceSets.jsWasmMain)
+            }
+        } else {
+            wasmMain {
+                dependsOn(sourceSets.jsWasmMain)
+            }
+        }
     }
 }
 
 Java9Modularity.configureJava9ModuleInfo(project)
+
+// This task should be disabled because of no need to build and publish intermediate JsWasm sourceset
+tasks.whenTaskAdded { task ->
+    if (task.name == 'compileJsWasmMainKotlinMetadata') {
+        task.enabled = false
+    }
+}

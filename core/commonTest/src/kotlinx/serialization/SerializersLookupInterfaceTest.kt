@@ -34,7 +34,7 @@ class SerializersLookupInterfaceTest {
     @Test
     fun testInterfaceLookup() {
         // Native does not have KClass.isInterface
-        if (isNative()) return
+        if (isNative() || isWasm()) return
 
         val serializer1 = serializer<I>()
         assertTrue(serializer1 is PolymorphicSerializer)

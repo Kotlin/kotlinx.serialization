@@ -84,3 +84,24 @@ val umbrellaInstance = TypesUmbrella(
         arrayOf(IntData(1), IntData(2))
     )
 )
+
+val umbrellaInstance2 = TypesUmbrella(
+    Unit, true, 10, 20, 30, 40, 50.5f, 60.5, 'A', "Str0", Attitude.POSITIVE, IntData(70),
+    null, null, 11, 21, 31, 41, 51.5f, 61.5, 'B', "Str1", Attitude.NEUTRAL, null,
+    listOf(1, 2, 3),
+    listOf(4, 5, null),
+    setOf(6, 7, 8),
+    mutableSetOf(null, 9, 10),
+    listOf(listOf(Attitude.NEGATIVE, null)),
+    listOf(IntData(1), IntData(2), IntData(3)),
+    mutableListOf(IntData(1), null, IntData(3)),
+    Tree("root", Tree("left"), Tree("right", Tree("right.left"), Tree("right.right"))),
+    mapOf("one" to 1, "two" to 2, "three" to 3),
+    mapOf(0 to null, 1 to "first", 2 to "second"),
+    ArraysUmbrella(
+        arrayOf(1, 2, 3),
+        arrayOf(100, 200, 300),
+        arrayOf(null, -1, -2),
+        arrayOf(IntData(1), IntData(2))
+    )
+)

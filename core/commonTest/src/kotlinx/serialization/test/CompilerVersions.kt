@@ -29,6 +29,7 @@ internal inline fun <reified T : Throwable> shouldFail(
     onJvm: Boolean = true,
     onJs: Boolean = true,
     onNative: Boolean = true,
+    onWasm: Boolean = true,
     test: () -> Unit
 ) {
     val args = mapOf(
@@ -36,7 +37,8 @@ internal inline fun <reified T : Throwable> shouldFail(
         "before" to beforeKotlin,
         "onJvm" to onJvm,
         "onJs" to onJs,
-        "onNative" to onNative
+        "onNative" to onNative,
+        "onWasm" to onWasm
     )
 
     val sinceVersion = sinceKotlin?.toKotlinVersion()
@@ -45,7 +47,7 @@ internal inline fun <reified T : Throwable> shouldFail(
     val version = (sinceVersion != null && currentKotlinVersion >= sinceVersion)
         || (beforeVersion != null && currentKotlinVersion < beforeVersion)
 
-    val platform = (isJvm() && onJvm) || (isJs() && onJs) || (isNative() && onNative)
+    val platform = (isJvm() && onJvm) || (isJs() && onJs) || (isNative() && onNative) || (isWasm() && onWasm)
 
     var error: Throwable? = null
     try {
@@ -162,6 +164,16 @@ internal class CompilerVersionTest {
                 // no-op
             }
             shouldFail<IllegalArgumentException>(sinceKotlin = "0.0.0", beforeKotlin = "255.255.255", onJs = false) {
+                // no-op
+            }
+        } else if (isWasm()) {
+            shouldFail<IllegalArgumentException>(beforeKotlin = "255.255.255", onWasm = false) {
+                // no-op
+            }
+            shouldFail<IllegalArgumentException>(sinceKotlin = "0.0.0", onWasm = false) {
+                // no-op
+            }
+            shouldFail<IllegalArgumentException>(sinceKotlin = "0.0.0", beforeKotlin = "255.255.255", onWasm = false) {
                 // no-op
             }
         } else if (isNative()) {
