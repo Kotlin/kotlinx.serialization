@@ -268,23 +268,14 @@ internal open class StreamingJsonDecoder(
         }
     }
 
-
+    /*
+     * The primitives are allowed to be quoted and unquoted
+     * to simplify map key parsing and integrations with third-party API.
+     */
     override fun decodeBoolean(): Boolean {
-        /*
-         * We prohibit any boolean literal that is not strictly 'true' or 'false' as it is considered way too
-         * error-prone, but allow quoted literal in relaxed mode for booleans.
-         */
-        return if (configuration.isLenient) {
-            lexer.consumeBooleanLenient()
-        } else {
-            lexer.consumeBoolean()
-        }
+        return lexer.consumeBooleanLenient()
     }
 
-    /*
-     * The rest of the primitives are allowed to be quoted and unquoted
-     * to simplify integrations with third-party API.
-     */
     override fun decodeByte(): Byte {
         val value = lexer.consumeNumericLiteral()
         // Check for overflow

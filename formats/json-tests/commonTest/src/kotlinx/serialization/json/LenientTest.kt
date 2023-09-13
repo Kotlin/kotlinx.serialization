@@ -37,7 +37,7 @@ class LenientTest : JsonTestBase() {
     @Test
     fun testQuotedBoolean() = parametrizedTest {
         val json = """{"i":1, "l":2, "b":"true", "s":"string"}"""
-        assertFailsWithSerial("JsonDecodingException") { default.decodeFromString(Holder.serializer(), json, it) }
+        assertEquals(value, default.decodeFromString(Holder.serializer(), json, it))
         assertEquals(value, lenient.decodeFromString(Holder.serializer(), json, it))
     }
 
