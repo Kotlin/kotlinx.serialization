@@ -29,7 +29,7 @@ import kotlin.reflect.*
  * @Serializable
  * class ClassWithDate(val data: String, @Contextual val timestamp: Date)
  *
- * val moduleForDate = serializersModule(MyISO8601DateSerializer)
+ * val moduleForDate = serializersModuleOf(MyISO8601DateSerializer)
  * val json = Json { serializersModule = moduleForDate }
  * json.encodeToString(ClassWithDate("foo", Date())
  * ```
