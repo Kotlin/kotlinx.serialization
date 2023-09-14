@@ -91,16 +91,7 @@ private sealed class AbstractJsonTreeDecoder(
     override fun decodeTaggedNotNullMark(tag: String): Boolean = currentElement(tag) !== JsonNull
 
     override fun decodeTaggedBoolean(tag: String): Boolean {
-        val value = getPrimitiveValue(tag)
-        if (!json.configuration.isLenient) {
-            val literal = value.asLiteral("boolean")
-            if (literal.isString) throw JsonDecodingException(
-                -1, "Boolean literal for key '$tag' should be unquoted.\n$lenientHint", currentObject().toString()
-            )
-        }
-        return value.primitive("boolean") {
-            booleanOrNull ?: throw IllegalArgumentException() /* Will be handled by 'primitive' */
-        }
+        return getPrimitiveValue(tag).primitive("boolean", JsonPrimitive::booleanOrNull)
     }
 
     override fun decodeTaggedByte(tag: String) = getPrimitiveValue(tag).primitive("byte") {

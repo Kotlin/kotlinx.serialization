@@ -5,6 +5,7 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -42,6 +43,9 @@ class JsonMapKeysTest : JsonTestBase() {
     private data class WithMap(val map: Map<Long, Long>)
 
     @Serializable
+    private data class WithBooleanMap(val map: Map<Boolean, Boolean>)
+
+    @Serializable
     private data class WithValueKeyMap(val map: Map<PrimitiveCarrier, Long>)
 
     @Serializable
@@ -60,13 +64,42 @@ class JsonMapKeysTest : JsonTestBase() {
     private data class WithContextualKey(val map: Map<@Contextual ContextualValue, Long>)
 
     @Test
-    fun testMapKeysShouldBeStrings() = parametrizedTest(default) {
+    fun testMapKeysSupportNumbers() = parametrizedTest {
         assertStringFormAndRestored(
             """{"map":{"10":10,"20":20}}""",
             WithMap(mapOf(10L to 10L, 20L to 20L)),
             WithMap.serializer(),
-            this
+            default
         )
+    }
+
+    @Test
+    fun testMapKeysSupportBooleans() = parametrizedTest {
+        assertStringFormAndRestored(
+            """{"map":{"true":false,"false":true}}""",
+            WithBooleanMap(mapOf(true to false, false to true)),
+            WithBooleanMap.serializer(),
+            default
+        )
+    }
+
+    // As a result of quoting ignorance when parsing primitives, it is possible to parse unquoted maps if Kotlin keys are non-string primitives.
+    // This is not spec-compliant, but I do not see any problems with it.
+    @Test
+    fun testMapDeserializesUnquotedKeys() = parametrizedTest {
+        assertEquals(WithMap(mapOf(10L to 10L, 20L to 20L)), default.decodeFromString("""{"map":{10:10,20:20}}"""))
+        assertEquals(
+            WithBooleanMap(mapOf(true to false, false to true)),
+            default.decodeFromString("""{"map":{true:false,false:true}}""")
+        )
+        assertFailsWithSerial("JsonDecodingException") {
+            default.decodeFromString(
+                MapSerializer(
+                    String.serializer(),
+                    Boolean.serializer()
+                ),"""{"map":{true:false,false:true}}"""
+            )
+        }
     }
 
     @Test
