@@ -406,10 +406,6 @@ public final class kotlinx/serialization/json/internal/StreamingJsonDecoderKt {
 	public static final fun decodeStringToJsonTree (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
 }
 
-public final class kotlinx/serialization/json/internal/StringOpsKt {
-	public static final fun getESCAPE_STRINGS ()[Ljava/lang/String;
-}
-
 public final class kotlinx/serialization/json/internal/TreeJsonDecoderKt {
 	public static final fun readJson (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/json/JsonElement;Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
 }

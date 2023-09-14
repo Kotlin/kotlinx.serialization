@@ -3,7 +3,7 @@
  */
 
 @file:OptIn(ExperimentalSerializationApi::class)
-@file:Suppress("UNCHECKED_CAST", "INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
+@file:Suppress("UNCHECKED_CAST")
 
 package kotlinx.serialization.protobuf.internal
 
@@ -213,7 +213,7 @@ internal open class ProtobufDecoder(
         val mapEntrySerial =
             kotlinx.serialization.builtins.MapEntrySerializer(serializer.keySerializer, serializer.valueSerializer)
         val oldSet = (previousValue as? Map<Any?, Any?>)?.entries
-        val setOfEntries = LinkedHashSetSerializer(mapEntrySerial).merge(this, oldSet)
+        val setOfEntries = (SetSerializer(mapEntrySerial) as AbstractCollectionSerializer<Map.Entry<Any?, Any?>, Set<Map.Entry<Any?, Any?>>, *>).merge(this, oldSet)
         return setOfEntries.associateBy({ it.key }, { it.value }) as T
     }
 
