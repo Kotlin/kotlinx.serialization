@@ -152,6 +152,8 @@ object Java9Modularity {
             // part of work-around for https://youtrack.jetbrains.com/issue/KT-60541
             // and work-around for https://youtrack.jetbrains.com/issue/KT-60582
             incremental = false
+
+            enabled = false // WA for KT-61952
         }
         return verifyModuleTask
     }
