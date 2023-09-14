@@ -8,22 +8,24 @@ import kotlinx.serialization.*
 import kotlinx.serialization.test.*
 import kotlin.test.*
 
-class ProtobufNothingTest {
-    @Serializable
-    /*private*/ data class NullableNothingBox(val value: Nothing?) // `private` doesn't work on the JS legacy target
+// https://youtrack.jetbrains.com/issue/KT-61954
 
-    @Serializable
-    private data class ParameterizedBox<T : Any>(val value: T?)
-
-    private inline fun <reified T> testConversion(data: T, expectedHexString: String) {
-        val string = ProtoBuf.encodeToHexString(data).uppercase()
-        assertEquals(expectedHexString, string)
-        assertEquals(data, ProtoBuf.decodeFromHexString(string))
-    }
-
-    @Test
-    fun testNothing() {
-        testConversion(NullableNothingBox(null), "")
-        testConversion(ParameterizedBox(null), "")
-    }
-}
+//class ProtobufNothingTest {
+//    @Serializable
+//    /*private*/ data class NullableNothingBox(val value: Nothing?) // `private` doesn't work on the JS legacy target
+//
+//    @Serializable
+//    private data class ParameterizedBox<T : Any>(val value: T?)
+//
+//    private inline fun <reified T> testConversion(data: T, expectedHexString: String) {
+//        val string = ProtoBuf.encodeToHexString(data).uppercase()
+//        assertEquals(expectedHexString, string)
+//        assertEquals(data, ProtoBuf.decodeFromHexString(string))
+//    }
+//
+//    @Test
+//    fun testNothing() {
+//        testConversion(NullableNothingBox(null), "")
+//        testConversion(ParameterizedBox(null), "")
+//    }
+//}
