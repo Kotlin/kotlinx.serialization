@@ -49,7 +49,6 @@ internal open class StreamingJsonDecoder(
 
     override fun decodeJsonElement(): JsonElement = JsonTreeReader(json.configuration, lexer).read()
 
-    @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
         try {
             /*
