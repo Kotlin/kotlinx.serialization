@@ -21,8 +21,11 @@ clean {
 }
 
 kotlin {
-
     sourceSets {
+        configureEach {
+            languageSettings.optIn("kotlinx.serialization.internal.SuperInternalSerializationApi")
+        }
+
         commonMain {
             dependencies {
                 api project(":kotlinx-serialization-core")

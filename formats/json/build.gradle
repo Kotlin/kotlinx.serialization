@@ -24,8 +24,13 @@ tasks.named("koverVerify") {
 def isNewWasmTargetEnabled = isKotlinVersionAtLeast(rootProject.properties["kotlin_version"], 1, 9, 20)
 
 kotlin {
-
     sourceSets {
+        configureEach {
+            languageSettings {
+                optIn("kotlinx.serialization.internal.SuperInternalSerializationApi")
+                optIn("kotlinx.serialization.json.internal.SuperInternalJsonApi")
+            }
+        }
         commonMain {
             dependencies {
                 api project(":kotlinx-serialization-core")

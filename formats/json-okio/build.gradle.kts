@@ -15,6 +15,12 @@ apply(from = rootProject.file("gradle/configure-source-sets.gradle"))
 
 kotlin {
     sourceSets {
+        configureEach {
+            languageSettings {
+                optIn("kotlinx.serialization.internal.SuperInternalSerializationApi")
+                optIn("kotlinx.serialization.json.internal.SuperInternalJsonApi")
+            }
+        }
         val commonMain by getting {
             dependencies {
                 api(project(":kotlinx-serialization-core"))
