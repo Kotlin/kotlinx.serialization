@@ -34,7 +34,7 @@ private val ESCAPE_STRINGS: Array<String?> = arrayOfNulls<String>(93).apply {
 
 
 
-internal class JsonToOkioStreamWriter(private val sink: BufferedSink) : JsonWriter {
+internal class JsonToOkioStreamWriter(private val sink: BufferedSink) : InternalJsonWriter {
     override fun writeLong(value: Long) {
         write(value.toString())
     }
@@ -77,7 +77,7 @@ private const val HIGH_SURROGATE_HEADER = 0xd800 - (0x010000 ushr 10)
 private const val LOW_SURROGATE_HEADER = 0xdc00
 
 
-internal class OkioSerialReader(private val source: BufferedSource): SerialReader {
+internal class OkioSerialReader(private val source: BufferedSource): InternalJsonReader {
     /*
     A sequence of code points is read from UTF-8, some of it can take 2 characters.
     In case the last code point requires 2 characters, and the array is already full, we buffer the second character

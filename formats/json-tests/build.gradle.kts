@@ -25,6 +25,12 @@ tasks.named("koverVerify") {
 
 kotlin {
     sourceSets {
+        configureEach {
+            languageSettings {
+                optIn("kotlinx.serialization.internal.SuperInternalSerializationApi")
+                optIn("kotlinx.serialization.json.internal.SuperInternalJsonApi")
+            }
+        }
         val commonTest by getting {
             dependencies {
                 api(project(":kotlinx-serialization-json"))

@@ -10,7 +10,6 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
-import kotlin.native.concurrent.*
 
 private val unsignedNumberDescriptors = setOf(
     UInt.serializer().descriptor,
@@ -34,7 +33,7 @@ internal class StreamingJsonEncoder(
 ) : JsonEncoder, AbstractEncoder() {
 
     internal constructor(
-        output: JsonWriter, json: Json, mode: WriteMode,
+        output: InternalJsonWriter, json: Json, mode: WriteMode,
         modeReuseCache: Array<JsonEncoder?>
     ) : this(Composer(output, json), json, mode, modeReuseCache)
 
@@ -164,7 +163,7 @@ internal class StreamingJsonEncoder(
             else                        -> super.encodeInline(descriptor)
         }
 
-    private inline fun <reified T: Composer> composerAs(composerCreator: (writer: JsonWriter, forceQuoting: Boolean) -> T): T {
+    private inline fun <reified T: Composer> composerAs(composerCreator: (writer: InternalJsonWriter, forceQuoting: Boolean) -> T): T {
         // If we're inside encodeInline().encodeSerializableValue, we should preserve the forceQuoting state
         // inside the composer, but not in the encoder (otherwise we'll get into `if (forceQuoting) encodeString(value.toString())` part
         // and unsigned numbers would be encoded incorrectly)

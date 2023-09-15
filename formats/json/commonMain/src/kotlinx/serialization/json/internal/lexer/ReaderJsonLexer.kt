@@ -33,7 +33,7 @@ internal class ArrayAsSequence(internal val buffer: CharArray) : CharSequence {
 }
 
 internal class ReaderJsonLexer(
-    private val reader: SerialReader,
+    private val reader: InternalJsonReader,
     private val buffer: CharArray = CharArrayPoolBatchSize.take()
 ) : AbstractJsonLexer() {
     private var threshold: Int = DEFAULT_THRESHOLD // chars

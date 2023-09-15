@@ -49,7 +49,7 @@ abstract class JsonTestBase {
                 encodeViaStream(serializer, value)
             }
             JsonTestingMode.TREE -> {
-                val tree = writeJson(value, serializer)
+                val tree = writeJson(this, value, serializer)
                 encodeToString(tree)
             }
             JsonTestingMode.OKIO_STREAMS -> {
@@ -77,8 +77,8 @@ abstract class JsonTestBase {
                 decodeViaStream(deserializer, source)
             }
             JsonTestingMode.TREE -> {
-                val tree = decodeStringToJsonTree(deserializer, source)
-                readJson(tree, deserializer)
+                val tree = decodeStringToJsonTree(this, deserializer, source)
+                readJson(this, tree, deserializer)
             }
             JsonTestingMode.OKIO_STREAMS -> {
                 val buffer = Buffer()

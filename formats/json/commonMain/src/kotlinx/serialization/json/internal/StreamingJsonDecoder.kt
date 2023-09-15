@@ -349,13 +349,14 @@ internal open class StreamingJsonDecoder(
     }
 }
 
-@InternalSerializationApi
-public fun <T> Json.decodeStringToJsonTree(
+@SuperInternalJsonApi // used in json-tests
+public fun <T> decodeStringToJsonTree(
+    json: Json,
     deserializer: DeserializationStrategy<T>,
     source: String
 ): JsonElement {
     val lexer = StringJsonLexer(source)
-    val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer, deserializer.descriptor, null)
+    val input = StreamingJsonDecoder(json, WriteMode.OBJ, lexer, deserializer.descriptor, null)
     val tree = input.decodeJsonElement()
     lexer.expectEof()
     return tree

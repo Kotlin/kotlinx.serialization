@@ -15,12 +15,12 @@ import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.jvm.*
 
-@InternalSerializationApi
-public fun <T> Json.readJson(element: JsonElement, deserializer: DeserializationStrategy<T>): T {
+@SuperInternalJsonApi
+public fun <T> readJson(json: Json, element: JsonElement, deserializer: DeserializationStrategy<T>): T {
     val input = when (element) {
-        is JsonObject -> JsonTreeDecoder(this, element)
-        is JsonArray -> JsonTreeListDecoder(this, element)
-        is JsonLiteral, JsonNull -> JsonPrimitiveDecoder(this, element as JsonPrimitive)
+        is JsonObject -> JsonTreeDecoder(json, element)
+        is JsonArray -> JsonTreeListDecoder(json, element)
+        is JsonLiteral, JsonNull -> JsonPrimitiveDecoder(json, element as JsonPrimitive)
     }
     return input.decodeSerializableValue(deserializer)
 }

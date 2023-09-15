@@ -8,6 +8,7 @@ package sample
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.*
+import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.reflect.*
 import kotlin.test.*
@@ -37,6 +38,7 @@ class JsonTest {
     fun testSerializeBack() {
         val restored = jsonWithDefaults.decodeFromString(Data.serializer(), originalString)
         assertEquals(originalData, restored)
+        Json.readJson()
     }
 
     private fun genTestData(): Holder {

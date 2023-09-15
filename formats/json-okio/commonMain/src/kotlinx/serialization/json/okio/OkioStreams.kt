@@ -27,7 +27,7 @@ public fun <T> Json.encodeToBufferedSink(
 ) {
     val writer = JsonToOkioStreamWriter(sink)
     try {
-        encodeByWriter(writer, serializer, value)
+        encodeByWriter(this, writer, serializer, value)
     } finally {
         writer.release()
     }
@@ -60,7 +60,7 @@ public fun <T> Json.decodeFromBufferedSource(
     deserializer: DeserializationStrategy<T>,
     source: BufferedSource
 ): T {
-    return decodeByReader(deserializer, OkioSerialReader(source))
+    return decodeByReader(this, deserializer, OkioSerialReader(source))
 }
 
 /**
@@ -99,7 +99,7 @@ public fun <T> Json.decodeBufferedSourceToSequence(
     deserializer: DeserializationStrategy<T>,
     format: DecodeSequenceMode = DecodeSequenceMode.AUTO_DETECT
 ): Sequence<T> {
-    return decodeToSequenceByReader(OkioSerialReader(source), deserializer, format)
+    return decodeToSequenceByReader(this, OkioSerialReader(source), deserializer, format)
 }
 
 /**
