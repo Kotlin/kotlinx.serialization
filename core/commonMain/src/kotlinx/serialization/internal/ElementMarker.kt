@@ -9,7 +9,7 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.CompositeDecoder
 
 @OptIn(ExperimentalSerializationApi::class)
-@SuperInternalSerializationApi
+@CoreFriendModuleApi
 public class ElementMarker(
     private val descriptor: SerialDescriptor,
     // Instead of inheritance and virtual function in order to keep cross-module internal modifier via suppresses

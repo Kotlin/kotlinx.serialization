@@ -23,7 +23,7 @@ clean {
 kotlin {
     sourceSets {
         configureEach {
-            languageSettings.optIn("kotlinx.serialization.internal.SuperInternalSerializationApi")
+            languageSettings.optIn("kotlinx.serialization.internal.CoreFriendModuleApi")
         }
 
         commonMain {

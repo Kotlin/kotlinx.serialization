@@ -5,9 +5,9 @@ import kotlinx.serialization.json.DecodeSequenceMode
 import kotlinx.serialization.json.Json
 
 @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
-internal annotation class SuperInternalJsonApi
+internal annotation class JsonFriendModuleApi
 
-@SuperInternalJsonApi
+@JsonFriendModuleApi
 public interface InternalJsonWriter {
     public fun writeLong(value: Long)
     public fun writeChar(char: Char)
@@ -16,12 +16,12 @@ public interface InternalJsonWriter {
     public fun release()
 }
 
-@SuperInternalJsonApi
+@JsonFriendModuleApi
 public interface InternalJsonReader {
     public fun read(buffer: CharArray, bufferOffset: Int, count: Int): Int
 }
 
-@SuperInternalJsonApi
+@JsonFriendModuleApi
 public fun <T> encodeByWriter(json: Json, writer: InternalJsonWriter, serializer: SerializationStrategy<T>, value: T) {
     val encoder = StreamingJsonEncoder(
         writer, json,
@@ -31,7 +31,7 @@ public fun <T> encodeByWriter(json: Json, writer: InternalJsonWriter, serializer
     encoder.encodeSerializableValue(serializer, value)
 }
 
-@SuperInternalJsonApi
+@JsonFriendModuleApi
 public fun <T> decodeByReader(
     json: Json,
     deserializer: DeserializationStrategy<T>,
@@ -48,7 +48,7 @@ public fun <T> decodeByReader(
     }
 }
 
-@SuperInternalJsonApi
+@JsonFriendModuleApi
 @ExperimentalSerializationApi
 public fun <T> decodeToSequenceByReader(
     json: Json,
@@ -61,7 +61,7 @@ public fun <T> decodeToSequenceByReader(
     return Sequence { iter }.constrainOnce()
 }
 
-@SuperInternalJsonApi
+@JsonFriendModuleApi
 @ExperimentalSerializationApi
 public inline fun <reified T> decodeToSequenceByReader(
     json: Json,

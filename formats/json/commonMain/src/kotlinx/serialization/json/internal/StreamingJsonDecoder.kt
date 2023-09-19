@@ -349,7 +349,7 @@ internal open class StreamingJsonDecoder(
     }
 }
 
-@SuperInternalJsonApi // used in json-tests
+@JsonFriendModuleApi // used in json-tests
 public fun <T> decodeStringToJsonTree(
     json: Json,
     deserializer: DeserializationStrategy<T>,

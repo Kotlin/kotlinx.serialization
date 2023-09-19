@@ -6,7 +6,7 @@ import kotlinx.serialization.internal.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@OptIn(SuperInternalSerializationApi::class)
+@OptIn(CoreFriendModuleApi::class)
 class ElementMarkerTest {
     @Test
     fun testNothingWasRead() {

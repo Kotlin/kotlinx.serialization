@@ -27,8 +27,8 @@ kotlin {
     sourceSets {
         configureEach {
             languageSettings {
-                optIn("kotlinx.serialization.internal.SuperInternalSerializationApi")
-                optIn("kotlinx.serialization.json.internal.SuperInternalJsonApi")
+                optIn("kotlinx.serialization.internal.CoreFriendModuleApi")
+                optIn("kotlinx.serialization.json.internal.JsonFriendModuleApi")
             }
         }
         val commonTest by getting {
