@@ -67,7 +67,7 @@ public abstract class JsonTransformingSerializer<T : Any>(
 
     final override fun serialize(encoder: Encoder, value: T) {
         val output = encoder.asJsonEncoder()
-        var element = output.json.writeJson(value, tSerializer)
+        var element = writeJson(output.json, value, tSerializer)
         element = transformSerialize(element)
         output.encodeJsonElement(element)
     }

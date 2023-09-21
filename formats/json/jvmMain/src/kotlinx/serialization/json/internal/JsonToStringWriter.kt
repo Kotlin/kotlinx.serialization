@@ -25,7 +25,7 @@ package kotlinx.serialization.json.internal
  * 3) We pool char arrays in order to save excess resizes, allocations
  *    and nulls-out of arrays.
  */
-internal actual class JsonToStringWriter : JsonWriter {
+internal actual class JsonToStringWriter : InternalJsonWriter {
     private var array: CharArray = CharArrayPool.take()
     private var size = 0
 

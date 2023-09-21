@@ -2,16 +2,39 @@
  * Copyright 2017-2022 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-@file:Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER", "CANNOT_OVERRIDE_INVISIBLE_MEMBER")
-
 package kotlinx.serialization.json.okio.internal
 
-import kotlinx.serialization.json.internal.ESCAPE_STRINGS
-import kotlinx.serialization.json.internal.JsonWriter
-import kotlinx.serialization.json.internal.SerialReader
+import kotlinx.serialization.json.internal.*
 import okio.*
 
-internal class JsonToOkioStreamWriter(private val sink: BufferedSink) : JsonWriter {
+// Copied from kotlinx/serialization/json/internal/StringOps.kt
+private fun toHexChar(i: Int) : Char {
+    val d = i and 0xf
+    return if (d < 10) (d + '0'.code).toChar()
+    else (d - 10 + 'a'.code).toChar()
+}
+
+// Copied from kotlinx/serialization/json/internal/StringOps.kt
+private val ESCAPE_STRINGS: Array<String?> = arrayOfNulls<String>(93).apply {
+    for (c in 0..0x1f) {
+        val c1 = toHexChar(c shr 12)
+        val c2 = toHexChar(c shr 8)
+        val c3 = toHexChar(c shr 4)
+        val c4 = toHexChar(c)
+        this[c] = "\\u$c1$c2$c3$c4"
+    }
+    this['"'.code] = "\\\""
+    this['\\'.code] = "\\\\"
+    this['\t'.code] = "\\t"
+    this['\b'.code] = "\\b"
+    this['\n'.code] = "\\n"
+    this['\r'.code] = "\\r"
+    this[0x0c] = "\\f"
+}
+
+
+
+internal class JsonToOkioStreamWriter(private val sink: BufferedSink) : InternalJsonWriter {
     override fun writeLong(value: Long) {
         write(value.toString())
     }
@@ -54,7 +77,7 @@ private const val HIGH_SURROGATE_HEADER = 0xd800 - (0x010000 ushr 10)
 private const val LOW_SURROGATE_HEADER = 0xdc00
 
 
-internal class OkioSerialReader(private val source: BufferedSource): SerialReader {
+internal class OkioSerialReader(private val source: BufferedSource): InternalJsonReader {
     /*
     A sequence of code points is read from UTF-8, some of it can take 2 characters.
     In case the last code point requires 2 characters, and the array is already full, we buffer the second character

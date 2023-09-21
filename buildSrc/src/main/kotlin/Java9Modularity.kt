@@ -131,6 +131,7 @@ object Java9Modularity {
                 // To support LV override when set in aggregate builds
                 languageVersion = compileTask.kotlinOptions.languageVersion
                 freeCompilerArgs += listOf("-Xjdk-release=9",  "-Xsuppress-version-warnings")
+                options.optIn.addAll(compileTask.kotlinOptions.options.optIn)
             }
             // work-around for https://youtrack.jetbrains.com/issue/KT-60583
             inputs.files(

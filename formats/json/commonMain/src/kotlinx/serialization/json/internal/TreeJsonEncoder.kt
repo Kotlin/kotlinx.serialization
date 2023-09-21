@@ -14,10 +14,10 @@ import kotlinx.serialization.modules.*
 import kotlin.collections.set
 import kotlin.jvm.*
 
-@InternalSerializationApi
-public fun <T> Json.writeJson(value: T, serializer: SerializationStrategy<T>): JsonElement {
+@JsonFriendModuleApi
+public fun <T> writeJson(json: Json, value: T, serializer: SerializationStrategy<T>): JsonElement {
     lateinit var result: JsonElement
-    val encoder = JsonTreeEncoder(this) { result = it }
+    val encoder = JsonTreeEncoder(json) { result = it }
     encoder.encodeSerializableValue(serializer, value)
     return result
 }

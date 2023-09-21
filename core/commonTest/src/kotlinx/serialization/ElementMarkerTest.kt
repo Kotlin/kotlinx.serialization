@@ -2,10 +2,11 @@ package kotlinx.serialization
 
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.CompositeDecoder
-import kotlinx.serialization.internal.ElementMarker
+import kotlinx.serialization.internal.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@OptIn(CoreFriendModuleApi::class)
 class ElementMarkerTest {
     @Test
     fun testNothingWasRead() {

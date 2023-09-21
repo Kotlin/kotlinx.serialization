@@ -49,7 +49,6 @@ internal open class StreamingJsonDecoder(
 
     override fun decodeJsonElement(): JsonElement = JsonTreeReader(json.configuration, lexer).read()
 
-    @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
         try {
             /*
@@ -350,13 +349,14 @@ internal open class StreamingJsonDecoder(
     }
 }
 
-@InternalSerializationApi
-public fun <T> Json.decodeStringToJsonTree(
+@JsonFriendModuleApi // used in json-tests
+public fun <T> decodeStringToJsonTree(
+    json: Json,
     deserializer: DeserializationStrategy<T>,
     source: String
 ): JsonElement {
     val lexer = StringJsonLexer(source)
-    val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer, deserializer.descriptor, null)
+    val input = StreamingJsonDecoder(json, WriteMode.OBJ, lexer, deserializer.descriptor, null)
     val tree = input.decodeJsonElement()
     lexer.expectEof()
     return tree

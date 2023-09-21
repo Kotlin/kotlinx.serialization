@@ -4,13 +4,13 @@
 
 package kotlinx.serialization.internal
 
-import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.CompositeDecoder
 
 @OptIn(ExperimentalSerializationApi::class)
-@PublishedApi
-internal class ElementMarker(
+@CoreFriendModuleApi
+public class ElementMarker(
     private val descriptor: SerialDescriptor,
     // Instead of inheritance and virtual function in order to keep cross-module internal modifier via suppresses
     // Can be reworked via public + internal api if necessary
@@ -45,7 +45,7 @@ internal class ElementMarker(
         }
     }
 
-    fun mark(index: Int) {
+    public fun mark(index: Int) {
         if (index < Long.SIZE_BITS) {
             lowerMarks = lowerMarks or (1L shl index)
         } else {
@@ -53,7 +53,7 @@ internal class ElementMarker(
         }
     }
 
-    fun nextUnmarkedIndex(): Int {
+    public fun nextUnmarkedIndex(): Int {
         val elementsCount = descriptor.elementsCount
         while (lowerMarks != -1L) {
             val index = lowerMarks.inv().countTrailingZeroBits()

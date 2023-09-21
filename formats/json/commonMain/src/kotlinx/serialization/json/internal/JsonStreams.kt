@@ -4,38 +4,42 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.DecodeSequenceMode
 import kotlinx.serialization.json.Json
 
-@PublishedApi
-internal interface JsonWriter {
-    fun writeLong(value: Long)
-    fun writeChar(char: Char)
-    fun write(text: String)
-    fun writeQuoted(text: String)
-    fun release()
+@RequiresOptIn(level = RequiresOptIn.Level.ERROR)
+internal annotation class JsonFriendModuleApi
+
+@JsonFriendModuleApi
+public interface InternalJsonWriter {
+    public fun writeLong(value: Long)
+    public fun writeChar(char: Char)
+    public fun write(text: String)
+    public fun writeQuoted(text: String)
+    public fun release()
 }
 
-@PublishedApi
-internal interface SerialReader {
-    fun read(buffer: CharArray, bufferOffset: Int, count: Int): Int
+@JsonFriendModuleApi
+public interface InternalJsonReader {
+    public fun read(buffer: CharArray, bufferOffset: Int, count: Int): Int
 }
 
-@PublishedApi
-internal fun <T> Json.encodeByWriter(writer: JsonWriter, serializer: SerializationStrategy<T>, value: T) {
+@JsonFriendModuleApi
+public fun <T> encodeByWriter(json: Json, writer: InternalJsonWriter, serializer: SerializationStrategy<T>, value: T) {
     val encoder = StreamingJsonEncoder(
-        writer, this,
+        writer, json,
         WriteMode.OBJ,
-        arrayOfNulls(WriteMode.values().size)
+        arrayOfNulls(WriteMode.entries.size)
     )
     encoder.encodeSerializableValue(serializer, value)
 }
 
-@PublishedApi
-internal fun <T> Json.decodeByReader(
+@JsonFriendModuleApi
+public fun <T> decodeByReader(
+    json: Json,
     deserializer: DeserializationStrategy<T>,
-    reader: SerialReader
+    reader: InternalJsonReader
 ): T {
     val lexer = ReaderJsonLexer(reader)
     try {
-        val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer, deserializer.descriptor, null)
+        val input = StreamingJsonDecoder(json, WriteMode.OBJ, lexer, deserializer.descriptor, null)
         val result = input.decodeSerializableValue(deserializer)
         lexer.expectEof()
         return result
@@ -44,21 +48,23 @@ internal fun <T> Json.decodeByReader(
     }
 }
 
-@PublishedApi
+@JsonFriendModuleApi
 @ExperimentalSerializationApi
-internal fun <T> Json.decodeToSequenceByReader(
-    reader: SerialReader,
+public fun <T> decodeToSequenceByReader(
+    json: Json,
+    reader: InternalJsonReader,
     deserializer: DeserializationStrategy<T>,
     format: DecodeSequenceMode = DecodeSequenceMode.AUTO_DETECT
 ): Sequence<T> {
     val lexer = ReaderJsonLexer(reader, CharArray(BATCH_SIZE)) // Unpooled buffer due to lazy nature of sequence
-    val iter = JsonIterator(format, this, lexer, deserializer)
+    val iter = JsonIterator(format, json, lexer, deserializer)
     return Sequence { iter }.constrainOnce()
 }
 
-@PublishedApi
+@JsonFriendModuleApi
 @ExperimentalSerializationApi
-internal inline fun <reified T> Json.decodeToSequenceByReader(
-    reader: SerialReader,
+public inline fun <reified T> decodeToSequenceByReader(
+    json: Json,
+    reader: InternalJsonReader,
     format: DecodeSequenceMode = DecodeSequenceMode.AUTO_DETECT
-): Sequence<T> = decodeToSequenceByReader(reader, serializersModule.serializer(), format)
+): Sequence<T> = decodeToSequenceByReader(json, reader, json.serializersModule.serializer(), format)

@@ -1,6 +1,6 @@
 package kotlinx.serialization.json.internal
 
-internal expect class JsonToStringWriter constructor() : JsonWriter {
+internal expect class JsonToStringWriter constructor() : InternalJsonWriter {
     override fun writeChar(char: Char)
     override fun writeLong(value: Long)
     override fun write(text: String)

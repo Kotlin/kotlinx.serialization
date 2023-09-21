@@ -78,7 +78,7 @@ public sealed class Json(
     public final override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
         val result = JsonToStringWriter()
         try {
-            encodeByWriter(result, serializer, value)
+            encodeByWriter(this@Json, result, serializer, value)
             return result.toString()
         } finally {
             result.release()
@@ -114,7 +114,7 @@ public sealed class Json(
      * @throws [SerializationException] if the given value cannot be serialized to JSON
      */
     public fun <T> encodeToJsonElement(serializer: SerializationStrategy<T>, value: T): JsonElement {
-        return writeJson(value, serializer)
+        return writeJson(this@Json, value, serializer)
     }
 
     /**
@@ -124,7 +124,7 @@ public sealed class Json(
      * @throws [IllegalArgumentException] if the decoded input cannot be represented as a valid instance of type [T]
      */
     public fun <T> decodeFromJsonElement(deserializer: DeserializationStrategy<T>, element: JsonElement): T {
-        return readJson(element, deserializer)
+        return readJson(this@Json, element, deserializer)
     }
 
     /**

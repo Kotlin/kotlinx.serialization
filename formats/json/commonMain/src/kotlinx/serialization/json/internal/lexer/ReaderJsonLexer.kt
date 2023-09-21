@@ -2,8 +2,6 @@
  * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-@file:Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
-
 package kotlinx.serialization.json.internal
 
 internal const val BATCH_SIZE: Int = 16 * 1024
@@ -13,7 +11,7 @@ private const val DEFAULT_THRESHOLD = 128
  * For some reason this hand-rolled implementation is faster than
  * fun ArrayAsSequence(s: CharArray): CharSequence = java.nio.CharBuffer.wrap(s, 0, length)
  */
-internal class ArrayAsSequence(private val buffer: CharArray) : CharSequence {
+internal class ArrayAsSequence(internal val buffer: CharArray) : CharSequence {
     override var length: Int = buffer.size
 
     override fun get(index: Int): Char = buffer[index]
@@ -35,7 +33,7 @@ internal class ArrayAsSequence(private val buffer: CharArray) : CharSequence {
 }
 
 internal class ReaderJsonLexer(
-    private val reader: SerialReader,
+    private val reader: InternalJsonReader,
     private val buffer: CharArray = CharArrayPoolBatchSize.take()
 ) : AbstractJsonLexer() {
     private var threshold: Int = DEFAULT_THRESHOLD // chars

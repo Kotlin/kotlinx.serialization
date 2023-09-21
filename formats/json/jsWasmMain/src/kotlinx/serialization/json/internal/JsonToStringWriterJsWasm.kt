@@ -1,6 +1,6 @@
 package kotlinx.serialization.json.internal
 
-internal actual open class JsonToStringWriter actual constructor(): JsonWriter {
+internal actual open class JsonToStringWriter actual constructor(): InternalJsonWriter {
     private val sb = StringBuilder(128)
 
     actual override fun writeLong(value: Long) {
