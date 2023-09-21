@@ -150,6 +150,12 @@ internal class SerialModuleImpl(
     private val polyBase2DefaultDeserializerProvider: Map<KClass<*>, PolymorphicDeserializerProvider<*>>
 ) : SerializersModule() {
 
+    internal val allImplementationsKClasses: MutableSet<KClass<*>> = hashSetOf()
+
+    init {
+        polyBase2Serializers.flatMapTo(allImplementationsKClasses) { (_, classes) -> classes.keys }
+    }
+
     override fun <T : Any> getPolymorphic(baseClass: KClass<in T>, value: T): SerializationStrategy<T>? {
         if (!baseClass.isInstance(value)) return null
         // Registered

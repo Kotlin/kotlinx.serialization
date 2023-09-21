@@ -131,4 +131,34 @@ public enum class ClassDiscriminatorMode {
      * @see PolymorphicModuleBuilder
      */
     POLYMORPHIC,
+
+    /**
+     * Include class discriminators for polymorphic classes (see [POLYMORPHIC]) and their implementations.
+     *
+     * Sealed classes, abstract classes, and interfaces are polymorphic classes by definition.
+     * Open classes can be polymorphic if they are serializable with [PolymorphicSerializer]
+     * and properly registered in the [SerializersModule].
+     * See [kotlinx.serialization polymorphism guide](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/polymorphism.md#sealed-classes) for details.
+     *
+     * With this mode, implementations of sealed classes and sealed interfaces always get a class discriminator added to the JSON output.
+     * Implementations of regular interfaces, abstract and open classes have to be explicitly registered in the [SerializersModule]
+     * with [PolymorphicModuleBuilder.subclass] to be considered a part of a polymorphic hierarchy and get discriminator added to the output.
+     * Note that [SerializersModuleBuilder.polymorphicDefaultSerializer] does not register any implementations.
+     *
+     * In the example:
+     * ```
+     * @Serializable class Plain(val p: String)
+     * @Serializable sealed class Base
+     * @Serializable object Impl: Base()
+     *
+     * @Serializable class All(val p: Plain, val b: Base, val i: Impl)
+     * ```
+     * setting [JsonBuilder.classDiscriminatorMode] to [ClassDiscriminatorMode.POLYMORPHIC_AND_IMPLEMENTATIONS] adds
+     * class discriminators to `All.b` and `All.i`, but leaves `All.p` intact.
+     *
+     * @see SerializersModule
+     * @see SerializersModuleBuilder
+     * @see PolymorphicModuleBuilder
+     */
+    POLYMORPHIC_AND_IMPLEMENTATIONS
 }

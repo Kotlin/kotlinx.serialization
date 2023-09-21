@@ -82,3 +82,39 @@ class ClassDiscriminatorModeNoneTest :
     fun testNullable() = testNullable("""{"sb":null,"sc":null}""")
 }
 
+class ClassDiscriminatorModeImplementationsTest :
+    JsonClassDiscriminatorModeBaseTest(ClassDiscriminatorMode.POLYMORPHIC_AND_IMPLEMENTATIONS) {
+    @Test
+    fun testIncludeNonPolymorphic() = testIncludeNonPolymorphic("""{"inn":{"x":"X","e":"OptionB"},"lst":[{"x":"a","e":"OptionB"},{"x":"b","e":"OptionB"}],"lss":["foo"]}""")
+    @Test
+    fun testIncludePolymorphic() {
+        val s = """{"outerBase":{"type":"kotlinx.serialization.json.polymorphic.OuterNullableImpl","""+
+            """"base":{"type":"kotlinx.serialization.json.polymorphic.InnerImpl","field":42,"str":"default","nullable":null},"base2":null},"innerBase":{"type":"kotlinx.serialization.json.polymorphic.InnerImpl2","field":239}}"""
+        testIncludePolymorphic(s)
+    }
+
+    @Test
+    fun testIncludeSealed() {
+        testIncludeSealed("""{"boxed":{"type":"container","i":{"x":"x","e":"OptionC"}}}""")
+    }
+
+    @Test
+    fun testIncludeMixed() = testMixed("""{"sb":{"type":"container","i":{"x":"in","e":"OptionC"}},"sc":{"type":"container","i":{"x":"in","e":"OptionC"}},"i":{"x":"in","e":"OptionC"}}""")
+    @Test
+    fun testIncludeCtx() =
+        testContextual("""{"ctx":{"a":"c","b":"d"},"i":{"x":"x","e":"OptionB"}}""")
+
+    @Test
+    fun testIncludeCustomDiscriminator() =
+        testCustomDiscriminator("""{"ec":{"message_type":"ErrorClassImpl","msg":"a"},"eci":{"message_type":"ErrorClassImpl","msg":"b"}}""")
+
+    @Test
+    fun testTopLevelPolyImpl() = testTopLevelPolyImpl(
+        """{"type":"kotlinx.serialization.json.polymorphic.InnerImpl","field":42,"str":"default","nullable":null}""",
+        """{"type":"container","i":{"x":"x","e":"OptionB"}}"""
+    )
+
+    @Test
+    fun testNullable() = testNullable("""{"sb":null,"sc":null}""")
+}
+

@@ -283,12 +283,14 @@ public abstract interface class kotlinx/serialization/descriptors/SerialDescript
 	public abstract fun isElementOptional (I)Z
 	public abstract fun isInline ()Z
 	public abstract fun isNullable ()Z
+	public abstract fun isPartOfSealedHierarchy ()Z
 }
 
 public final class kotlinx/serialization/descriptors/SerialDescriptor$DefaultImpls {
 	public static fun getAnnotations (Lkotlinx/serialization/descriptors/SerialDescriptor;)Ljava/util/List;
 	public static fun isInline (Lkotlinx/serialization/descriptors/SerialDescriptor;)Z
 	public static fun isNullable (Lkotlinx/serialization/descriptors/SerialDescriptor;)Z
+	public static fun isPartOfSealedHierarchy (Lkotlinx/serialization/descriptors/SerialDescriptor;)Z
 }
 
 public final class kotlinx/serialization/descriptors/SerialDescriptorKt {
@@ -977,6 +979,8 @@ public class kotlinx/serialization/internal/PluginGeneratedSerialDescriptor : ko
 	public fun isElementOptional (I)Z
 	public fun isInline ()Z
 	public fun isNullable ()Z
+	public fun isPartOfSealedHierarchy ()Z
+	public final fun markAsInheritor ()V
 	public final fun pushAnnotation (Ljava/lang/annotation/Annotation;)V
 	public final fun pushClassAnnotation (Ljava/lang/annotation/Annotation;)V
 	public fun toString ()Ljava/lang/String;
@@ -1023,6 +1027,10 @@ public final class kotlinx/serialization/internal/SerializationConstructorMarker
 
 public abstract interface class kotlinx/serialization/internal/SerializerFactory {
 	public abstract fun serializer ([Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+}
+
+public final class kotlinx/serialization/internal/SerializersModuleInternalsKt {
+	public static final fun isPartOfHierarchy (Lkotlinx/serialization/modules/SerializersModule;Ljava/lang/Object;)Z
 }
 
 public final class kotlinx/serialization/internal/ShortArrayBuilder : kotlinx/serialization/internal/PrimitiveArrayBuilder {

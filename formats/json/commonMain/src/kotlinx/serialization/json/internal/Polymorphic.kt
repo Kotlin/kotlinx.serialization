@@ -29,6 +29,8 @@ internal inline fun <T> JsonEncoder.encodePolymorphically(
         } else {
             when (json.configuration.classDiscriminatorMode) {
                 ClassDiscriminatorMode.NONE, ClassDiscriminatorMode.POLYMORPHIC /* already handled in isPolymorphicSerializer */ -> false
+                ClassDiscriminatorMode.POLYMORPHIC_AND_IMPLEMENTATIONS ->
+                    serializer.descriptor.isPartOfSealedHierarchy || isPartOfHierarchy(this.serializersModule, value)
                 ClassDiscriminatorMode.ALL_JSON_OBJECTS -> serializer.descriptor.kind in setOf(
                     StructureKind.CLASS,
                     StructureKind.OBJECT
