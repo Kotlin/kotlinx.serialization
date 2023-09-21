@@ -2,6 +2,7 @@ public final class kotlinx/serialization/json/ClassDiscriminatorMode : java/lang
 	public static final field ALL_JSON_OBJECTS Lkotlinx/serialization/json/ClassDiscriminatorMode;
 	public static final field NONE Lkotlinx/serialization/json/ClassDiscriminatorMode;
 	public static final field POLYMORPHIC Lkotlinx/serialization/json/ClassDiscriminatorMode;
+	public static final field POLYMORPHIC_AND_IMPLEMENTATIONS Lkotlinx/serialization/json/ClassDiscriminatorMode;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lkotlinx/serialization/json/ClassDiscriminatorMode;
 	public static fun values ()[Lkotlinx/serialization/json/ClassDiscriminatorMode;

@@ -138,6 +138,9 @@ public class SealedClassSerializer<T : Any>(
                 }
                 element
             }.mapValues { it.value.value }
+        subclassSerializers.forEach { s ->
+            (s.descriptor as? PluginGeneratedSerialDescriptor)?.markAsInheritor()
+        }
     }
 
     override fun findPolymorphicSerializerOrNull(

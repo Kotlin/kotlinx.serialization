@@ -65,6 +65,15 @@ internal open class PluginGeneratedSerialDescriptor(
         list.add(annotation)
     }
 
+    private var _isPartOfHierarchy: Boolean = false
+
+    override val isPartOfSealedHierarchy: Boolean
+        get() = this._isPartOfHierarchy
+
+    public fun markAsInheritor() {
+        _isPartOfHierarchy = true
+    }
+
     public fun pushClassAnnotation(a: Annotation) {
         if (classAnnotations == null) {
             classAnnotations = ArrayList(1)

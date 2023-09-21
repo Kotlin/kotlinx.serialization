@@ -4,7 +4,9 @@
 
 package kotlinx.serialization.json.polymorphic
 
+import kotlinx.serialization.*
 import kotlinx.serialization.json.*
+import kotlin.jvm.*
 import kotlin.test.*
 
 class ClassDiscriminatorModeAllObjectsTest :
@@ -82,3 +84,57 @@ class ClassDiscriminatorModeNoneTest :
     fun testNullable() = testNullable("""{"sb":null,"sc":null}""")
 }
 
+class ClassDiscriminatorModeImplementationsTest :
+    JsonClassDiscriminatorModeBaseTest(ClassDiscriminatorMode.POLYMORPHIC_AND_IMPLEMENTATIONS) {
+    @Test
+    fun testIncludeNonPolymorphic() = testIncludeNonPolymorphic("""{"inn":{"x":"X","e":"OptionB"},"lst":[{"x":"a","e":"OptionB"},{"x":"b","e":"OptionB"}],"lss":["foo"]}""")
+    @Test
+    fun testIncludePolymorphic() {
+        val s = """{"outerBase":{"type":"kotlinx.serialization.json.polymorphic.OuterNullableImpl","""+
+            """"base":{"type":"kotlinx.serialization.json.polymorphic.InnerImpl","field":42,"str":"default","nullable":null},"base2":null},"innerBase":{"type":"kotlinx.serialization.json.polymorphic.InnerImpl2","field":239}}"""
+        testIncludePolymorphic(s)
+    }
+
+    @Test
+    fun testIncludeSealed() {
+        testIncludeSealed("""{"boxed":{"type":"container","i":{"x":"x","e":"OptionC"}}}""")
+    }
+
+    @Test
+    fun testIncludeMixed() = testMixed("""{"sb":{"type":"container","i":{"x":"in","e":"OptionC"}},"sc":{"type":"container","i":{"x":"in","e":"OptionC"}},"i":{"x":"in","e":"OptionC"}}""")
+    @Test
+    fun testIncludeCtx() =
+        testContextual("""{"ctx":{"a":"c","b":"d"},"i":{"x":"x","e":"OptionB"}}""")
+
+    @Test
+    fun testIncludeCustomDiscriminator() =
+        testCustomDiscriminator("""{"ec":{"message_type":"ErrorClassImpl","msg":"a"},"eci":{"message_type":"ErrorClassImpl","msg":"b"}}""")
+
+    @Test
+    fun testTopLevelPolyImpl() = testTopLevelPolyImpl(
+        """{"type":"kotlinx.serialization.json.polymorphic.InnerImpl","field":42,"str":"default","nullable":null}""",
+        """{"type":"container","i":{"x":"x","e":"OptionB"}}"""
+    )
+
+    @Test
+    fun testNullable() = testNullable("""{"sb":null,"sc":null}""")
+
+    @Serializable
+    sealed interface X
+
+    @Serializable
+    @SerialName("x_y")
+    data class Y(val i: Int) : X
+
+    // This test is specifically plugin-oriented. When we invoke only Y.serializer(), initializer of X.serializer() = SealedClassSerializer(...) is not called
+    // and (s.descriptor as? PluginGeneratedSerialDescriptor)?.markAsInheritor() line there is not called.
+    // Therefore, the only way of correctly marking Y as inheritor is plugin.
+    @Test
+    fun testOnlySubclass() {
+        val y = Y(42)
+        if (KotlinVersion.CURRENT >= KotlinVersion(2, 0, 0))
+            doTest("""{"type":"x_y","i":42}""", y)
+    }
+}
+
+// FIXME: add tests for value classes when #2288 is fixed

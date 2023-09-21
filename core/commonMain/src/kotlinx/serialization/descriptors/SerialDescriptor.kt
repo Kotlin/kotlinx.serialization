@@ -182,6 +182,14 @@ public interface SerialDescriptor {
     public val isInline: Boolean get() = false
 
     /**
+     * Returns `true` if this descriptor describes a serializable class that has a parent sealed class or sealed interface which
+     * is also serializable.
+     * `false` for serializable sealed class/interface itself.
+     */
+    @ExperimentalSerializationApi
+    public val isPartOfSealedHierarchy: Boolean get() = false
+
+    /**
      * The number of elements this descriptor describes, besides from the class itself.
      * [elementsCount] describes the number of **semantic** elements, not the number
      * of actual fields/properties in the serialized form, even though they frequently match.
