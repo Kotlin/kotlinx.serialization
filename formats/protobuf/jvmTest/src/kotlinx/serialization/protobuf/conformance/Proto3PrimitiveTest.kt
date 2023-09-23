@@ -69,6 +69,9 @@ class Proto3PrimitiveTest {
         assertContentEquals(message.optionalBytes, restored.optionalBytes.toByteArray())
 
         val restoredMessage = ProtoBuf.decodeFromByteArray<KTestMessagesProto3Primitive>(restored.toByteArray())
+
+        // [equals] method is not implemented for [ByteArray] so we need to compare it separately.
         assertEquals(message, restoredMessage.copy(optionalBytes = message.optionalBytes))
+        assertContentEquals(message.optionalBytes, restoredMessage.optionalBytes)
     }
 }

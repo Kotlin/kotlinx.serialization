@@ -74,7 +74,12 @@ class Proto3RepeatedTest {
         assertEquals(message.repeatedBytes.map { it.toList() }, restored.repeatedBytesList.map { it.toList() })
 
         val restoredMessage = ProtoBuf.decodeFromByteArray<KTestMessagesProto3Repeated>(restored.toByteArray())
+        // [equals] method is not implemented for [ByteArray] so we need to compare it separately.
         assertEquals(message, restoredMessage.copy(repeatedBytes = message.repeatedBytes))
+        assertContentEquals(
+            message.repeatedBytes.flatMap { it.toList() },
+            restoredMessage.repeatedBytes.flatMap { it.toList() },
+        )
     }
 
     @Test

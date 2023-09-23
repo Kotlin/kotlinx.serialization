@@ -39,37 +39,93 @@ data class KTestMessageProto3Oneof(
 }
 
 class Proto3OneofTest {
-    @Test
-    fun default() {
-        listOf(
-            KTestMessageProto3Oneof(oneofUint32 = 150u),
-            KTestMessageProto3Oneof(oneofNestedMessage = KTestMessagesProto3Message.KNestedMessage(a = 150)),
-            KTestMessageProto3Oneof(oneofString = "150"),
-            KTestMessageProto3Oneof(oneofBytes = "150".toByteArray()),
-            KTestMessageProto3Oneof(oneofBool = true),
-            KTestMessageProto3Oneof(oneofUint64 = 150uL),
-            KTestMessageProto3Oneof(oneofFloat = 150f),
-            KTestMessageProto3Oneof(oneofDouble = 150.0),
-            KTestMessageProto3Oneof(oneofEnum = KTestMessagesProto3Enum.KNestedEnum.BAR),
-        ).forEach { message ->
-            val bytes = ProtoBuf.encodeToByteArray(message)
-            val restored = TestMessagesProto3.TestAllTypesProto3.parseFrom(bytes)
-            if (message.oneofUint32 != null) assertEquals(message.oneofUint32, restored.oneofUint32.toUInt())
-            if (message.oneofNestedMessage != null) assertEquals(
-                message.oneofNestedMessage.a,
-                restored.oneofNestedMessage?.a
-            )
-            if (message.oneofString != null) assertEquals(message.oneofString, restored.oneofString)
-            if (message.oneofBytes != null) assertContentEquals(message.oneofBytes, restored.oneofBytes.toByteArray())
-            if (message.oneofBool != null) assertEquals(message.oneofBool, restored.oneofBool)
-            if (message.oneofUint64 != null) assertEquals(message.oneofUint64, restored.oneofUint64.toULong())
-            if (message.oneofFloat != null) assertEquals(message.oneofFloat, restored.oneofFloat)
-            if (message.oneofDouble != null) assertEquals(message.oneofDouble, restored.oneofDouble)
-            if (message.oneofEnum != null) assertEquals(message.oneofEnum.name, restored.oneofEnum?.name)
 
-            val restoredMessage = ProtoBuf.decodeFromByteArray<KTestMessageProto3Oneof>(restored.toByteArray())
-            assertEquals(message, restoredMessage.copy(oneofBytes = message.oneofBytes))
-            assertContentEquals(message.oneofBytes, restoredMessage.oneofBytes)
+    /**
+     * Verify that the given [KTestMessageProto3Oneof] is correctly encoded and decoded as
+     * [TestMessagesProto3.TestAllTypesProto3] by running the [verificationFunction]. This
+     * method also verifies that the encoded and decoded message is equal to the original message.
+     *
+     * @param verificationFunction a function that verifies the encoded and decoded message. First parameter
+     * is the original message and the second parameter is the decoded protobuf library message.
+     * @receiver the [KTestMessageProto3Oneof] to verify
+     */
+    private fun KTestMessageProto3Oneof.verify(
+        verificationFunction: (KTestMessageProto3Oneof, TestMessagesProto3.TestAllTypesProto3) -> Unit,
+    ) {
+        val bytes = ProtoBuf.encodeToByteArray(this)
+        val restored = TestMessagesProto3.TestAllTypesProto3.parseFrom(bytes)
+
+        verificationFunction.invoke(this, restored)
+
+        val restoredMessage = ProtoBuf.decodeFromByteArray<KTestMessageProto3Oneof>(restored.toByteArray())
+
+        // [equals] method is not implemented for [ByteArray] so we need to compare it separately.
+        assertEquals(this, restoredMessage.copy(oneofBytes = this.oneofBytes))
+        assertContentEquals(this.oneofBytes, restoredMessage.oneofBytes)
+    }
+
+    @Test
+    fun uint32() {
+        KTestMessageProto3Oneof(oneofUint32 = 150u).verify { self, restored ->
+            assertEquals(self.oneofUint32, restored.oneofUint32.toUInt())
+        }
+    }
+
+    @Test
+    fun nestedMessage() {
+        KTestMessageProto3Oneof(
+            oneofNestedMessage = KTestMessagesProto3Message.KNestedMessage(a = 150),
+        ).verify { self, restored ->
+            assertEquals(self.oneofNestedMessage?.a, restored.oneofNestedMessage.a)
+        }
+    }
+
+    @Test
+    fun string() {
+        KTestMessageProto3Oneof(oneofString = "150").verify { self, restored ->
+            assertEquals(self.oneofString, restored.oneofString)
+        }
+    }
+
+    @Test
+    fun bytes() {
+        KTestMessageProto3Oneof(oneofBytes = "150".toByteArray()).verify { self, restored ->
+            assertContentEquals(self.oneofBytes, restored.oneofBytes.toByteArray())
+        }
+    }
+
+    @Test
+    fun bool() {
+        KTestMessageProto3Oneof(oneofBool = true).verify { self, restored ->
+            assertEquals(self.oneofBool, restored.oneofBool)
+        }
+    }
+
+    @Test
+    fun uint64() {
+        KTestMessageProto3Oneof(oneofUint64 = 150uL).verify { self, restored ->
+            assertEquals(self.oneofUint64, restored.oneofUint64.toULong())
+        }
+    }
+
+    @Test
+    fun float() {
+        KTestMessageProto3Oneof(oneofFloat = 150f).verify { self, restored ->
+            assertEquals(self.oneofFloat, restored.oneofFloat)
+        }
+    }
+
+    @Test
+    fun double() {
+        KTestMessageProto3Oneof(oneofDouble = 150.0).verify { self, restored ->
+            assertEquals(self.oneofDouble, restored.oneofDouble)
+        }
+    }
+
+    @Test
+    fun enum() {
+        KTestMessageProto3Oneof(oneofEnum = KTestMessagesProto3Enum.KNestedEnum.BAR).verify { self, restored ->
+            assertEquals(self.oneofEnum?.name, restored.oneofEnum.name)
         }
     }
 }
