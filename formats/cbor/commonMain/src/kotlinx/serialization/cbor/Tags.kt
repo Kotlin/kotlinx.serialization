@@ -65,4 +65,5 @@ public annotation class ValueTags(@OptIn(ExperimentalUnsignedTypes::class) varar
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
 @ExperimentalSerializationApi
+@SuppressAnimalSniffer // Long.toUnsignedString(long)
 public annotation class KeyTags(@OptIn(ExperimentalUnsignedTypes::class) vararg val tags: ULong)
