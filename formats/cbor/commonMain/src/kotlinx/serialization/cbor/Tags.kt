@@ -1,5 +1,6 @@
 package kotlinx.serialization.cbor
 
+import kotlinx.serialization.cbor.internal.SuppressAnimalSniffer
 import kotlinx.serialization.*
 
 /**

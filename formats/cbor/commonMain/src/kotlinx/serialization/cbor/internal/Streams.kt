@@ -59,6 +59,10 @@ internal class ByteArrayOutput {
         return newArray
     }
 
+    fun copyFrom(src:ByteArrayOutput){
+        write(src.array, count = src.position)
+    }
+
     fun write(buffer: ByteArray, offset: Int = 0, count: Int = buffer.size) {
         // avoid int overflow
         if (offset < 0 || offset > buffer.size || count < 0
