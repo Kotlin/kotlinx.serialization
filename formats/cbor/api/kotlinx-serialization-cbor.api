@@ -43,7 +43,7 @@ public final class kotlinx/serialization/cbor/CborBuilder {
 	public final fun getAlwaysUseByteString ()Z
 	public final fun getEncodeDefaults ()Z
 	public final fun getIgnoreUnknownKeys ()Z
-	public final fun getPreferSerialLabelsOverNames ()Z
+	public final fun getPreferCborLabelsOverNames ()Z
 	public final fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
 	public final fun getVerifyKeyTags ()Z
 	public final fun getVerifyValueTags ()Z
@@ -53,7 +53,7 @@ public final class kotlinx/serialization/cbor/CborBuilder {
 	public final fun setAlwaysUseByteString (Z)V
 	public final fun setEncodeDefaults (Z)V
 	public final fun setIgnoreUnknownKeys (Z)V
-	public final fun setPreferSerialLabelsOverNames (Z)V
+	public final fun setPreferCborLabelsOverNames (Z)V
 	public final fun setSerializersModule (Lkotlinx/serialization/modules/SerializersModule;)V
 	public final fun setVerifyKeyTags (Z)V
 	public final fun setVerifyValueTags (Z)V
@@ -76,11 +76,11 @@ public synthetic class kotlinx/serialization/cbor/KeyTags$Impl : kotlinx/seriali
 	public final synthetic fun tags ()[J
 }
 
-public abstract interface annotation class kotlinx/serialization/cbor/SerialLabel : java/lang/annotation/Annotation {
+public abstract interface annotation class kotlinx/serialization/cbor/CborLabel : java/lang/annotation/Annotation {
 	public abstract fun label ()J
 }
 
-public synthetic class kotlinx/serialization/cbor/SerialLabel$Impl : kotlinx/serialization/cbor/SerialLabel {
+public synthetic class kotlinx/serialization/cbor/CborLabel$Impl : kotlinx/serialization/cbor/CborLabel {
 	public fun <init> (J)V
 	public final synthetic fun label ()J
 }

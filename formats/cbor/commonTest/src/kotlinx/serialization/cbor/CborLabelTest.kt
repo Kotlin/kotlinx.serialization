@@ -1,14 +1,13 @@
 package kotlinx.serialization.cbor
 
 import kotlinx.serialization.*
-import kotlinx.serialization.cbor.internal.*
 import kotlinx.serialization.cbor.internal.CborDecodingException
 import kotlin.test.*
 
 
-class CborSerialLabelTest {
+class CborLabelTest {
 
-    private val reference = ClassWithSerialLabel(alg = -7)
+    private val reference = ClassWithCborLabel(alg = -7)
 
 
     /**
@@ -30,26 +29,26 @@ class CborSerialLabelTest {
 
 
     @Test
-    fun writeReadVerifySerialLabel() {
+    fun writeReadVerifyCborLabel() {
         val cbor = Cbor {
-            preferSerialLabelsOverNames = true
+            preferCborLabelsOverNames = true
         }
-        assertEquals(referenceHexLabelString, cbor.encodeToHexString(ClassWithSerialLabel.serializer(), reference))
-        assertEquals(reference, cbor.decodeFromHexString(ClassWithSerialLabel.serializer(), referenceHexLabelString))
+        assertEquals(referenceHexLabelString, cbor.encodeToHexString(ClassWithCborLabel.serializer(), reference))
+        assertEquals(reference, cbor.decodeFromHexString(ClassWithCborLabel.serializer(), referenceHexLabelString))
     }
 
     @Test
     fun writeReadVerifySerialName() {
         val cbor = Cbor {
-            preferSerialLabelsOverNames = false
+            preferCborLabelsOverNames = false
         }
-        assertEquals(referenceHexNameString, cbor.encodeToHexString(ClassWithSerialLabel.serializer(), reference))
-        assertEquals(reference, cbor.decodeFromHexString(ClassWithSerialLabel.serializer(), referenceHexNameString))
+        assertEquals(referenceHexNameString, cbor.encodeToHexString(ClassWithCborLabel.serializer(), reference))
+        assertEquals(reference, cbor.decodeFromHexString(ClassWithCborLabel.serializer(), referenceHexNameString))
     }
 
     @Test
-    fun writeReadVerifySerialLabelWithTags() {
-        val referenceWithTag = ClassWithSerialLabelAndTag(alg = -7)
+    fun writeReadVerifyCborLabelWithTags() {
+        val referenceWithTag = ClassWithCborLabelAndTag(alg = -7)
         /**
          * A1       # map(1)
          *    C5    # tag(5)
@@ -58,17 +57,17 @@ class CborSerialLabelTest {
          */
         val referenceHexLabelWithTagString = "a1c50126"
         val cbor = Cbor {
-            preferSerialLabelsOverNames = true
+            preferCborLabelsOverNames = true
             writeKeyTags = true
             verifyKeyTags = true
             writeDefiniteLengths = true
         }
-        assertEquals(referenceHexLabelWithTagString, cbor.encodeToHexString(ClassWithSerialLabelAndTag.serializer(), referenceWithTag))
-        assertEquals(referenceWithTag, cbor.decodeFromHexString(ClassWithSerialLabelAndTag.serializer(), referenceHexLabelWithTagString))
+        assertEquals(referenceHexLabelWithTagString, cbor.encodeToHexString(ClassWithCborLabelAndTag.serializer(), referenceWithTag))
+        assertEquals(referenceWithTag, cbor.decodeFromHexString(ClassWithCborLabelAndTag.serializer(), referenceHexLabelWithTagString))
     }
 
     @Test
-    fun writeReadVerifySerialLabelWithTagsThrowing() {
+    fun writeReadVerifyCborLabelWithTagsThrowing() {
         /**
          * A1       # map(1)
          *    C6    # tag(6)        // wrong tag: declared is 5U, meaning C5 in hex
@@ -77,19 +76,19 @@ class CborSerialLabelTest {
          */
         val referenceHexLabelWithTagString = "a1c60126"
         val cbor = Cbor {
-            preferSerialLabelsOverNames = true
+            preferCborLabelsOverNames = true
             writeKeyTags = true
             verifyKeyTags = true
             writeDefiniteLengths = true
         }
         assertFailsWith(CborDecodingException::class) {
-            cbor.decodeFromHexString(ClassWithSerialLabelAndTag.serializer(), referenceHexLabelWithTagString)
+            cbor.decodeFromHexString(ClassWithCborLabelAndTag.serializer(), referenceHexLabelWithTagString)
         }
     }
 
     @Test
-    fun writeReadVerifySerialLabelWithTagsAndUnknownKeys() {
-        val referenceWithTag = ClassWithSerialLabelAndTag(alg = -7)
+    fun writeReadVerifyCborLabelWithTagsAndUnknownKeys() {
+        val referenceWithTag = ClassWithCborLabelAndTag(alg = -7)
         /**
          * A2           # map(2)
          *    C5        # tag(5)
@@ -101,25 +100,25 @@ class CborSerialLabelTest {
          */
         val referenceHexLabelWithTagString = "a2c50126026362617a"
         val cbor = Cbor {
-            preferSerialLabelsOverNames = true
+            preferCborLabelsOverNames = true
             writeKeyTags = true
             verifyKeyTags = true
             ignoreUnknownKeys = true
             writeDefiniteLengths = true
         }
-        assertEquals(referenceWithTag, cbor.decodeFromHexString(ClassWithSerialLabelAndTag.serializer(), referenceHexLabelWithTagString))
+        assertEquals(referenceWithTag, cbor.decodeFromHexString(ClassWithCborLabelAndTag.serializer(), referenceHexLabelWithTagString))
     }
 
     @Serializable
-    data class ClassWithSerialLabel(
-        @SerialLabel(1)
+    data class ClassWithCborLabel(
+        @CborLabel(1)
         @SerialName("alg")
         val alg: Int
     )
 
     @Serializable
-    data class ClassWithSerialLabelAndTag(
-        @SerialLabel(1)
+    data class ClassWithCborLabelAndTag(
+        @CborLabel(1)
         @SerialName("alg")
         @KeyTags(5U)
         val alg: Int

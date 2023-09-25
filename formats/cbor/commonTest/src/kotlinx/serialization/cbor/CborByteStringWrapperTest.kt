@@ -1,9 +1,6 @@
 package kotlinx.serialization.cbor
 
 import kotlinx.serialization.*
-import kotlinx.serialization.builtins.*
-import kotlinx.serialization.descriptors.*
-import kotlinx.serialization.encoding.*
 import kotlin.test.*
 
 class CborByteStringWrapperTest {
@@ -28,7 +25,7 @@ class CborByteStringWrapperTest {
 
     @Serializable
     data class CoseHeader(
-        @SerialLabel(1)
+        @CborLabel(1)
         @SerialName("alg")
         val alg: Int? = null
     )
@@ -36,7 +33,7 @@ class CborByteStringWrapperTest {
     @Serializable
     data class CoseSigned(
         @ByteString
-        @SerialLabel(1)
+        @CborLabel(1)
         @SerialName("protectedHeader")
         val protectedHeader: ByteStringWrapper<CoseHeader>,
     )

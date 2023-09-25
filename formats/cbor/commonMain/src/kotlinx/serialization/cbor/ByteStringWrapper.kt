@@ -14,7 +14,7 @@ import kotlinx.serialization.encoding.*
  * ```
  * @Serializable
  * data class CoseHeader(
- *     @SerialLabel(1)
+ *     @CborLabel(1)
  *     @SerialName("alg")
  *     val alg: Int? = null
  * )
@@ -22,7 +22,7 @@ import kotlinx.serialization.encoding.*
  * @Serializable
  * data class CoseSigned(
  *     @ByteString
- *     @SerialLabel(1)
+ *     @CborLabel(1)
  *     @SerialName("protectedHeader")
  *     val protectedHeader: ByteStringWrapper<CoseHeader>,
  * )

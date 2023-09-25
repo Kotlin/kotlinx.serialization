@@ -5,4 +5,4 @@ import kotlinx.serialization.*
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
 @ExperimentalSerializationApi
-public annotation class SerialLabel(val label: Long)
+public annotation class CborLabel(val label: Long)

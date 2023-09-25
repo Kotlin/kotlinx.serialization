@@ -181,7 +181,7 @@ internal open class CborWriter(
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
         val parent = structureStack.peek() as Token?
         val name = descriptor.getElementName(index) as String?
-        val label = descriptor.getSerialLabel(index)
+        val label = descriptor.getCborLabel(index)
 
         val preamble = encodePreamble(parent?.descriptor, index, label, name)
 
@@ -216,7 +216,7 @@ internal open class CborWriter(
                 }
                 if ((descriptor.kind !is StructureKind.LIST) && (descriptor.kind !is StructureKind.MAP) && (descriptor.kind !is PolymorphicKind)) {
                     //indices are put into the name field. we don't want to write those, as it would result in double writes
-                    if (cbor.preferSerialLabelsOverNames && label != null) {
+                    if (cbor.preferCborLabelsOverNames && label != null) {
                         encoder.encodeNumber(label)
                     } else if (name != null) {
                         encoder.encodeString(name)
@@ -529,10 +529,10 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
     }
 
     private fun decodeElementNameWithTags(descriptor: SerialDescriptor): Pair<String, ULongArray?> {
-        var (elemName, serialLabel, tags) = decoder.nextTaggedStringOrNumber()
-        if (elemName == null && serialLabel != null) {
-            elemName = descriptor.getElementNameForSerialLabel(serialLabel)
-                ?: throw CborDecodingException("SerialLabel unknown: $serialLabel")
+        var (elemName, cborLabel, tags) = decoder.nextTaggedStringOrNumber()
+        if (elemName == null && cborLabel != null) {
+            elemName = descriptor.getElementNameForCborLabel(cborLabel)
+                ?: throw CborDecodingException("CborLabel unknown: $cborLabel")
         }
         if (elemName == null) {
             throw CborDecodingException("Expected (tagged) string or number, got nothing")
@@ -541,9 +541,9 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
     }
 
     private fun decodeElementNameWithTagsLenient(descriptor: SerialDescriptor): Pair<String?, ULongArray?> {
-        var (elemName, serialLabel, tags) = decoder.nextTaggedStringOrNumber()
-        if (elemName == null && serialLabel != null) {
-            elemName = descriptor.getElementNameForSerialLabel(serialLabel)
+        var (elemName, cborLabel, tags) = decoder.nextTaggedStringOrNumber()
+        if (elemName == null && cborLabel != null) {
+            elemName = descriptor.getElementNameForCborLabel(cborLabel)
         }
         return elemName to tags
     }
@@ -1029,14 +1029,14 @@ private fun SerialDescriptor.getKeyTags(): ULongArray? {
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-private fun SerialDescriptor.getSerialLabel(index: Int): Long? {
-    return kotlin.runCatching { getElementAnnotations(index).filterIsInstance<SerialLabel>().firstOrNull()?.label }
+private fun SerialDescriptor.getCborLabel(index: Int): Long? {
+    return kotlin.runCatching { getElementAnnotations(index).filterIsInstance<CborLabel>().firstOrNull()?.label }
         .getOrNull()
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-private fun SerialDescriptor.getElementNameForSerialLabel(label: Long): String? {
-    return elementNames.firstOrNull { getSerialLabel(getElementIndex(it)) == label }
+private fun SerialDescriptor.getElementNameForCborLabel(label: Long): String? {
+    return elementNames.firstOrNull { getCborLabel(getElementIndex(it)) == label }
 }
 
 @OptIn(ExperimentalSerializationApi::class)

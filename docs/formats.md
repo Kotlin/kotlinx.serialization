@@ -244,8 +244,8 @@ Writing and verifying such tags can be toggled using the  `writeKeyTags`, `write
 `verifyValueTags` configuration switches respectively.
 
 In addition, CBOR supports *labels*, which work just as `SerialNames`. The key difference is that labels are not strings,
-but integer numbers. Labels can be assigned using the [`@SerialLabel`](SerialLabel.kt) annotation, while the
-`preferSerialLabelsOverNames` configuration switch can be used to prefer them over SerialNames in case both are present
+but integer numbers. Labels can be assigned using the [`@CborLabel`](CborLabel.kt) annotation, while the
+`preferCborLabelsOverNames` configuration switch can be used to prefer them over SerialNames in case both are present
 for a property.
 
 ## ProtoBuf (experimental)
