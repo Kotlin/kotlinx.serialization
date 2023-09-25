@@ -248,6 +248,44 @@ but integer numbers. Labels can be assigned using the [`@CborLabel`](CborLabel.k
 `preferCborLabelsOverNames` configuration switch can be used to prefer them over SerialNames in case both are present
 for a property.
 
+
+### Arrays
+
+Classes may be serialized as a CBOR Array (major type 4) instead of a CBOR Map (major type 5).
+
+Example usage:
+
+```
+@Serializable
+data class DataClass(
+    val alg: Int,
+    val kid: String?
+)
+
+Cbor.encodeToByteArray(DataClass(alg = -7, kid = null))
+```
+
+will produce bytes `0xa263616c6726636b6964f6`, or in diagnostic notation:
+
+```
+A2           # map(2)
+   63        # text(3)
+      616C67 # "alg"
+   26        # negative(6)
+   63        # text(3)
+      6B6964 # "kid"
+   F6        # primitive(22)
+```
+
+When annotated with `@CborArray`, serialization of the same object will produce bytes `0x8226F6`, or in diagnostic notation:
+
+```
+82    # array(2)
+   26 # negative(6)
+   F6 # primitive(22)
+```
+This may be used to encode COSE structures, see [RFC 9052 2. Basic COSE Structure](https://www.rfc-editor.org/rfc/rfc9052#section-2).
+
 ## ProtoBuf (experimental)
 
 [Protocol Buffers](https://developers.google.com/protocol-buffers) is a language-neutral binary format that normally
