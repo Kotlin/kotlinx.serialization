@@ -1,10 +1,15 @@
 package kotlinx.serialization.cbor
 
+import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
+
 /**
  * Use this class if you'll need to serialize a complex type as a byte string before encoding it,
  * i.e. as it is the case with the protected header in COSE structures.
  *
- * Clients also need to write a custom serializer, i.e. in the form of
+ * An example for a COSE header data class would be:
  *
  * ```
  * @Serializable
@@ -16,28 +21,14 @@ package kotlinx.serialization.cbor
  *
  * @Serializable
  * data class CoseSigned(
- *     @Serializable(with = ByteStringWrapperSerializer::class)
  *     @ByteString
  *     @SerialLabel(1)
  *     @SerialName("protectedHeader")
  *     val protectedHeader: ByteStringWrapper<CoseHeader>,
  * )
- *
- * object ByteStringWrapperSerializer : KSerializer<ByteStringWrapper<CoseHeader>> {
- *     override val descriptor: SerialDescriptor =
- *         PrimitiveSerialDescriptor("ByteStringWrapperSerializer", PrimitiveKind.STRING)
- *     override fun serialize(encoder: Encoder, value: ByteStringWrapper<CoseHeader>) {
- *         val bytes = Cbor.encodeToByteArray(value.value)
- *         encoder.encodeSerializableValue(ByteArraySerializer(), bytes)
- *     }
- *     override fun deserialize(decoder: Decoder): ByteStringWrapper<CoseHeader> {
- *         val bytes = decoder.decodeSerializableValue(ByteArraySerializer())
- *         return ByteStringWrapper(Cbor.decodeFromByteArray(bytes), bytes)
- *     }
- * }
  * ```
  *
- * then serializing a `CoseSigned` object would result in `a10143a10126`, in diagnostic notation:
+ * Serializing this `CoseHeader` object would result in `a10143a10126`, in diagnostic notation:
  *
  * ```
  * A1           # map(1)
@@ -46,11 +37,14 @@ package kotlinx.serialization.cbor
  *       A10126 # "\xA1\u0001&"
  * ```
  *
- * so the `protectedHeader` got serialized first and then encoded as a `@ByteString`
+ * so the `protectedHeader` got serialized first and then encoded as a `@ByteString`.
+ *
+ * Note that `equals()` and `hashCode()` only use `value`, not `serialized`.
  */
-public data class ByteStringWrapper<T>(
-    val value: T,
-    val serialized: ByteArray = byteArrayOf()
+@Serializable(with = ByteStringWrapperSerializer::class)
+public class ByteStringWrapper<T>(
+    public val value: T,
+    public val serialized: ByteArray = byteArrayOf()
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -64,4 +58,29 @@ public data class ByteStringWrapper<T>(
     override fun hashCode(): Int {
         return value?.hashCode() ?: 0
     }
+
+    override fun toString(): String {
+        return "ByteStringWrapper(value=$value, serialized=${serialized.contentToString()})"
+    }
+
+}
+
+
+@OptIn(ExperimentalSerializationApi::class)
+public class ByteStringWrapperSerializer<T>(private val dataSerializer: KSerializer<T>) :
+    KSerializer<ByteStringWrapper<T>> {
+
+    override val descriptor: SerialDescriptor = dataSerializer.descriptor
+
+    override fun serialize(encoder: Encoder, value: ByteStringWrapper<T>) {
+        val bytes = Cbor.encodeToByteArray(dataSerializer, value.value)
+        encoder.encodeSerializableValue(ByteArraySerializer(), bytes)
+    }
+
+    override fun deserialize(decoder: Decoder): ByteStringWrapper<T> {
+        val bytes = decoder.decodeSerializableValue(ByteArraySerializer())
+        val value = Cbor.decodeFromByteArray(dataSerializer, bytes)
+        return ByteStringWrapper(value, bytes)
+    }
+
 }

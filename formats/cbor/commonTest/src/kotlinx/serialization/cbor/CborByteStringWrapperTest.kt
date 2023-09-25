@@ -35,28 +35,10 @@ class CborByteStringWrapperTest {
 
     @Serializable
     data class CoseSigned(
-        @Serializable(with = ByteStringWrapperSerializer::class)
         @ByteString
         @SerialLabel(1)
         @SerialName("protectedHeader")
         val protectedHeader: ByteStringWrapper<CoseHeader>,
     )
-
-    object ByteStringWrapperSerializer : KSerializer<ByteStringWrapper<CoseHeader>> {
-
-        override val descriptor: SerialDescriptor =
-            PrimitiveSerialDescriptor("ByteStringWrapperSerializer", PrimitiveKind.STRING)
-
-        override fun serialize(encoder: Encoder, value: ByteStringWrapper<CoseHeader>) {
-            val bytes = Cbor.encodeToByteArray(value.value)
-            encoder.encodeSerializableValue(ByteArraySerializer(), bytes)
-        }
-
-        override fun deserialize(decoder: Decoder): ByteStringWrapper<CoseHeader> {
-            val bytes = decoder.decodeSerializableValue(ByteArraySerializer())
-            return ByteStringWrapper(Cbor.decodeFromByteArray(bytes), bytes)
-        }
-
-    }
 
 }
