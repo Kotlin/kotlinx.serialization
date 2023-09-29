@@ -286,7 +286,7 @@ public abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
         previousValue: T?
     ): T? =
         tagBlock(descriptor.getTag(index)) {
-            if (decodeNotNullMark()) decodeSerializableValue(
+            if (decodeNotNullMark() || deserializer.descriptor.isNullable) decodeSerializableValue(
                 deserializer,
                 previousValue
             ) else decodeNull()
