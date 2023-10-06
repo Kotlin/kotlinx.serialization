@@ -70,6 +70,8 @@ internal open class CborWriter(private val cbor: Cbor, protected val encoder: Cb
         if (encodeByteArrayAsByteString && serializer.descriptor == ByteArraySerializer().descriptor) {
             encoder.encodeByteString(value as ByteArray)
         } else {
+            encodeByteArrayAsByteString = encodeByteArrayAsByteString || serializer.descriptor.isInlineByteString()
+
             super.encodeSerializableValue(serializer, value)
         }
     }
@@ -278,6 +280,7 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
             @Suppress("UNCHECKED_CAST")
             decoder.nextByteString() as T
         } else {
+            decodeByteArrayAsByteString = decodeByteArrayAsByteString || deserializer.descriptor.isInlineByteString()
             super.decodeSerializableValue(deserializer)
         }
     }
@@ -634,6 +637,11 @@ private fun Iterable<ByteArray>.flatten(): ByteArray {
 @OptIn(ExperimentalSerializationApi::class)
 private fun SerialDescriptor.isByteString(index: Int): Boolean {
     return getElementAnnotations(index).find { it is ByteString } != null
+}
+
+private fun SerialDescriptor.isInlineByteString(): Boolean {
+    // inline item classes should only have 1 item
+    return isInline && isByteString(0)
 }
 
 

@@ -634,6 +634,22 @@ class CborReaderTest {
     }
 
     @Test
+    fun testReadValueClassWithByteString() {
+        assertContentEquals(
+            expected = byteArrayOf(0x11, 0x22, 0x33),
+            actual = Cbor.decodeFromHexString<ValueClassWithByteString>("43112233").x
+        )
+    }
+
+    @Test
+    fun testReadValueClassCustomByteString() {
+        assertEquals(
+            expected = ValueClassWithCustomByteString(CustomByteString(0x11, 0x22, 0x33)),
+            actual = Cbor.decodeFromHexString("43112233")
+        )
+    }
+
+    @Test
     fun testIgnoresTagsOnStrings() {
         /*
          * 84                                # array(4)
