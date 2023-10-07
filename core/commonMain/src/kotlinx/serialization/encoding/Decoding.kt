@@ -260,10 +260,15 @@ public interface Decoder {
      * Decodes the nullable value of type [T] by delegating the decoding process to the given [deserializer].
      */
     @ExperimentalSerializationApi
-    public fun <T : Any> decodeNullableSerializableValue(deserializer: DeserializationStrategy<T?>): T? {
-        val isNullabilitySupported = deserializer.descriptor.isNullable
-        return if (isNullabilitySupported || decodeNotNullMark()) decodeSerializableValue(deserializer) else decodeNull()
+    public fun <T : Any> decodeNullableSerializableValue(deserializer: DeserializationStrategy<T?>): T? = decodeIfNullable(deserializer) {
+        decodeSerializableValue(deserializer)
     }
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+internal inline fun <T : Any> Decoder.decodeIfNullable(deserializer: DeserializationStrategy<T?>, block: () -> T?): T? {
+    val isNullabilitySupported = deserializer.descriptor.isNullable
+    return if (isNullabilitySupported || decodeNotNullMark()) block() else decodeNull()
 }
 
 /**
