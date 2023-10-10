@@ -5,6 +5,7 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.encoding.*
+import kotlinx.serialization.descriptors.*
 
 /**
  * A generic exception indicating the problem in serialization or deserialization process.
@@ -64,6 +65,12 @@ public open class SerializationException : IllegalArgumentException {
  *
  * [MissingFieldException] is thrown on missing field from all [auto-generated][Serializable] serializers and it
  * is recommended to throw this exception from user-defined serializers.
+ *
+ * [MissingFieldException] is constructed from the following properties:
+ * - [missingFields] -- fields that were required for the deserialization but have not been found.
+ *   They are always non-empty and their names match the corresponding names in [SerialDescriptor.elementNames]
+ * - Optional `serialName` -- serial name of the enclosing class that failed to get deserialized.
+ *   Matches the corresponding [SerialDescriptor.serialName].
  *
  * @see SerializationException
  * @see KSerializer
