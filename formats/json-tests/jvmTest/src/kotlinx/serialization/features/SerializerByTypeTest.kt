@@ -209,15 +209,6 @@ class SerializerByTypeTest {
         assertEquals(expected, json.encodeToString(serial2 as KSerializer<T>, value))
     }
 
-    @PublishedApi
-    internal open class TypeBase<T>
-
-    public inline fun <reified T> typeTokenOf(): Type {
-        val base = object : TypeBase<T>() {}
-        val superType = base::class.java.genericSuperclass!!
-        return (superType as ParameterizedType).actualTypeArguments.first()!!
-    }
-
     class IntBox(val i: Int)
 
     object CustomIntSerializer : KSerializer<IntBox> {
