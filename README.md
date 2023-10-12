@@ -180,11 +180,11 @@ dependencies {
 }
 ```
 
->We also provide `kotlinx-serialization-core` artifact that contains all serialization API but does not have bundled serialization format with it
+>We also provide `kotlinx-serialization-core` artifacts that contains all serialization API but does not have bundled serialization format with it
 
 ### Android
 
-By default, proguard rules are supplied with the library.
+By default, ProGuard rules are supplied with the library.
 [These rules](rules/common.pro) keep serializers for _all_ serializable classes that are retained after shrinking,
 so you don't need additional setup.
 
@@ -216,7 +216,7 @@ com.example.myapplication.HasNamedCompanion2
 
 
 <details>
-<summary>Example of named companion rules for R8 full mode</summary>
+<summary>Example of named companion rules for R8 full-mode</summary>
 
 ```proguard
 # Serializer for classes with named companion objects are retrieved using `getDeclaredClasses`.
