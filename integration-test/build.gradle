@@ -41,18 +41,17 @@ kotlin {
             }
         }
     }
-    wasm {
+    wasmJs {
         d8()
     }
     jvm {
         withJava()
     }
-    // For ARM, should be changed to iosArm32 or iosArm64
-    // For Linux, should be changed to e.g. linuxX64
-    // For MacOS, should be changed to e.g. macosX64
-    // For Windows, should be changed to e.g. mingwX64
-    macosX64("macos")
-    linuxX64("linux")
+    macosX64()
+    macosArm64()
+    linuxX64()
+    mingwX64()
+
     sourceSets {
         all {
             languageSettings {
@@ -98,27 +97,29 @@ kotlin {
                 implementation kotlin('test-js')
             }
         }
-        wasmMain {
+        wasmJsMain {
             dependencies {
-                implementation kotlin('stdlib-wasm')
+                api 'org.jetbrains.kotlin:kotlin-stdlib-wasm-js'
+            }
+        }
 
-            }
-        }
-        wasmTest {
+        wasmJsTest {
             dependencies {
-                implementation kotlin('test-wasm')
+                api 'org.jetbrains.kotlin:kotlin-test-wasm-js'
             }
         }
-        macosMain {
-            dependencies {
+    }
+
+    targets.all {
+        compilations.all {
+            kotlinOptions {
+                freeCompilerArgs += "-Xexpect-actual-classes"
             }
         }
-        macosTest {}
-        linuxMain {
-            kotlin.srcDirs = ["src/macosMain/kotlin"]
-        }
-        linuxTest {
-            kotlin.srcDirs = ["src/macosTest/kotlin"]
+        compilations.main {
+            kotlinOptions {
+                allWarningsAsErrors = true
+            }
         }
     }
 }

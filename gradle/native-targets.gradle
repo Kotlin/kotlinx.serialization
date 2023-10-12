@@ -2,178 +2,42 @@
  * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-/**
- * Specifies what subset of Native targets to build
- *
- * ALL — all possible for compilation
- * HOST — host-specific ones, without cross compilation (e.g. do not build linuxX64 on macOS host)
- * SINGLE — only for current OS (to import into IDEA / quickly run tests)
- * DISABLED — disable all Native targets (useful with Kotlin compiler built from sources)
- *
- * For HOST mode, all targets are still listed in .module file, so HOST mode is useful for release process.
- */
-enum NativeState {
-    ALL, HOST, SINGLE, DISABLED
-}
-
-def getNativeState(String description) {
-    if (description == null) return NativeState.SINGLE
-    switch (description.toLowerCase()) {
-        case 'all':
-        case 'true':
-            return NativeState.ALL
-        case 'host':
-            return NativeState.HOST
-        case 'disabled':
-            return NativeState.DISABLED
-            // 'single', 'false', etc
-        default:
-            return NativeState.SINGLE
-    }
-}
-
-project.ext.ideaActive = System.getProperty('idea.active') == 'true'
-project.ext.nativeState = getNativeState(property('native.deploy'))
-project.ext.singleTargetMode = project.ext.ideaActive || (project.ext.nativeState == NativeState.SINGLE)
-
-project.ext.nativeMainSets = []
-project.ext.nativeTestSets = []
-
-/**
- * Disables compilation but leaves the target in .module file
- */
-def disableCompilation(targets) {
-    configure(targets) {
-        compilations.all {
-            cinterops.all { project.tasks[interopProcessingTaskName].enabled = false }
-            compileKotlinTask.enabled = false
-        }
-        binaries.all { linkTask.enabled = false }
-
-        mavenPublication { publicationToDisable ->
-            tasks.withType(AbstractPublishToMaven).all {
-                onlyIf { publication != publicationToDisable }
-            }
-            tasks.withType(GenerateModuleMetadata).all {
-                onlyIf { publication.get() != publicationToDisable }
-            }
-        }
-    }
-}
-
-def getHostName() {
-    def target = System.getProperty("os.name")
-    if (target == 'Linux') return 'linux'
-    if (target.startsWith('Windows')) return 'windows'
-    if (target.startsWith('Mac')) return 'macos'
-    return 'unknown'
-}
-
 static def doesNotDependOnOkio(project) {
     return !project.name.contains("json-okio") && !project.name.contains("json-tests")
 }
 
 kotlin {
     targets {
-        def manager = project.ext.hostManager
-        def linuxEnabled = manager.isEnabled(presets.linuxX64.konanTarget)
-        def macosEnabled = manager.isEnabled(presets.macosX64.konanTarget)
-        def winEnabled = manager.isEnabled(presets.mingwX64.konanTarget)
+        targetHierarchy.default()
 
-        def ideaPreset = presets.linuxX64
-        if (macosEnabled) ideaPreset = presets.macosX64
-        if (winEnabled) ideaPreset = presets.mingwX64
-        project.ext.ideaPreset = ideaPreset
-    }
+        // According to https://kotlinlang.org/docs/native-target-support.html
+        // Tier 1
+        linuxX64()
+        macosX64()
+        macosArm64()
+        iosSimulatorArm64()
+        iosX64()
 
-    targets {
-        delegate.metaClass.addTarget = { preset ->
-            def target = delegate.fromPreset(preset, preset.name)
-            project.ext.nativeMainSets.add(target.compilations['main'].kotlinSourceSets.first())
-            project.ext.nativeTestSets.add(target.compilations['test'].kotlinSourceSets.first())
-        }
-    }
+        // Tier 2
+        watchosSimulatorArm64()
+        watchosX64()
+        watchosArm32()
+        watchosArm64()
+        tvosSimulatorArm64()
+        tvosX64()
+        tvosArm64()
+        iosArm64()
+        linuxArm64()
 
-    targets {
-        if (project.ext.nativeState == NativeState.DISABLED) return
-
-        String[] versionComponents = (~/[.-]/).split(compilerVersion, 4)
-        String[] versionComponents1920 = ["1", "9", "20"]
-        def isAtLeast1920 = Arrays.compare(versionComponents, versionComponents1920) { lhs, rhs ->
-            (lhs as int) <=> (rhs as int)
-        } >= 0
-
-        if (project.ext.singleTargetMode) {
-            fromPreset(project.ext.ideaPreset, 'native')
-        } else {
-            // According to https://kotlinlang.org/docs/native-target-support.html
-            // Tier 1
-            addTarget(presets.linuxX64)
-            addTarget(presets.macosX64)
-            addTarget(presets.macosArm64)
-            addTarget(presets.iosSimulatorArm64)
-            addTarget(presets.iosX64)
-
-            // Tier 2
-            if (doesNotDependOnOkio(project)) {
-                addTarget(presets.linuxArm64)
-            }
-            addTarget(presets.watchosSimulatorArm64)
-            addTarget(presets.watchosX64)
-            addTarget(presets.watchosArm32)
-            addTarget(presets.watchosArm64)
-            addTarget(presets.tvosSimulatorArm64)
-            addTarget(presets.tvosX64)
-            addTarget(presets.tvosArm64)
-            addTarget(presets.iosArm64)
-
-            // Tier 3
-            if (doesNotDependOnOkio(project)) {
-                addTarget(presets.androidNativeArm32)
-                addTarget(presets.androidNativeArm64)
-                addTarget(presets.androidNativeX86)
-                addTarget(presets.androidNativeX64)
-                addTarget(presets.watchosDeviceArm64)
-            }
-
-            addTarget(presets.mingwX64)
-
-            // Deprecated, but were provided by kotlinx.serialization; can be removed only in 1.9.20 release.
-            if (!isAtLeast1920) {
-                addTarget(presets.watchosX86)
-
-                if (doesNotDependOnOkio(project)) {
-                    addTarget(presets.iosArm32)
-                    addTarget(presets.linuxArm32Hfp)
-                    addTarget(presets.mingwX86)
-                }
-            }
-
-        }
-
-        if (project.ext.nativeState == NativeState.HOST) {
-            // linux targets that can cross-compile on all three hosts
-            def linuxCrossCompileTargets = isAtLeast1920 ? [presets.linuxX64] : [presets.linuxX64, presets.linuxArm32Hfp, presets.linuxArm64]
-            if (getHostName() != "linux") {
-                disableCompilation(linuxCrossCompileTargets)
-            }
-        }
-    }
-
-
-    sourceSets {
-        nativeMain { dependsOn commonMain }
-        // Empty source set is required in order to have native tests task
-        nativeTest { dependsOn commonTest }
-
-        if (!project.ext.singleTargetMode) {
-            configure(project.ext.nativeMainSets) {
-                dependsOn nativeMain
-            }
-
-            configure(project.ext.nativeTestSets) {
-                dependsOn nativeTest
-            }
+        // Tier 3
+        mingwX64()
+        // https://github.com/square/okio/issues/1242#issuecomment-1759357336
+        if (doesNotDependOnOkio(project)) {
+            androidNativeArm32()
+            androidNativeArm64()
+            androidNativeX86()
+            androidNativeX64()
+            watchosDeviceArm64()
         }
     }
 }
