@@ -12,6 +12,7 @@ import org.gradle.jvm.toolchain.*
 import org.gradle.kotlin.dsl.*
 import org.gradle.language.base.plugins.LifecycleBasePlugin.*
 import org.gradle.process.*
+import org.jetbrains.kotlin.gradle.*
 import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
@@ -149,6 +150,11 @@ object Java9Modularity {
             // part of work-around for https://youtrack.jetbrains.com/issue/KT-60541
             @Suppress("INVISIBLE_MEMBER")
             commonSourceSet.from(compileTask.commonSourceSet)
+            @OptIn(InternalKotlinGradlePluginApi::class)
+            apply {
+                multiplatformStructure.refinesEdges.set(compileTask.multiplatformStructure.refinesEdges)
+                multiplatformStructure.fragments.set(compileTask.multiplatformStructure.fragments)
+            }
             // part of work-around for https://youtrack.jetbrains.com/issue/KT-60541
             // and work-around for https://youtrack.jetbrains.com/issue/KT-60582
             incremental = false
