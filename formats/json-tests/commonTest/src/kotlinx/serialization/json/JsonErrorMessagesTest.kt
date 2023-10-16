@@ -6,6 +6,7 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
+import kotlinx.serialization.test.*
 import kotlin.test.*
 
 
@@ -155,11 +156,4 @@ class JsonErrorMessagesTest : JsonTestBase() {
         })
 
     }
-
-    private fun checkSerializationException(action: () -> Unit, assertions: SerializationException.(String) -> Unit) {
-        val e = assertFailsWith(SerializationException::class, action)
-        assertNotNull(e.message)
-        e.assertions(e.message!!)
-    }
-
 }

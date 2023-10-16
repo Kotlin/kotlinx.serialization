@@ -83,7 +83,7 @@ class JsonParserTest : JsonTestBase() {
     }
 
     private fun testTrailingComma(content: String) {
-        assertFailsWithSerialMessage("JsonDecodingException", "Unexpected trailing") {  Json.parseToJsonElement(content) }
+        assertFailsWithSerialMessage("JsonDecodingException", "Trailing comma before the end of JSON object") {  Json.parseToJsonElement(content) }
     }
 
     @Test

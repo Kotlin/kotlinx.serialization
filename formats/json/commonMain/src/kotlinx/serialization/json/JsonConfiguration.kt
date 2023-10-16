@@ -32,7 +32,9 @@ public class JsonConfiguration @OptIn(ExperimentalSerializationApi::class) inter
     @ExperimentalSerializationApi
     public val namingStrategy: JsonNamingStrategy? = null,
     @ExperimentalSerializationApi
-    public val decodeEnumsCaseInsensitive: Boolean = false
+    public val decodeEnumsCaseInsensitive: Boolean = false,
+    @ExperimentalSerializationApi
+    public val allowTrailingComma: Boolean = false,
 ) {
 
     /** @suppress Dokka **/
@@ -42,6 +44,6 @@ public class JsonConfiguration @OptIn(ExperimentalSerializationApi::class) inter
                 "allowStructuredMapKeys=$allowStructuredMapKeys, prettyPrint=$prettyPrint, explicitNulls=$explicitNulls, " +
                 "prettyPrintIndent='$prettyPrintIndent', coerceInputValues=$coerceInputValues, useArrayPolymorphism=$useArrayPolymorphism, " +
                 "classDiscriminator='$classDiscriminator', allowSpecialFloatingPointValues=$allowSpecialFloatingPointValues, useAlternativeNames=$useAlternativeNames, " +
-                "namingStrategy=$namingStrategy, decodeEnumsCaseInsensitive=$decodeEnumsCaseInsensitive)"
+                "namingStrategy=$namingStrategy, decodeEnumsCaseInsensitive=$decodeEnumsCaseInsensitive, allowTrailingComma=$allowTrailingComma)"
     }
 }

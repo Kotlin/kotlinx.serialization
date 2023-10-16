@@ -122,6 +122,7 @@ internal open class StreamingJsonDecoder(
         if (json.configuration.ignoreUnknownKeys && descriptor.elementsCount == 0) {
             skipLeftoverElements(descriptor)
         }
+        if (lexer.tryConsumeComma() && !json.configuration.allowTrailingComma) lexer.invalidTrailingComma("")
         // First consume the object so we know it's correct
         lexer.consumeNextToken(mode.end)
         // Then cleanup the path
@@ -195,12 +196,12 @@ internal open class StreamingJsonDecoder(
 
         return if (lexer.canConsumeValue()) {
             if (decodingKey) {
-                if (currentIndex == -1) lexer.require(!hasComma) { "Unexpected trailing comma" }
+                if (currentIndex == -1) lexer.require(!hasComma) { "Unexpected leading comma" }
                 else lexer.require(hasComma) { "Expected comma after the key-value pair" }
             }
             ++currentIndex
         } else {
-            if (hasComma) lexer.fail("Expected '}', but had ',' instead")
+            if (hasComma && !json.configuration.allowTrailingComma) lexer.invalidTrailingComma()
             CompositeDecoder.DECODE_DONE
         }
     }
@@ -239,7 +240,7 @@ internal open class StreamingJsonDecoder(
                 hasComma = handleUnknown(key)
             }
         }
-        if (hasComma) lexer.fail("Unexpected trailing comma")
+        if (hasComma && !json.configuration.allowTrailingComma) lexer.invalidTrailingComma()
 
         return elementMarker?.nextUnmarkedIndex() ?: CompositeDecoder.DECODE_DONE
     }
@@ -262,7 +263,7 @@ internal open class StreamingJsonDecoder(
             if (currentIndex != -1 && !hasComma) lexer.fail("Expected end of the array or comma")
             ++currentIndex
         } else {
-            if (hasComma) lexer.fail("Unexpected trailing comma")
+            if (hasComma && !json.configuration.allowTrailingComma) lexer.invalidTrailingComma("array")
             CompositeDecoder.DECODE_DONE
         }
     }

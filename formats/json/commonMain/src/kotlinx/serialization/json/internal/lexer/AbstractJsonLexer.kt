@@ -149,7 +149,7 @@ internal abstract class AbstractJsonLexer {
     protected abstract val source: CharSequence
 
     @JvmField
-    protected var currentPosition: Int = 0 // position in source
+    internal var currentPosition: Int = 0 // position in source
 
     @JvmField
     val path = JsonPath()
