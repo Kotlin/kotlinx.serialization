@@ -146,10 +146,10 @@ internal fun escapeToChar(c: Int): Char = if (c < ESC2C_MAX) ESCAPE_2_CHAR[c] el
  */
 internal abstract class AbstractJsonLexer {
 
-    internal abstract val source: CharSequence
+    protected abstract val source: CharSequence
 
     @JvmField
-    internal var currentPosition: Int = 0 // position in source
+    protected var currentPosition: Int = 0 // position in source
 
     @JvmField
     val path = JsonPath()
