@@ -23,9 +23,9 @@ class PolymorphismTest {
     @Test
     fun testExamplePoly03() {
         captureOutput("ExamplePoly03") { example.examplePoly03.main() }.verifyOutputLinesStart(
-            "Exception in thread \"main\" kotlinx.serialization.SerializationException: Class 'OwnedProject' is not registered for polymorphic serialization in the scope of 'Project'.",
-            "To be registered automatically, class 'OwnedProject' has to be '@Serializable', and the base class 'Project' has to be sealed and '@Serializable'.",
-            "Alternatively, register the serializer for 'OwnedProject' explicitly in a corresponding SerializersModule."
+            "Exception in thread \"main\" kotlinx.serialization.SerializationException: Serializer for subclass 'OwnedProject' is not found in the polymorphic scope of 'Project'.",
+            "Check if class with serial name 'OwnedProject' exists and serializer is registered in a corresponding SerializersModule.",
+            "To be registered automatically, class 'OwnedProject' has to be '@Serializable', and the base class 'Project' has to be sealed and '@Serializable'."
         )
     }
 
@@ -133,7 +133,8 @@ class PolymorphismTest {
     @Test
     fun testExamplePoly18() {
         captureOutput("ExamplePoly18") { example.examplePoly18.main() }.verifyOutputLinesStart(
-            "Exception in thread \"main\" kotlinx.serialization.json.internal.JsonDecodingException: Polymorphic serializer was not found for class discriminator 'unknown'"
+            "Exception in thread \"main\" kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 0: Serializer for subclass 'unknown' is not found in the polymorphic scope of 'Project' at path: $",
+            "Check if class with serial name 'unknown' exists and serializer is registered in a corresponding SerializersModule."
         )
     }
 

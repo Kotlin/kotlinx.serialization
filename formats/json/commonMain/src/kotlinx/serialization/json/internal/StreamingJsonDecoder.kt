@@ -71,19 +71,20 @@ internal open class StreamingJsonDecoder(
 
             val discriminator = deserializer.descriptor.classDiscriminator(json)
             val type = lexer.peekLeadingMatchingValue(discriminator, configuration.isLenient)
-            var actualSerializer: DeserializationStrategy<Any>? = null
-            if (type != null) {
-                actualSerializer = deserializer.findPolymorphicSerializerOrNull(this, type)
-            }
-            if (actualSerializer == null) {
-                // Fallback if we haven't found discriminator or serializer
+                ?: // Fallback to slow path if we haven't found discriminator on first try
                 return decodeSerializableValuePolymorphic<T>(deserializer as DeserializationStrategy<T>)
-            }
+
+            @Suppress("UNCHECKED_CAST")
+            val actualSerializer = try {
+                    deserializer.findPolymorphicSerializer(this, type)
+                } catch (it: SerializationException) { // Wrap SerializationException into JsonDecodingException to preserve position, path, and input.
+                    val message = it.message!!.substringBefore('\n').removeSuffix(".")
+                    val hint = it.message!!.substringAfter('\n', missingDelimiterValue = "")
+                    lexer.fail(message, hint = hint)
+                } as DeserializationStrategy<T>
 
             discriminatorHolder = DiscriminatorHolder(discriminator)
-            @Suppress("UNCHECKED_CAST")
-            val result = actualSerializer.deserialize(this) as T
-            return result
+            return actualSerializer.deserialize(this)
 
         } catch (e: MissingFieldException) {
             // Add "at path" if and only if we've just caught an exception and it hasn't been augmented yet
