@@ -78,6 +78,8 @@ internal open class StreamingJsonDecoder(
             val actualSerializer = try {
                     deserializer.findPolymorphicSerializer(this, type)
                 } catch (it: SerializationException) { // Wrap SerializationException into JsonDecodingException to preserve position, path, and input.
+                    // Split multiline message from private core function:
+                    // core/commonMain/src/kotlinx/serialization/internal/AbstractPolymorphicSerializer.kt:102
                     val message = it.message!!.substringBefore('\n').removeSuffix(".")
                     val hint = it.message!!.substringAfter('\n', missingDelimiterValue = "")
                     lexer.fail(message, hint = hint)
