@@ -60,3 +60,17 @@ class NotInConstructorTest : NotInConstructorBase() {
         return a.hashCode() * 31 + b.hashCode() * 31 + c.hashCode()
     }
 }
+
+@Serializable
+data class TestData(val field: String)
+
+
+@Serializable
+class TestClass(): GenericBox<TestData>()
+
+@Serializable
+class Email<E : Any> : ValidatableValue<String, E>() {
+    override fun toString(): String {
+        return "Email($value, $error)"
+    }
+}
