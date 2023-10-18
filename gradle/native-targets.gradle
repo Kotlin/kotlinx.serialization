@@ -7,8 +7,7 @@ static def doesNotDependOnOkio(project) {
 }
 
 kotlin {
-    targets {
-        targetHierarchy.default()
+    applyDefaultHierarchyTemplate {
 
         // According to https://kotlinlang.org/docs/native-target-support.html
         // Tier 1
