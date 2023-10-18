@@ -14,9 +14,6 @@ tasks.withType(JavaCompile).configureEach {
     options.release = 8
 }
 
-// Right now it is used for conditional support of kotlin 1.9.0 and 1.9.20+
-def isNewWasmTargetEnabled = isKotlinVersionAtLeast(rootProject.properties["kotlin_version"], 1, 9, 20)
-
 kotlin {
     jvm {
         withJava()
@@ -45,14 +42,8 @@ kotlin {
         }
     }
 
-    if (isNewWasmTargetEnabled) {
-        wasmJs {
-            d8()
-        }
-    } else {
-        wasm {
-            d8()
-        }
+    wasmJs {
+        d8()
     }
 
     sourceSets.all {
@@ -105,35 +96,22 @@ kotlin {
             }
         }
 
-        if(isNewWasmTargetEnabled) {
-            wasmJsMain {
-                kotlin {
-                    srcDir 'wasmMain/src'
-                }
-                dependencies {
-                    api 'org.jetbrains.kotlin:kotlin-stdlib-wasm-js'
-                }
-            }
 
-            wasmJsTest {
-                kotlin {
-                    srcDir 'wasmTest/src'
-                }
-                dependencies {
-                    api 'org.jetbrains.kotlin:kotlin-test-wasm-js'
-                }
+        wasmJsMain {
+            kotlin {
+                srcDir 'wasmMain/src'
             }
-        } else {
-            wasmMain {
-                dependencies {
-                    api 'org.jetbrains.kotlin:kotlin-stdlib-wasm'
-                }
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-stdlib-wasm-js'
             }
+        }
 
-            wasmTest {
-                dependencies {
-                    api 'org.jetbrains.kotlin:kotlin-test-wasm'
-                }
+        wasmJsTest {
+            kotlin {
+                srcDir 'wasmTest/src'
+            }
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-test-wasm-js'
             }
         }
 
@@ -169,8 +147,7 @@ kotlin {
         }
     }
 
-    // TODO: Remove deprecated linuxArm32Hfp and mingwX86 targets in 1.9.20.
-    def targetsWithoutTestRunners = ["linuxArm32Hfp", "linuxArm64", "mingwX86"]
+    def targetsWithoutTestRunners = ["linuxArm64"]
     configure(targets) {
         // Configure additional binaries to run tests in the background
         if (["macos", "linux", "mingw"].any { name.startsWith(it) && !targetsWithoutTestRunners.contains(name) }) {

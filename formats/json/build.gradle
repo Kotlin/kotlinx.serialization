@@ -20,9 +20,6 @@ tasks.named("koverVerify") {
     enabled = false
 }
 
-// Right now it is used for conditional support of kotlin 1.9.0 and 1.9.20+
-def isNewWasmTargetEnabled = isKotlinVersionAtLeast(rootProject.properties["kotlin_version"], 1, 9, 20)
-
 kotlin {
     sourceSets {
         configureEach {
@@ -42,14 +39,8 @@ kotlin {
         jsMain {
             dependsOn(sourceSets.jsWasmMain)
         }
-        if (isNewWasmTargetEnabled) {
-            wasmJsMain {
-                dependsOn(sourceSets.jsWasmMain)
-            }
-        } else {
-            wasmMain {
-                dependsOn(sourceSets.jsWasmMain)
-            }
+        wasmJsMain {
+            dependsOn(sourceSets.jsWasmMain)
         }
     }
 }
