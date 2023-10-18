@@ -650,6 +650,18 @@ class CborReaderTest {
     }
 
     @Test
+    fun testReadValueClassWithUnlabeledByteString() {
+        assertContentEquals(
+            expected = byteArrayOf(
+                0x11,
+                0x22,
+                0x33
+            ),
+            actual = Cbor.decodeFromHexString<ValueClassWithUnlabeledByteString>("43112233").x.x
+        )
+    }
+
+    @Test
     fun testIgnoresTagsOnStrings() {
         /*
          * 84                                # array(4)

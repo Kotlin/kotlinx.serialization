@@ -138,4 +138,12 @@ class CbrWriterTest {
             actual = Cbor.encodeToHexString(ValueClassWithCustomByteString(CustomByteString(0x11, 0x22, 0x33)))
         )
     }
+
+    @Test
+    fun testWriteValueClassWithUnlabeledByteString() {
+        assertEquals(
+            expected = "43112233",
+            actual = Cbor.encodeToHexString(ValueClassWithUnlabeledByteString(ValueClassWithUnlabeledByteString.Inner(byteArrayOf(0x11, 0x22, 0x33))))
+        )
+    }
 }

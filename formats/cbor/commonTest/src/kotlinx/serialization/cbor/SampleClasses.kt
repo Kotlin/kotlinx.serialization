@@ -120,3 +120,11 @@ value class ValueClassWithByteString(@ByteString val x: ByteArray)
 @JvmInline
 @Serializable
 value class ValueClassWithCustomByteString(@ByteString val x: CustomByteString)
+
+@JvmInline
+@Serializable
+value class ValueClassWithUnlabeledByteString(@ByteString val x: Inner) {
+    @JvmInline
+    @Serializable
+    value class Inner(val x: ByteArray)
+}
