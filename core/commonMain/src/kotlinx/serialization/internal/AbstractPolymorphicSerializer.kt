@@ -58,8 +58,8 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
                 }
                 else -> throw SerializationException(
                     "Invalid index in polymorphic deserialization of " +
-                            (klassName ?: "unknown class") +
-                            "\n Expected 0, 1 or DECODE_DONE(-1), but found $index"
+                        (klassName ?: "unknown class") +
+                        "\n Expected 0, 1 or DECODE_DONE(-1), but found $index"
                 )
             }
         }
@@ -98,14 +98,14 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
 
 @JvmName("throwSubtypeNotRegistered")
 internal fun throwSubtypeNotRegistered(subClassName: String?, baseClass: KClass<*>): Nothing {
-    val scope = "in the scope of '${baseClass.simpleName}'"
+    val scope = "in the polymorphic scope of '${baseClass.simpleName}'"
     throw SerializationException(
         if (subClassName == null)
-            "Class discriminator was missing and no default polymorphic serializers were registered $scope"
+            "Class discriminator was missing and no default serializers were registered $scope."
         else
-            "Class '$subClassName' is not registered for polymorphic serialization $scope.\n" +
-            "To be registered automatically, class '$subClassName' has to be '@Serializable', and the base class '${baseClass.simpleName}' has to be sealed and '@Serializable'.\n" +
-            "Alternatively, register the serializer for '$subClassName' explicitly in a corresponding SerializersModule."
+            "Serializer for subclass '$subClassName' is not found $scope.\n" +
+                "Check if class with serial name '$subClassName' exists and serializer is registered in a corresponding SerializersModule.\n" +
+                "To be registered automatically, class '$subClassName' has to be '@Serializable', and the base class '${baseClass.simpleName}' has to be sealed and '@Serializable'."
     )
 }
 

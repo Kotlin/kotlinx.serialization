@@ -12,7 +12,7 @@ import kotlinx.serialization.modules.*
 import kotlin.reflect.*
 import kotlin.test.*
 
-public val jsonWithDefaults = Json { encodeDefaults = true }
+val jsonWithDefaults = Json { encodeDefaults = true }
 
 class JsonTest {
 
@@ -129,10 +129,9 @@ class JsonTest {
         assertEquals("""Derived2(state1='foo')""", restored2.toString())
     }
 
-    @Suppress("NAME_SHADOWING")
     private fun checkNotRegisteredMessage(exception: SerializationException) {
         val expectedText =
-            "is not registered for polymorphic serialization in the scope of"
+            "is not found in the polymorphic scope of"
         assertEquals(true, exception.message?.contains(expectedText))
     }
 

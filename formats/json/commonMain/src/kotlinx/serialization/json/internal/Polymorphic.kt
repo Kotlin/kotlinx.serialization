@@ -63,20 +63,15 @@ internal fun <T> JsonDecoder.decodeSerializableValuePolymorphic(deserializer: De
     val discriminator = deserializer.descriptor.classDiscriminator(json)
 
     val jsonTree = cast<JsonObject>(decodeJsonElement(), deserializer.descriptor)
-    val type = jsonTree[discriminator]?.jsonPrimitive?.content
-    val actualSerializer = deserializer.findPolymorphicSerializerOrNull(this, type)
-        ?: throwSerializerNotFound(type, jsonTree)
-
+    val type = jsonTree[discriminator]?.jsonPrimitive?.contentOrNull // differentiate between `"type":"null"` and `"type":null`.
     @Suppress("UNCHECKED_CAST")
-    return json.readPolymorphicJson(discriminator, jsonTree, actualSerializer as DeserializationStrategy<T>)
-}
-
-@JvmName("throwSerializerNotFound")
-internal fun throwSerializerNotFound(type: String?, jsonTree: JsonObject): Nothing {
-    val suffix =
-        if (type == null) "missing class discriminator ('null')"
-        else "class discriminator '$type'"
-    throw JsonDecodingException(-1, "Polymorphic serializer was not found for $suffix", jsonTree.toString())
+    val actualSerializer =
+        try {
+            deserializer.findPolymorphicSerializer(this, type)
+        } catch (it: SerializationException) { //  Wrap SerializationException into JsonDecodingException to preserve input
+            throw JsonDecodingException(-1, it.message!!, jsonTree.toString())
+        } as DeserializationStrategy<T>
+    return json.readPolymorphicJson(discriminator, jsonTree, actualSerializer)
 }
 
 internal fun SerialDescriptor.classDiscriminator(json: Json): String {

@@ -82,7 +82,7 @@ internal fun UnknownKeyException(key: String, input: String) = JsonDecodingExcep
             "Current input: ${input.minify()}"
 )
 
-private fun CharSequence.minify(offset: Int = -1): CharSequence {
+internal fun CharSequence.minify(offset: Int = -1): CharSequence {
     if (length < 200) return this
     if (offset == -1) {
         val start = this.length - 60
