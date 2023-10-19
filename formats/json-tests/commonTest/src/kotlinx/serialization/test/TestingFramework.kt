@@ -92,3 +92,9 @@ inline fun <reified T : Throwable> assertFailsWithMessage(
         "expected:<$message> but was:<${exception.message}>"
     )
 }
+
+inline fun checkSerializationException(action: () -> Unit, assertions: SerializationException.(String) -> Unit) {
+    val e = assertFailsWith(SerializationException::class, action)
+    assertNotNull(e.message)
+    e.assertions(e.message!!)
+}

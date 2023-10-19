@@ -87,6 +87,7 @@ public final class kotlinx/serialization/json/JsonArraySerializer : kotlinx/seri
 public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun getAllowSpecialFloatingPointValues ()Z
 	public final fun getAllowStructuredMapKeys ()Z
+	public final fun getAllowTrailingComma ()Z
 	public final fun getClassDiscriminator ()Ljava/lang/String;
 	public final fun getCoerceInputValues ()Z
 	public final fun getDecodeEnumsCaseInsensitive ()Z
@@ -102,6 +103,7 @@ public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun isLenient ()Z
 	public final fun setAllowSpecialFloatingPointValues (Z)V
 	public final fun setAllowStructuredMapKeys (Z)V
+	public final fun setAllowTrailingComma (Z)V
 	public final fun setClassDiscriminator (Ljava/lang/String;)V
 	public final fun setCoerceInputValues (Z)V
 	public final fun setDecodeEnumsCaseInsensitive (Z)V
@@ -130,6 +132,7 @@ public final class kotlinx/serialization/json/JsonConfiguration {
 	public fun <init> ()V
 	public final fun getAllowSpecialFloatingPointValues ()Z
 	public final fun getAllowStructuredMapKeys ()Z
+	public final fun getAllowTrailingComma ()Z
 	public final fun getClassDiscriminator ()Ljava/lang/String;
 	public final fun getCoerceInputValues ()Z
 	public final fun getDecodeEnumsCaseInsensitive ()Z

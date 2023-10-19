@@ -365,6 +365,16 @@ public class JsonBuilder internal constructor(json: Json) {
     public var decodeEnumsCaseInsensitive: Boolean = json.configuration.decodeEnumsCaseInsensitive
 
     /**
+     * Allows parser to accept trailing (ending) commas in JSON objects and arrays,
+     * making inputs like `[1, 2, 3,]` valid.
+     *
+     * Does not affect encoding.
+     * `false` by default.
+     */
+    @ExperimentalSerializationApi
+    public var allowTrailingComma: Boolean = json.configuration.allowTrailingComma
+
+    /**
      * Module with contextual and polymorphic serializers to be used in the resulting [Json] instance.
      *
      * @see SerializersModule
@@ -396,7 +406,7 @@ public class JsonBuilder internal constructor(json: Json) {
             allowStructuredMapKeys, prettyPrint, explicitNulls, prettyPrintIndent,
             coerceInputValues, useArrayPolymorphism,
             classDiscriminator, allowSpecialFloatingPointValues, useAlternativeNames,
-            namingStrategy, decodeEnumsCaseInsensitive
+            namingStrategy, decodeEnumsCaseInsensitive, allowTrailingComma
         )
     }
 }
