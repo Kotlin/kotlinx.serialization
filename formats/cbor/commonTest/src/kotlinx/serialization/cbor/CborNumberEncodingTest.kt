@@ -47,18 +47,18 @@ class CborNumberEncodingTest {
     }
 
     // 2^16..(2^32-1) packs into 5 bytes
-    @Test
-    fun testEncodingLengthOf32BitNumbers() {
-        return // ???
-        val tinyNumbers = listOf(65536, 2147483647, 2147483648, 4294967295)
-        for (number in tinyNumbers) {
-            assertEquals(
-                expected = 5,
-                actual = Cbor.encodeToByteArray(number).size,
-                "when encoding value '$number'"
-            )
-        }
-    }
+//    @Test
+//    fun testEncodingLengthOf32BitNumbers() {
+//        return // ???
+//        val tinyNumbers = listOf(65536, 2147483647, 2147483648, 4294967295)
+//        for (number in tinyNumbers) {
+//            assertEquals(
+//                expected = 5,
+//                actual = Cbor.encodeToByteArray(number).size,
+//                "when encoding value '$number'"
+//            )
+//        }
+//    }
 
     // 2^32+ packs into 9 bytes
     @Test
