@@ -133,4 +133,17 @@ class PolymorphismWithAnyTest: JsonTestBase() {
             json = json
         )
     }
+
+    @Test
+    fun testTypeKeyLastInInput() = parametrizedTest { mode ->
+        val json = Json { serializersModule = (baseAndDerivedModuleAtAny + BaseAndDerivedModule) }
+        val input = """{"data":{"a":{"id":1,"s":"foo","type":"kotlinx.serialization.PolyDerived"}},
+                |"polyBase":{"id":1,"s":"foo","type":"kotlinx.serialization.PolyDerived"}}""".trimMargin().lines().joinToString(
+            "")
+        val data = MyPolyDataWithPolyBase(
+            mapOf("a" to PolyDerived("foo")),
+            PolyDerived("foo")
+        )
+        assertEquals(data, json.decodeFromString(MyPolyDataWithPolyBase.serializer(), input, mode))
+    }
 }
