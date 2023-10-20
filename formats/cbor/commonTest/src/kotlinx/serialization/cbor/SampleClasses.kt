@@ -8,6 +8,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
+import kotlin.jvm.*
 
 @Serializable
 data class Simple(val a: String)
@@ -111,3 +112,19 @@ data class TypeWithCustomByteString(@ByteString val x: CustomByteString)
 
 @Serializable
 data class TypeWithNullableCustomByteString(@ByteString val x: CustomByteString?)
+
+@JvmInline
+@Serializable
+value class ValueClassWithByteString(@ByteString val x: ByteArray)
+
+@JvmInline
+@Serializable
+value class ValueClassWithCustomByteString(@ByteString val x: CustomByteString)
+
+@JvmInline
+@Serializable
+value class ValueClassWithUnlabeledByteString(@ByteString val x: Inner) {
+    @JvmInline
+    @Serializable
+    value class Inner(val x: ByteArray)
+}
