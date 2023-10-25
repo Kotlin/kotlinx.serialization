@@ -102,4 +102,11 @@ class JavaCollectionsTest {
             "kotlin.collections.ArrayList"
         )
     }
+
+    @Test
+    fun testAnonymousObject() {
+        val obj: Any = object {}
+        assertNull(serializerOrNull(obj.javaClass))
+    }
 }
+
