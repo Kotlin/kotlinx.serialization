@@ -153,6 +153,9 @@ private fun <T : Any> Class<T>.createEnumSerializer(): KSerializer<T> {
 }
 
 private fun <T : Any> Class<T>.findObjectSerializer(): KSerializer<T>? {
+    // Special case to avoid IllegalAccessException on Java11+ (#2449)
+    // There are no serializable objects in the stdlib anyway.
+    if (this.canonicalName?.let { it.startsWith("java.") || it.startsWith("kotlin.") } != false) return null
     // Check it is an object without using kotlin-reflect
     val field =
         declaredFields.singleOrNull { it.name == "INSTANCE" && it.type == this && Modifier.isStatic(it.modifiers) }
