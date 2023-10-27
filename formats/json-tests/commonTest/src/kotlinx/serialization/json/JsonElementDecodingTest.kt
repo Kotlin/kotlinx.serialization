@@ -1,6 +1,8 @@
 package kotlinx.serialization.json
 
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import kotlin.test.*
 
 class JsonElementDecodingTest : JsonTestBase() {
@@ -50,5 +52,59 @@ class JsonElementDecodingTest : JsonTestBase() {
         }
         json = json.replace("%", "0")
         Json.parseToJsonElement(json)
+    }
+
+    private open class NullAsElementSerializer<T : Any>(private val serializer: KSerializer<T>, val nullElement: T) : KSerializer<T?> {
+        final override val descriptor: SerialDescriptor = serializer.descriptor.nullable
+
+        final override fun serialize(encoder: Encoder, value: T?) {
+            serializer.serialize(encoder, value ?: nullElement)
+        }
+
+        final override fun deserialize(decoder: Decoder): T = serializer.deserialize(decoder)
+    }
+
+    private object NullAsJsonNullJsonElementSerializer : NullAsElementSerializer<JsonElement>(JsonElement.serializer(), JsonNull)
+    private object NullAsJsonNullJsonPrimitiveSerializer : NullAsElementSerializer<JsonPrimitive>(JsonPrimitive.serializer(), JsonNull)
+    private object NullAsJsonNullJsonNullSerializer : NullAsElementSerializer<JsonNull>(JsonNull.serializer(), JsonNull)
+    private val noExplicitNullsOrDefaultsJson = Json {
+        explicitNulls = false
+        encodeDefaults = false
+    }
+
+    @Test
+    fun testNullableJsonElementDecoding() {
+        @Serializable
+        data class Wrapper(
+            @Serializable(NullAsJsonNullJsonElementSerializer::class)
+            val value: JsonElement? = null,
+        )
+
+        assertJsonFormAndRestored(Wrapper.serializer(), Wrapper(value = JsonNull), """{"value":null}""", noExplicitNullsOrDefaultsJson)
+        assertJsonFormAndRestored(Wrapper.serializer(), Wrapper(value = null), """{}""", noExplicitNullsOrDefaultsJson)
+    }
+
+    @Test
+    fun testNullableJsonPrimitiveDecoding() {
+        @Serializable
+        data class Wrapper(
+            @Serializable(NullAsJsonNullJsonPrimitiveSerializer::class)
+            val value: JsonPrimitive? = null,
+        )
+
+        assertJsonFormAndRestored(Wrapper.serializer(), Wrapper(value = JsonNull), """{"value":null}""", noExplicitNullsOrDefaultsJson)
+        assertJsonFormAndRestored(Wrapper.serializer(), Wrapper(value = null), """{}""", noExplicitNullsOrDefaultsJson)
+    }
+
+    @Test
+    fun testNullableJsonNullDecoding() {
+        @Serializable
+        data class Wrapper(
+            @Serializable(NullAsJsonNullJsonNullSerializer::class)
+            val value: JsonNull? = null,
+        )
+
+        assertJsonFormAndRestored(Wrapper.serializer(), Wrapper(value = JsonNull), """{"value":null}""", noExplicitNullsOrDefaultsJson)
+        assertJsonFormAndRestored(Wrapper.serializer(), Wrapper(value = null), """{}""", noExplicitNullsOrDefaultsJson)
     }
 }

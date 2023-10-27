@@ -206,7 +206,6 @@ public abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
     protected open fun <T : Any?> decodeSerializableValue(deserializer: DeserializationStrategy<T>, previousValue: T?): T =
         decodeSerializableValue(deserializer)
 
-
     // ---- Implementation of low-level API ----
 
     override fun decodeInline(descriptor: SerialDescriptor): Decoder =
@@ -284,13 +283,11 @@ public abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
         index: Int,
         deserializer: DeserializationStrategy<T?>,
         previousValue: T?
-    ): T? =
-        tagBlock(descriptor.getTag(index)) {
-            if (decodeNotNullMark()) decodeSerializableValue(
-                deserializer,
-                previousValue
-            ) else decodeNull()
+    ): T? = tagBlock(descriptor.getTag(index)) {
+        decodeIfNullable(deserializer) {
+            decodeSerializableValue(deserializer, previousValue)
         }
+    }
 
     private fun <E> tagBlock(tag: Tag, block: () -> E): E {
         pushTag(tag)
