@@ -97,11 +97,11 @@ kotlin {
     targets {
         if (project.ext.nativeState == NativeState.DISABLED) return
 
-        String[] versionComponents = (~/[.-]/).split(compilerVersion, 4)
-        String[] versionComponents1920 = ["1", "9", "20"]
-        def isAtLeast1920 = Arrays.compare(versionComponents, versionComponents1920) { lhs, rhs ->
-            (lhs as int) <=> (rhs as int)
-        } >= 0
+        //String[] versionComponents = (~/[.-]/).split(compilerVersion, 4)
+        //String[] versionComponents1920 = ["1", "9", "20"]
+        def isAtLeast1920 = true //Arrays.compare(versionComponents, versionComponents1920) { lhs, rhs ->
+            //(lhs as int) <=> (rhs as int)
+        //} >= 0
 
         if (project.ext.singleTargetMode) {
             fromPreset(project.ext.ideaPreset, 'native')
