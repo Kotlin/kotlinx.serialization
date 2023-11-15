@@ -1,3 +1,33 @@
+1.6.1 / 2023-11-15
+==================
+
+This release uses Kotlin 1.9.20 by default, while upcoming 1.9.21 is also supported.
+
+### Trailing commas in Json
+
+Trailing commas are one of the most popular non-spec Json variations.
+A new configuration flag, `allowTrailingComma`, makes Json parser accept them instead of throwing an exception.
+Note that it does not affect encoding, so kotlinx.serialization always produces Json without trailing commas.
+See details in the corresponding [PR](https://github.com/Kotlin/kotlinx.serialization/pull/2480)
+
+### Support of WasmJs target
+
+Kotlin/Wasm has been experimental for some time and gained enough maturity to be added to the kotlinx libraries.
+Starting with 1.6.1, kotlinx.serialization provides a wasm-js flavor, so your projects with Kotlin/Wasm can have even more
+functionality.
+As usual, just add serialization dependencies to your build
+and [declare wasmJs target](https://kotlinlang.org/docs/whatsnew1920.html#new-wasm-wasi-target-and-the-renaming-of-the-wasm-target-to-wasm-js).
+Please remember that Kotlin/Wasm is still experimental, so changes are expected.
+
+### Bugfixes and improvements
+
+* Fix TaggedDecoder nullable decoding (#2456) (thanks to [Phillip Schichtel](https://github.com/pschichtel))
+* Fix IllegalAccessException for some JPMS boundaries (#2469)
+* Cbor: check if inline value classes are marked as @ByteString (#2466) (thanks to [eater](https://github.com/the-eater))
+* Improve polymorphic deserialization optimization (#2481)
+* Update Okio dependency to 3.6.0 (#2473)
+* Add protobuf conformance tests (#2404) (thanks to [Doğaç Eldenk](https://github.com/Dogacel))
+* Support decoding maps with boolean keys (#2440)
 
 1.6.0 / 2023-08-22
 ==================
