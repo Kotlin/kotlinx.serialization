@@ -96,7 +96,7 @@ internal class StreamingJsonEncoder(
     override fun endStructure(descriptor: SerialDescriptor) {
         if (mode.end != INVALID) {
             composer.unIndent()
-            composer.nextItem()
+            composer.nextItemIfNotFirst()
             composer.print(mode.end)
         }
     }

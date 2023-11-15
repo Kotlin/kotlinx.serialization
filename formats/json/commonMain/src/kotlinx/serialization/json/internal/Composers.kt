@@ -27,6 +27,10 @@ internal open class Composer(@JvmField internal val writer: InternalJsonWriter) 
         writingFirst = false
     }
 
+    open fun nextItemIfNotFirst() {
+        writingFirst = false
+    }
+
     open fun space() = Unit
 
     fun print(v: Char) = writer.writeChar(v)
@@ -86,6 +90,11 @@ internal class ComposerWithPrettyPrint(
         writingFirst = false
         print("\n")
         repeat(level) { print(json.configuration.prettyPrintIndent) }
+    }
+
+    override fun nextItemIfNotFirst() {
+        if (writingFirst) writingFirst = false
+        else nextItem()
     }
 
     override fun space() {
