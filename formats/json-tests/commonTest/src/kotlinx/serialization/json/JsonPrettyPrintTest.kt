@@ -25,6 +25,21 @@ class JsonPrettyPrintTest : JsonTestBase() {
     @Serializable
     class WithListRec(val rec: WithListRec?, val l: List<Int> = listOf())
 
+    @Serializable
+    class WithDefaults(val x: String = "x", val y: Int = 0)
+
+    @Test
+    fun testTopLevel() = parametrizedTest { mode ->
+        assertEquals("{}", fmt.encodeToString(Empty(), mode))
+    }
+
+    @Test
+    fun testWithDefaults() = parametrizedTest { mode ->
+        val dropDefaults = Json(fmt) { encodeDefaults = false }
+        val s = "{\n    \"boxed\": {}\n}"
+        assertEquals(s, dropDefaults.encodeToString(Box(WithDefaults()), mode))
+    }
+
     @Test
     fun testPlain() = parametrizedTest { mode ->
         val s = """{
