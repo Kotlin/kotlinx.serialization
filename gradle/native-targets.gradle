@@ -37,6 +37,9 @@ kotlin {
             androidNativeX86()
             androidNativeX64()
             watchosDeviceArm64()
+
+            // Deprecated, but not removed
+            linuxArm32Hfp()
         }
     }
 }

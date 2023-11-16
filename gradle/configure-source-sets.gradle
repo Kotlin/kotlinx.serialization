@@ -147,7 +147,7 @@ kotlin {
         }
     }
 
-    def targetsWithoutTestRunners = ["linuxArm64"]
+    def targetsWithoutTestRunners = ["linuxArm64", "linuxArm32Hfp"]
     configure(targets) {
         // Configure additional binaries to run tests in the background
         if (["macos", "linux", "mingw"].any { name.startsWith(it) && !targetsWithoutTestRunners.contains(name) }) {
