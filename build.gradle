@@ -168,6 +168,13 @@ allprojects {
         mavenLocal()
 
     }
+
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile).configureEach {
+        compilerOptions { freeCompilerArgs.add("-Xpartial-linkage-loglevel=ERROR") }
+    }
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile).configureEach {
+        compilerOptions { freeCompilerArgs.add("-Xpartial-linkage-loglevel=ERROR") }
+    }
 }
 
 def unpublishedProjects = ["benchmark", "guide", "kotlinx-serialization-json-tests"] as Set
