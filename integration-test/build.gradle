@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
+
 /*
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
@@ -43,6 +45,9 @@ kotlin {
     }
     wasmJs {
         d8()
+    }
+    wasmWasi {
+        nodejs {}
     }
     jvm {
         withJava()
@@ -102,10 +107,25 @@ kotlin {
                 api 'org.jetbrains.kotlin:kotlin-stdlib-wasm-js'
             }
         }
-
         wasmJsTest {
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-test-wasm-js'
+            }
+        }
+        wasmWasiMain {
+            kotlin {
+                srcDir 'src/wasmJsMain'
+            }
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-stdlib-wasm-wasi'
+            }
+        }
+        wasmWasiTest {
+            kotlin {
+                srcDir 'src/wasmJsTest'
+            }
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-test-wasm-wasi'
             }
         }
     }
@@ -126,6 +146,12 @@ kotlin {
 
 dependencies {
     kapt 'com.google.dagger:dagger-compiler:2.13'
+}
+
+rootProject.extensions.findByType(NodeJsRootExtension).with {
+    // canary nodejs that supports recent Wasm GC changes
+    it.nodeVersion = "21.0.0-v8-canary202309167e82ab1fa2"
+    it.nodeDownloadBaseUrl = "https://nodejs.org/download/v8-canary"
 }
 
 task run dependsOn "check"

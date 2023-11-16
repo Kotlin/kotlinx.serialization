@@ -242,3 +242,17 @@ apply from: rootProject.file("gradle/benchmark-parsing.gradle")
 tasks.named("dokkaHtmlMultiModule") {
     pluginsMapConfiguration.set(["org.jetbrains.dokka.base.DokkaBase": """{ "templatesDir": "${projectDir.toString().replace('\\', '/')}/dokka-templates" }"""])
 }
+
+
+
+//rootProject.extensions.findByType(org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension.class)?.with {
+//    println("!!!!!!!")
+//    println(project.name)
+//    // canary nodejs that supports recent Wasm GC changes
+//    it.nodeVersion = "21.0.0-v8-canary202309167e82ab1fa2"
+//    it.nodeDownloadBaseUrl = "https://nodejs.org/download/v8-canary"
+//}
+
+tasks.withType(org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask).configureEach {
+    args.add("--ignore-engines")
+}

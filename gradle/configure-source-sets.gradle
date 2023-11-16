@@ -14,6 +14,10 @@ tasks.withType(JavaCompile).configureEach {
     options.release = 8
 }
 
+static def doesNotDependOnOkio(project) {
+    return !project.name.contains("json-okio") && !project.name.contains("json-tests")
+}
+
 kotlin {
     jvm {
         withJava()
@@ -44,6 +48,12 @@ kotlin {
 
     wasmJs {
         d8()
+    }
+
+    if (doesNotDependOnOkio(project)) {
+        wasmWasi {
+            nodejs {}
+        }
     }
 
     sourceSets.all {
@@ -115,6 +125,26 @@ kotlin {
             }
         }
 
+        if (doesNotDependOnOkio(project)) {
+            wasmWasiMain {
+                kotlin {
+                    srcDir 'wasmMain/src'
+                }
+                dependencies {
+                    api 'org.jetbrains.kotlin:kotlin-stdlib-wasm-wasi'
+                }
+            }
+
+            wasmWasiTest {
+                kotlin {
+                    srcDir 'wasmTest/src'
+                }
+                dependencies {
+                    api 'org.jetbrains.kotlin:kotlin-test-wasm-wasi'
+                }
+            }
+        }
+
         nativeMain.dependencies {
         }
     }
@@ -162,3 +192,9 @@ kotlin {
         }
     }
 }
+
+tasks.withType(org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask).configureEach {
+    args.add("--ignore-engines")
+}
+
+
