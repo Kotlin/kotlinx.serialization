@@ -145,7 +145,7 @@ public sealed class Hocon(
 
     }
 
-    private inner class ConfigReader(val conf: Config, private val poly: Boolean = false) : ConfigConverter<String>() {
+    private inner class ConfigReader(val conf: Config, private val isPolymorph: Boolean = false) : ConfigConverter<String>() {
         private var ind = -1
 
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
@@ -162,7 +162,7 @@ public sealed class Hocon(
             if (parentName.isEmpty()) childName else "$parentName.$childName"
 
         override fun SerialDescriptor.getTag(index: Int): String {
-            return if (!poly) composeName(
+            return if (!isPolymorph) composeName(
                 currentTagOrNull.orEmpty(),
                 getConventionElementName(index, useConfigNamingConvention)
             ) else getElementName(index)
@@ -216,7 +216,7 @@ public sealed class Hocon(
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder =
             when {
                 // Polymorph should always be object-like I believe?
-                descriptor.kind.objLike -> ConfigReader(conf, true)
+                descriptor.kind.objLike -> ConfigReader(conf, isPolymorph = true)
                 else -> this
             }
 
