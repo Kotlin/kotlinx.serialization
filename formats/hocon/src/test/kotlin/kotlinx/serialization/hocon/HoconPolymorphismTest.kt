@@ -24,7 +24,10 @@ class HoconPolymorphismTest {
     }
 
     @Serializable
-    data class SealedContainer(val sealed: Collection<Sealed>)
+    data class SealedCollectionContainer(val sealed: Collection<Sealed>)
+
+    @Serializable
+    data class SealedMapContainer(val sealed: Map<String, Sealed>)
 
     @Serializable
     data class CompositeClass(var sealed: Sealed)
@@ -116,14 +119,35 @@ class HoconPolymorphismTest {
                     { type = data_class, name = testDataClass, intField = 1 }
                 ]
             """.trimIndent(),
-            original = SealedContainer(
+            original = SealedCollectionContainer(
                 listOf(
                     Sealed.AnnotatedTypeChild(type = "override"),
                     Sealed.ObjectChild,
                     Sealed.DataClassChild(name = "testDataClass"),
                 )
             ),
-            serializer = SealedContainer.serializer(),
+            serializer = SealedCollectionContainer.serializer(),
+        )
+    }
+
+    @Test
+    fun testMapContainer() {
+        objectHocon.assertStringFormAndRestored(
+            expected = """
+                sealed = { 
+                    "annotated_type_child" = { type = annotated_type_child, my_type = override, intField = 3 }
+                    "object" = { type = object }
+                    "data_class" = { type = data_class, name = testDataClass, intField = 1 }
+                }
+            """.trimIndent(),
+            original = SealedMapContainer(
+                mapOf(
+                    "annotated_type_child" to Sealed.AnnotatedTypeChild(type = "override"),
+                    "object" to Sealed.ObjectChild,
+                    "data_class" to Sealed.DataClassChild(name = "testDataClass"),
+                )
+            ),
+            serializer = SealedMapContainer.serializer(),
         )
     }
 }
