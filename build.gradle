@@ -249,3 +249,7 @@ apply from: rootProject.file("gradle/benchmark-parsing.gradle")
 tasks.named("dokkaHtmlMultiModule") {
     pluginsMapConfiguration.set(["org.jetbrains.dokka.base.DokkaBase": """{ "templatesDir": "${projectDir.toString().replace('\\', '/')}/dokka-templates" }"""])
 }
+
+tasks.withType(org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask).configureEach {
+    args.add("--ignore-engines")
+}

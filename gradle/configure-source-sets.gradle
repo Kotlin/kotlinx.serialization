@@ -14,6 +14,11 @@ tasks.withType(JavaCompile).configureEach {
     options.release = 8
 }
 
+// Unfortunately there is no compatible version of okio for Wasm WASI target, so we need to skip to configure WASI for json-okio and json-tests.
+// json-tests uses okio with incorporate with other formatter tests so it is hard and not worth to separate it for two projects for WASI.
+// So we disable WASI target in it and we hope, that WASI version of compiler and serialization plugin are identical to the WasmJS target so WASI target is being covered.
+Boolean isOkIoOrFormatTests = (project.name == 'kotlinx-serialization-json-okio' || project.name == 'kotlinx-serialization-json-tests')
+
 kotlin {
     jvm {
         withJava()
@@ -43,7 +48,13 @@ kotlin {
     }
 
     wasmJs {
-        d8()
+        nodejs()
+    }
+
+    if (!isOkIoOrFormatTests) {
+        wasmWasi {
+            nodejs()
+        }
     }
 
     sourceSets.all {
@@ -96,22 +107,40 @@ kotlin {
             }
         }
 
+        create("wasmMain") {
+            dependsOn(commonMain)
+        }
+        create("wasmTest") {
+            dependsOn(commonTest)
+        }
 
         wasmJsMain {
-            kotlin {
-                srcDir 'wasmMain/src'
-            }
+            dependsOn(wasmMain)
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-stdlib-wasm-js'
             }
         }
 
         wasmJsTest {
-            kotlin {
-                srcDir 'wasmTest/src'
-            }
+            dependsOn(wasmTest)
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-test-wasm-js'
+            }
+        }
+
+        if (!isOkIoOrFormatTests) {
+            wasmWasiMain {
+                dependsOn(wasmMain)
+                dependencies {
+                    api 'org.jetbrains.kotlin:kotlin-stdlib-wasm-wasi'
+                }
+            }
+
+            wasmWasiTest {
+                dependsOn(wasmTest)
+                dependencies {
+                    api 'org.jetbrains.kotlin:kotlin-test-wasm-wasi'
+                }
             }
         }
 
@@ -161,4 +190,10 @@ kotlin {
             }
         }
     }
+}
+
+rootProject.extensions.findByType(org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension.class).with {
+    // canary nodejs that supports recent Wasm GC changes
+    it.nodeVersion = "21.0.0-v8-canary202309167e82ab1fa2"
+    it.nodeDownloadBaseUrl = "https://nodejs.org/download/v8-canary"
 }

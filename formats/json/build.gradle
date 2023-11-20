@@ -42,6 +42,9 @@ kotlin {
         wasmJsMain {
             dependsOn(sourceSets.jsWasmMain)
         }
+        wasmWasiMain {
+            dependsOn(sourceSets.jsWasmMain)
+        }
     }
 }
 
