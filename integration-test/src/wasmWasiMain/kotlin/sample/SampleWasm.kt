@@ -17,5 +17,5 @@
 package sample
 
 actual object Platform {
-    actual val name: String = "WasmJs"
+    actual val name: String = "WasmWasi"
 }

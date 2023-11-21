@@ -42,7 +42,10 @@ kotlin {
         }
     }
     wasmJs {
-        d8()
+        nodejs()
+    }
+    wasmWasi {
+        nodejs()
     }
     jvm {
         withJava()
@@ -102,10 +105,19 @@ kotlin {
                 api 'org.jetbrains.kotlin:kotlin-stdlib-wasm-js'
             }
         }
-
         wasmJsTest {
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-test-wasm-js'
+            }
+        }
+        wasmWasiMain {
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-stdlib-wasm-wasi'
+            }
+        }
+        wasmWasiTest {
+            dependencies {
+                api 'org.jetbrains.kotlin:kotlin-test-wasm-wasi'
             }
         }
     }
@@ -129,3 +141,13 @@ dependencies {
 }
 
 task run dependsOn "check"
+
+rootProject.extensions.findByType(org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension.class).with {
+    // canary nodejs that supports recent Wasm GC changes
+    it.nodeVersion = "21.0.0-v8-canary202309167e82ab1fa2"
+    it.nodeDownloadBaseUrl = "https://nodejs.org/download/v8-canary"
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask).configureEach {
+    args.add("--ignore-engines")
+}
