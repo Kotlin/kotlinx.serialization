@@ -1,3 +1,12 @@
+1.6.2 / 2023-11-30
+==================
+
+This is a patch release accompanying Kotlin 1.9.21. It also provides additional targets that were not available in 1.6.1: 
+wasm-wasi and (deprecated) linuxArm32Hfp.
+
+* Add Wasm WASI target (#2510)
+* Bring back linuxArm32Hfp target because it is deprecated, but not removed yet. (#2505)
+
 1.6.1 / 2023-11-15
 ==================
 
