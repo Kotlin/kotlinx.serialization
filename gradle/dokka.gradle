@@ -13,8 +13,6 @@ def documentedSubprojects = ["kotlinx-serialization-core",
                              "kotlinx-serialization-hocon",
                              "kotlinx-serialization-protobuf"]
 
-def jvmOnlySubprojects = ["kotlinx-serialization-hocon"]
-
 subprojects {
     if (!(name in documentedSubprojects)) return
     apply plugin: 'org.jetbrains.dokka'
@@ -77,12 +75,8 @@ subprojects {
                 }
 
                 sourceLink {
-                    // sources directory for MPP configured in gradle/configure-source-sets.gradle:61
-                    // in short - kotlin.srcDirs = ["$sourceSet.name/src"]
-                    def sourcesPath = project.name in jvmOnlySubprojects ? "src/main/kotlin" : "$name/src"
-                    def relProjectPath = rootProject.projectDir.toPath().relativize(projectDir.toPath())
-                    localDirectory.set(file(sourcesPath))
-                    remoteUrl.set(new URL("https://github.com/Kotlin/kotlinx.serialization/tree/master/$relProjectPath/$sourcesPath"))
+                    localDirectory.set(rootDir)
+                    remoteUrl.set(new URL("https://github.com/Kotlin/kotlinx.serialization/tree/master"))
                     remoteLineSuffix.set("#L")
                 }
             }
