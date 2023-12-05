@@ -24,6 +24,12 @@ class HoconPolymorphismTest {
     }
 
     @Serializable
+    data class SealedCollectionContainer(val sealed: Collection<Sealed>)
+
+    @Serializable
+    data class SealedMapContainer(val sealed: Map<String, Sealed>)
+
+    @Serializable
     data class CompositeClass(var sealed: Sealed)
 
 
@@ -100,6 +106,48 @@ class HoconPolymorphismTest {
             expected = "type = annotated_type_child, my_type = override, intField = 3",
             original = Sealed.AnnotatedTypeChild(type = "override"),
             serializer = Sealed.serializer(),
+        )
+    }
+
+    @Test
+    fun testCollectionContainer() {
+        objectHocon.assertStringFormAndRestored(
+            expected = """
+                sealed = [ 
+                    { type = annotated_type_child, my_type = override, intField = 3 }
+                    { type = object }
+                    { type = data_class, name = testDataClass, intField = 1 }
+                ]
+            """.trimIndent(),
+            original = SealedCollectionContainer(
+                listOf(
+                    Sealed.AnnotatedTypeChild(type = "override"),
+                    Sealed.ObjectChild,
+                    Sealed.DataClassChild(name = "testDataClass"),
+                )
+            ),
+            serializer = SealedCollectionContainer.serializer(),
+        )
+    }
+
+    @Test
+    fun testMapContainer() {
+        objectHocon.assertStringFormAndRestored(
+            expected = """
+                sealed = { 
+                    "annotated_type_child" = { type = annotated_type_child, my_type = override, intField = 3 }
+                    "object" = { type = object }
+                    "data_class" = { type = data_class, name = testDataClass, intField = 1 }
+                }
+            """.trimIndent(),
+            original = SealedMapContainer(
+                mapOf(
+                    "annotated_type_child" to Sealed.AnnotatedTypeChild(type = "override"),
+                    "object" to Sealed.ObjectChild,
+                    "data_class" to Sealed.DataClassChild(name = "testDataClass"),
+                )
+            ),
+            serializer = SealedMapContainer.serializer(),
         )
     }
 }

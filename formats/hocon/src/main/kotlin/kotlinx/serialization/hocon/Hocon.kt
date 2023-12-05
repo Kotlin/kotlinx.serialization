@@ -145,7 +145,7 @@ public sealed class Hocon(
 
     }
 
-    private inner class ConfigReader(val conf: Config) : ConfigConverter<String>() {
+    private inner class ConfigReader(val conf: Config, private val isPolymorphic: Boolean = false) : ConfigConverter<String>() {
         private var ind = -1
 
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
@@ -161,8 +161,10 @@ public sealed class Hocon(
         private fun composeName(parentName: String, childName: String) =
             if (parentName.isEmpty()) childName else "$parentName.$childName"
 
-        override fun SerialDescriptor.getTag(index: Int): String =
-            composeName(currentTagOrNull.orEmpty(), getConventionElementName(index, useConfigNamingConvention))
+        override fun SerialDescriptor.getTag(index: Int): String {
+            val conventionName = getConventionElementName(index, useConfigNamingConvention)
+            return if (!isPolymorphic) composeName(currentTagOrNull.orEmpty(), conventionName) else conventionName
+        }
 
         override fun decodeNotNullMark(): Boolean {
             // Tag might be null for top-level deserialization
@@ -206,6 +208,27 @@ public sealed class Hocon(
         }
     }
 
+    private inner class PolymorphConfigReader(private val conf: Config) : ConfigConverter<String>() {
+        private var ind = -1
+
+        override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder =
+            when {
+                descriptor.kind.objLike -> ConfigReader(conf, isPolymorphic = true)
+                else -> this
+            }
+
+        override fun SerialDescriptor.getTag(index: Int): String = getElementName(index)
+
+        override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+            ind++
+            return if (ind >= descriptor.elementsCount) DECODE_DONE else ind
+        }
+
+        override fun <E> getValueFromTaggedConfig(tag: String, valueResolver: (Config, String) -> E): E {
+            return valueResolver(conf, tag)
+        }
+    }
+
     private inner class ListConfigReader(private val list: ConfigList) : ConfigConverter<Int>() {
         private var ind = -1
 
@@ -216,6 +239,7 @@ public sealed class Hocon(
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder =
             when {
+                descriptor.kind is PolymorphicKind -> PolymorphConfigReader((list[currentTag] as ConfigObject).toConfig())
                 descriptor.kind.listLike -> ListConfigReader(list[currentTag] as ConfigList)
                 descriptor.kind.objLike -> ConfigReader((list[currentTag] as ConfigObject).toConfig())
                 descriptor.kind == StructureKind.MAP -> MapConfigReader(list[currentTag] as ConfigObject)
@@ -256,6 +280,7 @@ public sealed class Hocon(
 
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder =
             when {
+                descriptor.kind is PolymorphicKind -> PolymorphConfigReader((values[currentTag / 2] as ConfigObject).toConfig())
                 descriptor.kind.listLike -> ListConfigReader(values[currentTag / 2] as ConfigList)
                 descriptor.kind.objLike -> ConfigReader((values[currentTag / 2] as ConfigObject).toConfig())
                 descriptor.kind == StructureKind.MAP -> MapConfigReader(values[currentTag / 2] as ConfigObject)
