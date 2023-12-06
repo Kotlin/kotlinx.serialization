@@ -5,9 +5,13 @@ buildscript {
     ext.serialization_version = mainLibVersion
 
     repositories {
-        mavenLocal()
         mavenCentral()
         maven { url "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
+        mavenLocal() {
+            mavenContent {
+                snapshotsOnly()
+            }
+        }
     }
 }
 
@@ -19,9 +23,13 @@ plugins {
 }
 
 repositories {
-    mavenLocal()
     mavenCentral()
     maven { url "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
+    mavenLocal() {
+        mavenContent {
+            snapshotsOnly()
+        }
+    }
 }
 
 group 'com.example'
@@ -63,7 +71,7 @@ kotlin {
 
         commonMain {
             dependencies {
-                implementation kotlin('stdlib-common')
+                implementation kotlin('stdlib')
                 implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:$serialization_version"
                 implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$serialization_version"
                 implementation "org.jetbrains.kotlinx:kotlinx-serialization-protobuf:$serialization_version"
