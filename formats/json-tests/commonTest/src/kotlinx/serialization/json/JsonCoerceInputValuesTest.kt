@@ -29,6 +29,16 @@ class JsonCoerceInputValuesTest : JsonTestBase() {
         val enum: SampleEnum?
     )
 
+    @Serializable
+    class Uncoercable(
+        val s: String
+    )
+
+    @Serializable
+    class UncoercableEnum(
+        val e: SampleEnum
+    )
+
     val json = Json {
         coerceInputValues = true
         isLenient = true
@@ -111,5 +121,25 @@ class JsonCoerceInputValuesTest : JsonTestBase() {
 
         decoded = decodeFromString<NullableEnumHolder>("""{"enum": OptionA}""")
         assertEquals(SampleEnum.OptionA, decoded.enum)
+    }
+
+    @Test
+    fun propertiesWithoutDefaultValuesDoNotChangeErrorMsg() {
+        val json2 = Json(json) { coerceInputValues = false }
+        parametrizedTest { mode ->
+            val e1 = assertFailsWith<SerializationException>() { json.decodeFromString<Uncoercable>("""{"s":null}""", mode) }
+            val e2 = assertFailsWith<SerializationException>() { json2.decodeFromString<Uncoercable>("""{"s":null}""", mode) }
+            assertEquals(e2.message, e1.message)
+        }
+    }
+
+    @Test
+    fun propertiesWithoutDefaultValuesDoNotChangeErrorMsgEnum() {
+        val json2 = Json(json) { coerceInputValues = false }
+        parametrizedTest { mode ->
+            val e1 = assertFailsWith<SerializationException> { json.decodeFromString<UncoercableEnum>("""{"e":"UNEXPECTED"}""", mode) }
+            val e2 = assertFailsWith<SerializationException> { json2.decodeFromString<UncoercableEnum>("""{"e":"UNEXPECTED"}""", mode) }
+            assertEquals(e2.message, e1.message)
+        }
     }
 }

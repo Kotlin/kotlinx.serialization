@@ -11,7 +11,7 @@ import kotlin.jvm.*
 import kotlin.math.*
 
 internal const val lenientHint = "Use 'isLenient = true' in 'Json {}' builder to accept non-compliant JSON."
-internal const val coerceInputValuesHint = "Use 'coerceInputValues = true' in 'Json {}' builder to coerce nulls to default values."
+internal const val coerceInputValuesHint = "Use 'coerceInputValues = true' in 'Json {}' builder to coerce nulls if property has a default value."
 internal const val specialFlowingValuesHint =
     "It is possible to deserialize them using 'JsonBuilder.allowSpecialFloatingPointValues = true'"
 internal const val ignoreUnknownKeysHint = "Use 'ignoreUnknownKeys = true' in 'Json {}' builder to ignore unknown keys."

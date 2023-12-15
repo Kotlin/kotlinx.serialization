@@ -110,11 +110,14 @@ internal fun SerialDescriptor.getJsonNameIndexOrThrow(json: Json, name: String, 
 
 @OptIn(ExperimentalSerializationApi::class)
 internal inline fun Json.tryCoerceValue(
-    elementDescriptor: SerialDescriptor,
+    descriptor: SerialDescriptor,
+    index: Int,
     peekNull: (consume: Boolean) -> Boolean,
     peekString: () -> String?,
     onEnumCoercing: () -> Unit = {}
 ): Boolean {
+    if (!descriptor.isElementOptional(index)) return false
+    val elementDescriptor = descriptor.getElementDescriptor(index)
     if (!elementDescriptor.isNullable && peekNull(true)) return true
     if (elementDescriptor.kind == SerialKind.ENUM) {
         if (elementDescriptor.isNullable && peekNull(false)) {
