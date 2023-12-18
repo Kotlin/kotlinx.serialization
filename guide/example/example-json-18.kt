@@ -4,20 +4,14 @@ package example.exampleJson18
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-import java.math.BigDecimal
-
-val format = Json { prettyPrint = true }
+@Serializable
+data class Project(val name: String, val language: String)
 
 fun main() {
-    val pi = BigDecimal("3.141592653589793238462643383279")
-    
-    val piJsonDouble = JsonPrimitive(pi.toDouble())
-    val piJsonString = JsonPrimitive(pi.toString())
-  
-    val piObject = buildJsonObject {
-        put("pi_double", piJsonDouble)
-        put("pi_string", piJsonString)
+    val element = buildJsonObject {
+        put("name", "kotlinx.serialization")
+        put("language", "Kotlin")
     }
-
-    println(format.encodeToString(piObject))
+    val data = Json.decodeFromJsonElement<Project>(element)
+    println(data)
 }

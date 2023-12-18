@@ -102,7 +102,7 @@ public enum class ClassDiscriminatorMode {
      * setting [JsonBuilder.classDiscriminatorMode] to [ClassDiscriminatorMode.ALL_JSON_OBJECTS] adds
      * class discriminator to `All.p`, `All.b`, `All.i`, and to `All` object itself.
      */
-    ALL_JSON_OBJECTS, // todo: more proper name?
+    ALL_JSON_OBJECTS,
 
     /**
      * Include class discriminators for polymorphic classes.

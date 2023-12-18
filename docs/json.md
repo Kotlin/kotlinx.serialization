@@ -20,6 +20,7 @@ In this chapter, we'll walk through features of [JSON](https://www.json.org/json
   * [Allowing structured map keys](#allowing-structured-map-keys)
   * [Allowing special floating-point values](#allowing-special-floating-point-values)
   * [Class discriminator for polymorphism](#class-discriminator-for-polymorphism)
+  * [Class discriminator output mode](#class-discriminator-output-mode)
   * [Decoding enums in a case-insensitive manner](#decoding-enums-in-a-case-insensitive-manner)
   * [Global naming strategy](#global-naming-strategy)
 * [Json elements](#json-elements)
@@ -470,6 +471,45 @@ As you can see, discriminator from the `Base` class is used:
 
 <!--- TEST -->
 
+### Class discriminator output mode
+
+Class discriminator provides information for serializing and deserializing [polymorphic class hierarchies](polymorphism.md#sealed-classes).
+As shown above, it is only added for polymorphic classes by default.
+In case you want to encode more or less information for various third party APIs about types in the output, it is possible to control
+addition of the class discriminator with the [JsonBuilder.classDiscriminatorMode] property.
+
+For example, [ClassDiscriminatorMode.NONE] does not add class discriminator at all, in case the receiving party is not interested in Kotlin types:
+
+```kotlin
+val format = Json { classDiscriminatorMode = ClassDiscriminatorMode.NONE }
+
+@Serializable
+sealed class Project {
+    abstract val name: String
+}
+
+@Serializable
+class OwnedProject(override val name: String, val owner: String) : Project()
+
+fun main() {
+    val data: Project = OwnedProject("kotlinx.coroutines", "kotlin")
+    println(format.encodeToString(data))
+}
+```
+
+> You can get the full code [here](../guide/example/example-json-12.kt).
+
+Note that it would be impossible to deserialize this output back with kotlinx.serialization.
+
+```text
+{"name":"kotlinx.coroutines","owner":"kotlin"}
+```
+
+Two other available values are [ClassDiscriminatorMode.POLYMORPHIC] (default behavior) and [ClassDiscriminatorMode.ALL_JSON_OBJECTS] (adds discriminator whenever possible).
+Consult their documentation for details.
+
+<!--- TEST -->
+
 ### Decoding enums in a case-insensitive manner
 
 [Kotlin's naming policy recommends](https://kotlinlang.org/docs/coding-conventions.html#property-names) naming enum values
@@ -491,7 +531,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-12.kt).
+> You can get the full code [here](../guide/example/example-json-13.kt).
 
 It affects serial names as well as alternative names specified with [JsonNames] annotation, so both values are successfully decoded:
 
@@ -523,7 +563,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-13.kt).
+> You can get the full code [here](../guide/example/example-json-14.kt).
 
 As you can see, both serialization and deserialization work as if all serial names are transformed from camel case to snake case:
 
@@ -575,7 +615,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-14.kt).
+> You can get the full code [here](../guide/example/example-json-15.kt).
 
 A `JsonElement` prints itself as a valid JSON:
 
@@ -618,7 +658,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-15.kt).
+> You can get the full code [here](../guide/example/example-json-16.kt).
 
 The above example sums `votes` in all objects in the `forks` array, ignoring the objects that have no `votes`:
 
@@ -658,7 +698,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-16.kt).
+> You can get the full code [here](../guide/example/example-json-17.kt).
 
 As a result, you get a proper JSON string:
 
@@ -687,7 +727,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-17.kt).
+> You can get the full code [here](../guide/example/example-json-18.kt).
 
 The result is exactly what you would expect:
 
@@ -733,7 +773,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-18.kt).
+> You can get the full code [here](../guide/example/example-json-19.kt).
 
 Even though `pi` was defined as a number with 30 decimal places, the resulting JSON does not reflect this. 
 The [Double] value is truncated to 15 decimal places, and the String is wrapped in quotes - which is not a JSON number.
@@ -773,7 +813,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-19.kt).
+> You can get the full code [here](../guide/example/example-json-20.kt).
 
 `pi_literal` now accurately matches the value defined.
 
@@ -813,7 +853,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-20.kt).
+> You can get the full code [here](../guide/example/example-json-21.kt).
 
 The exact value of `pi` is decoded, with all 30 decimal places of precision that were in the source JSON.
 
@@ -835,7 +875,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-21.kt).
+> You can get the full code [here](../guide/example/example-json-22.kt).
 
 ```text
 Exception in thread "main" kotlinx.serialization.json.internal.JsonEncodingException: Creating a literal unquoted value of 'null' is forbidden. If you want to create JSON null literal, use JsonNull object, otherwise, use JsonPrimitive
@@ -911,7 +951,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-22.kt).
+> You can get the full code [here](../guide/example/example-json-23.kt).
 
 The output shows that both cases are correctly deserialized into a Kotlin [List].
 
@@ -963,7 +1003,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-23.kt).
+> You can get the full code [here](../guide/example/example-json-24.kt).
 
 You end up with a single JSON object, not an array with one element:
 
@@ -1008,7 +1048,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-24.kt).
+> You can get the full code [here](../guide/example/example-json-25.kt).
 
 See the effect of the custom serializer:
 
@@ -1081,7 +1121,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-25.kt).
+> You can get the full code [here](../guide/example/example-json-26.kt).
 
 No class discriminator is added in the JSON output:
 
@@ -1177,7 +1217,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-26.kt).
+> You can get the full code [here](../guide/example/example-json-27.kt).
 
 This gives you fine-grained control on the representation of the `Response` class in the JSON output:
 
@@ -1242,7 +1282,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-27.kt).
+> You can get the full code [here](../guide/example/example-json-28.kt).
 
 ```text
 UnknownProject(name=example, details={"type":"unknown","maintainer":"Unknown","license":"Apache 2.0"})
@@ -1296,6 +1336,10 @@ The next chapter covers [Alternative and custom formats (experimental)](formats.
 [JsonBuilder.allowSpecialFloatingPointValues]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/allow-special-floating-point-values.html
 [JsonBuilder.classDiscriminator]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/class-discriminator.html
 [JsonClassDiscriminator]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-class-discriminator/index.html
+[JsonBuilder.classDiscriminatorMode]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/class-discriminator-mode.html
+[ClassDiscriminatorMode.NONE]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-class-discriminator-mode/-n-o-n-e/index.html
+[ClassDiscriminatorMode.POLYMORPHIC]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-class-discriminator-mode/-p-o-l-y-m-o-r-p-h-i-c/index.html
+[ClassDiscriminatorMode.ALL_JSON_OBJECTS]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-class-discriminator-mode/-a-l-l_-j-s-o-n_-o-b-j-e-c-t-s/index.html
 [JsonBuilder.decodeEnumsCaseInsensitive]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/decode-enums-case-insensitive.html
 [JsonBuilder.namingStrategy]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/naming-strategy.html
 [JsonNamingStrategy]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-naming-strategy/index.html
