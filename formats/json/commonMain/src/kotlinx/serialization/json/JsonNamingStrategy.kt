@@ -95,37 +95,11 @@ public fun interface JsonNamingStrategy {
          */
         @ExperimentalSerializationApi
         public val SnakeCase: JsonNamingStrategy = object : JsonNamingStrategy {
-            override fun serialNameForJson(descriptor: SerialDescriptor, elementIndex: Int, serialName: String): String =
-                buildString(serialName.length * 2) {
-                    var bufferedChar: Char? = null
-                    var previousUpperCharsCount = 0
-
-                    serialName.forEach { c ->
-                        if (c.isUpperCase()) {
-                            if (previousUpperCharsCount == 0 && isNotEmpty() && last() != '_')
-                                append('_')
-
-                            bufferedChar?.let(::append)
-
-                            previousUpperCharsCount++
-                            bufferedChar = c.lowercaseChar()
-                        } else {
-                            if (bufferedChar != null) {
-                                if (previousUpperCharsCount > 1 && c.isLetter()) {
-                                    append('_')
-                                }
-                                append(bufferedChar)
-                                previousUpperCharsCount = 0
-                                bufferedChar = null
-                            }
-                            append(c)
-                        }
-                    }
-
-                    if(bufferedChar != null) {
-                        append(bufferedChar)
-                    }
-                }
+            override fun serialNameForJson(
+                descriptor: SerialDescriptor,
+                elementIndex: Int,
+                serialName: String
+            ): String = convertCamelCase(serialName, '_')
 
             override fun toString(): String = "kotlinx.serialization.json.JsonNamingStrategy.SnakeCase"
         }
@@ -156,39 +130,48 @@ public fun interface JsonNamingStrategy {
          */
         @ExperimentalSerializationApi
         public val KebabCase: JsonNamingStrategy = object : JsonNamingStrategy {
-            override fun serialNameForJson(descriptor: SerialDescriptor, elementIndex: Int, serialName: String): String =
-                buildString(serialName.length * 2) {
-                    var bufferedChar: Char? = null
-                    var previousUpperCharsCount = 0
-
-                    serialName.forEach { c ->
-                        if (c.isUpperCase()) {
-                            if (previousUpperCharsCount == 0 && isNotEmpty() && last() != '-')
-                                append('-')
-
-                            bufferedChar?.let(::append)
-
-                            previousUpperCharsCount++
-                            bufferedChar = c.lowercaseChar()
-                        } else {
-                            if (bufferedChar != null) {
-                                if (previousUpperCharsCount > 1 && c.isLetter()) {
-                                    append('-')
-                                }
-                                append(bufferedChar)
-                                previousUpperCharsCount = 0
-                                bufferedChar = null
-                            }
-                            append(c)
-                        }
-                    }
-
-                    if(bufferedChar != null) {
-                        append(bufferedChar)
-                    }
-                }
+            override fun serialNameForJson(
+                descriptor: SerialDescriptor,
+                elementIndex: Int,
+                serialName: String
+            ): String = convertCamelCase(serialName, '-')
 
             override fun toString(): String = "kotlinx.serialization.json.JsonNamingStrategy.KebabCase"
         }
+
+        private fun convertCamelCase(
+            serialName: String,
+            delimiter: Char
+        ) = buildString(serialName.length * 2) {
+                var bufferedChar: Char? = null
+                var previousUpperCharsCount = 0
+
+                serialName.forEach { c ->
+                    if (c.isUpperCase()) {
+                        if (previousUpperCharsCount == 0 && isNotEmpty() && last() != delimiter)
+                            append(delimiter)
+
+                        bufferedChar?.let(::append)
+
+                        previousUpperCharsCount++
+                        bufferedChar = c.lowercaseChar()
+                    } else {
+                        if (bufferedChar != null) {
+                            if (previousUpperCharsCount > 1 && c.isLetter()) {
+                                append(delimiter)
+                            }
+                            append(bufferedChar)
+                            previousUpperCharsCount = 0
+                            bufferedChar = null
+                        }
+                        append(c)
+                    }
+                }
+
+                if (bufferedChar != null) {
+                    append(bufferedChar)
+                }
+            }
+
     }
 }
