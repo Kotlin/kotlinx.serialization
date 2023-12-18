@@ -287,7 +287,7 @@ public class JsonBuilder internal constructor(json: Json) {
     public var prettyPrintIndent: String = json.configuration.prettyPrintIndent
 
     /**
-     * Enables coercing incorrect JSON values to the default property value in the following cases:
+     * Enables coercing incorrect JSON values to the default property value (if exists) in the following cases:
      *   1. JSON value is `null` but the property type is non-nullable.
      *   2. Property type is an enum type, but JSON value contains unknown enum member.
      *

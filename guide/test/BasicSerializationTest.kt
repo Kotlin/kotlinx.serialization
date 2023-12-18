@@ -110,7 +110,7 @@ class BasicSerializationTest {
     fun testExampleClasses12() {
         captureOutput("ExampleClasses12") { example.exampleClasses12.main() }.verifyOutputLinesStart(
             "Exception in thread \"main\" kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 52: Expected string literal but 'null' literal was found at path: $.language",
-            "Use 'coerceInputValues = true' in 'Json {}' builder to coerce nulls to default values."
+            "Use 'coerceInputValues = true' in 'Json {}' builder to coerce nulls if property has a default value."
         )
     }
 

@@ -190,7 +190,7 @@ private open class JsonTreeDecoder(
      */
     private fun coerceInputValue(descriptor: SerialDescriptor, index: Int, tag: String): Boolean =
         json.tryCoerceValue(
-            descriptor.getElementDescriptor(index),
+            descriptor, index,
             { currentElement(tag) is JsonNull },
             { (currentElement(tag) as? JsonPrimitive)?.contentOrNull }
         )

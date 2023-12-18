@@ -73,7 +73,7 @@ private open class DynamicInput(
 
     private fun coerceInputValue(descriptor: SerialDescriptor, index: Int, tag: String): Boolean =
         json.tryCoerceValue(
-            descriptor.getElementDescriptor(index),
+            descriptor, index,
             { getByTag(tag) == null },
             { getByTag(tag) as? String }
         )
