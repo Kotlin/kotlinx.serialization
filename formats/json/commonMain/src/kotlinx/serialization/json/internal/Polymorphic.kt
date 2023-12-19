@@ -29,10 +29,7 @@ internal inline fun <T> JsonEncoder.encodePolymorphically(
         } else {
             when (json.configuration.classDiscriminatorMode) {
                 ClassDiscriminatorMode.NONE, ClassDiscriminatorMode.POLYMORPHIC /* already handled in isPolymorphicSerializer */ -> false
-                ClassDiscriminatorMode.ALL_JSON_OBJECTS -> serializer.descriptor.kind in setOf(
-                    StructureKind.CLASS,
-                    StructureKind.OBJECT
-                )
+                ClassDiscriminatorMode.ALL_JSON_OBJECTS -> serializer.descriptor.kind.let { it == StructureKind.CLASS || it == StructureKind.OBJECT }
             }
         }
     val baseClassDiscriminator = if (needDiscriminator) serializer.descriptor.classDiscriminator(json) else null
