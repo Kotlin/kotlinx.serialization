@@ -299,6 +299,8 @@ public class JsonBuilder internal constructor(json: Json) {
      * Switches polymorphic serialization to the default array format.
      * This is an option for legacy JSON format and should not be generally used.
      * `false` by default.
+     *
+     * This option can only be used if [classDiscriminatorMode] in a default [ClassDiscriminatorMode.POLYMORPHIC] state.
      */
     public var useArrayPolymorphism: Boolean = json.configuration.useArrayPolymorphism
 
@@ -307,6 +309,16 @@ public class JsonBuilder internal constructor(json: Json) {
      * "type" by default.
      */
     public var classDiscriminator: String = json.configuration.classDiscriminator
+
+
+    /**
+     * Defines which classes and objects should have class discriminator added to the output.
+     * [ClassDiscriminatorMode.POLYMORPHIC] by default.
+     *
+     * Other modes are generally intended to produce JSON for consumption by third-party libraries,
+     * therefore, this setting does not affect the deserialization process.
+     */
+    public var classDiscriminatorMode: ClassDiscriminatorMode = json.configuration.classDiscriminatorMode
 
     /**
      * Removes JSON specification restriction on
@@ -385,8 +397,13 @@ public class JsonBuilder internal constructor(json: Json) {
 
     @OptIn(ExperimentalSerializationApi::class)
     internal fun build(): JsonConfiguration {
-        if (useArrayPolymorphism) require(classDiscriminator == defaultDiscriminator) {
-            "Class discriminator should not be specified when array polymorphism is specified"
+        if (useArrayPolymorphism) {
+            require(classDiscriminator == defaultDiscriminator) {
+                "Class discriminator should not be specified when array polymorphism is specified"
+            }
+            require(classDiscriminatorMode == ClassDiscriminatorMode.POLYMORPHIC) {
+                "useArrayPolymorphism option can only be used if classDiscriminatorMode in a default POLYMORPHIC state."
+            }
         }
 
         if (!prettyPrint) {
@@ -406,7 +423,7 @@ public class JsonBuilder internal constructor(json: Json) {
             allowStructuredMapKeys, prettyPrint, explicitNulls, prettyPrintIndent,
             coerceInputValues, useArrayPolymorphism,
             classDiscriminator, allowSpecialFloatingPointValues, useAlternativeNames,
-            namingStrategy, decodeEnumsCaseInsensitive, allowTrailingComma
+            namingStrategy, decodeEnumsCaseInsensitive, allowTrailingComma, classDiscriminatorMode
         )
     }
 }

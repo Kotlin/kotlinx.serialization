@@ -4,12 +4,13 @@ package example.exampleJson13
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-@Serializable
-data class Project(val projectName: String, val projectOwner: String)
+val format = Json { decodeEnumsCaseInsensitive = true }
 
-val format = Json { namingStrategy = JsonNamingStrategy.SnakeCase }
+enum class Cases { VALUE_A, @JsonNames("Alternative") VALUE_B }
+
+@Serializable
+data class CasesList(val cases: List<Cases>)
 
 fun main() {
-    val project = format.decodeFromString<Project>("""{"project_name":"kotlinx.coroutines", "project_owner":"Kotlin"}""")
-    println(format.encodeToString(project.copy(projectName = "kotlinx.serialization")))
+  println(format.decodeFromString<CasesList>("""{"cases":["value_A", "alternative"]}""")) 
 }
