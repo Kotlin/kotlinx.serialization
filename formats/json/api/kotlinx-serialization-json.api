@@ -266,6 +266,7 @@ public abstract interface class kotlinx/serialization/json/JsonNamingStrategy {
 }
 
 public final class kotlinx/serialization/json/JsonNamingStrategy$Builtins {
+	public final fun getKebabCase ()Lkotlinx/serialization/json/JsonNamingStrategy;
 	public final fun getSnakeCase ()Lkotlinx/serialization/json/JsonNamingStrategy;
 }
 
