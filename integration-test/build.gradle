@@ -19,7 +19,7 @@ buildscript {
 plugins {
     id 'org.jetbrains.kotlin.multiplatform' version '0'
     id 'org.jetbrains.kotlin.plugin.serialization' version '0'
-    id 'org.jetbrains.kotlin.kapt' version '0'
+//    id 'org.jetbrains.kotlin.kapt' version '0'
 }
 
 repositories {
@@ -57,10 +57,10 @@ kotlin {
     jvm {
         withJava()
     }
-    macosX64()
-    macosArm64()
-    linuxX64()
-    mingwX64()
+//    macosX64()
+//    macosArm64()
+//    linuxX64()
+//    mingwX64()
 
     sourceSets {
         all {
@@ -143,9 +143,9 @@ kotlin {
     }
 }
 
-dependencies {
-    kapt 'com.google.dagger:dagger-compiler:2.13'
-}
+//dependencies {
+//    kapt 'com.google.dagger:dagger-compiler:2.13'
+//}
 
 task run dependsOn "check"
 
