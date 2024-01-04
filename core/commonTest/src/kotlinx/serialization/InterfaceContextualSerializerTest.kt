@@ -82,4 +82,11 @@ class InterfaceContextualSerializerTest {
         assertSame(MyApiErrorSerializer, module.serializer(typeOf<IApiError>()) as KSerializer<IApiError>)
         assertSame(MyApiErrorSerializer, module.serializer<IApiError>() as KSerializer<IApiError>)
     }
+
+    @Test
+    fun testInsideList() {
+        val module = serializersModuleOf(IApiError::class, MyApiErrorSerializer)
+        println(module.serializer(typeOf<List<IApiError>>()).descriptor.elementDescriptors.first().serialName)
+        println(module.serializer<List<IApiError>>().descriptor.elementDescriptors.first().serialName)
+    }
 }

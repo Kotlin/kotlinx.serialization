@@ -196,6 +196,8 @@ private fun SerializersModule.serializerByKTypeImpl(
         findParametrizedCachedSerializer(rootClass, typeArguments, isNullable).getOrNull()
     }
     if (cachedSerializer != null && (cachedSerializer !is PolymorphicSerializer || !rootClass.isInterface()) ) {
+        // Problem: cache is module-independent
+        // If we want to make this change, we have to not store PolymorphicSerializer in the cache.
         return cachedSerializer
     }
 
@@ -367,6 +369,13 @@ internal fun noCompiledSerializer(forClass: String): KSerializer<*> =
 @PublishedApi
 internal fun noCompiledSerializer(module: SerializersModule, kClass: KClass<*>): KSerializer<*> {
     return module.getContextual(kClass) ?: kClass.serializerNotRegistered()
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+@Suppress("unused")
+@PublishedApi
+internal fun moduleThenPolymorphic(module: SerializersModule, kClass: KClass<*>): KSerializer<*> {
+    return module.getContextual(kClass) ?: PolymorphicSerializer(kClass)
 }
 
 @OptIn(ExperimentalSerializationApi::class)
