@@ -62,6 +62,8 @@ public sealed class SerializersModule {
     @ExperimentalSerializationApi
     public abstract fun <T : Any> getPolymorphic(baseClass: KClass<in T>, serializedClassName: String?): DeserializationStrategy<T>?
 
+    public abstract fun <T: Any> getPolymorphicReplacement(baseClass: KClass<T>): KSerializer<T>?
+
     /**
      * Copies contents of this module to the given [collector].
      */
@@ -76,7 +78,14 @@ public sealed class SerializersModule {
     level = DeprecationLevel.WARNING,
     replaceWith = ReplaceWith("EmptySerializersModule()"))
 @JsName("EmptySerializersModuleLegacyJs") // Compatibility with JS
-public val EmptySerializersModule: SerializersModule = SerialModuleImpl(emptyMap(), emptyMap(), emptyMap(), emptyMap(), emptyMap())
+public val EmptySerializersModule: SerializersModule = SerialModuleImpl(
+    emptyMap(),
+    emptyMap(),
+    emptyMap(),
+    emptyMap(),
+    emptyMap(),
+    emptyMap()
+)
 
 /**
  * Returns a combination of two serial modules
@@ -147,7 +156,8 @@ internal class SerialModuleImpl(
     @JvmField val polyBase2Serializers: Map<KClass<*>, Map<KClass<*>, KSerializer<*>>>,
     private val polyBase2DefaultSerializerProvider: Map<KClass<*>, PolymorphicSerializerProvider<*>>,
     private val polyBase2NamedSerializers: Map<KClass<*>, Map<String, KSerializer<*>>>,
-    private val polyBase2DefaultDeserializerProvider: Map<KClass<*>, PolymorphicDeserializerProvider<*>>
+    private val polyBase2DefaultDeserializerProvider: Map<KClass<*>, PolymorphicDeserializerProvider<*>>,
+    private val polyBase2Replacements: Map<KClass<*>, KSerializer<*>>,
 ) : SerializersModule() {
 
     override fun <T : Any> getPolymorphic(baseClass: KClass<in T>, value: T): SerializationStrategy<T>? {
@@ -169,6 +179,10 @@ internal class SerialModuleImpl(
 
     override fun <T : Any> getContextual(kClass: KClass<T>, typeArgumentsSerializers: List<KSerializer<*>>): KSerializer<T>? {
         return (class2ContextualFactory[kClass]?.invoke(typeArgumentsSerializers)) as? KSerializer<T>?
+    }
+
+    override fun <T : Any> getPolymorphicReplacement(baseClass: KClass<T>): KSerializer<T>? {
+        return polyBase2Replacements[baseClass] as? KSerializer<T>
     }
 
     override fun dumpTo(collector: SerializersModuleCollector) {

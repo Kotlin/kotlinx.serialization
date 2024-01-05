@@ -36,6 +36,7 @@ internal inline fun <T> JsonEncoder.encodePolymorphically(
     val actualSerializer: SerializationStrategy<T> = if (isPolymorphicSerializer) {
         val casted = serializer as AbstractPolymorphicSerializer<Any>
         requireNotNull(value) { "Value for serializer ${serializer.descriptor} should always be non-null. Please report issue to the kotlinx.serialization tracker." }
+        serializersModule.getPolymorphicReplacement(casted.baseClass)?.let { it.serialize(this, value as Any); return }
         val actual = casted.findPolymorphicSerializer(this, value)
         if (baseClassDiscriminator != null) validateIfSealed(serializer, actual, baseClassDiscriminator)
         checkKind(actual.descriptor.kind)

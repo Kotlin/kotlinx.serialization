@@ -49,6 +49,7 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
     private val polyBase2DefaultSerializerProvider: MutableMap<KClass<*>, PolymorphicSerializerProvider<*>> = hashMapOf()
     private val polyBase2NamedSerializers: MutableMap<KClass<*>, MutableMap<String, KSerializer<*>>> = hashMapOf()
     private val polyBase2DefaultDeserializerProvider: MutableMap<KClass<*>, PolymorphicDeserializerProvider<*>> = hashMapOf()
+    private val polyBase2Replacements: MutableMap<KClass<*>, KSerializer<*>> = hashMapOf()
 
     /**
      * Adds [serializer] associated with given [kClass] for contextual serialization.
@@ -94,6 +95,13 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
         actualSerializer: KSerializer<Sub>
     ) {
         registerPolymorphicSerializer(baseClass, actualClass, actualSerializer)
+    }
+
+    override fun <Base : Any> polymorphicReplacement(
+        baseClass: KClass<Base>,
+        replacementSerializer: KSerializer<Base>
+    ) {
+        polyBase2Replacements[baseClass] = replacementSerializer
     }
 
     /**
@@ -229,7 +237,7 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
 
     @PublishedApi
     internal fun build(): SerializersModule =
-        SerialModuleImpl(class2ContextualProvider, polyBase2Serializers, polyBase2DefaultSerializerProvider, polyBase2NamedSerializers, polyBase2DefaultDeserializerProvider)
+        SerialModuleImpl(class2ContextualProvider, polyBase2Serializers, polyBase2DefaultSerializerProvider, polyBase2NamedSerializers, polyBase2DefaultDeserializerProvider, polyBase2Replacements)
 }
 
 /**

@@ -28,7 +28,7 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
      */
     public abstract val baseClass: KClass<T>
 
-    public final override fun serialize(encoder: Encoder, value: T) {
+    public override fun serialize(encoder: Encoder, value: T) {
         val actualSerializer = findPolymorphicSerializer(encoder, value)
         encoder.encodeStructure(descriptor) {
             encodeStringElement(descriptor, 0, actualSerializer.descriptor.serialName)
@@ -36,7 +36,7 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
         }
     }
 
-    public final override fun deserialize(decoder: Decoder): T = decoder.decodeStructure(descriptor) {
+    public override fun deserialize(decoder: Decoder): T = decoder.decodeStructure(descriptor) {
         var klassName: String? = null
         var value: Any? = null
         if (decodeSequentially()) {

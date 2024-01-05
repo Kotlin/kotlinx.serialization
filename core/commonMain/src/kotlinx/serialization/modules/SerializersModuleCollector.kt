@@ -45,6 +45,13 @@ public interface SerializersModuleCollector {
         actualSerializer: KSerializer<Sub>
     )
 
+    public fun <Base: Any> polymorphicReplacement(
+        baseClass: KClass<Base>,
+        replacementSerializer: KSerializer<Base>
+    ) {
+        // TODO
+    }
+
     /**
      * Accept a default serializer provider, associated with the [baseClass] for polymorphic serialization.
      * [defaultSerializerProvider] is invoked when no polymorphic serializers for `value` in the scope of [baseClass] were found.

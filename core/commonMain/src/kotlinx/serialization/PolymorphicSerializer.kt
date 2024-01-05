@@ -89,6 +89,14 @@ public class PolymorphicSerializer<T : Any>(override val baseClass: KClass<T>) :
         }.withContext(baseClass)
     }
 
+    override fun serialize(encoder: Encoder, value: T) {
+        encoder.serializersModule.getPolymorphicReplacement(baseClass)?.serialize(encoder, value) ?: super.serialize(encoder, value)
+    }
+
+    override fun deserialize(decoder: Decoder): T {
+        return decoder.serializersModule.getPolymorphicReplacement(baseClass)?.deserialize(decoder) ?: super.deserialize(decoder)
+    }
+
     override fun toString(): String {
         return "kotlinx.serialization.PolymorphicSerializer(baseClass: $baseClass)"
     }
