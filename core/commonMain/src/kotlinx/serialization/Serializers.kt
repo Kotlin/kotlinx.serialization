@@ -190,15 +190,19 @@ private fun SerializersModule.serializerByKTypeImpl(
     val typeArguments = type.arguments
         .map { requireNotNull(it.type) { "Star projections in type arguments are not allowed, but had $type" } }
 
-    val cachedSerializer = if (typeArguments.isEmpty()) {
+    var cachedSerializer = if (typeArguments.isEmpty()) {
         findCachedSerializer(rootClass, isNullable)
     } else {
-        findParametrizedCachedSerializer(rootClass, typeArguments, isNullable).getOrNull()
+        null
+        // it looks like we can't cache anything because if we have interface somewhere deep in type params, it will always require context.
+//        findParametrizedCachedSerializer(rootClass, typeArguments, isNullable).getOrNull()
     }
-    if (cachedSerializer != null && (cachedSerializer !is PolymorphicSerializer || !rootClass.isInterface()) ) {
-        // Problem: cache is module-independent
-        // If we want to make this change, we have to not store PolymorphicSerializer in the cache.
-        return cachedSerializer
+    if (cachedSerializer != null) return cachedSerializer
+    if (rootClass.isInterface()) {
+        // Note that there is no check if interface is sealed, because for sealed interfaces we always have their serializers in cache
+        // except for one rare case with named companion (see SerializersLookupNamedCompanionTest.SealedInterfaceWithExplicitAnnotation).
+        // That case always returned incorrect PolymorphicSerializer instead of SealedClassSerializer, even before 1.9.20.
+        cachedSerializer = PolymorphicSerializer(rootClass) as KSerializer<Any?> // todo: nullability
     }
 
     // slow path to find contextual serializers in serializers module

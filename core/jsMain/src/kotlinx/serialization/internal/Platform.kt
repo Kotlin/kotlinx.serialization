@@ -58,7 +58,7 @@ internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vara
         when {
             assocObject is KSerializer<*> -> assocObject as KSerializer<T>
             assocObject is SerializerFactory -> assocObject.serializer(*args) as KSerializer<T>
-            this.isInterface -> PolymorphicSerializer(this)
+//            this.isInterface -> PolymorphicSerializer(this)
             else -> null
         }
     } catch (e: dynamic) {

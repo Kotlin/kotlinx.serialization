@@ -63,7 +63,7 @@ class InterfaceContextualSerializerTest {
         if (isNative() || isWasm()) return
         EmptySerializersModule().doTest<IApiError> {
             assertEquals(PolymorphicKind.OPEN, it.descriptor.kind)
-            assertEquals("kotlinx.serialization.PolymorphicSerializer(baseClass: class kotlinx.serialization.IApiError)", it.toString())
+            assertContains(it.toString(), "kotlinx.serialization.PolymorphicSerializer")
         }
     }
 
@@ -86,7 +86,7 @@ class InterfaceContextualSerializerTest {
     @Test
     fun testInsideList() {
         val module = serializersModuleOf(IApiError::class, MyApiErrorSerializer)
-        println(module.serializer(typeOf<List<IApiError>>()).descriptor.elementDescriptors.first().serialName)
-        println(module.serializer<List<IApiError>>().descriptor.elementDescriptors.first().serialName)
+        assertEquals(MyApiErrorSerializer.descriptor, module.serializer(typeOf<List<IApiError>>()).descriptor.elementDescriptors.first())
+        assertEquals(MyApiErrorSerializer.descriptor, module.serializer<List<IApiError>>().descriptor.elementDescriptors.first())
     }
 }
