@@ -80,13 +80,21 @@ class InterfaceContextualSerializerTest {
     fun testContextual() {
         val module = serializersModuleOf(IApiError::class, MyApiErrorSerializer)
         assertSame(MyApiErrorSerializer, module.serializer(typeOf<IApiError>()) as KSerializer<IApiError>)
-        assertSame(MyApiErrorSerializer, module.serializer<IApiError>() as KSerializer<IApiError>)
+        shouldFail<AssertionError>(beforeKotlin = "2.0.0", onJvm = true, onWasm = false, onNative = false, onJs = false ) {
+            assertSame(MyApiErrorSerializer, module.serializer<IApiError>() as KSerializer<IApiError>)
+        }
     }
 
+    // JVM - intrinsics kick in
     @Test
     fun testInsideList() {
         val module = serializersModuleOf(IApiError::class, MyApiErrorSerializer)
         assertEquals(MyApiErrorSerializer.descriptor, module.serializer(typeOf<List<IApiError>>()).descriptor.elementDescriptors.first())
-        assertEquals(MyApiErrorSerializer.descriptor, module.serializer<List<IApiError>>().descriptor.elementDescriptors.first())
+        shouldFail<AssertionError>(beforeKotlin = "2.0.0", onWasm = false, onNative = false, onJs = false ) {
+            assertEquals(
+                MyApiErrorSerializer.descriptor,
+                module.serializer<List<IApiError>>().descriptor.elementDescriptors.first()
+            )
+        }
     }
 }

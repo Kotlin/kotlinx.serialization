@@ -193,9 +193,11 @@ private fun SerializersModule.serializerByKTypeImpl(
     var cachedSerializer = if (typeArguments.isEmpty()) {
         findCachedSerializer(rootClass, isNullable)
     } else {
-        null
         // it looks like we can't cache anything because if we have interface somewhere deep in type params, it will always require context.
-//        findParametrizedCachedSerializer(rootClass, typeArguments, isNullable).getOrNull()
+        if (this == EmptySerializersModule())
+            findParametrizedCachedSerializer(rootClass, typeArguments, isNullable).getOrNull()
+        else
+            null
     }
     if (cachedSerializer != null) return cachedSerializer
     if (rootClass.isInterface()) {
