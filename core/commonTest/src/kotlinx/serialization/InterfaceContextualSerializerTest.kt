@@ -97,4 +97,25 @@ class InterfaceContextualSerializerTest {
             )
         }
     }
+
+    @Test
+    fun testWithNullability() {
+        val module = serializersModuleOf(IApiError::class, MyApiErrorSerializer)
+        assertEquals(MyApiErrorSerializer.nullable.descriptor, module.serializer(typeOf<IApiError?>()).descriptor)
+        shouldFail<AssertionError>(beforeKotlin = "2.0.0", onWasm = false, onNative = false, onJs = false ) {
+            assertEquals(MyApiErrorSerializer.nullable.descriptor, module.serializer<IApiError?>().descriptor)
+        }
+    }
+
+    @Test
+    fun testWithNullabilityInsideList() {
+        val module = serializersModuleOf(IApiError::class, MyApiErrorSerializer)
+        assertEquals(MyApiErrorSerializer.nullable.descriptor, module.serializer(typeOf<List<IApiError?>>()).descriptor.elementDescriptors.first())
+        shouldFail<AssertionError>(beforeKotlin = "2.0.0", onWasm = false, onNative = false, onJs = false ) {
+            assertEquals(
+                MyApiErrorSerializer.nullable.descriptor,
+                module.serializer<List<IApiError?>>().descriptor.elementDescriptors.first()
+            )
+        }
+    }
 }

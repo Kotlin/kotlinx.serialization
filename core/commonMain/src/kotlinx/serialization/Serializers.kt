@@ -204,7 +204,7 @@ private fun SerializersModule.serializerByKTypeImpl(
         // Note that there is no check if interface is sealed, because for sealed interfaces we always have their serializers in cache
         // except for one rare case with named companion (see SerializersLookupNamedCompanionTest.SealedInterfaceWithExplicitAnnotation).
         // That case always returned incorrect PolymorphicSerializer instead of SealedClassSerializer, even before 1.9.20.
-        cachedSerializer = PolymorphicSerializer(rootClass) as KSerializer<Any?> // todo: nullability
+        cachedSerializer = PolymorphicSerializer(rootClass).cast()
     }
 
     // slow path to find contextual serializers in serializers module
