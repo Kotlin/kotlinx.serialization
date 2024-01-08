@@ -102,15 +102,21 @@ internal expect fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing
 internal fun KType.kclass() = when (val t = classifier) {
     is KClass<*> -> t
     is KTypeParameter -> {
-        error(
+        // If you are going to change this error message, please also actualize the message in the compiler intrinsics here:
+        // Kotlin/plugins/kotlinx-serialization/kotlinx-serialization.backend/src/org/jetbrains/kotlinx/serialization/compiler/backend/ir/SerializationJvmIrIntrinsicSupport.kt#argumentTypeOrGenerateException
+        throw IllegalArgumentException(
             "Captured type parameter $t from generic non-reified function. " +
-                    "Such functionality cannot be supported as $t is erased, either specify serializer explicitly or make " +
-                    "calling function inline with reified $t"
+                    "Such functionality cannot be supported because $t is erased, either specify serializer explicitly or make " +
+                    "calling function inline with reified $t."
         )
     }
 
-    else -> error("Only KClass supported as classifier, got $t")
+    else ->  throw IllegalArgumentException("Only KClass supported as classifier, got $t")
 } as KClass<Any>
+
+// If you are going to change this error message, please also actualize the message in the compiler intrinsics here:
+// Kotlin/plugins/kotlinx-serialization/kotlinx-serialization.backend/src/org/jetbrains/kotlinx/serialization/compiler/backend/ir/SerializationJvmIrIntrinsicSupport.kt#argumentTypeOrGenerateException
+internal fun KTypeProjection.typeOrThrow(): KType = requireNotNull(type) { "Star projections in type arguments are not allowed, but had $type" }
 
 /**
  * Constructs KSerializer<D<T0, T1, ...>> by given KSerializer<T0>, KSerializer<T1>, ...

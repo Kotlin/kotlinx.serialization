@@ -187,8 +187,7 @@ private fun SerializersModule.serializerByKTypeImpl(
 ): KSerializer<Any?>? {
     val rootClass = type.kclass()
     val isNullable = type.isMarkedNullable
-    val typeArguments = type.arguments
-        .map { requireNotNull(it.type) { "Star projections in type arguments are not allowed, but had $type" } }
+    val typeArguments = type.arguments.map(KTypeProjection::typeOrThrow)
 
     val cachedSerializer = if (typeArguments.isEmpty()) {
         findCachedSerializer(rootClass, isNullable)
