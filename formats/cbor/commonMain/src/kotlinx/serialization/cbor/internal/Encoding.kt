@@ -76,10 +76,10 @@ internal open class CborWriter(
         var data: ByteArrayOutput?,
         var next: Token?,
         var numChildren: Int? = null,
-        var preamble: ByteArrayOutput? = null,
+        var preamble: Preamble? = null,
     ) {
         fun encode() {
-            preamble?.let { output.copyFrom(it) }
+            preamble?.let { it.encode(output) }
 
             //byteStrings are encoded into the data already, as are primitives
             data?.let { output.copyFrom(it) }
@@ -88,6 +88,39 @@ internal open class CborWriter(
 
         override fun toString(): String {
             return "(${descriptor?.serialName}:${descriptor?.kind}, data: $data, numChildren: $numChildren)"
+        }
+
+
+
+    }
+    inner class Preamble(
+        private val parentDescriptor: SerialDescriptor?,
+        private val index: Int,
+        private val label: Long?,
+        private val name: String?
+    ) {
+
+        fun encode(output: ByteArrayOutput): ByteArrayOutput {
+
+            parentDescriptor?.let { descriptor ->
+                if (!descriptor.hasArrayTag()) {
+                    if (cbor.writeKeyTags) {
+                        index.let { descriptor.getKeyTags(it)?.forEach { output.encodeTag(it) } }
+                    }
+                    if ((descriptor.kind !is StructureKind.LIST) && (descriptor.kind !is StructureKind.MAP) && (descriptor.kind !is PolymorphicKind)) {
+                        //indices are put into the name field. we don't want to write those, as it would result in double writes
+                        if (cbor.preferCborLabelsOverNames && label != null) {
+                            output.encodeNumber(label)
+                        } else if (name != null) {
+                            output.encodeString(name)
+                        }
+                    }
+                }
+            }
+            if (cbor.writeValueTags) {
+                index.let { parentDescriptor?.getValueTags(it)?.forEach { output.encodeTag(it) } }
+            }
+            return output
         }
     }
 
@@ -176,7 +209,7 @@ internal open class CborWriter(
         val name = descriptor.getElementName(index) as String?
         val label = descriptor.getCborLabel(index)
 
-        val preamble = encodePreamble(parent?.descriptor, index, label, name)
+        val preamble = Preamble(parent?.descriptor, index, label, name)
 
         encodeByteArrayAsByteString = descriptor.isByteString(index)
         currentToken.next = Token(
@@ -191,34 +224,6 @@ internal open class CborWriter(
         return true
     }
 
-    private fun encodePreamble(
-        parentDescriptor: SerialDescriptor?,
-        index: Int,
-        label: Long?,
-        name: String?
-    ): ByteArrayOutput {
-        val output = ByteArrayOutput()
-
-        parentDescriptor?.let { descriptor ->
-            if (!descriptor.hasArrayTag()) {
-                if (cbor.writeKeyTags) {
-                    index.let { descriptor.getKeyTags(it)?.forEach { output.encodeTag(it) } }
-                }
-                if ((descriptor.kind !is StructureKind.LIST) && (descriptor.kind !is StructureKind.MAP) && (descriptor.kind !is PolymorphicKind)) {
-                    //indices are put into the name field. we don't want to write those, as it would result in double writes
-                    if (cbor.preferCborLabelsOverNames && label != null) {
-                        output.encodeNumber(label)
-                    } else if (name != null) {
-                        output.encodeString(name)
-                    }
-                }
-            }
-        }
-        if (cbor.writeValueTags) {
-            index.let { parentDescriptor?.getValueTags(it)?.forEach { output.encodeTag(it) } }
-        }
-        return output
-    }
 
     //If any of the following functions are called for serializing raw primitives (i.e. something other than a class,
     // list, map or array, no children exist and the root node needs the data
