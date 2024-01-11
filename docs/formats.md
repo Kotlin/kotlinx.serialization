@@ -248,6 +248,7 @@ but integer numbers. Labels can be assigned using the [`@CborLabel`](CborLabel.k
 `preferCborLabelsOverNames` configuration switch can be used to prefer them over SerialNames in case both are present
 for a property.
 
+Well-known tags are specified in [`ValueTags.Companion`](ValueTags.kt).
 
 ### Arrays
 

@@ -31,6 +31,8 @@ import kotlinx.serialization.*
  *
  * This may be used to encode COSE structures, see
  * [RFC 9052 2. Basic COSE Structure](https://www.rfc-editor.org/rfc/rfc9052#section-2).
+ *
+ * @param tag optional tags to add to a [CborArray]
  */
 @SerialInfo
 @Target(AnnotationTarget.CLASS)

@@ -32,6 +32,8 @@ import kotlinx.serialization.modules.*
  *                      annotation during the deserialization process. Useful for lenient parsing.
  * @param alwaysUseByteString Specifies whether to always use the compact [ByteString] encoding when serializing
  *                            or deserializing byte arrays.
+ *
+ * @param writeDefiniteLengths Specifies whether the definite length encoding should be used (as required for COSE, for example)
  * @param preferCborLabelsOverNames Specifies whether to serialize element labels (i.e. Long from [CborLabel])
  *                                    instead of the element names (i.e. String from [SerialName]) for map keys
  */

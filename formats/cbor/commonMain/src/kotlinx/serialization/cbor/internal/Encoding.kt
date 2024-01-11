@@ -13,7 +13,6 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 import kotlin.experimental.*
-import kotlin.jvm.*
 
 private const val FALSE = 0xf4
 private const val TRUE = 0xf5
@@ -49,6 +48,13 @@ private const val SINGLE_PRECISION_MAX_EXPONENT = 0xFF
 
 private const val SINGLE_PRECISION_NORMALIZE_BASE = 0.5f
 
+//value classes are only inlined on the JVM, so we use a typealias and extensions instead
+private typealias Stack = MutableList<Token>
+private fun Stack(): Stack = mutableListOf()
+private fun Stack.push(value: Token) = add(value)
+private fun Stack.pop() = removeLast()
+private fun Stack.peek() = last()
+
 // Writes class as map [fieldName, fieldValue]
 internal open class CborWriter(
     private val cbor: Cbor,
@@ -58,18 +64,7 @@ internal open class CborWriter(
 
     private var encodeByteArrayAsByteString = false
 
-    private val structureStack: Stack<Token> = Stack()
-
-    @JvmInline
-    private value class Stack<T>(private val list: MutableList<T> = mutableListOf()) {
-        fun push(value: T) {
-            list += value
-        }
-
-        fun pop() = list.removeLast()
-
-        fun peek() = list.last()
-    }
+    private val structureStack = Stack()
 
 
     inner class Token(
@@ -104,7 +99,7 @@ internal open class CborWriter(
             parentDescriptor?.let { descriptor ->
                 if (!descriptor.hasArrayTag()) {
                     if (cbor.writeKeyTags) {
-                        index.let { descriptor.getKeyTags(it)?.forEach { output.encodeTag(it) } }
+                        descriptor.getKeyTags(index)?.forEach { output.encodeTag(it) }
                     }
                     if ((descriptor.kind !is StructureKind.LIST) && (descriptor.kind !is StructureKind.MAP) && (descriptor.kind !is PolymorphicKind)) {
                         //indices are put into the name field. we don't want to write those, as it would result in double writes
@@ -117,7 +112,7 @@ internal open class CborWriter(
                 }
             }
             if (cbor.writeValueTags) {
-                index.let { parentDescriptor?.getValueTags(it)?.forEach { output.encodeTag(it) } }
+                parentDescriptor?.getValueTags(index)?.forEach { output.encodeTag(it) }
             }
             return output
         }
