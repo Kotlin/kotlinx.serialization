@@ -8,6 +8,7 @@ package kotlinx.serialization.cbor.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.cbor.*
+import kotlinx.serialization.cbor.internal.CborWriter.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
@@ -73,26 +74,24 @@ internal open class CborWriter(
 
     inner class Token(
         var descriptor: SerialDescriptor?,
-        var data: ByteArrayOutput?,
+        var data: DeferredEncoding?,
         var next: Token?,
-        var numChildren: Int? = null,
+        var numChildren: Int = -1,
         var preamble: Preamble? = null,
     ) {
         fun encode() {
             preamble?.let { it.encode(output) }
 
             //byteStrings are encoded into the data already, as are primitives
-            data?.let { output.copyFrom(it) }
+            data?.let { it.encode(output) }
             next?.encode()
         }
 
         override fun toString(): String {
             return "(${descriptor?.serialName}:${descriptor?.kind}, data: $data, numChildren: $numChildren)"
         }
-
-
-
     }
+
     inner class Preamble(
         private val parentDescriptor: SerialDescriptor?,
         private val index: Int,
@@ -124,7 +123,29 @@ internal open class CborWriter(
         }
     }
 
-    private var currentToken = Token(null, null, null, null, null)
+
+    fun interface DeferredEncoding {
+        fun encode(output: ByteArrayOutput)
+    }
+
+    class DeferredEcode<T>(
+        private val data: T,
+        private val encodingFunction: ByteArrayOutput.(obj: T) -> Unit
+    ) : DeferredEncoding {
+        override fun encode(output: ByteArrayOutput) {
+            output.apply { encodingFunction(data) }
+        }
+    }
+
+    class DeferredConstant(
+        private val encodingFunction: ByteArrayOutput.() -> Unit
+    ) : DeferredEncoding {
+        override fun encode(output: ByteArrayOutput) {
+            output.apply { encodingFunction() }
+        }
+    }
+
+    private var currentToken = Token(null, null, null, -1, null)
     private val firstToken = currentToken
 
     fun encode() {
@@ -141,8 +162,12 @@ internal open class CborWriter(
 
         if ((encodeByteArrayAsByteString || cbor.alwaysUseByteString)
             && serializer.descriptor == ByteArraySerializer().descriptor
-        ) currentToken.data = ByteArrayOutput().apply { encodeByteString(value as ByteArray) }
-        else super.encodeSerializableValue(serializer, value)
+        ) {
+            currentToken.data = DeferredEcode(value as ByteArray, ByteArrayOutput::encodeByteString)
+        } else {
+            encodeByteArrayAsByteString = encodeByteArrayAsByteString || serializer.descriptor.isInlineByteString()
+            super.encodeSerializableValue(serializer, value)
+        }
     }
 
     override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = cbor.encodeDefaults
@@ -163,39 +188,55 @@ internal open class CborWriter(
     override fun endStructure(descriptor: SerialDescriptor) {
         val beginToken = structureStack.pop()
 
-        val output = ByteArrayOutput()
+        val accumulator = mutableListOf<DeferredEncoding>()
 
         //If this nullpointers, we have a structural problem anyhow
         val beginDescriptor = beginToken.descriptor!!
-        val numChildren = beginToken.numChildren!!
+        val numChildren = beginToken.numChildren
 
         if (beginDescriptor.hasArrayTag()) {
-            beginDescriptor.getArrayTags()?.forEach { output.encodeTag(it) }
-            if (cbor.writeDefiniteLengths) output.startArray(numChildren.toULong()) else output.startArray()
+            beginDescriptor.getArrayTags()?.forEach { accumulator += DeferredEcode(it, ByteArrayOutput::encodeTag) }
+            accumulator += if (cbor.writeDefiniteLengths) DeferredEcode(
+                numChildren.toULong(),
+                ByteArrayOutput::startArray
+            )
+            else DeferredConstant(ByteArrayOutput::startArray)
         } else {
             when (beginDescriptor.kind) {
                 StructureKind.LIST, is PolymorphicKind -> {
-                    if (cbor.writeDefiniteLengths) output.startArray(numChildren.toULong())
-                    else output.startArray()
+                    accumulator += if (cbor.writeDefiniteLengths) DeferredEcode(
+                        numChildren.toULong(),
+                        ByteArrayOutput::startArray
+                    )
+                    else DeferredConstant(ByteArrayOutput::startArray)
                 }
 
                 is StructureKind.MAP -> {
-                    if (cbor.writeDefiniteLengths) output.startMap((numChildren / 2).toULong())
-                    else output.startMap()
+                    accumulator += if (cbor.writeDefiniteLengths) DeferredEcode(
+                        (numChildren / 2).toULong(),
+                        ByteArrayOutput::startMap
+                    )
+                    else DeferredConstant(ByteArrayOutput::startMap)
                 }
 
                 else -> {
-                    if (cbor.writeDefiniteLengths) output.startMap(numChildren.toULong())
-                    else output.startMap()
+                    accumulator += if (cbor.writeDefiniteLengths) DeferredEcode(
+                        (numChildren).toULong(),
+                        ByteArrayOutput::startMap
+                    )
+                    else DeferredConstant(ByteArrayOutput::startMap)
                 }
             }
         }
-        beginToken.data = output
+        beginToken.data = DeferredEncoding {
+            accumulator.forEach { it.encode(output) }
+        }
+
 
         if (!cbor.writeDefiniteLengths) {
             currentToken.next = Token(
                 descriptor = descriptor,
-                data = ByteArrayOutput().apply { write(BREAK) },
+                data = DeferredEcode(BREAK, ByteArrayOutput::write),
                 next = null,
             )
             currentToken = currentToken.next!!
@@ -219,8 +260,7 @@ internal open class CborWriter(
             preamble = preamble
         )
         currentToken = currentToken.next!!
-        runCatching { structureStack.peek().numChildren = structureStack.peek().numChildren!! + 1 }.exceptionOrNull()
-            ?.printStackTrace()
+        structureStack.peek().numChildren += 1
         return true
     }
 
@@ -228,55 +268,55 @@ internal open class CborWriter(
     //If any of the following functions are called for serializing raw primitives (i.e. something other than a class,
     // list, map or array, no children exist and the root node needs the data
     override fun encodeString(value: String) {
-        currentToken.data = ByteArrayOutput().also { it.encodeString(value) }
+        currentToken.data = (DeferredEcode(value, ByteArrayOutput::encodeString))
     }
 
 
     override fun encodeFloat(value: Float) {
-        currentToken.data = ByteArrayOutput().also { it.encodeFloat(value) }
+        currentToken.data = (DeferredEcode(value, ByteArrayOutput::encodeFloat))
     }
 
 
     override fun encodeDouble(value: Double) {
-        currentToken.data = ByteArrayOutput().also { it.encodeDouble(value) }
+        currentToken.data = (DeferredEcode(value, ByteArrayOutput::encodeDouble))
     }
 
 
     override fun encodeChar(value: Char) {
-        currentToken.data = ByteArrayOutput().also { it.encodeNumber(value.code.toLong()) }
+        currentToken.data = (DeferredEcode(value.code.toLong(), ByteArrayOutput::encodeNumber))
     }
 
 
     override fun encodeByte(value: Byte) {
-        currentToken.data = ByteArrayOutput().also { it.encodeNumber(value.toLong()) }
+        currentToken.data = (DeferredEcode(value.toLong(), ByteArrayOutput::encodeNumber))
     }
 
 
     override fun encodeShort(value: Short) {
-        currentToken.data = ByteArrayOutput().also { it.encodeNumber(value.toLong()) }
+        currentToken.data = (DeferredEcode(value.toLong(), ByteArrayOutput::encodeNumber))
     }
 
 
     override fun encodeInt(value: Int) {
-        currentToken.data = ByteArrayOutput().also { it.encodeNumber(value.toLong()) }
+        currentToken.data = (DeferredEcode(value.toLong(), ByteArrayOutput::encodeNumber))
     }
 
 
     override fun encodeLong(value: Long) {
-        currentToken.data = ByteArrayOutput().also { it.encodeNumber(value) }
+        currentToken.data = (DeferredEcode(value, ByteArrayOutput::encodeNumber))
     }
 
 
     override fun encodeBoolean(value: Boolean) {
-        currentToken.data = ByteArrayOutput().also { it.encodeBoolean(value) }
+        currentToken.data = (DeferredEcode(value, ByteArrayOutput::encodeBoolean))
     }
 
 
     override fun encodeNull() {
-        currentToken.data = ByteArrayOutput().also {
-            if (currentToken.descriptor?.kind == StructureKind.CLASS) it.encodeEmptyMap()
-            else it.encodeNull()
-        }
+        currentToken.data =
+            if (currentToken.descriptor?.kind == StructureKind.CLASS) DeferredConstant(ByteArrayOutput::encodeEmptyMap)
+            else DeferredConstant(ByteArrayOutput::encodeNull)
+
     }
 
 
@@ -285,7 +325,7 @@ internal open class CborWriter(
         enumDescriptor: SerialDescriptor,
         index: Int
     ) {
-        currentToken.data = ByteArrayOutput().also { it.encodeString(enumDescriptor.getElementName(index)) }
+        currentToken.data = DeferredEcode(enumDescriptor.getElementName(index), ByteArrayOutput::encodeString)
     }
 
 
@@ -524,6 +564,7 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
             @Suppress("UNCHECKED_CAST")
             decoder.nextByteString(tags) as T
         } else {
+            decodeByteArrayAsByteString = decodeByteArrayAsByteString || deserializer.descriptor.isInlineByteString()
             super.decodeSerializableValue(deserializer)
         }
     }
@@ -965,16 +1006,17 @@ private fun SerialDescriptor.isByteString(index: Int): Boolean {
     return kotlin.runCatching { getElementAnnotations(index).find { it is ByteString } != null }.getOrDefault(false)
 }
 
-@OptIn(ExperimentalSerializationApi::class)
-private fun SerialDescriptor.getValueTags(index: Int): ULongArray? {
-    return kotlin.runCatching { (getElementAnnotations(index).find { it is ValueTags } as ValueTags?)?.tags }
-        .getOrNull()
-}
+
 private fun SerialDescriptor.isInlineByteString(): Boolean {
     // inline item classes should only have 1 item
     return isInline && isByteString(0)
 }
 
+@OptIn(ExperimentalSerializationApi::class)
+private fun SerialDescriptor.getValueTags(index: Int): ULongArray? {
+    return kotlin.runCatching { (getElementAnnotations(index).find { it is ValueTags } as ValueTags?)?.tags }
+        .getOrNull()
+}
 
 @OptIn(ExperimentalSerializationApi::class)
 private fun SerialDescriptor.getKeyTags(index: Int): ULongArray? {
