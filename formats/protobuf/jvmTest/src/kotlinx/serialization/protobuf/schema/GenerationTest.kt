@@ -61,7 +61,7 @@ class GenerationTest {
         @ProtoNumber(5)
         val b: Int,
         @ProtoNumber(3)
-        val c: Int
+        val c: UInt,
     )
 
     @Serializable
@@ -83,6 +83,10 @@ class GenerationTest {
 
     @Serializable
     data class OptionsClass(val i: Int)
+
+    @JvmInline
+    @Serializable
+    value class WrappedUInt(val i : UInt)
 
     @Serializable
     class ListClass(
@@ -113,9 +117,17 @@ class GenerationTest {
     @Serializable
     data class OptionalClass(
         val requiredInt: Int,
+        val requiredUInt: UInt,
+        val requiredWrappedUInt: WrappedUInt,
         val optionalInt: Int = 5,
+        val optionalUInt: UInt = 5U,
+        val optionalWrappedUInt: WrappedUInt = WrappedUInt(5U),
         val nullableInt: Int?,
-        val nullableOptionalInt: Int? = 10
+        val nullableUInt: UInt?,
+        val nullableWrappedUInt: WrappedUInt?,
+        val nullableOptionalInt: Int? = 10,
+        val nullableOptionalUInt: UInt? = 10U,
+        val nullableOptionalWrappedUInt: WrappedUInt? = WrappedUInt(10U),
     )
 
     @Serializable

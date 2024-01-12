@@ -5,9 +5,21 @@ package kotlinx.serialization.protobuf.schema.generator;
 // serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.OptionalClass'
 message OptionalClass {
   required int32 requiredInt = 1;
+  required int32 requiredUInt = 2;
+  required int32 requiredWrappedUInt = 3;
   // WARNING: a default value decoded when value is missing
-  optional int32 optionalInt = 2;
-  optional int32 nullableInt = 3;
+  optional int32 optionalInt = 4;
   // WARNING: a default value decoded when value is missing
-  optional int32 nullableOptionalInt = 4;
+  optional int32 optionalUInt = 5;
+  // WARNING: a default value decoded when value is missing
+  optional int32 optionalWrappedUInt = 6;
+  optional int32 nullableInt = 7;
+  optional int32 nullableUInt = 8;
+  optional int32 nullableWrappedUInt = 9;
+  // WARNING: a default value decoded when value is missing
+  optional int32 nullableOptionalInt = 10;
+  // WARNING: a default value decoded when value is missing
+  optional int32 nullableOptionalUInt = 11;
+  // WARNING: a default value decoded when value is missing
+  optional int32 nullableOptionalWrappedUInt = 12;
 }

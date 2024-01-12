@@ -216,29 +216,34 @@ public object ProtoBufSchemaGenerator {
         val messageDescriptor = messageType.descriptor
 
         val fieldDescriptor = messageDescriptor.getElementDescriptor(index)
+        var unwrappedFieldDescriptor = fieldDescriptor
+        while (unwrappedFieldDescriptor.isInline) {
+            unwrappedFieldDescriptor = unwrappedFieldDescriptor.getElementDescriptor(0)
+        }
+
         val nestedTypes: List<TypeDefinition>
         val typeName: String = when {
             messageDescriptor.isSealedPolymorphic && index == 1 -> {
                 appendLine("  // decoded as message with one of these types:")
-                nestedTypes = fieldDescriptor.elementDescriptors.map { TypeDefinition(it) }.toList()
+                nestedTypes = unwrappedFieldDescriptor.elementDescriptors.map { TypeDefinition(it) }.toList()
                 nestedTypes.forEachIndexed { _, childType ->
                     append("  //   message ").append(childType.descriptor.messageOrEnumName).append(", serial name '")
                         .append(removeLineBreaks(childType.descriptor.serialName)).appendLine('\'')
                 }
-                fieldDescriptor.scalarTypeName()
+                unwrappedFieldDescriptor.scalarTypeName()
             }
-            fieldDescriptor.isProtobufScalar -> {
+            unwrappedFieldDescriptor.isProtobufScalar -> {
                 nestedTypes = emptyList()
-                fieldDescriptor.scalarTypeName(messageDescriptor.getElementAnnotations(index))
+                unwrappedFieldDescriptor.scalarTypeName(messageDescriptor.getElementAnnotations(index))
             }
-            fieldDescriptor.isOpenPolymorphic -> {
+            unwrappedFieldDescriptor.isOpenPolymorphic -> {
                 nestedTypes = listOf(SyntheticPolymorphicType)
                 SyntheticPolymorphicType.descriptor.serialName
             }
             else -> {
                 // enum or regular message
-                nestedTypes = listOf(TypeDefinition(fieldDescriptor))
-                fieldDescriptor.messageOrEnumName
+                nestedTypes = listOf(TypeDefinition(unwrappedFieldDescriptor))
+                unwrappedFieldDescriptor.messageOrEnumName
             }
         }
 
