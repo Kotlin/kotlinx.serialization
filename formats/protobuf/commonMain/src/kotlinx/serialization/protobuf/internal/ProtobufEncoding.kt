@@ -61,6 +61,7 @@ internal open class ProtobufEncoder(
         StructureKind.CLASS, StructureKind.OBJECT, is PolymorphicKind -> {
             val tag = currentTagOrDefault
             if (tag == MISSING_TAG && descriptor == this.descriptor) this
+            else if (tag.isOneOf) OneOfClassEncoder(proto, descriptor.extractClassDesc(), writer, descriptor = descriptor)
             else ObjectEncoder(proto, currentTagOrDefault, writer, descriptor = descriptor)
         }
         StructureKind.MAP -> MapRepeatedEncoder(proto, currentTagOrDefault, writer, descriptor)
@@ -117,11 +118,13 @@ internal open class ProtobufEncoder(
         enumDescriptor: SerialDescriptor,
         ordinal: Int
     ) {
+        // An enum element will never be one-of field
+        val id = extractProtoId(enumDescriptor, ordinal, zeroBasedDefault = true)
         if (tag == MISSING_TAG) {
-            writer.writeInt(extractProtoId(enumDescriptor, ordinal, zeroBasedDefault = true))
+            writer.writeInt(id)
         } else {
             writer.writeInt(
-                extractProtoId(enumDescriptor, ordinal, zeroBasedDefault = true),
+                id,
                 tag.protoId,
                 ProtoIntegerType.DEFAULT
             )
@@ -135,6 +138,7 @@ internal open class ProtobufEncoder(
             serializeMap(serializer as SerializationStrategy<T>, value)
         }
         serializer.descriptor == ByteArraySerializer().descriptor -> serializeByteArray(value as ByteArray)
+        (serializer is SealedClassSerializer && currentTagOrDefault.isOneOf) -> encodeOneOfValue(serializer, value)
         else -> serializer.serialize(this, value)
     }
 
@@ -144,6 +148,22 @@ internal open class ProtobufEncoder(
             writer.writeBytes(value)
         } else {
             writer.writeBytes(value, tag.protoId)
+        }
+    }
+
+    private fun <T> encodeOneOfValue(serializer: SerializationStrategy<T>, value: T) {
+        if (serializer is SealedClassSerializer) {
+            serializer.findPolymorphicSerializerOrNull(this, value)?.serialize(
+                OneOfClassEncoder(
+                    proto,
+                    currentTag,
+                    writer,
+                    descriptor = descriptor
+                ),
+                value
+            )
+        } else {
+            encodeSerializableValue(serializer, value)
         }
     }
 
@@ -171,6 +191,33 @@ private open class ObjectEncoder(
             parentWriter.writeOutput(stream)
         }
     }
+}
+
+private class OneOfClassEncoder(
+    proto: ProtoBuf,
+    private val parentTag: ProtoDesc,
+    private val parentWriter: ProtobufWriter,
+    private val stream: ByteArrayOutput = ByteArrayOutput(),
+    descriptor: SerialDescriptor
+) : ProtobufEncoder(proto, ProtobufWriter(stream), descriptor) {
+
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
+        val tag = if (currentTagOrDefault == MISSING_TAG) {
+            parentTag
+        } else {
+            currentTagOrDefault
+        }
+        return if (tag.isOneOf) {
+            this
+        } else {
+            ObjectEncoder(proto, tag, parentWriter, descriptor = descriptor)
+        }
+    }
+    override fun endEncode(descriptor: SerialDescriptor) {
+        parentWriter.writeOutputDirectly(stream)
+    }
+    override fun SerialDescriptor.getTag(index: Int) = extractParameters(index).overrideId(this.extractClassDesc().protoId)
+
 }
 
 private class MapRepeatedEncoder(

@@ -74,7 +74,7 @@ public class SealedClassSerializer<T : Any>(
     serialName: String,
     override val baseClass: KClass<T>,
     subclasses: Array<KClass<out T>>,
-    subclassSerializers: Array<KSerializer<out T>>
+    public val subclassSerializers: Array<KSerializer<out T>>
 ) : AbstractPolymorphicSerializer<T>() {
 
     /**

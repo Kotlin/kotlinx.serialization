@@ -16,19 +16,17 @@ internal const val i64 = 1
 internal const val SIZE_DELIMITED = 2
 internal const val i32 = 5
 
-private const val INTTYPEMASK = (Int.MAX_VALUE.toLong() shr 1) shl 33
+internal const val ID_HOLDER_ONE_OF = -2
+
+private const val ONEOFMASK = 1L shl 36
+private const val INTTYPEMASK = 3L shl 33
 private const val PACKEDMASK = 1L shl 32
 
 @Suppress("NOTHING_TO_INLINE")
-internal inline fun ProtoDesc(protoId: Int, type: ProtoIntegerType, packed: Boolean): ProtoDesc {
-    val packedBits = if (packed) 1L shl 32 else 0L
-    val signature = type.signature or packedBits
-    return signature or protoId.toLong()
-}
-
-@Suppress("NOTHING_TO_INLINE")
-internal inline fun ProtoDesc(protoId: Int, type: ProtoIntegerType): ProtoDesc {
-    return type.signature or protoId.toLong()
+internal inline fun ProtoDesc(protoId: Int, type: ProtoIntegerType, packed: Boolean = false, oneOf: Boolean = false): ProtoDesc {
+    val packedBits = if (packed) PACKEDMASK else 0L
+    val oneOfBits = if (oneOf) ONEOFMASK else 0L
+    return packedBits or oneOfBits or type.signature or protoId.toLong()
 }
 
 internal inline val ProtoDesc.protoId: Int get() = (this and Int.MAX_VALUE.toLong()).toInt()
@@ -51,11 +49,19 @@ internal val SerialDescriptor.isPackable: Boolean
 internal val ProtoDesc.isPacked: Boolean
     get() = (this and PACKEDMASK) != 0L
 
+internal val ProtoDesc.isOneOf: Boolean
+    get() = (this and ONEOFMASK) != 0L
+
+internal fun ProtoDesc.overrideId(protoId: Int): ProtoDesc {
+    return this and (0xFFFFFFF00000000L) or protoId.toLong()
+}
+
 internal fun SerialDescriptor.extractParameters(index: Int): ProtoDesc {
     val annotations = getElementAnnotations(index)
     var protoId: Int = index + 1
     var format: ProtoIntegerType = ProtoIntegerType.DEFAULT
     var protoPacked = false
+    var isOneOf = false
 
     for (i in annotations.indices) { // Allocation-friendly loop
         val annotation = annotations[i]
@@ -65,20 +71,62 @@ internal fun SerialDescriptor.extractParameters(index: Int): ProtoDesc {
             format = annotation.type
         } else if (annotation is ProtoPacked) {
             protoPacked = true
+        } else if (annotation is ProtoOneOf) {
+            isOneOf = true
         }
     }
-    return ProtoDesc(protoId, format, protoPacked)
+    if (isOneOf) {
+        // reset proto to index-based for decoding,
+        // proto id annotated in oneOf field has no meaning
+        protoId = index + 1
+    }
+    return ProtoDesc(protoId, format, protoPacked, isOneOf)
 }
 
+internal fun SerialDescriptor.extractClassDesc(): ProtoDesc {
+    var protoId: Int = -1
+    var isOneOf = false
+    for (i in annotations.indices) {
+        val annotation = annotations[i]
+        if (annotation is ProtoNumber) {
+            protoId = annotation.number
+            isOneOf = true
+        }
+    }
+    return if (protoId == -1) {
+        MISSING_TAG
+    } else {
+        ProtoDesc(protoId, ProtoIntegerType.DEFAULT, oneOf = isOneOf)
+    }
+}
+
+/**
+ * Get the proto id from the descriptor of [index] element,
+ * or return [ID_HOLDER_ONE_OF] if such element is marked with [ProtoOneOf]
+ */
 internal fun extractProtoId(descriptor: SerialDescriptor, index: Int, zeroBasedDefault: Boolean): Int {
     val annotations = descriptor.getElementAnnotations(index)
     for (i in annotations.indices) { // Allocation-friendly loop
         val annotation = annotations[i]
-        if (annotation is ProtoNumber) {
+        if (annotation is ProtoOneOf) {
+            return ID_HOLDER_ONE_OF
+        } else if (annotation is ProtoNumber) {
             return annotation.number
         }
     }
     return if (zeroBasedDefault) index else index + 1
+}
+
+private val emptyArray by lazy(mode = LazyThreadSafetyMode.NONE) { IntArray(0) }
+internal fun extractProtoOneOfIds(descriptor: SerialDescriptor, index: Int): IntArray {
+    val annotations = descriptor.getElementAnnotations(index)
+    for (i in annotations.indices) { // Allocation-friendly loop
+        val annotation = annotations[i]
+        if (annotation is ProtoOneOf) {
+            return annotation.numbers
+        }
+    }
+    return emptyArray
 }
 
 internal class ProtobufDecodingException(message: String) : SerializationException(message)
