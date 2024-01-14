@@ -14,7 +14,7 @@ import kotlinx.serialization.descriptors.*
  * See [Assigning field numbers](https://protobuf.dev/programming-guides/proto2/#assigning) for details.
  */
 @SerialInfo
-@Target(AnnotationTarget.PROPERTY)
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.CLASS)
 @ExperimentalSerializationApi
 public annotation class ProtoNumber(public val number: Int)
 
@@ -53,3 +53,8 @@ public annotation class ProtoType(public val type: ProtoIntegerType)
 @Target(AnnotationTarget.PROPERTY)
 @ExperimentalSerializationApi
 public annotation class ProtoPacked
+
+@SerialInfo
+@Target(AnnotationTarget.PROPERTY)
+@ExperimentalSerializationApi
+public annotation class ProtoOneOf(public vararg val numbers: Int)

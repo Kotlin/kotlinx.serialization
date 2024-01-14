@@ -27,6 +27,7 @@ internal open class ProtobufDecoder(
     // Proto id -> index in serial descriptor cache
     private var indexCache: IntArray? = null
     private var sparseIndexCache: MutableMap<Int, Int>? = null
+    private var index2IdMap: MutableMap<Int, Int>? = null
 
     private var nullValue: Boolean = false
     private val elementMarker = ElementMarker(descriptor, ::readIfAbsent)
@@ -46,7 +47,10 @@ internal open class ProtobufDecoder(
             val cache = IntArray(elements + 1)
             for (i in 0 until elements) {
                 val protoId = extractProtoId(descriptor, i, false)
-                if (protoId <= elements) {
+                // If any element is marked as ProtoOneOf,
+                // the fast path is not applicable
+                // because it will contain more id than elements
+                if (protoId <= elements && protoId != ID_HOLDER_ONE_OF) {
                     cache[protoId] = i
                 } else {
                     return populateCacheMap(descriptor, elements)
@@ -59,22 +63,32 @@ internal open class ProtobufDecoder(
     }
 
     private fun populateCacheMap(descriptor: SerialDescriptor, elements: Int) {
-        val map = HashMap<Int, Int>(elements)
+        val map = HashMap<Int, Int>(elements, 1f)
+        var oneOfCount = 0
         for (i in 0 until elements) {
-            map[extractProtoId(descriptor, i, false)] = i
+            val id = extractProtoId(descriptor, i, false)
+            if (id == ID_HOLDER_ONE_OF) {
+                extractProtoOneOfIds(descriptor, i).forEach { map[it] = i }
+                oneOfCount ++
+            } else {
+                map[extractProtoId(descriptor, i, false)] = i
+            }
+        }
+        if (oneOfCount > 0) {
+            index2IdMap = HashMap(oneOfCount, 1f)
         }
         sparseIndexCache = map
     }
 
-    private fun getIndexByTag(protoTag: Int): Int {
+    private fun getIndexByNum(protoNum: Int): Int {
         val array = indexCache
         if (array != null) {
-            return array.getOrElse(protoTag) { -1 }
+            return array.getOrElse(protoNum) { -1 }
         }
-        return getIndexByTagSlowPath(protoTag)
+        return getIndexByNumSlowPath(protoNum)
     }
 
-    private fun getIndexByTagSlowPath(
+    private fun getIndexByNumSlowPath(
         protoTag: Int
     ): Int = sparseIndexCache!!.getOrElse(protoTag) { -1 }
 
@@ -121,6 +135,7 @@ internal open class ProtobufDecoder(
                 val tag = currentTagOrDefault
                 // Do not create redundant copy
                 if (tag == MISSING_TAG && this.descriptor == descriptor) return this
+                if (tag.isOneOf) return OneOfReader(proto, reader, descriptor)
                 return ProtobufDecoder(proto, makeDelimited(reader, tag), descriptor)
             }
             StructureKind.MAP -> MapEntryReader(proto, makeDelimitedForced(reader, currentTagOrDefault), currentTagOrDefault, descriptor)
@@ -193,6 +208,7 @@ internal open class ProtobufDecoder(
         deserializer.descriptor == ByteArraySerializer().descriptor -> deserializeByteArray(previousValue as ByteArray?) as T
         deserializer is AbstractCollectionSerializer<*, *, *> ->
             (deserializer as AbstractCollectionSerializer<*, T, *>).merge(this, previousValue)
+        (deserializer is SealedClassSerializer && currentTag.isOneOf) -> decodeOneOfElement(deserializer)
         else -> deserializer.deserialize(this)
     }
 
@@ -225,13 +241,30 @@ internal open class ProtobufDecoder(
             if (protoId == -1) { // EOF
                 return elementMarker.nextUnmarkedIndex()
             }
-            val index = getIndexByTag(protoId)
+            val index = getIndexByNum(protoId)
             if (index == -1) { // not found
                 reader.skipElement()
             } else {
+                if (descriptor.extractParameters(index).isOneOf) {
+                    index2IdMap?.put(index, protoId)
+                }
                 elementMarker.mark(index)
                 return index
             }
+        }
+    }
+
+    private fun <T> decodeOneOfElement(deserializer: DeserializationStrategy<T>): T {
+        val tag = currentTagOrDefault
+        if (tag != MISSING_TAG && tag.isOneOf && deserializer is SealedClassSerializer) {
+            // proto id of oneOf element is set as index-based.
+            val index = tag.protoId - 1
+            val protoId = index2IdMap!![index]
+            return deserializer.subclassSerializers
+                .find { it.descriptor.extractClassDesc().protoId == protoId }
+                ?.deserialize(this) ?: decodeSerializableValue(deserializer)
+        } else {
+            return decodeSerializableValue(deserializer)
         }
     }
 
@@ -329,6 +362,24 @@ private class MapEntryReader(
     override fun SerialDescriptor.getTag(index: Int): ProtoDesc =
         if (index % 2 == 0) ProtoDesc(1, (parentTag.integerType))
         else ProtoDesc(2, (parentTag.integerType))
+}
+
+private class OneOfReader(
+    proto: ProtoBuf,
+    decoder: ProtobufReader,
+    descriptor: SerialDescriptor
+) : ProtobufDecoder(proto, decoder, descriptor) {
+    private var indexDecoded = false
+    override fun SerialDescriptor.getTag(index: Int): ProtoDesc = extractParameters(index).overrideId(this.extractClassDesc().protoId)
+
+    override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+        if (!indexDecoded) {
+            indexDecoded = true
+            return 0
+        } else {
+            return CompositeDecoder.DECODE_DONE
+        }
+    }
 }
 
 private fun makeDelimited(decoder: ProtobufReader, parentTag: ProtoDesc): ProtobufReader {
