@@ -102,12 +102,15 @@ public sealed class Json(
      * @throws [IllegalArgumentException] if the decoded input cannot be represented as a valid instance of type [T]
      */
     public final override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, @FormatLanguage("json", "", "") string: String): T {
-        val lexer = StringJsonLexer(string)
+        val lexer = createLexer(string)
         val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer, deserializer.descriptor, null)
         val result = input.decodeSerializableValue(deserializer)
         lexer.expectEof()
         return result
     }
+
+    internal open fun createLexer(input: String): AbstractJsonLexer = StringJsonLexer(input)
+
     /**
      * Serializes the given [value] into an equivalent [JsonElement] using the given [serializer]
      *

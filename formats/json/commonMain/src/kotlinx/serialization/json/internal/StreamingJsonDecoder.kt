@@ -216,7 +216,7 @@ internal open class StreamingJsonDecoder(
         descriptor, index,
         { lexer.tryConsumeNull(it) },
         { lexer.peekString(configuration.isLenient) },
-        { lexer.consumeString() /* skip unknown enum string*/ }
+        { lexer.consumeValueString() /* skip unknown enum string*/ }
     )
 
     private fun decodeObjectIndex(descriptor: SerialDescriptor): Int {
@@ -319,7 +319,7 @@ internal open class StreamingJsonDecoder(
     }
 
     override fun decodeChar(): Char {
-        val string = lexer.consumeStringLenient()
+        val string = lexer.consumeUnquotedString()
         if (string.length != 1) lexer.fail("Expected single char, but got '$string'")
         return string[0]
     }
@@ -336,7 +336,7 @@ internal open class StreamingJsonDecoder(
         return if (configuration.isLenient) {
             lexer.consumeStringLenientNotNull()
         } else {
-            lexer.consumeString()
+            lexer.consumeValueString()
         }
     }
 
@@ -381,7 +381,7 @@ internal class JsonDecoderForUnsignedTypes(
 }
 
 private inline fun <T> AbstractJsonLexer.parseString(expectedType: String, block: String.() -> T): T {
-    val input = consumeStringLenient()
+    val input = consumeUnquotedString()
     try {
         return input.block()
     } catch (e: IllegalArgumentException) {

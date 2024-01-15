@@ -44,16 +44,6 @@ internal class ReaderJsonLexer(
         preload(0)
     }
 
-    override fun tryConsumeComma(): Boolean {
-        val current = skipWhitespaces()
-        if (current >= source.length || current == -1) return false
-        if (source[current] == ',') {
-            ++currentPosition
-            return true
-        }
-        return false
-    }
-
     override fun canConsumeValue(): Boolean {
         ensureHaveChars()
         var current = currentPosition
@@ -146,13 +136,13 @@ internal class ReaderJsonLexer(
             // it's also possible just to resize buffer,
             // instead of falling back to slow path,
             // not sure what is better
-            else return consumeString(source, currentPosition, current)
+            else return consumeStringRest(source, currentPosition, current, STRING)
         }
         // Now we _optimistically_ know where the string ends (it might have been an escaped quote)
         for (i in current until closingQuote) {
             // Encountered escape sequence, should fallback to "slow" path and symmbolic scanning
             if (source[i] == STRING_ESC) {
-                return consumeString(source, currentPosition, i)
+                return consumeStringRest(source, currentPosition, i, STRING)
             }
         }
         this.currentPosition = closingQuote + 1

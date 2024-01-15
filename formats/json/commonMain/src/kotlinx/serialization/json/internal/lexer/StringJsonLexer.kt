@@ -4,7 +4,7 @@
 
 package kotlinx.serialization.json.internal
 
-internal class StringJsonLexer(override val source: String) : AbstractJsonLexer() {
+internal open class StringJsonLexer(override val source: String) : AbstractJsonLexer() {
 
     override fun prefetchOrEof(position: Int): Int = if (position < source.length) position else -1
 
@@ -18,16 +18,6 @@ internal class StringJsonLexer(override val source: String) : AbstractJsonLexer(
             }
         }
         return TC_EOF
-    }
-
-    override fun tryConsumeComma(): Boolean {
-        val current = skipWhitespaces()
-        if (current == source.length || current == -1) return false
-        if (source[current] == ',') {
-            ++currentPosition
-            return true
-        }
-        return false
     }
 
     override fun canConsumeValue(): Boolean {
@@ -89,14 +79,14 @@ internal class StringJsonLexer(override val source: String) : AbstractJsonLexer(
         if (closingQuote == -1) {
             // advance currentPosition to a token after the end of the string to guess position in the error msg
             // (not always correct, as `:`/`,` are valid contents of the string, but good guess anyway)
-            consumeStringLenient()
+            consumeUnquotedString()
             fail(TC_STRING, wasConsumed = false)
         }
         // Now we _optimistically_ know where the string ends (it might have been an escaped quote)
         for (i in current until closingQuote) {
             // Encountered escape sequence, should fallback to "slow" path and symbolic scanning
             if (source[i] == STRING_ESC) {
-                return consumeString(source, currentPosition, i)
+                return consumeStringRest(source, currentPosition, i, STRING)
             }
         }
         this.currentPosition = closingQuote + 1
@@ -104,7 +94,7 @@ internal class StringJsonLexer(override val source: String) : AbstractJsonLexer(
     }
 
     override fun consumeStringChunked(isLenient: Boolean, consumeChunk: (stringChunk: String) -> Unit) {
-        (if (isLenient) consumeStringLenient() else consumeString()).chunked(BATCH_SIZE).forEach(consumeChunk)
+        (if (isLenient) consumeUnquotedString() else consumeValueString()).chunked(BATCH_SIZE).forEach(consumeChunk)
     }
 
     override fun peekLeadingMatchingValue(keyToMatch: String, isLenient: Boolean): String? {

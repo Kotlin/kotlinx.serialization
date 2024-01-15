@@ -29,7 +29,7 @@ internal class JsonTreeReader(
         val result = linkedMapOf<String, JsonElement>()
         while (lexer.canConsumeValue()) {
             // Read key and value
-            val key = if (isLenient) lexer.consumeStringLenient() else lexer.consumeString()
+            val key = if (isLenient) lexer.consumeUnquotedString() else lexer.consumeValueString()
             lexer.consumeNextToken(TC_COLON)
             val element = reader()
             result[key] = element
@@ -76,9 +76,9 @@ internal class JsonTreeReader(
 
     private fun readValue(isString: Boolean): JsonPrimitive {
         val string = if (isLenient || !isString) {
-            lexer.consumeStringLenient()
+            lexer.consumeUnquotedString()
         } else {
-            lexer.consumeString()
+            lexer.consumeValueString()
         }
         if (!isString && string == NULL) return JsonNull
         return JsonLiteral(string, isString)

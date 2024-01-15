@@ -29,6 +29,7 @@ internal const val END_OBJ = '}'
 internal const val BEGIN_LIST = '['
 internal const val END_LIST = ']'
 internal const val STRING = '"'
+internal const val STRING_SQUOTE = '\''
 internal const val STRING_ESC = '\\'
 
 internal const val INVALID = 0.toChar()
@@ -161,7 +162,15 @@ internal abstract class AbstractJsonLexer {
     // Used as bound check in loops
     abstract fun prefetchOrEof(position: Int): Int
 
-    abstract fun tryConsumeComma(): Boolean
+    open fun tryConsumeComma(): Boolean {
+        val current = skipWhitespaces()
+        if (current >= source.length || current == -1) return false
+        if (source[current] == ',') {
+            ++currentPosition
+            return true
+        }
+        return false
+    }
 
     abstract fun canConsumeValue(): Boolean
 
@@ -184,7 +193,7 @@ internal abstract class AbstractJsonLexer {
      * Peeked string for coerced enums.
      * If the value was picked, 'consumeString' will take it without scanning the source.
      */
-    private var peekedString: String? = null
+    protected var peekedString: String? = null
     protected var escapedString = StringBuilder()
 
     // TODO consider replacing usages of this method in JsonParser with char overload
@@ -213,11 +222,11 @@ internal abstract class AbstractJsonLexer {
         unexpectedToken(expected) // EOF
     }
 
-    protected fun unexpectedToken(expected: Char) {
+    protected fun unexpectedToken(expected: Char): Nothing {
         if (currentPosition > 0 && expected == STRING) {
             val inputLiteral = withPositionRollback {
                 currentPosition--
-                consumeStringLenient()
+                consumeUnquotedString()
             }
             if (inputLiteral == NULL)
                 fail("Expected string literal but 'null' literal was found", currentPosition - 1, coerceInputValuesHint)
@@ -297,14 +306,14 @@ internal abstract class AbstractJsonLexer {
 
     abstract fun peekLeadingMatchingValue(keyToMatch: String, isLenient: Boolean): String?
 
-    fun peekString(isLenient: Boolean): String? {
+    open fun peekString(isLenient: Boolean): String? {
         val token = peekNextToken()
         val string = if (isLenient) {
             if (token != TC_STRING && token != TC_OTHER) return null
-            consumeStringLenient()
+            consumeUnquotedString()
         } else {
             if (token != TC_STRING) return null
-            consumeString()
+            consumeKeyString()
         }
         peekedString = string
         return string
@@ -320,6 +329,9 @@ internal abstract class AbstractJsonLexer {
     /*
      * This method is a copy of consumeString, but used for key of json objects, so there
      * is no need to lookup peeked string.
+     * We do not account for peeked string in this method as optimization.
+     *
+     * Used for Json keys.
      */
     abstract fun consumeKeyString(): String
 
@@ -375,7 +387,9 @@ internal abstract class AbstractJsonLexer {
     }
 
 
-    fun consumeString(): String {
+    // Difference for default Json in key vs value is that we skip peeking for keys.
+    // Used for String values.
+    open fun consumeValueString(): String {
         if (peekedString != null) {
             return takePeeked()
         }
@@ -384,12 +398,13 @@ internal abstract class AbstractJsonLexer {
     }
 
     @JsName("consumeString2") // WA for JS issue
-    protected fun consumeString(source: CharSequence, startPosition: Int, current: Int): String {
+    // 'rest' because we assume that opening quote was consumed.
+    protected open fun consumeStringRest(source: CharSequence, startPosition: Int, current: Int, stringStart: Char): String {
         var currentPosition = current
         var lastPosition = startPosition
         var char = source[currentPosition] // Avoid two range checks visible in the profiler
         var usedAppend = false
-        while (char != STRING) {
+        while (char != stringStart) {
             if (char == STRING_ESC) {
                 usedAppend = true
                 currentPosition = prefetchOrEof(appendEscape(lastPosition, currentPosition))
@@ -424,19 +439,19 @@ internal abstract class AbstractJsonLexer {
         return appendEsc(current + 1)
     }
 
-    private fun decodedString(lastPosition: Int, currentPosition: Int): String {
+    protected fun decodedString(lastPosition: Int, currentPosition: Int): String {
         appendRange(lastPosition, currentPosition)
         val result = escapedString.toString()
         escapedString.setLength(0)
         return result
     }
 
-    private fun takePeeked(): String {
+    protected fun takePeeked(): String {
         return peekedString!!.also { peekedString = null }
     }
 
     fun consumeStringLenientNotNull(): String {
-        val result = consumeStringLenient()
+        val result = consumeUnquotedString()
         /*
          * Check if lenient value is 'null' _without_ quotation marks and fail for non-nullable read if so.
          */
@@ -451,8 +466,9 @@ internal abstract class AbstractJsonLexer {
         return source[currentPosition - 1] != STRING
     }
 
-    // Allows consuming unquoted string
-    fun consumeStringLenient(): String {
+    // Basic method for consuming unquoted strings. Accounts for peeked value.
+    // Used for lenient mode and Int, Long, etc.
+    open fun consumeUnquotedString(): String {
         if (peekedString != null) {
             return takePeeked()
         }
@@ -460,7 +476,7 @@ internal abstract class AbstractJsonLexer {
         if (current >= source.length || current == -1) fail("EOF", current)
         val token = charToTokenClass(source[current])
         if (token == TC_STRING) {
-            return consumeString()
+            return consumeKeyString()
         }
 
         if (token != TC_OTHER) {
@@ -545,13 +561,14 @@ internal abstract class AbstractJsonLexer {
         val tokenStack = mutableListOf<Byte>()
         var lastToken = peekNextToken()
         if (lastToken != TC_BEGIN_LIST && lastToken != TC_BEGIN_OBJ) {
-            consumeStringLenient()
+            consumeUnquotedString()
             return
         }
         while (true) {
             lastToken = peekNextToken()
             if (lastToken == TC_STRING) {
-                if (allowLenientStrings) consumeStringLenient() else consumeKeyString()
+                // todo: check how we skip unquoted strings
+                if (allowLenientStrings) consumeUnquotedString() else consumeKeyString()
                 continue
             }
             when (lastToken) {
@@ -732,7 +749,7 @@ internal abstract class AbstractJsonLexer {
                 false
             }
             else -> {
-                fail("Expected valid boolean literal prefix, but had '${consumeStringLenient()}'")
+                fail("Expected valid boolean literal prefix, but had '${consumeUnquotedString()}'")
             }
         }
     }
@@ -746,7 +763,7 @@ internal abstract class AbstractJsonLexer {
             val expected = literalSuffix[i]
             val actual = source[current + i]
             if (expected.code != actual.code or asciiCaseMask) {
-                fail("Expected valid boolean literal prefix, but had '${consumeStringLenient()}'")
+                fail("Expected valid boolean literal prefix, but had '${consumeUnquotedString()}'")
             }
         }
 

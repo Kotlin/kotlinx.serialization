@@ -4,6 +4,7 @@
 
 package kotlinx.serialization.json.okio.internal
 
+import kotlinx.serialization.*
 import kotlinx.serialization.json.internal.*
 import okio.*
 
@@ -121,4 +122,5 @@ internal class OkioSerialReader(private val source: BufferedSource): InternalJso
         return if (i > 0) i else -1
     }
 }
+
 
