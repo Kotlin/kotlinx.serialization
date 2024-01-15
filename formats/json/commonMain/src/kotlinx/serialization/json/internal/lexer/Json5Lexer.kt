@@ -6,7 +6,7 @@ package kotlinx.serialization.json.internal.lexer
 
 import kotlinx.serialization.json.internal.*
 
-internal class Json5Lexer(source: String): StringJsonLexer(source) {
+internal class Json5Lexer(source: String): StringJsonLexer(source, allowLeadingPlusSign = true) {
 
     fun startString(): Char {
         // TODO: optimize for current position

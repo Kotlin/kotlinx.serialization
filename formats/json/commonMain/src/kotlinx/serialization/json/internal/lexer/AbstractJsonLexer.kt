@@ -145,7 +145,7 @@ internal fun escapeToChar(c: Int): Char = if (c < ESC2C_MAX) ESCAPE_2_CHAR[c] el
  * of them for the performance reasons (devirtualization of [CharSequence] and avoid
  * of additional spills).
  */
-internal abstract class AbstractJsonLexer {
+internal abstract class AbstractJsonLexer(private val allowLeadingPlusSign: Boolean = false) {
 
     protected abstract val source: CharSequence
 
@@ -652,9 +652,13 @@ internal abstract class AbstractJsonLexer {
                 ++current
                 continue
             }
-            if (ch == '+' && hasExponent) {
-                if (current == start) fail("Unexpected symbol '+' in numeric literal")
-                isExponentPositive = true
+            if (ch == '+') {
+                // Considering #1359 we may allow it by default (although there aren't votes for it)
+                if (hasExponent)
+                    isExponentPositive = true
+                else if (current != start || !allowLeadingPlusSign)
+                    fail("Unexpected symbol '+' in numeric literal")
+                // else current == start and it is leading +, skip it.
                 ++current
                 continue
             }

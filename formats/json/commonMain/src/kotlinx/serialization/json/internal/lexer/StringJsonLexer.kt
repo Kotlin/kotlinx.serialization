@@ -4,7 +4,8 @@
 
 package kotlinx.serialization.json.internal
 
-internal open class StringJsonLexer(override val source: String) : AbstractJsonLexer() {
+internal open class StringJsonLexer(override val source: String, allowLeadingPlusSign: Boolean = false) :
+    AbstractJsonLexer(allowLeadingPlusSign) {
 
     override fun prefetchOrEof(position: Int): Int = if (position < source.length) position else -1
 

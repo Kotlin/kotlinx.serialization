@@ -30,11 +30,19 @@ class Json5Test {
     """.trimIndent()
 
     @Serializable
-    data class Heh(val unquoted: String, val singleQuotes: String, val backwardsCompatible: String, val positiveSign: Double)
+    data class Heh(val unquoted: String, val singleQuotes: String, val backwardsCompatible: String, val positiveSign: Int)
 
     @Test
     fun test1() {
         val h = json5.decodeFromString<Heh>(input)
+        assertEquals(
+            Heh(
+                "and you can quote me on that",
+                "I can use \"double quotes\" here",
+                "with JSON",
+                1
+            ), h
+        )
         println(h)
     }
 }
