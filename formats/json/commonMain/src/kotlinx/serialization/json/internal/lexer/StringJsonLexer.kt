@@ -68,30 +68,39 @@ internal open class StringJsonLexer(override val source: String, allowLeadingPlu
         unexpectedToken(expected) // EOF
     }
 
-    override fun consumeKeyString(): String {
+    fun consumeQuotedStringBase(): String {
         /*
          * For strings we assume that escaped symbols are rather an exception, so firstly
          * we optimistically scan for closing quote via intrinsified and blazing-fast 'indexOf',
          * than do our pessimistic check for backslash and fallback to slow-path if necessary.
          */
-        consumeNextToken(STRING)
+        val start = startString()
         val current = currentPosition
-        val closingQuote = source.indexOf('"', current)
+        val closingQuote = source.indexOf(start, current)
         if (closingQuote == -1) {
             // advance currentPosition to a token after the end of the string to guess position in the error msg
             // (not always correct, as `:`/`,` are valid contents of the string, but good guess anyway)
             consumeUnquotedString()
-            fail(TC_STRING, wasConsumed = false)
+            fail("end of the string: $start", wasConsumed = false)
         }
         // Now we _optimistically_ know where the string ends (it might have been an escaped quote)
         for (i in current until closingQuote) {
             // Encountered escape sequence, should fallback to "slow" path and symbolic scanning
             if (source[i] == STRING_ESC) {
-                return consumeStringRest(source, currentPosition, i, STRING)
+                return consumeStringRest(source, currentPosition, i, start)
             }
         }
         this.currentPosition = closingQuote + 1
         return source.substring(current, closingQuote)
+    }
+
+    open fun startString(): Char {
+        consumeNextToken(STRING)
+        return '"'
+    }
+
+    override fun consumeKeyString(): String {
+        return consumeQuotedStringBase()
     }
 
     override fun consumeStringChunked(isLenient: Boolean, consumeChunk: (stringChunk: String) -> Unit) {

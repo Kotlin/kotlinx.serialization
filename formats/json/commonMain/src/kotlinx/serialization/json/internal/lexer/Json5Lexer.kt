@@ -8,20 +8,19 @@ import kotlinx.serialization.json.internal.*
 
 internal class Json5Lexer(source: String): StringJsonLexer(source, allowLeadingPlusSign = true) {
 
-    fun startString(): Char {
-        // TODO: optimize for current position
+    override fun startString(): Char {
         val source = source
         while (currentPosition != -1 && currentPosition < source.length) {
             val c = source[currentPosition++]
             if (c == ' ' || c == '\n' || c == '\r' || c == '\t') continue
             if (c != STRING && c != STRING_SQUOTE) {
                 val s = if (currentPosition == source.length || currentPosition < 0) "EOF" else source[currentPosition].toString()
-                fail("Expected start of the string: \" or ', but had '$s' instead", currentPosition)
+                fail("Expected start of the string: \" or ', but had '$s' instead", false)
             }
             return c
         }
         currentPosition = -1 // for correct EOF reporting
-        fail("Expected start of the string: \" or ', but had EOF instead", currentPosition) // EOF
+        fail("Expected start of the string: \" or ', but had EOF instead", false) // EOF
     }
 
     override fun consumeKeyString(): String {
@@ -49,27 +48,10 @@ internal class Json5Lexer(source: String): StringJsonLexer(source, allowLeadingP
             return takePeeked()
         }
 
-        // TODO: looks suspiciously like a copypasta
-        val stringStart = startString()
-        val current = currentPosition
-        val closingQuote = source.indexOf(stringStart, current)
-        if (closingQuote == -1) {
-            consumeUnquotedString()
-            fail(TC_STRING, wasConsumed = false) // TODO: correct string error
-        }
-        for (i in current until closingQuote) {
-            // Encountered escape sequence, should fallback to "slow" path and symbolic scanning
-            if (source[i] == STRING_ESC) {
-                return consumeStringRest(source, currentPosition, i, stringStart)
-            }
-        }
-        this.currentPosition = closingQuote + 1
-        return source.substring(current, closingQuote)
+        return consumeQuotedStringBase()
     }
 
     override fun consumeUnquotedString(): String {
-        // todo: copypasta
-        //  todo: support escape sequences
         if (peekedString != null) {
             return takePeeked()
         }
@@ -84,6 +66,8 @@ internal class Json5Lexer(source: String): StringJsonLexer(source, allowLeadingP
             fail("Expected beginning of the string, but got ${source[current]}")
         }
         var usedAppend = false
+        // Todo: unify with consumeStringRest to get rid of copypasta and support escape sequences.
+        // However, `while` condition there is completely different, so some performance evaluation is required.
         while (charToTokenClass(source[current]) == TC_OTHER) {
             ++current
             if (current >= source.length) {

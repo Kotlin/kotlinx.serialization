@@ -29,7 +29,7 @@ internal const val END_OBJ = '}'
 internal const val BEGIN_LIST = '['
 internal const val END_LIST = ']'
 internal const val STRING = '"'
-internal const val STRING_SQUOTE = '\''
+internal const val STRING_SQUOTE = '\'' // intentionally not a part of TC and CTC
 internal const val STRING_ESC = '\\'
 
 internal const val INVALID = 0.toChar()
@@ -234,12 +234,15 @@ internal abstract class AbstractJsonLexer(private val allowLeadingPlusSign: Bool
         fail(charToTokenClass(expected))
     }
 
-    internal fun fail(expectedToken: Byte, wasConsumed: Boolean = true): Nothing {
+    internal fun fail(expected: String, wasConsumed: Boolean = true): Nothing {
         // Slow path, never called in normal code, can avoid optimizing it
-        val expected = tokenDescription(expectedToken)
         val position = if (wasConsumed) currentPosition - 1 else currentPosition
         val s = if (currentPosition == source.length || position < 0) "EOF" else source[position].toString()
         fail("Expected $expected, but had '$s' instead", position)
+    }
+
+    internal fun fail(expectedToken: Byte, wasConsumed: Boolean = true): Nothing {
+        fail(tokenDescription(expectedToken), wasConsumed)
     }
 
     fun peekNextToken(): Byte {
@@ -399,7 +402,7 @@ internal abstract class AbstractJsonLexer(private val allowLeadingPlusSign: Bool
 
     @JsName("consumeString2") // WA for JS issue
     // 'rest' because we assume that opening quote was consumed.
-    protected open fun consumeStringRest(source: CharSequence, startPosition: Int, current: Int, stringStart: Char): String {
+    protected fun consumeStringRest(source: CharSequence, startPosition: Int, current: Int, stringStart: Char): String {
         var currentPosition = current
         var lastPosition = startPosition
         var char = source[currentPosition] // Avoid two range checks visible in the profiler
