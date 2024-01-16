@@ -5,6 +5,7 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
+import kotlinx.serialization.modules.*
 import kotlin.jvm.*
 import kotlin.test.*
 
@@ -274,5 +275,37 @@ class ProtobufOneOfTest {
         ProtoBuf.decodeFromHexString<DoubleOneOfElement>("08201a03666f6f2a03626172").also {
             assertEquals(data, it)
         }
+    }
+
+    @Test
+    fun testCustomerModule() {
+        val module = SerializersModule {
+            polymorphic(IType::class) {
+                subclass(IntType::class, IntType.serializer())
+                subclass(StringType::class, StringType.serializer())
+            }
+        }
+
+        val buf = ProtoBuf { serializersModule = module }
+
+        val dataInt = OneOfData(IntType(42), "foo")
+        val intString = buf.encodeToHexString(OneOfData.serializer(), dataInt).also { println(it) }
+        /**
+         * 1: 42
+         * 3: {"foo"}
+         */
+        assertEquals("082a1a03666f6f", intString)
+
+        val dataString = OneOfData(StringType("bar"), "foo")
+        val stringString = buf.encodeToHexString(OneOfData.serializer(), dataString).also { println(it) }
+        /**
+         * 2: {"bar"}
+         * 3: {"foo"}
+         */
+        assertEquals("12036261721a03666f6f", stringString)
+        val stringData = buf.decodeFromHexString<OneOfData>(stringString)
+        assertEquals(stringData, dataString)
+        val intData = buf.decodeFromHexString<OneOfData>(intString)
+        assertEquals(intData, dataInt)
     }
 }
