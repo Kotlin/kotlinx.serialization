@@ -25,25 +25,31 @@ class Json5Test {
         unquoted: 'and you can quote me on that',
         singleQuotes: 'I can use "double quotes" here',
         unknown: 'unknown',
+        leadingDecimalPoint: .8675309, andTrailing: 8675309.,
         positiveSign: +1,
         "backwardsCompatible": "with JSON",}
     """.trimIndent()
 
     @Serializable
-    data class Heh(val unquoted: String, val singleQuotes: String, val backwardsCompatible: String, val positiveSign: Int)
+    data class Sample(
+        val unquoted: String,
+        val singleQuotes: String,
+        val backwardsCompatible: String,
+        val positiveSign: Int,
+        val leadingDecimalPoint: Double, val andTrailing: Double
+    )
 
     @Test
-    fun test1() {
-        val h = json5.decodeFromString<Heh>(input)
+    fun canParseDocumentationSample() {
+        val sample = json5.decodeFromString<Sample>(input)
         assertEquals(
-            Heh(
+            Sample(
                 "and you can quote me on that",
                 "I can use \"double quotes\" here",
                 "with JSON",
-                1
-            ), h
+                1, 0.8675309, 8675309.0
+            ), sample
         )
-        println(h)
     }
 
     @Test
