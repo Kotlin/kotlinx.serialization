@@ -153,15 +153,17 @@ internal open class ProtobufEncoder(
 
     private fun <T> encodeOneOfValue(serializer: SerializationStrategy<T>, value: T) {
         if (serializer is SealedClassSerializer) {
-            serializer.findPolymorphicSerializerOrNull(this, value)?.serialize(
-                OneOfClassEncoder(
-                    proto,
-                    currentTag,
-                    writer,
-                    descriptor = descriptor
-                ),
-                value
-            )
+            serializer.findPolymorphicSerializerOrNull(this, value)?.let {
+                it.serialize(
+                    OneOfClassEncoder(
+                        proto,
+                        currentTag,
+                        writer,
+                        descriptor = it.descriptor
+                    ),
+                    value
+                )
+            }
         } else {
             encodeSerializableValue(serializer, value)
         }
@@ -201,14 +203,22 @@ private class OneOfClassEncoder(
     descriptor: SerialDescriptor
 ) : ProtobufEncoder(proto, ProtobufWriter(stream), descriptor) {
 
+    init {
+        require(descriptor.elementsCount == 1) {
+            "Implementation of oneOf type ${descriptor.serialName} should contain only 1 element, but get ${descriptor.elementsCount}"
+        }
+    }
+
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
         val tag = if (currentTagOrDefault == MISSING_TAG) {
             parentTag
         } else {
             currentTagOrDefault
         }
-        return if (tag.isOneOf) {
+        return if (descriptor == this.descriptor) {
             this
+        } else if (tag.isOneOf) {
+            OneOfClassEncoder(proto, descriptor.extractClassDesc(), parentWriter, descriptor = descriptor)
         } else {
             ObjectEncoder(proto, tag, parentWriter, descriptor = descriptor)
         }
