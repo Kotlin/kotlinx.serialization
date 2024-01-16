@@ -10,7 +10,7 @@ import kotlin.test.*
 class ProtobufOneOfTest {
     @Serializable
     data class OneOfData(
-        @ProtoOneOf(1, 2, 7) val i: IType,
+        @ProtoOneOf(1, 2, 7, 8) val i: IType,
         @ProtoNumber(3) val name: String
     )
 
@@ -161,7 +161,7 @@ class ProtobufOneOfTest {
     }
 
     @Test
-    fun testEncodeNestedOneOf() {
+    fun testEncodeNestedStruct() {
         val data = OneOfData(NestedIntType(IntType(32)), "foo")
         ProtoBuf.encodeToHexString(OneOfData.serializer(), data).also {
             println(it)
@@ -174,11 +174,21 @@ class ProtobufOneOfTest {
     }
 
     @Test
-    fun testDecodeNestedOneOf() {
+    fun testDecodeNestedStruct() {
         val data = OneOfData(NestedIntType(IntType(32)), "foo")
         ProtoBuf.decodeFromHexString<OneOfData>("3a0228201a03666f6f").also {
             println(it)
             assertEquals(data, it)
         }
+    }
+
+    @Serializable
+    @ProtoNumber(8)
+    data class FailType(val i: Int, val j: Int) : IType
+
+    @Test
+    fun testOneOfElementCheck() {
+        val data = OneOfData(FailType(1, 2), "foo")
+        assertFailsWith<IllegalArgumentException> { ProtoBuf.encodeToHexString(OneOfData.serializer(), data) }
     }
 }
