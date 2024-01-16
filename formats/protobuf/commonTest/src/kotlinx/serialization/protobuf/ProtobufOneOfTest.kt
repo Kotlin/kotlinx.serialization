@@ -5,6 +5,7 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
+import kotlin.jvm.*
 import kotlin.test.*
 
 class ProtobufOneOfTest {
@@ -36,7 +37,8 @@ class ProtobufOneOfTest {
 
     @Serializable
     @ProtoNumber(2)
-    data class StringType(@ProtoNumber(6) val s: String) : IType
+    @JvmInline
+    value class StringType(@ProtoNumber(6) val s: String) : IType
 
     @Serializable
     @ProtoNumber(7)
