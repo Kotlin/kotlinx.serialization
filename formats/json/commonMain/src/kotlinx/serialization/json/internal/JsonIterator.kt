@@ -36,7 +36,7 @@ private fun AbstractJsonLexer.determineFormat(suggested: DecodeSequenceMode): De
         DecodeSequenceMode.WHITESPACE_SEPARATED // do not call consumeStartArray here so we don't confuse parser with stream of lists
     DecodeSequenceMode.ARRAY_WRAPPED ->
         if (tryConsumeStartArray()) DecodeSequenceMode.ARRAY_WRAPPED
-        else fail(TC_BEGIN_LIST)
+        else unexpectedToken(TC_BEGIN_LIST)
     DecodeSequenceMode.AUTO_DETECT ->
         if (tryConsumeStartArray()) DecodeSequenceMode.ARRAY_WRAPPED
         else DecodeSequenceMode.WHITESPACE_SEPARATED
@@ -96,7 +96,7 @@ private class JsonIteratorArrayWrapped<T>(
             }
             return false
         }
-        if (!lexer.isNotEof() && !finished) lexer.fail(TC_END_LIST)
+        if (!lexer.isNotEof() && !finished) lexer.unexpectedToken(TC_END_LIST)
         return true
     }
 }

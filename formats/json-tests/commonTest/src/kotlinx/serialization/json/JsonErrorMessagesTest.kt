@@ -12,6 +12,9 @@ import kotlin.test.*
 
 class JsonErrorMessagesTest : JsonTestBase() {
 
+    private val JsonTestingMode.stringStart: String
+        get() = if (this == JsonTestingMode.JSON5) "start of the string: \" or '" else "quotation mark '\"'"
+
     @Test
     fun testJsonTokensAreProperlyReported() = parametrizedTest { mode ->
         val input1 = """{"boxed":4}"""
@@ -28,7 +31,7 @@ class JsonErrorMessagesTest : JsonTestBase() {
             else
                 assertContains(
                     message,
-                    "Unexpected JSON token at offset 9: Expected quotation mark '\"', but had '4' instead at path: \$.boxed"
+                    "Unexpected JSON token at offset 9: Expected ${mode.stringStart}, but had '4' instead at path: \$.boxed"
                 )
         })
 
@@ -105,9 +108,13 @@ class JsonErrorMessagesTest : JsonTestBase() {
         checkSerializationException({
             default.decodeFromString(ser, input1, mode)
         }, { message ->
+            val validMessage = if (mode != JsonTestingMode.JSON5)
+                """Unexpected JSON token at offset 1: Expected ${mode.stringStart}, but had 'b' instead at path: ${'$'}"""
+            else
+                """Unexpected JSON token at offset 7: Expected ${mode.stringStart}, but had 's' instead at path: ${'$'}"""
             assertContains(
                 message,
-                """Unexpected JSON token at offset 1: Expected quotation mark '"', but had 'b' instead at path: ${'$'}"""
+                validMessage
             )
         })
 
@@ -120,7 +127,7 @@ class JsonErrorMessagesTest : JsonTestBase() {
             )
             else assertContains(
                 message,
-                """Unexpected JSON token at offset 9: Expected quotation mark '"', but had 's' instead at path: ${'$'}.boxed"""
+                """Unexpected JSON token at offset 9: Expected ${mode.stringStart}, but had 's' instead at path: ${'$'}.boxed"""
             )
         })
     }
@@ -151,7 +158,7 @@ class JsonErrorMessagesTest : JsonTestBase() {
             if (mode == JsonTestingMode.TREE)
                 assertContains(message, "Cannot read Json element because of unexpected end of the input at path: $")
             else
-                assertContains(message, "Expected quotation mark '\"', but had 'EOF' instead at path: \$.boxed")
+                assertContains(message, "Expected ${mode.stringStart}, but had 'EOF' instead at path: \$.boxed")
 
         })
 

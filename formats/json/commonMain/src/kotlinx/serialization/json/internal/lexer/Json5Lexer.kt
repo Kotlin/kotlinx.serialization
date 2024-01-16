@@ -14,12 +14,12 @@ internal class Json5Lexer(source: String): StringJsonLexer(source, allowLeadingP
             val c = source[currentPosition++]
             if (c == ' ' || c == '\n' || c == '\r' || c == '\t') continue
             if (c != STRING && c != STRING_SQUOTE) {
-                fail("start of the string: \" or '", false)
+                failAndCheckForUnexpectedNullLiteral("start of the string: \" or '")
             }
             return c
         }
         currentPosition = -1 // for correct EOF reporting
-        fail("start of the string: \" or '", false) // EOF
+        failAndCheckForUnexpectedNullLiteral("start of the string: \" or '") // EOF
     }
 
     override fun consumeKeyString(): String {

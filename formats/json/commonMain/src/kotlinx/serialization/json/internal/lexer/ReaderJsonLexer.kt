@@ -132,7 +132,7 @@ internal class ReaderJsonLexer(
         val closingQuote = indexOf('"', current)
         if (closingQuote == -1) {
             current = prefetchOrEof(current)
-            if (current == -1) fail(TC_STRING)
+            if (current == -1) unexpectedToken(TC_STRING)
             // it's also possible just to resize buffer,
             // instead of falling back to slow path,
             // not sure what is better

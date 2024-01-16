@@ -200,7 +200,7 @@ internal abstract class AbstractJsonLexer(private val allowLeadingPlusSign: Bool
     fun consumeNextToken(expected: Byte): Byte {
         val token = consumeNextToken()
         if (token != expected) {
-            fail(expected)
+            unexpectedToken(expected)
         }
         return token
     }
@@ -223,7 +223,15 @@ internal abstract class AbstractJsonLexer(private val allowLeadingPlusSign: Bool
     }
 
     protected fun unexpectedToken(expected: Char): Nothing {
-        if (currentPosition > 0 && expected == STRING) {
+        val desc = tokenDescription(charToTokenClass(expected))
+        if (expected == STRING) {
+            failAndCheckForUnexpectedNullLiteral(desc)
+        }
+        unexpectedToken(desc)
+    }
+
+    protected fun failAndCheckForUnexpectedNullLiteral(expected: String): Nothing {
+        if (currentPosition > 0) {
             val inputLiteral = withPositionRollback {
                 currentPosition--
                 consumeUnquotedString()
@@ -231,18 +239,18 @@ internal abstract class AbstractJsonLexer(private val allowLeadingPlusSign: Bool
             if (inputLiteral == NULL)
                 fail("Expected string literal but 'null' literal was found", currentPosition - 1, coerceInputValuesHint)
         }
-        fail(charToTokenClass(expected))
+        unexpectedToken(expected)
     }
 
-    internal fun fail(expected: String, wasConsumed: Boolean): Nothing {
+    internal fun unexpectedToken(expected: String, wasConsumed: Boolean = true): Nothing {
         // Slow path, never called in normal code, can avoid optimizing it
         val position = if (wasConsumed) currentPosition - 1 else currentPosition
         val s = if (currentPosition == source.length || position < 0) "EOF" else source[position].toString()
         fail("Expected $expected, but had '$s' instead", position)
     }
 
-    internal fun fail(expectedToken: Byte, wasConsumed: Boolean = true): Nothing {
-        fail(tokenDescription(expectedToken), wasConsumed)
+    internal fun unexpectedToken(expectedToken: Byte, wasConsumed: Boolean = true): Nothing {
+        unexpectedToken(tokenDescription(expectedToken), wasConsumed)
     }
 
     fun peekNextToken(): Byte {
@@ -780,7 +788,7 @@ internal abstract class AbstractJsonLexer(private val allowLeadingPlusSign: Bool
         currentPosition = current + literalSuffix.length
     }
 
-    private inline fun <T> withPositionRollback(action: () -> T): T {
+    protected inline fun <T> withPositionRollback(action: () -> T): T {
         val snapshot = currentPosition
         try {
             return action()
