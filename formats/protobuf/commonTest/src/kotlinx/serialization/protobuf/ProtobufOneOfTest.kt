@@ -10,7 +10,7 @@ import kotlin.test.*
 class ProtobufOneOfTest {
     @Serializable
     data class OneOfData(
-        @ProtoOneOf(1, 2, 7, 8) val i: IType,
+        @ProtoOneOf(1, 2, 7, 8, 9) val i: IType,
         @ProtoNumber(3) val name: String
     )
 
@@ -190,5 +190,87 @@ class ProtobufOneOfTest {
     fun testOneOfElementCheck() {
         val data = OneOfData(FailType(1, 2), "foo")
         assertFailsWith<IllegalArgumentException> { ProtoBuf.encodeToHexString(OneOfData.serializer(), data) }
+    }
+
+    @Serializable
+    @ProtoNumber(9)
+    data class NestedOneOfType(val i: InnerNested) : IType
+
+    @Serializable
+    data class InnerNested(@ProtoOneOf(1, 2) val i: InnerOneOf)
+
+    @Serializable
+    sealed interface InnerOneOf
+
+    @Serializable
+    @ProtoNumber(1)
+    data class InnerInt(val i: Int) : InnerOneOf
+
+    @Serializable
+    @ProtoNumber(2)
+    data class InnerString(val s: String) : InnerOneOf
+
+    @Test
+    fun testEncodeNestedOneOf() {
+        val data = OneOfData(NestedOneOfType(i = InnerNested(InnerInt(32))), "foo")
+        ProtoBuf.encodeToHexString(OneOfData.serializer(), data).also {
+            println(it)
+            /**
+             * 9: {1: 32}
+             * 3: {"foo"}
+             */
+            assertEquals("4a0208201a03666f6f", it)
+        }
+    }
+
+    @Test
+    fun testDecodeNestedOneOf() {
+        val data = OneOfData(NestedOneOfType(i = InnerNested(InnerInt(32))), "foo")
+        ProtoBuf.decodeFromHexString<OneOfData>("4a0208201a03666f6f").also {
+            println(it)
+            /**
+             * 9: {1: 32}
+             * 3: {"foo"}
+             */
+            assertEquals(data, it)
+        }
+    }
+
+    @Serializable
+    data class DoubleOneOfElement(
+        @ProtoOneOf(1, 2) val one: IType,
+        @ProtoNumber(3) val name: String,
+        @ProtoOneOf(4, 5) val two: OtherType
+    )
+
+    @Serializable sealed interface OtherType
+
+    @Serializable @ProtoNumber(4) data class OtherIntType(val i: Int): OtherType
+
+    @Serializable @ProtoNumber(5) data class OtherStringType(val s: String): OtherType
+
+    @Test
+    fun testEncodeDoubleOneOf() {
+        val data = DoubleOneOfElement(
+            IntType(32),
+            "foo",
+            OtherStringType("bar")
+        )
+        ProtoBuf.encodeToHexString(DoubleOneOfElement.serializer(), data).also {
+            println(it)
+            assertEquals("08201a03666f6f2a03626172", it)
+        }
+    }
+
+    @Test
+    fun testDecodeDoubleOneOf() {
+        val data = DoubleOneOfElement(
+            IntType(32),
+            "foo",
+            OtherStringType("bar")
+        )
+        ProtoBuf.decodeFromHexString<DoubleOneOfElement>("08201a03666f6f2a03626172").also {
+            assertEquals(data, it)
+        }
     }
 }
