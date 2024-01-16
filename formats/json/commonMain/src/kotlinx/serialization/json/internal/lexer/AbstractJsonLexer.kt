@@ -437,7 +437,7 @@ internal abstract class AbstractJsonLexer(private val allowLeadingPlusSign: Bool
         return string
     }
 
-    private fun appendEscape(lastPosition: Int, current: Int): Int {
+    protected fun appendEscape(lastPosition: Int, current: Int): Int {
         appendRange(lastPosition, current)
         return appendEsc(current + 1)
     }

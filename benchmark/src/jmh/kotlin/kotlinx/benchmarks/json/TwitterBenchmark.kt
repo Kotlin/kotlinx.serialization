@@ -23,6 +23,9 @@ open class TwitterBenchmark {
     private val input = TwitterBenchmark::class.java.getResource("/twitter.json").readBytes().decodeToString()
     private val twitter = Json.decodeFromString(Twitter.serializer(), input)
 
+    private val inputFor5 = TwitterBenchmark::class.java.getResource("/twitter.json5").readBytes().decodeToString()
+    private val json5 = Json5.Default
+
     private val jsonImplicitNulls = Json { explicitNulls = false }
 
     private val devNullStream = object : OutputStream() {
@@ -48,4 +51,10 @@ open class TwitterBenchmark {
 
     @Benchmark
     fun encodeTwitterStream() = Json.encodeToStream(Twitter.serializer(), twitter, devNullStream)
+
+    @Benchmark
+    fun decodeDefaultTwitterWithJson5() = json5.decodeFromString(Twitter.serializer(), input)
+
+    @Benchmark
+    fun decodeUnquotedKeysTwitterWithJson5() = json5.decodeFromString(Twitter.serializer(), inputFor5)
 }

@@ -65,30 +65,38 @@ internal class Json5Lexer(source: String): StringJsonLexer(source, allowLeadingP
         if (token != TC_OTHER) {
             fail("Expected beginning of the string, but got ${source[current]}")
         }
-        var usedAppend = false
-        // Todo: unify with consumeStringRest to get rid of copypasta and support escape sequences.
+        // Todo: copypasta of consumeStringRest
         // However, `while` condition there is completely different, so some performance evaluation is required.
-        while (charToTokenClass(source[current]) == TC_OTHER) {
-            ++current
-            if (current >= source.length) {
+        var lastPosition = current
+        var char = source[current] // Avoid two range checks visible in the profiler
+        var usedAppend = false
+        while (charToTokenClass(char) == TC_OTHER) {
+            if (char == STRING_ESC) {
                 usedAppend = true
-                appendRange(currentPosition, current)
-                val eof = prefetchOrEof(current)
-                if (eof == -1) {
-                    // to handle plain lenient strings, such as top-level
-                    currentPosition = current
-                    return decodedString(0, 0)
-                } else {
-                    current = eof
-                }
+                current = prefetchOrEof(appendEscape(lastPosition, current))
+                if (current == -1)
+                    fail("Unexpected EOF", current)
+                lastPosition = current
+            } else if (++current >= source.length) {
+                usedAppend = true
+                // end of chunk
+                appendRange(lastPosition, current)
+                current = prefetchOrEof(current)
+                if (current == -1)
+                    fail("Unexpected EOF", current)
+                lastPosition = current
             }
+            char = source[current]
         }
-        val result = if (!usedAppend) {
-            substring(currentPosition, current)
+
+        val string = if (!usedAppend) {
+            // there was no escaped chars
+            substring(lastPosition, current)
         } else {
-            decodedString(currentPosition, current)
+            // some escaped chars were there
+            decodedString(lastPosition, current)
         }
-        currentPosition = current
-        return result
+        this.currentPosition = current
+        return string
     }
 }

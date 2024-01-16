@@ -11,7 +11,7 @@ import kotlin.test.*
 
 class Json5Test {
 
-    val conf = Json {
+    private val conf = Json {
         isLenient = false
         allowTrailingComma = true
         allowSpecialFloatingPointValues = true
