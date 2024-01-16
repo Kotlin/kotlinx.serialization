@@ -61,7 +61,6 @@ internal open class ProtobufEncoder(
         StructureKind.CLASS, StructureKind.OBJECT, is PolymorphicKind -> {
             val tag = currentTagOrDefault
             if (tag == MISSING_TAG && descriptor == this.descriptor) this
-            else if (tag.isOneOf) OneOfClassEncoder(proto, descriptor.extractClassDesc(), writer, descriptor = descriptor)
             else ObjectEncoder(proto, currentTagOrDefault, writer, descriptor = descriptor)
         }
         StructureKind.MAP -> MapRepeatedEncoder(proto, currentTagOrDefault, writer, descriptor)
@@ -165,7 +164,7 @@ internal open class ProtobufEncoder(
                 )
             }
         } else {
-            encodeSerializableValue(serializer, value)
+            throw SerializationException("Sealed class serializer expected for one-of field")
         }
     }
 
@@ -197,11 +196,13 @@ private open class ObjectEncoder(
 
 private class OneOfClassEncoder(
     proto: ProtoBuf,
-    private val parentTag: ProtoDesc,
+    parentTag: ProtoDesc,
     private val parentWriter: ProtobufWriter,
     private val stream: ByteArrayOutput = ByteArrayOutput(),
     descriptor: SerialDescriptor
-) : ProtobufEncoder(proto, ProtobufWriter(stream), descriptor) {
+) : ProtobufEncoder(proto, parentWriter, descriptor) {
+
+    private val writeTag: ProtoDesc = parentTag.overrideId(descriptor.extractClassDesc().protoId)
 
     init {
         require(descriptor.elementsCount == 1) {
@@ -211,7 +212,7 @@ private class OneOfClassEncoder(
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
         val tag = if (currentTagOrDefault == MISSING_TAG) {
-            parentTag
+            writeTag
         } else {
             currentTagOrDefault
         }
@@ -223,8 +224,13 @@ private class OneOfClassEncoder(
             ObjectEncoder(proto, tag, parentWriter, descriptor = descriptor)
         }
     }
-    override fun endEncode(descriptor: SerialDescriptor) {
-        parentWriter.writeOutputDirectly(stream)
+
+    override fun encodeInline(descriptor: SerialDescriptor): Encoder {
+        return encodeTaggedInline(writeTag, descriptor)
+    }
+
+    override fun encodeTaggedInline(tag: ProtoDesc, inlineDescriptor: SerialDescriptor): Encoder {
+        return super.encodeTaggedInline(tag, inlineDescriptor)
     }
     override fun SerialDescriptor.getTag(index: Int) = extractParameters(index).overrideId(this.extractClassDesc().protoId)
 
