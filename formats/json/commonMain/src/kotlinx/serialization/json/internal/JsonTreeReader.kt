@@ -6,13 +6,14 @@ package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.*
+import kotlinx.serialization.json.internal.lexer.*
 
 @OptIn(ExperimentalSerializationApi::class)
 internal class JsonTreeReader(
     configuration: JsonConfiguration,
     private val lexer: AbstractJsonLexer
 ) {
-    private val isLenient = configuration.isLenient
+    private val hasUnquotedKeys = configuration.isLenient || lexer is Json5Lexer
     private val trailingCommaAllowed = configuration.allowTrailingComma
     private var stackDepth = 0
 
@@ -29,7 +30,7 @@ internal class JsonTreeReader(
         val result = linkedMapOf<String, JsonElement>()
         while (lexer.canConsumeValue()) {
             // Read key and value
-            val key = if (isLenient) lexer.consumeUnquotedString() else lexer.consumeValueString()
+            val key = if (hasUnquotedKeys) lexer.consumeUnquotedString() else lexer.consumeValueString()
             lexer.consumeNextToken(TC_COLON)
             val element = reader()
             result[key] = element
@@ -75,7 +76,7 @@ internal class JsonTreeReader(
     }
 
     private fun readValue(isString: Boolean): JsonPrimitive {
-        val string = if (isLenient || !isString) {
+        val string = if (hasUnquotedKeys || !isString) {
             lexer.consumeUnquotedString()
         } else {
             lexer.consumeValueString()

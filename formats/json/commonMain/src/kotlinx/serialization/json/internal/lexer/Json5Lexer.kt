@@ -14,13 +14,12 @@ internal class Json5Lexer(source: String): StringJsonLexer(source, allowLeadingP
             val c = source[currentPosition++]
             if (c == ' ' || c == '\n' || c == '\r' || c == '\t') continue
             if (c != STRING && c != STRING_SQUOTE) {
-                val s = if (currentPosition == source.length || currentPosition < 0) "EOF" else source[currentPosition].toString()
-                fail("Expected start of the string: \" or ', but had '$s' instead", false)
+                fail("start of the string: \" or '", false)
             }
             return c
         }
         currentPosition = -1 // for correct EOF reporting
-        fail("Expected start of the string: \" or ', but had EOF instead", false) // EOF
+        fail("start of the string: \" or '", false) // EOF
     }
 
     override fun consumeKeyString(): String {
@@ -51,26 +50,29 @@ internal class Json5Lexer(source: String): StringJsonLexer(source, allowLeadingP
         return consumeQuotedStringBase()
     }
 
+    private fun isValidUnquotedValue(char: Char): Boolean {
+        val token = charToTokenClass(char)
+        return token == TC_OTHER || token == TC_STRING_ESC // unicode escapes are allowed inside unquoted Json5 keys.
+    }
+
     override fun consumeUnquotedString(): String {
         if (peekedString != null) {
             return takePeeked()
         }
         var current = skipWhitespaces()
         if (current >= source.length || current == -1) fail("EOF", current)
-        val c = source[current]
-        if (c == STRING || c == STRING_SQUOTE) {
+        var char = source[current]
+        if (char == STRING || char == STRING_SQUOTE) {
             return consumeValueString()
         }
-        val token = charToTokenClass(c)
-        if (token != TC_OTHER) {
+        if (!isValidUnquotedValue(char)) {
             fail("Expected beginning of the string, but got ${source[current]}")
         }
         // Todo: copypasta of consumeStringRest
         // However, `while` condition there is completely different, so some performance evaluation is required.
         var lastPosition = current
-        var char = source[current] // Avoid two range checks visible in the profiler
         var usedAppend = false
-        while (charToTokenClass(char) == TC_OTHER) {
+        while (isValidUnquotedValue(char)) {
             if (char == STRING_ESC) {
                 usedAppend = true
                 current = prefetchOrEof(appendEscape(lastPosition, current))

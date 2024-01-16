@@ -45,4 +45,12 @@ class Json5Test {
         )
         println(h)
     }
+
+    @Test
+    fun canParseUnquotedUnicodeEscapes() {
+        val inputS = """{"\uD83D\uDCA9":"\uD83D\uDCA9"}"""
+        val inputS2 = """{\uD83D\uDCA9:"\uD83D\uDCA9"}"""
+        val base = Json.parseToJsonElement(inputS)
+        assertEquals(base, json5.parseToJsonElement(inputS2))
+    }
 }
