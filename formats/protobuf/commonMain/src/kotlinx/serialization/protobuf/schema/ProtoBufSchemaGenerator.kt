@@ -167,55 +167,104 @@ public object ProtoBufSchemaGenerator {
 
         val usedNumbers: MutableSet<Int> = mutableSetOf()
         val nestedTypes = mutableListOf<TypeDefinition>()
-        for (index in 0 until messageDescriptor.elementsCount) {
-            val fieldName = messageDescriptor.getElementName(index)
-            fieldName.checkIsValidIdentifier {
-                "Invalid name of the field '$fieldName' in message '$messageName' for class with serial " +
-                        "name '${messageDescriptor.serialName}'"
-            }
-
-            val fieldDescriptor = messageDescriptor.getElementDescriptor(index)
-
-            val isList = fieldDescriptor.isProtobufRepeated
-
-            nestedTypes += when {
-                fieldDescriptor.isProtobufNamedType -> generateNamedType(messageType, index)
-                isList -> generateListType(messageType, index)
-                fieldDescriptor.isProtobufMap -> generateMapType(messageType, index)
-                else -> throw IllegalStateException(
-                    "Unprocessed message field type with serial name " +
-                            "'${fieldDescriptor.serialName}' and kind '${fieldDescriptor.kind}'"
-                )
-            }
-
-
-            val annotations = messageDescriptor.getElementAnnotations(index)
-            val number = annotations.filterIsInstance<ProtoNumber>().singleOrNull()?.number ?: (index + 1)
-            if (!usedNumbers.add(number)) {
-                throw IllegalArgumentException("Field number $number is repeated in the class with serial name ${messageDescriptor.serialName}")
-            }
-
-            append(' ').append(fieldName).append(" = ").append(number)
-
-            val isPackRequested = annotations.filterIsInstance<ProtoPacked>().singleOrNull() != null
-
-            when {
-                !isPackRequested ||
-                !isList || // ignore as packed only meaningful on repeated types
-                !fieldDescriptor.getElementDescriptor(0).isPackable // Ignore if the type is not allowed to be packed
-                     -> appendLine(';')
-                else -> appendLine(" [packed=true];")
-            }
-        }
+        generateMessageField(messageName, messageType, nestedTypes, usedNumbers)
         appendLine('}')
 
         return nestedTypes
     }
 
-    private fun StringBuilder.generateNamedType(messageType: TypeDefinition, index: Int): List<TypeDefinition> {
-        val messageDescriptor = messageType.descriptor
+    private fun StringBuilder.generateMessageField(
+        messageName: String,
+        parentType: TypeDefinition,
+        nestedTypes: MutableList<TypeDefinition>,
+        usedNumbers: MutableSet<Int>,
+        counts: Int = parentType.descriptor.elementsCount,
+        getAnnotations: (Int) -> List<Annotation> = { parentType.descriptor.getElementAnnotations(it) },
+        getChildType: (Int) -> TypeDefinition = { parentType.descriptor.getElementDescriptor(it).let(::TypeDefinition) },
+        getChildNumber: (Int) -> Int = { parentType.descriptor.getElementAnnotations(it).filterIsInstance<ProtoNumber>().singleOrNull()?.number ?: (it + 1) },
+        getChildName: (Int) -> String = { parentType.descriptor.getElementName(it) },
+        inOneOfStruct: Boolean = false,
+    ) {
+        val messageDescriptor = parentType.descriptor
+        for (index in 0 until counts) {
+            val fieldName = getChildName(index)
+            fieldName.checkIsValidIdentifier {
+                "Invalid name of the field '$fieldName' in ${if (inOneOfStruct) "oneof" else ""} message '$messageName' for class with serial " +
+                    "name '${messageDescriptor.serialName}'"
+            }
 
-        val fieldDescriptor = messageDescriptor.getElementDescriptor(index)
+            val fieldType = getChildType(index)
+            val fieldDescriptor = fieldType.descriptor
+
+            val number = getChildNumber(index)
+            if (messageDescriptor.isChildOneOfMessage(index)) {
+                require(!inOneOfStruct) {
+                    "Cannot have nested oneof in oneof struct: ${messageName}.$fieldName"
+                }
+                val subDescriptor = fieldDescriptor.getElementDescriptor(1).elementDescriptors.toList()
+                append("  ").append("oneof").append(' ').append(fieldName).appendLine(" {")
+                subDescriptor.forEach { desc ->
+                    generateMessageField(
+                        messageName = messageName,
+                        parentType = TypeDefinition(desc),
+                        nestedTypes = nestedTypes,
+                        usedNumbers = usedNumbers,
+                        counts = desc.elementsCount,
+                        getAnnotations = { desc.annotations },
+                        getChildType = { desc.elementDescriptors.single().let(::TypeDefinition) },
+                        getChildNumber = { desc.annotations.filterIsInstance<ProtoNumber>().singleOrNull()?.number ?: (it + 1) },
+                        getChildName = { desc.getElementName(0) },
+                        inOneOfStruct = true,
+                    )
+                }
+                appendLine("  }")
+            } else {
+                val annotations = getAnnotations(index)
+
+                val isList = fieldDescriptor.isProtobufRepeated
+
+                nestedTypes += when {
+                    fieldDescriptor.isProtobufNamedType -> generateNamedType(
+                        fieldDescriptor = messageDescriptor.getElementDescriptor(index),
+                        annotations = messageDescriptor.getElementAnnotations(index),
+                        isSealedPolymorphic = messageDescriptor.isSealedPolymorphic && index == 1,
+                        isOptional = messageDescriptor.isElementOptional(index),
+                        indent = if (inOneOfStruct) 2 else 1,
+                    )
+                    isList -> generateListType(parentType, index)
+                    fieldDescriptor.isProtobufMap -> generateMapType(parentType, index)
+                    else -> throw IllegalStateException(
+                        "Unprocessed message field type with serial name " +
+                            "'${fieldDescriptor.serialName}' and kind '${fieldDescriptor.kind}'"
+                    )
+                }
+                if (!usedNumbers.add(number)) {
+                    throw IllegalArgumentException("Field number $number is repeated in the class with serial name ${messageDescriptor.serialName}")
+                }
+
+                append(' ').append(fieldName).append(" = ").append(number)
+
+                val isPackRequested = annotations.filterIsInstance<ProtoPacked>().singleOrNull() != null
+
+                when {
+                    !isPackRequested ||
+                        !isList || // ignore as packed only meaningful on repeated types
+                        !fieldDescriptor.getElementDescriptor(0).isPackable // Ignore if the type is not allowed to be packed
+                    -> appendLine(';')
+
+                    else -> appendLine(" [packed=true];")
+                }
+            }
+        }
+    }
+
+    private fun StringBuilder.generateNamedType(
+        fieldDescriptor: SerialDescriptor,
+        annotations: List<Annotation>,
+        isSealedPolymorphic: Boolean,
+        isOptional: Boolean,
+        indent: Int = 1,
+    ): List<TypeDefinition> {
         var unwrappedFieldDescriptor = fieldDescriptor
         while (unwrappedFieldDescriptor.isInline) {
             unwrappedFieldDescriptor = unwrappedFieldDescriptor.getElementDescriptor(0)
@@ -223,18 +272,18 @@ public object ProtoBufSchemaGenerator {
 
         val nestedTypes: List<TypeDefinition>
         val typeName: String = when {
-            messageDescriptor.isSealedPolymorphic && index == 1 -> {
-                appendLine("  // decoded as message with one of these types:")
+            isSealedPolymorphic -> {
+                append(" ".repeat(indent * 2)).appendLine("// decoded as message with one of these types:")
                 nestedTypes = unwrappedFieldDescriptor.elementDescriptors.map { TypeDefinition(it) }.toList()
                 nestedTypes.forEachIndexed { _, childType ->
-                    append("  //   message ").append(childType.descriptor.messageOrEnumName).append(", serial name '")
+                    append(" ".repeat(indent * 2)).append("//   message ").append(childType.descriptor.messageOrEnumName).append(", serial name '")
                         .append(removeLineBreaks(childType.descriptor.serialName)).appendLine('\'')
                 }
                 unwrappedFieldDescriptor.scalarTypeName()
             }
             unwrappedFieldDescriptor.isProtobufScalar -> {
                 nestedTypes = emptyList()
-                unwrappedFieldDescriptor.scalarTypeName(messageDescriptor.getElementAnnotations(index))
+                unwrappedFieldDescriptor.scalarTypeName(annotations)
             }
             unwrappedFieldDescriptor.isOpenPolymorphic -> {
                 nestedTypes = listOf(SyntheticPolymorphicType)
@@ -247,12 +296,12 @@ public object ProtoBufSchemaGenerator {
             }
         }
 
-        if (messageDescriptor.isElementOptional(index)) {
-            appendLine("  // WARNING: a default value decoded when value is missing")
+        if (isOptional) {
+            append(" ".repeat(indent * 2)).appendLine("// WARNING: a default value decoded when value is missing")
         }
-        val optional = fieldDescriptor.isNullable || messageDescriptor.isElementOptional(index)
+        val optional = fieldDescriptor.isNullable || isOptional
 
-        append("  ").append(if (optional) "optional " else "required ").append(typeName)
+        append(" ".repeat(indent * 2)).append(if (optional) "optional " else "required ").append(typeName)
 
         return nestedTypes
     }
@@ -395,6 +444,9 @@ public object ProtoBufSchemaGenerator {
 
     private val SerialDescriptor.messageOrEnumName: String
         get() = (serialName.substringAfterLast('.', serialName)).removeSuffix("?")
+
+    private fun SerialDescriptor.isChildOneOfMessage(index: Int): Boolean =
+        this.getElementDescriptor(index).isSealedPolymorphic && this.getElementAnnotations(index).any { it is ProtoOneOf }
 
     private fun SerialDescriptor.protobufTypeName(annotations: List<Annotation> = emptyList()): String {
         return if (isProtobufScalar) {
