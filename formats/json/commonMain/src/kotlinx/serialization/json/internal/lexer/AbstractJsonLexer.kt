@@ -234,7 +234,7 @@ internal abstract class AbstractJsonLexer(private val allowLeadingPlusSign: Bool
         fail(charToTokenClass(expected))
     }
 
-    internal fun fail(expected: String, wasConsumed: Boolean = true): Nothing {
+    internal fun fail(expected: String, wasConsumed: Boolean): Nothing {
         // Slow path, never called in normal code, can avoid optimizing it
         val position = if (wasConsumed) currentPosition - 1 else currentPosition
         val s = if (currentPosition == source.length || position < 0) "EOF" else source[position].toString()

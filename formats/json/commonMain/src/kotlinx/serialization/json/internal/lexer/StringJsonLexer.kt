@@ -81,7 +81,7 @@ internal open class StringJsonLexer(override val source: String, allowLeadingPlu
             // advance currentPosition to a token after the end of the string to guess position in the error msg
             // (not always correct, as `:`/`,` are valid contents of the string, but good guess anyway)
             consumeUnquotedString()
-            fail("end of the string: $start", wasConsumed = false)
+            fail("end of the string: '$start'", wasConsumed = false)
         }
         // Now we _optimistically_ know where the string ends (it might have been an escaped quote)
         for (i in current until closingQuote) {

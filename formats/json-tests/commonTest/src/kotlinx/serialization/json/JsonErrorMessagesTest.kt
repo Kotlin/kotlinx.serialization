@@ -66,7 +66,7 @@ class JsonErrorMessagesTest : JsonTestBase() {
             if (mode in setOf(JsonTestingMode.STREAMING, JsonTestingMode.TREE))
                 assertContains(
                     message,
-                    "Unexpected JSON token at offset 7: Expected quotation mark '\"', but had ':' instead at path: \$"
+                    "Unexpected JSON token at offset 7: Expected end of the string: '\"', but had ':' instead at path: \$"
                 )
             else
                 assertContains(
@@ -80,7 +80,7 @@ class JsonErrorMessagesTest : JsonTestBase() {
             if (mode in setOf(JsonTestingMode.STREAMING, JsonTestingMode.TREE))
                 assertContains(
                     message,
-                    "Unexpected JSON token at offset 13: Expected quotation mark '\"', but had '}' instead at path: \$"
+                    "Unexpected JSON token at offset 13: Expected end of the string: '\"', but had '}' instead at path: \$"
                 )
             else
                 assertContains(message, "Unexpected EOF at path: \$.boxed")
