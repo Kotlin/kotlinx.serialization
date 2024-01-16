@@ -50,6 +50,7 @@ class LenientTest : JsonTestBase() {
 
     @Test
     fun testUnquotedKey() = parametrizedTest {
+        if (it == JsonTestingMode.JSON5) return@parametrizedTest
         val json = """{"i":1, "l":2, b:true, "s":"string"}"""
         assertFailsWithSerial("JsonDecodingException") { default.decodeFromString(Holder.serializer(), json, it) }
         assertEquals(value, lenient.decodeFromString(Holder.serializer(), json, it))

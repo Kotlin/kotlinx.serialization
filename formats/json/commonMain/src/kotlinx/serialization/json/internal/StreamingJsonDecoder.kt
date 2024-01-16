@@ -215,7 +215,7 @@ internal open class StreamingJsonDecoder(
     private fun coerceInputValue(descriptor: SerialDescriptor, index: Int): Boolean = json.tryCoerceValue(
         descriptor, index,
         { lexer.tryConsumeNull(it) },
-        { lexer.peekString(configuration.isLenient) },
+        { lexer.peekString(configuration.isLenient, isKey = false) },
         { lexer.consumeValueString() /* skip unknown enum string*/ }
     )
 

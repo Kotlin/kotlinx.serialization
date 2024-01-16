@@ -26,15 +26,16 @@ internal class Json5Lexer(source: String): StringJsonLexer(source, allowLeadingP
         return consumeUnquotedString()
     }
 
-    override fun peekString(isLenient: Boolean): String? {
+    override fun peekString(isLenient: Boolean, isKey: Boolean): String? {
         skipWhitespaces()
         val cur = source[currentPosition]
-        if (cur != STRING && cur != STRING_SQUOTE && charToTokenClass(cur) != TC_OTHER) {
-            // not a string or unquoted string
-            return null
+        val string = if (isKey) {
+            if (cur != STRING && cur != STRING_SQUOTE && charToTokenClass(cur) != TC_OTHER) return null
+            consumeUnquotedString()
+        } else {
+            if (cur != STRING && cur != STRING_SQUOTE) return null
+            consumeQuotedStringBase()
         }
-        // we use peek() for both keys and values.
-        val string = consumeUnquotedString()
         peekedString = string
         return string
     }
@@ -68,7 +69,7 @@ internal class Json5Lexer(source: String): StringJsonLexer(source, allowLeadingP
         if (!isValidUnquotedValue(char)) {
             fail("Expected beginning of the string, but got ${source[current]}")
         }
-        // Todo: copypasta of consumeStringRest
+        // Todo: copypasta of consumeStringRest and consumeUnquotedString
         // However, `while` condition there is completely different, so some performance evaluation is required.
         var lastPosition = current
         var usedAppend = false
@@ -84,9 +85,11 @@ internal class Json5Lexer(source: String): StringJsonLexer(source, allowLeadingP
                 // end of chunk
                 appendRange(lastPosition, current)
                 current = prefetchOrEof(current)
-                if (current == -1)
-                    fail("Unexpected EOF", current)
-                lastPosition = current
+                if (current == -1) {
+                    // to handle plain lenient strings, such as top-level
+                    currentPosition = current
+                    return decodedString(0, 0)
+                }
             }
             char = source[current]
         }

@@ -7,6 +7,7 @@ package kotlinx.serialization.json5
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
+import kotlinx.serialization.test.*
 import kotlin.test.*
 
 class Json5Test {
@@ -58,5 +59,19 @@ class Json5Test {
         val inputS2 = """{\uD83D\uDCA9:"\uD83D\uDCA9"}"""
         val base = Json.parseToJsonElement(inputS)
         assertEquals(base, json5.parseToJsonElement(inputS2))
+    }
+
+    @Test
+    fun testTopLevelDoublePrimitive() {
+        val input = "239"
+        assertEquals(239.0, json5.decodeFromString(input))
+    }
+
+    @Test
+    fun singleSignIsNotAValidNumber() {
+        assertEquals(1, json5.decodeFromString("+1"))
+        assertEquals(-1, json5.decodeFromString("-1"))
+        assertFailsWith<SerializationException> { json5.decodeFromString<Int>("+") }
+        assertFailsWith<SerializationException> { json5.decodeFromString<Int>("-") }
     }
 }

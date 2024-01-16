@@ -111,11 +111,11 @@ internal open class StringJsonLexer(override val source: String, allowLeadingPlu
         val positionSnapshot = currentPosition
         try {
             if (consumeNextToken() != TC_BEGIN_OBJ) return null // Malformed JSON, bailout
-            val firstKey = peekString(isLenient)
+            val firstKey = peekString(isLenient, isKey = true)
             if (firstKey != keyToMatch) return null
             discardPeeked() // consume firstKey
             if (consumeNextToken() != TC_COLON) return null
-            return peekString(isLenient)
+            return peekString(isLenient, isKey = false)
         } finally {
             // Restore the position
             currentPosition = positionSnapshot

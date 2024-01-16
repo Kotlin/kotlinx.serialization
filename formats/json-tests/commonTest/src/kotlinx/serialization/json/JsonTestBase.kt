@@ -20,7 +20,8 @@ enum class JsonTestingMode {
     STREAMING,
     TREE,
     OKIO_STREAMS,
-    JAVA_STREAMS;
+    JAVA_STREAMS,
+    JSON5;
 
     companion object {
         fun value(i: Int) = values()[i]
@@ -42,7 +43,7 @@ abstract class JsonTestBase {
         jsonTestingMode: JsonTestingMode
     ): String =
         when (jsonTestingMode) {
-            JsonTestingMode.STREAMING -> {
+            JsonTestingMode.STREAMING, JsonTestingMode.JSON5 -> {
                 encodeToString(serializer, value)
             }
             JsonTestingMode.JAVA_STREAMS -> {
@@ -85,6 +86,14 @@ abstract class JsonTestBase {
                 buffer.writeUtf8(source)
                 decodeFromBufferedSource(deserializer, buffer)
             }
+            JsonTestingMode.JSON5 -> {
+                if (this.configuration.isLenient) {
+                    // lenient mode unsupported, fall back to regular
+                    decodeFromString(deserializer, source)
+                } else {
+                    Json5(this.configuration, this.serializersModule).decodeFromString(deserializer, source)
+                }
+            }
         }
 
     protected open fun parametrizedTest(test: (JsonTestingMode) -> Unit) {
@@ -96,6 +105,7 @@ abstract class JsonTestBase {
             if (isJvm()) {
                 add(runCatching { test(JsonTestingMode.JAVA_STREAMS) })
             }
+            add(runCatching { test(JsonTestingMode.JSON5) })
         })
     }
 

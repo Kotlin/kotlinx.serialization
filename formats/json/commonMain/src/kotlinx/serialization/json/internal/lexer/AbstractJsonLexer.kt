@@ -309,7 +309,7 @@ internal abstract class AbstractJsonLexer(private val allowLeadingPlusSign: Bool
 
     abstract fun peekLeadingMatchingValue(keyToMatch: String, isLenient: Boolean): String?
 
-    open fun peekString(isLenient: Boolean): String? {
+    open fun peekString(isLenient: Boolean, isKey: Boolean): String? {
         val token = peekNextToken()
         val string = if (isLenient) {
             if (token != TC_STRING && token != TC_OTHER) return null
@@ -639,6 +639,7 @@ internal abstract class AbstractJsonLexer(private val allowLeadingPlusSign: Bool
         var isNegative = false
         var isExponentPositive = false
         var hasExponent = false
+        var didHaveLeadingSign = false
         val start = current
         while (current != source.length) {
             val ch: Char = source[current]
@@ -661,13 +662,15 @@ internal abstract class AbstractJsonLexer(private val allowLeadingPlusSign: Bool
                     isExponentPositive = true
                 else if (current != start || !allowLeadingPlusSign)
                     fail("Unexpected symbol '+' in numeric literal")
-                // else current == start and it is leading +, skip it.
+                else didHaveLeadingSign = true // current == start and it is leading +.
+
                 ++current
                 continue
             }
             if (ch == '-') {
                 if (current != start) fail("Unexpected symbol '-' in numeric literal")
                 isNegative = true
+                didHaveLeadingSign = true
                 ++current
                 continue
             }
@@ -684,7 +687,7 @@ internal abstract class AbstractJsonLexer(private val allowLeadingPlusSign: Bool
             if (accumulator > 0) fail("Numeric value overflow")
         }
         val hasChars = current != start
-        if (start == current || (isNegative && start == current - 1)) {
+        if (start == current || (didHaveLeadingSign && start == current - 1)) {
             fail("Expected numeric literal")
         }
         if (hasQuotation) {
