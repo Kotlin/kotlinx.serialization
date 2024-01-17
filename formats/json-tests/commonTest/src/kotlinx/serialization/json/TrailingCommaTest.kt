@@ -37,6 +37,7 @@ class TrailingCommaTest : JsonTestBase() {
 
     @Test
     fun trailingCommaNotAllowedByDefaultForObjects() = parametrizedTest { mode ->
+        if (mode == JsonTestingMode.JSON5) return@parametrizedTest // allowed by default
         val sd = """{"data":"str",}"""
         checkSerializationException({
             default.decodeFromString<Optional>(sd, mode)
@@ -50,6 +51,7 @@ class TrailingCommaTest : JsonTestBase() {
 
     @Test
     fun trailingCommaNotAllowedByDefaultForLists() = parametrizedTest { mode ->
+        if (mode == JsonTestingMode.JSON5) return@parametrizedTest // allowed by default
         val sd = """{"l":[1,]}"""
         checkSerializationException({
             default.decodeFromString<WithList>(sd, mode)
@@ -63,6 +65,7 @@ class TrailingCommaTest : JsonTestBase() {
 
     @Test
     fun trailingCommaNotAllowedByDefaultForMaps() = parametrizedTest { mode ->
+        if (mode == JsonTestingMode.JSON5) return@parametrizedTest // allowed by default
         val sd = """{"m":{"a": "b",}}"""
         checkSerializationException({
             default.decodeFromString<WithMap>(sd, mode)

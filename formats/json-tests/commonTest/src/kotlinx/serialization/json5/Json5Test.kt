@@ -12,15 +12,10 @@ import kotlin.test.*
 
 class Json5Test {
 
-    private val conf = Json {
-        isLenient = false
-        allowTrailingComma = true
-        allowSpecialFloatingPointValues = true
+    val json5 = Json5 {
         ignoreUnknownKeys = true
         encodeDefaults = true
-    }.configuration
-
-    val json5 = Json5(conf, EmptySerializersModule())
+    }
 
     val input = """{
         unquoted: 'and you can quote me on that',

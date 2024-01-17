@@ -91,7 +91,7 @@ abstract class JsonTestBase {
                     // lenient mode unsupported, fall back to regular
                     decodeFromString(deserializer, source)
                 } else {
-                    Json5(this.configuration, this.serializersModule).decodeFromString(deserializer, source)
+                    Json5(this) {}.decodeFromString(deserializer, source)
                 }
             }
         }

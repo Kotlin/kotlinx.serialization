@@ -55,12 +55,14 @@ class JsonExponentTest : JsonTestBase() {
 
     @Test
     fun testExponentOverflowDouble() = parametrizedTest {
+        if (it == JsonTestingMode.JSON5) return@parametrizedTest // Inf is permitted
         assertFailsWithSerial("JsonDecodingException")
         { Json.decodeFromString<SomeDataDouble>("""{ "count": 10000e10000 }""", it) }
     }
 
     @Test
     fun testExponentUnderflowDouble() = parametrizedTest {
+        if (it == JsonTestingMode.JSON5) return@parametrizedTest // Inf is permitted
         assertFailsWithSerial("JsonDecodingException")
         { Json.decodeFromString<SomeDataDouble>("""{ "count": -100e2222 }""", it) }
     }

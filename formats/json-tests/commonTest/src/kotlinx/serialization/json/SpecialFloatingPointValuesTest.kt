@@ -47,9 +47,11 @@ class SpecialFloatingPointValuesTest : JsonTestBase() {
     }
 
     private fun test(box: Box, expected: String, jsonTestingMode: JsonTestingMode) {
-        assertFailsWithSerialMessage("JsonEncodingException", "Unexpected special floating-point value") { default.encodeToString(Box.serializer(), box, jsonTestingMode) }
+        if (jsonTestingMode != JsonTestingMode.JSON5) // Inf is permitted
+            assertFailsWithSerialMessage("JsonEncodingException", "Unexpected special floating-point value") { default.encodeToString(Box.serializer(), box, jsonTestingMode) }
         assertEquals(expected, json.encodeToString(Box.serializer(), box, jsonTestingMode))
         assertEquals(box, json.decodeFromString(Box.serializer(), expected, jsonTestingMode))
-        assertFailsWithSerialMessage("JsonDecodingException", "Unexpected special floating-point value") { default.decodeFromString(Box.serializer(), expected, jsonTestingMode) }
+        if (jsonTestingMode != JsonTestingMode.JSON5) // Inf is permitted
+            assertFailsWithSerialMessage("JsonDecodingException", "Unexpected special floating-point value") { default.decodeFromString(Box.serializer(), expected, jsonTestingMode) }
     }
 }
