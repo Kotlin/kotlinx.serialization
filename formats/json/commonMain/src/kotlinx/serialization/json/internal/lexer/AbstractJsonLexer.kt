@@ -476,45 +476,66 @@ internal abstract class AbstractJsonLexer(private val allowJson5Features: Boolea
         return source[currentPosition - 1] != STRING
     }
 
+    private fun isValidUnquotedValue(char: Char): Boolean {
+        val token = charToTokenClass(char)
+        return token == TC_OTHER || token == TC_STRING_ESC // unicode escapes are allowed inside unquoted Json5 keys.
+    }
+
+    protected open fun isQuotedStart(char: Char): Boolean {
+        return char == STRING
+    }
+
     // Basic method for consuming unquoted strings. Accounts for peeked value.
     // Used for lenient mode and Int, Long, etc.
+    // Note it is similar to consumeQuotedStringRest and consumeStringChunked; unifying these methods is for further improvements.
     open fun consumeUnquotedString(): String {
         if (peekedString != null) {
             return takePeeked()
         }
         var current = skipWhitespaces()
         if (current >= source.length || current == -1) fail("EOF", current)
-        val token = charToTokenClass(source[current])
-        if (token == TC_STRING) {
-            return consumeKeyString()
+        var char = source[current]
+        if (isQuotedStart(char)) {
+            return consumeValueString()
         }
 
-        if (token != TC_OTHER) {
-            fail("Expected beginning of the string, but got ${source[current]}")
+        if (!isValidUnquotedValue(char)) {
+            fail("Expected beginning of the string, but got $char")
         }
+
+        var lastPosition = current
         var usedAppend = false
-        while (charToTokenClass(source[current]) == TC_OTHER) {
-            ++current
-            if (current >= source.length) {
+        while (isValidUnquotedValue(char)) {
+            if (char == STRING_ESC) {
                 usedAppend = true
-                appendRange(currentPosition, current)
-                val eof = prefetchOrEof(current)
-                if (eof == -1) {
+                current = prefetchOrEof(appendEscape(lastPosition, current))
+                if (current == -1)
+                    fail("Unexpected EOF", current)
+                lastPosition = current
+            } else if (++current >= source.length) {
+                usedAppend = true
+                // end of chunk
+                appendRange(lastPosition, current)
+                current = prefetchOrEof(current)
+                if (current == -1) {
                     // to handle plain lenient strings, such as top-level
                     currentPosition = current
                     return decodedString(0, 0)
-                } else {
-                    current = eof
                 }
+                lastPosition = current
             }
+            char = source[current]
         }
-        val result = if (!usedAppend) {
-            substring(currentPosition, current)
+
+        val string = if (!usedAppend) {
+            // there was no escaped chars
+            substring(lastPosition, current)
         } else {
-            decodedString(currentPosition, current)
+            // some escaped chars were there
+            decodedString(lastPosition, current)
         }
-        currentPosition = current
-        return result
+        this.currentPosition = current
+        return string
     }
 
     // initializes buf usage upon the first encountered escaped char
