@@ -65,7 +65,7 @@ import kotlinx.serialization.json.*
 ### Pretty printing
 
 By default, the [Json] output is a single line. You can configure it to pretty print the output (that is, add indentations
-and line breaks for better readability) by setting the [prettyPrint][JsonBuilder.prettyPrint] property to `true`:
+and line breaks for better readability) by setting the [prettyPrint][JsonBuilderBase.prettyPrint] property to `true`:
 
 ```kotlin
 val format = Json { prettyPrint = true }
@@ -133,7 +133,7 @@ Project(name=kotlinx.serialization, status=SUPPORTED, votes=9000)
 
 JSON format is often used to read the output of third-party services or in other dynamic environments where
 new properties can be added during the API evolution. By default, unknown keys encountered during deserialization produce an error.
-You can avoid this and just ignore such keys by setting the [ignoreUnknownKeys][JsonBuilder.ignoreUnknownKeys] property
+You can avoid this and just ignore such keys by setting the [ignoreUnknownKeys][JsonBuilderBase.ignoreUnknownKeys] property
 to `true`:
 
 ```kotlin
@@ -188,7 +188,7 @@ Project(name=kotlinx.serialization)
 Project(name=kotlinx.coroutines)
 ```
 
-Support for [JsonNames] annotation is controlled by the [JsonBuilder.useAlternativeNames] flag.
+Support for [JsonNames] annotation is controlled by the [useAlternativeNames][JsonBuilderBase.useAlternativeNames] flag.
 Unlike most of the configuration flags, this one is enabled by default and does not need attention
 unless you want to do some fine-tuning.
 
@@ -200,7 +200,7 @@ JSON formats that from third parties can evolve, sometimes changing the field ty
 This can lead to exceptions during decoding when the actual values do not match the expected values.
 The default [Json] implementation is strict with respect to input types as was demonstrated in
 the [Type safety is enforced](basic-serialization.md#type-safety-is-enforced) section. You can relax this restriction
-using the [coerceInputValues][JsonBuilder.coerceInputValues] property.
+using the [coerceInputValues][JsonBuilderBase.coerceInputValues] property.
 
 This property only affects decoding. It treats a limited subset of invalid input values as if the
 corresponding property was missing and uses the default value of the corresponding property instead.
@@ -244,7 +244,7 @@ Project(name=kotlinx.serialization, language=Kotlin)
 Default values of properties are not encoded by default because they will be assigned to missing fields during decoding anyway.
 See the [Defaults are not encoded](basic-serialization.md#defaults-are-not-encoded-by-default) section for details and an example.
 This is especially useful for nullable properties with null defaults and avoids writing the corresponding null values.
-The default behavior can be changed by setting the [encodeDefaults][JsonBuilder.encodeDefaults] property to `true`:
+The default behavior can be changed by setting the [encodeDefaults][JsonBuilderBase.encodeDefaults] property to `true`:
 
 ```kotlin
 val format = Json { encodeDefaults = true }
@@ -275,7 +275,7 @@ It produces the following output which encodes all the property values including
 ### Explicit nulls
 
 By default, all `null` values are encoded into JSON strings, but in some cases you may want to omit them.
-The encoding of `null` values can be controlled with the [explicitNulls][JsonBuilder.explicitNulls] property.
+The encoding of `null` values can be controlled with the [explicitNulls][JsonBuilderBase.explicitNulls] property.
 
 If you set property to `false`, fields with `null` values are not encoded into JSON even if the property does not have a
 default `null` value. When decoding such JSON, the absence of a property value is treated as `null` for nullable properties
@@ -321,7 +321,7 @@ Project(name=kotlinx.serialization, language=Kotlin, version=1.2.2, website=null
 JSON format does not natively support the concept of a map with structured keys. Keys in JSON objects
 are strings and can be used to represent only primitives or enums by default.
 You can enable non-standard support for structured keys with
-the [allowStructuredMapKeys][JsonBuilder.allowStructuredMapKeys] property.
+the [allowStructuredMapKeys][JsonBuilderBase.allowStructuredMapKeys] property.
 
 This is how you can serialize a map with keys of a user-defined class:
 
@@ -385,7 +385,7 @@ special values in JVM world:
 ### Class discriminator for polymorphism
 
 A key name that specifies a type when you have a polymorphic data can be specified
-in the [classDiscriminator][JsonBuilder.classDiscriminator] property:
+in the [classDiscriminator][JsonBuilderBase.classDiscriminator] property:
 
 ```kotlin
 val format = Json { classDiscriminator = "#class" }
@@ -476,7 +476,7 @@ As you can see, discriminator from the `Base` class is used:
 Class discriminator provides information for serializing and deserializing [polymorphic class hierarchies](polymorphism.md#sealed-classes).
 As shown above, it is only added for polymorphic classes by default.
 In case you want to encode more or less information for various third party APIs about types in the output, it is possible to control
-addition of the class discriminator with the [JsonBuilder.classDiscriminatorMode] property.
+addition of the class discriminator with the [classDiscriminatorMode][JsonBuilderBase.classDiscriminatorMode] property.
 
 For example, [ClassDiscriminatorMode.NONE] does not add class discriminator at all, in case the receiving party is not interested in Kotlin types:
 
@@ -516,7 +516,7 @@ Consult their documentation for details.
 using either uppercase underscore-separated names or upper camel case names.
 [Json] uses exact Kotlin enum values names for decoding by default.
 However, sometimes third-party JSONs have such values named in lowercase or some mixed case.
-In this case, it is possible to decode enum values in a case-insensitive manner using [JsonBuilder.decodeEnumsCaseInsensitive] property:
+In this case, it is possible to decode enum values in a case-insensitive manner using [decodeEnumsCaseInsensitive][JsonBuilderBase.decodeEnumsCaseInsensitive] property:
 
 ```kotlin
 val format = Json { decodeEnumsCaseInsensitive = true }
@@ -548,7 +548,7 @@ This property does not affect encoding in any way.
 If properties' names in Json input are different from Kotlin ones, it is recommended to specify the name 
 for each property explicitly using [`@SerialName` annotation](basic-serialization.md#serial-field-names).
 However, there are certain situations where transformation should be applied to every serial name — such as migration
-from other frameworks or legacy codebase. For that cases, it is possible to specify a [namingStrategy][JsonBuilder.namingStrategy]
+from other frameworks or legacy codebase. For that cases, it is possible to specify a [namingStrategy][JsonBuilderBase.namingStrategy]
 for a [Json] instance. `kotlinx.serialization` provides one strategy implementation out of the box, the [JsonNamingStrategy.SnakeCase](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-naming-strategy/-builtins/-snake-case.html):
 
 ```kotlin
@@ -1324,24 +1324,24 @@ The next chapter covers [Alternative and custom formats (experimental)](formats.
 [Json]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/index.html
 [Json()]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json.html
 [JsonBuilder]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/index.html
-[JsonBuilder.prettyPrint]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/pretty-print.html
+[JsonBuilderBase.prettyPrint]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder-base/pretty-print.html
 [JsonBuilder.isLenient]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/is-lenient.html
-[JsonBuilder.ignoreUnknownKeys]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/ignore-unknown-keys.html
+[JsonBuilderBase.ignoreUnknownKeys]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder-base/ignore-unknown-keys.html
 [JsonNames]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-names/index.html
-[JsonBuilder.useAlternativeNames]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/use-alternative-names.html
-[JsonBuilder.coerceInputValues]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/coerce-input-values.html
-[JsonBuilder.encodeDefaults]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/encode-defaults.html
-[JsonBuilder.explicitNulls]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/explicit-nulls.html
-[JsonBuilder.allowStructuredMapKeys]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/allow-structured-map-keys.html
+[JsonBuilderBase.useAlternativeNames]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder-base/use-alternative-names.html
+[JsonBuilderBase.coerceInputValues]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder-base/coerce-input-values.html
+[JsonBuilderBase.encodeDefaults]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder-base/encode-defaults.html
+[JsonBuilderBase.explicitNulls]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder-base/explicit-nulls.html
+[JsonBuilderBase.allowStructuredMapKeys]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder-base/allow-structured-map-keys.html
 [JsonBuilder.allowSpecialFloatingPointValues]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/allow-special-floating-point-values.html
-[JsonBuilder.classDiscriminator]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/class-discriminator.html
+[JsonBuilderBase.classDiscriminator]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder-base/class-discriminator.html
 [JsonClassDiscriminator]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-class-discriminator/index.html
-[JsonBuilder.classDiscriminatorMode]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/class-discriminator-mode.html
+[JsonBuilderBase.classDiscriminatorMode]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder-base/class-discriminator-mode.html
 [ClassDiscriminatorMode.NONE]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-class-discriminator-mode/-n-o-n-e/index.html
 [ClassDiscriminatorMode.POLYMORPHIC]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-class-discriminator-mode/-p-o-l-y-m-o-r-p-h-i-c/index.html
 [ClassDiscriminatorMode.ALL_JSON_OBJECTS]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-class-discriminator-mode/-a-l-l_-j-s-o-n_-o-b-j-e-c-t-s/index.html
-[JsonBuilder.decodeEnumsCaseInsensitive]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/decode-enums-case-insensitive.html
-[JsonBuilder.namingStrategy]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/naming-strategy.html
+[JsonBuilderBase.decodeEnumsCaseInsensitive]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder-base/decode-enums-case-insensitive.html
+[JsonBuilderBase.namingStrategy]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder-base/naming-strategy.html
 [JsonNamingStrategy]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-naming-strategy/index.html
 [JsonElement]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-element/index.html
 [Json.parseToJsonElement]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/parse-to-json-element.html

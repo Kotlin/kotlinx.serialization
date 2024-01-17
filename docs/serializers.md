@@ -1050,7 +1050,7 @@ private val module = SerializersModule {
 ```
 
 Next we create an instance of the [Json] format with this module using the 
-[Json {}][Json()] builder function and the [serializersModule][JsonBuilder.serializersModule] property. 
+[Json {}][Json()] builder function and the [serializersModule][JsonBuilderBase.serializersModule] property. 
 
 > Details on custom JSON configurations can be found in 
 > the [JSON configuration](json.md#json-configuration) section. 
@@ -1247,7 +1247,7 @@ The next chapter covers [Polymorphism](polymorphism.md).
 
 [Json]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/index.html
 [Json()]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json.html
-[JsonBuilder.serializersModule]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/serializers-module.html
+[JsonBuilderBase.serializersModule]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder-base/serializers-module.html
 
 <!--- END -->
 
