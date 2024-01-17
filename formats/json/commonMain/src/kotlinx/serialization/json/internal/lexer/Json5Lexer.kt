@@ -6,7 +6,7 @@ package kotlinx.serialization.json.internal.lexer
 
 import kotlinx.serialization.json.internal.*
 
-internal class Json5Lexer(source: String): StringJsonLexer(source, allowLeadingPlusSign = true) {
+internal class Json5Lexer(source: String): StringJsonLexer(source, json5 = true) {
 
     override fun startString(): Char {
         val source = source

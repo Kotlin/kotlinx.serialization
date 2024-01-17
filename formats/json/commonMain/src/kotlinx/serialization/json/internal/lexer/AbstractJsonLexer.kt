@@ -162,7 +162,7 @@ internal abstract class AbstractJsonLexer(private val allowJson5Features: Boolea
     // Used as bound check in loops
     abstract fun prefetchOrEof(position: Int): Int
 
-    open fun tryConsumeComma(): Boolean {
+    fun tryConsumeComma(): Boolean {
         val current = skipWhitespaces()
         if (current >= source.length || current == -1) return false
         if (source[current] == ',') {
@@ -444,12 +444,12 @@ internal abstract class AbstractJsonLexer(private val allowJson5Features: Boolea
         return string
     }
 
-    protected fun appendEscape(lastPosition: Int, current: Int): Int {
+    private fun appendEscape(lastPosition: Int, current: Int): Int {
         appendRange(lastPosition, current)
         return appendEsc(current + 1)
     }
 
-    protected fun decodedString(lastPosition: Int, currentPosition: Int): String {
+    private fun decodedString(lastPosition: Int, currentPosition: Int): String {
         appendRange(lastPosition, currentPosition)
         val result = escapedString.toString()
         escapedString.setLength(0)
@@ -816,7 +816,7 @@ internal abstract class AbstractJsonLexer(private val allowJson5Features: Boolea
         currentPosition = current + literalSuffix.length
     }
 
-    protected inline fun <T> withPositionRollback(action: () -> T): T {
+    private inline fun <T> withPositionRollback(action: () -> T): T {
         val snapshot = currentPosition
         try {
             return action()
