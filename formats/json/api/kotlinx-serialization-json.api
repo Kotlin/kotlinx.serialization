@@ -31,6 +31,21 @@ public abstract class kotlinx/serialization/json/Json : kotlinx/serialization/St
 public final class kotlinx/serialization/json/Json$Default : kotlinx/serialization/json/Json {
 }
 
+public final class kotlinx/serialization/json/Json5 : kotlinx/serialization/json/Json {
+	public static final field Default Lkotlinx/serialization/json/Json5$Default;
+}
+
+public final class kotlinx/serialization/json/Json5$Default : kotlinx/serialization/json/Json {
+}
+
+public final class kotlinx/serialization/json/Json5Builder : kotlinx/serialization/json/JsonBuilderBase {
+}
+
+public final class kotlinx/serialization/json/Json5Kt {
+	public static final fun Json5 (Lkotlinx/serialization/json/Json;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/Json;
+	public static synthetic fun Json5$default (Lkotlinx/serialization/json/Json;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/json/Json;
+}
+
 public final class kotlinx/serialization/json/JsonArray : kotlinx/serialization/json/JsonElement, java/util/List, kotlin/jvm/internal/markers/KMappedMarker {
 	public static final field Companion Lkotlinx/serialization/json/JsonArray$Companion;
 	public fun <init> (Ljava/util/List;)V
@@ -93,10 +108,17 @@ public final class kotlinx/serialization/json/JsonArraySerializer : kotlinx/seri
 	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lkotlinx/serialization/json/JsonArray;)V
 }
 
-public final class kotlinx/serialization/json/JsonBuilder {
+public final class kotlinx/serialization/json/JsonBuilder : kotlinx/serialization/json/JsonBuilderBase {
 	public final fun getAllowSpecialFloatingPointValues ()Z
-	public final fun getAllowStructuredMapKeys ()Z
 	public final fun getAllowTrailingComma ()Z
+	public final fun isLenient ()Z
+	public final fun setAllowSpecialFloatingPointValues (Z)V
+	public final fun setAllowTrailingComma (Z)V
+	public final fun setLenient (Z)V
+}
+
+public abstract class kotlinx/serialization/json/JsonBuilderBase {
+	public final fun getAllowStructuredMapKeys ()Z
 	public final fun getClassDiscriminator ()Ljava/lang/String;
 	public final fun getClassDiscriminatorMode ()Lkotlinx/serialization/json/ClassDiscriminatorMode;
 	public final fun getCoerceInputValues ()Z
@@ -110,10 +132,7 @@ public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
 	public final fun getUseAlternativeNames ()Z
 	public final fun getUseArrayPolymorphism ()Z
-	public final fun isLenient ()Z
-	public final fun setAllowSpecialFloatingPointValues (Z)V
 	public final fun setAllowStructuredMapKeys (Z)V
-	public final fun setAllowTrailingComma (Z)V
 	public final fun setClassDiscriminator (Ljava/lang/String;)V
 	public final fun setClassDiscriminatorMode (Lkotlinx/serialization/json/ClassDiscriminatorMode;)V
 	public final fun setCoerceInputValues (Z)V
@@ -121,7 +140,6 @@ public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun setEncodeDefaults (Z)V
 	public final fun setExplicitNulls (Z)V
 	public final fun setIgnoreUnknownKeys (Z)V
-	public final fun setLenient (Z)V
 	public final fun setNamingStrategy (Lkotlinx/serialization/json/JsonNamingStrategy;)V
 	public final fun setPrettyPrint (Z)V
 	public final fun setPrettyPrintIndent (Ljava/lang/String;)V
