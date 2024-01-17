@@ -34,7 +34,7 @@ internal class Json5Lexer(source: String): StringJsonLexer(source, allowLeadingP
             consumeUnquotedString()
         } else {
             if (cur != STRING && cur != STRING_SQUOTE) return null
-            consumeQuotedStringBase()
+            consumeQuotedString()
         }
         peekedString = string
         return string
@@ -48,7 +48,7 @@ internal class Json5Lexer(source: String): StringJsonLexer(source, allowLeadingP
             return takePeeked()
         }
 
-        return consumeQuotedStringBase()
+        return consumeQuotedString()
     }
 
     private fun isValidUnquotedValue(char: Char): Boolean {

@@ -136,13 +136,13 @@ internal class ReaderJsonLexer(
             // it's also possible just to resize buffer,
             // instead of falling back to slow path,
             // not sure what is better
-            else return consumeStringRest(source, currentPosition, current, STRING)
+            else return consumeQuotedStringRest(source, currentPosition, current, STRING)
         }
         // Now we _optimistically_ know where the string ends (it might have been an escaped quote)
         for (i in current until closingQuote) {
             // Encountered escape sequence, should fallback to "slow" path and symmbolic scanning
             if (source[i] == STRING_ESC) {
-                return consumeStringRest(source, currentPosition, i, STRING)
+                return consumeQuotedStringRest(source, currentPosition, i, STRING)
             }
         }
         this.currentPosition = closingQuote + 1

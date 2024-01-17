@@ -26,6 +26,7 @@ class Json5Test {
         unquoted: 'and you can quote me on that',
         singleQuotes: 'I can use "double quotes" here',
         unknown: 'unknown',
+        hexadecimal: 0xdecaf,
         leadingDecimalPoint: .8675309, andTrailing: 8675309.,
         positiveSign: +1,
         "backwardsCompatible": "with JSON",}
@@ -37,6 +38,7 @@ class Json5Test {
         val singleQuotes: String,
         val backwardsCompatible: String,
         val positiveSign: Int,
+        val hexadecimal: Int,
         val leadingDecimalPoint: Double, val andTrailing: Double
     )
 
@@ -48,7 +50,7 @@ class Json5Test {
                 "and you can quote me on that",
                 "I can use \"double quotes\" here",
                 "with JSON",
-                1, 0.8675309, 8675309.0
+                1, 912559, 0.8675309, 8675309.0
             ), sample
         )
     }
@@ -73,5 +75,12 @@ class Json5Test {
         assertEquals(-1, json5.decodeFromString("-1"))
         assertFailsWith<SerializationException> { json5.decodeFromString<Int>("+") }
         assertFailsWith<SerializationException> { json5.decodeFromString<Int>("-") }
+    }
+
+    @Test
+    fun hexadecimal() {
+        val s = "0xdecaf"
+        assertEquals(912559, json5.decodeFromString<Int>(s))
+
     }
 }

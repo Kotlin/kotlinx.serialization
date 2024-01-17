@@ -68,7 +68,7 @@ internal open class StringJsonLexer(override val source: String, allowLeadingPlu
         unexpectedToken(expected) // EOF
     }
 
-    fun consumeQuotedStringBase(): String {
+    fun consumeQuotedString(): String {
         /*
          * For strings we assume that escaped symbols are rather an exception, so firstly
          * we optimistically scan for closing quote via intrinsified and blazing-fast 'indexOf',
@@ -87,7 +87,7 @@ internal open class StringJsonLexer(override val source: String, allowLeadingPlu
         for (i in current until closingQuote) {
             // Encountered escape sequence, should fallback to "slow" path and symbolic scanning
             if (source[i] == STRING_ESC) {
-                return consumeStringRest(source, currentPosition, i, start)
+                return consumeQuotedStringRest(source, currentPosition, i, start)
             }
         }
         this.currentPosition = closingQuote + 1
@@ -100,7 +100,7 @@ internal open class StringJsonLexer(override val source: String, allowLeadingPlu
     }
 
     override fun consumeKeyString(): String {
-        return consumeQuotedStringBase()
+        return consumeQuotedString()
     }
 
     override fun consumeStringChunked(isLenient: Boolean, consumeChunk: (stringChunk: String) -> Unit) {

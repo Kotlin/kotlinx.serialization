@@ -145,7 +145,7 @@ internal fun escapeToChar(c: Int): Char = if (c < ESC2C_MAX) ESCAPE_2_CHAR[c] el
  * of them for the performance reasons (devirtualization of [CharSequence] and avoid
  * of additional spills).
  */
-internal abstract class AbstractJsonLexer(private val allowLeadingPlusSign: Boolean = false) {
+internal abstract class AbstractJsonLexer(private val allowJson5Features: Boolean = false) {
 
     protected abstract val source: CharSequence
 
@@ -408,9 +408,8 @@ internal abstract class AbstractJsonLexer(private val allowLeadingPlusSign: Bool
         return consumeKeyString()
     }
 
-    @JsName("consumeString2") // WA for JS issue
     // 'rest' because we assume that opening quote was consumed.
-    protected fun consumeStringRest(source: CharSequence, startPosition: Int, current: Int, stringStart: Char): String {
+    protected fun consumeQuotedStringRest(source: CharSequence, startPosition: Int, current: Int, stringStart: Char): String {
         var currentPosition = current
         var lastPosition = startPosition
         var char = source[currentPosition] // Avoid two range checks visible in the profiler
@@ -642,6 +641,14 @@ internal abstract class AbstractJsonLexer(private val allowLeadingPlusSign: Bool
         } else {
             false
         }
+        if (allowJson5Features
+            && current + 2 < source.length
+            && source[current] == '0'
+            && source[current + 1] == 'x') {
+            // hex number
+            currentPosition = current + 2
+            return consumeUnquotedString().toLong(16)
+        }
         var accumulator = 0L
         var exponentAccumulator = 0L
         var isNegative = false
@@ -668,7 +675,7 @@ internal abstract class AbstractJsonLexer(private val allowLeadingPlusSign: Bool
                 // Considering #1359 we may allow it by default (although there aren't votes for it)
                 if (hasExponent)
                     isExponentPositive = true
-                else if (current != start || !allowLeadingPlusSign)
+                else if (current != start || !allowJson5Features)
                     fail("Unexpected symbol '+' in numeric literal")
                 else didHaveLeadingSign = true // current == start and it is leading +.
 
