@@ -68,7 +68,7 @@ internal open class ProtobufDecoder(
         for (i in 0 until elements) {
             val id = extractProtoId(descriptor, i, false)
             if (id == ID_HOLDER_ONE_OF) {
-                extractProtoOneOfIds(descriptor, i).forEach { map[it] = i }
+                extractProtoOneOfIds(descriptor, i)?.forEach { map[it] = i }
                 oneOfCount ++
             } else {
                 map[extractProtoId(descriptor, i, false)] = i
