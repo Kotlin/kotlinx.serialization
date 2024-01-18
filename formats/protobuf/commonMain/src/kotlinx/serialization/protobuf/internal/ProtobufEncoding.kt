@@ -137,7 +137,7 @@ internal open class ProtobufEncoder(
             serializeMap(serializer as SerializationStrategy<T>, value)
         }
         serializer.descriptor == ByteArraySerializer().descriptor -> serializeByteArray(value as ByteArray)
-        (serializer is SealedClassSerializer && currentTagOrDefault.isOneOf) -> encodeOneOfValue(serializer, value)
+        (currentTagOrDefault.isOneOf) -> encodeOneOfValue(serializer, value)
         else -> serializer.serialize(this, value)
     }
 
@@ -151,20 +151,23 @@ internal open class ProtobufEncoder(
     }
 
     private fun <T> encodeOneOfValue(serializer: SerializationStrategy<T>, value: T) {
-        if (serializer is SealedClassSerializer) {
-            serializer.findPolymorphicSerializerOrNull(this, value)?.let {
-                it.serialize(
+        if (serializer is AbstractPolymorphicSerializer) {
+            val actual = serializer.findPolymorphicSerializerOrNull(this, value)
+            if (actual != null) {
+                actual.serialize(
                     OneOfClassEncoder(
                         proto,
                         currentTag,
                         writer,
-                        descriptor = it.descriptor
+                        descriptor = actual.descriptor
                     ),
                     value
                 )
+            } else {
+                throw SerializationException("Cannot find available serializer for one-of field $value")
             }
         } else {
-            throw SerializationException("Sealed class serializer expected for one-of field")
+            throw SerializationException("Polymorphic class serializer expected for one-of field $value")
         }
     }
 
@@ -198,17 +201,23 @@ private class OneOfClassEncoder(
     proto: ProtoBuf,
     parentTag: ProtoDesc,
     private val parentWriter: ProtobufWriter,
-    private val stream: ByteArrayOutput = ByteArrayOutput(),
     descriptor: SerialDescriptor
 ) : ProtobufEncoder(proto, parentWriter, descriptor) {
 
-    private val writeTag: ProtoDesc = parentTag.overrideId(descriptor.extractClassDesc().protoId)
+    private val classProtoNumber: Int
 
     init {
         require(descriptor.elementsCount == 1) {
             "Implementation of oneOf type ${descriptor.serialName} should contain only 1 element, but get ${descriptor.elementsCount}"
         }
+        val protoNumber = descriptor.annotations.filterIsInstance<ProtoNumber>().singleOrNull()
+        require(protoNumber != null) {
+            "Implementation of oneOf type ${descriptor.serialName} should have @ProtoNumber annotation"
+        }
+        classProtoNumber = protoNumber.number
     }
+
+    private val writeTag: ProtoDesc = parentTag.overrideId(classProtoNumber)
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
         val tag = if (currentTagOrDefault == MISSING_TAG) {
@@ -232,7 +241,7 @@ private class OneOfClassEncoder(
     override fun encodeTaggedInline(tag: ProtoDesc, inlineDescriptor: SerialDescriptor): Encoder {
         return super.encodeTaggedInline(tag, inlineDescriptor)
     }
-    override fun SerialDescriptor.getTag(index: Int) = extractParameters(index).overrideId(this.extractClassDesc().protoId)
+    override fun SerialDescriptor.getTag(index: Int) = extractParameters(index).overrideId(classProtoNumber)
 
 }
 
