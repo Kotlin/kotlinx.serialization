@@ -17,25 +17,42 @@ class Json5Test {
         encodeDefaults = true
     }
 
-    val input = """{
-        unquoted: 'and you can quote me on that',
-        singleQuotes: 'I can use "double quotes" here',
-        unknown: 'unknown',
-        hexadecimal: 0xdecaf,
-        leadingDecimalPoint: .8675309, andTrailing: 8675309.,
-        positiveSign: +1,
-        "backwardsCompatible": "with JSON",}
-    """.trimIndent()
+    val input = """{unquoted: 'and you can quote me on that',
+  singleQuotes: 'I can use "double quotes" here',
+  lineBreaks: "Look, Mom! \
+No \\n's!",
+  hexadecimal: 0xdecaf,
+  leadingDecimalPoint: .8675309, andTrailing: 8675309.,
+  positiveSign: +1,
+  trailingComma: 'in objects', andIn: ['arrays',],
+  "backwardsCompatible": "with JSON",
+  }""".trimIndent()
+
+
 
     @Serializable
     data class Sample(
         val unquoted: String,
         val singleQuotes: String,
+        val lineBreaks: String,
         val backwardsCompatible: String,
         val positiveSign: Int,
         val hexadecimal: Int,
         val leadingDecimalPoint: Double, val andTrailing: Double
     )
+
+    @Serializable
+    data class LB(val lineBreaks: String)
+
+    @Test
+    fun testCanParseLineBreak() {
+        val inputBreaks = """{lineBreaks: "Look, Mom! \
+No \\n's!",}"""
+        val inputBreaksWindows = "{lineBreaks: \"Look, Mom! \\\r\nNo \\\\n's!\",}"
+        val expected = "Look, Mom! No \\n's!"
+        assertEquals(expected, json5.decodeFromString<LB>(inputBreaks).lineBreaks)
+        assertEquals(expected, json5.decodeFromString<LB>(inputBreaksWindows).lineBreaks)
+    }
 
     @Test
     fun canParseDocumentationSample() {
@@ -44,6 +61,7 @@ class Json5Test {
             Sample(
                 "and you can quote me on that",
                 "I can use \"double quotes\" here",
+                "Look, Mom! No \\n's!",
                 "with JSON",
                 1, 912559, 0.8675309, 8675309.0
             ), sample
@@ -77,5 +95,10 @@ class Json5Test {
         val s = "0xdecaf"
         assertEquals(912559, json5.decodeFromString<Int>(s))
 
+    }
+
+    @Test
+    fun illegalEscapeSequencesAreSkipped() {
+        assertEquals("AC/DC", json5.decodeFromString("\"\\A\\C\\/\\D\\C\""))
     }
 }

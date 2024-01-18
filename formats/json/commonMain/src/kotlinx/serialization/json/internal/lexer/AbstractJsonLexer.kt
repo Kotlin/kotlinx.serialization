@@ -553,7 +553,21 @@ internal abstract class AbstractJsonLexer(private val allowJson5Features: Boolea
         }
 
         val c = escapeToChar(currentChar.code)
-        if (c == INVALID) fail("Invalid escaped char '$currentChar'")
+        if (c == INVALID) {
+            if (allowJson5Features) {
+                // If it is line terminator, we skip it.
+                when (currentChar.code) {
+                    0x0a, 0x2028, 0x2029 -> return currentPosition
+                    0x0d -> return if (currentPosition < source.length && source[currentPosition].code == 0x0a) currentPosition + 1 else currentPosition
+                    else -> {
+                        // we need to append any character
+                        escapedString.append(currentChar)
+                        return currentPosition
+                    }
+                }
+            }
+            fail("Invalid escaped char '$currentChar'")
+        }
         escapedString.append(c)
         return currentPosition
     }
