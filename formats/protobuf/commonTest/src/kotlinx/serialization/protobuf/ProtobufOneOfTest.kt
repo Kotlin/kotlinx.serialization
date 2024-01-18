@@ -5,6 +5,9 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 import kotlin.jvm.*
 import kotlin.test.*
@@ -248,9 +251,13 @@ class ProtobufOneOfTest {
 
     interface OtherType
 
-    @Serializable @ProtoNumber(4) data class OtherIntType(val i: Int): OtherType
+    @Serializable
+    @ProtoNumber(4)
+    data class OtherIntType(val i: Int) : OtherType
 
-    @Serializable @ProtoNumber(5) data class OtherStringType(val s: String): OtherType
+    @Serializable
+    @ProtoNumber(5)
+    data class OtherStringType(val s: String) : OtherType
 
     @Test
     fun testEncodeDoubleOneOf() {
@@ -273,11 +280,13 @@ class ProtobufOneOfTest {
         }
 
         assertFailsWith<SerializationException> {
-            buf.encodeToHexString(DoubleOneOfElement.serializer(), DoubleOneOfElement(
-                IntType(32),
-                "foo",
-                OtherIntType(32)
-            ))
+            buf.encodeToHexString(
+                DoubleOneOfElement.serializer(), DoubleOneOfElement(
+                    IntType(32),
+                    "foo",
+                    OtherIntType(32)
+                )
+            )
         }
     }
 
@@ -343,7 +352,8 @@ class ProtobufOneOfTest {
     @Serializable
     sealed interface IFailType
 
-    @Serializable data class FailIntType(val i: Int): IFailType
+    @Serializable
+    data class FailIntType(val i: Int) : IFailType
 
     @Test
     fun testFailWithClassEncoding() {
@@ -354,6 +364,52 @@ class ProtobufOneOfTest {
     @Test
     fun testFailWithClassDecoding() {
         assertFailsWith<SerializationException> { ProtoBuf.decodeFromHexString<FailWithClass>("082a1a03666f6f") }
+    }
+
+    @Serializable
+    data class CustomOuter(@ProtoOneOf(1, 2) val inner: CustomInner)
+
+    @Serializable
+    abstract class CustomInner
+
+    data class CustomInnerInt(val i: Int) : CustomInner()
+
+    object CustomerInnerIntSerializer : KSerializer<CustomInnerInt> {
+        override val descriptor: SerialDescriptor
+            get() = buildClassSerialDescriptor("CustomInnerInt") {
+                annotations = listOf(ProtoNumber(1))
+                element<Int>("i")
+            }
+
+        override fun deserialize(decoder: Decoder): CustomInnerInt {
+            return decoder.decodeStructure(descriptor) {
+                var value = 0
+                while(true) {
+                    when(val index = decodeElementIndex(descriptor)) {
+                        0 -> value = decodeIntElement(descriptor, index)
+                        CompositeDecoder.DECODE_DONE -> break
+                    }
+                }
+                CustomInnerInt(value)
+            }
+        }
+
+        override fun serialize(encoder: Encoder, value: CustomInnerInt) = encoder.encodeStructure(descriptor) {
+            encodeIntElement(descriptor, 0, value.i)
+        }
+
+    }
+
+    @Test
+    fun testCustom() {
+        val module = SerializersModule {
+            polymorphic(CustomInner::class) {
+                subclass(CustomInnerInt::class, CustomerInnerIntSerializer)
+            }
+        }
+        val data = CustomOuter(CustomInnerInt(42))
+        val buf = ProtoBuf { serializersModule = module }
+        assertEquals("082a", buf.encodeToHexString(CustomOuter.serializer(), data))
     }
 
 }
