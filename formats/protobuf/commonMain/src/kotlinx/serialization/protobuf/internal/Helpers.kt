@@ -117,8 +117,7 @@ internal fun extractProtoId(descriptor: SerialDescriptor, index: Int, zeroBasedD
     return if (zeroBasedDefault) index else index + 1
 }
 
-private val emptyArray by lazy(mode = LazyThreadSafetyMode.NONE) { IntArray(0) }
-internal fun extractProtoOneOfIds(descriptor: SerialDescriptor, index: Int): IntArray {
+internal fun extractProtoOneOfIds(descriptor: SerialDescriptor, index: Int): IntArray? {
     val annotations = descriptor.getElementAnnotations(index)
     for (i in annotations.indices) { // Allocation-friendly loop
         val annotation = annotations[i]
@@ -126,7 +125,7 @@ internal fun extractProtoOneOfIds(descriptor: SerialDescriptor, index: Int): Int
             return annotation.numbers
         }
     }
-    return emptyArray
+    return null
 }
 
 internal class ProtobufDecodingException(message: String) : SerializationException(message)
