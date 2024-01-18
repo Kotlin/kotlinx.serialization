@@ -246,7 +246,7 @@ class ProtobufOneOfTest {
         @ProtoOneOf(4, 5) val two: OtherType
     )
 
-    @Serializable sealed interface OtherType
+    interface OtherType
 
     @Serializable @ProtoNumber(4) data class OtherIntType(val i: Int): OtherType
 
@@ -254,26 +254,54 @@ class ProtobufOneOfTest {
 
     @Test
     fun testEncodeDoubleOneOf() {
+        val module = SerializersModule {
+            polymorphic(OtherType::class) {
+                subclass(OtherStringType::class)
+            }
+        }
+        val buf = ProtoBuf {
+            serializersModule = module
+        }
         val data = DoubleOneOfElement(
             IntType(32),
             "foo",
             OtherStringType("bar")
         )
-        ProtoBuf.encodeToHexString(DoubleOneOfElement.serializer(), data).also {
+        buf.encodeToHexString(DoubleOneOfElement.serializer(), data).also {
             println(it)
             assertEquals("08201a03666f6f2a03626172", it)
+        }
+
+        assertFailsWith<SerializationException> {
+            buf.encodeToHexString(DoubleOneOfElement.serializer(), DoubleOneOfElement(
+                IntType(32),
+                "foo",
+                OtherIntType(32)
+            ))
         }
     }
 
     @Test
     fun testDecodeDoubleOneOf() {
+        val module = SerializersModule {
+            polymorphic(OtherType::class) {
+                subclass(OtherStringType::class)
+            }
+        }
+        val buf = ProtoBuf {
+            serializersModule = module
+        }
         val data = DoubleOneOfElement(
             IntType(32),
             "foo",
             OtherStringType("bar")
         )
-        ProtoBuf.decodeFromHexString<DoubleOneOfElement>("08201a03666f6f2a03626172").also {
+        buf.decodeFromHexString<DoubleOneOfElement>("08201a03666f6f2a03626172").also {
             assertEquals(data, it)
+        }
+
+        assertFailsWith<SerializationException> {
+            buf.decodeFromHexString<DoubleOneOfElement>("082018666f6f2020")
         }
     }
 
