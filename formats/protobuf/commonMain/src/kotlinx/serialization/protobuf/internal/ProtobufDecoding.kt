@@ -208,7 +208,7 @@ internal open class ProtobufDecoder(
         deserializer.descriptor == ByteArraySerializer().descriptor -> deserializeByteArray(previousValue as ByteArray?) as T
         deserializer is AbstractCollectionSerializer<*, *, *> ->
             (deserializer as AbstractCollectionSerializer<*, T, *>).merge(this, previousValue)
-        (deserializer is SealedClassSerializer && currentTag.isOneOf) -> decodeOneOfElement(deserializer)
+        (deserializer is AbstractPolymorphicSerializer && currentTag.isOneOf) -> decodeOneOfElement(deserializer)
         else -> deserializer.deserialize(this)
     }
 
@@ -256,18 +256,32 @@ internal open class ProtobufDecoder(
 
     private fun <T> decodeOneOfElement(deserializer: DeserializationStrategy<T>): T {
         val tag = currentTagOrDefault
-        if (tag != MISSING_TAG && tag.isOneOf && deserializer is SealedClassSerializer) {
+        if (tag.isOneOf && deserializer is AbstractPolymorphicSerializer) {
             // proto id of oneOf element is set as index-based.
             val index = tag.protoId - 1
             val protoId = index2IdMap!![index]
-            val actualDeserializer = deserializer.subclassSerializers
-                .find { it.descriptor.extractClassDesc().protoId == protoId }
-            if (actualDeserializer == null) {
-                throw SerializationException("No subclass annotated with @ProtoNumber($index) found for ${deserializer.descriptor.serialName}")
-            }
+            val actualDeserializer = getActualOneOfSerializer(deserializer, protoId)
+                ?: throw SerializationException("No subclass annotated with @ProtoNumber($index) found for ${deserializer.descriptor.serialName}")
             return actualDeserializer.deserialize(this)
         } else {
             return decodeSerializableValue(deserializer)
+        }
+    }
+
+    private fun <T> getActualOneOfSerializer(
+        deserializer: DeserializationStrategy<T>,
+        protoId: Int?
+    ): DeserializationStrategy<T>? {
+        return when (deserializer) {
+            is PolymorphicSerializer -> {
+                serializersModule.getPolymorphicSerializers(deserializer.descriptor)
+                    .find { it.descriptor.extractClassDesc().protoId == protoId } as? DeserializationStrategy<T>
+            }
+            is SealedClassSerializer -> {
+                deserializer.subclassSerializers
+                    .find { it.descriptor.extractClassDesc().protoId == protoId }
+            }
+            else -> null
         }
     }
 
