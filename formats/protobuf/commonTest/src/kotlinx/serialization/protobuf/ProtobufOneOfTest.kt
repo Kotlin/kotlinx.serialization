@@ -308,4 +308,24 @@ class ProtobufOneOfTest {
         val intData = buf.decodeFromHexString<OneOfData>(intString)
         assertEquals(intData, dataInt)
     }
+
+    @Serializable
+    data class FailWithClass(@ProtoOneOf(1) val i: IFailType, @ProtoNumber(3) val name: String)
+
+    @Serializable
+    sealed interface IFailType
+
+    @Serializable data class FailIntType(val i: Int): IFailType
+
+    @Test
+    fun testFailWithClassEncoding() {
+        val data = FailWithClass(FailIntType(42), "foo")
+        assertFailsWith<IllegalArgumentException> { ProtoBuf.encodeToHexString(FailWithClass.serializer(), data) }
+    }
+
+    @Test
+    fun testFailWithClassDecoding() {
+        assertFailsWith<SerializationException> { ProtoBuf.decodeFromHexString<FailWithClass>("082a1a03666f6f") }
+    }
+
 }

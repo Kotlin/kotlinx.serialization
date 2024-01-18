@@ -260,9 +260,12 @@ internal open class ProtobufDecoder(
             // proto id of oneOf element is set as index-based.
             val index = tag.protoId - 1
             val protoId = index2IdMap!![index]
-            return deserializer.subclassSerializers
+            val actualDeserializer = deserializer.subclassSerializers
                 .find { it.descriptor.extractClassDesc().protoId == protoId }
-                ?.deserialize(this) ?: decodeSerializableValue(deserializer)
+            if (actualDeserializer == null) {
+                throw SerializationException("No subclass annotated with @ProtoNumber($index) found for ${deserializer.descriptor.serialName}")
+            }
+            return actualDeserializer.deserialize(this)
         } else {
             return decodeSerializableValue(deserializer)
         }
