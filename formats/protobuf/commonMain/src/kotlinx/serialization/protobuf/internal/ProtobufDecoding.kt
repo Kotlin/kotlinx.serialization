@@ -261,7 +261,11 @@ internal open class ProtobufDecoder(
             val index = tag.protoId - 1
             val protoId = index2IdMap!![index]
             val actualDeserializer = getActualOneOfSerializer(deserializer, protoId)
-                ?: throw SerializationException("No subclass annotated with @ProtoNumber($index) found for ${deserializer.descriptor.serialName}")
+                ?: throw SerializationException(
+                        "Cannot find a subclass of ${deserializer.descriptor.serialName} in property \"${
+                            descriptor.getElementName(index)
+                        }\" annotated with @ProtoNumber($protoId)."
+                    )
             return actualDeserializer.deserialize(this)
         } else {
             return decodeSerializableValue(deserializer)
