@@ -418,4 +418,20 @@ class ProtobufOneOfTest {
         assertEquals("082a", buf.encodeToHexString(CustomOuter.serializer(), data))
     }
 
+    @Serializable
+    data class CustomAnyData(@ProtoOneOf(1, 2) @Polymorphic val inner: Any)
+
+    @Test
+    fun testCustomAny() {
+        val module = SerializersModule {
+            polymorphic(Any::class) {
+                subclass(CustomInnerInt::class, CustomerInnerIntSerializer)
+            }
+        }
+        val data = CustomAnyData(CustomInnerInt(42))
+        val buf = ProtoBuf { serializersModule = module }
+        assertEquals("082a", buf.encodeToHexString(data))
+        assertEquals(data, buf.decodeFromHexString<CustomAnyData>("082a"))
+    }
+
 }

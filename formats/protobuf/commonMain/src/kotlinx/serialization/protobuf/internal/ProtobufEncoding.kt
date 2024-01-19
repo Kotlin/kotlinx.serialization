@@ -60,9 +60,15 @@ internal open class ProtobufEncoder(
         }
         StructureKind.CLASS, StructureKind.OBJECT, is PolymorphicKind -> {
             val tag = currentTagOrDefault
-            if (tag == MISSING_TAG && descriptor == this.descriptor) this
-            else ObjectEncoder(proto, currentTagOrDefault, writer, descriptor = descriptor)
+            if (tag == MISSING_TAG && descriptor == this.descriptor) {
+                this
+            } else if (tag.isOneOf) {
+                OneOfPolymorphicEncoder(proto = proto, parentWriter = writer, descriptor = descriptor)
+            } else {
+                ObjectEncoder(proto, currentTagOrDefault, writer, descriptor = descriptor)
+            }
         }
+
         StructureKind.MAP -> MapRepeatedEncoder(proto, currentTagOrDefault, writer, descriptor)
         else -> throw SerializationException("This serial kind is not supported as structure: $descriptor")
     }
@@ -137,7 +143,6 @@ internal open class ProtobufEncoder(
             serializeMap(serializer as SerializationStrategy<T>, value)
         }
         serializer.descriptor == ByteArraySerializer().descriptor -> serializeByteArray(value as ByteArray)
-        (currentTagOrDefault.isOneOf) -> encodeOneOfValue(serializer, value)
         else -> serializer.serialize(this, value)
     }
 
@@ -150,32 +155,11 @@ internal open class ProtobufEncoder(
         }
     }
 
-    private fun <T> encodeOneOfValue(serializer: SerializationStrategy<T>, value: T) {
-        if (serializer is AbstractPolymorphicSerializer) {
-            val actual = serializer.findPolymorphicSerializerOrNull(this, value)
-            if (actual != null) {
-                actual.serialize(
-                    OneOfClassEncoder(
-                        proto,
-                        currentTag,
-                        writer,
-                        descriptor = actual.descriptor
-                    ),
-                    value
-                )
-            } else {
-                throw SerializationException("Cannot find available serializer for one-of field $value")
-            }
-        } else {
-            throw SerializationException("Polymorphic class serializer expected for one-of field $value")
-        }
-    }
-
     @Suppress("UNCHECKED_CAST")
     private fun <T> serializeMap(serializer: SerializationStrategy<T>, value: T) {
         // encode maps as collection of map entries, not merged collection of key-values
         val casted = (serializer as MapLikeSerializer<Any?, Any?, T, *>)
-        val mapEntrySerial = kotlinx.serialization.builtins.MapEntrySerializer(casted.keySerializer, casted.valueSerializer)
+        val mapEntrySerial = MapEntrySerializer(casted.keySerializer, casted.valueSerializer)
         SetSerializer(mapEntrySerial).serialize(this, (value as Map<*, *>).entries)
     }
 }
@@ -197,14 +181,67 @@ private open class ObjectEncoder(
     }
 }
 
-private class OneOfClassEncoder(
+/**
+ * When writing a one-of element with polymorphic serializer,
+ * use [OneOfPolymorphicEncoder] to skip the first element of type name,
+ * and then dispatch to [OneOfElementEncoder] when calling [beginStructure]
+ * to write the content value, with ProtoNumber overridden by class annotation,
+ * directly back to the output stream.
+ */
+private class OneOfPolymorphicEncoder(
     proto: ProtoBuf,
-    parentTag: ProtoDesc,
     private val parentWriter: ProtobufWriter,
     descriptor: SerialDescriptor
 ) : ProtobufEncoder(proto, parentWriter, descriptor) {
 
-    private val classProtoNumber: Int
+    init {
+        require(descriptor.kind is PolymorphicKind) {
+            "The serializer of one of type ${descriptor.serialName} should be using generic polymorphic serializer, but got ${descriptor.kind}"
+        }
+
+        // Do we need this strict check?
+        require(descriptor.getElementName(0) == "type" && descriptor.getElementDescriptor(0).kind == PrimitiveKind.STRING)
+    }
+
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
+        return if (descriptor == this.descriptor) {
+            this
+        } else {
+            OneOfElementEncoder(
+                proto = proto,
+                parentWriter = parentWriter,
+                descriptor = descriptor
+            )
+        }
+    }
+
+    override fun encodeTaggedString(tag: ProtoDesc, value: String) {
+        // the first element with type string is the discriminator of polymorphic serializer with class name
+        // just ignore it
+        if (tag != MISSING_TAG) {
+            super.encodeTaggedString(tag, value)
+        }
+    }
+
+    override fun SerialDescriptor.getTag(index: Int) = when (index) {
+        // 0 for discriminator
+        0 -> MISSING_TAG
+        1 -> extractParameters(index)
+        else -> throw SerializationException("Unsupported index: $index in a oneOf type $serialName, which should be using generic polymorphic serializer")
+    }
+}
+
+/**
+ * A helper encoder for one-of element to write the content value,
+ * with ProtoNumber overridden by class annotation,
+ * directly back to the output stream.
+ */
+private class OneOfElementEncoder(
+    proto: ProtoBuf,
+    parentWriter: ProtobufWriter,
+    descriptor: SerialDescriptor
+) : ProtobufEncoder(proto, parentWriter, descriptor) {
+    private val classId: Int
 
     init {
         require(descriptor.elementsCount == 1) {
@@ -214,35 +251,10 @@ private class OneOfClassEncoder(
         require(protoNumber != null) {
             "Implementation of oneOf type ${descriptor.serialName} should have @ProtoNumber annotation"
         }
-        classProtoNumber = protoNumber.number
+        classId = protoNumber.number
     }
 
-    private val writeTag: ProtoDesc = parentTag.overrideId(classProtoNumber)
-
-    override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
-        val tag = if (currentTagOrDefault == MISSING_TAG) {
-            writeTag
-        } else {
-            currentTagOrDefault
-        }
-        return if (descriptor == this.descriptor) {
-            this
-        } else if (tag.isOneOf) {
-            OneOfClassEncoder(proto, descriptor.extractClassDesc(), parentWriter, descriptor = descriptor)
-        } else {
-            ObjectEncoder(proto, tag, parentWriter, descriptor = descriptor)
-        }
-    }
-
-    override fun encodeInline(descriptor: SerialDescriptor): Encoder {
-        return encodeTaggedInline(writeTag, descriptor)
-    }
-
-    override fun encodeTaggedInline(tag: ProtoDesc, inlineDescriptor: SerialDescriptor): Encoder {
-        return super.encodeTaggedInline(tag, inlineDescriptor)
-    }
-    override fun SerialDescriptor.getTag(index: Int) = extractParameters(index).overrideId(classProtoNumber)
-
+    override fun SerialDescriptor.getTag(index: Int): ProtoDesc = extractParameters(index).overrideId(classId)
 }
 
 private class MapRepeatedEncoder(
