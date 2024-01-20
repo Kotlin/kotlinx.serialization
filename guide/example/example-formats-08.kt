@@ -3,16 +3,23 @@ package example.exampleFormats08
 
 import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.*
-import kotlinx.serialization.protobuf.schema.ProtoBufSchemaGenerator
 
 @Serializable
-data class SampleData(
-    val amount: Long,
-    val description: String?,
-    val department: String = "QA"
+data class Data(
+    @ProtoNumber(1) val name: String,
+    @ProtoOneOf(2, 3) val phone: IPhoneType,
 )
+@Serializable sealed interface IPhoneType
+@Serializable @ProtoNumber(2) @JvmInline value class HomePhone(val number: String): IPhoneType
+@Serializable @ProtoNumber(3) data class WorkPhone(val number: String): IPhoneType
+
 fun main() {
-  val descriptors = listOf(SampleData.serializer().descriptor)
-  val schemas = ProtoBufSchemaGenerator.generateSchemaText(descriptors)
-  println(schemas)
+  val dataTom = Data("Tom", HomePhone("123"))
+  val stringTom = ProtoBuf.encodeToHexString(dataTom)
+  val dataJerry = Data("Jerry", WorkPhone("789"))
+  val stringJerry = ProtoBuf.encodeToHexString(dataJerry)
+  println(stringTom)
+  println(stringJerry)
+  println(ProtoBuf.decodeFromHexString<Data>(stringTom))
+  println(ProtoBuf.decodeFromHexString<Data>(stringJerry))
 }
