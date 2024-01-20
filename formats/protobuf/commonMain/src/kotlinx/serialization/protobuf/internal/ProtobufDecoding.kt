@@ -208,7 +208,7 @@ internal open class ProtobufDecoder(
         deserializer.descriptor == ByteArraySerializer().descriptor -> deserializeByteArray(previousValue as ByteArray?) as T
         deserializer is AbstractCollectionSerializer<*, *, *> ->
             (deserializer as AbstractCollectionSerializer<*, T, *>).merge(this, previousValue)
-        (deserializer is AbstractPolymorphicSerializer && currentTag.isOneOf) -> decodeOneOfElement(deserializer)
+        (deserializer.descriptor.kind is PolymorphicKind && currentTagOrDefault.isOneOf) -> decodeOneOfElement(deserializer)
         else -> deserializer.deserialize(this)
     }
 
@@ -255,26 +255,22 @@ internal open class ProtobufDecoder(
     }
 
     private fun <T> decodeOneOfElement(deserializer: DeserializationStrategy<T>): T {
-        val tag = currentTagOrDefault
-        if (tag.isOneOf && deserializer is AbstractPolymorphicSerializer) {
-            // proto id of oneOf element is set as index-based.
-            val index = tag.protoId - 1
-            val protoId = index2IdMap!![index]
-            val actualDeserializer = getActualOneOfSerializer(deserializer, protoId)
-                ?: throw SerializationException(
-                        "Cannot find a subclass of ${deserializer.descriptor.serialName} in property \"${
-                            descriptor.getElementName(index)
-                        }\" annotated with @ProtoNumber($protoId)."
-                    )
-            return actualDeserializer.deserialize(this)
-        } else {
-            return decodeSerializableValue(deserializer)
-        }
+        // TODO deserialize oneOf element in contract of common polymorphic serializer rather than get actual deserializer by self
+        // proto id of oneOf element is set as index-based.
+        val index = currentTag.protoId - 1
+        val protoId = index2IdMap!![index]
+        val actualDeserializer = protoId?.let { getActualOneOfSerializer(deserializer, it) }
+            ?: throw SerializationException(
+                    "Cannot find a subclass of ${deserializer.descriptor.serialName} in property \"${
+                        descriptor.getElementName(index)
+                    }\" annotated with @ProtoNumber($protoId)."
+                )
+        return actualDeserializer.deserialize(this)
     }
 
     private fun <T> getActualOneOfSerializer(
         deserializer: DeserializationStrategy<T>,
-        protoId: Int?
+        protoId: Int
     ): DeserializationStrategy<T>? {
         return when (deserializer) {
             is PolymorphicSerializer -> {
