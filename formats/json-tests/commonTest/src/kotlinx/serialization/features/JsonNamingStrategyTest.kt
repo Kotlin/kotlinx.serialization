@@ -103,6 +103,52 @@ class JsonNamingStrategyTest : JsonTestBase() {
         }
     }
 
+    @Test
+    fun testKebabCaseStrategy() {
+        fun apply(name: String) =
+            JsonNamingStrategy.KebabCase.serialNameForJson(String.serializer().descriptor, 0, name)
+
+        val cases = mapOf<String, String>(
+            "" to "",
+            "_" to "_",
+            "-" to "-",
+            "___" to "___",
+            "---" to "---",
+            "a" to "a",
+            "A" to "a",
+            "-1" to "-1",
+            "-a" to "-a",
+            "-A" to "-a",
+            "property" to "property",
+            "twoWords" to "two-words",
+            "threeDistinctWords" to "three-distinct-words",
+            "ThreeDistinctWords" to "three-distinct-words",
+            "Oneword" to "oneword",
+            "camel-Case-WithDashes" to "camel-case-with-dashes",
+            "_many----dashes--" to "_many----dashes--",
+            "URLmapping" to "ur-lmapping",
+            "URLMapping" to "url-mapping",
+            "IOStream" to "io-stream",
+            "IOstream" to "i-ostream",
+            "myIo2Stream" to "my-io2-stream",
+            "myIO2Stream" to "my-io2-stream",
+            "myIO2stream" to "my-io2stream",
+            "myIO2streamMax" to "my-io2stream-max",
+            "InURLBetween" to "in-url-between",
+            "myHTTP2APIKey" to "my-http2-api-key",
+            "myHTTP2fastApiKey" to "my-http2fast-api-key",
+            "myHTTP23APIKey" to "my-http23-api-key",
+            "myHttp23ApiKey" to "my-http23-api-key",
+            "theWWW" to "the-www",
+            "theWWW-URL-xxx" to "the-www-url-xxx",
+            "hasDigit123AndPostfix" to "has-digit123-and-postfix"
+        )
+
+        cases.forEach { (input, expected) ->
+            assertEquals(expected, apply(input))
+        }
+    }
+
     @Serializable
     data class DontUseOriginal(val testCase: String)
 
