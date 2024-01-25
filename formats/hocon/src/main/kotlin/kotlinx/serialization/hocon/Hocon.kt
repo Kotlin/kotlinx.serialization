@@ -109,11 +109,13 @@ public sealed class Hocon(
 
         private fun getTaggedNumber(tag: T) = validateAndCast<Number>(tag)
 
+        @Suppress("UNCHECKED_CAST")
+        protected fun <E> decodeDuration(tag: T): E =
+            getValueFromTaggedConfig(tag, ::decodeDurationImpl) as E
+
         @SuppressAnimalSniffer
-        protected fun <E> decodeDuration(tag: T): E {
-            @Suppress("UNCHECKED_CAST")
-            return getValueFromTaggedConfig(tag) { conf, path -> conf.decodeJavaDuration(path).toKotlinDuration() } as E
-        }
+        private fun decodeDurationImpl(conf: Config, path: String): Duration =
+            conf.decodeJavaDuration(path).toKotlinDuration()
 
         override fun decodeTaggedString(tag: T) = validateAndCast<String>(tag)
 
