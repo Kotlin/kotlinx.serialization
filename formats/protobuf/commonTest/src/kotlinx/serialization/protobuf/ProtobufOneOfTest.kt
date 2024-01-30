@@ -367,9 +367,7 @@ class ProtobufOneOfTest {
 
     @Test
     fun testFailWithClassDecoding() {
-        assertFailsWith<SerializationException>(
-            "Cannot find a subclass of kotlinx.serialization.protobuf.ProtobufOneOfTest.IFailType in property \"i\" annotated with @ProtoNumber(1)."
-        ) {
+        assertFailsWith<SerializationException> {
             ProtoBuf.decodeFromHexString<FailWithClass>(
                 "082a1a03666f6f"
             )
