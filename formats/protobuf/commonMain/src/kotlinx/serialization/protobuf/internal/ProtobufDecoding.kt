@@ -391,9 +391,7 @@ private class OneOfPolymorphicReader(
     override fun decodeTaggedString(tag: ProtoDesc): String = if (tag == POLYMORPHIC_NAME_TAG) {
         // todo return a serial name for polymorphic serializer
         descriptor.getActualOneOfSerializer(parentTag.protoId)?.serialName ?: throw SerializationException(
-            "Cannot find a subclass of ${descriptor.serialName} in property \"${
-                descriptor.serialName
-            }\" annotated with @ProtoNumber(${parentTag.protoId})."
+            "Cannot find a subclass of ${descriptor.serialName} annotated with @ProtoNumber(${parentTag.protoId})."
         )
     } else {
         super.decodeTaggedString(tag)
