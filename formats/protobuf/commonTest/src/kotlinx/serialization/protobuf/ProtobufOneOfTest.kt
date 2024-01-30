@@ -71,9 +71,13 @@ class ProtobufOneOfTest {
     }
 
     @Test
-    fun testOneOfDecode() {
+    fun testOneOfDecodeStringType() {
         val dataString = ProtoBuf.decodeFromHexString<OneOfData>("12036261721a03666f6f")
         assertEquals(OneOfData(StringType("bar"), "foo"), dataString)
+    }
+
+    @Test
+    fun testOneOfDecodeIntType() {
         val dataInt = ProtoBuf.decodeFromHexString<OneOfData>("082a1a03666f6f")
         assertEquals(OneOfData(IntType(42), "foo"), dataInt)
     }

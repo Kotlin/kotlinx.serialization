@@ -218,14 +218,14 @@ private class OneOfPolymorphicEncoder(
     override fun encodeTaggedString(tag: ProtoDesc, value: String) {
         // the first element with type string is the discriminator of polymorphic serializer with class name
         // just ignore it
-        if (tag != MISSING_TAG) {
+        if (tag != POLYMORPHIC_NAME_TAG) {
             super.encodeTaggedString(tag, value)
         }
     }
 
     override fun SerialDescriptor.getTag(index: Int) = when (index) {
         // 0 for discriminator
-        0 -> MISSING_TAG
+        0 -> POLYMORPHIC_NAME_TAG
         1 -> extractParameters(index)
         else -> throw SerializationException("Unsupported index: $index in a oneOf type $serialName, which should be using generic polymorphic serializer")
     }
