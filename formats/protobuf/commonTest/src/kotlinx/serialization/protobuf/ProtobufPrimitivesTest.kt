@@ -3,18 +3,10 @@
  */
 package kotlinx.serialization.protobuf
 
-import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlin.test.*
 
 class ProtobufPrimitivesTest {
-
-    private fun <T> testConversion(data: T, serializer: KSerializer<T>, expectedHexString: String) {
-        val string = ProtoBuf.encodeToHexString(serializer, data).uppercase()
-        assertEquals(expectedHexString, string)
-        assertEquals(data, ProtoBuf.decodeFromHexString(serializer, string))
-    }
-
     @Test
     fun testPrimitiveTypes() {
         testConversion(true, Boolean.serializer(), "01")
