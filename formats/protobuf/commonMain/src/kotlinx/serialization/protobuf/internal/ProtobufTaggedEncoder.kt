@@ -123,19 +123,21 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
     public final override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String): Unit =
         encodeTaggedString(descriptor.getTag(index), value)
 
+    private fun SerialKind.isMapOrList() =
+        this == StructureKind.MAP || this == StructureKind.LIST
+
     public final override fun <T : Any?> encodeSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
         serializer: SerializationStrategy<T>,
         value: T
     ) {
-        val elementKind = descriptor.getElementDescriptor(index).kind
         nullableMode =
             if (descriptor.isElementOptional(index)) {
                 NullableMode.OPTIONAL
-            } else if (elementKind == StructureKind.MAP || elementKind == StructureKind.LIST) {
+            } else if (descriptor.getElementDescriptor(index).kind.isMapOrList()) {
                 NullableMode.COLLECTION
-            } else if (serializer.descriptor.isNullable) // or: descriptor.getElementDescriptor(index)
+            } else if (!descriptor.kind.isMapOrList() && serializer.descriptor.isNullable) // or: descriptor.getElementDescriptor(index)
                 NullableMode.ACCEPTABLE
             else
                 NullableMode.NOT_NULL
@@ -150,10 +152,9 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
         serializer: SerializationStrategy<T>,
         value: T?
     ) {
-        val elementKind = descriptor.getElementDescriptor(index).kind
         nullableMode = if (descriptor.isElementOptional(index)) {
             NullableMode.OPTIONAL
-        } else if (elementKind == StructureKind.MAP || elementKind == StructureKind.LIST) {
+        } else if (descriptor.getElementDescriptor(index).kind.isMapOrList()) {
             NullableMode.COLLECTION
         } else {
             NullableMode.ACCEPTABLE
