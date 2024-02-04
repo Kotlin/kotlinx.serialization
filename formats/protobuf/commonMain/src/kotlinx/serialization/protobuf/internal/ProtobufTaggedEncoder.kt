@@ -133,13 +133,13 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
         value: T
     ) {
         nullableMode =
-            if (descriptor.isElementOptional(index)) {
+            if (descriptor.isElementOptional(index))
                 NullableMode.OPTIONAL
-            } else {
+            else {
                 val elementDescriptor = descriptor.getElementDescriptor(index)
-                if (elementDescriptor.kind.isMapOrList()) {
+                if (elementDescriptor.kind.isMapOrList())
                     NullableMode.COLLECTION
-                } else if (!descriptor.kind.isMapOrList() && elementDescriptor.isNullable) // or: `serializer.descriptor`
+                else if (!descriptor.kind.isMapOrList() && elementDescriptor.isNullable) // or: `serializer.descriptor`
                     NullableMode.ACCEPTABLE
                 else
                     NullableMode.NOT_NULL
@@ -155,13 +155,12 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
         serializer: SerializationStrategy<T>,
         value: T?
     ) {
-        nullableMode = if (descriptor.isElementOptional(index)) {
+        nullableMode = if (descriptor.isElementOptional(index))
             NullableMode.OPTIONAL
-        } else if (descriptor.getElementDescriptor(index).kind.isMapOrList()) {
+        else if (descriptor.getElementDescriptor(index).kind.isMapOrList())
             NullableMode.COLLECTION
-        } else {
+        else
             NullableMode.ACCEPTABLE
-        }
 
         pushTag(descriptor.getTag(index))
         encodeNullableSerializableValue(serializer, value)
