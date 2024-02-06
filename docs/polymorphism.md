@@ -542,7 +542,7 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-poly-13.kt).
 
-However, the `Any` is a class and it is not serializable:
+However, `Any` is a class and it is not serializable:
 
 ```text 
 Exception in thread "main" kotlinx.serialization.SerializationException: Serializer for class 'Any' is not found.
