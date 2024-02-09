@@ -325,6 +325,23 @@ public annotation class UseSerializers(vararg val serializerClasses: KClass<out 
 public annotation class Polymorphic
 
 /**
+ * Instructs the serialization plugin to generate serializer automatically generate implementation of [KSerializer]
+ * for the current class if a custom serializer is specified at the same time `@Serializable(with=SomeSerializer::class)`.
+ *
+ * Automatically generated serializer is available via `generatedSerializer()` function in companion object of serializable class.
+ *
+ * Generated serializers allow to use custom serializers on classes from which other serializable classes are inherited.
+ *
+ * Used only with the [Serializable] annotation.
+ *
+ * A compiler version `2.0.0` and higher is required.
+ */
+@InternalSerializationApi
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.RUNTIME)
+public annotation class KeepGeneratedSerializer
+
+/**
  * Marks declarations that are still **experimental** in kotlinx.serialization, which means that the design of the
  * corresponding declarations has open issues which may (or may not) lead to their changes in the future.
  * Roughly speaking, there is a chance that those declarations will be deprecated in the near future or
