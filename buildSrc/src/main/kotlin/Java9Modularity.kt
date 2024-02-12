@@ -126,13 +126,14 @@ object Java9Modularity {
             source(sourceFile)
             destinationDirectory.set(temporaryDir)
             multiPlatformEnabled.set(compileTask.multiPlatformEnabled)
-            kotlinOptions {
-                moduleName = compileTask.kotlinOptions.moduleName
-                jvmTarget = "9"
+            compilerOptions {
+                jvmTarget.set(JvmTarget.JVM_9)
                 // To support LV override when set in aggregate builds
-                languageVersion = compileTask.kotlinOptions.languageVersion
-                freeCompilerArgs += listOf("-Xjdk-release=9",  "-Xsuppress-version-warnings", "-Xexpect-actual-classes")
-                options.optIn.addAll(compileTask.kotlinOptions.options.optIn)
+                languageVersion.set(compileTask.compilerOptions.languageVersion)
+                freeCompilerArgs.addAll(
+                    listOf("-Xjdk-release=9",  "-Xsuppress-version-warnings", "-Xexpect-actual-classes")
+                )
+                optIn.addAll(compileTask.kotlinOptions.options.optIn)
             }
             // work-around for https://youtrack.jetbrains.com/issue/KT-60583
             inputs.files(
