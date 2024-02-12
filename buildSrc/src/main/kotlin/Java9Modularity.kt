@@ -112,8 +112,8 @@ object Java9Modularity {
         val verifyModuleTaskName = "verify${compileTask.name.removePrefix("compile").capitalize()}Module"
         // work-around for https://youtrack.jetbrains.com/issue/KT-60542
         val verifyModuleTask = plugins
-            .findPlugin(KotlinBaseApiPlugin::class)!!
-            .registerKotlinJvmCompileTask(verifyModuleTaskName)
+            .getPlugin(KotlinBaseApiPlugin::class)
+            .registerKotlinJvmCompileTask(verifyModuleTaskName, compileTask.compilerOptions.moduleName.get())
         verifyModuleTask {
             group = VERIFICATION_GROUP
             description = "Verify Kotlin sources for JPMS problems"
