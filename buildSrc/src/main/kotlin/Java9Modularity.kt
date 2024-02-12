@@ -18,9 +18,13 @@ import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.*
 import org.jetbrains.kotlin.gradle.targets.jvm.*
+import org.jetbrains.kotlin.gradle.tasks.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
+import org.jetbrains.kotlin.tooling.core.*
 import java.io.*
+import kotlin.reflect.*
+import kotlin.reflect.full.*
 
 object Java9Modularity {
 
@@ -108,12 +112,14 @@ object Java9Modularity {
         compileTask: KotlinCompile,
         sourceFile: File
     ): TaskProvider<out KotlinJvmCompile> {
-        apply<KotlinBaseApiPlugin>()
+        apply<KotlinApiPlugin>()
         val verifyModuleTaskName = "verify${compileTask.name.removePrefix("compile").capitalize()}Module"
         // work-around for https://youtrack.jetbrains.com/issue/KT-60542
-        val verifyModuleTask = plugins
-            .getPlugin(KotlinBaseApiPlugin::class)
-            .registerKotlinJvmCompileTask(verifyModuleTaskName, compileTask.compilerOptions.moduleName.get())
+        val kotlinApiPlugin = plugins.getPlugin(KotlinApiPlugin::class)
+        val verifyModuleTask = kotlinApiPlugin.registerKotlinJvmCompileTask(
+            verifyModuleTaskName,
+            compileTask.compilerOptions.moduleName.get()
+        )
         verifyModuleTask {
             group = VERIFICATION_GROUP
             description = "Verify Kotlin sources for JPMS problems"
@@ -146,12 +152,19 @@ object Java9Modularity {
                 }
             ).withPropertyName("moduleInfosOfLibraries")
             this as KotlinCompile
-            // part of work-around for https://youtrack.jetbrains.com/issue/KT-60541
-            @Suppress("DEPRECATION")
-            ownModuleName.set(compileTask.kotlinOptions.moduleName)
-            // part of work-around for https://youtrack.jetbrains.com/issue/KT-60541
-            @Suppress("INVISIBLE_MEMBER")
-            commonSourceSet.from(compileTask.commonSourceSet)
+            val kotlinPluginVersion = KotlinToolingVersion(kotlinApiPlugin.pluginVersion)
+            if (kotlinPluginVersion <= KotlinToolingVersion("1.9.255")) {
+                // part of work-around for https://youtrack.jetbrains.com/issue/KT-60541
+                @Suppress("UNCHECKED_CAST")
+                val ownModuleNameProp = (this::class.superclasses.first() as KClass<AbstractKotlinCompile<*>>)
+                    .declaredMemberProperties
+                    .find { it.name == "ownModuleName" }
+                    ?.get(this) as? Property<String>
+                ownModuleNameProp?.set(compileTask.kotlinOptions.moduleName)
+                // part of work-around for https://youtrack.jetbrains.com/issue/KT-60541
+                @Suppress("INVISIBLE_MEMBER")
+                commonSourceSet.from(compileTask.commonSourceSet)
+            }
             @OptIn(InternalKotlinGradlePluginApi::class)
             apply {
                 multiplatformStructure.refinesEdges.set(compileTask.multiplatformStructure.refinesEdges)
