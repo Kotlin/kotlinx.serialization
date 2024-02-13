@@ -44,6 +44,9 @@ public abstract interface class kotlinx/serialization/KSerializer : kotlinx/seri
 	public abstract fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 }
 
+public abstract interface annotation class kotlinx/serialization/KeepGeneratedSerializer : java/lang/annotation/Annotation {
+}
+
 public abstract interface annotation class kotlinx/serialization/MetaSerializable : java/lang/annotation/Annotation {
 }
 
