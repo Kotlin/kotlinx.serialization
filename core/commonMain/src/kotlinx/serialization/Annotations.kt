@@ -325,7 +325,7 @@ public annotation class UseSerializers(vararg val serializerClasses: KClass<out 
 public annotation class Polymorphic
 
 /**
- * Instructs the serialization plugin to generate serializer automatically generate implementation of [KSerializer]
+ * Instructs the serialization plugin to keep automatically generated implementation of [KSerializer]
  * for the current class if a custom serializer is specified at the same time `@Serializable(with=SomeSerializer::class)`.
  *
  * Automatically generated serializer is available via `generatedSerializer()` function in companion object of serializable class.
