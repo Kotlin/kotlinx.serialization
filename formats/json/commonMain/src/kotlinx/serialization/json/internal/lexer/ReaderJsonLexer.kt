@@ -44,35 +44,6 @@ internal class ReaderJsonLexer(
         preload(0)
     }
 
-    override fun tryConsumeComma(): Boolean {
-        val current = skipWhitespaces()
-        if (current >= source.length || current == -1) return false
-        if (source[current] == ',') {
-            ++currentPosition
-            return true
-        }
-        return false
-    }
-
-    override fun canConsumeValue(): Boolean {
-        ensureHaveChars()
-        var current = currentPosition
-        while (true) {
-            current = prefetchOrEof(current)
-            if (current == -1) break // could be inline function but KT-1436
-            val c = source[current]
-            // Inlined skipWhitespaces without field spill and nested loop. Also faster then char2TokenClass
-            if (c == ' ' || c == '\n' || c == '\r' || c == '\t') {
-                ++current
-                continue
-            }
-            currentPosition = current
-            return isValidValueStart(c)
-        }
-        currentPosition = current
-        return false
-    }
-
     private fun preload(unprocessedCount: Int) {
         val buffer = source.buffer
         if (unprocessedCount != 0) {
@@ -101,25 +72,25 @@ internal class ReaderJsonLexer(
         return 0
     }
 
-    override fun consumeNextToken(): Byte {
-        ensureHaveChars()
-        val source = source
-        var cpos = currentPosition
-        while (true) {
-            cpos = prefetchOrEof(cpos)
-            if (cpos == -1) break
-            val ch = source[cpos++]
-            return when (val tc = charToTokenClass(ch)) {
-                TC_WHITESPACE -> continue
-                else -> {
-                    currentPosition = cpos
-                    tc
-                }
-            }
-        }
-        currentPosition = cpos
-        return TC_EOF
-    }
+//    override fun consumeNextToken(): Byte {
+//        ensureHaveChars()
+//        val source = source
+//        var cpos = currentPosition
+//        while (true) {
+//            cpos = prefetchOrEof(cpos)
+//            if (cpos == -1) break
+//            val ch = source[cpos++]
+//            return when (val tc = charToTokenClass(ch)) {
+//                TC_WHITESPACE -> continue
+//                else -> {
+//                    currentPosition = cpos
+//                    tc
+//                }
+//            }
+//        }
+//        currentPosition = cpos
+//        return TC_EOF
+//    }
 
     override fun ensureHaveChars() {
         val cur = currentPosition
