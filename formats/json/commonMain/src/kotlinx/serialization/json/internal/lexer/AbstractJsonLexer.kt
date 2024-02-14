@@ -210,7 +210,7 @@ internal abstract class AbstractJsonLexer {
         return false
     }
 
-    protected fun isValidValueStart(c: Char): Boolean {
+    fun isValidValueStart(c: Char): Boolean {
         return when (c) {
             '}', ']', ':', ',' -> false
             else -> true
@@ -239,7 +239,7 @@ internal abstract class AbstractJsonLexer {
         return token
     }
 
-    open fun consumeNextToken(expected: Char) {
+    fun consumeNextToken(expected: Char) {
         ensureHaveChars()
         val source = source
         var cpos = currentPosition
