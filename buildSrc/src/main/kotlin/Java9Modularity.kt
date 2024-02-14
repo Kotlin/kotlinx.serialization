@@ -161,12 +161,15 @@ object Java9Modularity {
                     .find { it.name == "ownModuleName" }
                     ?.get(this) as? Property<String>
                 ownModuleNameProp?.set(compileTask.kotlinOptions.moduleName)
+            }
+
+            val taskKotlinLanguageVersion = compilerOptions.languageVersion.orElse(KotlinVersion.DEFAULT)
+            @OptIn(InternalKotlinGradlePluginApi::class)
+            if (taskKotlinLanguageVersion.get() < KotlinVersion.KOTLIN_2_0) {
                 // part of work-around for https://youtrack.jetbrains.com/issue/KT-60541
                 @Suppress("INVISIBLE_MEMBER")
                 commonSourceSet.from(compileTask.commonSourceSet)
-            }
-            @OptIn(InternalKotlinGradlePluginApi::class)
-            apply {
+            } else {
                 multiplatformStructure.refinesEdges.set(compileTask.multiplatformStructure.refinesEdges)
                 multiplatformStructure.fragments.set(compileTask.multiplatformStructure.fragments)
             }
