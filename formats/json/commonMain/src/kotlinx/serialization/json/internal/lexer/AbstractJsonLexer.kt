@@ -6,6 +6,7 @@ package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.json.internal.CharMappings.CHAR_TO_TOKEN
 import kotlinx.serialization.json.internal.CharMappings.ESCAPE_2_CHAR
+import kotlinx.serialization.json.internal.lexer.*
 import kotlin.js.*
 import kotlin.jvm.*
 import kotlin.math.*
@@ -542,7 +543,8 @@ internal abstract class AbstractJsonLexer {
     }
 
     fun skipElement(allowLenientStrings: Boolean) {
-        val tokenStack = mutableListOf<Byte>()
+        var tokenStack = ByteArray(8)
+        var size = 0
         var lastToken = peekNextToken()
         if (lastToken != TC_BEGIN_LIST && lastToken != TC_BEGIN_OBJ) {
             consumeStringLenient()
@@ -556,28 +558,31 @@ internal abstract class AbstractJsonLexer {
             }
             when (lastToken) {
                 TC_BEGIN_LIST, TC_BEGIN_OBJ -> {
-                    tokenStack.add(lastToken)
+                    if (size >= tokenStack.size) {
+                        tokenStack = tokenStack.copyOf(tokenStack.size * 2)
+                    }
+                    tokenStack[size++] = lastToken
                 }
                 TC_END_LIST -> {
-                    if (tokenStack.last() != TC_BEGIN_LIST) throw JsonDecodingException(
+                    if (tokenStack[size - 1] != TC_BEGIN_LIST) throw JsonDecodingException(
                         currentPosition,
                         "found ] instead of } at path: $path",
                         source
                     )
-                    tokenStack.removeLast()
+                    size--
                 }
                 TC_END_OBJ -> {
-                    if (tokenStack.last() != TC_BEGIN_OBJ) throw JsonDecodingException(
+                    if (tokenStack[size - 1] != TC_BEGIN_OBJ) throw JsonDecodingException(
                         currentPosition,
                         "found } instead of ] at path: $path",
                         source
                     )
-                    tokenStack.removeLast()
+                    size--
                 }
                 TC_EOF -> fail("Unexpected end of input due to malformed JSON during ignoring unknown keys")
             }
             consumeNextToken()
-            if (tokenStack.size == 0) return
+            if (size == 0) return
         }
     }
 
