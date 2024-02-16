@@ -7,8 +7,8 @@ This release provides a couple of new features and uses Kotlin 1.9.22 as default
 
 Class discriminator provides information for serializing and deserializing [polymorphic class hierarchies](docs/polymorphism.md#sealed-classes).
 In case you want to encode more or less information for various third party APIs about types in the output, it is possible to control
-addition of the class discriminator with the [JsonBuilder.classDiscriminatorMode] property.
-For example, [ClassDiscriminatorMode.NONE] does not add class discriminator at all, in case the receiving party is not interested in Kotlin types.
+addition of the class discriminator with the `JsonBuilder.classDiscriminatorMode` property.
+For example, `ClassDiscriminatorMode.NONE` does not add class discriminator at all, in case the receiving party is not interested in Kotlin types.
 You can learn more about this feature in the documentation and corresponding [PR](https://github.com/Kotlin/kotlinx.serialization/pull/2532).
 
 ### Other features
