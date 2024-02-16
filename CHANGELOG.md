@@ -1,3 +1,30 @@
+1.6.3 / 2024-02-16
+==================
+
+This release provides a couple of new features and uses Kotlin 1.9.22 as default.
+
+### Class discriminator output mode
+
+Class discriminator provides information for serializing and deserializing [polymorphic class hierarchies](docs/polymorphism.md#sealed-classes).
+In case you want to encode more or less information for various third party APIs about types in the output, it is possible to control
+addition of the class discriminator with the [JsonBuilder.classDiscriminatorMode] property.
+For example, [ClassDiscriminatorMode.NONE] does not add class discriminator at all, in case the receiving party is not interested in Kotlin types.
+You can learn more about this feature in the documentation and corresponding [PR](https://github.com/Kotlin/kotlinx.serialization/pull/2532).
+
+### Other features
+
+* Add kebab-case naming strategy (#2531) (thanks to [Emil Kantis](https://github.com/Kantis))
+* Add value class support to the ProtoBufSchemaGenerator (#2542) (thanks to [Felipe Rotilho](https://github.com/rotilho))
+
+### Bugfixes and improvements
+
+* Fix: Hocon polymorphic serialization in containers (#2151) (thanks to [LichtHund](https://github.com/LichtHund))
+* Actualize lenient mode documentation (#2568)
+* Slightly improve error messages thrown from serializer<T>() function (#2533)
+* Do not try to coerce input values for properties (#2530)
+* Make empty objects and arrays collapsed in pretty print mode (#2506)
+* Update Gradle dokka configuration to make sure "source" button is visible in all API docs (#2518, #2524)
+
 1.6.2 / 2023-11-30
 ==================
 
