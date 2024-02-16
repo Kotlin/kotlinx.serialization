@@ -12,6 +12,7 @@ def documentedSubprojects = ["kotlinx-serialization-core",
                              "kotlinx-serialization-properties",
                              "kotlinx-serialization-hocon",
                              "kotlinx-serialization-protobuf"]
+
 subprojects {
     if (!(name in documentedSubprojects)) return
     apply plugin: 'org.jetbrains.dokka'
@@ -71,6 +72,12 @@ subprojects {
                 perPackageOption {
                     matchingRegex.set("org\\.intellij\\.lang\\.annotations(\$|\\.).*")
                     suppress.set(true)
+                }
+
+                sourceLink {
+                    localDirectory.set(rootDir)
+                    remoteUrl.set(new URL("https://github.com/Kotlin/kotlinx.serialization/tree/master"))
+                    remoteLineSuffix.set("#L")
                 }
             }
         }
