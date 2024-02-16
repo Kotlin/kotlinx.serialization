@@ -254,11 +254,10 @@ public class JsonBuilder internal constructor(json: Json) {
 
     /**
      * Removes JSON specification restriction (RFC-4627) and makes parser
-     * more liberal to the malformed input. In lenient mode quoted boolean literals,
-     * and unquoted string literals are allowed.
+     * more liberal to the malformed input. In lenient mode, unquoted JSON keys and string values are allowed.
      *
      * Its relaxations can be expanded in the future, so that lenient parser becomes even more
-     * permissive to invalid value in the input, replacing them with defaults.
+     * permissive to invalid values in the input.
      *
      * `false` by default.
      */

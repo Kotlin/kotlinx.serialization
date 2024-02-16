@@ -95,7 +95,7 @@ It gives the following nice result:
 ### Lenient parsing
 
 By default, [Json] parser enforces various JSON restrictions to be as specification-compliant as possible
-(see [RFC-4627]). Particularly, keys must be quoted, while literals must be unquoted. Those restrictions can be relaxed with
+(see [RFC-4627]). Particularly, keys and string literals must be quoted. Those restrictions can be relaxed with
 the [isLenient][JsonBuilder.isLenient] property. With `isLenient = true`, you can parse quite freely-formatted data:
 
 ```kotlin
