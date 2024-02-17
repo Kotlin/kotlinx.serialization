@@ -59,6 +59,20 @@ public interface SerializersModuleCollector {
         defaultSerializerProvider: (value: Base) -> SerializationStrategy<Base>?
     )
 
+    /*
+    // TODO remove
+    @Deprecated(
+        "Deprecated in favor of function with new `PolymorphicDeserializerProvider` API",
+        level = DeprecationLevel.WARNING // Since TODO. Raise to ERROR in TODO, hide in TODO
+    )
+    public fun <Base : Any> polymorphicDefaultDeserializer(
+        baseClass: KClass<Base>,
+        defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<Base>?
+    ) {
+        polymorphicDefaultDeserializer(baseClass, defaultDeserializerProvider.toNewApi())
+    }
+    */
+
     /**
      * Accept a default deserializer provider, associated with the [baseClass] for polymorphic deserialization.
      * [defaultDeserializerProvider] is invoked when no polymorphic serializers associated with the `className`
@@ -72,7 +86,7 @@ public interface SerializersModuleCollector {
      */
     public fun <Base : Any> polymorphicDefaultDeserializer(
         baseClass: KClass<Base>,
-        defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<Base>?
+        defaultDeserializerProvider: PolymorphicDeserializerProvider<Base>
     )
 
     /**
@@ -101,4 +115,9 @@ public interface SerializersModuleCollector {
     ) {
         polymorphicDefaultDeserializer(baseClass, defaultDeserializerProvider)
     }
+
+    public fun <Base : Any> polymorphicDefaultDeserializerForNumber(
+        baseClass: KClass<Base>,
+        defaultDeserializerProvider: PolymorphicDeserializerProviderForNumber<Base>
+    )
 }

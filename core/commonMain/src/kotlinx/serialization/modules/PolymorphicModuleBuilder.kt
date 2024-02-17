@@ -21,7 +21,15 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
 ) {
     private val subclasses: MutableList<Pair<KClass<out Base>, KSerializer<out Base>>> = mutableListOf()
     private var defaultSerializerProvider: ((Base) -> SerializationStrategy<Base>?)? = null
-    private var defaultDeserializerProvider: ((String?) -> DeserializationStrategy<Base>?)? = null
+    private var defaultDeserializerProvider: PolymorphicDeserializerProvider<Base>? = null
+
+    /*
+    // TODO implement this or remove?
+    /**
+     * If specified, overrides [SerializersModuleBuilder.allUseSerialPolymorphicNumbers] and the [UseSerialPolymorphicNumbers] annotation.
+     */
+    public var useSerialPolymorphicNumbers: Boolean? = null
+    */
 
     /**
      * Registers a [subclass] [serializer] in the resulting module under the [base class][Base].
@@ -29,6 +37,19 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
     public fun <T : Base> subclass(subclass: KClass<T>, serializer: KSerializer<T>) {
         subclasses.add(subclass to serializer)
     }
+
+    /*
+    // TODO implement this or remove
+    /**
+     * Registers a [subclass] [serializer] in the resulting module under the [base class][Base] with the serial polymorphic number.
+     * If the class already has a [SerialPolymorphicNumber] annotation it's overridden by [serialPolymorphicNumber] here.
+     */
+    public fun <T : Base> subclassWithSerialPolymorphicNumber(
+        subclass: KClass<T>, serialPolymorphicNumber: Int, serializer: KSerializer<T>
+    ) {
+        // TODO
+    }
+    */
 
     /**
      * Adds a default serializers provider associated with the given [baseClass] to the resulting module.
@@ -53,6 +74,17 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
         }
         this.defaultDeserializerProvider = defaultDeserializerProvider
     }
+
+    /*
+    // TODO remove
+    @Deprecated(
+        "Deprecated in favor of function with new `PolymorphicDeserializerProvider` API",
+        level = DeprecationLevel.WARNING // Since TODO. Raise to ERROR in TODO, hide in TODO
+    )
+    public fun defaultDeserializer(defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<Base>?) {
+        defaultDeserializer(defaultDeserializerProvider.toNewApi())
+    }
+    */
 
     /**
      * Adds a default deserializers provider associated with the given [baseClass] to the resulting module.

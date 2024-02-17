@@ -117,6 +117,7 @@ public class SealedClassSerializer<T : Any>(
 
     private val class2Serializer: Map<KClass<out T>, KSerializer<out T>>
     private val serialName2Serializer: Map<String, KSerializer<out T>>
+    private val serialPolymorphicNumber2Serializer : Map<Int, KSerializer<out T>>?
 
     init {
         if (subclasses.size != subclassSerializers.size) {
@@ -127,6 +128,7 @@ public class SealedClassSerializer<T : Any>(
         // Plugin should produce identical serializers, although they are not always strictly equal (e.g. new ObjectSerializer
         // may be created every time)
         class2Serializer = subclasses.zip(subclassSerializers).toMap()
+
         serialName2Serializer = class2Serializer.entries.groupingBy { it.value.descriptor.serialName }
             .aggregate<Map.Entry<KClass<out T>, KSerializer<out T>>, String, Map.Entry<KClass<*>, KSerializer<out T>>>
             { key, accumulator, element, _ ->
@@ -138,6 +140,23 @@ public class SealedClassSerializer<T : Any>(
                 }
                 element
             }.mapValues { it.value.value }
+
+        serialPolymorphicNumber2Serializer = if (descriptor.useSerialPolymorphicNumbers)
+            class2Serializer.entries.groupingBy {
+                it.value.descriptor.serialPolymorphicNumberByBaseClass.getValue(baseClass)
+            }
+                .aggregate<Map.Entry<KClass<out T>, KSerializer<out T>>, Int, Map.Entry<KClass<*>, KSerializer<out T>>>
+                { key, accumulator, element, _ ->
+                    if (accumulator != null) {
+                        error(
+                            "Multiple sealed subclasses of '$baseClass' have the same serial polymorphic number '$key':" +
+                                " '${accumulator.key}', '${element.key}'"
+                        )
+                    }
+                    element
+                }.mapValues { it.value.value }
+        else
+            null
     }
 
     override fun findPolymorphicSerializerOrNull(
@@ -146,6 +165,13 @@ public class SealedClassSerializer<T : Any>(
     ): DeserializationStrategy<T>? {
         return serialName2Serializer[klassName] ?: super.findPolymorphicSerializerOrNull(decoder, klassName)
     }
+
+    @InternalSerializationApi
+    override fun findPolymorphicSerializerWithNumberOrNull(
+        decoder: CompositeDecoder, serialPolymorphicNumber: Int?
+    ): DeserializationStrategy<T>? =
+        serialPolymorphicNumber2Serializer!![serialPolymorphicNumber]
+            ?: super.findPolymorphicSerializerWithNumberOrNull(decoder, serialPolymorphicNumber)
 
     override fun findPolymorphicSerializerOrNull(encoder: Encoder, value: T): SerializationStrategy<T>? {
         return (class2Serializer[value::class] ?: super.findPolymorphicSerializerOrNull(encoder, value))?.cast()

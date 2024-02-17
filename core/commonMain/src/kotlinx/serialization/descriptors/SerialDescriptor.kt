@@ -7,6 +7,7 @@ package kotlinx.serialization.descriptors
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.encoding.*
+import kotlin.reflect.*
 
 /**
  * Serial descriptor is an inherent property of [KSerializer] that describes the structure of the serializable type.
@@ -194,6 +195,18 @@ public interface SerialDescriptor {
      */
     @ExperimentalSerializationApi
     public val elementsCount: Int
+
+    /**
+     * TODO
+     */
+    @ExperimentalSerializationApi
+    public val useSerialPolymorphicNumbers: Boolean get() = false
+
+    /**
+     * TODO
+     */
+    @ExperimentalSerializationApi
+    public val serialPolymorphicNumberByBaseClass: Map<KClass<*>, Int> get() = emptyMap()
 
     /**
      * Returns serial annotations of the associated class.

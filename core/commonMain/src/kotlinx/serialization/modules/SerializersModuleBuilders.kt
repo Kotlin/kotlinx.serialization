@@ -45,10 +45,14 @@ public fun EmptySerializersModule(): SerializersModule = @Suppress("DEPRECATION"
 @OptIn(ExperimentalSerializationApi::class)
 public class SerializersModuleBuilder @PublishedApi internal constructor() : SerializersModuleCollector {
     private val class2ContextualProvider: MutableMap<KClass<*>, ContextualProvider> = hashMapOf()
+    //public var allUseSerialPolymorphicNumbers : Boolean? = null // TODO implement this or remove
+    //private val class2UseSerialPolymorphicNumbers : MutableMap<KClass<*>, Boolean> = hashMapOf() // TODO implement this or remove
     private val polyBase2Serializers: MutableMap<KClass<*>, MutableMap<KClass<*>, KSerializer<*>>> = hashMapOf()
     private val polyBase2DefaultSerializerProvider: MutableMap<KClass<*>, PolymorphicSerializerProvider<*>> = hashMapOf()
     private val polyBase2NamedSerializers: MutableMap<KClass<*>, MutableMap<String, KSerializer<*>>> = hashMapOf()
+    private val polyBase2NumberedSerializers: MutableMap<KClass<*>, MutableMap<Int, KSerializer<*>>> = hashMapOf()
     private val polyBase2DefaultDeserializerProvider: MutableMap<KClass<*>, PolymorphicDeserializerProvider<*>> = hashMapOf()
+    private val polyBase2DefaultDeserializerProviderForNumber: MutableMap<KClass<*>, PolymorphicDeserializerProviderForNumber<*>> = hashMapOf()
 
     /**
      * Adds [serializer] associated with given [kClass] for contextual serialization.
@@ -133,6 +137,16 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
     }
 
     /**
+     * TODO
+     */
+    public override fun <Base : Any> polymorphicDefaultDeserializerForNumber(
+        baseClass: KClass<Base>,
+        defaultDeserializerProvider: (serialPolymorphicNumber: Int?) -> DeserializationStrategy<Base>?
+    ) {
+        registerDefaultPolymorphicDeserializerForNumber(baseClass, defaultDeserializerProvider, false)
+    }
+
+    /**
      * Copies the content of [module] module into the current builder.
      */
     public fun include(module: SerializersModule) {
@@ -174,6 +188,7 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
     internal fun <Base : Any> registerDefaultPolymorphicDeserializer(
         baseClass: KClass<Base>,
         defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<Base>?,
+        //defaultDeserializerProvider: PolymorphicDeserializerProvider<Base>,
         allowOverwrite: Boolean
     ) {
         val previous = polyBase2DefaultDeserializerProvider[baseClass]
@@ -181,6 +196,20 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
             throw IllegalArgumentException("Default deserializers provider for $baseClass is already registered: $previous")
         }
         polyBase2DefaultDeserializerProvider[baseClass] = defaultDeserializerProvider
+    }
+
+    @JvmName("registerDefaultPolymorphicDeserializerForNumber") // Don't mangle method name for prettier stack traces
+    internal fun <Base : Any> registerDefaultPolymorphicDeserializerForNumber(
+        baseClass: KClass<Base>,
+        defaultDeserializerProvider: (polymorphicSerialNumber: Int?) -> DeserializationStrategy<Base>?,
+        //defaultDeserializerProvider: PolymorphicDeserializerProviderForNumber<Base>,
+        allowOverwrite: Boolean
+    ) {
+        val previous = polyBase2DefaultDeserializerProviderForNumber[baseClass]
+        if (previous != null && previous != defaultDeserializerProvider && !allowOverwrite) {
+            throw IllegalArgumentException("Default deserializers provider for $baseClass is already registered: $previous")
+        }
+        polyBase2DefaultDeserializerProviderForNumber[baseClass] = defaultDeserializerProvider
     }
 
     @JvmName("registerPolymorphicSerializer") // Don't mangle method name for prettier stack traces
@@ -192,17 +221,21 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
     ) {
         // Check for overwrite
         val name = concreteSerializer.descriptor.serialName
+        val number = concreteSerializer.descriptor.serialPolymorphicNumberByBaseClass[baseClass]
         val baseClassSerializers = polyBase2Serializers.getOrPut(baseClass, ::hashMapOf)
         val previousSerializer = baseClassSerializers[concreteClass]
         val names = polyBase2NamedSerializers.getOrPut(baseClass, ::hashMapOf)
+        val numbers = polyBase2NumberedSerializers.getOrPut(baseClass, ::hashMapOf)
         if (allowOverwrite) {
             // Remove previous serializers from name mapping
             if (previousSerializer != null) {
                 names.remove(previousSerializer.descriptor.serialName)
+                numbers.remove(previousSerializer.descriptor.serialPolymorphicNumberByBaseClass[baseClass])
             }
             // Update mappings
             baseClassSerializers[concreteClass] = concreteSerializer
             names[name] = concreteSerializer
+            number?.let { numbers[it] = concreteSerializer }
             return
         }
         // Overwrite prohibited
@@ -212,6 +245,7 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
             } else {
                 // Cleanup name mapping
                 names.remove(previousSerializer.descriptor.serialName)
+                numbers.remove(previousSerializer.descriptor.serialPolymorphicNumberByBaseClass[baseClass])
             }
         }
         val previousByName = names[name]
@@ -222,14 +256,45 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
                         "have the same serial name '$name': '$concreteClass' and '$conflictingClass'"
             )
         }
+        number?.let {
+            val previousByNumber = numbers[it]
+            if (previousByNumber != null) {
+                val conflictingClass =
+                    polyBase2Serializers[baseClass]!!.asSequence().find { it.value === previousByNumber }
+                throw IllegalArgumentException(
+                    "Multiple polymorphic serializers for base class '$baseClass' " +
+                        "have the same polymorphic serial number '$number': '$concreteClass' and '$conflictingClass'"
+                )
+            }
+        }
         // Overwrite if no conflicts
         baseClassSerializers[concreteClass] = concreteSerializer
         names[name] = concreteSerializer
+        number?.let { numbers[it] = concreteSerializer }
     }
+
+    /*
+    // TODO implement this or remove?
+    internal fun registerUseSerialPolymorphicNumbers(baseClass: KClass<*>, useSerialPolymorphicNumbers: Boolean?) {
+        // TODO what about the annotation? baseDescriptor?
+        if (useSerialPolymorphicNumbers !== null)
+            class2UseSerialPolymorphicNumbers.put(baseClass, useSerialPolymorphicNumbers)
+        else
+            class2UseSerialPolymorphicNumbers.remove(baseClass)
+    }
+    */
 
     @PublishedApi
     internal fun build(): SerializersModule =
-        SerialModuleImpl(class2ContextualProvider, polyBase2Serializers, polyBase2DefaultSerializerProvider, polyBase2NamedSerializers, polyBase2DefaultDeserializerProvider)
+        SerialModuleImpl(
+            class2ContextualProvider,
+            polyBase2Serializers,
+            polyBase2DefaultSerializerProvider,
+            polyBase2NamedSerializers,
+            polyBase2NumberedSerializers,
+            polyBase2DefaultDeserializerProvider,
+            polyBase2DefaultDeserializerProviderForNumber
+        )
 }
 
 /**

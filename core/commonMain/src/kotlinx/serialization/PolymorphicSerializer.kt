@@ -102,6 +102,13 @@ public fun <T : Any> AbstractPolymorphicSerializer<T>.findPolymorphicSerializer(
     findPolymorphicSerializerOrNull(decoder, klassName) ?: throwSubtypeNotRegistered(klassName, baseClass)
 
 @InternalSerializationApi
+public fun <T : Any> AbstractPolymorphicSerializer<T>.findPolymorphicSerializerWithNumber(
+    decoder: CompositeDecoder,
+    serialPolymorphicNumber: Int?
+): DeserializationStrategy<T> =
+    findPolymorphicSerializerWithNumberOrNull(decoder, serialPolymorphicNumber) ?: throwSubtypeNotRegistered(serialPolymorphicNumber, baseClass)
+
+@InternalSerializationApi
 public fun <T : Any> AbstractPolymorphicSerializer<T>.findPolymorphicSerializer(
     encoder: Encoder,
     value: T
