@@ -69,11 +69,6 @@ public sealed class SerializersModule {
         baseClass: KClass<in T>, serializedNumber: Int?
     ): DeserializationStrategy<T>?
 
-    // TODO remove or use
-    // TODO old design for cashing serializers by number in `AbstractPolymorphicSerializer` which probably doesn't work and is not needed
-    @ExperimentalSerializationApi
-    public abstract fun <T : Any> getPolymorphicForAllSubclasses(baseClass: KClass<T>): Map<KClass<out T>, KSerializer<out T>>
-
     /**
      * Copies contents of this module to the given [collector].
      */
@@ -202,11 +197,6 @@ internal class SerialModuleImpl(
             serializedNumber
         )
     }
-
-    // TODO remove or use
-    @ExperimentalSerializationApi
-    override fun <T : Any> getPolymorphicForAllSubclasses(baseClass: KClass<T>): Map<KClass<out T>, KSerializer<out T>> =
-        polyBase2Serializers.getValue(baseClass) as Map<KClass<out T>, KSerializer<out T>>
 
     override fun <T : Any> getContextual(kClass: KClass<T>, typeArgumentsSerializers: List<KSerializer<*>>): KSerializer<T>? {
         return (class2ContextualFactory[kClass]?.invoke(typeArgumentsSerializers)) as? KSerializer<T>?

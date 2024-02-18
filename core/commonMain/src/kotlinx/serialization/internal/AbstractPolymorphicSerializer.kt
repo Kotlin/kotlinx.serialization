@@ -36,7 +36,6 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
                 encodeIntElement(
                     descriptor,
                     0,
-                    // it seems not possible to cache this with the current implementation that serializers are completely separated from serializers modules
                     actualSerializer.descriptor.serialPolymorphicNumberByBaseClass.getValue(baseClass)
                 )
             else
