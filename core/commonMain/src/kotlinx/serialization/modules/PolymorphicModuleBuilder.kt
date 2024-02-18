@@ -75,17 +75,6 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
         this.defaultDeserializerProvider = defaultDeserializerProvider
     }
 
-    /*
-    // TODO remove
-    @Deprecated(
-        "Deprecated in favor of function with new `PolymorphicDeserializerProvider` API",
-        level = DeprecationLevel.WARNING // Since TODO. Raise to ERROR in TODO, hide in TODO
-    )
-    public fun defaultDeserializer(defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<Base>?) {
-        defaultDeserializer(defaultDeserializerProvider.toNewApi())
-    }
-    */
-
     /**
      * Adds a default deserializers provider associated with the given [baseClass] to the resulting module.
      * This function affect only deserialization process. To avoid confusion, it was deprecated and replaced with [defaultDeserializer].

@@ -69,7 +69,7 @@ public sealed class SerializersModule {
         baseClass: KClass<in T>, serializedNumber: Int?
     ): DeserializationStrategy<T>?
 
-    // TODO remove
+    // TODO remove or use
     // TODO old design for cashing serializers by number in `AbstractPolymorphicSerializer` which probably doesn't work and is not needed
     @ExperimentalSerializationApi
     public abstract fun <T : Any> getPolymorphicForAllSubclasses(baseClass: KClass<T>): Map<KClass<out T>, KSerializer<out T>>
@@ -169,7 +169,7 @@ internal class SerialModuleImpl(
     @JvmField val polyBase2Serializers: Map<KClass<*>, Map<KClass<*>, KSerializer<*>>>,
     private val polyBase2DefaultSerializerProvider: Map<KClass<*>, PolymorphicSerializerProvider<*>>,
     private val polyBase2NamedSerializers: Map<KClass<*>, Map<String, KSerializer<*>>>,
-    private val polyBase2NumberedSerializers: Map<KClass<*>, Map<Int, KSerializer<*>>>, // TODO remove
+    private val polyBase2NumberedSerializers: Map<KClass<*>, Map<Int, KSerializer<*>>>,
     private val polyBase2DefaultDeserializerProvider: Map<KClass<*>, PolymorphicDeserializerProvider<*>>,
     private val polyBase2DefaultDeserializerProviderForNumber: Map<KClass<*>, PolymorphicDeserializerProviderForNumber<*>>
 ) : SerializersModule() {
@@ -203,7 +203,7 @@ internal class SerialModuleImpl(
         )
     }
 
-    // TODO remove
+    // TODO remove or use
     @ExperimentalSerializationApi
     override fun <T : Any> getPolymorphicForAllSubclasses(baseClass: KClass<T>): Map<KClass<out T>, KSerializer<out T>> =
         polyBase2Serializers.getValue(baseClass) as Map<KClass<out T>, KSerializer<out T>>
@@ -243,23 +243,6 @@ internal class SerialModuleImpl(
     }
 }
 
-/*
-// TODO remove old suboptimal design
-
-public interface PolymorphicDeserializerProvider<out Base> {
-    public fun fromClassName(className: String?): DeserializationStrategy<Base>?
-    public fun fromSerialPolymorphicNumber(serialPolymorphicNumber: Int?): DeserializationStrategy<Base>?
-}
-
-internal fun <Base> ((className: String?) -> DeserializationStrategy<Base>?).toNewApi() =
-    object : PolymorphicDeserializerProvider<Base> {
-        override fun fromClassName(className: String?): DeserializationStrategy<Base>? =
-            this@toNewApi(className)
-
-        override fun fromSerialPolymorphicNumber(serialPolymorphicNumber: Int?): DeserializationStrategy<Base>? =
-            throw AssertionError("This instance should only be created by legacy code therefore this function shouldn't be invoked here.")
-    }
-*/
 internal typealias PolymorphicDeserializerProvider<Base> = (className: String?) -> DeserializationStrategy<Base>?
 internal typealias PolymorphicDeserializerProviderForNumber<Base> = (serialPolymorphicNumber: Int?) -> DeserializationStrategy<Base>?
 internal typealias PolymorphicSerializerProvider<Base> = (value: Base) -> SerializationStrategy<Base>?
