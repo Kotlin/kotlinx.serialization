@@ -6,7 +6,6 @@ package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.json.internal.CharMappings.CHAR_TO_TOKEN
 import kotlinx.serialization.json.internal.CharMappings.ESCAPE_2_CHAR
-import kotlinx.serialization.json.internal.lexer.*
 import kotlin.js.*
 import kotlin.jvm.*
 import kotlin.math.*
@@ -21,6 +20,8 @@ internal const val allowStructuredMapKeysHint =
 
 // special strings
 internal const val NULL = "null"
+@JvmField
+public var NEW_SKIP_ELEMENT: Boolean = true
 
 // special chars
 internal const val COMMA = ','
@@ -543,11 +544,54 @@ internal abstract class AbstractJsonLexer {
     }
 
     fun skipElement(allowLenientStrings: Boolean) {
-        var tokenStack = ByteArray(8)
+        if (NEW_SKIP_ELEMENT) skipNew(allowLenientStrings)
+        else skipOld(allowLenientStrings)
+    }
+
+
+    fun skipOld(allowLenientStrings: Boolean) {
+        val tokenStack = mutableListOf<Byte>()
+        var lastToken = peekNextToken()
+        if (lastToken != TC_BEGIN_LIST && lastToken != TC_BEGIN_OBJ) {
+            consumeStringLenient()
+            return
+        }
+        while (true) {
+            lastToken = peekNextToken()
+            if (lastToken == TC_STRING) {
+                if (allowLenientStrings) consumeStringLenient() else consumeKeyString()
+                continue
+            }
+            when (lastToken) {
+                TC_BEGIN_LIST, TC_BEGIN_OBJ -> {
+                    tokenStack.add(lastToken)
+                }
+                TC_END_LIST -> {
+                    if (tokenStack.last() != TC_BEGIN_LIST) nope()
+                    tokenStack.removeLast()
+                }
+                TC_END_OBJ -> {
+                    if (tokenStack.last() != TC_BEGIN_OBJ) throw JsonDecodingException(
+                        currentPosition,
+                        "found } instead of ] at path: $path",
+                        source
+                    )
+                    tokenStack.removeLast()
+                }
+                TC_EOF -> fail("Unexpected end of input due to malformed JSON during ignoring unknown keys")
+            }
+            consumeNextToken()
+            if (tokenStack.size == 0) return
+        }
+    }
+
+    private fun skipNew(allowLenientStrings: Boolean) {
+        var tokenStack = ByteArray(10)
         var size = 0
         var lastToken = peekNextToken()
         if (lastToken != TC_BEGIN_LIST && lastToken != TC_BEGIN_OBJ) {
             consumeStringLenient()
+
             return
         }
         while (true) {
@@ -563,14 +607,12 @@ internal abstract class AbstractJsonLexer {
                     }
                     tokenStack[size++] = lastToken
                 }
+
                 TC_END_LIST -> {
-                    if (tokenStack[size - 1] != TC_BEGIN_LIST) throw JsonDecodingException(
-                        currentPosition,
-                        "found ] instead of } at path: $path",
-                        source
-                    )
+                    if (tokenStack[size - 1] != TC_BEGIN_LIST) nope()
                     size--
                 }
+
                 TC_END_OBJ -> {
                     if (tokenStack[size - 1] != TC_BEGIN_OBJ) throw JsonDecodingException(
                         currentPosition,
@@ -579,11 +621,20 @@ internal abstract class AbstractJsonLexer {
                     )
                     size--
                 }
+
                 TC_EOF -> fail("Unexpected end of input due to malformed JSON during ignoring unknown keys")
             }
             consumeNextToken()
             if (size == 0) return
         }
+    }
+
+    private fun nope() {
+        throw JsonDecodingException(
+            currentPosition,
+            "found ] instead of } at path: $path",
+            source
+        )
     }
 
     override fun toString(): String {

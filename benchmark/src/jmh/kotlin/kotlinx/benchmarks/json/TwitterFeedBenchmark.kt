@@ -3,6 +3,7 @@ package kotlinx.benchmarks.json
 import kotlinx.benchmarks.model.*
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
+import kotlinx.serialization.json.internal.*
 import org.openjdk.jmh.annotations.*
 import java.util.concurrent.*
 
@@ -11,7 +12,7 @@ import java.util.concurrent.*
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.SECONDS)
 @State(Scope.Benchmark)
-@Fork(2)
+@Fork(1)
 open class TwitterFeedBenchmark {
 
     /*
@@ -36,34 +37,40 @@ open class TwitterFeedBenchmark {
         require(twitter == Json.decodeFromString(MacroTwitterFeed.serializer(), Json.encodeToString(MacroTwitterFeed.serializer(), twitter)))
     }
 
+    @Param("true", "false")
+    var newSkip = false
+
     // Order of magnitude: ~500 op/s
-    @Benchmark
-    fun decodeTwitter() = Json.decodeFromString(MacroTwitterFeed.serializer(), input)
+//    @Benchmark
+//    fun decodeTwitter() = Json.decodeFromString(MacroTwitterFeed.serializer(), input)
+//
+//    // Should be the same as decodeTwitter, since decodeTwitter never hit unknown name and therefore should never build deserializationNamesMap anyway
+//    @Benchmark
+//    fun decodeTwitterNoAltNames() = jsonNoAltNames.decodeFromString(MacroTwitterFeed.serializer(), input)
+//
+//    @Benchmark
+//    fun encodeTwitter() = Json.encodeToString(MacroTwitterFeed.serializer(), twitter)
 
-    // Should be the same as decodeTwitter, since decodeTwitter never hit unknown name and therefore should never build deserializationNamesMap anyway
     @Benchmark
-    fun decodeTwitterNoAltNames() = jsonNoAltNames.decodeFromString(MacroTwitterFeed.serializer(), input)
+    fun decodeMicroTwitter(): MicroTwitterFeed {
+        NEW_SKIP_ELEMENT = newSkip
+        return jsonIgnoreUnknwn.decodeFromString(MicroTwitterFeed.serializer(), input)
+    }
 
-    @Benchmark
-    fun encodeTwitter() = Json.encodeToString(MacroTwitterFeed.serializer(), twitter)
-
-    @Benchmark
-    fun decodeMicroTwitter() = jsonIgnoreUnknwn.decodeFromString(MicroTwitterFeed.serializer(), input)
-
-    // Should be faster than decodeMicroTwitter, as we explicitly opt-out from deserializationNamesMap on unknown name
-    @Benchmark
-    fun decodeMicroTwitterNoAltNames() = jsonIgnoreUnknwnNoAltNames.decodeFromString(MicroTwitterFeed.serializer(), input)
-
-    // Should be just a bit slower than decodeMicroTwitter, because alternative names map is created in both cases
-    @Benchmark
-    fun decodeMicroTwitterWithNamingStrategy(): MicroTwitterFeedKt = jsonNamingStrategyIgnoreUnknwn.decodeFromString(MicroTwitterFeedKt.serializer(), input)
-
-    // Can be slower than decodeTwitter, as we always build deserializationNamesMap when naming strategy is used
-    @Benchmark
-    fun decodeTwitterWithNamingStrategy(): MacroTwitterFeedKt = jsonNamingStrategy.decodeFromString(MacroTwitterFeedKt.serializer(), input)
-
-    // 15-20% slower than without the strategy. Without serializationNamesMap (invoking strategy on every write), up to 50% slower
-    @Benchmark
-    fun encodeTwitterWithNamingStrategy(): String = jsonNamingStrategy.encodeToString(MacroTwitterFeedKt.serializer(), twitterKt)
+//    // Should be faster than decodeMicroTwitter, as we explicitly opt-out from deserializationNamesMap on unknown name
+//    @Benchmark
+//    fun decodeMicroTwitterNoAltNames() = jsonIgnoreUnknwnNoAltNames.decodeFromString(MicroTwitterFeed.serializer(), input)
+//
+//    // Should be just a bit slower than decodeMicroTwitter, because alternative names map is created in both cases
+//    @Benchmark
+//    fun decodeMicroTwitterWithNamingStrategy(): MicroTwitterFeedKt = jsonNamingStrategyIgnoreUnknwn.decodeFromString(MicroTwitterFeedKt.serializer(), input)
+//
+//    // Can be slower than decodeTwitter, as we always build deserializationNamesMap when naming strategy is used
+//    @Benchmark
+//    fun decodeTwitterWithNamingStrategy(): MacroTwitterFeedKt = jsonNamingStrategy.decodeFromString(MacroTwitterFeedKt.serializer(), input)
+//
+//    // 15-20% slower than without the strategy. Without serializationNamesMap (invoking strategy on every write), up to 50% slower
+//    @Benchmark
+//    fun encodeTwitterWithNamingStrategy(): String = jsonNamingStrategy.encodeToString(MacroTwitterFeedKt.serializer(), twitterKt)
 
 }
