@@ -117,7 +117,6 @@ public class SealedClassSerializer<T : Any>(
 
     private val class2Serializer: Map<KClass<out T>, KSerializer<out T>>
     private val serialName2Serializer: Map<String, KSerializer<out T>>
-    private val serialPolymorphicNumber2Serializer : Map<Int, KSerializer<out T>>?
 
     init {
         if (subclasses.size != subclassSerializers.size) {
@@ -140,8 +139,10 @@ public class SealedClassSerializer<T : Any>(
                 }
                 element
             }.mapValues { it.value.value }
+    }
 
-        serialPolymorphicNumber2Serializer = if (descriptor.useSerialPolymorphicNumbers)
+    private val serialPolymorphicNumber2Serializer: Map<Int, KSerializer<out T>>? by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        if (descriptor.useSerialPolymorphicNumbers)
             class2Serializer.entries.groupingBy {
                 it.value.descriptor.serialPolymorphicNumberByBaseClass.getValue(baseClass)
             }
