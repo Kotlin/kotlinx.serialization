@@ -49,7 +49,6 @@ import kotlin.reflect.*
  * }
  * ```
  */
-@Suppress("FunctionName")
 @OptIn(ExperimentalSerializationApi::class)
 public fun buildClassSerialDescriptor(
     serialName: String,
