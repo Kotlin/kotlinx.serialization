@@ -208,6 +208,13 @@ public interface SerialDescriptor {
     @ExperimentalSerializationApi
     public val serialPolymorphicNumberByBaseClass: Map<KClass<*>, Int> get() = emptyMap()
 
+    @ExperimentalSerializationApi
+    public fun getSerialPolymorphicNumberByBaseClass(baseClass: KClass<*>): Int =
+        serialPolymorphicNumberByBaseClass.getOrElse(baseClass) {
+            throw SerializationException("The serial polymorphic number for $serialName in the scope of ${baseClass.simpleName} is not found. " +
+                "Please annotate the class with `@SerialPolymorphicNumber` with the first argument ${baseClass.simpleName}.")
+        }
+
     /**
      * Returns serial annotations of the associated class.
      * Serial annotations can be used to specify an additional metadata that may be used during serialization.

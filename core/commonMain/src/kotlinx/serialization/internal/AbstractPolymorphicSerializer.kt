@@ -34,9 +34,7 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
         encoder.encodeStructure(descriptor) {
             if (descriptor.useSerialPolymorphicNumbers)
                 encodeIntElement(
-                    descriptor,
-                    0,
-                    actualSerializer.descriptor.serialPolymorphicNumberByBaseClass.getValue(baseClass)
+                    descriptor, 0, actualSerializer.descriptor.getSerialPolymorphicNumberByBaseClass(baseClass)
                 )
             else
                 encodeStringElement(descriptor, 0, actualSerializer.descriptor.serialName)

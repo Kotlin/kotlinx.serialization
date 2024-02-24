@@ -22,6 +22,7 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
     private val subclasses: MutableList<Pair<KClass<out Base>, KSerializer<out Base>>> = mutableListOf()
     private var defaultSerializerProvider: ((Base) -> SerializationStrategy<Base>?)? = null
     private var defaultDeserializerProvider: PolymorphicDeserializerProvider<Base>? = null
+    private var defaultDeserializerProviderForNumber: PolymorphicDeserializerProviderForNumber<Base>? = null
 
     /*
     // TODO implement this or remove?
@@ -76,6 +77,16 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
     }
 
     /**
+     * TODO
+     */
+    public fun defaultDeserializerForNumber(defaultDeserializerProviderForNumber: (serialPolymorphicNumber: Int?) -> DeserializationStrategy<Base>?) {
+        require(this.defaultDeserializerProviderForNumber == null) {
+            "Default deserializer provider for number is already registered for class $baseClass: ${this.defaultDeserializerProvider}"
+        }
+        this.defaultDeserializerProviderForNumber = defaultDeserializerProviderForNumber
+    }
+
+    /**
      * Adds a default deserializers provider associated with the given [baseClass] to the resulting module.
      * This function affect only deserialization process. To avoid confusion, it was deprecated and replaced with [defaultDeserializer].
      * To affect serialization process, use [SerializersModuleBuilder.polymorphicDefaultSerializer].
@@ -122,6 +133,10 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
         val defaultDeserializer = defaultDeserializerProvider
         if (defaultDeserializer != null) {
             builder.registerDefaultPolymorphicDeserializer(baseClass, defaultDeserializer, false)
+        }
+
+        defaultDeserializerProviderForNumber?.let {
+            builder.registerDefaultPolymorphicDeserializerForNumber(baseClass, it, false)
         }
     }
 }

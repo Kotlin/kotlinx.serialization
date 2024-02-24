@@ -230,7 +230,7 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
             // Remove previous serializers from name mapping
             if (previousSerializer != null) {
                 names.remove(previousSerializer.descriptor.serialName)
-                numbers.remove(previousSerializer.descriptor.serialPolymorphicNumberByBaseClass[baseClass])
+                previousSerializer.descriptor.serialPolymorphicNumberByBaseClass[baseClass]?.let { numbers.remove(it) }
             }
             // Update mappings
             baseClassSerializers[concreteClass] = concreteSerializer
@@ -245,7 +245,7 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
             } else {
                 // Cleanup name mapping
                 names.remove(previousSerializer.descriptor.serialName)
-                numbers.remove(previousSerializer.descriptor.serialPolymorphicNumberByBaseClass[baseClass])
+                previousSerializer.descriptor.serialPolymorphicNumberByBaseClass[baseClass]?.let { numbers.remove(it) }
             }
         }
         val previousByName = names[name]

@@ -144,7 +144,7 @@ public class SealedClassSerializer<T : Any>(
     private val serialPolymorphicNumber2Serializer: Map<Int, KSerializer<out T>>? by lazy(LazyThreadSafetyMode.PUBLICATION) {
         if (descriptor.useSerialPolymorphicNumbers)
             class2Serializer.entries.groupingBy {
-                it.value.descriptor.serialPolymorphicNumberByBaseClass.getValue(baseClass)
+                it.value.descriptor.getSerialPolymorphicNumberByBaseClass(baseClass)
             }
                 .aggregate<Map.Entry<KClass<out T>, KSerializer<out T>>, Int, Map.Entry<KClass<*>, KSerializer<out T>>>
                 { key, accumulator, element, _ ->
