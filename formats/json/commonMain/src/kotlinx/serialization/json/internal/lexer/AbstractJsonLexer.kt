@@ -161,11 +161,19 @@ internal abstract class AbstractJsonLexer {
     // Used as bound check in loops
     abstract fun prefetchOrEof(position: Int): Int
 
-    abstract fun tryConsumeComma(): Boolean
-
     abstract fun canConsumeValue(): Boolean
 
     abstract fun consumeNextToken(): Byte
+
+    fun tryConsumeComma(): Boolean {
+        val current = skipWhitespaces()
+        if (current >= source.length || current == -1) return false
+        if (source[current] == ',') {
+            ++currentPosition
+            return true
+        }
+        return false
+    }
 
     protected fun isValidValueStart(c: Char): Boolean {
         return when (c) {
@@ -196,22 +204,8 @@ internal abstract class AbstractJsonLexer {
         return token
     }
 
-    open fun consumeNextToken(expected: Char) {
-        ensureHaveChars()
-        val source = source
-        var cpos = currentPosition
-        while (true) {
-            cpos = prefetchOrEof(cpos)
-            if (cpos == -1) break // could be inline function but KT-1436
-            val c = source[cpos++]
-            if (c == ' ' || c == '\n' || c == '\r' || c == '\t') continue
-            currentPosition = cpos
-            if (c == expected) return
-            unexpectedToken(expected)
-        }
-        currentPosition = cpos
-        unexpectedToken(expected) // EOF
-    }
+
+    abstract fun consumeNextToken(expected: Char)
 
     protected fun unexpectedToken(expected: Char) {
         if (currentPosition > 0 && expected == STRING) {
@@ -233,7 +227,7 @@ internal abstract class AbstractJsonLexer {
         fail("Expected $expected, but had '$s' instead", position)
     }
 
-    fun peekNextToken(): Byte {
+    open fun peekNextToken(): Byte {
         val source = source
         var cpos = currentPosition
         while (true) {
@@ -277,23 +271,7 @@ internal abstract class AbstractJsonLexer {
         return true
     }
 
-    open fun skipWhitespaces(): Int {
-        var current = currentPosition
-        // Skip whitespaces
-        while (true) {
-            current = prefetchOrEof(current)
-            if (current == -1) break
-            val c = source[current]
-            // Faster than char2TokenClass actually
-            if (c == ' ' || c == '\n' || c == '\r' || c == '\t') {
-                ++current
-            } else {
-                break
-            }
-        }
-        currentPosition = current
-        return current
-    }
+    abstract fun skipWhitespaces(): Int
 
     abstract fun peekLeadingMatchingValue(keyToMatch: String, isLenient: Boolean): String?
 

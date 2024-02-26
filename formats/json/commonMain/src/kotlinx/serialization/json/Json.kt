@@ -102,12 +102,13 @@ public sealed class Json(
      * @throws [IllegalArgumentException] if the decoded input cannot be represented as a valid instance of type [T]
      */
     public final override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, @FormatLanguage("json", "", "") string: String): T {
-        val lexer = StringJsonLexer(string)
+        val lexer = StringJsonLexer(this, string)
         val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer, deserializer.descriptor, null)
         val result = input.decodeSerializableValue(deserializer)
         lexer.expectEof()
         return result
     }
+
     /**
      * Serializes the given [value] into an equivalent [JsonElement] using the given [serializer]
      *
@@ -386,6 +387,22 @@ public class JsonBuilder internal constructor(json: Json) {
     public var allowTrailingComma: Boolean = json.configuration.allowTrailingComma
 
     /**
+     * Allows parser to accept C/Java-style comments in JSON input.
+     *
+     * Comments are being skipped and are not stored anywhere; this setting does not affect encoding in any way.
+     *
+     * More specifically, a comment is a substring that is not a part of JSON key or value, confirming to one of those:
+     *
+     * 1. Starts with `//` characters and ends with a newline character `\n`.
+     * 2. Starts with `/*` characters and ends with `*/` characters. Nesting block comments
+     *  is not supported: no matter how many `/*` characters you have, first `*/` will end the comment.
+     *
+     *  `false` by default.
+     */
+    @ExperimentalSerializationApi
+    public var allowComments: Boolean = json.configuration.allowComments
+
+    /**
      * Module with contextual and polymorphic serializers to be used in the resulting [Json] instance.
      *
      * @see SerializersModule
@@ -422,7 +439,7 @@ public class JsonBuilder internal constructor(json: Json) {
             allowStructuredMapKeys, prettyPrint, explicitNulls, prettyPrintIndent,
             coerceInputValues, useArrayPolymorphism,
             classDiscriminator, allowSpecialFloatingPointValues, useAlternativeNames,
-            namingStrategy, decodeEnumsCaseInsensitive, allowTrailingComma, classDiscriminatorMode
+            namingStrategy, decodeEnumsCaseInsensitive, allowTrailingComma, allowComments, classDiscriminatorMode
         )
     }
 }

@@ -4,35 +4,34 @@
 
 package kotlinx.serialization.json.internal
 
-internal class StringJsonLexer(override val source: String) : AbstractJsonLexer() {
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+@OptIn(ExperimentalSerializationApi::class)
+internal fun StringJsonLexer(json: Json, source: String) = if (!json.configuration.allowComments) StringJsonLexer(source) else StringJsonLexerWithComments(source)
+
+@Suppress("unused")
+internal open class StringJsonLexer(override val source: String) : AbstractJsonLexer() {
 
     override fun prefetchOrEof(position: Int): Int = if (position < source.length) position else -1
 
     override fun consumeNextToken(): Byte {
         val source = source
-        while (currentPosition != -1 && currentPosition < source.length) {
-            val ch = source[currentPosition++]
-            return when (val tc = charToTokenClass(ch)) {
-                TC_WHITESPACE -> continue
-                else -> tc
-            }
+        var cpos = currentPosition
+        while (cpos != -1 && cpos < source.length) {
+            val c = source[cpos++]
+            if (c == ' ' || c == '\n' || c == '\r' || c == '\t') continue
+            currentPosition = cpos
+            return charToTokenClass(c)
         }
+        currentPosition = source.length
         return TC_EOF
-    }
-
-    override fun tryConsumeComma(): Boolean {
-        val current = skipWhitespaces()
-        if (current == source.length || current == -1) return false
-        if (source[current] == ',') {
-            ++currentPosition
-            return true
-        }
-        return false
     }
 
     override fun canConsumeValue(): Boolean {
         var current = currentPosition
         if (current == -1) return false
+        val source = source
         while (current < source.length) {
             val c = source[current]
             // Inlined skipWhitespaces without field spill and nested loop. Also faster then char2TokenClass
@@ -50,6 +49,7 @@ internal class StringJsonLexer(override val source: String) : AbstractJsonLexer(
     override fun skipWhitespaces(): Int {
         var current = currentPosition
         if (current == -1) return current
+        val source = source
         // Skip whitespaces
         while (current < source.length) {
             val c = source[current]
@@ -67,9 +67,11 @@ internal class StringJsonLexer(override val source: String) : AbstractJsonLexer(
     override fun consumeNextToken(expected: Char) {
         if (currentPosition == -1) unexpectedToken(expected)
         val source = source
-        while (currentPosition < source.length) {
-            val c = source[currentPosition++]
+        var cpos = currentPosition
+        while (cpos < source.length) {
+            val c = source[cpos++]
             if (c == ' ' || c == '\n' || c == '\r' || c == '\t') continue
+            currentPosition = cpos
             if (c == expected) return
             unexpectedToken(expected)
         }

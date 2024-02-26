@@ -359,7 +359,7 @@ public fun <T> decodeStringToJsonTree(
     deserializer: DeserializationStrategy<T>,
     source: String
 ): JsonElement {
-    val lexer = StringJsonLexer(source)
+    val lexer = StringJsonLexer(json, source)
     val input = StreamingJsonDecoder(json, WriteMode.OBJ, lexer, deserializer.descriptor, null)
     val tree = input.decodeJsonElement()
     lexer.expectEof()

@@ -38,6 +38,8 @@ public class JsonConfiguration @OptIn(ExperimentalSerializationApi::class) inter
     @ExperimentalSerializationApi
     public val allowTrailingComma: Boolean = false,
     @ExperimentalSerializationApi
+    public val allowComments: Boolean = false,
+    @ExperimentalSerializationApi
     public var classDiscriminatorMode: ClassDiscriminatorMode = ClassDiscriminatorMode.POLYMORPHIC,
 ) {
 

@@ -108,6 +108,7 @@ public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun getPrettyPrint ()Z
 	public final fun getPrettyPrintIndent ()Ljava/lang/String;
 	public final fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public final fun getSupportComments ()Z
 	public final fun getUseAlternativeNames ()Z
 	public final fun getUseArrayPolymorphism ()Z
 	public final fun isLenient ()Z
@@ -126,6 +127,7 @@ public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun setPrettyPrint (Z)V
 	public final fun setPrettyPrintIndent (Ljava/lang/String;)V
 	public final fun setSerializersModule (Lkotlinx/serialization/modules/SerializersModule;)V
+	public final fun setSupportComments (Z)V
 	public final fun setUseAlternativeNames (Z)V
 	public final fun setUseArrayPolymorphism (Z)V
 }
@@ -154,6 +156,7 @@ public final class kotlinx/serialization/json/JsonConfiguration {
 	public final fun getNamingStrategy ()Lkotlinx/serialization/json/JsonNamingStrategy;
 	public final fun getPrettyPrint ()Z
 	public final fun getPrettyPrintIndent ()Ljava/lang/String;
+	public final fun getSupportComments ()Z
 	public final fun getUseAlternativeNames ()Z
 	public final fun getUseArrayPolymorphism ()Z
 	public final fun isLenient ()Z
