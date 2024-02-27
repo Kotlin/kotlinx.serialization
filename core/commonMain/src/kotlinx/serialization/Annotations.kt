@@ -171,7 +171,7 @@ public annotation class UseSerialPolymorphicNumbers
 @MustBeDocumented
 @Target(AnnotationTarget.CLASS)
 @Repeatable
-public annotation class SerialPolymorphicNumber(val baseClass: KClass<*>, val value: Int)
+public annotation class SerialPolymorphicNumber(val baseClass: KClass<*>, val number: Int)
 
 /**
  * Indicates that property must be present during deserialization process, despite having a default value.
