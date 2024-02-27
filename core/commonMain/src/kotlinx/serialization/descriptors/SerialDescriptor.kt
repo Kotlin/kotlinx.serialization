@@ -19,14 +19,14 @@ import kotlinx.serialization.encoding.*
  * each structure in a distinguishable and format-agnostic manner.
  *
  * ### Structure
- * Serial descriptor is identified by its [name][serialName] and consists of kind, potentially empty set of
+ * Serial descriptor is identified by its [name][serialName] and consists of a kind, potentially empty set of
  * children elements and additional metadata.
  *
  * * [serialName] uniquely identifies the descriptor (and the corresponding serializer) for non-generic types.
- *   For generic types, the actual type substitution is omitted from the string representation and the name
- *   identifies the family of the serializers without type substitutions. However, type substitution is accounted
- *   in [equals] and [hashCode] operations, meaning that descriptors of generic classes with the same name, but different type
- *   arguments, are not equal to each other.
+ *   For generic types, the actual type substitution is omitted from the string representation, and the name
+ *   identifies the family of the serializers without type substitutions. However, type substitution is accounted for
+ *   in [equals] and [hashCode] operations, meaning that descriptors of generic classes with the same name but different type
+ *   arguments are not equal to each other.
  *   [serialName] is typically used to specify the type of the target class during serialization of polymorphic and sealed
  *   classes, for observability and diagnostics.
  * * [Kind][SerialKind] defines what this descriptor represents: primitive, enum, object, collection etc.
@@ -145,12 +145,12 @@ import kotlinx.serialization.encoding.*
  */
 public interface SerialDescriptor {
     /**
-     * Serial name of the descriptor that identifies pair of the associated serializer and target class.
+     * Serial name of the descriptor that identifies a pair of the associated serializer and target class.
      *
-     * For generated serializers, serial name is equal to the corresponding class's fully-qualified name
+     * For generated and default serializers, the serial name should be equal to the corresponding class's fully-qualified name
      * or, if overridden, [SerialName].
-     * Custom serializers should provide a unique serial name that identify both the serializable class and
-     * the serializer itself, ignoring type arguments, if they are present.
+     * Custom serializers should provide a unique serial name that identifies both the serializable class and
+     * the serializer itself, ignoring type arguments, if they are present, for example: `my.package.LongAsTrimmedString`
      */
     @ExperimentalSerializationApi
     public val serialName: String
