@@ -32,6 +32,19 @@ class SerialPolymorphicNumberTest {
         class Case : Sealed3()
     }
 
+    @Serializable
+    @UseSerialPolymorphicNumbers
+    sealed class Sealed4 {
+        @Serializable
+        @UseSerialPolymorphicNumbers
+        sealed class Sealed41 : Sealed4(){
+            @Serializable
+            @SerialPolymorphicNumber(Sealed4::class, 1)
+            @SerialPolymorphicNumber(Sealed41::class, 2)
+            class Case : Sealed41()
+        }
+    }
+
     @Test
     fun testSealed() {
         testConversion<Sealed1>(Sealed1.Case(), """{"type":1}""")
@@ -42,6 +55,8 @@ class SerialPolymorphicNumberTest {
         assertFailsWith(SerializationException::class) {
             Json.decodeFromString<Sealed3>("{}")
         }
+        testConversion<Sealed4>(Sealed4.Sealed41.Case(), """{"type":1}""")
+        testConversion<Sealed4.Sealed41>(Sealed4.Sealed41.Case(), """{"type":2}""")
     }
 
     @Serializable

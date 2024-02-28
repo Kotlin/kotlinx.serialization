@@ -53,8 +53,6 @@ import kotlin.reflect.*
 public fun buildClassSerialDescriptor(
     serialName: String,
     vararg typeParameters: SerialDescriptor,
-    useSerialPolymorphicNumbers: Boolean = false,
-    serialPolymorphicNumbers: Map<KClass<*>, Int> = emptyMap(),
     builderAction: ClassSerialDescriptorBuilder.() -> Unit = {}
 ): SerialDescriptor {
     require(serialName.isNotBlank()) { "Blank serial names are prohibited" }
@@ -65,8 +63,6 @@ public fun buildClassSerialDescriptor(
         StructureKind.CLASS,
         sdBuilder.elementNames.size,
         typeParameters.toList(),
-        useSerialPolymorphicNumbers,
-        serialPolymorphicNumbers,
         sdBuilder
     )
 }
@@ -143,23 +139,13 @@ public fun buildSerialDescriptor(
     serialName: String,
     kind: SerialKind,
     vararg typeParameters: SerialDescriptor,
-    useSerialPolymorphicNumbers: Boolean = false,
-    serialPolymorphicNumbers: Map<KClass<*>, Int> = emptyMap(),
     builder: ClassSerialDescriptorBuilder.() -> Unit = {}
 ): SerialDescriptor {
     require(serialName.isNotBlank()) { "Blank serial names are prohibited" }
     require(kind != StructureKind.CLASS) { "For StructureKind.CLASS please use 'buildClassSerialDescriptor' instead" }
     val sdBuilder = ClassSerialDescriptorBuilder(serialName)
     sdBuilder.builder()
-    return SerialDescriptorImpl(
-        serialName,
-        kind,
-        sdBuilder.elementNames.size,
-        typeParameters.toList(),
-        useSerialPolymorphicNumbers,
-        serialPolymorphicNumbers,
-        sdBuilder
-    )
+    return SerialDescriptorImpl(serialName, kind, sdBuilder.elementNames.size, typeParameters.toList(), sdBuilder)
 }
 
 
@@ -322,8 +308,6 @@ internal class SerialDescriptorImpl(
     override val kind: SerialKind,
     override val elementsCount: Int,
     typeParameters: List<SerialDescriptor>,
-    override val useSerialPolymorphicNumbers : Boolean,
-    override val serialPolymorphicNumberByBaseClass : Map<KClass<*>, Int>,
     builder: ClassSerialDescriptorBuilder
 ) : SerialDescriptor, CachedNames {
 
