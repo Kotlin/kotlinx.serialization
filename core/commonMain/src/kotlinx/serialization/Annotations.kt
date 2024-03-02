@@ -155,22 +155,23 @@ public annotation class SerialName(val value: String)
 /**
  * Requires all subclasses to use [SerialPolymorphicNumber].
  */
-@MustBeDocumented
+@SerialInfo
 @Target(AnnotationTarget.CLASS)
-@Repeatable
+@ExperimentalSerializationApi
 public annotation class UseSerialPolymorphicNumbers
 
 /**
  * When its parent class is annotated with [UseSerialPolymorphicNumbers],
  * overrides its [String]-typed serial name when serialized as a subclass of the parent class in [baseClass]
  * (including the value overridden by [SerialName] if set)
- * with a [Int]-typed number in [value].
+ * with a [Int]-typed number in [number].
  *
  * Using a number instead of a string shortens the size of the serialized message, especially in a binary format.
  */
-@MustBeDocumented
+@SerialInfo
 @Target(AnnotationTarget.CLASS)
 @Repeatable
+@ExperimentalSerializationApi
 public annotation class SerialPolymorphicNumber(val baseClass: KClass<*>, val number: Int)
 
 /**

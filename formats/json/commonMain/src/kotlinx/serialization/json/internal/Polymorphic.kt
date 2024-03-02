@@ -9,14 +9,13 @@ import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
-import kotlinx.serialization.modules.*
-import kotlin.jvm.*
 
 @Suppress("UNCHECKED_CAST")
 internal inline fun <T> JsonEncoder.encodePolymorphically(
     serializer: SerializationStrategy<T>,
     value: T,
-    ifPolymorphic: (String) -> Unit
+    ifHasBaseClassDiscriminator: (String) -> Unit,
+    ifUseSerialPolymorphicNumber : (Int) -> Unit
 ) {
     if (json.configuration.useArrayPolymorphism) {
         serializer.serialize(this, value)
@@ -42,7 +41,11 @@ internal inline fun <T> JsonEncoder.encodePolymorphically(
         actual as SerializationStrategy<T>
     } else serializer
 
-    if (baseClassDiscriminator != null) ifPolymorphic(baseClassDiscriminator)
+    if (baseClassDiscriminator != null) ifHasBaseClassDiscriminator(baseClassDiscriminator)
+
+    if (isPolymorphicSerializer && serializer.descriptor.useSerialPolymorphicNumbers)
+        ifUseSerialPolymorphicNumber(actualSerializer.descriptor.getSerialPolymorphicNumberByBaseClass((serializer as AbstractPolymorphicSerializer<Any>).baseClass))
+
     actualSerializer.serialize(this, value)
 }
 
@@ -79,11 +82,18 @@ internal fun <T> JsonDecoder.decodeSerializableValuePolymorphic(deserializer: De
     val discriminator = deserializer.descriptor.classDiscriminator(json)
 
     val jsonTree = cast<JsonObject>(decodeJsonElement(), deserializer.descriptor)
-    val type = jsonTree[discriminator]?.jsonPrimitive?.contentOrNull // differentiate between `"type":"null"` and `"type":null`.
+    val useSerialPolymorphicNumbers = deserializer.descriptor.useSerialPolymorphicNumbers
+    val type = if (useSerialPolymorphicNumbers)
+        jsonTree[discriminator]?.jsonPrimitive?.intOrNull
+    else
+        jsonTree[discriminator]?.jsonPrimitive?.contentOrNull // differentiate between `"type":"null"` and `"type":null`.
     @Suppress("UNCHECKED_CAST")
     val actualSerializer =
         try {
-            deserializer.findPolymorphicSerializer(this, type)
+            if (useSerialPolymorphicNumbers)
+                deserializer.findPolymorphicSerializerWithNumber(this, type as Int?)
+            else
+                deserializer.findPolymorphicSerializer(this, type as String?)
         } catch (it: SerializationException) { //  Wrap SerializationException into JsonDecodingException to preserve input
             throw JsonDecodingException(-1, it.message!!, jsonTree.toString())
         } as DeserializationStrategy<T>

@@ -197,31 +197,42 @@ public interface SerialDescriptor {
     public val elementsCount: Int
 
     /**
-     * TODO
-     */
-    @ExperimentalSerializationApi
-    public val useSerialPolymorphicNumbers: Boolean get() = false
-
-    /**
-     * TODO
-     */
-    @ExperimentalSerializationApi
-    public val serialPolymorphicNumberByBaseClass: Map<KClass<*>, Int> get() = emptyMap()
-
-    @ExperimentalSerializationApi
-    public fun getSerialPolymorphicNumberByBaseClass(baseClass: KClass<*>): Int =
-        serialPolymorphicNumberByBaseClass.getOrElse(baseClass) {
-            throw SerializationException("The serial polymorphic number for $serialName in the scope of ${baseClass.simpleName} is not found. " +
-                "Please annotate the class with `@SerialPolymorphicNumber` with the first argument ${baseClass.simpleName}.")
-        }
-
-    /**
      * Returns serial annotations of the associated class.
      * Serial annotations can be used to specify an additional metadata that may be used during serialization.
      * Only annotations marked with [SerialInfo] are added to the resulting list.
      */
     @ExperimentalSerializationApi
     public val annotations: List<Annotation> get() = emptyList()
+
+    /**
+     * TODO
+     */
+    @ExperimentalSerializationApi
+    public val useSerialPolymorphicNumbers: Boolean
+        get() =
+            annotations.any { it is UseSerialPolymorphicNumbers }
+
+    /**
+     * TODO
+     */
+    @ExperimentalSerializationApi
+    public val serialPolymorphicNumberByBaseClass: Map<KClass<*>, Int>
+        get() =
+            annotations.asSequence().mapNotNull { it as? SerialPolymorphicNumber }
+                .groupBy { it.baseClass }
+                .mapValues {
+                    it.value.singleOrNull()?.number
+                        ?: throw SerializationException("duplicate base classes in `@SerialPolymorphicNumber` annotations registered for $serialName")
+                }
+
+    @ExperimentalSerializationApi
+    public fun getSerialPolymorphicNumberByBaseClass(baseClass: KClass<*>): Int =
+        serialPolymorphicNumberByBaseClass.getOrElse(baseClass) {
+            throw SerializationException(
+                "The serial polymorphic number for `$serialName` in the scope of `${baseClass.simpleName}` is not found. " +
+                    "Please annotate the class with `@SerialPolymorphicNumber` with the first argument being `${baseClass.simpleName}`."
+            )
+        }
 
     /**
      * Returns a positional name of the child at the given [index].

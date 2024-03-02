@@ -8,11 +8,19 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import kotlin.test.*
 
-inline fun <reified T> testConversion(json: Json, data: T, expectedHexString: String) {
-    val string = json.encodeToString(data)
-    assertEquals(expectedHexString, string)
-    assertEquals(data, json.decodeFromString(string))
+inline fun <reified T> testConversion(json: Json, data: T, expectedString: String) {
+    assertEquals(expectedString, json.encodeToString(data))
+    assertEquals(data, json.decodeFromString(expectedString))
+
+    jvmOnly {
+        assertEquals(expectedString, json.encodeViaStream(serializer(), data))
+        assertEquals(data, json.decodeViaStream(serializer(), expectedString))
+    }
+
+    val jsonElement = json.encodeToJsonElement(data)
+    assertEquals(expectedString, jsonElement.toString())
+    assertEquals(data, json.decodeFromJsonElement(jsonElement))
 }
 
-inline fun <reified T> testConversion(data: T, expectedHexString: String) =
-    testConversion(Json, data, expectedHexString)
+inline fun <reified T> testConversion(data: T, expectedString: String) =
+    testConversion(Json, data, expectedString)

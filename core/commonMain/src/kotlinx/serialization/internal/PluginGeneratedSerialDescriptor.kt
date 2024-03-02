@@ -8,7 +8,6 @@ package kotlinx.serialization.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.CompositeDecoder.Companion.UNKNOWN_NAME
-import kotlin.reflect.*
 
 /**
  * Implementation that plugin uses to implement descriptors for auto-generated serializers.
@@ -18,10 +17,8 @@ import kotlin.reflect.*
 internal open class PluginGeneratedSerialDescriptor(
     override val serialName: String,
     private val generatedSerializer: GeneratedSerializer<*>? = null,
-    final override val elementsCount: Int,
-    override val useSerialPolymorphicNumbers: Boolean = false,
-    override val serialPolymorphicNumberByBaseClass: Map<KClass<*>, Int> = emptyMap()
-) : SerialDescriptor, CachedNames {
+    final override val elementsCount: Int
+) : CommonSerialDescriptor(), CachedNames {
     override val kind: SerialKind get() = StructureKind.CLASS
     override val annotations: List<Annotation> get() = classAnnotations ?: emptyList()
 

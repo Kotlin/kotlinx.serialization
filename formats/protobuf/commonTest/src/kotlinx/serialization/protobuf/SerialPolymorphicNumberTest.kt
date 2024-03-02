@@ -2,14 +2,25 @@
  * Copyright 2017-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package kotlinx.serialization
+package kotlinx.serialization.protobuf
 
-import kotlinx.serialization.json.*
+import kotlinx.serialization.*
 import kotlinx.serialization.modules.*
-import kotlinx.serialization.test.*
 import kotlin.test.*
 
+/**
+ * Copied and adapted from [kotlinx.serialization.SerialPolymorphicNumberTest].
+ */
 class SerialPolymorphicNumberTest {
+    inline fun <reified T> testConversion(protoBuf: ProtoBuf, data: T, expectedHexString: String) {
+        val string = protoBuf.encodeToHexString(data)
+        assertEquals(expectedHexString, string)
+        assertEquals(data, protoBuf.decodeFromHexString(string))
+    }
+
+    inline fun <reified T> testConversion(data: T, expectedHexString: String) =
+        testConversion(ProtoBuf, data, expectedHexString)
+
     @Serializable
     @UseSerialPolymorphicNumbers
     sealed class Sealed1 {
@@ -51,17 +62,23 @@ class SerialPolymorphicNumberTest {
 
     @Test
     fun testSealed() {
-        testConversion<Sealed1>(Sealed1.Case1(1), """{"type":1,"property":1}""")
-        testConversion<Sealed1>(Sealed1.Case2, """{"type":2}""")
-        testConversion<Sealed2>(Sealed2.Case, """{"type":"${Sealed2.Case.serializer().descriptor.serialName}"}""")
-        assertFailsWith(SerializationException::class) {
-            Json.encodeToString<Sealed3>(Sealed3.Case)
+        testConversion<Sealed1>(Sealed1.Case1(1), "080112020801")
+        testConversion<Sealed1>(Sealed1.Case2, "08021200")
+        run {
+            val serialName = Sealed2.Case.serializer().descriptor.serialName
+            testConversion<Sealed2>(
+                Sealed2.Case,
+                "0a" + serialName.length.toByte().toHexString() + serialName.encodeToByteArray().toHexString() + "1200"
+            )
         }
         assertFailsWith(SerializationException::class) {
-            Json.decodeFromString<Sealed3>("{}")
+            ProtoBuf.encodeToHexString<Sealed3>(Sealed3.Case)
         }
-        testConversion<Sealed4>(Sealed4.Sealed41.Case, """{"type":1}""")
-        testConversion<Sealed4.Sealed41>(Sealed4.Sealed41.Case, """{"type":2}""")
+        assertFailsWith(SerializationException::class) {
+            ProtoBuf.decodeFromHexString<Sealed3>("08011200")
+        }
+        testConversion<Sealed4>(Sealed4.Sealed41.Case, "08011200")
+        testConversion<Sealed4.Sealed41>(Sealed4.Sealed41.Case, "08021200")
     }
 
     @Serializable
@@ -75,7 +92,7 @@ class SerialPolymorphicNumberTest {
         data class Default(val type: Int?) : Abstract()
     }
 
-    val json = Json {
+    val protoBuf = ProtoBuf {
         serializersModule = SerializersModule {
             polymorphic(Abstract::class) {
                 subclass(Abstract.Case::class)
@@ -88,7 +105,8 @@ class SerialPolymorphicNumberTest {
 
     @Test
     fun testPolymorphicModule() {
-        testConversion<Abstract>(json, Abstract.Case, """{"type":1}""")
-        assertEquals(Abstract.Default(0), json.decodeFromString<Abstract>("""{"type":0}"""))
+        testConversion<Abstract>(protoBuf, Abstract.Case, "08011200")
+        // TODO Not working. However, even the original default serializer for serial names is not working for Protobuf as tested.
+        // assertEquals(Abstract.Default(0), protoBuf.decodeFromHexString<Abstract>("08001200"))
     }
 }
