@@ -127,7 +127,6 @@ public class SealedClassSerializer<T : Any>(
         // Plugin should produce identical serializers, although they are not always strictly equal (e.g. new ObjectSerializer
         // may be created every time)
         class2Serializer = subclasses.zip(subclassSerializers).toMap()
-
         serialName2Serializer = class2Serializer.entries.groupingBy { it.value.descriptor.serialName }
             .aggregate<Map.Entry<KClass<out T>, KSerializer<out T>>, String, Map.Entry<KClass<*>, KSerializer<out T>>>
             { key, accumulator, element, _ ->

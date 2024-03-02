@@ -143,11 +143,11 @@ internal fun throwSubtypeNotRegistered(serialPolymorphicNumber: Int?, baseClass:
     throw SerializationException(
         (
             if (serialPolymorphicNumber == null)
-                "Class discriminator serial polymorphic number was missing and no default serializers were registered $scope."
+                "Class discriminator (serial polymorphic number) was missing and no default serializers were registered $scope."
             else
-                "Serializer for subclass serial polymorphic number '$serialPolymorphicNumber' is not found $scope.\n" +
+                "Serializer for subclass serial polymorphic number '$serialPolymorphicNumber' is not found in $scope.\n" +
                     "Check if class with serial polymorphic number '$serialPolymorphicNumber' exists and serializer is registered in a corresponding SerializersModule.\n" +
-                    "To be registered automatically, class annotated with '@SerialPolymorphicNumber($serialPolymorphicNumber)' has to be '@Serializable', and the base class '${baseClass.simpleName}' has to be sealed and '@Serializable'.\n"
+                    "To be registered automatically, class annotated with '@SerialPolymorphicNumber($serialPolymorphicNumber)' has to be '@Serializable', and the base class '${baseClass.simpleName}' marked with `@UseSerialPolymorphicNumbers` has to be sealed and '@Serializable'.\n"
             ) +
             "\nRemove the `@UseSerialPolymorphicNumbers` annotation from the base class `${baseClass.simpleName}` if you want to switch back to polymorphic serialization using the serial name strings."
     )

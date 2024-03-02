@@ -153,7 +153,7 @@ public annotation class Serializer(
 public annotation class SerialName(val value: String)
 
 /**
- * Requires all subclasses to use [SerialPolymorphicNumber].
+ * Requires all subclasses marked with this annotation to use [SerialPolymorphicNumber].
  */
 @SerialInfo
 @Target(AnnotationTarget.CLASS)

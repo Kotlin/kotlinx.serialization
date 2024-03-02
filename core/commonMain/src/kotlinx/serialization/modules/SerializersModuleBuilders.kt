@@ -188,7 +188,7 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
     internal fun <Base : Any> registerDefaultPolymorphicDeserializer(
         baseClass: KClass<Base>,
         defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<Base>?,
-        //defaultDeserializerProvider: PolymorphicDeserializerProvider<Base>,
+        //defaultDeserializerProvider: PolymorphicDeserializerProvider<Base>, // this causes the build to fail on JS, but only when there is no trailing comment such as this one, which is strange
         allowOverwrite: Boolean
     ) {
         val previous = polyBase2DefaultDeserializerProvider[baseClass]
@@ -202,7 +202,7 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
     internal fun <Base : Any> registerDefaultPolymorphicDeserializerForNumber(
         baseClass: KClass<Base>,
         defaultDeserializerProvider: (polymorphicSerialNumber: Int?) -> DeserializationStrategy<Base>?,
-        //defaultDeserializerProvider: PolymorphicDeserializerProviderForNumber<Base>,
+        //defaultDeserializerProvider: PolymorphicDeserializerProviderForNumber<Base>, // this causes the build to fail on JS, but only when there is no trailing comment such as this one, which is strange
         allowOverwrite: Boolean
     ) {
         val previous = polyBase2DefaultDeserializerProviderForNumber[baseClass]
