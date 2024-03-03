@@ -713,7 +713,7 @@ data class OkResponse<out T>(val data: T) : Response<T>()
  
 Kotlin Serialization does not have a builtin strategy to represent the actually provided argument type for the
 type parameter `T` when serializing a property of the polymorphic type `OkResponse<T>`. We have to provide this 
-strategy explicitly when defining the serializers module for the `Response`. In the below example we
+strategy explicitly when defining the serializers module for `Response`. In the below example we
 use `OkResponse.serializer(...)` to retrieve 
 the [Plugin-generated generic serializer](serializers.md#plugin-generated-generic-serializer) of
 the `OkResponse` class and instantiate it with the [PolymorphicSerializer] instance with 

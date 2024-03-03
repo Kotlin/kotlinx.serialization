@@ -387,7 +387,7 @@ String is considered to be a primitive type, therefore we used `PrimitiveClassDe
 Now let's see what our actions would be if we have to serialize `Color` as another non-primitive type, let's say `IntArray`.
 
 An implementation of [KSerializer] for our original `Color` class is going to perform a conversion between
-`Color` and `IntArray`, but delegate the actual serialization logic to the `IntArraySerializer`
+`Color` and `IntArray`, but delegate the actual serialization logic to `IntArraySerializer`
 using [encodeSerializableValue][Encoder.encodeSerializableValue] and
 [decodeSerializableValue][Decoder.decodeSerializableValue].
 
