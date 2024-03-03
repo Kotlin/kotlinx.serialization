@@ -183,7 +183,7 @@ public sealed class Hocon(
 
                     val reader = ConfigReader(config)
                     val type = reader.decodeTaggedString(classDiscriminator)
-                    val actualSerializer = deserializer.findPolymorphicSerializerOrNull(reader, type)
+                    val actualSerializer = deserializer.findPolymorphicDeserializerOrNull(reader, type)
                         ?: throw SerializerNotFoundException(type)
 
                     @Suppress("UNCHECKED_CAST")

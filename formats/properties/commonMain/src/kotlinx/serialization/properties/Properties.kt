@@ -105,7 +105,7 @@ public sealed class Properties(
         final override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
             if (deserializer is AbstractPolymorphicSerializer<*>) {
                 val type = map[nested("type")]?.toString()
-                val actualSerializer: DeserializationStrategy<Any> = deserializer.findPolymorphicSerializer(this, type)
+                val actualSerializer: DeserializationStrategy<Any> = deserializer.findPolymorphicDeserializer(this, type)
 
                 @Suppress("UNCHECKED_CAST")
                 return actualSerializer.deserialize(this) as T

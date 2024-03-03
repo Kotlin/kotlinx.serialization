@@ -140,11 +140,11 @@ public class SealedClassSerializer<T : Any>(
             }.mapValues { it.value.value }
     }
 
-    override fun findPolymorphicSerializerOrNull(
+    override fun findPolymorphicDeserializerOrNull(
         decoder: CompositeDecoder,
         klassName: String?
     ): DeserializationStrategy<T>? {
-        return serialName2Serializer[klassName] ?: super.findPolymorphicSerializerOrNull(decoder, klassName)
+        return serialName2Serializer[klassName] ?: super.findPolymorphicDeserializerOrNull(decoder, klassName)
     }
 
     override fun findPolymorphicSerializerOrNull(encoder: Encoder, value: T): SerializationStrategy<T>? {

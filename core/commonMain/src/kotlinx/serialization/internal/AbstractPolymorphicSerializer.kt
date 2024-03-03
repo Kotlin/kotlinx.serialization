@@ -53,7 +53,7 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
                 }
                 1 -> {
                     klassName = requireNotNull(klassName) { "Cannot read polymorphic value before its type token" }
-                    val serializer = findPolymorphicSerializer(this, klassName)
+                    val serializer = findPolymorphicDeserializer(this, klassName)
                     value = decodeSerializableElement(descriptor, index, serializer)
                 }
                 else -> throw SerializationException(
@@ -69,7 +69,7 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
 
     private fun decodeSequentially(compositeDecoder: CompositeDecoder): T {
         val klassName = compositeDecoder.decodeStringElement(descriptor, 0)
-        val serializer = findPolymorphicSerializer(compositeDecoder, klassName)
+        val serializer = findPolymorphicDeserializer(compositeDecoder, klassName)
         return compositeDecoder.decodeSerializableElement(descriptor, 1, serializer)
     }
 
@@ -78,7 +78,7 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
      * May use context from the [decoder].
      */
     @InternalSerializationApi
-    public open fun findPolymorphicSerializerOrNull(
+    public open fun findPolymorphicDeserializerOrNull(
         decoder: CompositeDecoder,
         klassName: String?
     ): DeserializationStrategy<T>? = decoder.serializersModule.getPolymorphic(baseClass, klassName)

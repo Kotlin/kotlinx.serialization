@@ -9,8 +9,6 @@ import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
-import kotlinx.serialization.modules.*
-import kotlin.jvm.*
 
 @Suppress("UNCHECKED_CAST")
 internal inline fun <T> JsonEncoder.encodePolymorphically(
@@ -83,7 +81,7 @@ internal fun <T> JsonDecoder.decodeSerializableValuePolymorphic(deserializer: De
     @Suppress("UNCHECKED_CAST")
     val actualSerializer =
         try {
-            deserializer.findPolymorphicSerializer(this, type)
+            deserializer.findPolymorphicDeserializer(this, type)
         } catch (it: SerializationException) { //  Wrap SerializationException into JsonDecodingException to preserve input
             throw JsonDecodingException(-1, it.message!!, jsonTree.toString())
         } as DeserializationStrategy<T>

@@ -70,7 +70,7 @@ public final class kotlinx/serialization/PolymorphicSerializer : kotlinx/seriali
 }
 
 public final class kotlinx/serialization/PolymorphicSerializerKt {
-	public static final fun findPolymorphicSerializer (Lkotlinx/serialization/internal/AbstractPolymorphicSerializer;Lkotlinx/serialization/encoding/CompositeDecoder;Ljava/lang/String;)Lkotlinx/serialization/DeserializationStrategy;
+	public static final fun findPolymorphicDeserializer (Lkotlinx/serialization/internal/AbstractPolymorphicSerializer;Lkotlinx/serialization/encoding/CompositeDecoder;Ljava/lang/String;)Lkotlinx/serialization/DeserializationStrategy;
 	public static final fun findPolymorphicSerializer (Lkotlinx/serialization/internal/AbstractPolymorphicSerializer;Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)Lkotlinx/serialization/SerializationStrategy;
 }
 
@@ -80,7 +80,7 @@ public abstract interface annotation class kotlinx/serialization/Required : java
 public final class kotlinx/serialization/SealedClassSerializer : kotlinx/serialization/internal/AbstractPolymorphicSerializer {
 	public fun <init> (Ljava/lang/String;Lkotlin/reflect/KClass;[Lkotlin/reflect/KClass;[Lkotlinx/serialization/KSerializer;)V
 	public fun <init> (Ljava/lang/String;Lkotlin/reflect/KClass;[Lkotlin/reflect/KClass;[Lkotlinx/serialization/KSerializer;[Ljava/lang/annotation/Annotation;)V
-	public fun findPolymorphicSerializerOrNull (Lkotlinx/serialization/encoding/CompositeDecoder;Ljava/lang/String;)Lkotlinx/serialization/DeserializationStrategy;
+	public fun findPolymorphicDeserializerOrNull (Lkotlinx/serialization/encoding/CompositeDecoder;Ljava/lang/String;)Lkotlinx/serialization/DeserializationStrategy;
 	public fun findPolymorphicSerializerOrNull (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)Lkotlinx/serialization/SerializationStrategy;
 	public fun getBaseClass ()Lkotlin/reflect/KClass;
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
@@ -562,7 +562,7 @@ public abstract class kotlinx/serialization/internal/AbstractCollectionSerialize
 
 public abstract class kotlinx/serialization/internal/AbstractPolymorphicSerializer : kotlinx/serialization/KSerializer {
 	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public fun findPolymorphicSerializerOrNull (Lkotlinx/serialization/encoding/CompositeDecoder;Ljava/lang/String;)Lkotlinx/serialization/DeserializationStrategy;
+	public fun findPolymorphicDeserializerOrNull (Lkotlinx/serialization/encoding/CompositeDecoder;Ljava/lang/String;)Lkotlinx/serialization/DeserializationStrategy;
 	public fun findPolymorphicSerializerOrNull (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)Lkotlinx/serialization/SerializationStrategy;
 	public abstract fun getBaseClass ()Lkotlin/reflect/KClass;
 	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V

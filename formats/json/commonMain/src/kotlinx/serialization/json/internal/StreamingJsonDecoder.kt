@@ -76,7 +76,7 @@ internal open class StreamingJsonDecoder(
 
             @Suppress("UNCHECKED_CAST")
             val actualSerializer = try {
-                    deserializer.findPolymorphicSerializer(this, type)
+                    deserializer.findPolymorphicDeserializer(this, type)
                 } catch (it: SerializationException) { // Wrap SerializationException into JsonDecodingException to preserve position, path, and input.
                     // Split multiline message from private core function:
                     // core/commonMain/src/kotlinx/serialization/internal/AbstractPolymorphicSerializer.kt:102
