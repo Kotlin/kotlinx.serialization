@@ -427,7 +427,7 @@ fun main() {
 ``` 
 > You can get the full code [here](../guide/example/example-builtin-13.kt).
 
-When encoding, the serializer for the `Nothing` was not used
+When encoding, the serializer for `Nothing` was not used
 
 ```text
 {"value":42}

@@ -648,7 +648,7 @@ A decoder needs to implement more substance.
   in the `elementIndex` variable. See 
   the [Hand-written composite serializer](serializers.md#hand-written-composite-serializer) section 
   on how it ends up being used.
-* [beginStructure][Decoder.beginStructure] &mdash; returns a new instance of the `ListDecoder`, so that
+* [beginStructure][Decoder.beginStructure] &mdash; returns a new instance of `ListDecoder`, so that
   each structure that is being recursively decoded keeps track of its own `elementIndex` state separately.  
 
 ```kotlin
