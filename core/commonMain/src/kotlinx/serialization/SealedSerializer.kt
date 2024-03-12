@@ -140,12 +140,38 @@ public class SealedClassSerializer<T : Any>(
             }.mapValues { it.value.value }
     }
 
+    private val serialPolymorphicNumber2Serializer: Map<Int, KSerializer<out T>>? by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        if (descriptor.useSerialPolymorphicNumbers)
+            class2Serializer.entries.groupingBy {
+                it.value.descriptor.getSerialPolymorphicNumberByBaseClass(baseClass)
+            }
+                .aggregate<Map.Entry<KClass<out T>, KSerializer<out T>>, Int, Map.Entry<KClass<*>, KSerializer<out T>>>
+                { key, accumulator, element, _ ->
+                    if (accumulator != null) {
+                        error(
+                            "Multiple sealed subclasses of '$baseClass' have the same serial polymorphic number '$key':" +
+                                " '${accumulator.key}', '${element.key}'"
+                        )
+                    }
+                    element
+                }.mapValues { it.value.value }
+        else
+            null
+    }
+
     override fun findPolymorphicSerializerOrNull(
         decoder: CompositeDecoder,
         klassName: String?
     ): DeserializationStrategy<T>? {
         return serialName2Serializer[klassName] ?: super.findPolymorphicSerializerOrNull(decoder, klassName)
     }
+
+    @InternalSerializationApi
+    override fun findPolymorphicSerializerWithNumberOrNull(
+        decoder: CompositeDecoder, serialPolymorphicNumber: Int?
+    ): DeserializationStrategy<T>? =
+        serialPolymorphicNumber2Serializer!![serialPolymorphicNumber]
+            ?: super.findPolymorphicSerializerWithNumberOrNull(decoder, serialPolymorphicNumber)
 
     override fun findPolymorphicSerializerOrNull(encoder: Encoder, value: T): SerializationStrategy<T>? {
         return (class2Serializer[value::class] ?: super.findPolymorphicSerializerOrNull(encoder, value))?.cast()

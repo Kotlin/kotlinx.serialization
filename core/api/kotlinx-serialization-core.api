@@ -72,6 +72,7 @@ public final class kotlinx/serialization/PolymorphicSerializer : kotlinx/seriali
 public final class kotlinx/serialization/PolymorphicSerializerKt {
 	public static final fun findPolymorphicSerializer (Lkotlinx/serialization/internal/AbstractPolymorphicSerializer;Lkotlinx/serialization/encoding/CompositeDecoder;Ljava/lang/String;)Lkotlinx/serialization/DeserializationStrategy;
 	public static final fun findPolymorphicSerializer (Lkotlinx/serialization/internal/AbstractPolymorphicSerializer;Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)Lkotlinx/serialization/SerializationStrategy;
+	public static final fun findPolymorphicSerializerWithNumber (Lkotlinx/serialization/internal/AbstractPolymorphicSerializer;Lkotlinx/serialization/encoding/CompositeDecoder;Ljava/lang/Integer;)Lkotlinx/serialization/DeserializationStrategy;
 }
 
 public abstract interface annotation class kotlinx/serialization/Required : java/lang/annotation/Annotation {
@@ -82,6 +83,7 @@ public final class kotlinx/serialization/SealedClassSerializer : kotlinx/seriali
 	public fun <init> (Ljava/lang/String;Lkotlin/reflect/KClass;[Lkotlin/reflect/KClass;[Lkotlinx/serialization/KSerializer;[Ljava/lang/annotation/Annotation;)V
 	public fun findPolymorphicSerializerOrNull (Lkotlinx/serialization/encoding/CompositeDecoder;Ljava/lang/String;)Lkotlinx/serialization/DeserializationStrategy;
 	public fun findPolymorphicSerializerOrNull (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)Lkotlinx/serialization/SerializationStrategy;
+	public fun findPolymorphicSerializerWithNumberOrNull (Lkotlinx/serialization/encoding/CompositeDecoder;Ljava/lang/Integer;)Lkotlinx/serialization/DeserializationStrategy;
 	public fun getBaseClass ()Lkotlin/reflect/KClass;
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 }
@@ -100,6 +102,21 @@ public abstract interface annotation class kotlinx/serialization/SerialInfo : ja
 
 public abstract interface annotation class kotlinx/serialization/SerialName : java/lang/annotation/Annotation {
 	public abstract fun value ()Ljava/lang/String;
+}
+
+public abstract interface annotation class kotlinx/serialization/SerialPolymorphicNumber : java/lang/annotation/Annotation {
+	public abstract fun baseClass ()Ljava/lang/Class;
+	public abstract fun number ()I
+}
+
+public abstract interface annotation class kotlinx/serialization/SerialPolymorphicNumber$Container : java/lang/annotation/Annotation {
+	public abstract fun value ()[Lkotlinx/serialization/SerialPolymorphicNumber;
+}
+
+public synthetic class kotlinx/serialization/SerialPolymorphicNumber$Impl : kotlinx/serialization/SerialPolymorphicNumber {
+	public fun <init> (Lkotlin/reflect/KClass;I)V
+	public final synthetic fun baseClass ()Ljava/lang/Class;
+	public final synthetic fun number ()I
 }
 
 public abstract interface annotation class kotlinx/serialization/Serializable : java/lang/annotation/Annotation {
@@ -154,6 +171,13 @@ public final class kotlinx/serialization/UnknownFieldException : kotlinx/seriali
 
 public abstract interface annotation class kotlinx/serialization/UseContextualSerialization : java/lang/annotation/Annotation {
 	public abstract fun forClasses ()[Ljava/lang/Class;
+}
+
+public abstract interface annotation class kotlinx/serialization/UseSerialPolymorphicNumbers : java/lang/annotation/Annotation {
+}
+
+public synthetic class kotlinx/serialization/UseSerialPolymorphicNumbers$Impl : kotlinx/serialization/UseSerialPolymorphicNumbers {
+	public fun <init> ()V
 }
 
 public abstract interface annotation class kotlinx/serialization/UseSerializers : java/lang/annotation/Annotation {
@@ -283,6 +307,9 @@ public abstract interface class kotlinx/serialization/descriptors/SerialDescript
 	public abstract fun getElementsCount ()I
 	public abstract fun getKind ()Lkotlinx/serialization/descriptors/SerialKind;
 	public abstract fun getSerialName ()Ljava/lang/String;
+	public abstract fun getSerialPolymorphicNumberByBaseClass ()Ljava/util/Map;
+	public abstract fun getSerialPolymorphicNumberByBaseClass (Lkotlin/reflect/KClass;)I
+	public abstract fun getUseSerialPolymorphicNumbers ()Z
 	public abstract fun isElementOptional (I)Z
 	public abstract fun isInline ()Z
 	public abstract fun isNullable ()Z
@@ -290,6 +317,9 @@ public abstract interface class kotlinx/serialization/descriptors/SerialDescript
 
 public final class kotlinx/serialization/descriptors/SerialDescriptor$DefaultImpls {
 	public static fun getAnnotations (Lkotlinx/serialization/descriptors/SerialDescriptor;)Ljava/util/List;
+	public static fun getSerialPolymorphicNumberByBaseClass (Lkotlinx/serialization/descriptors/SerialDescriptor;)Ljava/util/Map;
+	public static fun getSerialPolymorphicNumberByBaseClass (Lkotlinx/serialization/descriptors/SerialDescriptor;Lkotlin/reflect/KClass;)I
+	public static fun getUseSerialPolymorphicNumbers (Lkotlinx/serialization/descriptors/SerialDescriptor;)Z
 	public static fun isInline (Lkotlinx/serialization/descriptors/SerialDescriptor;)Z
 	public static fun isNullable (Lkotlinx/serialization/descriptors/SerialDescriptor;)Z
 }
@@ -564,6 +594,7 @@ public abstract class kotlinx/serialization/internal/AbstractPolymorphicSerializ
 	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
 	public fun findPolymorphicSerializerOrNull (Lkotlinx/serialization/encoding/CompositeDecoder;Ljava/lang/String;)Lkotlinx/serialization/DeserializationStrategy;
 	public fun findPolymorphicSerializerOrNull (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)Lkotlinx/serialization/SerializationStrategy;
+	public fun findPolymorphicSerializerWithNumberOrNull (Lkotlinx/serialization/encoding/CompositeDecoder;Ljava/lang/Integer;)Lkotlinx/serialization/DeserializationStrategy;
 	public abstract fun getBaseClass ()Lkotlin/reflect/KClass;
 	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
 }
@@ -961,7 +992,7 @@ public final class kotlinx/serialization/internal/PluginExceptionsKt {
 	public static final fun throwMissingFieldException (IILkotlinx/serialization/descriptors/SerialDescriptor;)V
 }
 
-public class kotlinx/serialization/internal/PluginGeneratedSerialDescriptor : kotlinx/serialization/descriptors/SerialDescriptor, kotlinx/serialization/internal/CachedNames {
+public class kotlinx/serialization/internal/PluginGeneratedSerialDescriptor : kotlinx/serialization/internal/CachedNames {
 	public fun <init> (Ljava/lang/String;Lkotlinx/serialization/internal/GeneratedSerializer;I)V
 	public synthetic fun <init> (Ljava/lang/String;Lkotlinx/serialization/internal/GeneratedSerializer;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun addElement (Ljava/lang/String;Z)V
@@ -978,8 +1009,6 @@ public class kotlinx/serialization/internal/PluginGeneratedSerialDescriptor : ko
 	public fun getSerialNames ()Ljava/util/Set;
 	public fun hashCode ()I
 	public fun isElementOptional (I)Z
-	public fun isInline ()Z
-	public fun isNullable ()Z
 	public final fun pushAnnotation (Ljava/lang/annotation/Annotation;)V
 	public final fun pushClassAnnotation (Ljava/lang/annotation/Annotation;)V
 	public fun toString ()Ljava/lang/String;
@@ -1289,6 +1318,7 @@ public final class kotlinx/serialization/modules/PolymorphicModuleBuilder {
 	public final fun buildTo (Lkotlinx/serialization/modules/SerializersModuleBuilder;)V
 	public final fun default (Lkotlin/jvm/functions/Function1;)V
 	public final fun defaultDeserializer (Lkotlin/jvm/functions/Function1;)V
+	public final fun defaultDeserializerForNumber (Lkotlin/jvm/functions/Function1;)V
 	public final fun subclass (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
 }
 
@@ -1299,6 +1329,7 @@ public abstract class kotlinx/serialization/modules/SerializersModule {
 	public static synthetic fun getContextual$default (Lkotlinx/serialization/modules/SerializersModule;Lkotlin/reflect/KClass;Ljava/util/List;ILjava/lang/Object;)Lkotlinx/serialization/KSerializer;
 	public abstract fun getPolymorphic (Lkotlin/reflect/KClass;Ljava/lang/Object;)Lkotlinx/serialization/SerializationStrategy;
 	public abstract fun getPolymorphic (Lkotlin/reflect/KClass;Ljava/lang/String;)Lkotlinx/serialization/DeserializationStrategy;
+	public abstract fun getPolymorphicWithNumber (Lkotlin/reflect/KClass;Ljava/lang/Integer;)Lkotlinx/serialization/DeserializationStrategy;
 }
 
 public final class kotlinx/serialization/modules/SerializersModuleBuilder : kotlinx/serialization/modules/SerializersModuleCollector {
@@ -1310,6 +1341,7 @@ public final class kotlinx/serialization/modules/SerializersModuleBuilder : kotl
 	public fun polymorphic (Lkotlin/reflect/KClass;Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
 	public fun polymorphicDefault (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
 	public fun polymorphicDefaultDeserializer (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
+	public fun polymorphicDefaultDeserializerForNumber (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
 	public fun polymorphicDefaultSerializer (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
 }
 
@@ -1327,6 +1359,7 @@ public abstract interface class kotlinx/serialization/modules/SerializersModuleC
 	public abstract fun polymorphic (Lkotlin/reflect/KClass;Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
 	public abstract fun polymorphicDefault (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
 	public abstract fun polymorphicDefaultDeserializer (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
+	public abstract fun polymorphicDefaultDeserializerForNumber (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
 	public abstract fun polymorphicDefaultSerializer (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
 }
 

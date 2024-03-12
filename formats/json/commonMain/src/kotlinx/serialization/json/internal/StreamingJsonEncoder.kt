@@ -43,6 +43,7 @@ internal class StreamingJsonEncoder(
     // Forces serializer to wrap all values into quotes
     private var forceQuoting: Boolean = false
     private var polymorphicDiscriminator: String? = null
+    private var serialPolymorphicNumber : Int? = null
 
     init {
         val i = mode.ordinal
@@ -61,9 +62,7 @@ internal class StreamingJsonEncoder(
     }
 
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
-        encodePolymorphically(serializer, value) {
-            polymorphicDiscriminator = it
-        }
+        encodePolymorphically(serializer, value, { polymorphicDiscriminator = it }, { serialPolymorphicNumber = it })
     }
 
     private fun encodeTypeInfo(descriptor: SerialDescriptor) {
@@ -71,7 +70,11 @@ internal class StreamingJsonEncoder(
         encodeString(polymorphicDiscriminator!!)
         composer.print(COLON)
         composer.space()
-        encodeString(descriptor.serialName)
+        serialPolymorphicNumber?.let {
+            encodeInt(it)
+            serialPolymorphicNumber = null
+        }
+            ?: encodeString(descriptor.serialName)
     }
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {

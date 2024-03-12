@@ -87,4 +87,11 @@ internal class PolymorphismValidator(
     ) {
         // Nothing here
     }
+
+    override fun <Base : Any> polymorphicDefaultDeserializerForNumber(
+        baseClass: KClass<Base>,
+        defaultDeserializerProvider: (serialPolymorphicNumber: Int?) -> DeserializationStrategy<Base>?
+    ) {
+        // Nothing here
+    }
 }

@@ -63,6 +63,13 @@ public sealed class SerializersModule {
     public abstract fun <T : Any> getPolymorphic(baseClass: KClass<in T>, serializedClassName: String?): DeserializationStrategy<T>?
 
     /**
+     * TODO
+     */
+    public abstract fun <T : Any> getPolymorphicWithNumber(
+        baseClass: KClass<in T>, serializedNumber: Int?
+    ): DeserializationStrategy<T>?
+
+    /**
      * Copies contents of this module to the given [collector].
      */
     @ExperimentalSerializationApi
@@ -76,7 +83,8 @@ public sealed class SerializersModule {
     level = DeprecationLevel.WARNING,
     replaceWith = ReplaceWith("EmptySerializersModule()"))
 @JsName("EmptySerializersModuleLegacyJs") // Compatibility with JS
-public val EmptySerializersModule: SerializersModule = SerialModuleImpl(emptyMap(), emptyMap(), emptyMap(), emptyMap(), emptyMap())
+public val EmptySerializersModule: SerializersModule =
+    SerialModuleImpl(emptyMap(), emptyMap(), emptyMap(), emptyMap(), emptyMap(), emptyMap(), emptyMap())
 
 /**
  * Returns a combination of two serial modules
@@ -131,6 +139,15 @@ public infix fun SerializersModule.overwriteWith(other: SerializersModule): Seri
         ) {
             registerDefaultPolymorphicDeserializer(baseClass, defaultDeserializerProvider, allowOverwrite = true)
         }
+
+        override fun <Base : Any> polymorphicDefaultDeserializerForNumber(
+            baseClass: KClass<Base>,
+            defaultDeserializerProvider: PolymorphicDeserializerProviderForNumber<Base>
+        ) {
+            registerDefaultPolymorphicDeserializerForNumber(
+                baseClass, defaultDeserializerProvider, allowOverwrite = true
+            )
+        }
     })
 }
 
@@ -147,7 +164,9 @@ internal class SerialModuleImpl(
     @JvmField val polyBase2Serializers: Map<KClass<*>, Map<KClass<*>, KSerializer<*>>>,
     private val polyBase2DefaultSerializerProvider: Map<KClass<*>, PolymorphicSerializerProvider<*>>,
     private val polyBase2NamedSerializers: Map<KClass<*>, Map<String, KSerializer<*>>>,
-    private val polyBase2DefaultDeserializerProvider: Map<KClass<*>, PolymorphicDeserializerProvider<*>>
+    private val polyBase2NumberedSerializers: Map<KClass<*>, Map<Int, KSerializer<*>>>,
+    private val polyBase2DefaultDeserializerProvider: Map<KClass<*>, PolymorphicDeserializerProvider<*>>,
+    private val polyBase2DefaultDeserializerProviderForNumber: Map<KClass<*>, PolymorphicDeserializerProviderForNumber<*>>
 ) : SerializersModule() {
 
     override fun <T : Any> getPolymorphic(baseClass: KClass<in T>, value: T): SerializationStrategy<T>? {
@@ -165,6 +184,18 @@ internal class SerialModuleImpl(
         if (registered != null) return registered
         // Default
         return (polyBase2DefaultDeserializerProvider[baseClass] as? PolymorphicDeserializerProvider<T>)?.invoke(serializedClassName)
+    }
+
+    override fun <T : Any> getPolymorphicWithNumber(
+        baseClass: KClass<in T>, serializedNumber: Int?
+    ): DeserializationStrategy<T>? {
+        // Registered
+        val registered = polyBase2NumberedSerializers[baseClass]?.get(serializedNumber) as? KSerializer<out T>
+        if (registered != null) return registered
+        // Default
+        return (polyBase2DefaultDeserializerProviderForNumber[baseClass] as? PolymorphicDeserializerProviderForNumber<T>)?.invoke(
+            serializedNumber
+        )
     }
 
     override fun <T : Any> getContextual(kClass: KClass<T>, typeArgumentsSerializers: List<KSerializer<*>>): KSerializer<T>? {
@@ -203,6 +234,7 @@ internal class SerialModuleImpl(
 }
 
 internal typealias PolymorphicDeserializerProvider<Base> = (className: String?) -> DeserializationStrategy<Base>?
+internal typealias PolymorphicDeserializerProviderForNumber<Base> = (serialPolymorphicNumber: Int?) -> DeserializationStrategy<Base>?
 internal typealias PolymorphicSerializerProvider<Base> = (value: Base) -> SerializationStrategy<Base>?
 
 /** This class is needed to support re-registering the same static (argless) serializers:

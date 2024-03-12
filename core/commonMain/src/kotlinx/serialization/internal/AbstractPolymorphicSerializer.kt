@@ -7,6 +7,7 @@ package kotlinx.serialization.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.encoding.*
 import kotlin.jvm.*
+import kotlin.properties.*
 import kotlin.reflect.*
 
 /**
@@ -31,13 +32,19 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
     public final override fun serialize(encoder: Encoder, value: T) {
         val actualSerializer = findPolymorphicSerializer(encoder, value)
         encoder.encodeStructure(descriptor) {
-            encodeStringElement(descriptor, 0, actualSerializer.descriptor.serialName)
+            if (descriptor.useSerialPolymorphicNumbers)
+                encodeIntElement(
+                    descriptor, 0, actualSerializer.descriptor.getSerialPolymorphicNumberByBaseClass(baseClass)
+                )
+            else
+                encodeStringElement(descriptor, 0, actualSerializer.descriptor.serialName)
             encodeSerializableElement(descriptor, 1, actualSerializer.cast(), value)
         }
     }
 
     public final override fun deserialize(decoder: Decoder): T = decoder.decodeStructure(descriptor) {
         var klassName: String? = null
+        var serialPolymorphicNumber: Int? = null
         var value: Any? = null
         if (decodeSequentially()) {
             return@decodeStructure decodeSequentially(this)
@@ -48,14 +55,25 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
                 CompositeDecoder.DECODE_DONE -> {
                     break@mainLoop
                 }
+
                 0 -> {
-                    klassName = decodeStringElement(descriptor, index)
+                    if (descriptor.useSerialPolymorphicNumbers)
+                        serialPolymorphicNumber = decodeIntElement(descriptor, index)
+                    else
+                        klassName = decodeStringElement(descriptor, index)
                 }
+
                 1 -> {
-                    klassName = requireNotNull(klassName) { "Cannot read polymorphic value before its type token" }
-                    val serializer = findPolymorphicSerializer(this, klassName)
+                    val serializer = if (descriptor.useSerialPolymorphicNumbers) {
+                        requireNotNull(serialPolymorphicNumber) { "Cannot read polymorphic value before its type token" }
+                        findPolymorphicSerializerWithNumber(this, serialPolymorphicNumber)
+                    } else {
+                        requireNotNull(klassName) { "Cannot read polymorphic value before its type token" }
+                        findPolymorphicSerializer(this, klassName)
+                    }
                     value = decodeSerializableElement(descriptor, index, serializer)
                 }
+
                 else -> throw SerializationException(
                     "Invalid index in polymorphic deserialization of " +
                         (klassName ?: "unknown class") +
@@ -83,6 +101,16 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
         klassName: String?
     ): DeserializationStrategy<T>? = decoder.serializersModule.getPolymorphic(baseClass, klassName)
 
+    /**
+     * TODO
+     */
+    @InternalSerializationApi
+    public open fun findPolymorphicSerializerWithNumberOrNull(
+        decoder: CompositeDecoder,
+        serialPolymorphicNumber: Int?
+    ): DeserializationStrategy<T>? =
+        decoder.serializersModule.getPolymorphicWithNumber(baseClass, serialPolymorphicNumber)
+
 
     /**
      * Lookups an actual serializer for given [value] within the current [base class][baseClass].
@@ -106,6 +134,22 @@ internal fun throwSubtypeNotRegistered(subClassName: String?, baseClass: KClass<
             "Serializer for subclass '$subClassName' is not found $scope.\n" +
                 "Check if class with serial name '$subClassName' exists and serializer is registered in a corresponding SerializersModule.\n" +
                 "To be registered automatically, class '$subClassName' has to be '@Serializable', and the base class '${baseClass.simpleName}' has to be sealed and '@Serializable'."
+    )
+}
+
+@JvmName("throwSubtypeNotRegistered")
+internal fun throwSubtypeNotRegistered(serialPolymorphicNumber: Int?, baseClass: KClass<*>): Nothing {
+    val scope = "in the polymorphic scope of '${baseClass.simpleName}'"
+    throw SerializationException(
+        (
+            if (serialPolymorphicNumber == null)
+                "Class discriminator (serial polymorphic number) was missing and no default serializers were registered $scope."
+            else
+                "Serializer for subclass serial polymorphic number '$serialPolymorphicNumber' is not found in $scope.\n" +
+                    "Check if class with serial polymorphic number '$serialPolymorphicNumber' exists and serializer is registered in a corresponding SerializersModule.\n" +
+                    "To be registered automatically, class annotated with '@SerialPolymorphicNumber($serialPolymorphicNumber)' has to be '@Serializable', and the base class '${baseClass.simpleName}' marked with `@UseSerialPolymorphicNumbers` has to be sealed and '@Serializable'.\n"
+            ) +
+            "\nRemove the `@UseSerialPolymorphicNumbers` annotation from the base class `${baseClass.simpleName}` if you want to switch back to polymorphic serialization using the serial name strings."
     )
 }
 

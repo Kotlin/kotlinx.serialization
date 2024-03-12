@@ -7,6 +7,7 @@ package kotlinx.serialization.descriptors
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.encoding.*
+import kotlin.reflect.*
 
 /**
  * Serial descriptor is an inherent property of [KSerializer] that describes the structure of the serializable type.
@@ -202,6 +203,36 @@ public interface SerialDescriptor {
      */
     @ExperimentalSerializationApi
     public val annotations: List<Annotation> get() = emptyList()
+
+    /**
+     * TODO
+     */
+    @ExperimentalSerializationApi
+    public val useSerialPolymorphicNumbers: Boolean
+        get() =
+            annotations.any { it is UseSerialPolymorphicNumbers }
+
+    /**
+     * TODO
+     */
+    @ExperimentalSerializationApi
+    public val serialPolymorphicNumberByBaseClass: Map<KClass<*>, Int>
+        get() =
+            annotations.asSequence().mapNotNull { it as? SerialPolymorphicNumber }
+                .groupBy { it.baseClass }
+                .mapValues {
+                    it.value.singleOrNull()?.number
+                        ?: throw SerializationException("duplicate base classes in `@SerialPolymorphicNumber` annotations registered for $serialName")
+                }
+
+    @ExperimentalSerializationApi
+    public fun getSerialPolymorphicNumberByBaseClass(baseClass: KClass<*>): Int =
+        serialPolymorphicNumberByBaseClass.getOrElse(baseClass) {
+            throw SerializationException(
+                "The serial polymorphic number for `$serialName` in the scope of `${baseClass.simpleName}` is not found. " +
+                    "Please annotate the class with `@SerialPolymorphicNumber` with the first argument being `${baseClass.simpleName}`."
+            )
+        }
 
     /**
      * Returns a positional name of the child at the given [index].

@@ -72,7 +72,7 @@ public interface SerializersModuleCollector {
      */
     public fun <Base : Any> polymorphicDefaultDeserializer(
         baseClass: KClass<Base>,
-        defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<Base>?
+        defaultDeserializerProvider: PolymorphicDeserializerProvider<Base>
     )
 
     /**
@@ -101,4 +101,9 @@ public interface SerializersModuleCollector {
     ) {
         polymorphicDefaultDeserializer(baseClass, defaultDeserializerProvider)
     }
+
+    public fun <Base : Any> polymorphicDefaultDeserializerForNumber(
+        baseClass: KClass<Base>,
+        defaultDeserializerProvider: PolymorphicDeserializerProviderForNumber<Base>
+    )
 }
