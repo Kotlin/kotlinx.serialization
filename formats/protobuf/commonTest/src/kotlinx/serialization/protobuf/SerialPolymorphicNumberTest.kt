@@ -89,7 +89,7 @@ class SerialPolymorphicNumberTest {
         object Case : Abstract()
 
         @Serializable
-        data class Default(val type: Int?) : Abstract()
+        object Default : Abstract()
     }
 
     val protoBuf = ProtoBuf {
@@ -106,7 +106,6 @@ class SerialPolymorphicNumberTest {
     @Test
     fun testPolymorphicModule() {
         testConversion<Abstract>(protoBuf, Abstract.Case, "08011200")
-        // TODO Not working. However, even the original default serializer for serial names is not working for Protobuf as tested.
-        // assertEquals(Abstract.Default(0), protoBuf.decodeFromHexString<Abstract>("08001200"))
+        assertEquals(Abstract.Default, protoBuf.decodeFromHexString<Abstract>("08001200"))
     }
 }
