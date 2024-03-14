@@ -20,7 +20,7 @@ internal open class StringJsonLexer(override val source: String) : AbstractJsonL
         var cpos = currentPosition
         while (cpos != -1 && cpos < source.length) {
             val c = source[cpos++]
-            if (c == ' ' || c == '\n' || c == '\r' || c == '\t') continue
+            if (c.isWs()) continue
             currentPosition = cpos
             return charToTokenClass(c)
         }
@@ -35,7 +35,7 @@ internal open class StringJsonLexer(override val source: String) : AbstractJsonL
         while (current < source.length) {
             val c = source[current]
             // Inlined skipWhitespaces without field spill and nested loop. Also faster then char2TokenClass
-            if (c == ' ' || c == '\n' || c == '\r' || c == '\t') {
+            if (c.isWs()) {
                 ++current
                 continue
             }
@@ -54,7 +54,7 @@ internal open class StringJsonLexer(override val source: String) : AbstractJsonL
         while (current < source.length) {
             val c = source[current]
             // Faster than char2TokenClass actually
-            if (c == ' ' || c == '\n' || c == '\r' || c == '\t') {
+            if (c.isWs()) {
                 ++current
             } else {
                 break
@@ -70,7 +70,7 @@ internal open class StringJsonLexer(override val source: String) : AbstractJsonL
         var cpos = currentPosition
         while (cpos < source.length) {
             val c = source[cpos++]
-            if (c == ' ' || c == '\n' || c == '\r' || c == '\t') continue
+            if (c.isWs()) continue
             currentPosition = cpos
             if (c == expected) return
             unexpectedToken(expected)

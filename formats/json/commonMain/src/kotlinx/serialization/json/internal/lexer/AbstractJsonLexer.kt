@@ -154,6 +154,9 @@ internal abstract class AbstractJsonLexer {
     @JvmField
     val path = JsonPath()
 
+    @Suppress("NOTHING_TO_INLINE")
+    protected inline fun Char.isWs() = this == ' ' || this == '\n' || this == '\r' || this == '\t'
+
     open fun ensureHaveChars() {}
 
     fun isNotEof(): Boolean = peekNextToken() != TC_EOF

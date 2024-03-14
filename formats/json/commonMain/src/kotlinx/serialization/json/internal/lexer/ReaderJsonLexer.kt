@@ -59,7 +59,7 @@ internal open class ReaderJsonLexer(
             if (current == -1) break // could be inline function but KT-1436
             val c = source[current]
             // Inlined skipWhitespaces without field spill and nested loop. Also faster then char2TokenClass
-            if (c == ' ' || c == '\n' || c == '\r' || c == '\t') {
+            if (c.isWs()) {
                 ++current
                 continue
             }
@@ -126,7 +126,7 @@ internal open class ReaderJsonLexer(
             cpos = prefetchOrEof(cpos)
             if (cpos == -1) break // could be inline function but KT-1436
             val c = source[cpos++]
-            if (c == ' ' || c == '\n' || c == '\r' || c == '\t') continue
+            if (c.isWs()) continue
             currentPosition = cpos
             if (c == expected) return
             unexpectedToken(expected)
@@ -143,7 +143,7 @@ internal open class ReaderJsonLexer(
             if (current == -1) break
             val c = source[current]
             // Faster than char2TokenClass actually
-            if (c == ' ' || c == '\n' || c == '\r' || c == '\t') {
+            if (c.isWs()) {
                 ++current
             } else {
                 break

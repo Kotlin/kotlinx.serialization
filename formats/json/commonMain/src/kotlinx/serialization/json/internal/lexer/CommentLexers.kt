@@ -63,7 +63,7 @@ internal class StringJsonLexerWithComments(source: String): StringJsonLexer(sour
         while (current < source.length) {
             val c = source[current]
             // Faster than char2TokenClass actually
-            if (c == ' ' || c == '\n' || c == '\r' || c == '\t') {
+            if (c.isWs()) {
                 ++current
                 continue
             }
@@ -180,7 +180,7 @@ internal class ReaderJsonLexerWithComments(reader: InternalJsonReader, buffer: C
             if (current == -1) break
             val c = source[current]
             // Faster than char2TokenClass actually
-            if (c == ' ' || c == '\n' || c == '\r' || c == '\t') {
+            if (c.isWs()) {
                 ++current
                 continue
             }
