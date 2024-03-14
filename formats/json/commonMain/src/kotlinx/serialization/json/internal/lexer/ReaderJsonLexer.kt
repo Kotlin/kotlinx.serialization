@@ -37,7 +37,7 @@ internal class ArrayAsSequence(internal val buffer: CharArray) : CharSequence {
 
 @OptIn(ExperimentalSerializationApi::class)
 internal fun ReaderJsonLexer(json: Json, reader: InternalJsonReader, buffer: CharArray = CharArrayPoolBatchSize.take()) =
-    if (json.configuration.allowComments) ReaderJsonLexerWithComments(reader, buffer) else ReaderJsonLexer(reader, buffer)
+    if (!json.configuration.allowComments) ReaderJsonLexer(reader, buffer) else ReaderJsonLexerWithComments(reader, buffer)
 
 internal open class ReaderJsonLexer(
     val reader: InternalJsonReader,
