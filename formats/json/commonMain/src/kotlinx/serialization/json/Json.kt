@@ -391,7 +391,7 @@ public class JsonBuilder internal constructor(json: Json) {
      *
      * Comments are being skipped and are not stored anywhere; this setting does not affect encoding in any way.
      *
-     * More specifically, a comment is a substring that is not a part of JSON key or value, confirming to one of those:
+     * More specifically, a comment is a substring that is not a part of JSON key or value, conforming to one of those:
      *
      * 1. Starts with `//` characters and ends with a newline character `\n`.
      * 2. Starts with `/*` characters and ends with `*/` characters. Nesting block comments

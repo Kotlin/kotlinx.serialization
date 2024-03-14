@@ -168,7 +168,7 @@ internal abstract class AbstractJsonLexer {
     fun tryConsumeComma(): Boolean {
         val current = skipWhitespaces()
         val source = source
-        if (current >= _source.length || current == -1) return false
+        if (current >= source.length || current == -1) return false
         if (source[current] == ',') {
             ++currentPosition
             return true
