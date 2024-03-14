@@ -35,7 +35,8 @@ internal fun <T> Json.readPolymorphicJson(
 
 private sealed class AbstractJsonTreeDecoder(
     override val json: Json,
-    open val value: JsonElement
+    open val value: JsonElement,
+    protected val polymorphicDiscriminator: String? = null
 ) : NamedValueDecoder(), JsonDecoder {
 
     override val serializersModule: SerializersModule
@@ -63,7 +64,7 @@ private sealed class AbstractJsonTreeDecoder(
                 { JsonTreeMapDecoder(json, cast(currentObject, descriptor)) },
                 { JsonTreeListDecoder(json, cast(currentObject, descriptor)) }
             )
-            else -> JsonTreeDecoder(json, cast(currentObject, descriptor))
+            else -> JsonTreeDecoder(json, cast(currentObject, descriptor), polymorphicDiscriminator)
         }
     }
 
@@ -159,11 +160,15 @@ private sealed class AbstractJsonTreeDecoder(
 
     override fun decodeInline(descriptor: SerialDescriptor): Decoder {
         return if (currentTagOrNull != null) super.decodeInline(descriptor)
-        else JsonPrimitiveDecoder(json, value).decodeInline(descriptor)
+        else JsonPrimitiveDecoder(json, value, polymorphicDiscriminator).decodeInline(descriptor)
     }
 }
 
-private class JsonPrimitiveDecoder(json: Json, override val value: JsonElement) : AbstractJsonTreeDecoder(json, value) {
+private class JsonPrimitiveDecoder(
+    json: Json,
+    override val value: JsonElement,
+    polymorphicDiscriminator: String? = null
+) : AbstractJsonTreeDecoder(json, value, polymorphicDiscriminator) {
 
     init {
         pushTag(PRIMITIVE_TAG)
@@ -180,9 +185,9 @@ private class JsonPrimitiveDecoder(json: Json, override val value: JsonElement) 
 private open class JsonTreeDecoder(
     json: Json,
     override val value: JsonObject,
-    private val polyDiscriminator: String? = null,
+    polymorphicDiscriminator: String? = null,
     private val polyDescriptor: SerialDescriptor? = null
-) : AbstractJsonTreeDecoder(json, value) {
+) : AbstractJsonTreeDecoder(json, value, polymorphicDiscriminator) {
     private var position = 0
     private var forceNull: Boolean = false
     /*
@@ -251,7 +256,7 @@ private open class JsonTreeDecoder(
         // in endStructure can filter polyDiscriminator out.
         if (descriptor === polyDescriptor) {
             return JsonTreeDecoder(
-                json, cast(currentObject(), polyDescriptor), polyDiscriminator, polyDescriptor
+                json, cast(currentObject(), polyDescriptor), polymorphicDiscriminator, polyDescriptor
             )
         }
 
@@ -271,7 +276,7 @@ private open class JsonTreeDecoder(
         }
 
         for (key in value.keys) {
-            if (key !in names && key != polyDiscriminator) {
+            if (key !in names && key != polymorphicDiscriminator) {
                 throw UnknownKeyException(key, value.toString())
             }
         }

@@ -35,6 +35,7 @@ private sealed class AbstractJsonTreeEncoder(
     protected val configuration = json.configuration
 
     private var polymorphicDiscriminator: String? = null
+    private var polymorphicSerialName: String? = null
 
     override fun elementName(descriptor: SerialDescriptor, index: Int): String =
         descriptor.getJsonElementName(json, index)
@@ -112,8 +113,12 @@ private sealed class AbstractJsonTreeEncoder(
         }
 
     override fun encodeInline(descriptor: SerialDescriptor): Encoder {
-        return if (currentTagOrNull != null) super.encodeInline(descriptor)
-        else JsonPrimitiveEncoder(json, nodeConsumer).encodeInline(descriptor)
+        return if (currentTagOrNull != null) {
+            if (polymorphicDiscriminator != null) polymorphicSerialName = descriptor.serialName
+            super.encodeInline(descriptor)
+        } else {
+            JsonPrimitiveEncoder(json, nodeConsumer).encodeInline(descriptor)
+        }
     }
 
     @SuppressAnimalSniffer // Long(Integer).toUnsignedString(long)
@@ -148,9 +153,11 @@ private sealed class AbstractJsonTreeEncoder(
             else -> JsonTreeEncoder(json, consumer)
         }
 
-        if (polymorphicDiscriminator != null) {
-            encoder.putElement(polymorphicDiscriminator!!, JsonPrimitive(descriptor.serialName))
+        val discriminator = polymorphicDiscriminator
+        if (discriminator != null) {
+            encoder.putElement(discriminator, JsonPrimitive(polymorphicSerialName ?: descriptor.serialName))
             polymorphicDiscriminator = null
+            polymorphicSerialName = null
         }
 
         return encoder

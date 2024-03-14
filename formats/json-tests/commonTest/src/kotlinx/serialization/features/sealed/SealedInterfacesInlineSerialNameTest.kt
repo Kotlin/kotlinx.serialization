@@ -35,8 +35,8 @@ class SealedInterfacesInlineSerialNameTest : JsonTestBase() {
     @JvmInline
     value class Child2(val value: Child2Value) : Parent
 
+    // From https://github.com/Kotlin/kotlinx.serialization/issues/2288
     @Test
-    @Ignore // https://github.com/Kotlin/kotlinx.serialization/issues/2288
     fun testSealedInterfaceInlineSerialName() {
         val messages = listOf(
             Child1(Child1Value(1, "one")),
