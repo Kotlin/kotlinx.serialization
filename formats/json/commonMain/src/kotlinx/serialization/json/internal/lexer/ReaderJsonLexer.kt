@@ -6,6 +6,8 @@ package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
+import kotlin.jvm.*
+import kotlin.math.*
 
 internal const val BATCH_SIZE: Int = 16 * 1024
 private const val DEFAULT_THRESHOLD = 128
@@ -43,7 +45,9 @@ internal open class ReaderJsonLexer(
     val reader: InternalJsonReader,
     val buffer: CharArray = CharArrayPoolBatchSize.take()
 ) : AbstractJsonLexer() {
-    private var threshold: Int = DEFAULT_THRESHOLD // chars
+
+    @JvmField
+    protected var threshold: Int = DEFAULT_THRESHOLD // chars
 
     override val source: ArrayAsSequence = ArrayAsSequence(buffer)
 

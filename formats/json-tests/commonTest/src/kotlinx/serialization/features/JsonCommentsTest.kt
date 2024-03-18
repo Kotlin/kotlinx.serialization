@@ -72,12 +72,32 @@ class JsonCommentsTest: JsonTestBase() {
     fun testMixed() = parametrizedTest { mode ->
         val input = """{ // begin
            "key": "value", // after
-            "key2": /* array */ [1, 2],
+            "key2": /* array */ /*another comment */ [1, 2],
             "key3": /* //this is a block comment */ { "nestedKey": // /*this is a line comment*/ "bar"
                 "foo" },
             "key4": /* nesting block comments /* not supported */ "*/"
         /* end */}"""
         assertEquals(target("*/"), json.decodeFromString(input, mode))
+    }
+
+    @Test
+    fun testWeirdKeys() {
+        val map = mapOf(
+            "// comment inside quotes is a part of key" to "/* comment inside quotes is a part of value */",
+            "/*key */" to "/* value",
+            "/* key" to "*/ value"
+        )
+        val input = """/* before begin */
+            {
+            ${map.entries.joinToString(separator = ",\n") { (k, v) -> "\"$k\" : \"$v\"" }}
+            } // after end
+        """.trimIndent()
+        val afterMap = json.parseToJsonElement(input).jsonObject.mapValues { (_, v) ->
+            v as JsonPrimitive
+            assertTrue(v.isString)
+            v.content
+        }
+        assertEquals(map, afterMap)
     }
 
     @Test
@@ -113,14 +133,33 @@ class JsonCommentsTest: JsonTestBase() {
         }
     }
 
+    private val lexerBatchSize = 16 * 1024
+
     @Test
     fun testVeryLargeComments() = parametrizedTest { mode ->
-        // 16 * 1024 is ReaderJsonLexer.BATCH_SIZE
-        val strLen = 16 * 1024 * 2 + 42
+        val strLen = lexerBatchSize * 2 + 42
         val inputLine = """{"data":  //a""" + "a".repeat(strLen) + "\n\"x\"}"
         assertEquals(StringData("x"),  json.decodeFromString<StringData>(inputLine, mode))
         val inputBlock = """{"data":  /*a""" + "a".repeat(strLen) + "*/\"x\"}"
         assertEquals(StringData("x"),  json.decodeFromString<StringData>(inputBlock, mode))
+    }
+
+    @Test
+    fun testCommentsOnThresholdEdge() = parametrizedTest { mode ->
+        val inputPrefix = """{"data":  /*a"""
+        // Here, we test the situation when closing */ is divided in buffer:
+        // * fits in the initial buffer, but / is not.
+        // E.g. situation with batches looks like this: ['{', '"', 'd', ..., '*'], ['/', ...]
+        val bloatSize = lexerBatchSize - inputPrefix.length - 1
+        val inputLine = inputPrefix + "a".repeat(bloatSize) + "*/\"x\"}"
+        assertEquals(StringData("x"),  json.decodeFromString<StringData>(inputLine, mode))
+
+        // Test when * is unclosed and last in buffer:
+        val inputLine2 = inputPrefix + "a".repeat(bloatSize) + "*"
+        assertFailsWith<SerializationException>("Expected end of the block comment: \"*/\", but had EOF instead at path: \$") {
+            json.decodeFromString<StringData>(inputLine2, mode)
+        }
+
     }
 
 }

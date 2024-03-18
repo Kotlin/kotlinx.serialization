@@ -155,13 +155,26 @@ internal class ReaderJsonLexerWithComments(reader: InternalJsonReader, buffer: C
             }
 
             '*' -> {
-                while(current != -1) {
+                var rareCaseHit = false
+                while (current != -1) {
                     current = source.indexOf("*/", startIndex)
-                    if (current == -1) {
+                    if (current != -1) {
+                        return current + 2 to true
+                    } else if (source[source.length - 1] != '*') {
                         current = prefetchOrEof(source.length)
                         startIndex = current
                     } else {
-                        return current + 2 to true
+                        // Rare case: */ got split by batch boundary (see JsonCommentsTest.testCommentsOnThresholdEdge)
+                        // In this case, we should manually force next batch loading with 1 char left in buffer
+                        current = prefetchWithinThreshold(source.length - 1)
+                        // However, we also can stuck in a situation where comment is unclosed
+                        // and * without / is a last char in the buffer. So to avoid checking it in infinite cycle,
+                        // there's an escape hatch:
+                        if (rareCaseHit) {
+                            break
+                        }
+                        rareCaseHit = true
+                        startIndex = current
                     }
                 }
                 // reached end of stream.
@@ -170,6 +183,14 @@ internal class ReaderJsonLexerWithComments(reader: InternalJsonReader, buffer: C
             }
         }
         return current to false
+    }
+
+    private fun prefetchWithinThreshold(position: Int): Int {
+        if (source.length - position > threshold) return position
+        currentPosition = position
+        ensureHaveChars()
+        if (currentPosition != 0 || source.isEmpty()) return -1 // if something was loaded, then it would be zero.
+        return 0
     }
 
     override fun skipWhitespaces(): Int {
