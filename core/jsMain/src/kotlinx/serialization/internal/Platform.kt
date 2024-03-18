@@ -19,7 +19,7 @@ internal actual fun BooleanArray.getChecked(index: Int): Boolean {
 
 internal actual fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>? =
     this.constructSerializerForGivenTypeArgs() ?: (
-        if (this === Nothing::class) NothingSerializer // Workaround for KT-51333
+        if (this === Nothing::class) NothingSerializer // .js throws an exception for Nothing
         else this.js.asDynamic().Companion?.serializer()
         ) as? KSerializer<T>
 
@@ -71,5 +71,9 @@ internal actual fun isReferenceArray(rootClass: KClass<Any>): Boolean = rootClas
  *
  * Should be eventually replaced with compiler intrinsics
  */
-private val KClass<*>.isInterface
-    get(): Boolean = js.asDynamic().`$metadata$`?.kind == "interface"
+private val KClass<*>.isInterface: Boolean
+    get(): Boolean {
+        // .js throws an exception for Nothing
+        if (this === Nothing::class) return false
+        return js.asDynamic().`$metadata$`?.kind == "interface"
+    }
