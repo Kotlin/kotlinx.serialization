@@ -168,7 +168,7 @@ private fun <T : Any> SerializersModule.reflectiveOrContextual(
 ): KSerializer<T>? {
     jClass.constructSerializerForGivenTypeArgs(*typeArgumentsSerializers.toTypedArray())?.let { return it }
     val kClass = jClass.kotlin
-    return kClass.builtinSerializerOrNull() ?: getContextual(kClass, typeArgumentsSerializers)
+    return kClass.builtinSerializerOrNull() ?: getContextual(kClass, typeArgumentsSerializers) ?: if (jClass.isInterface) PolymorphicSerializer(jClass.kotlin) else null
 }
 
 @OptIn(ExperimentalSerializationApi::class)

@@ -141,6 +141,8 @@ internal expect fun BooleanArray.getChecked(index: Int): Boolean
 
 internal expect fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>?
 
+internal expect fun <T: Any> KClass<T>.isInterface(): Boolean
+
 /**
  * Create serializers cache for non-parametrized and non-contextual serializers.
  * The activity and type of cache is determined for a specific platform and a specific environment.
