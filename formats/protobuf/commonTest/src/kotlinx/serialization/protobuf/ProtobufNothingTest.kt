@@ -5,7 +5,6 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
-import kotlinx.serialization.test.*
 import kotlin.test.*
 
 class ProtobufNothingTest {
@@ -13,17 +12,16 @@ class ProtobufNothingTest {
     /*private*/ data class NullableNothingBox(val value: Nothing?) // `private` doesn't work on the JS legacy target
 
     @Serializable
-    private data class ParameterizedBox<T : Any>(val value: T?)
+    private data class NullablePropertyNotNullUpperBoundParameterizedBox<T : Any>(val value: T?)
 
-    private inline fun <reified T> testConversion(data: T, expectedHexString: String) {
-        val string = ProtoBuf.encodeToHexString(data).uppercase()
-        assertEquals(expectedHexString, string)
-        assertEquals(data, ProtoBuf.decodeFromHexString(string))
-    }
+    @Serializable
+    private data class NullableUpperBoundParameterizedBox<T : Any?>(val value: T)
+
 
     @Test
     fun testNothing() {
         testConversion(NullableNothingBox(null), "")
-        testConversion(ParameterizedBox(null), "")
+        testConversion(NullablePropertyNotNullUpperBoundParameterizedBox(null), "")
+        testConversion(NullableUpperBoundParameterizedBox(null), "")
     }
 }

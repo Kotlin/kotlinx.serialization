@@ -123,13 +123,27 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
     public final override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String): Unit =
         encodeTaggedString(descriptor.getTag(index), value)
 
+    private fun SerialKind.isMapOrList() =
+        this == StructureKind.MAP || this == StructureKind.LIST
+
     public final override fun <T : Any?> encodeSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
         serializer: SerializationStrategy<T>,
         value: T
     ) {
-        nullableMode = NullableMode.NOT_NULL
+        nullableMode =
+            if (descriptor.isElementOptional(index))
+                NullableMode.OPTIONAL
+            else {
+                val elementDescriptor = descriptor.getElementDescriptor(index)
+                if (elementDescriptor.kind.isMapOrList())
+                    NullableMode.COLLECTION
+                else if (!descriptor.kind.isMapOrList() && elementDescriptor.isNullable) // or: `serializer.descriptor`
+                    NullableMode.ACCEPTABLE
+                else
+                    NullableMode.NOT_NULL
+            }
 
         pushTag(descriptor.getTag(index))
         encodeSerializableValue(serializer, value)
@@ -141,14 +155,12 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
         serializer: SerializationStrategy<T>,
         value: T?
     ) {
-        val elementKind = descriptor.getElementDescriptor(index).kind
-        nullableMode = if (descriptor.isElementOptional(index)) {
+        nullableMode = if (descriptor.isElementOptional(index))
             NullableMode.OPTIONAL
-        } else if (elementKind == StructureKind.MAP || elementKind == StructureKind.LIST) {
+        else if (descriptor.getElementDescriptor(index).kind.isMapOrList())
             NullableMode.COLLECTION
-        } else {
+        else
             NullableMode.ACCEPTABLE
-        }
 
         pushTag(descriptor.getTag(index))
         encodeNullableSerializableValue(serializer, value)
