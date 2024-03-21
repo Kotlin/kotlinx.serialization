@@ -1,3 +1,20 @@
+public final class kotlinx/serialization/properties/KeyValueSeparator : java/lang/Enum {
+	public static final field COLON Lkotlinx/serialization/properties/KeyValueSeparator;
+	public static final field EQUALS Lkotlinx/serialization/properties/KeyValueSeparator;
+	public final fun char ()C
+	public static fun valueOf (Ljava/lang/String;)Lkotlinx/serialization/properties/KeyValueSeparator;
+	public static fun values ()[Lkotlinx/serialization/properties/KeyValueSeparator;
+}
+
+public final class kotlinx/serialization/properties/LineSeparator : java/lang/Enum {
+	public static final field CR Lkotlinx/serialization/properties/LineSeparator;
+	public static final field CRLF Lkotlinx/serialization/properties/LineSeparator;
+	public static final field LF Lkotlinx/serialization/properties/LineSeparator;
+	public final fun chars ()[C
+	public static fun valueOf (Ljava/lang/String;)Lkotlinx/serialization/properties/LineSeparator;
+	public static fun values ()[Lkotlinx/serialization/properties/LineSeparator;
+}
+
 public abstract class kotlinx/serialization/properties/Properties : kotlinx/serialization/SerialFormat {
 	public static final field Default Lkotlinx/serialization/properties/Properties$Default;
 	public synthetic fun <init> (Lkotlinx/serialization/modules/SerializersModule;Ljava/lang/Void;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -11,8 +28,38 @@ public abstract class kotlinx/serialization/properties/Properties : kotlinx/seri
 public final class kotlinx/serialization/properties/Properties$Default : kotlinx/serialization/properties/Properties {
 }
 
+public final class kotlinx/serialization/properties/PropertiesBuilder {
+	public final fun getKeyValueSeparator ()Lkotlinx/serialization/properties/KeyValueSeparator;
+	public final fun getLineSeparator ()Lkotlinx/serialization/properties/LineSeparator;
+	public final fun getModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public final fun getSpacesAfterSeparator ()I
+	public final fun getSpacesBeforeSeparator ()I
+	public final fun setKeyValueSeparator (Lkotlinx/serialization/properties/KeyValueSeparator;)V
+	public final fun setLineSeparator (Lkotlinx/serialization/properties/LineSeparator;)V
+	public final fun setModule (Lkotlinx/serialization/modules/SerializersModule;)V
+	public final fun setSpacesAfterSeparator (I)V
+	public final fun setSpacesBeforeSeparator (I)V
+}
+
 public final class kotlinx/serialization/properties/PropertiesKt {
 	public static final fun Properties (Lkotlinx/serialization/modules/SerializersModule;)Lkotlinx/serialization/properties/Properties;
 	public static final fun noImpl ()Ljava/lang/Void;
+}
+
+public abstract class kotlinx/serialization/properties/StringProperties : kotlinx/serialization/SerialFormat {
+	public static final field Default Lkotlinx/serialization/properties/StringProperties$Default;
+	public synthetic fun <init> (Lkotlinx/serialization/properties/PropertiesConf;Lkotlinx/serialization/properties/Properties;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lkotlinx/serialization/properties/PropertiesConf;Lkotlinx/serialization/properties/Properties;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun decodeFromString (Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/String;)Ljava/lang/Object;
+	public final fun encodeToString (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)Ljava/lang/String;
+	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+}
+
+public final class kotlinx/serialization/properties/StringProperties$Default : kotlinx/serialization/properties/StringProperties {
+}
+
+public final class kotlinx/serialization/properties/StringPropertiesKt {
+	public static final fun StringProperties (Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/properties/StringProperties;
+	public static synthetic fun StringProperties$default (Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/properties/StringProperties;
 }
 
