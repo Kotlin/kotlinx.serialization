@@ -43,6 +43,7 @@ internal class StreamingJsonEncoder(
     // Forces serializer to wrap all values into quotes
     private var forceQuoting: Boolean = false
     private var polymorphicDiscriminator: String? = null
+    private var polymorphicSerialName: String? = null
 
     init {
         val i = mode.ordinal
@@ -66,12 +67,12 @@ internal class StreamingJsonEncoder(
         }
     }
 
-    private fun encodeTypeInfo(descriptor: SerialDescriptor) {
+    private fun encodeTypeInfo(discriminator: String, serialName: String) {
         composer.nextItem()
-        encodeString(polymorphicDiscriminator!!)
+        encodeString(discriminator)
         composer.print(COLON)
         composer.space()
-        encodeString(descriptor.serialName)
+        encodeString(serialName)
     }
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
@@ -81,9 +82,11 @@ internal class StreamingJsonEncoder(
             composer.indent()
         }
 
-        if (polymorphicDiscriminator != null) {
-            encodeTypeInfo(descriptor)
+        val discriminator = polymorphicDiscriminator
+        if (discriminator != null) {
+            encodeTypeInfo(discriminator, polymorphicSerialName ?: descriptor.serialName)
             polymorphicDiscriminator = null
+            polymorphicSerialName = null
         }
 
         if (mode == newMode) {
@@ -160,6 +163,7 @@ internal class StreamingJsonEncoder(
         when {
             descriptor.isUnsignedNumber -> StreamingJsonEncoder(composerAs(::ComposerForUnsignedNumbers), json, mode, null)
             descriptor.isUnquotedLiteral -> StreamingJsonEncoder(composerAs(::ComposerForUnquotedLiterals), json, mode, null)
+            polymorphicDiscriminator != null -> apply { polymorphicSerialName = descriptor.serialName }
             else                        -> super.encodeInline(descriptor)
         }
 
