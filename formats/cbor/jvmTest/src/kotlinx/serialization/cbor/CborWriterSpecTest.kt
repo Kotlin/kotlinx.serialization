@@ -13,9 +13,9 @@ import kotlinx.serialization.cbor.internal.*
 class CborWriterSpecTest : WordSpec() {
     init {
 
-        fun withEncoder(block: CborEncoder.() -> Unit): String {
+        fun withEncoder(block: ByteArrayOutput.() -> Unit): String {
             val result = ByteArrayOutput()
-            CborEncoder(result).block()
+            result.block()
             return HexConverter.printHexBinary(result.toByteArray()).lowercase()
         }
 
