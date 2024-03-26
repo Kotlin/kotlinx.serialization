@@ -154,9 +154,12 @@ private sealed class AbstractJsonTreeDecoder(
         return this as? JsonLiteral ?: throw JsonDecodingException(-1, "Unexpected 'null' literal when non-nullable $type was expected")
     }
 
-    override fun decodeTaggedInline(tag: String, inlineDescriptor: SerialDescriptor): Decoder =
-        if (inlineDescriptor.isUnsignedNumber) JsonDecoderForUnsignedTypes(StringJsonLexer(getPrimitiveValue(tag).content), json)
-        else super.decodeTaggedInline(tag, inlineDescriptor)
+    override fun decodeTaggedInline(tag: String, inlineDescriptor: SerialDescriptor): Decoder {
+        return if (inlineDescriptor.isUnsignedNumber) {
+            val lexer = StringJsonLexer(json, getPrimitiveValue(tag).content)
+            JsonDecoderForUnsignedTypes(lexer, json)
+        } else super.decodeTaggedInline(tag, inlineDescriptor)
+    }
 
     override fun decodeInline(descriptor: SerialDescriptor): Decoder {
         return if (currentTagOrNull != null) super.decodeInline(descriptor)

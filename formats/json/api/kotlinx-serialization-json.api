@@ -94,6 +94,7 @@ public final class kotlinx/serialization/json/JsonArraySerializer : kotlinx/seri
 }
 
 public final class kotlinx/serialization/json/JsonBuilder {
+	public final fun getAllowComments ()Z
 	public final fun getAllowSpecialFloatingPointValues ()Z
 	public final fun getAllowStructuredMapKeys ()Z
 	public final fun getAllowTrailingComma ()Z
@@ -111,6 +112,7 @@ public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun getUseAlternativeNames ()Z
 	public final fun getUseArrayPolymorphism ()Z
 	public final fun isLenient ()Z
+	public final fun setAllowComments (Z)V
 	public final fun setAllowSpecialFloatingPointValues (Z)V
 	public final fun setAllowStructuredMapKeys (Z)V
 	public final fun setAllowTrailingComma (Z)V
@@ -141,6 +143,7 @@ public synthetic class kotlinx/serialization/json/JsonClassDiscriminator$Impl : 
 
 public final class kotlinx/serialization/json/JsonConfiguration {
 	public fun <init> ()V
+	public final fun getAllowComments ()Z
 	public final fun getAllowSpecialFloatingPointValues ()Z
 	public final fun getAllowStructuredMapKeys ()Z
 	public final fun getAllowTrailingComma ()Z

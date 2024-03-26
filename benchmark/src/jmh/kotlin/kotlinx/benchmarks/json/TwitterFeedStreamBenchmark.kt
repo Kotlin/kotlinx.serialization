@@ -30,6 +30,14 @@ open class TwitterFeedStreamBenchmark {
         jacksonObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
 
+    @Setup
+    fun init() {
+        // Explicitly invoking decodeFromStream before benchmarking so we know that both parser implementation classes are loaded
+        require("foobar" == Json.decodeFromStream<String>(ByteArrayInputStream("\"foobar\"".encodeToByteArray())))
+        require("foobar" == Json.decodeFromString<String>("\"foobar\""))
+    }
+
+
     private val inputStream: InputStream
         get() = ByteArrayInputStream(bytes)
     private val outputStream: OutputStream
@@ -59,6 +67,7 @@ open class TwitterFeedStreamBenchmark {
         }
     }
 
+    // Difference with TwitterFeedBenchmark.decodeMicroTwitter shows how heavy Java's standard UTF-8 decoding actually is.
     @Benchmark
     fun decodeMicroTwitterReadText(): MicroTwitterFeed {
         return inputStream.use {
