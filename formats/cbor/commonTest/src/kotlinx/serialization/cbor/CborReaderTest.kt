@@ -139,6 +139,65 @@ class CborReaderTest {
         )
     }
 
+    @Test
+    fun testReadByteStringWhenRepeated() {
+        /* A1                           # map(1)
+         *    6B                        # text(11)
+         *       62797465537472696E6773 # "byteStrings"
+         *    81                        # array(1)
+         *       44                     # bytes(4)
+         *          01020304            # "\x01\x02\x03\x04"
+         */
+        assertEquals(
+            expected = RepeatedByteString(listOf(byteArrayOf(1, 2, 3, 4))),
+            actual = Cbor.decodeFromHexString(
+                deserializer = RepeatedByteString.serializer(),
+                hex = "a16b62797465537472696e6773814401020304"
+            )
+        )
+
+        /* A1                           # map(1)
+         *    6B                        # text(11)
+         *       62797465537472696E6773 # "byteStrings"
+         *    80                        # array(0)
+         */
+        assertEquals(
+            expected = RepeatedByteString(listOf()),
+            actual = Cbor.decodeFromHexString(
+                deserializer = RepeatedByteString.serializer(),
+                hex = "a16b62797465537472696e677380"
+            )
+        )
+    }
+
+    @Test
+    fun testReadRepeatedByteStringWithByteArray() {
+        /* A2                           # map(2)
+         *    6B                        # text(11)
+         *       62797465537472696E6773 # "byteStrings"
+         *    81                        # array(1)
+         *       44                     # bytes(4)
+         *          01020304            # "\x01\x02\x03\x04"
+         *    69                        # text(9)
+         *       627974654172726179     # "byteArray"
+         *    84                        # array(4)
+         *       05                     # unsigned(5)
+         *       06                     # unsigned(6)
+         *       07                     # unsigned(7)
+         *       08                     # unsigned(8)
+         */
+        assertEquals(
+            expected = RepeatedByteStringWithByteArray(
+                byteStrings = listOf(byteArrayOf(1, 2, 3, 4)),
+                byteArray = byteArrayOf(5, 6, 7, 8),
+            ),
+            actual = Cbor.decodeFromHexString(
+                deserializer = RepeatedByteStringWithByteArray.serializer(),
+                hex = "a26b62797465537472696e6773814401020304696279746541727261798405060708"
+            )
+        )
+    }
+
     /**
      * CBOR hex data represents serialized versions of [TypesUmbrella] (which does **not** have a root property 'a') so
      * decoding to [Simple] (which has the field 'a') is expected to fail.
