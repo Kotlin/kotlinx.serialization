@@ -422,6 +422,10 @@ public final class kotlinx/serialization/json/internal/JsonStreamsKt {
 	public static final fun encodeByWriter (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/json/internal/InternalJsonWriter;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
 }
 
+public synthetic class kotlinx/serialization/json/internal/JsonStreamsKt$EntriesMappings {
+	public static final synthetic field entries$0 Lkotlin/enums/EnumEntries;
+}
+
 public final class kotlinx/serialization/json/internal/StreamingJsonDecoderKt {
 	public static final fun decodeStringToJsonTree (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
 }

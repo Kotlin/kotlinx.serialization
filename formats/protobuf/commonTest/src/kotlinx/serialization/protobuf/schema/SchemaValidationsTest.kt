@@ -2,6 +2,7 @@ package kotlinx.serialization.protobuf.schema
 
 import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.*
+import kotlin.jvm.*
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
@@ -137,5 +138,38 @@ class SchemaValidationsTest {
     fun testFieldNumberDuplicates() {
         assertFailsWith(IllegalArgumentException::class) { ProtoBufSchemaGenerator.generateSchemaText(listOf(FieldNumberDuplicates.serializer().descriptor)) }
         assertFailsWith(IllegalArgumentException::class) { ProtoBufSchemaGenerator.generateSchemaText(listOf(FieldNumberImplicitlyDuplicates.serializer().descriptor)) }
+    }
+
+    @Serializable
+    data class OneOfData(
+        @ProtoNumber(1) val name: String,
+        @ProtoOneOf(2, 3, 4) val i: IType
+    )
+
+    @Serializable
+    sealed interface IType
+
+    @Serializable
+    @ProtoNumber(2)
+    data class IntType(@ProtoNumber(4) val intValue: Int): IType
+
+    @Serializable
+    @ProtoNumber(3)
+    @JvmInline
+    value class StringType(@ProtoNumber(5) val strValue: String): IType
+
+    @Serializable
+    @ProtoNumber(4)
+    data class WrapType(val content: InnerType): IType
+
+    @Serializable
+    data class InnerType(val innerContent: String)
+
+    @Test
+    fun testOneOfGenerate() {
+        val descriptors = listOf(OneOfData.serializer().descriptor)
+        ProtoBufSchemaGenerator.generateSchemaText(descriptors).also {
+            println(it)
+        }
     }
 }
