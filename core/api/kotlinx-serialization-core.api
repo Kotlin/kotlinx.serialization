@@ -224,7 +224,6 @@ public final class kotlinx/serialization/descriptors/ContextAwareKt {
 	public static final fun getCapturedKClass (Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlin/reflect/KClass;
 	public static final fun getContextualDescriptor (Lkotlinx/serialization/modules/SerializersModule;Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public static final fun getPolymorphicDescriptors (Lkotlinx/serialization/modules/SerializersModule;Lkotlinx/serialization/descriptors/SerialDescriptor;)Ljava/util/List;
-	public static final fun getPolymorphicSerializers (Lkotlinx/serialization/modules/SerializersModule;Lkotlinx/serialization/descriptors/SerialDescriptor;)Ljava/util/List;
 }
 
 public abstract class kotlinx/serialization/descriptors/PolymorphicKind : kotlinx/serialization/descriptors/SerialKind {
