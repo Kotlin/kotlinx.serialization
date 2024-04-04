@@ -3,8 +3,7 @@ package kotlinx.serialization.protobuf.schema
 import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.*
 import kotlin.jvm.*
-import kotlin.test.Test
-import kotlin.test.assertFailsWith
+import kotlin.test.*
 
 class SchemaValidationsTest {
     @Serializable
@@ -169,7 +168,8 @@ class SchemaValidationsTest {
     fun testOneOfGenerate() {
         val descriptors = listOf(OneOfData.serializer().descriptor)
         ProtoBufSchemaGenerator.generateSchemaText(descriptors).also {
-            println(it)
+            assertContains(it, "oneof i")
+            assertContains(it, "message InnerType")
         }
     }
 }
