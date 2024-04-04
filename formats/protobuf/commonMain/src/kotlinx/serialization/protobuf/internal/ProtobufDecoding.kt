@@ -141,7 +141,12 @@ internal open class ProtobufDecoder(
                 // Do not create redundant copy
                 if (tag == MISSING_TAG && this.descriptor == descriptor) return this
                 if (tag.isOneOf) {
-                    val restoredTag = index2IdMap?.get(tag.protoId - 1)?.let { tag.overrideId(it) } ?: tag
+                    // If a tag is annotated as oneof
+                    // [tag.protoId] here is overwritten with index-based default id in
+                    // [kotlinx.serialization.protobuf.internal.HelpersKt.extractParameters]
+                    // and restored the real id from index2IdMap, set by [decodeElementIndex]
+                    val rawIndex = tag.protoId - 1
+                    val restoredTag = index2IdMap?.get(rawIndex)?.let { tag.overrideId(it) } ?: tag
                     return OneOfPolymorphicReader(proto, reader, restoredTag, descriptor)
                 }
                 return ProtobufDecoder(proto, makeDelimited(reader, tag), descriptor)
@@ -392,7 +397,9 @@ private class OneOfPolymorphicReader(
     }
 
     override fun decodeTaggedString(tag: ProtoDesc): String = if (tag == POLYMORPHIC_NAME_TAG) {
-        // todo return a serial name for polymorphic serializer
+        // This exception will neven be thrown
+        // Subclass of oneof-field without matching ProtoNum annotated will be skipped in outer [decodeElementIndex]
+        // and raise a [MissingFieldException]
         descriptor.getActualOneOfSerializer(serializersModule, parentTag.protoId)?.serialName ?: throw SerializationException(
             "Cannot find a subclass of ${descriptor.serialName} annotated with @ProtoNumber(${parentTag.protoId})."
         )

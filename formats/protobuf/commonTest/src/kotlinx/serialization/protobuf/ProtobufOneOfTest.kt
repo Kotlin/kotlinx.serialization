@@ -367,7 +367,7 @@ class ProtobufOneOfTest {
 
     @Test
     fun testFailWithClassDecoding() {
-        assertFailsWith<SerializationException> {
+        assertFailsWith<MissingFieldException> {
             ProtoBuf.decodeFromHexString<FailWithClass>(
                 "082a1a03666f6f"
             )
