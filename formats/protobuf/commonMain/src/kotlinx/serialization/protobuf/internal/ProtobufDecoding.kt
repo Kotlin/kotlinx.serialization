@@ -59,7 +59,10 @@ internal open class ProtobufDecoder(
                 }
             }
             indexCache = cache
-            require(indexCache?.toSet()?.size == indexCache?.size) {
+
+            // Class type should have unique proto id for its elements
+            require(descriptor.kind != StructureKind.CLASS ||
+                indexCache?.toSet()?.size == elements) {
                 "Duplicated proto number in ${descriptor.serialName}."
             }
         } else {
