@@ -436,4 +436,29 @@ class ProtobufOneOfTest {
         assertEquals(data, buf.decodeFromHexString<CustomAnyData>("082a"))
     }
 
+    @Serializable
+    data class DuplicatingIdData(
+        @ProtoOneOf val bad: IDuplicatingIdType,
+        @ProtoNumber(3) val d: Int,
+    )
+
+    @Serializable sealed interface IDuplicatingIdType
+    @Serializable @ProtoNumber(3) data class DuplicatingIdStringType(val s: String) : IDuplicatingIdType
+
+    @Test
+    fun testDuplicatedIdClass() {
+        val duplicated = DuplicatingIdData(DuplicatingIdStringType("foo"), 42)
+        ProtoBuf.encodeToHexString(duplicated).also {
+            /**
+             * 3: {"foo"}
+             * 3: 42
+             */
+            assertEquals("1a03666f6f182a", it)
+        }
+
+        assertFailsWith<IllegalArgumentException> {
+            ProtoBuf.decodeFromHexString<DuplicatingIdData>("1a03666f6f182a")
+        }
+    }
+
 }

@@ -59,6 +59,9 @@ internal open class ProtobufDecoder(
                 }
             }
             indexCache = cache
+            require(indexCache?.toSet()?.size == indexCache?.size) {
+                "Duplicated proto number in ${descriptor.serialName}."
+            }
         } else {
             populateCacheMap(descriptor, elements)
         }
@@ -73,16 +76,23 @@ internal open class ProtobufDecoder(
                 descriptor.getElementDescriptor(i)
                     .getAllOneOfSerializerOfField(serializersModule)
                     .map { it.extractClassDesc().protoId }
-                    .forEach { map[it] = i }
+                    .forEach { map.putProtoId(it, i) }
                 oneOfCount ++
             } else {
-                map[extractProtoId(descriptor, i, false)] = i
+                map.putProtoId(extractProtoId(descriptor, i, false),  i)
             }
         }
         if (oneOfCount > 0) {
             index2IdMap = HashMap(oneOfCount, 1f)
         }
         sparseIndexCache = map
+    }
+
+    private fun MutableMap<Int, Int>.putProtoId(protoId: Int, index: Int) {
+        val old = put(protoId, index)
+        require(old == null) {
+            "Duplicated proto number $old in ${descriptor.serialName}."
+        }
     }
 
     private fun getIndexByNum(protoNum: Int): Int {
