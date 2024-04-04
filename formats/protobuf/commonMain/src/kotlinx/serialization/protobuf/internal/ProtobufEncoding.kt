@@ -215,6 +215,10 @@ private class OneOfPolymorphicEncoder(
         }
     }
 
+    override fun encodeInline(descriptor: SerialDescriptor): Encoder {
+        return encodeTaggedInline(popTag().overrideId(descriptor.extractClassDesc().protoId), descriptor)
+    }
+
     override fun encodeTaggedString(tag: ProtoDesc, value: String) {
         // the first element with type string is the discriminator of polymorphic serializer with class name
         // just ignore it
