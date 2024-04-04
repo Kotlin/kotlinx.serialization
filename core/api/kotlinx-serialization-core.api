@@ -84,7 +84,6 @@ public final class kotlinx/serialization/SealedClassSerializer : kotlinx/seriali
 	public fun findPolymorphicSerializerOrNull (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)Lkotlinx/serialization/SerializationStrategy;
 	public fun getBaseClass ()Lkotlin/reflect/KClass;
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun getSubclassSerializers ()[Lkotlinx/serialization/KSerializer;
 }
 
 public abstract interface class kotlinx/serialization/SerialFormat {
