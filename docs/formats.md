@@ -444,10 +444,10 @@ base on the [Polymorphism](polymorphism.md).
 You can declare a property of your class to be `oneof` by following the contracts:
 
 * Declare an interface, or abstract class, in represent of the `oneof` group.
-* Declare the property with the type added above, annotated with `@ProtoOneOf()`, not `@ProtoNumber`.
+* Declare the property with the type added above, annotated with `@ProtoOneOf`, not `@ProtoNumber`.
 * Declare subclasses from the type with **only one property** each per the oneof group elements.
 * Annotated the subclasses with `@ProtoNumber` on the class declaration, not the property, 
-  per the oneof group elements and `@ProtoOneOf()` above.
+  per the oneof group elements and `@ProtoOneOf` above.
 
 <!--- INCLUDE
 import kotlinx.serialization.*
@@ -493,6 +493,9 @@ In [ProtoBuf diagnostic mode](https://protogen.marcgravell.com/decode) the first
 Field #1: 0A String Length = 3, Hex = 03, UTF8 = "Tom" Field #2: 12 String Length = 3, Hex = 03, UTF8 = "123"
 Field #1: 0A String Length = 5, Hex = 05, UTF8 = "Jerry" Field #3: 1A String Length = 3, Hex = 03, UTF8 = "789"
 ```
+
+You should note that each group of `oneof` types should be tied to exactly one data class, and try not to reuse it in
+another data class. Otherwise, you may get id conflicts or `IllegalArgumentException` in runtime.
 
 ### ProtoBuf schema generator (experimental)
 
