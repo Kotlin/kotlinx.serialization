@@ -1,0 +1,14 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, iosX64, js, linuxArm64, linuxX64, macosArm64, macosX64, mingwX64, tvosArm64, tvosSimulatorArm64, tvosX64, wasmJs, watchosArm32, watchosArm64, watchosSimulatorArm64, watchosX64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <org.jetbrains.kotlinx:kotlinx-serialization-json-okio>
+final fun <#A: kotlin/Any?> (kotlinx.serialization.json/Json).kotlinx.serialization.json.okio/decodeBufferedSourceToSequence(okio/BufferedSource, kotlinx.serialization/DeserializationStrategy<#A>, kotlinx.serialization.json/DecodeSequenceMode =...): kotlin.sequences/Sequence<#A> // kotlinx.serialization.json.okio/decodeBufferedSourceToSequence|decodeBufferedSourceToSequence@kotlinx.serialization.json.Json(okio.BufferedSource;kotlinx.serialization.DeserializationStrategy<0:0>;kotlinx.serialization.json.DecodeSequenceMode){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> (kotlinx.serialization.json/Json).kotlinx.serialization.json.okio/decodeFromBufferedSource(kotlinx.serialization/DeserializationStrategy<#A>, okio/BufferedSource): #A // kotlinx.serialization.json.okio/decodeFromBufferedSource|decodeFromBufferedSource@kotlinx.serialization.json.Json(kotlinx.serialization.DeserializationStrategy<0:0>;okio.BufferedSource){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> (kotlinx.serialization.json/Json).kotlinx.serialization.json.okio/encodeToBufferedSink(kotlinx.serialization/SerializationStrategy<#A>, #A, okio/BufferedSink) // kotlinx.serialization.json.okio/encodeToBufferedSink|encodeToBufferedSink@kotlinx.serialization.json.Json(kotlinx.serialization.SerializationStrategy<0:0>;0:0;okio.BufferedSink){0§<kotlin.Any?>}[0]
+final inline fun <#A: reified kotlin/Any?> (kotlinx.serialization.json/Json).kotlinx.serialization.json.okio/decodeBufferedSourceToSequence(okio/BufferedSource, kotlinx.serialization.json/DecodeSequenceMode =...): kotlin.sequences/Sequence<#A> // kotlinx.serialization.json.okio/decodeBufferedSourceToSequence|decodeBufferedSourceToSequence@kotlinx.serialization.json.Json(okio.BufferedSource;kotlinx.serialization.json.DecodeSequenceMode){0§<kotlin.Any?>}[0]
+final inline fun <#A: reified kotlin/Any?> (kotlinx.serialization.json/Json).kotlinx.serialization.json.okio/decodeFromBufferedSource(okio/BufferedSource): #A // kotlinx.serialization.json.okio/decodeFromBufferedSource|decodeFromBufferedSource@kotlinx.serialization.json.Json(okio.BufferedSource){0§<kotlin.Any?>}[0]
+final inline fun <#A: reified kotlin/Any?> (kotlinx.serialization.json/Json).kotlinx.serialization.json.okio/encodeToBufferedSink(#A, okio/BufferedSink) // kotlinx.serialization.json.okio/encodeToBufferedSink|encodeToBufferedSink@kotlinx.serialization.json.Json(0:0;okio.BufferedSink){0§<kotlin.Any?>}[0]
