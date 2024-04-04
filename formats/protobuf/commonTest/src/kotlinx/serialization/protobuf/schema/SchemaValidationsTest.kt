@@ -143,7 +143,7 @@ class SchemaValidationsTest {
     @Serializable
     data class OneOfData(
         @ProtoNumber(1) val name: String,
-        @ProtoOneOf(2, 3, 4) val i: IType
+        @ProtoOneOf val i: IType
     )
 
     @Serializable

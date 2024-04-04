@@ -15,13 +15,13 @@ import kotlin.test.*
 class ProtobufOneOfTest {
     @Serializable
     data class OneOfData(
-        @ProtoOneOf(1, 2, 7, 8, 9) val i: IType,
+        @ProtoOneOf val i: IType,
         @ProtoNumber(3) val name: String
     )
 
     @Serializable
     data class OneOfDataNullable(
-        @ProtoOneOf(1, 2, 5) val i: IType?,
+        @ProtoOneOf val i: IType?,
         @ProtoNumber(3) val name: String
     )
 
@@ -207,7 +207,7 @@ class ProtobufOneOfTest {
     data class NestedOneOfType(val i: InnerNested) : IType
 
     @Serializable
-    data class InnerNested(@ProtoOneOf(1, 2) val i: InnerOneOf)
+    data class InnerNested(@ProtoOneOf val i: InnerOneOf)
 
     @Serializable
     sealed interface InnerOneOf
@@ -248,9 +248,9 @@ class ProtobufOneOfTest {
 
     @Serializable
     data class DoubleOneOfElement(
-        @ProtoOneOf(1, 2) val one: IType,
+        @ProtoOneOf val one: IType,
         @ProtoNumber(3) val name: String,
-        @ProtoOneOf(4, 5) val two: OtherType
+        @ProtoOneOf val two: OtherType
     )
 
     interface OtherType
@@ -351,7 +351,7 @@ class ProtobufOneOfTest {
     }
 
     @Serializable
-    data class FailWithClass(@ProtoOneOf(1) val i: IFailType, @ProtoNumber(3) val name: String)
+    data class FailWithClass(@ProtoOneOf val i: IFailType, @ProtoNumber(3) val name: String)
 
     @Serializable
     sealed interface IFailType
@@ -375,7 +375,7 @@ class ProtobufOneOfTest {
     }
 
     @Serializable
-    data class CustomOuter(@ProtoOneOf(1, 2) val inner: CustomInner)
+    data class CustomOuter(@ProtoOneOf val inner: CustomInner)
 
     @Serializable
     abstract class CustomInner
@@ -421,7 +421,7 @@ class ProtobufOneOfTest {
     }
 
     @Serializable
-    data class CustomAnyData(@ProtoOneOf(1, 2) @Polymorphic val inner: Any)
+    data class CustomAnyData(@ProtoOneOf @Polymorphic val inner: Any)
 
     @Test
     fun testCustomAny() {

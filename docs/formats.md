@@ -444,11 +444,10 @@ base on the [Polymorphism](polymorphism.md).
 You can declare a property of your class to be `oneof` by following the contracts:
 
 * Declare an interface, or abstract class, in represent of the `oneof` group.
-* Declare the property with the type added above, annotated with `@ProtoOneOf(ids)`
-  with all possible proto numbers, not `@ProtoNumber`.
+* Declare the property with the type added above, annotated with `@ProtoOneOf()`, not `@ProtoNumber`.
 * Declare subclasses from the type with **only one property** each per the oneof group elements.
 * Annotated the subclasses with `@ProtoNumber` on the class declaration, not the property, 
-  per the oneof group elements and `@ProtoOneOf(ids)` above.
+  per the oneof group elements and `@ProtoOneOf()` above.
 
 <!--- INCLUDE
 import kotlinx.serialization.*
@@ -459,7 +458,7 @@ import kotlinx.serialization.protobuf.*
 @Serializable
 data class Data(
     @ProtoNumber(1) val name: String,
-    @ProtoOneOf(2, 3) val phone: IPhoneType,
+    @ProtoOneOf val phone: IPhoneType,
 )
 @Serializable sealed interface IPhoneType
 @Serializable @ProtoNumber(2) @JvmInline value class HomePhone(val number: String): IPhoneType

@@ -70,7 +70,10 @@ internal open class ProtobufDecoder(
         for (i in 0 until elements) {
             val id = extractProtoId(descriptor, i, false)
             if (id == ID_HOLDER_ONE_OF) {
-                extractProtoOneOfIds(descriptor, i)?.forEach { map[it] = i }
+                descriptor.getElementDescriptor(i)
+                    .getAllOneOfSerializerOfField(serializersModule)
+                    .map { it.extractClassDesc().protoId }
+                    .forEach { map[it] = i }
                 oneOfCount ++
             } else {
                 map[extractProtoId(descriptor, i, false)] = i
@@ -390,27 +393,11 @@ private class OneOfPolymorphicReader(
 
     override fun decodeTaggedString(tag: ProtoDesc): String = if (tag == POLYMORPHIC_NAME_TAG) {
         // todo return a serial name for polymorphic serializer
-        descriptor.getActualOneOfSerializer(parentTag.protoId)?.serialName ?: throw SerializationException(
+        descriptor.getActualOneOfSerializer(serializersModule, parentTag.protoId)?.serialName ?: throw SerializationException(
             "Cannot find a subclass of ${descriptor.serialName} annotated with @ProtoNumber(${parentTag.protoId})."
         )
     } else {
         super.decodeTaggedString(tag)
-    }
-
-    private fun SerialDescriptor.getActualOneOfSerializer(
-        protoId: Int
-    ): SerialDescriptor? {
-        return when (this.kind) {
-            PolymorphicKind.OPEN -> {
-                serializersModule.getPolymorphicSerializers(this)
-                    .find { it.descriptor.extractClassDesc().protoId == protoId }?.descriptor
-            }
-            PolymorphicKind.SEALED -> {
-                getElementDescriptor(1).elementDescriptors.toList()
-                    .find { it.extractClassDesc().protoId == protoId }
-            }
-            else -> null
-        }
     }
 }
 

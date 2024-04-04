@@ -8,6 +8,7 @@ package kotlinx.serialization.protobuf.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.modules.*
 import kotlinx.serialization.protobuf.*
 
 internal typealias ProtoDesc = Long
@@ -117,18 +118,33 @@ internal fun extractProtoId(descriptor: SerialDescriptor, index: Int, zeroBasedD
     return if (zeroBasedDefault) index else index + 1
 }
 
-internal fun extractProtoOneOfIds(descriptor: SerialDescriptor, index: Int): IntArray? {
-    val annotations = descriptor.getElementAnnotations(index)
-    for (i in annotations.indices) { // Allocation-friendly loop
-        val annotation = annotations[i]
-        if (annotation is ProtoOneOf) {
-            return annotation.numbers
-        }
-    }
-    return null
-}
-
 internal class ProtobufDecodingException(message: String) : SerializationException(message)
 
 internal expect fun Int.reverseBytes(): Int
 internal expect fun Long.reverseBytes(): Long
+
+
+internal fun SerialDescriptor.getAllOneOfSerializerOfField(
+    serializersModule: SerializersModule,
+): List<SerialDescriptor> {
+    return when (this.kind) {
+        PolymorphicKind.OPEN -> {
+            serializersModule.getPolymorphicDescriptors(this)
+        }
+
+        PolymorphicKind.SEALED -> {
+            getElementDescriptor(1).elementDescriptors.toList()
+        }
+
+        else -> emptyList()
+    }.filter { desc ->
+            desc.annotations.any { anno -> anno is ProtoNumber }
+        }
+}
+
+internal fun SerialDescriptor.getActualOneOfSerializer(
+    serializersModule: SerializersModule,
+    protoId: Int
+): SerialDescriptor? {
+    return getAllOneOfSerializerOfField(serializersModule).find { it.extractClassDesc().protoId == protoId }
+}

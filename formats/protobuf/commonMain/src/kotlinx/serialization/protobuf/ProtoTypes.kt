@@ -61,10 +61,8 @@ public annotation class ProtoPacked
 
 /**
  * Instructs that a particular field should be written as an [oneof](https://protobuf.dev/programming-guides/proto2/#oneof).
- *
- * @property numbers a list of numbers that should be used for this oneof field.
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
 @ExperimentalSerializationApi
-public annotation class ProtoOneOf(public vararg val numbers: Int)
+public annotation class ProtoOneOf()

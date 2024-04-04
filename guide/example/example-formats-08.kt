@@ -7,7 +7,7 @@ import kotlinx.serialization.protobuf.*
 @Serializable
 data class Data(
     @ProtoNumber(1) val name: String,
-    @ProtoOneOf(2, 3) val phone: IPhoneType,
+    @ProtoOneOf val phone: IPhoneType,
 )
 @Serializable sealed interface IPhoneType
 @Serializable @ProtoNumber(2) @JvmInline value class HomePhone(val number: String): IPhoneType

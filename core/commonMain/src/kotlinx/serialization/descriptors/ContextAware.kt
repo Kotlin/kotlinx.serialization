@@ -66,31 +66,14 @@ public fun SerializersModule.getContextualDescriptor(descriptor: SerialDescripto
  * This method does not retrieve serializers registered with [PolymorphicModuleBuilder.defaultDeserializer]
  * or [PolymorphicModuleBuilder.defaultSerializer].
  *
- * For retrieving all registered serializers, use [getPolymorphicSerializers]
- *
  * @see SerializersModule.getPolymorphic
  * @see SerializersModuleBuilder.polymorphic
  */
 @ExperimentalSerializationApi
 public fun SerializersModule.getPolymorphicDescriptors(descriptor: SerialDescriptor): List<SerialDescriptor> {
-    return getPolymorphicSerializers(descriptor).map { it.descriptor }
-}
-/**
- * Retrieves a collection of serializers which are registered for polymorphic serialization in [this]
- * with its base class of descriptor equal to [descriptor]'s [SerialDescriptor.capturedKClass].
- * This method does not retrieve serializers registered with [PolymorphicModuleBuilder.defaultDeserializer]
- * or [PolymorphicModuleBuilder.defaultSerializer].
- *
- * For retrieving all registered descriptors, use [getPolymorphicDescriptors]
- *
- * @see SerializersModule.getPolymorphic
- * @see SerializersModuleBuilder.polymorphic
- */
-@ExperimentalSerializationApi
-public fun SerializersModule.getPolymorphicSerializers(descriptor: SerialDescriptor): List<KSerializer<*>> {
     val kClass = descriptor.capturedKClass ?: return emptyList()
     // SerializersModule is sealed class with the only implementation
-    return (this as SerialModuleImpl).polyBase2Serializers[kClass]?.values.orEmpty().toList()
+    return (this as SerialModuleImpl).polyBase2Serializers[kClass]?.values.orEmpty().map { it.descriptor }
 }
 
 /**
