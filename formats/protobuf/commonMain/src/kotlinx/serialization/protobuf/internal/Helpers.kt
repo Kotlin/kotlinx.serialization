@@ -128,15 +128,9 @@ internal fun SerialDescriptor.getAllOneOfSerializerOfField(
     serializersModule: SerializersModule,
 ): List<SerialDescriptor> {
     return when (this.kind) {
-        PolymorphicKind.OPEN -> {
-            serializersModule.getPolymorphicDescriptors(this)
-        }
-
-        PolymorphicKind.SEALED -> {
-            getElementDescriptor(1).elementDescriptors.toList()
-        }
-
-        else -> emptyList()
+        PolymorphicKind.OPEN -> serializersModule.getPolymorphicDescriptors(this)
+        PolymorphicKind.SEALED -> getElementDescriptor(1).elementDescriptors.toList()
+        else -> emptyList() // should we throw an exception here?
     }.filter { desc ->
             desc.annotations.any { anno -> anno is ProtoNumber }
         }

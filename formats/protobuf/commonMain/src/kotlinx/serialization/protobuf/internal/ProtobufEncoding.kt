@@ -198,9 +198,6 @@ private class OneOfPolymorphicEncoder(
         require(descriptor.kind is PolymorphicKind) {
             "The serializer of one of type ${descriptor.serialName} should be using generic polymorphic serializer, but got ${descriptor.kind}"
         }
-
-        // Do we need this strict check?
-        require(descriptor.getElementName(0) == "type" && descriptor.getElementDescriptor(0).kind == PrimitiveKind.STRING)
     }
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
