@@ -11,9 +11,9 @@ import kotlinx.serialization.descriptors.*
  * Specifies protobuf field number (a unique number for a field in the protobuf message)
  * assigned to a Kotlin property.
  *
- * If it is assigned to a Kotlin class, the class should inherit from a sealed interface/class,
+ * If it is assigned to a class, the class should inherit from an interface/class,
  * which is used as a property annotated with [ProtoOneOf].
- * In this case, the class should contain only one property, and the property should NOT have the [ProtoNumber] annotation.
+ * In this case, the class should contain only one property. [ProtoNumber] annotations on the property inside such a class will be ignored.
  *
  * See [Assigning field numbers](https://protobuf.dev/programming-guides/proto2/#assigning),
  * [oneof](https://protobuf.dev/programming-guides/proto2/#oneof) for details.

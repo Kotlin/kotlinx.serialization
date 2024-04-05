@@ -441,11 +441,25 @@ the annotation, but rather reads list in either packed or repeated format.
 Kotlin Serialization `ProtoBuf` format supports [oneof](https://protobuf.dev/programming-guides/proto2/#oneof) fields
 base on the [Polymorphism](polymorphism.md).
 
-You can declare a property of your class to be `oneof` by following the contracts:
+#### Usage
 
-* Declare an interface, or abstract class, in represent of the `oneof` group.
-* Declare the property with the type added above, annotated with `@ProtoOneOf`, not `@ProtoNumber`.
-* Declare subclasses from the type with **only one property** each per the oneof group elements.
+Giving a protobuf message defined like:
+
+```proto
+message Data {
+    required string name = 1;
+    oneof phone {
+        string home_phone = 2;
+        string work_phone = 3;
+    }
+}
+```
+
+You can define a kotlin class sementically equals to this message by following the contracts:
+
+* Declare an interface, or abstract class, in represent of the `oneof` group, called *the oneof interface*.
+* Declare the type added above, called *the outer class*, with the property annotated with `@ProtoOneOf`, not `@ProtoNumber`.
+* Declare subclasses from the type per the oneof group elements, with **only one property** each with the element type, called *message holders*.
 * Annotated the subclasses with `@ProtoNumber` on the class declaration, not the property, 
   per the oneof group elements and `@ProtoOneOf` above.
 
@@ -455,13 +469,20 @@ import kotlinx.serialization.protobuf.*
 -->
 
 ```kotlin
+// The outer class
 @Serializable
 data class Data(
     @ProtoNumber(1) val name: String,
     @ProtoOneOf val phone: IPhoneType,
 )
+
+// The oneof interface
 @Serializable sealed interface IPhoneType
+
+// Message holder for home_phone
 @Serializable @ProtoNumber(2) @JvmInline value class HomePhone(val number: String): IPhoneType
+
+// Message holder for work_phone
 @Serializable @ProtoNumber(3) data class WorkPhone(val number: String): IPhoneType
 
 fun main() {
@@ -496,6 +517,25 @@ Field #1: 0A String Length = 5, Hex = 05, UTF8 = "Jerry" Field #3: 1A String Len
 
 You should note that each group of `oneof` types should be tied to exactly one data class, and try not to reuse it in
 another data class. Otherwise, you may get id conflicts or `IllegalArgumentException` in runtime.
+
+#### Alternative
+
+You don't always need to apply the `@ProtoOneOf` form in your class for messages with `oneof` fields, if this class is only used as a deserialize target.
+
+For example, the following class
+
+```kotlin
+@Serializable  
+data class Data2(  
+    @ProtoNumber(1) val name: String,  
+    @ProtoNumber(2) val homeNumber: String? = null,  
+    @ProtoNumber(3) val workNumber: String? = null,  
+)  
+```
+
+can also be a valid deserialize target for the message given above, if you don't need polymorphism here.
+
+But please note that, if an instance of `Data2` with both `homeNumber` and `workNumber` assigned is serialized in proto wire, and send to another parser, one of the field may be omitted.
 
 ### ProtoBuf schema generator (experimental)
 
