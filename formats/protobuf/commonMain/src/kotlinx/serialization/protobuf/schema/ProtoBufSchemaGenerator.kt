@@ -229,6 +229,7 @@ public object ProtoBufSchemaGenerator {
                         annotations = messageDescriptor.getElementAnnotations(index),
                         isSealedPolymorphic = messageDescriptor.isSealedPolymorphic && index == 1,
                         isOptional = messageDescriptor.isElementOptional(index),
+                        inOneOfStruct = inOneOfStruct,
                         indent = if (inOneOfStruct) 2 else 1,
                     )
                     isList -> generateListType(parentType, index)
@@ -263,6 +264,7 @@ public object ProtoBufSchemaGenerator {
         annotations: List<Annotation>,
         isSealedPolymorphic: Boolean,
         isOptional: Boolean,
+        inOneOfStruct: Boolean = false,
         indent: Int = 1,
     ): List<TypeDefinition> {
         var unwrappedFieldDescriptor = fieldDescriptor
@@ -301,7 +303,13 @@ public object ProtoBufSchemaGenerator {
         }
         val optional = fieldDescriptor.isNullable || isOptional
 
-        append(" ".repeat(indent * 2)).append(if (optional) "optional " else "required ").append(typeName)
+        append(" ".repeat(indent * 2)).append(
+            when {
+                inOneOfStruct -> ""
+                optional -> "optional "
+                else -> "required "
+            }
+        ).append(typeName)
 
         return nestedTypes
     }

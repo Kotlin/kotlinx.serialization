@@ -170,6 +170,8 @@ class SchemaValidationsTest {
         ProtoBufSchemaGenerator.generateSchemaText(descriptors).also {
             assertContains(it, "oneof i")
             assertContains(it, "message InnerType")
+            // oneof fields need no required keyword
+            assertTrue(it.contains("required int32").not())
         }
     }
 }
