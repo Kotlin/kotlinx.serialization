@@ -173,5 +173,11 @@ class SchemaValidationsTest {
             // oneof fields need no required keyword
             assertTrue(it.contains("required int32").not())
         }
+
+        assertFailsWithMessage<IllegalArgumentException>(
+            message = "Implementation of oneOf type kotlinx.serialization.protobuf.ProtobufOneOfTest.FailType should contain only 1 element, but get 2"
+        ) {
+            ProtoBufSchemaGenerator.generateSchemaText(ProtobufOneOfTest.OneOfDataNullable.serializer().descriptor)
+        }
     }
 }

@@ -94,7 +94,7 @@ internal open class ProtobufDecoder(
     private fun MutableMap<Int, Int>.putProtoId(protoId: Int, index: Int) {
         val old = put(protoId, index)
         require(old == null) {
-            "Duplicated proto number $old in ${descriptor.serialName}."
+            "Duplicated proto number $protoId in ${descriptor.serialName} for elements: ${descriptor.getElementName(index)}, ${descriptor.getElementName(old!!)}."
         }
     }
 

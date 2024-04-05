@@ -199,7 +199,13 @@ class ProtobufOneOfTest {
     @Test
     fun testOneOfElementCheck() {
         val data = OneOfData(FailType(1, 2), "foo")
-        assertFailsWith<IllegalArgumentException> { ProtoBuf.encodeToHexString(OneOfData.serializer(), data) }
+        assertFailsWithMessage<IllegalArgumentException>(
+            message = "Implementation of oneOf type" + 
+                " kotlinx.serialization.protobuf.ProtobufOneOfTest.FailType" + 
+                " should contain only 1 element, but get 2"
+        ) {
+            ProtoBuf.encodeToHexString(OneOfData.serializer(), data) 
+        }
     }
 
     @Serializable
@@ -283,7 +289,9 @@ class ProtobufOneOfTest {
             assertEquals("08201a03666f6f2a03626172", it)
         }
 
-        assertFailsWith<SerializationException> {
+        assertFailsWithMessage<SerializationException>(
+            message = "Serializer for subclass 'OtherIntType' is not found in the polymorphic scope of 'OtherType'."
+        ) {
             buf.encodeToHexString(
                 DoubleOneOfElement.serializer(), DoubleOneOfElement(
                     IntType(32),

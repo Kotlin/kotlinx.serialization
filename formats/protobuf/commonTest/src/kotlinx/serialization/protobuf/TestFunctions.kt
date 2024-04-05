@@ -18,3 +18,15 @@ inline fun <reified T> testConversion(data: T, expectedHexString: String) {
     assertEquals(expectedHexString, string)
     assertEquals(data, ProtoBuf.decodeFromHexString(string))
 }
+
+inline fun <reified T : Throwable> assertFailsWithMessage(
+    message: String,
+    assertionMessage: String? = null,
+    block: () -> Unit
+) {
+    val exception = assertFailsWith(T::class, assertionMessage, block)
+    assertTrue(
+        exception.message!!.contains(message),
+        "expected:<$message> but was:<${exception.message}>"
+    )
+}

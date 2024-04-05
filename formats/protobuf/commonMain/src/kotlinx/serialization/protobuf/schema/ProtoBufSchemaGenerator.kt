@@ -204,6 +204,9 @@ public object ProtoBufSchemaGenerator {
                 val subDescriptor = fieldDescriptor.getElementDescriptor(1).elementDescriptors.toList()
                 append("  ").append("oneof").append(' ').append(fieldName).appendLine(" {")
                 subDescriptor.forEach { desc ->
+                    require(desc.elementsCount == 1) {
+                        "Implementation of oneOf type ${desc.serialName} should contain only 1 element, but get ${desc.elementsCount}"
+                    }
                     generateMessageField(
                         messageName = messageName,
                         parentType = TypeDefinition(desc),
