@@ -78,7 +78,7 @@ internal open class ProtobufDecoder(
             if (id == ID_HOLDER_ONE_OF) {
                 descriptor.getElementDescriptor(i)
                     .getAllOneOfSerializerOfField(serializersModule)
-                    .map { it.extractClassDesc().protoId }
+                    .map { it.extractParameters(0).protoId }
                     .forEach { map.putProtoId(it, i) }
                 oneOfCount ++
             } else {
@@ -386,7 +386,7 @@ private class OneOfPolymorphicReader(
     override fun SerialDescriptor.getTag(index: Int): ProtoDesc = if (index == 0) {
         POLYMORPHIC_NAME_TAG
     } else {
-        extractParameters(index).overrideId(parentTag.protoId)
+        extractParameters(0)
     }
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
@@ -431,11 +431,11 @@ private class OneOfElementReader(
         require(descriptor.elementsCount == 1) {
             "Implementation of oneOf type ${descriptor.serialName} should contain only 1 element, but get ${descriptor.elementsCount}"
         }
-        val protoNumber = descriptor.annotations.filterIsInstance<ProtoNumber>().singleOrNull()
+        val protoNumber = descriptor.getElementAnnotations(0).filterIsInstance<ProtoNumber>().singleOrNull()
         require(protoNumber != null) {
             "Implementation of oneOf type ${descriptor.serialName} should have @ProtoNumber annotation"
         }
-        classId = descriptor.extractClassDesc().protoId
+        classId = protoNumber.number
     }
 
     private var contentDecoded: Boolean = false
@@ -464,8 +464,6 @@ private class OneOfElementReader(
             0
         }
     }
-
-    override fun SerialDescriptor.getTag(index: Int): ProtoDesc = extractParameters(index).overrideId(classId)
 }
 
 private fun makeDelimited(decoder: ProtobufReader, parentTag: ProtoDesc): ProtobufReader {

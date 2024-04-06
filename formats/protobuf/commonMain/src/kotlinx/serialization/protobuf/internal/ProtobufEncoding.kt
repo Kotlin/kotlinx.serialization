@@ -213,7 +213,7 @@ private class OneOfPolymorphicEncoder(
     }
 
     override fun encodeInline(descriptor: SerialDescriptor): Encoder {
-        return encodeTaggedInline(popTag().overrideId(descriptor.extractClassDesc().protoId), descriptor)
+        return encodeTaggedInline(popTag().overrideId(descriptor.extractParameters(0).protoId), descriptor)
     }
 
     override fun encodeTaggedString(tag: ProtoDesc, value: String) {
@@ -242,20 +242,15 @@ private class OneOfElementEncoder(
     parentWriter: ProtobufWriter,
     descriptor: SerialDescriptor
 ) : ProtobufEncoder(proto, parentWriter, descriptor) {
-    private val classId: Int
-
     init {
         require(descriptor.elementsCount == 1) {
             "Implementation of oneOf type ${descriptor.serialName} should contain only 1 element, but get ${descriptor.elementsCount}"
         }
-        val protoNumber = descriptor.annotations.filterIsInstance<ProtoNumber>().singleOrNull()
+        val protoNumber = descriptor.getElementAnnotations(0).filterIsInstance<ProtoNumber>().singleOrNull()
         require(protoNumber != null) {
             "Implementation of oneOf type ${descriptor.serialName} should have @ProtoNumber annotation"
         }
-        classId = protoNumber.number
     }
-
-    override fun SerialDescriptor.getTag(index: Int): ProtoDesc = extractParameters(index).overrideId(classId)
 }
 
 private class MapRepeatedEncoder(

@@ -19,7 +19,7 @@ import kotlinx.serialization.descriptors.*
  * [oneof](https://protobuf.dev/programming-guides/proto2/#oneof) for details.
  */
 @SerialInfo
-@Target(AnnotationTarget.PROPERTY, AnnotationTarget.CLASS)
+@Target(AnnotationTarget.PROPERTY)
 @ExperimentalSerializationApi
 public annotation class ProtoNumber(public val number: Int)
 

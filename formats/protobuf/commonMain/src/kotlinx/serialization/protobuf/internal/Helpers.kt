@@ -84,23 +84,6 @@ internal fun SerialDescriptor.extractParameters(index: Int): ProtoDesc {
     return ProtoDesc(protoId, format, protoPacked, isOneOf)
 }
 
-internal fun SerialDescriptor.extractClassDesc(): ProtoDesc {
-    var protoId: Int = -1
-    var isOneOf = false
-    for (i in annotations.indices) {
-        val annotation = annotations[i]
-        if (annotation is ProtoNumber) {
-            protoId = annotation.number
-            isOneOf = true
-        }
-    }
-    return if (protoId == -1) {
-        MISSING_TAG
-    } else {
-        ProtoDesc(protoId, ProtoIntegerType.DEFAULT, oneOf = isOneOf)
-    }
-}
-
 /**
  * Get the proto id from the descriptor of [index] element,
  * or return [ID_HOLDER_ONE_OF] if such element is marked with [ProtoOneOf]
@@ -132,7 +115,7 @@ internal fun SerialDescriptor.getAllOneOfSerializerOfField(
         PolymorphicKind.SEALED -> getElementDescriptor(1).elementDescriptors.toList()
         else -> emptyList() // should we throw an exception here?
     }.filter { desc ->
-            desc.annotations.any { anno -> anno is ProtoNumber }
+            desc.getElementAnnotations(0).any { anno -> anno is ProtoNumber }
         }
 }
 
@@ -140,5 +123,5 @@ internal fun SerialDescriptor.getActualOneOfSerializer(
     serializersModule: SerializersModule,
     protoId: Int
 ): SerialDescriptor? {
-    return getAllOneOfSerializerOfField(serializersModule).find { it.extractClassDesc().protoId == protoId }
+    return getAllOneOfSerializerOfField(serializersModule).find { it.extractParameters(0).protoId == protoId }
 }

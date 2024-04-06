@@ -20,9 +20,8 @@ class ProtoInline {
     sealed interface ITypeWithInlineClass
 
     @Serializable
-    @ProtoNumber(12)
     @JvmInline
-    value class StringInlineType(@ProtoNumber(6) val s: String) : ITypeWithInlineClass
+    value class StringInlineType(@ProtoNumber(12) val s: String) : ITypeWithInlineClass
 
     @Test
     fun testOneOfStringTypeNullable() {

@@ -455,12 +455,12 @@ message Data {
 }
 ```
 
-You can define a kotlin class sementically equals to this message by following the contracts:
+You can define a kotlin class semantically equals to this message by following the contracts:
 
 * Declare an interface, or abstract class, in represent of the `oneof` group, called *the oneof interface*.
 * Declare the type added above, called *the outer class*, with the property annotated with `@ProtoOneOf`, not `@ProtoNumber`.
 * Declare subclasses from the type per the oneof group elements, with **only one property** each with the element type, called *message holders*.
-* Annotated the subclasses with `@ProtoNumber` on the class declaration, not the property, 
+* Annotated the subclasses with `@ProtoNumber` on the only property, 
   per the oneof group elements and `@ProtoOneOf` above.
 
 <!--- INCLUDE
@@ -480,10 +480,10 @@ data class Data(
 @Serializable sealed interface IPhoneType
 
 // Message holder for home_phone
-@Serializable @ProtoNumber(2) @JvmInline value class HomePhone(val number: String): IPhoneType
+@Serializable @JvmInline value class HomePhone(@ProtoNumber(2) val number: String): IPhoneType
 
 // Message holder for work_phone
-@Serializable @ProtoNumber(3) data class WorkPhone(val number: String): IPhoneType
+@Serializable data class WorkPhone(@ProtoNumber(3) val number: String): IPhoneType
 
 fun main() {
   val dataTom = Data("Tom", HomePhone("123"))
@@ -535,7 +535,7 @@ data class Data2(
 
 can also be a valid deserialize target for the message given above, if you don't need polymorphism here.
 
-But please note that, if an instance of `Data2` with both `homeNumber` and `workNumber` assigned is serialized in proto wire, and send to another parser, one of the field may be omitted.
+But please note that, if an instance of `Data2` with both `homeNumber` and `workNumber` assigned is serialized in proto wire, and send to another parser, one of the field may be omitted and lead to unknown issue.
 
 ### ProtoBuf schema generator (experimental)
 

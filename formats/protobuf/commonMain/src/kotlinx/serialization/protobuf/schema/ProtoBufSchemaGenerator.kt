@@ -215,7 +215,7 @@ public object ProtoBufSchemaGenerator {
                         counts = desc.elementsCount,
                         getAnnotations = { desc.annotations },
                         getChildType = { desc.elementDescriptors.single().let(::TypeDefinition) },
-                        getChildNumber = { desc.annotations.filterIsInstance<ProtoNumber>().singleOrNull()?.number ?: (it + 1) },
+                        getChildNumber = { desc.getElementAnnotations(0).filterIsInstance<ProtoNumber>().singleOrNull()?.number ?: (it + 1) },
                         getChildName = { desc.getElementName(0) },
                         inOneOfStruct = true,
                     )

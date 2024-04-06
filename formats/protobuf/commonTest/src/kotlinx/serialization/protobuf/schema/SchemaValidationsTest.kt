@@ -149,17 +149,14 @@ class SchemaValidationsTest {
     sealed interface IType
 
     @Serializable
-    @ProtoNumber(2)
-    data class IntType(@ProtoNumber(4) val intValue: Int): IType
+    data class IntType(@ProtoNumber(2) val intValue: Int): IType
 
     @Serializable
-    @ProtoNumber(3)
     @JvmInline
-    value class StringType(@ProtoNumber(5) val strValue: String): IType
+    value class StringType(@ProtoNumber(3) val strValue: String): IType
 
     @Serializable
-    @ProtoNumber(4)
-    data class WrapType(val content: InnerType): IType
+    data class WrapType(@ProtoNumber(4) val content: InnerType): IType
 
     @Serializable
     data class InnerType(val innerContent: String)
@@ -168,6 +165,7 @@ class SchemaValidationsTest {
     fun testOneOfGenerate() {
         val descriptors = listOf(OneOfData.serializer().descriptor)
         ProtoBufSchemaGenerator.generateSchemaText(descriptors).also {
+            println(it)
             assertContains(it, "oneof i")
             assertContains(it, "message InnerType")
             // oneof fields need no required keyword
