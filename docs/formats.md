@@ -475,7 +475,7 @@ import kotlinx.serialization.protobuf.*
 @Serializable
 data class Data(
     @ProtoNumber(1) val name: String,
-    @ProtoOneOf val phone: IPhoneType,
+    @ProtoOneOf val phone: IPhoneType?,
 )
 
 // The oneof interface
@@ -526,7 +526,7 @@ You don't always need to apply the `@ProtoOneOf` form in your class for messages
 
 For example, the following class
 
-```kotlin
+```
 @Serializable  
 data class Data2(  
     @ProtoNumber(1) val name: String,  
@@ -535,7 +535,7 @@ data class Data2(
 )  
 ```
 
-can also be a valid deserialize target for the message given above, if you don't need polymorphism here.
+has binary campatibility with the message given above, which means it can also be a valid deserialize target, if you don't need polymorphism here.
 
 But please note that, if an instance of `Data2` with both `homeNumber` and `workNumber` assigned is serialized in proto wire, and send to another parser, one of the field may be omitted and lead to unknown issue.
 

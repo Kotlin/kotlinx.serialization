@@ -8,7 +8,7 @@ import kotlinx.serialization.protobuf.*
 @Serializable
 data class Data(
     @ProtoNumber(1) val name: String,
-    @ProtoOneOf val phone: IPhoneType,
+    @ProtoOneOf val phone: IPhoneType?,
 )
 
 // The oneof interface
