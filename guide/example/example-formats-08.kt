@@ -4,14 +4,21 @@ package example.exampleFormats08
 import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.*
 
+// The outer class
 @Serializable
 data class Data(
     @ProtoNumber(1) val name: String,
     @ProtoOneOf val phone: IPhoneType,
 )
+
+// The oneof interface
 @Serializable sealed interface IPhoneType
-@Serializable @ProtoNumber(2) @JvmInline value class HomePhone(val number: String): IPhoneType
-@Serializable @ProtoNumber(3) data class WorkPhone(val number: String): IPhoneType
+
+// Message holder for home_phone
+@Serializable @JvmInline value class HomePhone(@ProtoNumber(2) val number: String): IPhoneType
+
+// Message holder for work_phone
+@Serializable data class WorkPhone(@ProtoNumber(3) val number: String): IPhoneType
 
 fun main() {
   val dataTom = Data("Tom", HomePhone("123"))

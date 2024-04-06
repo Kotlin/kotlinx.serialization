@@ -19,6 +19,8 @@ stable, these are currently experimental features of Kotlin Serialization.
   * [Lists as repeated fields](#lists-as-repeated-fields)
   * [Packed fields](#packed-fields)
   * [Oneof field (experimental)](#oneof-field-experimental)
+    * [Usage](#usage)
+    * [Alternative](#alternative)
   * [ProtoBuf schema generator (experimental)](#protobuf-schema-generator-experimental)
 * [Properties (experimental)](#properties-experimental)
 * [Custom formats (experimental)](#custom-formats-experimental)
