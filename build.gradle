@@ -83,7 +83,7 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
-        classpath "org.jetbrains.kotlinx:kover:$kover_version"
+        classpath "org.jetbrains.kotlinx:kover-gradle-plugin:$kover_version"
         classpath "org.jetbrains.kotlinx:binary-compatibility-validator:$validator_version"
         classpath "org.jetbrains.kotlinx:kotlinx-knit:$knit_version"
         classpath 'ru.vyarus:gradle-animalsniffer-plugin:1.5.3' // Android API check
@@ -179,7 +179,7 @@ allprojects {
 
 def unpublishedProjects = ["benchmark", "guide", "kotlinx-serialization-json-tests"] as Set
 def excludedFromBomProjects = unpublishedProjects + "kotlinx-serialization-bom" as Set
-def uncoveredProjects = ["kotlinx-serialization-bom", "benchmark", "guide"] as Set
+def uncoveredProjects = ["kotlinx-serialization-bom", "benchmark", "guide", "kotlinx-serialization-json-okio"] as Set
 
 subprojects {
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompile).all { task ->

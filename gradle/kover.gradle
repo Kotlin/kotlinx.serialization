@@ -2,22 +2,22 @@
  * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-apply plugin: 'kover'
+apply plugin: 'org.jetbrains.kotlinx.kover'
 
-tasks.withType(Test) { task ->
-    kover {
-        enabled = rootProject.ext.koverEnabled
-
+kover {
+    if (!rootProject.ext.koverEnabled) {
+        disable()
     }
-}
-tasks.koverVerify {
-    // Core is mainly uncovered because a lot of serializers are tested with JSON
-    def minPercentage = (project.name.contains("core") || project.name.contains("properties")|| project.name.contains("json-okio")) ? 44 : 80
-    rule {
-        name = "Minimal line coverage rate in percents"
-        bound {
-            minValue = minPercentage
-            // valueType is 'COVERED_LINES_PERCENTAGE' by default
+
+    reports {
+        verify {
+            rule("Minimal line coverage rate in percents") {
+
+                // Core is mainly uncovered because a lot of serializers are tested with JSON
+                def minPercentage = (project.name.contains("core") || project.name.contains("properties") || project.name.contains("json-okio")) ? 44 : 80
+                minBound(minPercentage)
+                // valueType is 'COVERED_LINES_PERCENTAGE' by default
+            }
         }
     }
 }
