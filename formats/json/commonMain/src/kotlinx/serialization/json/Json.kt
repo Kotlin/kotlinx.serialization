@@ -94,6 +94,13 @@ public sealed class Json(
      */
     public inline fun <reified T> decodeFromString(@FormatLanguage("json", "", "") string: String): T =
             decodeFromString(serializersModule.serializer(), string)
+    /**
+     * Tries to decodes and deserializes the given JSON [string] to the value of type [T] using deserializer
+     * retrieved from the reified type parameter or returns `null` if the operation is unsuccessful.
+     *
+     */
+    public inline fun <reified T> decodeFromStringOrNull(@FormatLanguage("json", "", "") string: String): T? =
+            try {decodeFromString(serializersModule.serializer(), string)} catch(_:Exception){ null}
 
     /**
      * Deserializes the given JSON [string] into a value of type [T] using the given [deserializer].
