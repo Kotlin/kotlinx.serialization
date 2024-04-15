@@ -62,6 +62,8 @@ private class DynamicObjectEncoder(
      * Flag of usage polymorphism with discriminator attribute
      */
     private var polymorphicDiscriminator: String? = null
+    private var polymorphicSerialName: String? = null
+
 
     private object NoOutputMark
 
@@ -183,8 +185,9 @@ private class DynamicObjectEncoder(
     private fun isNotStructured() = result === NoOutputMark
 
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
-        encodePolymorphically(serializer, value) {
-            polymorphicDiscriminator = it
+        encodePolymorphically(serializer, value) { discriminatorName, serialName ->
+            polymorphicDiscriminator = discriminatorName
+            polymorphicSerialName = serialName
         }
     }
 
@@ -209,8 +212,9 @@ private class DynamicObjectEncoder(
         }
 
         if (polymorphicDiscriminator != null) {
-            current.jsObject[polymorphicDiscriminator!!] = descriptor.serialName
+            current.jsObject[polymorphicDiscriminator!!] = polymorphicSerialName ?: descriptor.serialName
             polymorphicDiscriminator = null
+            polymorphicSerialName = null
         }
 
         current.index = 0

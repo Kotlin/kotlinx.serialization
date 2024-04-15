@@ -78,7 +78,10 @@ private sealed class AbstractJsonTreeEncoder(
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
         // Writing non-structured data (i.e. primitives) on top-level (e.g. without any tag) requires special output
         if (currentTagOrNull != null || !serializer.descriptor.carrierDescriptor(serializersModule).requiresTopLevelTag) {
-            encodePolymorphically(serializer, value) { polymorphicDiscriminator = it }
+            encodePolymorphically(serializer, value) { discriminatorName, serialName ->
+                polymorphicDiscriminator = discriminatorName
+                polymorphicSerialName = serialName
+            }
         } else JsonPrimitiveEncoder(json, nodeConsumer).apply {
             encodeSerializableValue(serializer, value)
         }
@@ -155,7 +158,14 @@ private sealed class AbstractJsonTreeEncoder(
 
         val discriminator = polymorphicDiscriminator
         if (discriminator != null) {
-            encoder.putElement(discriminator, JsonPrimitive(polymorphicSerialName ?: descriptor.serialName))
+            if (encoder is JsonTreeMapEncoder) {
+                // first parameter is ignored in JsonTreeMapEncoder
+                encoder.putElement("key", JsonPrimitive(discriminator))
+                encoder.putElement("value", JsonPrimitive(polymorphicSerialName ?: descriptor.serialName))
+
+            } else {
+                encoder.putElement(discriminator, JsonPrimitive(polymorphicSerialName ?: descriptor.serialName))
+            }
             polymorphicDiscriminator = null
             polymorphicSerialName = null
         }
