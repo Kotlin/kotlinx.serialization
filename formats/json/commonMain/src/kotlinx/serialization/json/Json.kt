@@ -264,12 +264,6 @@ public class JsonBuilder internal constructor(json: Json) {
      */
     public var isLenient: Boolean = json.configuration.isLenient
 
-    /**
-     * Enables structured objects to be serialized as map keys by
-     * changing serialized form of the map from JSON object (key-value pairs) to flat array like `[k1, v1, k2, v2]`.
-     * `false` by default.
-     */
-    public var allowStructuredMapKeys: Boolean = json.configuration.allowStructuredMapKeys
 
     /**
      * Specifies whether resulting JSON should be pretty-printed.
@@ -296,15 +290,6 @@ public class JsonBuilder internal constructor(json: Json) {
     public var coerceInputValues: Boolean = json.configuration.coerceInputValues
 
     /**
-     * Switches polymorphic serialization to the default array format.
-     * This is an option for legacy JSON format and should not be generally used.
-     * `false` by default.
-     *
-     * This option can only be used if [classDiscriminatorMode] in a default [ClassDiscriminatorMode.POLYMORPHIC] state.
-     */
-    public var useArrayPolymorphism: Boolean = json.configuration.useArrayPolymorphism
-
-    /**
      * Name of the class descriptor property for polymorphic serialization.
      * "type" by default.
      */
@@ -319,14 +304,6 @@ public class JsonBuilder internal constructor(json: Json) {
      * therefore, this setting does not affect the deserialization process.
      */
     public var classDiscriminatorMode: ClassDiscriminatorMode = json.configuration.classDiscriminatorMode
-
-    /**
-     * Removes JSON specification restriction on
-     * special floating-point values such as `NaN` and `Infinity` and enables their serialization and deserialization.
-     * When enabling it, please ensure that the receiving party will be able to encode and decode these special values.
-     * `false` by default.
-     */
-    public var allowSpecialFloatingPointValues: Boolean = json.configuration.allowSpecialFloatingPointValues
 
     /**
      * Specifies whether Json instance makes use of [JsonNames] annotation.
@@ -401,6 +378,30 @@ public class JsonBuilder internal constructor(json: Json) {
      */
     @ExperimentalSerializationApi
     public var allowComments: Boolean = json.configuration.allowComments
+
+    /**
+     * Removes JSON specification restriction on
+     * special floating-point values such as `NaN` and `Infinity` and enables their serialization and deserialization.
+     * When enabling it, please ensure that the receiving party will be able to encode and decode these special values.
+     * `false` by default.
+     */
+    public var allowSpecialFloatingPointValues: Boolean = json.configuration.allowSpecialFloatingPointValues
+
+    /**
+     * Enables structured objects to be serialized as map keys by
+     * changing serialized form of the map from JSON object (key-value pairs) to flat array like `[k1, v1, k2, v2]`.
+     * `false` by default.
+     */
+    public var allowStructuredMapKeys: Boolean = json.configuration.allowStructuredMapKeys
+
+    /**
+     * Switches polymorphic serialization to the default array format.
+     * This is an option for legacy JSON format and should not be generally used.
+     * `false` by default.
+     *
+     * This option can only be used if [classDiscriminatorMode] in a default [ClassDiscriminatorMode.POLYMORPHIC] state.
+     */
+    public var useArrayPolymorphism: Boolean = json.configuration.useArrayPolymorphism
 
     /**
      * Module with contextual and polymorphic serializers to be used in the resulting [Json] instance.
