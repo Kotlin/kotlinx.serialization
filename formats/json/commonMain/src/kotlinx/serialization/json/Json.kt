@@ -500,7 +500,7 @@ public class JsonBuilder internal constructor(json: Json) {
      * ```
      * enum class CaseSensitiveEnum { One, ONE }
      * val json = Json { decodeEnumsCaseInsensitive = true }
-     * // Fails with SerializationException: ambiguous enum decoding
+     * // Fails with SerializationException: The suggested name 'one' for enum value ONE is already one of the names for enum value One
      * json.decodeFromString<CaseSensitiveEnum>("ONE")
      * ```
      */
