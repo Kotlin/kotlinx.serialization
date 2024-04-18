@@ -52,6 +52,10 @@ private class ClassValueCache<T>(val compute: (KClass<*>) -> KSerializer<T>?) : 
             .getOrSet(key.java) { CacheEntry(compute(key)) }
             .serializer
     }
+
+    override fun isStored(key: KClass<*>): Boolean {
+        return classValue.isStored(key.java)
+    }
 }
 
 /**
@@ -83,6 +87,11 @@ private class ClassValueReferences<T> : ClassValue<MutableSoftReference<T>>() {
 
         // go to the slow path and create serializer with blocking, also wrap factory block
         return ref.getOrSetWithLock { factory() }
+    }
+
+    fun isStored(key: Class<*>): Boolean {
+        val ref = get(key)
+        return ref.reference.get() != null
     }
 
 }
@@ -133,6 +142,10 @@ private class ConcurrentHashMapCache<T>(private val compute: (KClass<*>) -> KSer
         return cache.getOrPut(key.java) {
             CacheEntry(compute(key))
         }.serializer
+    }
+
+    override fun isStored(key: KClass<*>): Boolean {
+        return cache.containsKey(key.java)
     }
 }
 

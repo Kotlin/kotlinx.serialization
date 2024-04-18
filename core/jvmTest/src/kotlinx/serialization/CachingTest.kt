@@ -6,9 +6,9 @@ package kotlinx.serialization
 
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
-import org.junit.Test
 import kotlin.reflect.*
 import kotlin.test.*
+import kotlin.test.Test
 
 class CachingTest {
     @Test
@@ -42,5 +42,22 @@ class CachingTest {
         }
 
         assertEquals(1, factoryCalled)
+    }
+
+    @Serializable
+    class Target
+
+    @Test
+    fun testJvmIntrinsics() {
+        val ser1 = Target.serializer()
+        assertFalse(SERIALIZERS_CACHE.isStored(Target::class), "Cache shouldn't have values before call to serializer<T>()")
+        val ser2 = serializer<Target>()
+        assertFalse(
+            SERIALIZERS_CACHE.isStored(Target::class),
+            "Serializer for Target::class is stored in the cache, which means that runtime lookup was performed and call to serializer<Target> was not intrinsified." +
+                "Check that compiler plugin intrinsics are enabled and working correctly."
+        )
+        val ser3 = serializer(typeOf<Target>())
+        assertTrue(SERIALIZERS_CACHE.isStored(Target::class), "Serializer should be stored in cache after typeOf-based lookup")
     }
 }

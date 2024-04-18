@@ -61,21 +61,5 @@ class CachedSerializersTest {
     fun testAbstractSerializersAreSame() {
         assertSame(Abstract.serializer(), Abstract.serializer())
     }
-
-
-    @OptIn(ExperimentalTime::class)
-    @Test
-    fun testSerializersAreIntrinsified() = jvmOnly {
-        val m = SerializersModule {  }
-        val direct = measureTime {
-            Object.serializer()
-        }
-        val directMs = direct.inWholeMicroseconds
-        val indirect = measureTime {
-            m.serializer<Object>()
-        }
-        val indirectMs = indirect.inWholeMicroseconds
-        if (indirectMs > directMs + (directMs / 4)) error("Direct ($directMs) and indirect ($indirectMs) times are too far apart")
-    }
 }
 
