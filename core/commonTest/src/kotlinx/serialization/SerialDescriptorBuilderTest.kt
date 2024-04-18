@@ -94,4 +94,44 @@ class SerialDescriptorBuilderTest {
         assertTrue(descriptor.isNullable)
         assertEquals("my.Simple?", descriptor.serialName)
     }
+
+    @Test
+    fun testNonNullOriginal() {
+        listOf(
+            buildClassSerialDescriptor("my.Simple") {},
+            Boolean.serializer().descriptor,
+            String.serializer().descriptor,
+            ListSerializer(Int.serializer()).descriptor,
+        ).forEach { originalDescriptor ->
+            // Unwrapping original descriptor when it is not nullable should return the same descriptor (no-op operation)
+            assertSame(originalDescriptor.nonNullOriginal, originalDescriptor)
+
+            // Unwrapping original descriptor when it is nullable should return the original descriptor
+            assertSame(originalDescriptor.nullable.nonNullOriginal, originalDescriptor)
+        }
+
+        // Unwrapping original descriptor of a custom nullable descriptor should return the same descriptor
+        val customNullableDescriptor = CustomNullableDescriptor()
+        assertSame(customNullableDescriptor.nonNullOriginal, customNullableDescriptor)
+
+        // Unwrapping original descriptor of a nullable field should return the original non-null descriptor
+        assertSame(Type.serializer().descriptor.getElementDescriptor(0).nonNullOriginal, String.serializer().descriptor)
+
+    }
+
+    @Serializable
+    class Type(val field: String?)
+
+    private class CustomNullableDescriptor : SerialDescriptor {
+        override val isNullable: Boolean = true
+
+        override val serialName: String = "CustomNullableDescriptor"
+        override val kind: SerialKind = PrimitiveKind.STRING
+        override val elementsCount: Int = 0
+        override fun getElementName(index: Int): String = error("Should not be called")
+        override fun getElementIndex(name: String): Int = error("Should not be called")
+        override fun isElementOptional(index: Int): Boolean = error("Should not be called")
+        override fun getElementAnnotations(index: Int): List<Annotation> = error("Should not be called")
+        override fun getElementDescriptor(index: Int): SerialDescriptor = error("Should not be called")
+    }
 }
