@@ -159,7 +159,7 @@ private sealed class AbstractJsonTreeEncoder(
         val discriminator = polymorphicDiscriminator
         if (discriminator != null) {
             if (encoder is JsonTreeMapEncoder) {
-                // first parameter is ignored in JsonTreeMapEncoder
+                // first parameter of `putElement` is ignored in JsonTreeMapEncoder
                 encoder.putElement("key", JsonPrimitive(discriminator))
                 encoder.putElement("value", JsonPrimitive(polymorphicSerialName ?: descriptor.serialName))
 
