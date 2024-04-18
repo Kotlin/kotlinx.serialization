@@ -224,6 +224,24 @@ public val SerialDescriptor.nullable: SerialDescriptor
     }
 
 /**
+ * Returns non-nullable serial descriptor for the type if this descriptor has been auto-generated (plugin
+ * generated descriptors) or created with `.nullable` extension on a descriptor or serializer.
+ *
+ * Otherwise, returns this.
+ *
+ * It may return nullable descriptor if this descriptor has been created manually as nullable by directly implementing SerialDescriptor interface.
+ *
+ * @see SerialDescriptor.nullable
+ * @see KSerializer.nullable
+ */
+@ExperimentalSerializationApi
+public val SerialDescriptor.nonNullOriginal: SerialDescriptor
+    get() = when (this) {
+        is SerialDescriptorForNullable -> original
+        else -> this
+    }
+
+/**
  * Builder for [SerialDescriptor] for user-defined serializers.
  *
  * Both explicit builder functions and implicit (using reified type-parameters) are present and are equivalent.
