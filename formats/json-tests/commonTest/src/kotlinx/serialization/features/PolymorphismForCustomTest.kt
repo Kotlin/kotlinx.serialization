@@ -18,7 +18,6 @@ class PolymorphismForCustomTest : JsonTestBase() {
         override val descriptor: SerialDescriptor =
             buildClassSerialDescriptor("VImpl") {
                 element("a", String.serializer().descriptor)
-                element("b", Int.serializer().descriptor)
             }
 
         override fun deserialize(decoder: Decoder): VImpl {
