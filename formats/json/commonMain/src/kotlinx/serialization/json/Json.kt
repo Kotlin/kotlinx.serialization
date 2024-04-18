@@ -417,7 +417,7 @@ public class JsonBuilder internal constructor(json: Json) {
      *  *     "opens": "secret door"
      *  * }
      *  */
-     * println(pretty.encodeToString(Pair("keycard", "secret door")))
+     * println(pretty.encodeToString(Key("keycard", "secret door")))
      * ```
      */
     public var prettyPrint: Boolean = json.configuration.prettyPrint
