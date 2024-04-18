@@ -444,7 +444,7 @@ public class JsonBuilder internal constructor(json: Json) {
 
     /**
      * Name of the class descriptor property for polymorphic serialization.
-     * `"type"` by default.
+     * `type` by default.
      */
     public var classDiscriminator: String = json.configuration.classDiscriminator
 
