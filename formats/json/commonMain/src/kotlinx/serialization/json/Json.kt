@@ -29,7 +29,7 @@ import kotlin.native.concurrent.*
  * @Serializable
  * data class Data(val id: Int, val data: String, val extensions: JsonElement)
  *
- * val json = Json { prettyPrint = true }
+ * val json = Json { allowTrailingComma = true }
  * val instance = Data(42, "some data", buildJsonObject { put("key", "value") })
  *
  * // Plain Json usage: returns '{"id": 42, "some data", "extensions": {"key": "value" } }'
