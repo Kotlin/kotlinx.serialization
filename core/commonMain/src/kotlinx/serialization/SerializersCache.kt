@@ -19,7 +19,7 @@ import kotlin.reflect.KType
  * Cache for non-null non-parametrized and non-contextual serializers.
  */
 @ThreadLocal
-private val SERIALIZERS_CACHE = createCache { it.serializerOrNull() ?: it.polymorphicIfInterface() }
+internal val SERIALIZERS_CACHE = createCache { it.serializerOrNull() ?: it.polymorphicIfInterface() }
 
 /**
  * Cache for nullable non-parametrized and non-contextual serializers.
