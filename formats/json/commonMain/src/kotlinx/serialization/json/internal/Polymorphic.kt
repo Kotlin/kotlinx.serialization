@@ -16,7 +16,7 @@ import kotlin.jvm.*
 internal inline fun <T> JsonEncoder.encodePolymorphically(
     serializer: SerializationStrategy<T>,
     value: T,
-    ifPolymorphic: (String, String) -> Unit
+    ifPolymorphic: (discriminatorName: String, serialName: String) -> Unit
 ) {
     if (json.configuration.useArrayPolymorphism) {
         serializer.serialize(this, value)
