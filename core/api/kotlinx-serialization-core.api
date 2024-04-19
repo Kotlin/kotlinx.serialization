@@ -908,6 +908,7 @@ public abstract class kotlinx/serialization/internal/NamedValueDecoder : kotlinx
 	public synthetic fun getTag (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/Object;
 	protected final fun getTag (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/String;
 	protected final fun nested (Ljava/lang/String;)Ljava/lang/String;
+	protected final fun renderTagStack ()Ljava/lang/String;
 }
 
 public abstract class kotlinx/serialization/internal/NamedValueEncoder : kotlinx/serialization/internal/TaggedEncoder {

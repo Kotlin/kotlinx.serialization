@@ -299,7 +299,8 @@ public abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
         return r
     }
 
-    private val tagStack = arrayListOf<Tag>()
+    internal val tagStack: ArrayList<Tag> = arrayListOf()
+
     protected val currentTag: Tag
         get() = tagStack.last()
     protected val currentTagOrNull: Tag?
@@ -331,4 +332,10 @@ public abstract class NamedValueDecoder : TaggedDecoder<String>() {
     protected open fun elementName(descriptor: SerialDescriptor, index: Int): String = descriptor.getElementName(index)
     protected open fun composeName(parentName: String, childName: String): String =
         if (parentName.isEmpty()) childName else "$parentName.$childName"
+
+
+    protected fun renderTagStack(): String {
+        return if (tagStack.isEmpty()) "$"
+        else tagStack.joinToString(separator = ".", prefix = "$.") { it }
+    }
 }

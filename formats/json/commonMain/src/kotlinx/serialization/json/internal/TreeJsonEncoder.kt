@@ -264,12 +264,12 @@ private class JsonTreeListEncoder(json: Json, nodeConsumer: (JsonElement) -> Uni
     override fun getCurrent(): JsonElement = JsonArray(array)
 }
 
-@OptIn(ExperimentalSerializationApi::class)
-internal inline fun <reified T : JsonElement> cast(value: JsonElement, descriptor: SerialDescriptor): T {
+internal inline fun <reified T : JsonElement> cast(value: JsonElement, serialName: String, path: () -> String): T {
     if (value !is T) {
         throw JsonDecodingException(
             -1,
-            "Expected ${T::class} as the serialized body of ${descriptor.serialName}, but had ${value::class}"
+            "Expected ${T::class.simpleName}, but had ${value::class.simpleName} as the serialized body of $serialName at element: ${path()}",
+            value.toString()
         )
     }
     return value

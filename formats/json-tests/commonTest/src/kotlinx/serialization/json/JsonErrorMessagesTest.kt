@@ -6,11 +6,79 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.test.*
 import kotlin.test.*
 
 
 class JsonErrorMessagesTest : JsonTestBase() {
+
+    @Serializable
+    @SerialName("app.Failure")
+    sealed interface Failure {
+        @Serializable
+        @SerialName("a")
+        data class A(val failure: Failure) : Failure
+    }
+
+    @Test
+    fun testPolymorphicCastMessage() = parametrizedTest { mode ->
+        checkSerializationException({
+            default.decodeFromString(
+                Failure.serializer(),
+                """{"type":"a", "failure":"wrong-input"}""",
+                mode
+            )
+        }, {
+            assertContains(
+                it,
+                "Expected JsonObject, but had JsonLiteral as the serialized body of app.Failure at element: \$.failure"
+            )
+        })
+    }
+
+    @Test
+    fun testPrimitiveInsteadOfObjectOrList() = parametrizedTest { mode ->
+        val input = """{"boxed": 42}"""
+        checkSerializationException({
+            default.decodeFromString(Box.serializer(StringData.serializer()), input, mode)
+        }, { message ->
+            if (mode == JsonTestingMode.TREE)
+                assertContains(message, "Expected JsonObject, but had JsonLiteral as the serialized body of kotlinx.serialization.StringData at element: \$.boxed")
+            else
+                assertContains(message, "Unexpected JSON token at offset 10: Expected start of the object '{', but had '4' instead at path: \$.boxed")
+        })
+
+        checkSerializationException({
+            default.decodeFromString(Box.serializer(ListSerializer(StringData.serializer())), input, mode)
+        }, { message ->
+            if (mode == JsonTestingMode.TREE)
+                assertContains(message, "Expected JsonArray, but had JsonLiteral as the serialized body of kotlin.collections.ArrayList at element: \$.boxed")
+            else
+                assertContains(message, "Unexpected JSON token at offset 10: Expected start of the array '[', but had '4' instead at path: \$.boxed")
+        })
+    }
+
+    @Test
+    fun testObjectOrListInsteadOfPrimitive() = parametrizedTest { mode ->
+        checkSerializationException({
+            default.decodeFromString(Box.serializer(Int.serializer()), """{"boxed": [1,2]}""", mode)
+        }, { message ->
+            if (mode == JsonTestingMode.TREE)
+                assertContains(message, "Expected JsonPrimitive, but had JsonArray as the serialized body of int at element: \$.boxed")
+            else
+                assertContains(message, "Unexpected JSON token at offset 10: Expected numeric literal at path: \$.boxed")
+        })
+
+        checkSerializationException({
+            default.decodeFromString(Box.serializer(String.serializer()), """{"boxed": {"x":"y"}}""", mode)
+        }, { message ->
+            if (mode == JsonTestingMode.TREE)
+                assertContains(message, "Expected JsonPrimitive, but had JsonObject as the serialized body of string at element: \$.boxed")
+            else
+                assertContains(message, "Expected beginning of the string, but got { at path: \$.boxed")
+        })
+    }
 
     @Test
     fun testJsonTokensAreProperlyReported() = parametrizedTest { mode ->
@@ -24,7 +92,7 @@ class JsonErrorMessagesTest : JsonTestBase() {
             default.decodeFromString(serString, input1, mode)
         }, { message ->
             if (mode == JsonTestingMode.TREE)
-                assertContains(message, "String literal for key 'boxed' should be quoted.")
+                assertContains(message, "String literal for key 'boxed' should be quoted at element: \$.boxed")
             else
                 assertContains(
                     message,
@@ -42,7 +110,7 @@ class JsonErrorMessagesTest : JsonTestBase() {
                     "Unexpected JSON token at offset 9: Unexpected symbol 's' in numeric literal at path: \$.boxed"
                 )
             else
-                assertContains(message, "Failed to parse literal as 'int' value")
+                assertContains(message, "Failed to parse literal '\"str\"' as an int value at element: \$.boxed")
         })
     }
 
@@ -116,7 +184,7 @@ class JsonErrorMessagesTest : JsonTestBase() {
         }, { message ->
             if (mode == JsonTestingMode.TREE) assertContains(
                 message,
-                """String literal for key 'boxed' should be quoted."""
+                "String literal for key 'boxed' should be quoted at element: ${'$'}.boxed"
             )
             else assertContains(
                 message,
@@ -133,11 +201,28 @@ class JsonErrorMessagesTest : JsonTestBase() {
             default.decodeFromString(ser, input, mode)
         }, { message ->
             if (mode == JsonTestingMode.TREE)
-                assertContains(message, "Unexpected 'null' literal when non-nullable string was expected")
+                assertContains(message, "Expected string value for a non-null key 'boxed', got null literal instead at element: \$.boxed")
             else
                 assertContains(
                     message,
                     "Unexpected JSON token at offset 9: Expected string literal but 'null' literal was found at path: \$.boxed"
+                )
+        })
+    }
+
+    @Test
+    fun testNullLiteralForNotNullNumber() = parametrizedTest { mode ->
+        val input = """{"boxed":null}"""
+        val ser = serializer<Box<Int>>()
+        checkSerializationException({
+            default.decodeFromString(ser, input, mode)
+        }, { message ->
+            if (mode == JsonTestingMode.TREE)
+                assertContains(message, "Failed to parse literal 'null' as an int value at element: \$.boxed")
+            else
+                assertContains(
+                    message,
+                    "Unexpected JSON token at offset 9: Unexpected symbol 'n' in numeric literal at path: \$.boxed"
                 )
         })
     }
