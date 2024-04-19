@@ -13,6 +13,5 @@ public final class kotlinx/serialization/properties/Properties$Default : kotlinx
 
 public final class kotlinx/serialization/properties/PropertiesKt {
 	public static final fun Properties (Lkotlinx/serialization/modules/SerializersModule;)Lkotlinx/serialization/properties/Properties;
-	public static final fun noImpl ()Ljava/lang/Void;
 }
 

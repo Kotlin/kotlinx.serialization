@@ -106,6 +106,9 @@ apply plugin: 'kotlinx-knit'
 
 apiValidation {
     ignoredProjects += ["benchmark", "guide", "kotlinx-serialization"]
+    klib {
+        it.enabled = true
+    }
 }
 
 knit {

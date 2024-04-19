@@ -258,8 +258,3 @@ public inline fun <reified T> Properties.decodeFromMap(map: Map<String, Any>): T
 @ExperimentalSerializationApi
 public inline fun <reified T> Properties.decodeFromStringMap(map: Map<String, String>): T =
     decodeFromStringMap(serializersModule.serializer(), map)
-
-// Migrations below
-
-@PublishedApi
-internal fun noImpl(): Nothing = throw UnsupportedOperationException("Not implemented, should not be called")
