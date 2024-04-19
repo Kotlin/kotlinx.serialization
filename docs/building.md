@@ -11,7 +11,7 @@ completely with `disableJPMS` property: add `disableJPMS=true` to gradle.propert
 ## Runtime library
 
 Kotlin Serialization runtime library itself is a [multiplatform](http://kotlinlang.org/docs/reference/multiplatform.html) project.
-To build the library from the source and run all tests, use `./gradlew build`. Corresponding platform tasks like `jvmTest,` `jsTest,` `macosArm64ReleaseTest`, and so on are also available.
+To build the library from the source and run all tests, use `./gradlew build`. Corresponding platform tasks like `jvmTest,` `jsTest,` `macosArm64Test`, and so on are also available.
 
 The project can be opened in IntelliJ IDEA without additional prerequisites.
 In case you want to work with Protobuf tests, you may need to run `./gradlew generateTestProto` beforehand.
