@@ -513,7 +513,12 @@ Consult their documentation for details.
 
 ### Base64
 
-To encode and decode base64 formats, we will need to manually write a serializer.
+To encode and decode Base64 formats, we will need to manually write a serializer. Here, we will use a default
+implementation of Kotlin's Base64 encoder. Note that some serializers use different RFCs for Base64 encoding by default.
+For example, Jackson uses a variant of [Base64 Mime](https://datatracker.ietf.org/doc/html/rfc2045). The same result in
+kotlinx.serialization can be achieved with Base64.Mime encoder.
+[Kotlin's documentation for Base64](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.io.encoding/-base64/) lists
+other available encoders.
 
 ```kotlin
 import kotlinx.serialization.encoding.Encoder
@@ -523,23 +528,23 @@ import kotlin.io.encoding.*
 
 @OptIn(ExperimentalEncodingApi::class)
 object ByteArrayAsBase64Serializer : KSerializer<ByteArray> {
-  private val base64 = Base64
+    private val base64 = Base64.Default
 
-  override val descriptor: SerialDescriptor
-    get() = PrimitiveSerialDescriptor(
-      "ByteArrayAsBase64Serializer",
-      PrimitiveKind.STRING
-    )
+    override val descriptor: SerialDescriptor
+        get() = PrimitiveSerialDescriptor(
+            "ByteArrayAsBase64Serializer",
+            PrimitiveKind.STRING
+        )
 
-  override fun serialize(encoder: Encoder, value: ByteArray) {
-    val base64Encoded = base64.encode(value)
-    encoder.encodeString(base64Encoded)
-  }
+    override fun serialize(encoder: Encoder, value: ByteArray) {
+        val base64Encoded = base64.encode(value)
+        encoder.encodeString(base64Encoded)
+    }
 
-  override fun deserialize(decoder: Decoder): ByteArray {
-    val base64Decoded = decoder.decodeString()
-    return base64.decode(base64Decoded)
-  }
+    override fun deserialize(decoder: Decoder): ByteArray {
+        val base64Decoded = decoder.decodeString()
+        return base64.decode(base64Decoded)
+    }
 }
 ```
 
@@ -551,39 +556,46 @@ Then we can use it like this:
 ```kotlin
 @Serializable
 data class Value(
-  @Serializable(with = ByteArrayAsBase64Serializer::class)
-  val base64Input: ByteArray
+    @Serializable(with = ByteArrayAsBase64Serializer::class)
+    val base64Input: ByteArray
 ) {
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (javaClass != other?.javaClass) return false
-    other as Value
-    return base64Input.contentEquals(other.base64Input)
-  }
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        other as Value
+        return base64Input.contentEquals(other.base64Input)
+    }
 
-  override fun hashCode(): Int {
-    return base64Input.contentHashCode()
-  }
+    override fun hashCode(): Int {
+        return base64Input.contentHashCode()
+    }
 }
 
 fun main() {
-  val string = "test string"
-  val value = Value(string.toByteArray())
-  val encoded = Json.encodeToString(value)
-  val decoded = Json.decodeFromString<Value>(encoded)
-  println(decoded.base64Input.decodeToString())
+    val string = "foo string"
+    val value = Value(string.toByteArray())
+    val encoded = Json.encodeToString(value)
+    println(encoded)
+    val decoded = Json.decodeFromString<Value>(encoded)
+    println(decoded.base64Input.decodeToString())
 }
 ```
 
 > You can get the full code [here](../guide/example/example-json-13.kt)
 
-Note that some serializers use different RFC for base64 encoding by default. For example, Jackson uses a variant of
-[Base64 Mime](https://datatracker.ietf.org/doc/html/rfc2045). Also, Kotlin's builtin Base64 implementation provides other variants
-besides the [default](https://datatracker.ietf.org/doc/html/rfc4648#section-4).
-
 ```text
-test string
+{"base64Input":"Zm9vIHN0cmluZw=="}
+foo string
 ```
+
+Notice the serializer we wrote is not dependent on `Json` format, therefore, it can be used in any format.
+
+For projects that use this serializer in many places, to avoid specifying the serializer every time, it is possible
+to [specify a serializer globally using typealias](serializers.md#specifying-serializer-globally-using-typealias).
+For example:
+````kotlin
+typealias Base64ByteArray = @Serializable(ByteArrayAsBase64Serializer::class) ByteArray
+````
 
 <!--- TEST -->
 

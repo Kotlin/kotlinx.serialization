@@ -97,7 +97,8 @@ class JsonTest {
     @Test
     fun testExampleJson13() {
         captureOutput("ExampleJson13") { example.exampleJson13.main() }.verifyOutputLines(
-            "test string"
+            "{\"base64Input\":\"Zm9vIHN0cmluZw==\"}",
+            "foo string"
         )
     }
 
