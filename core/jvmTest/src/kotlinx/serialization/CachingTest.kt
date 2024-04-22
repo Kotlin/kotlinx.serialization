@@ -60,4 +60,21 @@ class CachingTest {
         val ser3 = serializer(typeOf<Target>())
         assertTrue(SERIALIZERS_CACHE.isStored(Target::class), "Serializer should be stored in cache after typeOf-based lookup")
     }
+
+    @Serializable
+    class Target2
+
+    inline fun <reified T : Any> indirect(): KSerializer<T> = serializer<T>()
+
+    @Test
+    fun testJvmIntrinsicsIndirect() {
+        val ser1 = Target2.serializer()
+        assertFalse(SERIALIZERS_CACHE.isStored(Target2::class), "Cache shouldn't have values before call to serializer<T>()")
+        val ser2 = indirect<Target2>()
+        assertFalse(
+            SERIALIZERS_CACHE.isStored(Target2::class),
+            "Serializer for Target2::class is stored in the cache, which means that runtime lookup was performed and call to serializer<Target2> was not intrinsified." +
+                "Check that compiler plugin intrinsics are enabled and working correctly."
+        )
+    }
 }

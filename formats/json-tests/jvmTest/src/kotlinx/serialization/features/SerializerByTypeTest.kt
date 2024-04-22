@@ -275,18 +275,4 @@ class SerializerByTypeTest {
             serializer(typeTokenOf<Array<NonSerializable>>())
         }
     }
-
-    @OptIn(ExperimentalTime::class)
-    @Test
-    fun testSerializersAreIntrinsified() {
-        val direct = measureTime {
-            Json.encodeToString(IntData.serializer(), IntData(10))
-        }
-        val directMs = direct.inWholeMicroseconds
-        val indirect = measureTime {
-            Json.encodeToString(IntData(10))
-        }
-        val indirectMs = indirect.inWholeMicroseconds
-        if (indirectMs > directMs + (directMs / 4)) error("Direct ($directMs) and indirect ($indirectMs) times are too far apart")
-    }
 }
