@@ -21,9 +21,9 @@ In this chapter, we'll walk through features of [JSON](https://www.json.org/json
   * [Allowing special floating-point values](#allowing-special-floating-point-values)
   * [Class discriminator for polymorphism](#class-discriminator-for-polymorphism)
   * [Class discriminator output mode](#class-discriminator-output-mode)
-  * [Base64](#base64)
   * [Decoding enums in a case-insensitive manner](#decoding-enums-in-a-case-insensitive-manner)
   * [Global naming strategy](#global-naming-strategy)
+  * [Base64](#base64)
 * [Json elements](#json-elements)
   * [Parsing to Json element](#parsing-to-json-element)
   * [Types of Json elements](#types-of-json-elements)
@@ -511,6 +511,87 @@ Consult their documentation for details.
 
 <!--- TEST -->
 
+### Decoding enums in a case-insensitive manner
+
+[Kotlin's naming policy recommends](https://kotlinlang.org/docs/coding-conventions.html#property-names) naming enum values
+using either uppercase underscore-separated names or upper camel case names.
+[Json] uses exact Kotlin enum values names for decoding by default.
+However, sometimes third-party JSONs have such values named in lowercase or some mixed case.
+In this case, it is possible to decode enum values in a case-insensitive manner using [JsonBuilder.decodeEnumsCaseInsensitive] property:
+
+```kotlin
+val format = Json { decodeEnumsCaseInsensitive = true }
+
+enum class Cases { VALUE_A, @JsonNames("Alternative") VALUE_B }
+
+@Serializable
+data class CasesList(val cases: List<Cases>)
+
+fun main() {
+  println(format.decodeFromString<CasesList>("""{"cases":["value_A", "alternative"]}""")) 
+}
+```
+
+> You can get the full code [here](../guide/example/example-json-13.kt).
+
+It affects serial names as well as alternative names specified with [JsonNames] annotation, so both values are successfully decoded:
+
+```text
+CasesList(cases=[VALUE_A, VALUE_B])
+```
+
+This property does not affect encoding in any way.
+
+<!--- TEST -->
+
+### Global naming strategy
+
+If properties' names in Json input are different from Kotlin ones, it is recommended to specify the name 
+for each property explicitly using [`@SerialName` annotation](basic-serialization.md#serial-field-names).
+However, there are certain situations where transformation should be applied to every serial name — such as migration
+from other frameworks or legacy codebase. For that cases, it is possible to specify a [namingStrategy][JsonBuilder.namingStrategy]
+for a [Json] instance. `kotlinx.serialization` provides one strategy implementation out of the box, the [JsonNamingStrategy.SnakeCase](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-naming-strategy/-builtins/-snake-case.html):
+
+```kotlin
+@Serializable
+data class Project(val projectName: String, val projectOwner: String)
+
+val format = Json { namingStrategy = JsonNamingStrategy.SnakeCase }
+
+fun main() {
+    val project = format.decodeFromString<Project>("""{"project_name":"kotlinx.coroutines", "project_owner":"Kotlin"}""")
+    println(format.encodeToString(project.copy(projectName = "kotlinx.serialization")))
+}
+```
+
+> You can get the full code [here](../guide/example/example-json-14.kt).
+
+As you can see, both serialization and deserialization work as if all serial names are transformed from camel case to snake case:
+
+```text
+{"project_name":"kotlinx.serialization","project_owner":"Kotlin"}
+```
+
+There are some caveats one should remember while dealing with a [JsonNamingStrategy]:
+
+* Due to the nature of the `kotlinx.serialization` framework, naming strategy transformation is applied to all properties regardless 
+of whether their serial name was taken from the property name or provided by [SerialName] annotation.
+Effectively, it means one cannot avoid transformation by explicitly specifying the serial name. To be able to deserialize
+non-transformed names, [JsonNames] annotation can be used instead.
+
+* Collision of the transformed name with any other (transformed) properties serial names or any alternative names
+specified with [JsonNames] will lead to a deserialization exception.
+
+* Global naming strategies are very implicit: by looking only at the definition of the class,
+it is impossible to determine which names it will have in the serialized form.
+As a consequence, naming strategies are not friendly to actions like Find Usages/Rename in IDE, full-text search by grep, etc.
+For them, the original name and the transformed are two different things;
+changing one without the other may introduce bugs in many unexpected ways and lead to greater maintenance efforts for code with global naming strategies.
+
+Therefore, one should carefully weigh the pros and cons before considering adding global naming strategies to an application.
+
+<!--- TEST -->
+
 ### Base64
 
 To encode and decode Base64 formats, we will need to manually write a serializer. Here, we will use a default
@@ -581,7 +662,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-13.kt)
+> You can get the full code [here](../guide/example/example-json-15.kt)
 
 ```text
 {"base64Input":"Zm9vIHN0cmluZw=="}
@@ -596,87 +677,6 @@ For example:
 ````kotlin
 typealias Base64ByteArray = @Serializable(ByteArrayAsBase64Serializer::class) ByteArray
 ````
-
-<!--- TEST -->
-
-### Decoding enums in a case-insensitive manner
-
-[Kotlin's naming policy recommends](https://kotlinlang.org/docs/coding-conventions.html#property-names) naming enum values
-using either uppercase underscore-separated names or upper camel case names.
-[Json] uses exact Kotlin enum values names for decoding by default.
-However, sometimes third-party JSONs have such values named in lowercase or some mixed case.
-In this case, it is possible to decode enum values in a case-insensitive manner using [JsonBuilder.decodeEnumsCaseInsensitive] property:
-
-```kotlin
-val format = Json { decodeEnumsCaseInsensitive = true }
-
-enum class Cases { VALUE_A, @JsonNames("Alternative") VALUE_B }
-
-@Serializable
-data class CasesList(val cases: List<Cases>)
-
-fun main() {
-  println(format.decodeFromString<CasesList>("""{"cases":["value_A", "alternative"]}""")) 
-}
-```
-
-> You can get the full code [here](../guide/example/example-json-14.kt).
-
-It affects serial names as well as alternative names specified with [JsonNames] annotation, so both values are successfully decoded:
-
-```text
-CasesList(cases=[VALUE_A, VALUE_B])
-```
-
-This property does not affect encoding in any way.
-
-<!--- TEST -->
-
-### Global naming strategy
-
-If properties' names in Json input are different from Kotlin ones, it is recommended to specify the name 
-for each property explicitly using [`@SerialName` annotation](basic-serialization.md#serial-field-names).
-However, there are certain situations where transformation should be applied to every serial name — such as migration
-from other frameworks or legacy codebase. For that cases, it is possible to specify a [namingStrategy][JsonBuilder.namingStrategy]
-for a [Json] instance. `kotlinx.serialization` provides one strategy implementation out of the box, the [JsonNamingStrategy.SnakeCase](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-naming-strategy/-builtins/-snake-case.html):
-
-```kotlin
-@Serializable
-data class Project(val projectName: String, val projectOwner: String)
-
-val format = Json { namingStrategy = JsonNamingStrategy.SnakeCase }
-
-fun main() {
-    val project = format.decodeFromString<Project>("""{"project_name":"kotlinx.coroutines", "project_owner":"Kotlin"}""")
-    println(format.encodeToString(project.copy(projectName = "kotlinx.serialization")))
-}
-```
-
-> You can get the full code [here](../guide/example/example-json-15.kt).
-
-As you can see, both serialization and deserialization work as if all serial names are transformed from camel case to snake case:
-
-```text
-{"project_name":"kotlinx.serialization","project_owner":"Kotlin"}
-```
-
-There are some caveats one should remember while dealing with a [JsonNamingStrategy]:
-
-* Due to the nature of the `kotlinx.serialization` framework, naming strategy transformation is applied to all properties regardless 
-of whether their serial name was taken from the property name or provided by [SerialName] annotation.
-Effectively, it means one cannot avoid transformation by explicitly specifying the serial name. To be able to deserialize
-non-transformed names, [JsonNames] annotation can be used instead.
-
-* Collision of the transformed name with any other (transformed) properties serial names or any alternative names
-specified with [JsonNames] will lead to a deserialization exception.
-
-* Global naming strategies are very implicit: by looking only at the definition of the class,
-it is impossible to determine which names it will have in the serialized form.
-As a consequence, naming strategies are not friendly to actions like Find Usages/Rename in IDE, full-text search by grep, etc.
-For them, the original name and the transformed are two different things;
-changing one without the other may introduce bugs in many unexpected ways and lead to greater maintenance efforts for code with global naming strategies.
-
-Therefore, one should carefully weigh the pros and cons before considering adding global naming strategies to an application.
 
 <!--- TEST -->
 

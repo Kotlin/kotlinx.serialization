@@ -97,22 +97,22 @@ class JsonTest {
     @Test
     fun testExampleJson13() {
         captureOutput("ExampleJson13") { example.exampleJson13.main() }.verifyOutputLines(
-            "{\"base64Input\":\"Zm9vIHN0cmluZw==\"}",
-            "foo string"
+            "CasesList(cases=[VALUE_A, VALUE_B])"
         )
     }
 
     @Test
     fun testExampleJson14() {
         captureOutput("ExampleJson14") { example.exampleJson14.main() }.verifyOutputLines(
-            "CasesList(cases=[VALUE_A, VALUE_B])"
+            "{\"project_name\":\"kotlinx.serialization\",\"project_owner\":\"Kotlin\"}"
         )
     }
 
     @Test
     fun testExampleJson15() {
         captureOutput("ExampleJson15") { example.exampleJson15.main() }.verifyOutputLines(
-            "{\"project_name\":\"kotlinx.serialization\",\"project_owner\":\"Kotlin\"}"
+            "{\"base64Input\":\"Zm9vIHN0cmluZw==\"}",
+            "foo string"
         )
     }
 
