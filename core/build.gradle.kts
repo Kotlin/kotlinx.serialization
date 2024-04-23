@@ -1,23 +1,26 @@
-import org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile
+import Java9Modularity.configureJava9ModuleInfo
+import org.jetbrains.kotlin.gradle.targets.js.ir.*
 
 /*
  * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-apply plugin: 'kotlin-multiplatform'
-apply plugin: 'kotlinx-serialization'
+plugins {
+    kotlin("multiplatform")
+    id("kotlinx-serialization")
+}
 
-apply from: rootProject.file("gradle/native-targets.gradle")
-apply from: rootProject.file("gradle/configure-source-sets.gradle")
+apply(from = rootProject.file("gradle/native-targets.gradle"))
+apply(from = rootProject.file("gradle/configure-source-sets.gradle"))
 
 kotlin {
     sourceSets {
         jvmTest {
             dependencies {
-                implementation 'io.kotlintest:kotlintest:2.0.7'
-                implementation 'com.google.guava:guava:24.1.1-jre'
-                implementation 'com.google.code.gson:gson:2.8.5'
-                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
+                implementation("io.kotlintest:kotlintest:2.0.7")
+                implementation("com.google.guava:guava:24.1.1-jre")
+                implementation("com.google.code.gson:gson:2.8.5")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${property("coroutines_version") as String}")
             }
         }
     }
@@ -36,7 +39,7 @@ kotlin {
  may unexpectedly break old compilers, so it is left out as a safety net. Compiler plugins, starting from 1.4 are instructed
  to reject runtime if runtime's Require-Kotlin-Version is greater then the current compiler.
  */
-tasks.withType(Jar).named(kotlin.jvm().artifactsTaskName) {
+tasks.withType<Jar>().named(kotlin.jvm().artifactsTaskName) {
 
     // adding the ProGuard rules to the jar
     from(rootProject.file("rules/common.pro")) {
@@ -59,14 +62,14 @@ tasks.withType(Jar).named(kotlin.jvm().artifactsTaskName) {
 
     manifest {
         attributes(
-                "Implementation-Version": version,
-                "Require-Kotlin-Version": "1.4.30-M1",
+                "Implementation-Version" to version,
+                "Require-Kotlin-Version" to "1.4.30-M1",
         )
     }
 }
 
-Java9Modularity.configureJava9ModuleInfo(project)
+configureJava9ModuleInfo()
 
-tasks.withType(org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrLink.class).configureEach {
+tasks.withType<KotlinJsIrLink>().configureEach {
     kotlinOptions.freeCompilerArgs += "-Xwasm-enable-array-range-checks"
 }

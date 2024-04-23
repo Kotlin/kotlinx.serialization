@@ -9,7 +9,7 @@ import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
-
+import kotlinx.serialization.protobuf.*
 /**
  * Test that [ProtoBuf] works correctly if [ProtoBuf.encodeDefaults] is set to `false`
  * and that `null` is allowed as a default value.

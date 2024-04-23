@@ -1,0 +1,147 @@
+/*
+ * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
+import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
+
+val serialization_version = property("mainLibVersion") as String
+
+// Versions substituted in settings.gradle.kts
+plugins {
+    id("org.jetbrains.kotlin.multiplatform") version "0"
+    id("org.jetbrains.kotlin.plugin.serialization") version "0"
+    id("org.jetbrains.kotlin.kapt") version "0"
+
+    id("maven-publish")
+}
+
+repositories {
+    mavenCentral()
+    maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
+    mavenLocal {
+        mavenContent {
+            snapshotsOnly()
+        }
+    }
+}
+
+group = "com.example"
+version = "0.0.1"
+
+kotlin {
+    // Switching module kind for JS is required to run tests
+    js {
+        nodejs {}
+        compilations.matching { it.name == "main" || it.name == "test" }.configureEach {
+            kotlinOptions {
+                sourceMap = true
+                moduleKind = "umd"
+            }
+        }
+    }
+    wasmJs {
+        nodejs()
+    }
+    wasmWasi {
+        nodejs()
+    }
+    jvm {
+        withJava()
+    }
+    macosX64()
+    macosArm64()
+    linuxX64()
+    mingwX64()
+
+    sourceSets {
+        all {
+            languageSettings {
+                optIn("kotlinx.serialization.ExperimentalSerializationApi")
+            }
+        }
+
+        commonMain {
+            dependencies {
+                implementation(kotlin("stdlib"))
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serialization_version")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serialization_version")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-protobuf:$serialization_version")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:$serialization_version")
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation(kotlin("test-common"))
+                implementation(kotlin("test-annotations-common"))
+            }
+        }
+        jvmMain {
+            dependencies {
+                implementation(kotlin("stdlib-jdk8"))
+                implementation("com.google.dagger:dagger:2.13")
+            }
+        }
+        jvmTest {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(kotlin("test-junit"))
+            }
+        }
+        jsMain {
+            dependencies {
+                implementation(kotlin("stdlib-js"))
+
+            }
+        }
+        jsTest {
+            dependencies {
+                implementation(kotlin("test-js"))
+            }
+        }
+        named("wasmJsMain") {
+            dependencies {
+                api("org.jetbrains.kotlin:kotlin-stdlib-wasm-js")
+            }
+        }
+        named("wasmJsTest") {
+            dependencies {
+                api("org.jetbrains.kotlin:kotlin-test-wasm-js")
+            }
+        }
+        named("wasmWasiMain") {
+            dependencies {
+                api("org.jetbrains.kotlin:kotlin-stdlib-wasm-wasi")
+            }
+        }
+        named("wasmWasiTest") {
+            dependencies {
+                api("org.jetbrains.kotlin:kotlin-test-wasm-wasi")
+            }
+        }
+    }
+
+    targets.all {
+        compilations.all {
+            kotlinOptions {
+                freeCompilerArgs += "-Xexpect-actual-classes"
+            }
+        }
+        compilations["main"].kotlinOptions {
+            allWarningsAsErrors = true
+        }
+    }
+}
+
+dependencies {
+    "kapt"("com.google.dagger:dagger-compiler:2.13")
+}
+
+rootProject.extensions.configure<NodeJsRootExtension> {
+    // canary nodejs that supports recent Wasm GC changes
+    nodeVersion = "21.0.0-v8-canary202309167e82ab1fa2"
+    nodeDownloadBaseUrl = "https://nodejs.org/download/v8-canary"
+}
+
+tasks.withType<KotlinNpmInstallTask>().configureEach {
+    args.add("--ignore-engines")
+}

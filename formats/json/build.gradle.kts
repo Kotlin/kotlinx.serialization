@@ -1,13 +1,16 @@
-import static KotlinVersion.isKotlinVersionAtLeast
+import Java9Modularity.configureJava9ModuleInfo
 
 /*
  * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-apply plugin: 'kotlin-multiplatform'
-apply plugin: 'kotlinx-serialization'
-apply from: rootProject.file("gradle/native-targets.gradle")
-apply from: rootProject.file("gradle/configure-source-sets.gradle")
+plugins {
+    kotlin("multiplatform")
+    id("kotlinx-serialization")
+}
+
+apply(from = rootProject.file("gradle/native-targets.gradle"))
+apply(from = rootProject.file("gradle/configure-source-sets.gradle"))
 
 // disable kover tasks because there are no tests in the project
 tasks.named("koverHtmlReport") {
@@ -30,29 +33,29 @@ kotlin {
         }
         commonMain {
             dependencies {
-                api project(":kotlinx-serialization-core")
+                api(project(":kotlinx-serialization-core"))
             }
         }
-        jsWasmMain {
-            dependsOn(sourceSets.commonMain)
+        register("jsWasmMain") {
+            dependsOn(commonMain.get())
         }
-        jsMain {
-            dependsOn(sourceSets.jsWasmMain)
+        named("jsMain") {
+            dependsOn(named("jsWasmMain").get())
         }
-        wasmJsMain {
-            dependsOn(sourceSets.jsWasmMain)
+        named("wasmJsMain") {
+            dependsOn(named("jsWasmMain").get())
         }
-        wasmWasiMain {
-            dependsOn(sourceSets.jsWasmMain)
+        named("wasmWasiMain") {
+            dependsOn(named("jsWasmMain").get())
         }
     }
 }
-
-Java9Modularity.configureJava9ModuleInfo(project)
 
 // This task should be disabled because of no need to build and publish intermediate JsWasm sourceset
-tasks.whenTaskAdded { task ->
-    if (task.name == 'compileJsWasmMainKotlinMetadata') {
-        task.enabled = false
+tasks.whenTaskAdded {
+    if (name == "compileJsWasmMainKotlinMetadata") {
+        enabled = false
     }
 }
+
+configureJava9ModuleInfo()
