@@ -123,6 +123,7 @@ Once the project is set up, we can start serializing some classes.
   * <a name='class-discriminator-output-mode'></a>[Class discriminator output mode](json.md#class-discriminator-output-mode)
   * <a name='decoding-enums-in-a-case-insensitive-manner'></a>[Decoding enums in a case-insensitive manner](json.md#decoding-enums-in-a-case-insensitive-manner)
   * <a name='global-naming-strategy'></a>[Global naming strategy](json.md#global-naming-strategy)
+  * <a name='base64'></a>[Base64](json.md#base64)
 * <a name='json-elements'></a>[Json elements](json.md#json-elements)
   * <a name='parsing-to-json-element'></a>[Parsing to Json element](json.md#parsing-to-json-element)
   * <a name='types-of-json-elements'></a>[Types of Json elements](json.md#types-of-json-elements)

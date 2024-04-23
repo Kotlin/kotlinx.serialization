@@ -23,6 +23,7 @@ In this chapter, we'll walk through features of [JSON](https://www.json.org/json
   * [Class discriminator output mode](#class-discriminator-output-mode)
   * [Decoding enums in a case-insensitive manner](#decoding-enums-in-a-case-insensitive-manner)
   * [Global naming strategy](#global-naming-strategy)
+  * [Base64](#base64)
 * [Json elements](#json-elements)
   * [Parsing to Json element](#parsing-to-json-element)
   * [Types of Json elements](#types-of-json-elements)
@@ -591,6 +592,94 @@ Therefore, one should carefully weigh the pros and cons before considering addin
 
 <!--- TEST -->
 
+### Base64
+
+To encode and decode Base64 formats, we will need to manually write a serializer. Here, we will use a default
+implementation of Kotlin's Base64 encoder. Note that some serializers use different RFCs for Base64 encoding by default.
+For example, Jackson uses a variant of [Base64 Mime](https://datatracker.ietf.org/doc/html/rfc2045). The same result in
+kotlinx.serialization can be achieved with Base64.Mime encoder.
+[Kotlin's documentation for Base64](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.io.encoding/-base64/) lists
+other available encoders.
+
+```kotlin
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.descriptors.*
+import kotlin.io.encoding.*
+
+@OptIn(ExperimentalEncodingApi::class)
+object ByteArrayAsBase64Serializer : KSerializer<ByteArray> {
+    private val base64 = Base64.Default
+
+    override val descriptor: SerialDescriptor
+        get() = PrimitiveSerialDescriptor(
+            "ByteArrayAsBase64Serializer",
+            PrimitiveKind.STRING
+        )
+
+    override fun serialize(encoder: Encoder, value: ByteArray) {
+        val base64Encoded = base64.encode(value)
+        encoder.encodeString(base64Encoded)
+    }
+
+    override fun deserialize(decoder: Decoder): ByteArray {
+        val base64Decoded = decoder.decodeString()
+        return base64.decode(base64Decoded)
+    }
+}
+```
+
+For more details on how to create your own custom serializer, you can
+see [custom serializers](serializers.md#custom-serializers).
+
+Then we can use it like this:
+
+```kotlin
+@Serializable
+data class Value(
+    @Serializable(with = ByteArrayAsBase64Serializer::class)
+    val base64Input: ByteArray
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        other as Value
+        return base64Input.contentEquals(other.base64Input)
+    }
+
+    override fun hashCode(): Int {
+        return base64Input.contentHashCode()
+    }
+}
+
+fun main() {
+    val string = "foo string"
+    val value = Value(string.toByteArray())
+    val encoded = Json.encodeToString(value)
+    println(encoded)
+    val decoded = Json.decodeFromString<Value>(encoded)
+    println(decoded.base64Input.decodeToString())
+}
+```
+
+> You can get the full code [here](../guide/example/example-json-15.kt)
+
+```text
+{"base64Input":"Zm9vIHN0cmluZw=="}
+foo string
+```
+
+Notice the serializer we wrote is not dependent on `Json` format, therefore, it can be used in any format.
+
+For projects that use this serializer in many places, to avoid specifying the serializer every time, it is possible
+to [specify a serializer globally using typealias](serializers.md#specifying-serializer-globally-using-typealias).
+For example:
+````kotlin
+typealias Base64ByteArray = @Serializable(ByteArrayAsBase64Serializer::class) ByteArray
+````
+
+<!--- TEST -->
+
 ## Json elements
 
 Aside from direct conversions between strings and JSON objects, Kotlin serialization offers APIs that allow
@@ -615,7 +704,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-15.kt).
+> You can get the full code [here](../guide/example/example-json-16.kt).
 
 A `JsonElement` prints itself as a valid JSON:
 
@@ -658,7 +747,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-16.kt).
+> You can get the full code [here](../guide/example/example-json-17.kt).
 
 The above example sums `votes` in all objects in the `forks` array, ignoring the objects that have no `votes`:
 
@@ -698,7 +787,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-17.kt).
+> You can get the full code [here](../guide/example/example-json-18.kt).
 
 As a result, you get a proper JSON string:
 
@@ -727,7 +816,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-18.kt).
+> You can get the full code [here](../guide/example/example-json-19.kt).
 
 The result is exactly what you would expect:
 
@@ -773,7 +862,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-19.kt).
+> You can get the full code [here](../guide/example/example-json-20.kt).
 
 Even though `pi` was defined as a number with 30 decimal places, the resulting JSON does not reflect this. 
 The [Double] value is truncated to 15 decimal places, and the String is wrapped in quotes - which is not a JSON number.
@@ -813,7 +902,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-20.kt).
+> You can get the full code [here](../guide/example/example-json-21.kt).
 
 `pi_literal` now accurately matches the value defined.
 
@@ -853,7 +942,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-21.kt).
+> You can get the full code [here](../guide/example/example-json-22.kt).
 
 The exact value of `pi` is decoded, with all 30 decimal places of precision that were in the source JSON.
 
@@ -875,7 +964,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-22.kt).
+> You can get the full code [here](../guide/example/example-json-23.kt).
 
 ```text
 Exception in thread "main" kotlinx.serialization.json.internal.JsonEncodingException: Creating a literal unquoted value of 'null' is forbidden. If you want to create JSON null literal, use JsonNull object, otherwise, use JsonPrimitive
@@ -951,7 +1040,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-23.kt).
+> You can get the full code [here](../guide/example/example-json-24.kt).
 
 The output shows that both cases are correctly deserialized into a Kotlin [List].
 
@@ -1003,7 +1092,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-24.kt).
+> You can get the full code [here](../guide/example/example-json-25.kt).
 
 You end up with a single JSON object, not an array with one element:
 
@@ -1048,7 +1137,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-25.kt).
+> You can get the full code [here](../guide/example/example-json-26.kt).
 
 See the effect of the custom serializer:
 
@@ -1121,7 +1210,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-26.kt).
+> You can get the full code [here](../guide/example/example-json-27.kt).
 
 No class discriminator is added in the JSON output:
 
@@ -1217,7 +1306,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-27.kt).
+> You can get the full code [here](../guide/example/example-json-28.kt).
 
 This gives you fine-grained control on the representation of the `Response` class in the JSON output:
 
@@ -1282,7 +1371,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-28.kt).
+> You can get the full code [here](../guide/example/example-json-29.kt).
 
 ```text
 UnknownProject(name=example, details={"type":"unknown","maintainer":"Unknown","license":"Apache 2.0"})
