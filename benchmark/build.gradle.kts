@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 /*
@@ -38,6 +39,10 @@ tasks.assemble {
 }
 
 tasks.withType<KotlinCompile>().configureEach {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_1_8
+    }
+
     kotlinOptions {
         val kotlin_lv_override = rootProject.extra["kotlin_lv_override"] as String?
         if (kotlin_lv_override != null) {
@@ -48,11 +53,11 @@ tasks.withType<KotlinCompile>().configureEach {
 }
 
 dependencies {
-    implementation("org.openjdk.jmh:jmh-core:1.35")
+    implementation("org.openjdk.jmh:jmh-core:1.37")
     implementation("com.google.guava:guava:31.1-jre")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.3")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")
-    implementation("com.squareup.okio:okio:${property("okio_version") as String}")
+    implementation("com.squareup.okio:okio:${property("okio_version")}")
     implementation(project(":kotlinx-serialization-core"))
     implementation(project(":kotlinx-serialization-json"))
     implementation(project(":kotlinx-serialization-json-okio"))

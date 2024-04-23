@@ -29,7 +29,7 @@ task emptyJar(type: Jar) {
 
 afterEvaluate {
     task mainSourcesJar(type: Jar) {
-        classifier = 'sources'
+        archiveClassifier = 'sources'
         if (isMultiplatform) {
             from kotlin.sourceSets.commonMain.kotlin
         } else if (isBom) {

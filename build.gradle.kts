@@ -90,13 +90,13 @@ buildscript {
         classpath("org.jetbrains.kotlinx:kover-gradle-plugin:${property("kover_version")}")
         classpath("org.jetbrains.kotlinx:binary-compatibility-validator:${property("validator_version")}")
         classpath("org.jetbrains.kotlinx:kotlinx-knit:${property("knit_version")}")
-        classpath("ru.vyarus:gradle-animalsniffer-plugin:1.5.3") // Android API check)
+        classpath("ru.vyarus:gradle-animalsniffer-plugin:1.7.1") // Android API check)
 
         classpath("com.google.protobuf:protobuf-gradle-plugin:0.9.0")
 
         // Various benchmarking stuff
-        classpath("com.github.jengelman.gradle.plugins:shadow:4.0.2")
-        classpath("me.champeau.jmh:jmh-gradle-plugin:0.6.6")
+        classpath("com.github.johnrengelman:shadow:8.1.1")
+        classpath("me.champeau.jmh:jmh-gradle-plugin:0.7.2")
     }
 }
 

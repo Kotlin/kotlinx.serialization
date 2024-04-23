@@ -1,6 +1,6 @@
-import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import Java9Modularity.configureJava9ModuleInfo
+import org.jetbrains.kotlin.gradle.dsl.*
 
 
 /*
@@ -13,9 +13,14 @@ plugins {
 }
 
 tasks.compileKotlin {
-    kotlinOptions {
+    compilerOptions {
         allWarningsAsErrors = true
-        jvmTarget = "1.8"
+    }
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_1_8
     }
 }
 
