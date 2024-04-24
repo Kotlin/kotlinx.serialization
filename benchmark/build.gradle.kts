@@ -44,9 +44,8 @@ tasks.withType<KotlinCompile>().configureEach {
     }
 
     kotlinOptions {
-        val kotlin_lv_override = rootProject.extra["kotlin_lv_override"] as String?
-        if (kotlin_lv_override != null) {
-            languageVersion = kotlin_lv_override
+        if (overriddenLanguageVersion != null) {
+            languageVersion = overriddenLanguageVersion
             freeCompilerArgs += "-Xsuppress-version-warnings"
         }
     }

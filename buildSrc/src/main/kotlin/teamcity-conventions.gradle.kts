@@ -5,7 +5,7 @@
 import org.gradle.kotlin.dsl.*
 
 val teamcitySuffix = findProperty("teamcitySuffix")?.toString()
-if (!(rootProject.extra["teamcityInteractionDisabled"] as Boolean) && hasProperty("teamcity") && !((rootProject.extra["build_snapshot_train"] as Boolean) || hasProperty("build_snapshot_up"))) {
+if (teamcityInteractionEnabled && hasProperty("teamcity") && !propertyIsTrue("build_snapshot_train")) {
     // Tell teamcity about version number
     val postfix = if (teamcitySuffix == null) "" else " ($teamcitySuffix)"
     println("##teamcity[buildNumber '${project.version}${postfix}']")

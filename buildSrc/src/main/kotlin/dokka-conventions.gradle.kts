@@ -22,11 +22,11 @@ tasks.withType<DokkaTaskPartial>().named("dokkaHtmlPartial") {
     outputDirectory.set(file("build/dokka"))
 
 
-    pluginsMapConfiguration.put("org.jetbrains.dokka.base.DokkaBase", """{ "templatesDir": "${rootProject.projectDir.resolve("dokka-templates").canonicalPath.replace('\\', '/')}" }""")
+    pluginsMapConfiguration.put("org.jetbrains.dokka.base.DokkaBase", """{ "templatesDir": "${rootDir.resolve("dokka-templates").canonicalPath.replace('\\', '/')}" }""")
 
     dokkaSourceSets {
         configureEach {
-            includes.from(rootProject.file("dokka/moduledoc.md").path)
+            includes.from(rootDir.resolve("dokka/moduledoc.md").path)
 
             perPackageOption {
                 matchingRegex.set("kotlinx\\.serialization(\$|\\.).*")

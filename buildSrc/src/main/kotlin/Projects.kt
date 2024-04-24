@@ -7,3 +7,13 @@ import org.gradle.api.tasks.*
 
 val Project.sourceSets: SourceSetContainer
     get() = extensions.getByName("sourceSets") as SourceSetContainer
+
+fun Project.propertyIsTrue(propertyName: String): Boolean {
+    return (findProperty(propertyName) as? String?).equals("true", true)
+}
+
+val Project.overriddenLanguageVersion : String?
+    get() = findProperty("kotlin_language_version") as String?
+
+val Project.teamcityInteractionEnabled : Boolean
+    get() = !hasProperty("no_teamcity_interaction") && !hasProperty("build_snapshot_up")

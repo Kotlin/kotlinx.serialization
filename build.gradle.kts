@@ -8,48 +8,27 @@ import org.jetbrains.dokka.gradle.*
 import ru.vyarus.gradle.plugin.animalsniffer.AnimalSnifferExtension
 
 buildscript {
-    /**
-     * Overrides for Teamcity 'K2 User Projects' + 'Aggregate build / Kotlinx libraries compilation' configuration:
-     * kotlin_repo_url - local repository with snapshot Kotlin compiler
-     * kotlin_version - kotlin version to use
-     * kotlin_language_version - LV to use
-     */
-    val snapshotRepoUrl = rootProject.properties["kotlin_repo_url"]
-    val kotlin_lv_override = rootProject.properties["kotlin_language_version"]
-
-    extra["snapshotRepoUrl"] = snapshotRepoUrl
-    extra["kotlin_lv_override"] = kotlin_lv_override
-
-    if (snapshotRepoUrl != null && snapshotRepoUrl != "") {
-        repositories {
+    repositories {
+        /**
+         * Overrides for Teamcity 'K2 User Projects' + 'Aggregate build / Kotlinx libraries compilation' configuration:
+         * kotlin_repo_url - local repository with snapshot Kotlin compiler
+         * kotlin_version - kotlin version to use
+         * kotlin_language_version - LV to use
+         */
+        val snapshotRepoUrl = findProperty("kotlin_repo_url") as String?
+        if (snapshotRepoUrl?.isNotEmpty() == true) {
             maven(snapshotRepoUrl)
         }
-    } else if (project.hasProperty("bootstrap")) {
-        extra["kotlin.native.home"] = System.getenv("KONAN_LOCAL_DIST")
-    }
-    if (project.hasProperty("library.version")) {
-        extra["overriden_version"] = property("library.version")
-    }
 
-    val noTeamcityInteractionFlag = rootProject.hasProperty("no_teamcity_interaction")
-    val buildSnapshotUPFlag = rootProject.hasProperty("build_snapshot_up")
-    extra["teamcityInteractionDisabled"] = noTeamcityInteractionFlag || buildSnapshotUPFlag
-
-    /*
-    * This property group is used to build kotlinx.serialization against Kotlin compiler snapshot.
-    * When build_snapshot_train is set to true, kotlin_version property is overridden with kotlin_snapshot_version.
-    * DO NOT change the name of these properties without adapting kotlinx.train build chain.
-    */
-    val buildSnapshotTrain = (rootProject.properties["build_snapshot_train"] as String?)?.isNotEmpty() == true
-
-    extra["build_snapshot_train"] = buildSnapshotTrain
-    if (buildSnapshotTrain) {
-        repositories {
+        /*
+        * This property group is used to build kotlinx.serialization against Kotlin compiler snapshot.
+        * When build_snapshot_train is set to true, kotlin_version property is overridden with kotlin_snapshot_version.
+        * DO NOT change the name of these properties without adapting kotlinx.train build chain.
+        */
+        if (propertyIsTrue("build_snapshot_train")) {
             maven("https://oss.sonatype.org/content/repositories/snapshots")
         }
-    }
 
-    repositories {
         maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev")
         // kotlin-dev with space redirector
         maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
@@ -58,6 +37,11 @@ buildscript {
         // For Dokka that depends on kotlinx-html
         maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven")
         mavenLocal()
+    }
+
+    if (project.hasProperty("bootstrap")) {
+        // TODO is it used ?
+        extra["kotlin.native.home"] = System.getenv("KONAN_LOCAL_DIST")
     }
 
     configurations.classpath {
@@ -69,8 +53,6 @@ buildscript {
     }
 
     dependencies {
-        println("FOO=" + libs.gradlePlugin.kotlin.get().toString())
-
         classpath(libs.gradlePlugin.kotlin)
         classpath(libs.kotlinPlugin.serialization)
         classpath(libs.binaryCompatibilityValidator)
@@ -99,10 +81,6 @@ val experimentalsInTestEnabled = listOf(
     "-opt-in=kotlinx.serialization.InternalSerializationApi",
     "-P", "plugin:org.jetbrains.kotlinx.serialization:disableIntrinsic=false"
 )
-
-// To make it visible for compiler-version.gradle
-extra["compilerVersion"] = org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION
-extra["nativeDebugBuild"] = org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType.DEBUG
 
 apply(plugin = "binary-compatibility-validator")
 apply(plugin = "base")
@@ -136,10 +114,11 @@ allprojects {
         version = "$version-SNAPSHOT"
     }
 
+    // TODO is it used?
     // the only place where HostManager could be instantiated
     project.extra["hostManager"] = org.jetbrains.kotlin.konan.target.HostManager()
 
-    if (rootProject.extra["build_snapshot_train"] == true) {
+    if (propertyIsTrue("build_snapshot_train")) {
         // Snapshot-specific
         repositories {
             mavenLocal()
@@ -147,7 +126,7 @@ allprojects {
         }
     }
 
-    val snapshotRepoUrl = rootProject.properties["kotlin_repo_url"]
+    val snapshotRepoUrl = findProperty("kotlin_repo_url")
     if (snapshotRepoUrl != null && snapshotRepoUrl != "") {
         // Snapshot-specific for K2 CI configurations
         repositories {
@@ -280,9 +259,19 @@ dependencies {
     "dokkaPlugin"(libs.dokka.pathsaver)
 }
 
-apply(plugin = "compiler-version-conventions")
 apply(plugin = "benchmark-conventions")
 
 tasks.withType<org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask>().configureEach {
     args.add("--ignore-engines")
+}
+
+gradle.taskGraph.whenReady {
+    println("Using Kotlin compiler version: ${org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION}")
+    if (propertyIsTrue("build_snapshot_train")) {
+        subprojects {
+            if (name != "core") return@subprojects
+
+            apply(plugin = "compiler-version-conventions")
+        }
+    }
 }

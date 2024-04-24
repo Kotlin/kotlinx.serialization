@@ -164,15 +164,15 @@ kotlin {
     }
 
     sourceSets.matching({ it.name.contains("Main") }).configureEach {
+        // TODO is it used?
         extra["kotlin.mpp.freeCompilerArgsForSourceSet.${name}"] = listOf("-Xexplicit-api=strict")
     }
 
     targets.all {
         compilations.all {
             kotlinOptions {
-                val kotlin_lv_override = rootProject.extra["kotlin_lv_override"] as String?
-                if (kotlin_lv_override != null) {
-                    languageVersion = kotlin_lv_override
+                if (overriddenLanguageVersion != null) {
+                    languageVersion = overriddenLanguageVersion
                     freeCompilerArgs += "-Xsuppress-version-warnings"
                 }
                 freeCompilerArgs += "-Xexpect-actual-classes"
