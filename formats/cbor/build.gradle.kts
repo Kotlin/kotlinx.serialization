@@ -22,16 +22,14 @@ kotlin {
         }
 
         jvmTest {
-            val jackson_version = property("jackson_version") as String
-
             dependencies {
-                implementation("io.kotlintest:kotlintest:2.0.7")
-                implementation("com.upokecenter:cbor:4.2.0")
-                implementation("com.fasterxml.jackson.core:jackson-core:$jackson_version")
-                implementation("com.fasterxml.jackson.core:jackson-databind:$jackson_version")
-                implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version")
-                implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:$jackson_version")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${property("coroutines_version") as String}")
+                implementation(libs.kotlintest)
+                implementation(libs.cbor)
+                implementation(libs.jackson.core)
+                implementation(libs.jackson.databind)
+                implementation(libs.jackson.module.kotlin)
+                implementation(libs.jackson.cbor)
+                implementation(libs.coroutines.core)
             }
         }
     }

@@ -53,11 +53,11 @@ tasks.withType<KotlinCompile>().configureEach {
 }
 
 dependencies {
-    implementation("org.openjdk.jmh:jmh-core:1.37")
-    implementation("com.google.guava:guava:31.1-jre")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.3")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")
-    implementation("com.squareup.okio:okio:${property("okio_version")}")
+    implementation(libs.jmhCore)
+    implementation(libs.guava)
+    implementation(libs.jackson.databind)
+    implementation(libs.jackson.module.kotlin)
+    implementation(libs.okio)
     implementation(project(":kotlinx-serialization-core"))
     implementation(project(":kotlinx-serialization-json"))
     implementation(project(":kotlinx-serialization-json-okio"))

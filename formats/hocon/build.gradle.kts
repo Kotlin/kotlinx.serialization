@@ -45,10 +45,10 @@ dependencies {
     api("org.jetbrains.kotlin:kotlin-stdlib")
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-    api("com.typesafe:config:1.4.1")
+    api(libs.typesafe.config)
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
-    testImplementation("junit:junit:4.12")
+    testImplementation(libs.junit.junit4)
 }
 
 configureJava9ModuleInfo()

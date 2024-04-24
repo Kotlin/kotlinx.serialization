@@ -35,14 +35,14 @@ kotlin {
             dependencies {
                 api(project(":kotlinx-serialization-json"))
                 api(project(":kotlinx-serialization-json-okio"))
-                implementation("com.squareup.okio:okio:${property("okio_version")}")
+                implementation(libs.okio)
             }
         }
 
         val jvmTest by getting {
             dependencies {
-                implementation("com.google.code.gson:gson:2.8.5")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${property("coroutines_version")}")
+                implementation(libs.gson)
+                implementation(libs.coroutines.core)
             }
         }
     }

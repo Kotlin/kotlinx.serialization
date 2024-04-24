@@ -24,8 +24,8 @@ tasks.withType<KotlinCompile>().configureEach {
 }
 
 dependencies {
+    testImplementation(libs.knitTest)
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-knit-test:${property("knit_version") as String}")
     testImplementation(project(":kotlinx-serialization-core"))
     testImplementation(project(":kotlinx-serialization-json"))
     testImplementation(project(":kotlinx-serialization-cbor"))

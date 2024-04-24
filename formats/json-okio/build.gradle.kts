@@ -25,12 +25,12 @@ kotlin {
             dependencies {
                 api(project(":kotlinx-serialization-core"))
                 api(project(":kotlinx-serialization-json"))
-                implementation("com.squareup.okio:okio:${property("okio_version")}")
+                implementation(libs.okio)
             }
         }
         val commonTest by getting {
             dependencies {
-                implementation("com.squareup.okio:okio:${property("okio_version")}")
+                implementation(libs.okio)
             }
         }
     }

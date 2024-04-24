@@ -18,7 +18,7 @@ apply(plugin = "source-sets-conventions")
 protobuf {
     protoc {
         // Download from repositories
-        artifact = "com.google.protobuf:protoc:3.17.3"
+        artifact = libs.protoc.get().toString()
     }
 }
 
@@ -42,8 +42,8 @@ kotlin {
             kotlin.srcDirs(file("${protobuf.generatedFilesBaseDir}/test/java"))
 
             dependencies {
-                implementation("com.google.protobuf:protobuf-java:3.17.3")
-                implementation("io.kotlintest:kotlintest:2.0.7")
+                implementation(libs.protobuf.java)
+                implementation(libs.kotlintest)
             }
         }
     }

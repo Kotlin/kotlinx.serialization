@@ -83,15 +83,15 @@ buildscript {
     dependencies {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
         classpath("org.jetbrains.kotlin:kotlin-serialization:$kotlin_version")
-        classpath("org.jetbrains.kotlinx:binary-compatibility-validator:${property("validator_version")}")
-        classpath("org.jetbrains.kotlinx:kotlinx-knit:${property("knit_version")}")
-        classpath("ru.vyarus:gradle-animalsniffer-plugin:1.7.1") // Android API check)
+        classpath(libs.binaryCompatibilityValidator)
+        classpath(libs.knit)
+        classpath(libs.gradlePlugin.animalsniffer) // Android API check)
 
-        classpath("com.google.protobuf:protobuf-gradle-plugin:0.9.0")
+        classpath(libs.gradlePlugin.protobuf)
 
         // Various benchmarking stuff
-        classpath("com.github.johnrengelman:shadow:8.1.1")
-        classpath("me.champeau.jmh:jmh-gradle-plugin:0.7.2")
+        classpath(libs.gradlePlugin.shadow)
+        classpath(libs.gradlePlugin.jmh)
     }
 }
 
@@ -242,8 +242,8 @@ subprojects {
             annotation = annotationValue
         }
         dependencies {
-            "signature"("net.sf.androidscents.signature:android-api-level-14:4.0_r4@signature")
-            "signature"("org.codehaus.mojo.signature:java18:1.0@signature")
+            "signature"(libs.androidSignature.get().toString() + "@signature")
+            "signature"(libs.javaSignature.get().toString() + "@signature")
         }
 
         // Add dependency on kotlinx-serialization-bom inside other kotlinx-serialization modules themselves, so they have same versions
@@ -287,10 +287,8 @@ tasks.withType<DokkaMultiModuleTask>().named("dokkaHtmlMultiModule") {
 }
 
 dependencies {
-    "dokkaPlugin"("org.jetbrains.kotlinx:dokka-pathsaver-plugin:${property("knit_version")}")
+    "dokkaPlugin"(libs.dokka.pathsaver)
 }
-
-/// -===
 
 apply(plugin = "compiler-version-conventions")
 apply(plugin = "benchmark-conventions")
@@ -298,6 +296,3 @@ apply(plugin = "benchmark-conventions")
 tasks.withType<org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask>().configureEach {
     args.add("--ignore-engines")
 }
-
-val Project.sourceSets: SourceSetContainer get() =
-    extensions.getByName("sourceSets") as SourceSetContainer

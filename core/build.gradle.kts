@@ -17,10 +17,10 @@ kotlin {
     sourceSets {
         jvmTest {
             dependencies {
-                implementation("io.kotlintest:kotlintest:2.0.7")
-                implementation("com.google.guava:guava:24.1.1-jre")
-                implementation("com.google.code.gson:gson:2.8.5")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${property("coroutines_version") as String}")
+                implementation(libs.kotlintest)
+                implementation(libs.guava.get24())
+                implementation(libs.gson)
+                implementation(libs.coroutines.core)
             }
         }
     }
