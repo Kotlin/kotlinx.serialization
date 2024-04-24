@@ -1,12 +1,11 @@
 /*
- * Copyright 2017-2022 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-import org.gradle.api.Project
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.dsl.*
 
-fun Project.addBomApiDependency(bomProjectPath: String) {
+afterEvaluate {
     val isMultiplatform = plugins.hasPlugin("kotlin-multiplatform")
 
     if (isMultiplatform) {
@@ -20,3 +19,4 @@ fun Project.addBomApiDependency(bomProjectPath: String) {
     }
 }
 
+val bomProjectPath = ":kotlinx-serialization-bom"

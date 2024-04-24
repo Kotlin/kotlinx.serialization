@@ -10,8 +10,8 @@ plugins {
     id("kotlinx-serialization")
 }
 
-apply(from = rootProject.file("gradle/native-targets.gradle"))
-apply(from = rootProject.file("gradle/configure-source-sets.gradle"))
+apply(plugin = "native-targets-conventions")
+apply(plugin = "source-sets-conventions")
 
 kotlin {
     sourceSets {

@@ -9,8 +9,8 @@ plugins {
     kotlin("plugin.serialization")
 }
 
-apply(from = rootProject.file("gradle/native-targets.gradle"))
-apply(from = rootProject.file("gradle/configure-source-sets.gradle"))
+apply(plugin = "native-targets-conventions")
+apply(plugin = "source-sets-conventions")
 
 // disable kover tasks because there are no non-test classes in the project
 tasks.named("koverHtmlReport") {

@@ -2,7 +2,6 @@
  * Copyright 2017-2022 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-import JavaPluginUtil.applyJavaPlugin
 import kotlinx.knit.*
 import kotlinx.validation.*
 import org.jetbrains.dokka.gradle.*
@@ -35,8 +34,6 @@ buildscript {
     if (project.hasProperty("library.version")) {
         extra["overriden_version"] = property("library.version")
     }
-
-    extra["koverEnabled"] = property("kover.enabled") ?: true
 
     val noTeamcityInteractionFlag = rootProject.hasProperty("no_teamcity_interaction")
     val buildSnapshotUPFlag = rootProject.hasProperty("build_snapshot_up")
@@ -86,8 +83,6 @@ buildscript {
     dependencies {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
         classpath("org.jetbrains.kotlin:kotlin-serialization:$kotlin_version")
-        classpath("org.jetbrains.dokka:dokka-gradle-plugin:${property("dokka_version")}")
-        classpath("org.jetbrains.kotlinx:kover-gradle-plugin:${property("kover_version")}")
         classpath("org.jetbrains.kotlinx:binary-compatibility-validator:${property("validator_version")}")
         classpath("org.jetbrains.kotlinx:kotlinx-knit:${property("knit_version")}")
         classpath("ru.vyarus:gradle-animalsniffer-plugin:1.7.1") // Android API check)
@@ -140,10 +135,6 @@ tasks.named("knitPrepare") {
     dependsOn("dokka")
 }
 
-apply(plugin = "org.jetbrains.dokka")
-dependencies {
-    "dokkaPlugin"("org.jetbrains.kotlinx:dokka-pathsaver-plugin:${property("knit_version")}")
-}
 
 allprojects {
     group = "org.jetbrains.kotlinx"
@@ -208,7 +199,6 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile>().configur
 
 val unpublishedProjects = setOf("benchmark", "guide", "kotlinx-serialization-json-tests")
 val excludedFromBomProjects = unpublishedProjects + "kotlinx-serialization-bom"
-val uncoveredProjects = setOf("kotlinx-serialization-bom", "benchmark", "guide", "kotlinx-serialization-json-okio")
 
 subprojects {
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompile<*>>().configureEach {
@@ -219,10 +209,10 @@ subprojects {
         }
     }
 
-    apply(from = rootProject.file("gradle/teamcity.gradle"))
+    apply(plugin = "teamcity-conventions")
     // Configure publishing for some artifacts
     if (!unpublishedProjects.contains(project.name)) {
-        apply(from = rootProject.file("gradle/publishing.gradle"))
+        apply(plugin = "publishing-conventions")
     }
 }
 
@@ -235,7 +225,7 @@ subprojects {
     // relies on `java-base` for Kotlin Multiplatforms `withJava` implementation
     // https://github.com/xvik/gradle-animalsniffer-plugin/issues/84
     // https://youtrack.jetbrains.com/issue/KT-59595
-    applyJavaPlugin()
+    apply(plugin = "java-conventions")
     apply(plugin = "ru.vyarus.animalsniffer")
 
     afterEvaluate { // Can be applied only when the project is evaluated
@@ -257,24 +247,53 @@ subprojects {
         }
 
         // Add dependency on kotlinx-serialization-bom inside other kotlinx-serialization modules themselves, so they have same versions
-        addBomApiDependency(":kotlinx-serialization-bom")
+        apply(plugin = "bom-conventions")
     }
 }
 
 // Kover setup
+val uncoveredProjects = setOf("kotlinx-serialization-bom", "benchmark", "guide", "kotlinx-serialization-json-okio")
+
 subprojects {
     if (uncoveredProjects.contains(project.name)) return@subprojects
 
-    apply(from = rootProject.file("gradle/kover.gradle"))
+    apply(plugin = "kover-conventions")
 }
 
-apply(from = rootProject.file("gradle/compiler-version.gradle"))
-apply(from = rootProject.file("gradle/dokka.gradle"))
-apply(from = rootProject.file("gradle/benchmark-parsing.gradle"))
+// Dokka setup
+apply(plugin = "org.jetbrains.dokka")
+
+val documentedSubprojects = setOf("kotlinx-serialization-core",
+    "kotlinx-serialization-json",
+    "kotlinx-serialization-json-okio",
+    "kotlinx-serialization-cbor",
+    "kotlinx-serialization-properties",
+    "kotlinx-serialization-hocon",
+    "kotlinx-serialization-protobuf")
+
+subprojects {
+    if (name in documentedSubprojects) {
+        apply(plugin = "dokka-conventions")
+    }
+}
+
+// Knit relies on Dokka task and it's pretty convenient
+tasks.register("dokka") {
+    dependsOn("dokkaHtmlMultiModule")
+}
 
 tasks.withType<DokkaMultiModuleTask>().named("dokkaHtmlMultiModule") {
     pluginsMapConfiguration.put("org.jetbrains.dokka.base.DokkaBase", """{ "templatesDir": "${projectDir.toString().replace("\\", "/")}/dokka-templates" }""")
 }
+
+dependencies {
+    "dokkaPlugin"("org.jetbrains.kotlinx:dokka-pathsaver-plugin:${property("knit_version")}")
+}
+
+/// -===
+
+apply(plugin = "compiler-version-conventions")
+apply(plugin = "benchmark-conventions")
 
 tasks.withType<org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask>().configureEach {
     args.add("--ignore-engines")

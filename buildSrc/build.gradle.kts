@@ -40,5 +40,8 @@ val kotlinVersion = run {
 
 dependencies {
     implementation(kotlin("gradle-plugin", kotlinVersion))
+
+    implementation(libs.gradlePlugin.kover)
+    implementation(libs.gradlePlugin.dokka)
 }
 

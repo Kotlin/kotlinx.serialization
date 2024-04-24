@@ -1,0 +1,13 @@
+[versions]
+kover = "0.8.0-Beta2"
+dokka = "1.9.10"
+knit = "0.5.0"
+
+[libraries]
+gradlePlugin-kover = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", version.ref = "kover"}
+gradlePlugin-dokka = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "dokka"}
+dokka-pathsaver = { module = "org.jetbrains.kotlinx:dokka-pathsaver-plugin", version.ref = "knit"}
+
+[plugins]
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }

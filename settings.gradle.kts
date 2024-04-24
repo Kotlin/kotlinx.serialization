@@ -40,3 +40,9 @@ project(":benchmark").projectDir = file("./benchmark")
 
 include(":guide")
 project(":guide").projectDir = file("./guide")
+
+dependencyResolutionManagement {
+    versionCatalogs {
+        create("libs")
+    }
+}
