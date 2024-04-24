@@ -1,4 +1,5 @@
 [versions]
+kotlin = "1.9.22"
 kover = "0.8.0-Beta2"
 dokka = "1.9.10"
 knit = "0.5.0"
@@ -23,12 +24,15 @@ junit4 = "4.12"
 protoc = "3.17.3"
 
 [libraries]
+gradlePlugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin"}
 gradlePlugin-kover = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", version.ref = "kover"}
 gradlePlugin-dokka = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "dokka"}
 gradlePlugin-animalsniffer = { module = "ru.vyarus:gradle-animalsniffer-plugin", version.ref = "animalsniffer"}
 gradlePlugin-protobuf = { module = "com.google.protobuf:protobuf-gradle-plugin", version.ref = "protobuf"}
 gradlePlugin-shadow = { module = "com.github.johnrengelman:shadow", version.ref = "shadow"}
 gradlePlugin-jmh = { module = "me.champeau.jmh:jmh-gradle-plugin", version.ref = "jmh"}
+
+kotlinPlugin-serialization = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin"}
 
 dokka-pathsaver = { module = "org.jetbrains.kotlinx:dokka-pathsaver-plugin", version.ref = "knit"}
 binaryCompatibilityValidator = { module = "org.jetbrains.kotlinx:binary-compatibility-validator", version.ref = "bcv"}

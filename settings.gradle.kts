@@ -41,8 +41,34 @@ project(":benchmark").projectDir = file("./benchmark")
 include(":guide")
 project(":guide").projectDir = file("./guide")
 
+
 dependencyResolutionManagement {
     versionCatalogs {
-        create("libs")
+        create("libs") {
+            overriddenKotlinVersion()?.also { overriddenVersion ->
+                version("kotlin", overriddenVersion)
+            }
+        }
     }
+}
+
+fun overriddenKotlinVersion(): String? {
+    val kotlinRepoUrl: String? = providers.gradleProperty("kotlin_repo_url").orNull
+    val repoVersion: String? = providers.gradleProperty("kotlin_version").orNull
+
+    val bootstrap: String? = providers.gradleProperty("bootstrap").orNull
+    val bootstrapVersion: String? = providers.gradleProperty("kotlin.version.snapshot").orNull
+
+    val buildSnapshotTrain: String? = providers.gradleProperty("build_snapshot_train").orNull
+    val trainVersion: String? = providers.gradleProperty("kotlin_snapshot_version").orNull
+
+    if (kotlinRepoUrl?.isNotEmpty() == true) {
+        return repoVersion ?: throw IllegalArgumentException("\"kotlin_version\" Gradle property should be defined")
+    } else if (bootstrap != null) {
+        return bootstrapVersion ?: throw IllegalArgumentException("\"kotlin.version.snapshot\" Gradle property should be defined")
+    }
+    if (buildSnapshotTrain?.isNotEmpty() == true) {
+        return trainVersion ?: throw IllegalArgumentException("\"kotlin_snapshot_version\" should be defined when building with snapshot compiler")
+    }
+    return null
 }

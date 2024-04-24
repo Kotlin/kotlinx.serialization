@@ -21,15 +21,11 @@ buildscript {
     extra["kotlin_lv_override"] = kotlin_lv_override
 
     if (snapshotRepoUrl != null && snapshotRepoUrl != "") {
-        extra["kotlin_version"] = rootProject.properties["kotlin_version"]
         repositories {
             maven(snapshotRepoUrl)
         }
     } else if (project.hasProperty("bootstrap")) {
-        extra["kotlin_version"] = property("kotlin.version.snapshot")
         extra["kotlin.native.home"] = System.getenv("KONAN_LOCAL_DIST")
-    } else {
-        extra["kotlin_version"] = property("kotlin.version")
     }
     if (project.hasProperty("library.version")) {
         extra["overriden_version"] = property("library.version")
@@ -44,16 +40,10 @@ buildscript {
     * When build_snapshot_train is set to true, kotlin_version property is overridden with kotlin_snapshot_version.
     * DO NOT change the name of these properties without adapting kotlinx.train build chain.
     */
-    val prop = rootProject.properties["build_snapshot_train"]
-    val build_snapshot_train = prop != null && prop != ""
+    val buildSnapshotTrain = (rootProject.properties["build_snapshot_train"] as String?)?.isNotEmpty() == true
 
-    extra["build_snapshot_train"] = build_snapshot_train
-    if (build_snapshot_train) {
-        val kotlin_version = rootProject.properties["kotlin_snapshot_version"]
-        extra["kotlin_version"] = kotlin_version
-        if (kotlin_version == null) {
-            throw IllegalArgumentException("\"kotlin_snapshot_version\" should be defined when building with snapshot compiler")
-        }
+    extra["build_snapshot_train"] = buildSnapshotTrain
+    if (buildSnapshotTrain) {
         repositories {
             maven("https://oss.sonatype.org/content/repositories/snapshots")
         }
@@ -73,16 +63,16 @@ buildscript {
     configurations.classpath {
         resolutionStrategy.eachDependency {
             if (requested.group == "org.jetbrains.kotlin") {
-                useVersion(rootProject.extra["kotlin_version"] as String)
+                useVersion(libs.versions.kotlin.get())
             }
         }
     }
 
-    val kotlin_version = rootProject.extra["kotlin_version"] as String
-
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
-        classpath("org.jetbrains.kotlin:kotlin-serialization:$kotlin_version")
+        println("FOO=" + libs.gradlePlugin.kotlin.get().toString())
+
+        classpath(libs.gradlePlugin.kotlin)
+        classpath(libs.kotlinPlugin.serialization)
         classpath(libs.binaryCompatibilityValidator)
         classpath(libs.knit)
         classpath(libs.gradlePlugin.animalsniffer) // Android API check)
@@ -173,7 +163,7 @@ allprojects {
 configurations.all {
     resolutionStrategy.eachDependency {
         if (requested.group == "org.jetbrains.kotlin") {
-            useVersion(rootProject.extra["kotlin_version"] as String)
+            useVersion(libs.versions.kotlin.get())
         }
     }
 }
