@@ -89,7 +89,7 @@ publishing {
         configureMavenPublication(this, project)
     }
 
-    tasks.withType<PublishToMavenRepository>().configureEach {
+    tasks.withType<AbstractPublishToMaven>().configureEach {
         dependsOn(tasks.withType<Sign>())
     }
 }
