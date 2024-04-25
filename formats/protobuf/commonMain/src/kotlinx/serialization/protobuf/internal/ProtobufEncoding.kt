@@ -196,7 +196,7 @@ private class OneOfPolymorphicEncoder(
 
     init {
         require(descriptor.kind is PolymorphicKind) {
-            "The serializer of one of type ${descriptor.serialName} should be using generic polymorphic serializer, but got ${descriptor.kind}"
+            "The serializer of one of type ${descriptor.serialName} should be using generic polymorphic serializer, but got ${descriptor.kind}."
         }
     }
 

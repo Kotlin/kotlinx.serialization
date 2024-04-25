@@ -117,7 +117,7 @@ internal fun SerialDescriptor.getAllOneOfSerializerOfField(
     return when (this.kind) {
         PolymorphicKind.OPEN -> serializersModule.getPolymorphicDescriptors(this)
         PolymorphicKind.SEALED -> getElementDescriptor(1).elementDescriptors.toList()
-        else -> emptyList() // should we throw an exception here?
+        else -> throw IllegalArgumentException("Class ${this.serialName} should be abstract or sealed or interface to be used as @ProtoOneOf property.")
     }.filter { desc ->
             desc.getElementAnnotations(0).any { anno -> anno is ProtoNumber }
         }

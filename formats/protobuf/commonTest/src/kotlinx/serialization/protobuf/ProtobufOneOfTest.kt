@@ -9,6 +9,7 @@ import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
+import kotlinx.serialization.protobuf.internal.*
 import kotlin.jvm.*
 import kotlin.test.*
 
@@ -495,6 +496,7 @@ class ProtobufOneOfTest {
 
     @Serializable
     sealed interface IDuplicatingIdType
+
     @Serializable
     data class DuplicatingIdStringType(@ProtoNumber(3) val s: String) : IDuplicatingIdType
 
@@ -531,7 +533,7 @@ class ProtobufOneOfTest {
         @ProtoNumber(2)
         @ProtoType(ProtoIntegerType.FIXED)
         val value: Int
-    ): ITypedInt
+    ) : ITypedInt
 
     @Serializable
     @JvmInline
@@ -539,7 +541,7 @@ class ProtobufOneOfTest {
         @ProtoNumber(3)
         @ProtoType(ProtoIntegerType.FIXED)
         val value: Long
-    ): ITypedInt
+    ) : ITypedInt
 
     @Serializable
     @JvmInline
@@ -547,27 +549,28 @@ class ProtobufOneOfTest {
         @ProtoNumber(4)
         @ProtoType(ProtoIntegerType.SIGNED)
         val value: Int
-    ): ITypedInt
+    ) : ITypedInt
 
     @Serializable
     data class SignedLong(
         @ProtoNumber(5)
         @ProtoType(ProtoIntegerType.SIGNED)
         val value: Long
-    ): ITypedInt
+    ) : ITypedInt
 
     @Serializable
     data class DefaultInt(
         @ProtoNumber(6)
         @ProtoType(ProtoIntegerType.DEFAULT)
         val value: Int
-    ): ITypedInt
+    ) : ITypedInt
+
     @Serializable
     data class DefaultLong(
         @ProtoNumber(7)
         @ProtoType(ProtoIntegerType.DEFAULT)
         val value: Long
-    ): ITypedInt
+    ) : ITypedInt
 
     @Test
     fun testTypedInt() {
@@ -660,9 +663,12 @@ class ProtobufOneOfTest {
     // @ProtoNumber(777) here should be ignored
     @Serializable
     data class Dummy(@ProtoNumber(777) @ProtoOneOf val i: DummyInterface)
+
     @Serializable
     sealed interface DummyInterface
-    @Serializable data class DummyInt(@ProtoNumber(1) val i: Int): DummyInterface
+    @Serializable
+    data class DummyInt(@ProtoNumber(1) val i: Int) : DummyInterface
+
     @Test
     fun testDummyAnnotation() {
         val data = Dummy(DummyInt(42))
@@ -677,6 +683,30 @@ class ProtobufOneOfTest {
          */
         ProtoBuf.decodeFromHexString<Dummy>("082a").also {
             assertEquals(data, it)
+        }
+    }
+
+    @Serializable
+    data class Outer(@ProtoOneOf val inner: Inner)
+
+    @Serializable
+    data class Inner(@ProtoNumber(1) val i: Int) // not sealed or abstract
+
+    @Test
+    fun testNonePolymorphicClass() {
+        val data = Outer(Inner(42))
+        assertFailsWithMessage<IllegalArgumentException>(
+            "The serializer of one of type kotlinx.serialization.protobuf.ProtobufOneOfTest.Inner should be using generic polymorphic serializer, but got CLASS"
+        ) {
+            // Fails in [kotlinx.serialization.protobuf.internal.OneOfPolymorphicEncoder.init]
+            ProtoBuf.encodeToHexString(data)
+        }
+
+        assertFailsWithMessage<IllegalArgumentException>(
+            "Class kotlinx.serialization.protobuf.ProtobufOneOfTest.Inner should be abstract or sealed or interface to be used as @ProtoOneOf property."
+        ) {
+            // Fails in [kotlinx.serialization.protobuf.internal.HelpersKt.getAllOneOfSerializerOfField]
+            ProtoBuf.decodeFromHexString<Outer>("082a")
         }
     }
 }
