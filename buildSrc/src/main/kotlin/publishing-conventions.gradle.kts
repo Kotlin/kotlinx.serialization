@@ -88,6 +88,10 @@ publishing {
     repositories {
         configureMavenPublication(this, project)
     }
+
+    tasks.withType<PublishToMavenRepository>().configureEach {
+        dependsOn(tasks.withType<Sign>())
+    }
 }
 
 // Compatibility with old TeamCity configurations that perform :kotlinx-coroutines-core:bintrayUpload

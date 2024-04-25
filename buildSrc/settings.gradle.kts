@@ -11,6 +11,7 @@ dependencyResolutionManagement {
             from(files("../gradle/libs.versions.toml"))
 
             overriddenKotlinVersion()?.also { overriddenVersion ->
+                logger.info("Overriding Kotlin version in buildSrc: $overriddenVersion")
                 version("kotlin", overriddenVersion)
             }
         }
