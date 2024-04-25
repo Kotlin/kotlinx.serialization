@@ -441,11 +441,11 @@ the annotation, but rather reads list in either packed or repeated format.
 ### Oneof field (experimental)
 
 Kotlin Serialization `ProtoBuf` format supports [oneof](https://protobuf.dev/programming-guides/proto2/#oneof) fields
-base on the [Polymorphism](polymorphism.md).
+basing on the [Polymorphism](polymorphism.md) functionality.
 
 #### Usage
 
-Giving a protobuf message defined like:
+Given a protobuf message defined like:
 
 ```proto
 message Data {
@@ -457,13 +457,12 @@ message Data {
 }
 ```
 
-You can define a kotlin class semantically equals to this message by following the contracts:
+You can define a kotlin class semantically equal to this message by following these steps:
 
-* Declare an interface, or abstract class, in represent of the `oneof` group, called *the oneof interface*.
-* Declare the type added above, called *the outer class*, with the property annotated with `@ProtoOneOf`, not `@ProtoNumber`.
-* Declare subclasses from the type per the oneof group elements, with **only one property** each with the element type, called *message holders*.
-* Annotated the subclasses with `@ProtoNumber` on the only property, 
-  per the oneof group elements and `@ProtoOneOf` above.
+* Declare a sealed interface or abstract class, to represent of the `oneof` group, called *the oneof interface*. In our example, oneof interface is `IPhoneType`.
+* Declare a Kotlin class as usual to represent the whole message (`class Data` in our example). In this class, add the property with oneof interface type, annotated with `@ProtoOneOf`. Do not use `@ProtoNumber` for that property.
+* Declare subclasses for oneof interface, one per each oneof group element. Each class must have **exactly one property** with the corresponding oneof element type. In our example, these classes are `HomePhone` and `WorkPhone`.
+* Annotate properties in subclasses with `@ProtoNumber`, according to original `oneof` definition. In our example, `val number: String` in `HomePhone` has `@ProtoNumber(2)` annotation, because of field `string home_phone = 2;` in `oneof phone`.
 
 <!--- INCLUDE
 import kotlinx.serialization.*
@@ -484,7 +483,7 @@ data class Data(
 // Message holder for home_phone
 @Serializable @JvmInline value class HomePhone(@ProtoNumber(2) val number: String): IPhoneType
 
-// Message holder for work_phone
+// Message holder for work_phone. Can also be a value class, but we leave it as `data` to demonstrate that both variants can be used.
 @Serializable data class WorkPhone(@ProtoNumber(3) val number: String): IPhoneType
 
 fun main() {
@@ -510,21 +509,21 @@ Data(name=Jerry, phone=WorkPhone(number=789))
 
 <!--- TEST -->
 
-In [ProtoBuf diagnostic mode](https://protogen.marcgravell.com/decode) the first 2 lines on output is equivalent to
+In [ProtoBuf diagnostic mode](https://protogen.marcgravell.com/decode) the first 2 lines in the output are equivalent to
 
 ```
 Field #1: 0A String Length = 3, Hex = 03, UTF8 = "Tom" Field #2: 12 String Length = 3, Hex = 03, UTF8 = "123"
 Field #1: 0A String Length = 5, Hex = 05, UTF8 = "Jerry" Field #3: 1A String Length = 3, Hex = 03, UTF8 = "789"
 ```
 
-You should note that each group of `oneof` types should be tied to exactly one data class, and try not to reuse it in
+You should note that each group of `oneof` types should be tied to exactly one data class, and it is better not to reuse it in
 another data class. Otherwise, you may get id conflicts or `IllegalArgumentException` in runtime.
 
 #### Alternative
 
-You don't always need to apply the `@ProtoOneOf` form in your class for messages with `oneof` fields, if this class is only used as a deserialize target.
+You don't always need to apply the `@ProtoOneOf` form in your class for messages with `oneof` fields, if this class is only used for deserialization.
 
-For example, the following class
+For example, the following class:
 
 ```
 @Serializable  
@@ -535,9 +534,9 @@ data class Data2(
 )  
 ```
 
-has binary campatibility with the message given above, which means it can also be a valid deserialize target, if you don't need polymorphism here.
+is also compatible with the `message Data` given above, which means the same input can be deserialized into it instead of `Data` — in case you don't want to deal with sealed hierarchies.
 
-But please note that, if an instance of `Data2` with both `homeNumber` and `workNumber` assigned is serialized in proto wire, and send to another parser, one of the field may be omitted and lead to unknown issue.
+But please note that there are no exclusivity checks. This means that if an instance of `Data2` has both (or none) `homeNumber` and `workNumber` as non-null values and is serialized to protobuf, it no longer complies with the original schema. If you send such data to another parser, one of the fields may be omitted, leading to an unknown issue.
 
 ### ProtoBuf schema generator (experimental)
 
