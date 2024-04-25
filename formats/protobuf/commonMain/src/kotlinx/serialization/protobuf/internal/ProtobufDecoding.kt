@@ -59,12 +59,6 @@ internal open class ProtobufDecoder(
                 }
             }
             indexCache = cache
-
-            // Class type should have unique proto id for its elements
-            require(descriptor.kind != StructureKind.CLASS ||
-                indexCache?.toSet()?.size == elements) {
-                "Duplicated proto number in ${descriptor.serialName}."
-            }
         } else {
             populateCacheMap(descriptor, elements)
         }
@@ -92,10 +86,7 @@ internal open class ProtobufDecoder(
     }
 
     private fun MutableMap<Int, Int>.putProtoId(protoId: Int, index: Int) {
-        val old = put(protoId, index)
-        require(old == null) {
-            "Duplicated proto number $protoId in ${descriptor.serialName} for elements: ${descriptor.getElementName(index)}, ${descriptor.getElementName(old!!)}."
-        }
+        put(protoId, index)
     }
 
     private fun getIndexByNum(protoNum: Int): Int {
