@@ -9,7 +9,7 @@ import org.jetbrains.kotlin.gradle.dsl.*
 
 plugins {
     kotlin("jvm")
-    id("kotlinx-serialization")
+    alias(libs.plugins.serialization)
 }
 
 tasks.compileKotlin {

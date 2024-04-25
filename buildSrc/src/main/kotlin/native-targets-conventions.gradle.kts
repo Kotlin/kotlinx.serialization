@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.*
+
 /*
  * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
@@ -7,6 +9,7 @@ plugins {
 }
 
 kotlin {
+    @OptIn(ExperimentalKotlinGradlePluginApi::class)
     applyDefaultHierarchyTemplate {
 
         // According to https://kotlinlang.org/docs/native-target-support.html

@@ -1,7 +1,7 @@
 import org.gradle.api.publish.maven.internal.publication.DefaultMavenPublication
 
 plugins {
-    id("java-platform")
+    `java-platform`
 }
 
 val name = project.name

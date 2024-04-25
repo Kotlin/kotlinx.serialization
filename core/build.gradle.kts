@@ -7,11 +7,11 @@ import org.jetbrains.kotlin.gradle.targets.js.ir.*
 
 plugins {
     kotlin("multiplatform")
-    id("kotlinx-serialization")
-}
+    alias(libs.plugins.serialization)
 
-apply(plugin = "native-targets-conventions")
-apply(plugin = "source-sets-conventions")
+    id("native-targets-conventions")
+    id("source-sets-conventions")
+}
 
 kotlin {
     sourceSets {

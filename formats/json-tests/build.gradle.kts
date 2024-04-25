@@ -6,11 +6,11 @@ import org.jetbrains.kotlin.gradle.targets.js.testing.*
 
 plugins {
     kotlin("multiplatform")
-    kotlin("plugin.serialization")
-}
+    alias(libs.plugins.serialization)
 
-apply(plugin = "native-targets-conventions")
-apply(plugin = "source-sets-conventions")
+    id("native-targets-conventions")
+    id("source-sets-conventions")
+}
 
 // disable kover tasks because there are no non-test classes in the project
 tasks.named("koverHtmlReport") {

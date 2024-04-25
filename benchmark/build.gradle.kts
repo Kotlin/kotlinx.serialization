@@ -7,11 +7,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     java
-    kotlin("jvm")
-    id("kotlinx-serialization")
     idea
-    id("com.github.johnrengelman.shadow")
-    id("me.champeau.jmh")
+    kotlin("jvm")
+    alias(libs.plugins.serialization)
+    alias(libs.plugins.shadow)
+    alias(libs.plugins.jmh)
 }
 
 java {

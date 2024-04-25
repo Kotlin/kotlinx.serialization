@@ -6,7 +6,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm")
-    id("kotlinx-serialization")
+    alias(libs.plugins.serialization)
 }
 
 kotlin {

@@ -1,7 +1,7 @@
 [versions]
 kotlin = "1.9.22"
 kover = "0.8.0-Beta2"
-dokka = "1.9.10"
+dokka = "1.9.20"
 knit = "0.5.0"
 bcv = "0.15.0-Beta.2"
 animalsniffer = "1.7.1"
@@ -9,8 +9,6 @@ protobuf = "0.9.0"
 shadow = "8.1.1"
 jmh = "0.7.2"
 jmh-core = "1.37"
-androidSignature = "4.0_r4"
-javaSignature = "1.0"
 guava = "31.1-jre"
 guava24 = "24.1.1-jre"
 jackson = "2.13.3"
@@ -28,18 +26,10 @@ gradlePlugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", ve
 gradlePlugin-kover = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", version.ref = "kover"}
 gradlePlugin-dokka = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "dokka"}
 gradlePlugin-animalsniffer = { module = "ru.vyarus:gradle-animalsniffer-plugin", version.ref = "animalsniffer"}
-gradlePlugin-protobuf = { module = "com.google.protobuf:protobuf-gradle-plugin", version.ref = "protobuf"}
-gradlePlugin-shadow = { module = "com.github.johnrengelman:shadow", version.ref = "shadow"}
-gradlePlugin-jmh = { module = "me.champeau.jmh:jmh-gradle-plugin", version.ref = "jmh"}
-
-kotlinPlugin-serialization = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin"}
+gradlePlugin-binaryCompatibilityValidator = { module = "org.jetbrains.kotlinx:binary-compatibility-validator", version.ref = "bcv"}
 
 dokka-pathsaver = { module = "org.jetbrains.kotlinx:dokka-pathsaver-plugin", version.ref = "knit"}
-binaryCompatibilityValidator = { module = "org.jetbrains.kotlinx:binary-compatibility-validator", version.ref = "bcv"}
-knit = { module = "org.jetbrains.kotlinx:kotlinx-knit", version.ref = "knit"}
 knitTest = { module = "org.jetbrains.kotlinx:kotlinx-knit-test", version.ref = "knit"}
-androidSignature = { module = "net.sf.androidscents.signature:android-api-level-14", version.ref = "androidSignature"}
-javaSignature = { module = "org.codehaus.mojo.signature:java18", version.ref = "javaSignature"}
 jmhCore = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh-core"}
 guava = { module = "com.google.guava:guava", version.ref = "guava"}
 guava-24 = { module = "com.google.guava:guava", version.ref = "guava24"}
@@ -58,5 +48,8 @@ protoc = { module = "com.google.protobuf:protoc", version.ref = "protoc"}
 protobuf-java = { module = "com.google.protobuf:protobuf-java", version.ref = "protoc" }
 
 [plugins]
-kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
-dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+knit = { id = "org.jetbrains.kotlinx.knit", version.ref = "knit" }
+jmh = { id = "me.champeau.jmh", version.ref = "jmh" }
+shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
+protobuf = { id = "com.google.protobuf", version.ref = "protobuf" }
+serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

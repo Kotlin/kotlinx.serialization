@@ -7,11 +7,12 @@ import java.net.*
 
 plugins {
     kotlin("multiplatform")
-    kotlin("plugin.serialization")
+    alias(libs.plugins.serialization)
+
+    id("native-targets-conventions")
+    id("source-sets-conventions")
 }
 
-apply(plugin = "native-targets-conventions")
-apply(plugin = "source-sets-conventions")
 
 kotlin {
     sourceSets {
