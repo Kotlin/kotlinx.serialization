@@ -49,7 +49,7 @@ class ProtobufOneOfTest {
     @Test
     fun testOneOfIntType() {
         val dataInt = OneOfData(IntType(42), "foo")
-        val intString = ProtoBuf.encodeToHexString(OneOfData.serializer(), dataInt).also { println(it) }
+        val intString = ProtoBuf.encodeToHexString(OneOfData.serializer(), dataInt)
         /**
          * 5:VARINT 42
          * 3:LEN {"foo"}
@@ -60,7 +60,7 @@ class ProtobufOneOfTest {
     @Test
     fun testOneOfStringType() {
         val dataString = OneOfData(StringType("bar"), "foo")
-        val stringString = ProtoBuf.encodeToHexString(OneOfData.serializer(), dataString).also { println(it) }
+        val stringString = ProtoBuf.encodeToHexString(OneOfData.serializer(), dataString)
         /**
          * 6:LEN {"bar"}
          * 3:LEN {"foo"}
@@ -92,7 +92,6 @@ class ProtobufOneOfTest {
     fun testOneOfIntTypeNullable() {
         val dataInt = OneOfDataNullable(IntType(42), "foo")
         ProtoBuf.encodeToHexString(OneOfDataNullable.serializer(), dataInt).also {
-            println(it)
             /**
              * 5:VARINT 42
              * 3:LEN {"foo"}
@@ -106,7 +105,6 @@ class ProtobufOneOfTest {
     fun testOneOfStringTypeNullable() {
         val dataString = OneOfDataNullable(StringType("bar"), "foo")
         ProtoBuf.encodeToHexString(OneOfDataNullable.serializer(), dataString).also {
-            println(it)
             /**
              * 6:LEN {"bar"}
              * 3:LEN {"foo"}
@@ -115,7 +113,6 @@ class ProtobufOneOfTest {
         }
         val dataStringNull = OneOfDataNullable(null, "foo")
         ProtoBuf.encodeToHexString(OneOfDataNullable.serializer(), dataStringNull).also {
-            println(it)
             /**
              * 3:LEN {"foo"}
              */
@@ -199,7 +196,6 @@ class ProtobufOneOfTest {
     fun testEncodeNestedStruct() {
         val data = OneOfData(NestedIntType(IntType(32)), "foo")
         ProtoBuf.encodeToHexString(OneOfData.serializer(), data).also {
-            println(it)
             /**
              * 7:LEN {5:VARINT 32}
              * 3:LEN {"foo"}
@@ -216,7 +212,6 @@ class ProtobufOneOfTest {
          * 3:LEN {"foo"}
          */
         ProtoBuf.decodeFromHexString<OneOfData>("3a0228201a03666f6f").also {
-            println(it)
             assertEquals(data, it)
         }
     }
@@ -255,7 +250,6 @@ class ProtobufOneOfTest {
     fun testEncodeNestedOneOf() {
         val data = OneOfData(NestedOneOfType(i = InnerNested(InnerInt(32))), "foo")
         ProtoBuf.encodeToHexString(OneOfData.serializer(), data).also {
-            println(it)
             /**
              * 9:LEN {1:VARINT 32}
              * 3:LEN {"foo"}
@@ -272,7 +266,6 @@ class ProtobufOneOfTest {
          * 3:LEN {"foo"}
          */
         ProtoBuf.decodeFromHexString<OneOfData>("4a0208201a03666f6f").also {
-            println(it)
             /**
              * 9: {1: 32}
              * 3: {"foo"}
@@ -312,7 +305,6 @@ class ProtobufOneOfTest {
             OtherStringType("bar")
         )
         buf.encodeToHexString(DoubleOneOfElement.serializer(), data).also {
-            println(it)
             /**
              * 5:VARINT 32
              * 3:LEN {"foo"}
@@ -371,7 +363,7 @@ class ProtobufOneOfTest {
         val buf = ProtoBuf { serializersModule = module }
 
         val dataInt = OneOfData(IntType(42), "foo")
-        val intString = buf.encodeToHexString(OneOfData.serializer(), dataInt).also { println(it) }
+        val intString = buf.encodeToHexString(OneOfData.serializer(), dataInt)
         /**
          * 5:VARINT 42
          * 3:LEN {"foo"}
@@ -379,7 +371,7 @@ class ProtobufOneOfTest {
         assertEquals("282a1a03666f6f", intString)
 
         val dataString = OneOfData(StringType("bar"), "foo")
-        val stringString = buf.encodeToHexString(OneOfData.serializer(), dataString).also { println(it) }
+        val stringString = buf.encodeToHexString(OneOfData.serializer(), dataString)
         /**
          * 6:LEN {"bar"}
          * 3:LEN {"foo"}
@@ -403,12 +395,16 @@ class ProtobufOneOfTest {
     @Test
     fun testFailWithClassEncoding() {
         val data = FailWithClass(FailIntType(42), "foo")
-        assertFailsWith<IllegalArgumentException> { ProtoBuf.encodeToHexString(FailWithClass.serializer(), data) }
+        assertFailsWithMessage<IllegalArgumentException>(
+            "Implementation of oneOf type kotlinx.serialization.protobuf.ProtobufOneOfTest.FailIntType should have @ProtoNumber annotation"
+        ) { ProtoBuf.encodeToHexString(FailWithClass.serializer(), data) }
     }
 
     @Test
     fun testFailWithClassDecoding() {
-        assertFailsWith<MissingFieldException> {
+        assertFailsWithMessage<IllegalArgumentException>(
+            "kotlinx.serialization.protobuf.ProtobufOneOfTest.FailIntType implementing oneOf type kotlinx.serialization.protobuf.ProtobufOneOfTest.IFailType should have @ProtoNumber annotation in its single property."
+        ) {
             ProtoBuf.decodeFromHexString<FailWithClass>(
                 /**
                  * 5:VARINT 42
@@ -511,7 +507,9 @@ class ProtobufOneOfTest {
             assertEquals("1a03666f6f182a", it)
         }
 
-        assertFailsWith<IllegalArgumentException> {
+        assertFailsWithMessage<IllegalArgumentException>(
+            "Duplicated proto number 3 in kotlinx.serialization.protobuf.ProtobufOneOfTest.DuplicatingIdData for elements: d, bad."
+        ) {
             /**
              * 3:LEN {"foo"}
              * 3:VARINT 42
@@ -576,7 +574,6 @@ class ProtobufOneOfTest {
     fun testTypedInt() {
         val fixed = TypedIntOuter(Fixed32Int(32))
         ProtoBuf.encodeToHexString(fixed).also {
-            println(it)
             /**
              * 2:I32 32i32
              */
@@ -590,7 +587,6 @@ class ProtobufOneOfTest {
         }
         val fixedLong = TypedIntOuter(Fixed32Long(30576774159))
         ProtoBuf.encodeToHexString(fixedLong).also {
-            println(it)
             /**
              * 3:VARINT 30576774159
              */
@@ -604,7 +600,6 @@ class ProtobufOneOfTest {
         }
         val signed = TypedIntOuter(SignedInt(32))
         ProtoBuf.encodeToHexString(signed).also {
-            println(it)
             /**
              * 4:VARINT 32
              */
@@ -618,7 +613,6 @@ class ProtobufOneOfTest {
         }
         val signedLong = TypedIntOuter(SignedLong(30576774159))
         ProtoBuf.encodeToHexString(signedLong).also {
-            println(it)
             /**
              * 5:VARINT 61153548318
              */
@@ -632,7 +626,6 @@ class ProtobufOneOfTest {
         }
         val default = TypedIntOuter(DefaultInt(32))
         ProtoBuf.encodeToHexString(default).also {
-            println(it)
             /**
              * 6:VARINT 32
              */
@@ -646,7 +639,6 @@ class ProtobufOneOfTest {
         }
         val defaultLong = TypedIntOuter(DefaultLong(30576774159))
         ProtoBuf.encodeToHexString(defaultLong).also {
-            println(it)
             /**
              * 7:VARINT 30576774159
              */

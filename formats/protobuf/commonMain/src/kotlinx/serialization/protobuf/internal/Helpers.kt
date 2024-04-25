@@ -118,9 +118,11 @@ internal fun SerialDescriptor.getAllOneOfSerializerOfField(
         PolymorphicKind.OPEN -> serializersModule.getPolymorphicDescriptors(this)
         PolymorphicKind.SEALED -> getElementDescriptor(1).elementDescriptors.toList()
         else -> throw IllegalArgumentException("Class ${this.serialName} should be abstract or sealed or interface to be used as @ProtoOneOf property.")
-    }.filter { desc ->
-            desc.getElementAnnotations(0).any { anno -> anno is ProtoNumber }
+    }.onEach { desc ->
+        if (desc.getElementAnnotations(0).none { anno -> anno is ProtoNumber }) {
+            throw IllegalArgumentException("${desc.serialName} implementing oneOf type ${this.serialName} should have @ProtoNumber annotation in its single property.")
         }
+    }
 }
 
 internal fun SerialDescriptor.getActualOneOfSerializer(
