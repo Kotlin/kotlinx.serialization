@@ -407,12 +407,24 @@ public abstract interface class kotlinx/serialization/json/internal/InternalJson
 	public abstract fun read ([CII)I
 }
 
+public abstract class kotlinx/serialization/json/internal/InternalJsonReaderCodePointImpl : kotlinx/serialization/json/internal/InternalJsonReader {
+	public fun <init> ()V
+	public abstract fun exhausted ()Z
+	public abstract fun nextCodePoint ()I
+	public final fun read ([CII)I
+}
+
 public abstract interface class kotlinx/serialization/json/internal/InternalJsonWriter {
+	public static final field Companion Lkotlinx/serialization/json/internal/InternalJsonWriter$Companion;
 	public abstract fun release ()V
 	public abstract fun write (Ljava/lang/String;)V
 	public abstract fun writeChar (C)V
 	public abstract fun writeLong (J)V
 	public abstract fun writeQuoted (Ljava/lang/String;)V
+}
+
+public final class kotlinx/serialization/json/internal/InternalJsonWriter$Companion {
+	public final fun doWriteEscaping (Ljava/lang/String;Lkotlin/jvm/functions/Function3;)V
 }
 
 public final class kotlinx/serialization/json/internal/JsonStreamsKt {
@@ -424,6 +436,10 @@ public final class kotlinx/serialization/json/internal/JsonStreamsKt {
 
 public final class kotlinx/serialization/json/internal/StreamingJsonDecoderKt {
 	public static final fun decodeStringToJsonTree (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/DeserializationStrategy;Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
+}
+
+public final class kotlinx/serialization/json/internal/StringOpsKt {
+	public static final fun getESCAPE_STRINGS ()[Ljava/lang/String;
 }
 
 public final class kotlinx/serialization/json/internal/TreeJsonDecoderKt {

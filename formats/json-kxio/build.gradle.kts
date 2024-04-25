@@ -2,24 +2,15 @@
  * Copyright 2017-2022 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 import Java9Modularity.configureJava9ModuleInfo
+import org.jetbrains.dokka.gradle.*
+import java.net.*
 
 plugins {
     kotlin("multiplatform")
-    alias(libs.plugins.serialization)
+    kotlin("plugin.serialization")
 
     id("native-targets-conventions")
     id("source-sets-conventions")
-}
-
-// disable kover tasks because there are no non-test classes in the project
-tasks.named("koverHtmlReport") {
-    enabled = false
-}
-tasks.named("koverXmlReport") {
-    enabled = false
-}
-tasks.named("koverVerify") {
-    enabled = false
 }
 
 kotlin {
@@ -30,23 +21,29 @@ kotlin {
                 optIn("kotlinx.serialization.json.internal.JsonFriendModuleApi")
             }
         }
-        val commonTest by getting {
+        val commonMain by getting {
             dependencies {
+                api(project(":kotlinx-serialization-core"))
                 api(project(":kotlinx-serialization-json"))
-                api(project(":kotlinx-serialization-json-okio"))
-                api(project(":kotlinx-serialization-json-kxio"))
                 implementation(libs.kotlinx.io)
-                implementation(libs.okio)
             }
         }
-
-        val jvmTest by getting {
+        val commonTest by getting {
             dependencies {
-                implementation(libs.gson)
-                implementation(libs.coroutines.core)
+                implementation(libs.kotlinx.io)
             }
         }
     }
 }
 
 project.configureJava9ModuleInfo()
+
+tasks.named<DokkaTaskPartial>("dokkaHtmlPartial") {
+    dokkaSourceSets {
+        configureEach {
+            externalDocumentationLink {
+                url.set(URL("https://kotlin.github.io/kotlinx-io/"))
+            }
+        }
+    }
+}

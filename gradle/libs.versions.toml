@@ -13,6 +13,7 @@ guava = "31.1-jre"
 guava24 = "24.1.1-jre"
 jackson = "2.13.3"
 okio = "3.9.0"
+kotlinx-io="0.4.0"
 gson = "2.8.5"
 kotlintest = "2.0.7"
 coroutines = "1.6.4"
@@ -38,6 +39,7 @@ jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", ver
 jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson"}
 jackson-cbor = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-cbor", version.ref = "jackson"}
 okio = { module = "com.squareup.okio:okio", version.ref = "okio"}
+kotlinx-io = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinx-io"}
 gson = { module = "com.google.code.gson:gson", version.ref = "gson"}
 kotlintest = { module = "io.kotlintest:kotlintest", version.ref = "kotlintest"}
 coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines"}

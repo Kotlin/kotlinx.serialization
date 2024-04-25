@@ -55,6 +55,9 @@ project(":kotlinx-serialization-json").projectDir = file("./formats/json")
 include(":kotlinx-serialization-json-okio")
 project(":kotlinx-serialization-json-okio").projectDir = file("./formats/json-okio")
 
+include(":kotlinx-serialization-json-kxio")
+project(":kotlinx-serialization-json-kxio").projectDir = file("./formats/json-kxio")
+
 include(":kotlinx-serialization-json-tests")
 project(":kotlinx-serialization-json-tests").projectDir = file("./formats/json-tests")
 

@@ -9,6 +9,10 @@ Stable and ready to use JSON format implementation, `JsonElement` API to operate
 Extensions for kotlinx.serialization.json.Json for integration with the popular [Okio](https://square.github.io/okio/) library.
 Currently experimental.
 
+# Module kotlinx-serialization-json-kxio
+Extensions for kotlinx.serialization.json.Json for integration with the [kotlinx-io](https://github.com/Kotlin/kotlinx-io) library.
+Currently experimental.
+
 # Module kotlinx-serialization-cbor
 Concise Binary Object Representation (CBOR) format implementation, as per [RFC 7049](https://tools.ietf.org/html/rfc7049).
 
@@ -48,6 +52,9 @@ and JSON-specific serializers.
 
 # Package kotlinx.serialization.json.okio
 Extensions for kotlinx.serialization.json.Json for integration with the popular [Okio](https://square.github.io/okio/) library.
+
+# Package kotlinx.serialization.json.kxio
+Extensions for kotlinx.serialization.json.Json for integration with the [kotlinx-io](https://github.com/Kotlin/kotlinx-io) library.
 
 # Package kotlinx.serialization.protobuf
 [Protocol buffers](https://protobuf.dev/) serialization format implementation.

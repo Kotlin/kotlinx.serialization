@@ -2,30 +2,31 @@
  * Copyright 2017-2022 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package kotlinx.serialization.json.okio.internal
+package kotlinx.serialization.json.kxio.internal
 
+import kotlinx.io.*
 import kotlinx.serialization.json.internal.*
-import okio.*
 
 private const val QUOTE_CODE = '"'.code
 
-internal class JsonToOkioStreamWriter(private val sink: BufferedSink) : InternalJsonWriter {
+internal class JsonToKxioStreamWriter(private val sink: Sink) : InternalJsonWriter {
+
     override fun writeLong(value: Long) {
         write(value.toString())
     }
 
     override fun writeChar(char: Char) {
-        sink.writeUtf8CodePoint(char.code)
+        sink.writeCodePointValue(char.code)
     }
 
     override fun write(text: String) {
-        sink.writeUtf8(text)
+        sink.writeString(text)
     }
 
     override fun writeQuoted(text: String) {
-        sink.writeUtf8CodePoint('"'.code)
-        InternalJsonWriter.doWriteEscaping(text) { s, start, end -> sink.writeUtf8(s, start, end) }
-        sink.writeUtf8CodePoint('"'.code)
+        sink.writeCodePointValue(QUOTE_CODE)
+        InternalJsonWriter.doWriteEscaping(text) { s, start, end -> sink.writeString(s, start, end) }
+        sink.writeCodePointValue(QUOTE_CODE)
     }
 
     override fun release() {
@@ -33,8 +34,7 @@ internal class JsonToOkioStreamWriter(private val sink: BufferedSink) : Internal
     }
 }
 
-internal class OkioSerialReader(private val source: BufferedSource): InternalJsonReaderCodePointImpl() {
+internal class KxioSerialReader(private val source: Source): InternalJsonReaderCodePointImpl() {
     override fun exhausted(): Boolean = source.exhausted()
-    override fun nextCodePoint(): Int = source.readUtf8CodePoint()
+    override fun nextCodePoint(): Int = source.readCodePointValue()
 }
-
