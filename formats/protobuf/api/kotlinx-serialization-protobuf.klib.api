@@ -33,6 +33,9 @@ open annotation class kotlinx.serialization.protobuf/ProtoNumber : kotlin/Annota
     final val number // kotlinx.serialization.protobuf/ProtoNumber.number|{}number[0]
         final fun <get-number>(): kotlin/Int // kotlinx.serialization.protobuf/ProtoNumber.number.<get-number>|<get-number>(){}[0]
 }
+open annotation class kotlinx.serialization.protobuf/ProtoOneOf : kotlin/Annotation { // kotlinx.serialization.protobuf/ProtoOneOf|null[0]
+    constructor <init>() // kotlinx.serialization.protobuf/ProtoOneOf.<init>|<init>(){}[0]
+}
 open annotation class kotlinx.serialization.protobuf/ProtoPacked : kotlin/Annotation { // kotlinx.serialization.protobuf/ProtoPacked|null[0]
     constructor <init>() // kotlinx.serialization.protobuf/ProtoPacked.<init>|<init>(){}[0]
 }

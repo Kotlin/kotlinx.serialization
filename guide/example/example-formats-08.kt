@@ -17,7 +17,7 @@ data class Data(
 // Message holder for home_phone
 @Serializable @JvmInline value class HomePhone(@ProtoNumber(2) val number: String): IPhoneType
 
-// Message holder for work_phone
+// Message holder for work_phone. Can also be a value class, but we leave it as `data` to demonstrate that both variants can be used.
 @Serializable data class WorkPhone(@ProtoNumber(3) val number: String): IPhoneType
 
 fun main() {
