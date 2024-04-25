@@ -271,6 +271,14 @@ internal open class ProtobufDecoder(
                 reader.skipElement()
             } else {
                 if (descriptor.extractParameters(index).isOneOf) {
+                    /**
+                     * While decoding message with one-of field,
+                     * the proto id read from wire data cannot be easily found
+                     * in the properties of this type,
+                     * So the index of this one-of property and the id read from the wire
+                     * are saved in this map, then restored in [beginStructure]
+                     * and passed to [OneOfPolymorphicReader] to get the actual deserializer.
+                     */
                     index2IdMap?.put(index, protoId)
                 }
                 elementMarker.mark(index)

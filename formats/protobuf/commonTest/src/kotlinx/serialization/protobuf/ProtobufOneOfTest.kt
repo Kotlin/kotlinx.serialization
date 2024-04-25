@@ -656,4 +656,27 @@ class ProtobufOneOfTest {
             assertEquals(defaultLong, it)
         }
     }
+
+    // @ProtoNumber(777) here should be ignored
+    @Serializable
+    data class Dummy(@ProtoNumber(777) @ProtoOneOf val i: DummyInterface)
+    @Serializable
+    sealed interface DummyInterface
+    @Serializable data class DummyInt(@ProtoNumber(1) val i: Int): DummyInterface
+    @Test
+    fun testDummyAnnotation() {
+        val data = Dummy(DummyInt(42))
+        ProtoBuf.encodeToHexString(data).also {
+            /**
+             * 1:VARINT 42
+             */
+            assertEquals("082a", it)
+        }
+        /**
+         * 1:VARINT 42
+         */
+        ProtoBuf.decodeFromHexString<Dummy>("082a").also {
+            assertEquals(data, it)
+        }
+    }
 }

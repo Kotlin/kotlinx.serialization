@@ -77,8 +77,10 @@ internal fun SerialDescriptor.extractParameters(index: Int): ProtoDesc {
         }
     }
     if (isOneOf) {
-        // reset proto to index-based for decoding,
-        // proto id annotated in oneOf field has no meaning
+        // reset protoId to index-based for oneOf field,
+        // in case of any property having both @ProtoNumber and @ProtoOneOf
+        // Decoder will restore the real proto id then from [ProtobufDecoder.index2IdMap]
+        // See [kotlinx.serialization.protobuf.internal.ProtobufDecoder.decodeElementIndex] for detail
         protoId = index + 1
     }
     return ProtoDesc(protoId, format, protoPacked, isOneOf)
@@ -90,15 +92,17 @@ internal fun SerialDescriptor.extractParameters(index: Int): ProtoDesc {
  */
 internal fun extractProtoId(descriptor: SerialDescriptor, index: Int, zeroBasedDefault: Boolean): Int {
     val annotations = descriptor.getElementAnnotations(index)
+    var result = if (zeroBasedDefault) index else index + 1
     for (i in annotations.indices) { // Allocation-friendly loop
         val annotation = annotations[i]
         if (annotation is ProtoOneOf) {
+            // Fast return for one of field
             return ID_HOLDER_ONE_OF
         } else if (annotation is ProtoNumber) {
-            return annotation.number
+            result = annotation.number
         }
     }
-    return if (zeroBasedDefault) index else index + 1
+    return result
 }
 
 internal class ProtobufDecodingException(message: String) : SerializationException(message)
