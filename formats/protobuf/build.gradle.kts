@@ -1,8 +1,9 @@
-import Java9Modularity.configureJava9ModuleInfo
-
 /*
- * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
+import Java9Modularity.configureJava9ModuleInfo
+import com.google.protobuf.gradle.*
+import org.gradle.kotlin.dsl.protobuf
 
 plugins {
     java // Needed for protobuf plugin only
@@ -16,14 +17,14 @@ plugins {
 }
 
 protobuf {
-    protoc {
+    protobuf.protoc {
         // Download from repositories
         artifact = libs.protoc.get().toString()
     }
 }
 
 tasks.clean {
-    delete(protobuf.generatedFilesBaseDir)
+    delete(protobuf.protobuf.generatedFilesBaseDir)
 }
 
 kotlin {
@@ -39,7 +40,7 @@ kotlin {
         }
 
         jvmTest {
-            kotlin.srcDirs(file("${protobuf.generatedFilesBaseDir}/test/java"))
+            kotlin.srcDirs(file("${protobuf.protobuf.generatedFilesBaseDir}/test/java"))
 
             dependencies {
                 implementation(libs.protobuf.java)
@@ -55,7 +56,7 @@ sourceSets.test {
     }
 }
 
-tasks.named("compileTestKotlinJvm") {
+tasks.compileTestKotlinJvm {
     dependsOn("generateTestProto")
 }
 
