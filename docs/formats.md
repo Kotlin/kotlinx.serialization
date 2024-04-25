@@ -18,6 +18,9 @@ stable, these are currently experimental features of Kotlin Serialization.
   * [Integer types](#integer-types)
   * [Lists as repeated fields](#lists-as-repeated-fields)
   * [Packed fields](#packed-fields)
+  * [Oneof field (experimental)](#oneof-field-experimental)
+    * [Usage](#usage)
+    * [Alternative](#alternative)
   * [ProtoBuf schema generator (experimental)](#protobuf-schema-generator-experimental)
 * [Properties (experimental)](#properties-experimental)
 * [Custom formats (experimental)](#custom-formats-experimental)
@@ -435,6 +438,106 @@ Per the standard packed fields can only be used on primitive numeric types. The 
 Per the [format description](https://developers.google.com/protocol-buffers/docs/encoding#packed) the parser ignores
 the annotation, but rather reads list in either packed or repeated format.
 
+### Oneof field (experimental)
+
+Kotlin Serialization `ProtoBuf` format supports [oneof](https://protobuf.dev/programming-guides/proto2/#oneof) fields
+basing on the [Polymorphism](polymorphism.md) functionality.
+
+#### Usage
+
+Given a protobuf message defined like:
+
+```proto
+message Data {
+    required string name = 1;
+    oneof phone {
+        string home_phone = 2;
+        string work_phone = 3;
+    }
+}
+```
+
+You can define a kotlin class semantically equal to this message by following these steps:
+
+* Declare a sealed interface or abstract class, to represent of the `oneof` group, called *the oneof interface*. In our example, oneof interface is `IPhoneType`.
+* Declare a Kotlin class as usual to represent the whole message (`class Data` in our example). In this class, add the property with oneof interface type, annotated with `@ProtoOneOf`. Do not use `@ProtoNumber` for that property.
+* Declare subclasses for oneof interface, one per each oneof group element. Each class must have **exactly one property** with the corresponding oneof element type. In our example, these classes are `HomePhone` and `WorkPhone`.
+* Annotate properties in subclasses with `@ProtoNumber`, according to original `oneof` definition. In our example, `val number: String` in `HomePhone` has `@ProtoNumber(2)` annotation, because of field `string home_phone = 2;` in `oneof phone`.
+
+<!--- INCLUDE
+import kotlinx.serialization.*
+import kotlinx.serialization.protobuf.*
+-->
+
+```kotlin
+// The outer class
+@Serializable
+data class Data(
+    @ProtoNumber(1) val name: String,
+    @ProtoOneOf val phone: IPhoneType?,
+)
+
+// The oneof interface
+@Serializable sealed interface IPhoneType
+
+// Message holder for home_phone
+@Serializable @JvmInline value class HomePhone(@ProtoNumber(2) val number: String): IPhoneType
+
+// Message holder for work_phone. Can also be a value class, but we leave it as `data` to demonstrate that both variants can be used.
+@Serializable data class WorkPhone(@ProtoNumber(3) val number: String): IPhoneType
+
+fun main() {
+  val dataTom = Data("Tom", HomePhone("123"))
+  val stringTom = ProtoBuf.encodeToHexString(dataTom)
+  val dataJerry = Data("Jerry", WorkPhone("789"))
+  val stringJerry = ProtoBuf.encodeToHexString(dataJerry)
+  println(stringTom)
+  println(stringJerry)
+  println(ProtoBuf.decodeFromHexString<Data>(stringTom))
+  println(ProtoBuf.decodeFromHexString<Data>(stringJerry))
+}
+```
+
+> You can get the full code [here](../guide/example/example-formats-08.kt).
+
+```text
+0a03546f6d1203313233
+0a054a657272791a03373839
+Data(name=Tom, phone=HomePhone(number=123))
+Data(name=Jerry, phone=WorkPhone(number=789))
+```
+
+<!--- TEST -->
+
+In [ProtoBuf diagnostic mode](https://protogen.marcgravell.com/decode) the first 2 lines in the output are equivalent to
+
+```
+Field #1: 0A String Length = 3, Hex = 03, UTF8 = "Tom" Field #2: 12 String Length = 3, Hex = 03, UTF8 = "123"
+Field #1: 0A String Length = 5, Hex = 05, UTF8 = "Jerry" Field #3: 1A String Length = 3, Hex = 03, UTF8 = "789"
+```
+
+You should note that each group of `oneof` types should be tied to exactly one data class, and it is better not to reuse it in
+another data class. Otherwise, you may get id conflicts or `IllegalArgumentException` in runtime.
+
+#### Alternative
+
+You don't always need to apply the `@ProtoOneOf` form in your class for messages with `oneof` fields, if this class is only used for deserialization.
+
+For example, the following class:
+
+```
+@Serializable  
+data class Data2(  
+    @ProtoNumber(1) val name: String,  
+    @ProtoNumber(2) val homeNumber: String? = null,  
+    @ProtoNumber(3) val workNumber: String? = null,  
+)  
+```
+
+is also compatible with the `message Data` given above, which means the same input can be deserialized into it instead of `Data` — in case you don't want to deal with sealed hierarchies.
+
+But please note that there are no exclusivity checks. This means that if an instance of `Data2` has both (or none) `homeNumber` and `workNumber` as non-null values and is serialized to protobuf, it no longer complies with the original schema. If you send such data to another parser, one of the fields may be omitted, leading to an unknown issue.
+
 ### ProtoBuf schema generator (experimental)
 
 As mentioned above, when working with protocol buffers you usually use a ".proto" file and a code generator for your
@@ -467,7 +570,7 @@ fun main() {
   println(schemas)
 }
 ```
-> You can get the full code [here](../guide/example/example-formats-08.kt).
+> You can get the full code [here](../guide/example/example-formats-09.kt).
 
 Which would output as follows.
 
@@ -475,7 +578,7 @@ Which would output as follows.
 syntax = "proto2";
 
 
-// serial name 'example.exampleFormats08.SampleData'
+// serial name 'example.exampleFormats09.SampleData'
 message SampleData {
   required int64 amount = 1;
   optional string description = 2;
@@ -519,7 +622,7 @@ fun main() {
 }
 ```      
 
-> You can get the full code [here](../guide/example/example-formats-09.kt).
+> You can get the full code [here](../guide/example/example-formats-10.kt).
 
 The resulting map has dot-separated keys representing keys of the nested objects.
 
@@ -599,7 +702,7 @@ fun main() {
 }
 ```                                    
 
-> You can get the full code [here](../guide/example/example-formats-10.kt).
+> You can get the full code [here](../guide/example/example-formats-11.kt).
 
 As a result, we got all the primitive values in our object graph visited and put into a list
 in _serial_ order.
@@ -701,7 +804,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-formats-11.kt).
+> You can get the full code [here](../guide/example/example-formats-12.kt).
 
 Now we can convert a list of primitives back to an object tree.
 
@@ -792,7 +895,7 @@ fun main() {
 }
 -->
 
-> You can get the full code [here](../guide/example/example-formats-12.kt).
+> You can get the full code [here](../guide/example/example-formats-13.kt).
 
 <!--- TEST 
 [kotlinx.serialization, kotlin, 9000]
@@ -899,7 +1002,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-formats-13.kt).
+> You can get the full code [here](../guide/example/example-formats-14.kt).
 
 We see the size of the list added to the result, letting the decoder know where to stop. 
 
@@ -1011,7 +1114,7 @@ fun main() {
 
 ```
 
-> You can get the full code [here](../guide/example/example-formats-14.kt).
+> You can get the full code [here](../guide/example/example-formats-15.kt).
 
 In the output we see how not-null`!!` and `NULL` marks are used.
 
@@ -1139,7 +1242,7 @@ fun main() {
 }
 ```
               
-> You can get the full code [here](../guide/example/example-formats-15.kt).
+> You can get the full code [here](../guide/example/example-formats-16.kt).
 
 As we can see, the result is a dense binary format that only contains the data that is being serialized. 
 It can be easily tweaked for any kind of domain-specific compact encoding.
@@ -1333,7 +1436,7 @@ fun main() {
 }
 ```
               
-> You can get the full code [here](../guide/example/example-formats-16.kt).
+> You can get the full code [here](../guide/example/example-formats-17.kt).
 
 As we can see, our custom byte array format is being used, with the compact encoding of its size in one byte. 
 

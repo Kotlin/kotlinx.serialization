@@ -28,6 +28,9 @@ internal open class ProtobufDecoder(
     private var indexCache: IntArray? = null
     private var sparseIndexCache: MutableMap<Int, Int>? = null
 
+    // Index -> proto id for oneof element. An oneof element of certain index may refer to different proto id in runtime.
+    private var index2IdMap: MutableMap<Int, Int>? = null
+
     private var nullValue: Boolean = false
     private val elementMarker = ElementMarker(descriptor, ::readIfAbsent)
 
@@ -46,7 +49,10 @@ internal open class ProtobufDecoder(
             val cache = IntArray(elements + 1)
             for (i in 0 until elements) {
                 val protoId = extractProtoId(descriptor, i, false)
-                if (protoId <= elements) {
+                // If any element is marked as ProtoOneOf,
+                // the fast path is not applicable
+                // because it will contain more id than elements
+                if (protoId <= elements && protoId != ID_HOLDER_ONE_OF) {
                     cache[protoId] = i
                 } else {
                     return populateCacheMap(descriptor, elements)
@@ -59,22 +65,39 @@ internal open class ProtobufDecoder(
     }
 
     private fun populateCacheMap(descriptor: SerialDescriptor, elements: Int) {
-        val map = HashMap<Int, Int>(elements)
+        val map = HashMap<Int, Int>(elements, 1f)
+        var oneOfCount = 0
         for (i in 0 until elements) {
-            map[extractProtoId(descriptor, i, false)] = i
+            val id = extractProtoId(descriptor, i, false)
+            if (id == ID_HOLDER_ONE_OF) {
+                descriptor.getElementDescriptor(i)
+                    .getAllOneOfSerializerOfField(serializersModule)
+                    .map { it.extractParameters(0).protoId }
+                    .forEach { map.putProtoId(it, i) }
+                oneOfCount ++
+            } else {
+                map.putProtoId(extractProtoId(descriptor, i, false),  i)
+            }
+        }
+        if (oneOfCount > 0) {
+            index2IdMap = HashMap(oneOfCount, 1f)
         }
         sparseIndexCache = map
     }
 
-    private fun getIndexByTag(protoTag: Int): Int {
-        val array = indexCache
-        if (array != null) {
-            return array.getOrElse(protoTag) { -1 }
-        }
-        return getIndexByTagSlowPath(protoTag)
+    private fun MutableMap<Int, Int>.putProtoId(protoId: Int, index: Int) {
+        put(protoId, index)
     }
 
-    private fun getIndexByTagSlowPath(
+    private fun getIndexByNum(protoNum: Int): Int {
+        val array = indexCache
+        if (array != null) {
+            return array.getOrElse(protoNum) { -1 }
+        }
+        return getIndexByNumSlowPath(protoNum)
+    }
+
+    private fun getIndexByNumSlowPath(
         protoTag: Int
     ): Int = sparseIndexCache!!.getOrElse(protoTag) { -1 }
 
@@ -121,6 +144,15 @@ internal open class ProtobufDecoder(
                 val tag = currentTagOrDefault
                 // Do not create redundant copy
                 if (tag == MISSING_TAG && this.descriptor == descriptor) return this
+                if (tag.isOneOf) {
+                    // If a tag is annotated as oneof
+                    // [tag.protoId] here is overwritten with index-based default id in
+                    // [kotlinx.serialization.protobuf.internal.HelpersKt.extractParameters]
+                    // and restored the real id from index2IdMap, set by [decodeElementIndex]
+                    val rawIndex = tag.protoId - 1
+                    val restoredTag = index2IdMap?.get(rawIndex)?.let { tag.overrideId(it) } ?: tag
+                    return OneOfPolymorphicReader(proto, reader, restoredTag, descriptor)
+                }
                 return ProtobufDecoder(proto, makeDelimited(reader, tag), descriptor)
             }
             StructureKind.MAP -> MapEntryReader(proto, makeDelimitedForced(reader, currentTagOrDefault), currentTagOrDefault, descriptor)
@@ -225,10 +257,21 @@ internal open class ProtobufDecoder(
             if (protoId == -1) { // EOF
                 return elementMarker.nextUnmarkedIndex()
             }
-            val index = getIndexByTag(protoId)
+            val index = getIndexByNum(protoId)
             if (index == -1) { // not found
                 reader.skipElement()
             } else {
+                if (descriptor.extractParameters(index).isOneOf) {
+                    /**
+                     * While decoding message with one-of field,
+                     * the proto id read from wire data cannot be easily found
+                     * in the properties of this type,
+                     * So the index of this one-of property and the id read from the wire
+                     * are saved in this map, then restored in [beginStructure]
+                     * and passed to [OneOfPolymorphicReader] to get the actual deserializer.
+                     */
+                    index2IdMap?.put(index, protoId)
+                }
                 elementMarker.mark(index)
                 return index
             }
@@ -329,6 +372,97 @@ private class MapEntryReader(
     override fun SerialDescriptor.getTag(index: Int): ProtoDesc =
         if (index % 2 == 0) ProtoDesc(1, (parentTag.integerType))
         else ProtoDesc(2, (parentTag.integerType))
+}
+
+private class OneOfPolymorphicReader(
+    proto: ProtoBuf,
+    decoder: ProtobufReader,
+    private val parentTag: ProtoDesc,
+    descriptor: SerialDescriptor
+) : ProtobufDecoder(proto, decoder, descriptor) {
+    private var serialNameDecoded = false
+    private var contentDecoded = false
+    override fun SerialDescriptor.getTag(index: Int): ProtoDesc = if (index == 0) {
+        POLYMORPHIC_NAME_TAG
+    } else {
+        extractParameters(0)
+    }
+
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
+        return if (descriptor == this.descriptor) {
+            this
+        } else {
+            OneOfElementReader(proto, reader, descriptor)
+        }
+    }
+
+    override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+        if (!serialNameDecoded) {
+            serialNameDecoded = true
+            return 0
+        } else if (!contentDecoded) {
+            contentDecoded = true
+            return 1
+        } else {
+            return CompositeDecoder.DECODE_DONE
+        }
+    }
+
+    override fun decodeTaggedString(tag: ProtoDesc): String = if (tag == POLYMORPHIC_NAME_TAG) {
+        // This exception will neven be thrown
+        // Subclass of oneof-field without matching ProtoNum annotated will be skipped in outer [decodeElementIndex]
+        // and raise a [MissingFieldException]
+        descriptor.getActualOneOfSerializer(serializersModule, parentTag.protoId)?.serialName ?: throw SerializationException(
+            "Cannot find a subclass of ${descriptor.serialName} annotated with @ProtoNumber(${parentTag.protoId})."
+        )
+    } else {
+        super.decodeTaggedString(tag)
+    }
+}
+
+private class OneOfElementReader(
+    proto: ProtoBuf,
+    decoder: ProtobufReader,
+    descriptor: SerialDescriptor
+) : ProtobufDecoder(proto, decoder, descriptor) {
+    private val classId: Int
+    init {
+        require(descriptor.elementsCount == 1) {
+            "Implementation of oneOf type ${descriptor.serialName} should contain only 1 element, but get ${descriptor.elementsCount}"
+        }
+        val protoNumber = descriptor.getElementAnnotations(0).filterIsInstance<ProtoNumber>().singleOrNull()
+        require(protoNumber != null) {
+            "Implementation of oneOf type ${descriptor.serialName} should have @ProtoNumber annotation"
+        }
+        classId = protoNumber.number
+    }
+
+    private var contentDecoded: Boolean = false
+
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
+        return when(descriptor.kind) {
+            StructureKind.CLASS, StructureKind.OBJECT, is PolymorphicKind -> {
+                val tag = currentTagOrDefault
+                // Do not create redundant copy
+                if (tag == MISSING_TAG && this.descriptor == descriptor) return this
+                if (tag.isOneOf) throw SerializationException("An oneof element cannot be directly child of another oneof element")
+                ProtobufDecoder(proto, makeDelimited(reader, tag), descriptor)
+            }
+            else -> {
+                throw SerializationException("Type ${descriptor.kind} cannot be directly child of oneof element")
+            }
+        }
+    }
+
+    override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+        return if (contentDecoded) {
+            -1
+        }
+        else {
+            contentDecoded = true
+            0
+        }
+    }
 }
 
 private fun makeDelimited(decoder: ProtobufReader, parentTag: ProtoDesc): ProtobufReader {

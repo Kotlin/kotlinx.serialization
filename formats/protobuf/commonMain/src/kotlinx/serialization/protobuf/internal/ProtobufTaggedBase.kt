@@ -14,6 +14,15 @@ import kotlin.jvm.*
  */
 internal const val MISSING_TAG = 19_500L
 
+/**
+ * Tag indicating that now is handling the first element of polymorphic serializer,
+ * which is the serial name that should match the class name.
+ *
+ * In oneof element, such element should be ignored.
+ */
+internal const val POLYMORPHIC_NAME_TAG: ProtoDesc = 19501
+
+
 internal abstract class ProtobufTaggedBase {
     private var tagsStack = LongArray(8)
     @JvmField

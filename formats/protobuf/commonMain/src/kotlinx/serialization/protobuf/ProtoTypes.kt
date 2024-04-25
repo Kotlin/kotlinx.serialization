@@ -53,3 +53,14 @@ public annotation class ProtoType(public val type: ProtoIntegerType)
 @Target(AnnotationTarget.PROPERTY)
 @ExperimentalSerializationApi
 public annotation class ProtoPacked
+
+/**
+ * Instructs that a particular property should be written as an [oneof](https://protobuf.dev/programming-guides/proto2/#oneof).
+ *
+ * The type of the annotated property should be polymorphic (interface or abstract class).
+ * Inheritors of this type would represent `one of` choices, and each inheritor should have exactly one property, annotated with [ProtoNumber].
+ */
+@SerialInfo
+@Target(AnnotationTarget.PROPERTY)
+@ExperimentalSerializationApi
+public annotation class ProtoOneOf

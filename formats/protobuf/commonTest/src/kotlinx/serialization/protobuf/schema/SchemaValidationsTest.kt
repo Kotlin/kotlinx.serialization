@@ -2,8 +2,8 @@ package kotlinx.serialization.protobuf.schema
 
 import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.*
-import kotlin.test.Test
-import kotlin.test.assertFailsWith
+import kotlin.jvm.*
+import kotlin.test.*
 
 class SchemaValidationsTest {
     @Serializable
@@ -137,5 +137,45 @@ class SchemaValidationsTest {
     fun testFieldNumberDuplicates() {
         assertFailsWith(IllegalArgumentException::class) { ProtoBufSchemaGenerator.generateSchemaText(listOf(FieldNumberDuplicates.serializer().descriptor)) }
         assertFailsWith(IllegalArgumentException::class) { ProtoBufSchemaGenerator.generateSchemaText(listOf(FieldNumberImplicitlyDuplicates.serializer().descriptor)) }
+    }
+
+    @Serializable
+    data class OneOfData(
+        @ProtoNumber(1) val name: String,
+        @ProtoOneOf val i: IType
+    )
+
+    @Serializable
+    sealed interface IType
+
+    @Serializable
+    data class IntType(@ProtoNumber(2) val intValue: Int): IType
+
+    @Serializable
+    @JvmInline
+    value class StringType(@ProtoNumber(3) val strValue: String): IType
+
+    @Serializable
+    data class WrapType(@ProtoNumber(4) val content: InnerType): IType
+
+    @Serializable
+    data class InnerType(val innerContent: String)
+
+    @Test
+    fun testOneOfGenerate() {
+        val descriptors = listOf(OneOfData.serializer().descriptor)
+        ProtoBufSchemaGenerator.generateSchemaText(descriptors).also {
+            println(it)
+            assertContains(it, "oneof i")
+            assertContains(it, "message InnerType")
+            // oneof fields need no required keyword
+            assertFalse(it.contains("required int32"))
+        }
+
+        assertFailsWithMessage<IllegalArgumentException>(
+            message = "Implementation of oneOf type kotlinx.serialization.protobuf.ProtobufOneOfTest.FailType should contain only 1 element, but get 2"
+        ) {
+            ProtoBufSchemaGenerator.generateSchemaText(ProtobufOneOfTest.FailOuter.serializer().descriptor)
+        }
     }
 }

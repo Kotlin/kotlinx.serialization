@@ -3,16 +3,30 @@ package example.exampleFormats08
 
 import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.*
-import kotlinx.serialization.protobuf.schema.ProtoBufSchemaGenerator
 
+// The outer class
 @Serializable
-data class SampleData(
-    val amount: Long,
-    val description: String?,
-    val department: String = "QA"
+data class Data(
+    @ProtoNumber(1) val name: String,
+    @ProtoOneOf val phone: IPhoneType?,
 )
+
+// The oneof interface
+@Serializable sealed interface IPhoneType
+
+// Message holder for home_phone
+@Serializable @JvmInline value class HomePhone(@ProtoNumber(2) val number: String): IPhoneType
+
+// Message holder for work_phone. Can also be a value class, but we leave it as `data` to demonstrate that both variants can be used.
+@Serializable data class WorkPhone(@ProtoNumber(3) val number: String): IPhoneType
+
 fun main() {
-  val descriptors = listOf(SampleData.serializer().descriptor)
-  val schemas = ProtoBufSchemaGenerator.generateSchemaText(descriptors)
-  println(schemas)
+  val dataTom = Data("Tom", HomePhone("123"))
+  val stringTom = ProtoBuf.encodeToHexString(dataTom)
+  val dataJerry = Data("Jerry", WorkPhone("789"))
+  val stringJerry = ProtoBuf.encodeToHexString(dataJerry)
+  println(stringTom)
+  println(stringJerry)
+  println(ProtoBuf.decodeFromHexString<Data>(stringTom))
+  println(ProtoBuf.decodeFromHexString<Data>(stringJerry))
 }
