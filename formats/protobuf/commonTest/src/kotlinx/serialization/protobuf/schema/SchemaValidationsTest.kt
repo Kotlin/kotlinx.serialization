@@ -175,7 +175,7 @@ class SchemaValidationsTest {
         assertFailsWithMessage<IllegalArgumentException>(
             message = "Implementation of oneOf type kotlinx.serialization.protobuf.ProtobufOneOfTest.FailType should contain only 1 element, but get 2"
         ) {
-            ProtoBufSchemaGenerator.generateSchemaText(ProtobufOneOfTest.OneOfDataNullable.serializer().descriptor)
+            ProtoBufSchemaGenerator.generateSchemaText(ProtobufOneOfTest.FailOuter.serializer().descriptor)
         }
     }
 }

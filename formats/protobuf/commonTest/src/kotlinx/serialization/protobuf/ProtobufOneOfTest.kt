@@ -217,18 +217,65 @@ class ProtobufOneOfTest {
     }
 
     @Serializable
-    data class FailType(@ProtoNumber(8) val i: Int, @ProtoNumber(9) val j: Int) : IType
+    data class FailOuter(@ProtoOneOf val i: IFailSuper, @ProtoNumber(3) val name: String)
+
+    @Serializable
+    data class FailOuterHelper(
+        @ProtoNumber(5) val i: Int,
+        @ProtoNumber(6) val j: Int,
+        @ProtoNumber(3) val name: String
+    )
+
+    @Serializable
+    sealed interface IFailSuper
+
+    @Serializable
+    data class FailType(@ProtoNumber(5) val i: Int, @ProtoNumber(6) val j: Int) : IFailSuper
 
     @Test
     fun testOneOfElementCheck() {
-        val data = OneOfData(FailType(1, 2), "foo")
+        val data = FailOuter(FailType(1, 2), "foo")
         assertFailsWithMessage<IllegalArgumentException>(
             message = "Implementation of oneOf type" +
                 " kotlinx.serialization.protobuf.ProtobufOneOfTest.FailType" +
                 " should contain only 1 element, but get 2"
         ) {
-            ProtoBuf.encodeToHexString(OneOfData.serializer(), data)
+            ProtoBuf.encodeToHexString(data)
         }
+
+        /**
+         * 5:VARINT 42
+         * 3:LEN {"foo"}
+         */
+        assertFailsWithMessage<IllegalArgumentException>(
+            message = "Implementation of oneOf type" +
+                " kotlinx.serialization.protobuf.ProtobufOneOfTest.FailType" +
+                " should contain only 1 element, but get 2"
+        ) {
+            ProtoBuf.decodeFromHexString<FailOuter>("282a1a03666f6f")
+        }
+
+        /**
+         * 5:VARINT 1
+         * 6:VARINT 2
+         * 3:LEN {"foo"}
+         */
+        assertFailsWithMessage<IllegalArgumentException>(
+            message = "Implementation of oneOf type" +
+                " kotlinx.serialization.protobuf.ProtobufOneOfTest.FailType" +
+                " should contain only 1 element, but get 2"
+        ) {
+            ProtoBuf.decodeFromHexString<FailOuter>(
+                ProtoBuf.encodeToHexString(
+                    FailOuterHelper(
+                        i = 1,
+                        j = 2,
+                        name = "foo"
+                    )
+                )
+            )
+        }
+
     }
 
     @Serializable
