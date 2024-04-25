@@ -78,7 +78,6 @@ internal fun SerialDescriptor.extractParameters(index: Int): ProtoDesc {
     }
     if (isOneOf) {
         // reset protoId to index-based for oneOf field,
-        // in case of any property having both @ProtoNumber and @ProtoOneOf
         // Decoder will restore the real proto id then from [ProtobufDecoder.index2IdMap]
         // See [kotlinx.serialization.protobuf.internal.ProtobufDecoder.decodeElementIndex] for detail
         protoId = index + 1
