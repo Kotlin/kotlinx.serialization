@@ -92,6 +92,20 @@ publishing {
     tasks.withType<AbstractPublishToMaven>().configureEach {
         dependsOn(tasks.withType<Sign>())
     }
+
+    // NOTE: This is a temporary WA, see KT-61313.
+    tasks.withType<Sign>().configureEach {
+        val publicationName = name.substringAfter("sign").substringBefore("Publication")
+
+        // Task ':linkDebugTest<platform>' uses this output of task ':sign<platform>Publication' without declaring an explicit or implicit dependency
+        tasks.named("linkDebugTest$publicationName") {
+            mustRunAfter(this)
+        }
+        // Task ':compileTestKotlin<platform>' uses this output of task ':sign<platform>Publication' without declaring an explicit or implicit dependency
+        tasks.named("compileTestKotlin$publicationName") {
+            mustRunAfter(this)
+        }
+    }
 }
 
 // Compatibility with old TeamCity configurations that perform :kotlinx-coroutines-core:bintrayUpload
