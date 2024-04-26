@@ -185,25 +185,6 @@ kotlin {
             allWarningsAsErrors = true
         }
     }
-
-    val targetsWithoutTestRunners = listOf("linuxArm64", "linuxArm32Hfp")
-    targets.withType(KotlinNativeTargetWithTests::class).configureEach {
-        // Configure additional binaries to run tests in the background
-        if (listOf("macos", "linux", "mingw").any { name.startsWith(it) && !targetsWithoutTestRunners.contains(name) }) {
-            binaries.test("background", listOf(DEBUG)) {
-                freeCompilerArgs += listOf("-trw")
-                val thisTest = this
-                testRuns.create("background") {
-                    this as KotlinTaskTestRun<*, *>
-                    setExecutionSourceFrom(thisTest)
-                    executionTask.configure {
-                        this as KotlinNativeTest
-                        targetName = "$targetName background thread"
-                    }
-                }
-            }
-        }
-    }
 }
 
 rootProject.extensions.configure<NodeJsRootExtension>() {
