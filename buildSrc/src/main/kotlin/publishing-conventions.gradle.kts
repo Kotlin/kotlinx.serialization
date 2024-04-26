@@ -3,6 +3,7 @@ import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.*
 import org.gradle.plugins.signing.*
 import org.jetbrains.kotlin.gradle.dsl.*
+import org.jetbrains.kotlin.gradle.tasks.*
 import java.net.*
 
 /*
@@ -88,32 +89,31 @@ publishing {
     repositories {
         configureMavenPublication(this, project)
     }
+}
 
-    tasks.withType<AbstractPublishToMaven>().configureEach {
-        dependsOn(tasks.withType<Sign>())
-    }
+tasks.withType<AbstractPublishToMaven>().configureEach {
+    dependsOn(tasks.withType<Sign>())
+}
 
-    // NOTE: This is a temporary WA, see KT-61313.
-    tasks.withType<Sign>().configureEach {
-        val publicationName = name.substringAfter("sign").substringBefore("Publication")
+// NOTE: This is a temporary WA, see KT-61313.
+// Task ':compileTestKotlin<platform>' uses this output of task ':sign<platform>Publication' without declaring an explicit or implicit dependency
+tasks.withType<KotlinNativeCompile>().matching { it.name.startsWith("compileTestKotlin") }.configureEach {
+    val targetName = name.substringAfter("compileTestKotlin")
+    mustRunAfter(tasks.withType<Sign>().named { it == "sign${targetName}Publication" })
+}
 
-        val signTask = this
-        // Task ':linkDebugTest<platform>' uses this output of task ':sign<platform>Publication' without declaring an explicit or implicit dependency
-        tasks.matching { name == "linkDebugTest$publicationName"}.configureEach {
-            mustRunAfter(signTask)
-        }
-        // Task ':compileTestKotlin<platform>' uses this output of task ':sign<platform>Publication' without declaring an explicit or implicit dependency
-        tasks.matching { name == "compileTestKotlin$publicationName"}.configureEach {
-            mustRunAfter(signTask)
-        }
-    }
+// NOTE: This is a temporary WA, see KT-61313.
+// Task ':linkDebugTest<platform>' uses this output of task ':sign<platform>Publication' without declaring an explicit or implicit dependency
+tasks.withType<KotlinNativeLink>() {
+    val targetName = name.substringAfter("linkDebugTest")
+    mustRunAfter(tasks.withType<Sign>().named { it == "sign${targetName}Publication" })
 }
 
 // Compatibility with old TeamCity configurations that perform :kotlinx-coroutines-core:bintrayUpload
 tasks.register("bintrayUpload") {
-    dependsOn("publish")
+    dependsOn(tasks.publish)
     // This is required for K/N publishing
-    dependsOn("publishToMavenLocal")
+    dependsOn(tasks.publishToMavenLocal)
 }
 
 fun MavenPom.configureMavenCentralMetadata(project: Project) {
