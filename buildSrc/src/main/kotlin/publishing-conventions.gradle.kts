@@ -97,13 +97,14 @@ publishing {
     tasks.withType<Sign>().configureEach {
         val publicationName = name.substringAfter("sign").substringBefore("Publication")
 
+        val signTask = this
         // Task ':linkDebugTest<platform>' uses this output of task ':sign<platform>Publication' without declaring an explicit or implicit dependency
-        tasks.named("linkDebugTest$publicationName") {
-            mustRunAfter(this)
+        tasks.matching { name == "linkDebugTest$publicationName"}.configureEach {
+            mustRunAfter(signTask)
         }
         // Task ':compileTestKotlin<platform>' uses this output of task ':sign<platform>Publication' without declaring an explicit or implicit dependency
-        tasks.named("compileTestKotlin$publicationName") {
-            mustRunAfter(this)
+        tasks.matching { name == "compileTestKotlin$publicationName"}.configureEach {
+            mustRunAfter(signTask)
         }
     }
 }
