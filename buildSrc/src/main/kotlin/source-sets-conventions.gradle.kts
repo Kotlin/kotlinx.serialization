@@ -198,7 +198,7 @@ kotlin {
                     setExecutionSourceFrom(thisTest)
                     executionTask.configure {
                         this as KotlinNativeTest
-                        targetName = "$targetName worker with new MM"
+                        targetName = "$targetName background thread"
                     }
                 }
             }
