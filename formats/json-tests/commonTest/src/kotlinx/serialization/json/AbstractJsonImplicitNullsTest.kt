@@ -84,8 +84,13 @@ abstract class AbstractJsonImplicitNullsTest {
     }
 
     @Test
-    fun testDecodeOptional() {
+    fun testOptional() {
+        val encoded = format.encode(WithOptional(null), WithOptional.serializer())
         val json = """{}"""
+        assertEquals(json, encoded)
+        // Same result when `null` is used instead of `1`:
+        val encodedWithNullInsteadOfDefault = format.encode(WithOptional(null, null), WithOptional.serializer())
+        assertEquals(json, encodedWithNullInsteadOfDefault)
 
         val decoded = format.decode(json, WithOptional.serializer())
         assertEquals(WithOptional(null), decoded)

@@ -116,9 +116,9 @@ internal inline fun Json.tryCoerceValue(
     peekString: () -> String?,
     onEnumCoercing: () -> Unit = {}
 ): Boolean {
-    if (!descriptor.isElementOptional(index)) return false
+    val isOptional = descriptor.isElementOptional(index)
     val elementDescriptor = descriptor.getElementDescriptor(index)
-    if (!elementDescriptor.isNullable && peekNull(true)) return true
+    if (isOptional && !elementDescriptor.isNullable && peekNull(true)) return true
     if (elementDescriptor.kind == SerialKind.ENUM) {
         if (elementDescriptor.isNullable && peekNull(false)) {
             return false
@@ -127,7 +127,8 @@ internal inline fun Json.tryCoerceValue(
         val enumValue = peekString()
             ?: return false // if value is not a string, decodeEnum() will throw correct exception
         val enumIndex = elementDescriptor.getJsonNameIndex(this, enumValue)
-        if (enumIndex == CompositeDecoder.UNKNOWN_NAME) {
+        val coerceToNull = !configuration.explicitNulls && elementDescriptor.isNullable
+        if (enumIndex == CompositeDecoder.UNKNOWN_NAME && (isOptional || coerceToNull)) {
             onEnumCoercing()
             return true
         }

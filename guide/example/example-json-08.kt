@@ -4,15 +4,17 @@ package example.exampleJson08
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-val format = Json { allowStructuredMapKeys = true }
+enum class Color { BLACK, WHITE }
 
 @Serializable
-data class Project(val name: String)
+data class Brush(val foreground: Color = Color.BLACK, val background: Color?)
+
+val json = Json { 
+  coerceInputValues = true
+  explicitNulls = false
+}
 
 fun main() {
-    val map = mapOf(
-        Project("kotlinx.serialization") to "Serialization",
-        Project("kotlinx.coroutines") to "Coroutines"
-    )
-    println(format.encodeToString(map))
+    val brush = json.decodeFromString<Brush>("""{"foreground":"pink", "background":"purple"}""")
+  println(brush)
 }

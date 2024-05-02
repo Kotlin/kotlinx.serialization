@@ -17,14 +17,16 @@ data class Project(
 data class User(val name: String)
 
 object UserListSerializer : JsonTransformingSerializer<List<User>>(ListSerializer(User.serializer())) {
-
-    override fun transformSerialize(element: JsonElement): JsonElement {
-        require(element is JsonArray) // this serializer is used only with lists
-        return element.singleOrNull() ?: element
-    }
+    // If response is not an array, then it is a single object that should be wrapped into the array
+    override fun transformDeserialize(element: JsonElement): JsonElement =
+        if (element !is JsonArray) JsonArray(listOf(element)) else element
 }
 
 fun main() {
-    val data = Project("kotlinx.serialization", listOf(User("kotlin")))
-    println(Json.encodeToString(data))
+    println(Json.decodeFromString<Project>("""
+        {"name":"kotlinx.serialization","users":{"name":"kotlin"}}
+    """))
+    println(Json.decodeFromString<Project>("""
+        {"name":"kotlinx.serialization","users":[{"name":"kotlin"},{"name":"jetbrains"}]}
+    """))
 }
