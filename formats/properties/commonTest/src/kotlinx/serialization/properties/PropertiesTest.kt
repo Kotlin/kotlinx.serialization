@@ -7,6 +7,7 @@ package kotlinx.serialization.properties
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.modules.*
 import kotlin.test.*
 
 class PropertiesTest {
@@ -105,6 +106,12 @@ class PropertiesTest {
     @Test
     fun testUnitIsEmptyMap() {
         assertEquals(emptyMap(), Properties.encodeToMap(Unit.serializer(), Unit))
+    }
+
+    @Test
+    fun testUnitIsEmptyMapModule() {
+        val module = SerializersModule {}
+        assertEquals(emptyMap(), Properties(module).encodeToMap(Unit.serializer(), Unit))
     }
 
     @Test
