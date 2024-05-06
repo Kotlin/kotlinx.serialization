@@ -23,10 +23,6 @@ val isMultiplatform = name in listOf("kotlinx-serialization-core", "kotlinx-seri
 val isBom = name == "kotlinx-serialization-bom"
 
 if (!isBom) {
-    tasks.register<Jar>("stubSources") {
-        archiveClassifier = "sources"
-    }
-
     tasks.register<Jar>("stubJavadoc") {
         archiveClassifier = "javadoc"
     }
@@ -147,16 +143,7 @@ fun MavenPom.configureMavenCentralMetadata(project: Project) {
 
 /**
  * Re-configure common publication to depend on JVM artifact only in pom.xml.
- * It allows us to keep backwards compatibility with pre-multiplatform 'kotlinx-coroutines' publication scheme
- * for Maven consumers:
- * - Previously, we published 'kotlinx-coroutines-core' as the JVM artifact
- * - With a multiplatform enabled as is, 'kotlinx-coroutines-core' is a common artifact not consumable from Maven,
- *   instead, users should depend on 'kotlinx-coroutines-core-jvm'
- * - To keep the compatibility and experience, we do add dependency on 'kotlinx-coroutines-core-jvm' for
- *   'kotlinx-coroutines-core' in pom.xml only (e.g. Gradle will keep using the metadata), so Maven users can
- *   depend on previous coordinates.
  *
- * Original code comment:
  *  Publish the platform JAR and POM so that consumers who depend on this module and can't read Gradle module
  *  metadata can still get the platform artifact and transitive dependencies from the POM.
  *

@@ -12,39 +12,41 @@ kotlin {
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     applyDefaultHierarchyTemplate {
 
-        // According to https://kotlinlang.org/docs/native-target-support.html
-        // Tier 1
-        this@kotlin.macosX64()
-        this@kotlin.macosArm64()
-        this@kotlin.iosSimulatorArm64()
-        this@kotlin.iosX64()
-
-        // Tier 2
-        this@kotlin.linuxX64()
-        this@kotlin.linuxArm64()
-        this@kotlin.watchosSimulatorArm64()
-        this@kotlin.watchosX64()
-        this@kotlin.watchosArm32()
-        this@kotlin.watchosArm64()
-        this@kotlin.tvosSimulatorArm64()
-        this@kotlin.tvosX64()
-        this@kotlin.tvosArm64()
-        this@kotlin.iosArm64()
-
-        // Tier 3
-        this@kotlin.mingwX64()
-        // https://github.com/square/okio/issues/1242#issuecomment-1759357336
-        if (doesNotDependOnOkio(project)) {
-            this@kotlin.androidNativeArm32()
-            this@kotlin.androidNativeArm64()
-            this@kotlin.androidNativeX86()
-            this@kotlin.androidNativeX64()
-            this@kotlin.watchosDeviceArm64()
-
-            // Deprecated, but not removed
-            this@kotlin.linuxArm32Hfp()
-        }
     }
+
+    // According to https://kotlinlang.org/docs/native-target-support.html
+    // Tier 1
+    macosX64()
+    macosArm64()
+    iosSimulatorArm64()
+    iosX64()
+
+    // Tier 2
+    linuxX64()
+    linuxArm64()
+    watchosSimulatorArm64()
+    watchosX64()
+    watchosArm32()
+    watchosArm64()
+    tvosSimulatorArm64()
+    tvosX64()
+    tvosArm64()
+    iosArm64()
+
+    // Tier 3
+    mingwX64()
+    // https://github.com/square/okio/issues/1242#issuecomment-1759357336
+    if (doesNotDependOnOkio(project)) {
+        androidNativeArm32()
+        androidNativeArm64()
+        androidNativeX86()
+        androidNativeX64()
+        watchosDeviceArm64()
+
+        // Deprecated, but not removed
+        linuxArm32Hfp()
+    }
+
 }
 
 fun doesNotDependOnOkio(project: Project): Boolean {

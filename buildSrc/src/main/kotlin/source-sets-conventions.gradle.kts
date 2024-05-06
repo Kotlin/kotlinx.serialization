@@ -31,6 +31,8 @@ tasks.withType<JavaCompile>().configureEach {
 val isOkIoOrFormatTests = (name == "kotlinx-serialization-json-okio" || name == "kotlinx-serialization-json-tests")
 
 kotlin {
+    explicitApi()
+
     jvm {
         withJava()
         compilations.configureEach {
@@ -153,10 +155,6 @@ kotlin {
                 }
             }
         }
-
-//        TODO is it needed?
-//        nativeMain.dependencies {
-//        }
     }
 
     sourceSets.matching({ it.name.contains("Test") }).configureEach {
@@ -164,11 +162,6 @@ kotlin {
             optIn("kotlinx.serialization.InternalSerializationApi")
             optIn("kotlinx.serialization.ExperimentalSerializationApi")
         }
-    }
-
-    sourceSets.matching({ it.name.contains("Main") }).configureEach {
-        // TODO is it used?
-        extra["kotlin.mpp.freeCompilerArgsForSourceSet.${name}"] = listOf("-Xexplicit-api=strict")
     }
 
     targets.all {

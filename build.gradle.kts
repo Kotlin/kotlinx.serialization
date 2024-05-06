@@ -56,10 +56,6 @@ allprojects {
     repositories {
         mavenCentral()
     }
-
-    // TODO is it used?
-    // the only place where HostManager could be instantiated
-    project.extra["hostManager"] = org.jetbrains.kotlin.konan.target.HostManager()
 }
 
 // == BCV setup ==
@@ -164,10 +160,19 @@ tasks.withType<org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstall
 gradle.taskGraph.whenReady {
     println("Using Kotlin compiler version: ${org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION}")
     if (propertyIsTrue("build_snapshot_train")) {
-        subprojects {
-            if (name != "core") return@subprojects
+        project(":kotlinx-serialization-core") {
+            configurations.matching { it.name == "kotlinCompilerClasspath" }.configureEach {
+                println("Manifest of kotlin-compiler-embeddable.jar for serialization")
+                resolvedConfiguration.files.filter { it.name.contains("kotlin-compiler-embeddable") }.forEach { file ->
+                    val manifest = zipTree(file).matching {
+                        include("META-INF/MANIFEST.MF")
+                    }.files.first()
 
-            apply(plugin = "compiler-version-conventions")
+                    manifest.readLines().forEach { line ->
+                        println(line)
+                    }
+                }
+            }
         }
     }
 }

@@ -68,12 +68,6 @@ tasks.withType<DokkaTaskPartial>().named("dokkaHtmlPartial") {
                 skipDeprecated.set(true)
             }
 
-            // JS/Native implementation of JVM-only `org.intellij.lang.annotations.Language` class to add syntax support by IDE.
-            perPackageOption {
-                matchingRegex.set("org\\.intellij\\.lang\\.annotations(\$|\\.).*")
-                suppress.set(true)
-            }
-
             sourceLink {
                 localDirectory.set(rootDir)
 
