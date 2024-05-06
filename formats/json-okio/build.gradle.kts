@@ -7,11 +7,12 @@ import java.net.*
 
 plugins {
     kotlin("multiplatform")
-    kotlin("plugin.serialization")
+    alias(libs.plugins.serialization)
+
+    id("native-targets-conventions")
+    id("source-sets-conventions")
 }
 
-apply(from = rootProject.file("gradle/native-targets.gradle"))
-apply(from = rootProject.file("gradle/configure-source-sets.gradle"))
 
 kotlin {
     sourceSets {
@@ -25,12 +26,12 @@ kotlin {
             dependencies {
                 api(project(":kotlinx-serialization-core"))
                 api(project(":kotlinx-serialization-json"))
-                implementation("com.squareup.okio:okio:${property("okio_version")}")
+                implementation(libs.okio)
             }
         }
         val commonTest by getting {
             dependencies {
-                implementation("com.squareup.okio:okio:${property("okio_version")}")
+                implementation(libs.okio)
             }
         }
     }

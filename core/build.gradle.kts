@@ -1,23 +1,26 @@
-import org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile
+import Java9Modularity.configureJava9ModuleInfo
+import org.jetbrains.kotlin.gradle.targets.js.ir.*
 
 /*
  * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-apply plugin: 'kotlin-multiplatform'
-apply plugin: 'kotlinx-serialization'
+plugins {
+    kotlin("multiplatform")
+    alias(libs.plugins.serialization)
 
-apply from: rootProject.file("gradle/native-targets.gradle")
-apply from: rootProject.file("gradle/configure-source-sets.gradle")
+    id("native-targets-conventions")
+    id("source-sets-conventions")
+}
 
 kotlin {
     sourceSets {
         jvmTest {
             dependencies {
-                implementation 'io.kotlintest:kotlintest:2.0.7'
-                implementation 'com.google.guava:guava:24.1.1-jre'
-                implementation 'com.google.code.gson:gson:2.8.5'
-                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
+                implementation(libs.kotlintest)
+                implementation(libs.guava.get24())
+                implementation(libs.gson)
+                implementation(libs.coroutines.core)
             }
         }
     }
@@ -36,22 +39,22 @@ kotlin {
  may unexpectedly break old compilers, so it is left out as a safety net. Compiler plugins, starting from 1.4 are instructed
  to reject runtime if runtime's Require-Kotlin-Version is greater then the current compiler.
  */
-tasks.withType(Jar).named(kotlin.jvm().artifactsTaskName) {
+tasks.withType<Jar>().named(kotlin.jvm().artifactsTaskName) {
 
     // adding the ProGuard rules to the jar
-    from(rootProject.file("rules/common.pro")) {
+    from(rootDir.resolve("rules/common.pro")) {
         rename { "kotlinx-serialization-common.pro" }
         into("META-INF/proguard")
     }
-    from(rootProject.file("rules/common.pro")) {
+    from(rootDir.resolve("rules/common.pro")) {
         rename { "kotlinx-serialization-common.pro" }
         into("META-INF/com.android.tools/proguard")
     }
-    from(rootProject.file("rules/common.pro")) {
+    from(rootDir.resolve("rules/common.pro")) {
         rename { "kotlinx-serialization-common.pro" }
         into("META-INF/com.android.tools/r8")
     }
-    from(rootProject.file("rules/r8.pro")) {
+    from(rootDir.resolve("rules/r8.pro")) {
         rename { "kotlinx-serialization-r8.pro" }
         into("META-INF/com.android.tools/r8")
     }
@@ -59,14 +62,14 @@ tasks.withType(Jar).named(kotlin.jvm().artifactsTaskName) {
 
     manifest {
         attributes(
-                "Implementation-Version": version,
-                "Require-Kotlin-Version": "1.4.30-M1",
+                "Implementation-Version" to version,
+                "Require-Kotlin-Version" to "1.4.30-M1",
         )
     }
 }
 
-Java9Modularity.configureJava9ModuleInfo(project)
+configureJava9ModuleInfo()
 
-tasks.withType(org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrLink.class).configureEach {
+tasks.withType<KotlinJsIrLink>().configureEach {
     kotlinOptions.freeCompilerArgs += "-Xwasm-enable-array-range-checks"
 }

@@ -2,43 +2,46 @@
  * Copyright 2017-2022 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-import java.util.*
-import java.io.FileInputStream
-
 plugins {
     `kotlin-dsl`
 }
 
 repositories {
-    mavenCentral()
-    mavenLocal()
-    if (project.hasProperty("kotlin_repo_url")) {
-        maven(project.properties["kotlin_repo_url"] as String)
+    /**
+     * Overrides for Teamcity 'K2 User Projects' + 'Aggregate build / Kotlinx libraries compilation' configuration:
+     * kotlin_repo_url - local repository with snapshot Kotlin compiler
+     * kotlin_version - kotlin version to use
+     * kotlin_language_version - LV to use
+     */
+    val snapshotRepoUrl = findProperty("kotlin_repo_url") as String?
+    if (snapshotRepoUrl?.isNotEmpty() == true) {
+        maven(snapshotRepoUrl)
     }
+    /*
+    * This property group is used to build kotlinx.serialization against Kotlin compiler snapshot.
+    * When build_snapshot_train is set to true, kotlin_version property is overridden with kotlin_snapshot_version.
+    * DO NOT change the name of these properties without adapting kotlinx.train build chain.
+    */
+    if ((findProperty("build_snapshot_train") as? String?).equals("true", true)) {
+        maven("https://oss.sonatype.org/content/repositories/snapshots")
+    }
+
     // kotlin-dev with space redirector
     maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
-}
 
-val kotlinVersion = run {
-    if (project.hasProperty("build_snapshot_train")) {
-        val ver = project.properties["kotlin_snapshot_version"] as? String
-        require(!ver.isNullOrBlank()) {"kotlin_snapshot_version must be present if build_snapshot_train is used" }
-        return@run ver
-    }
-    if (project.hasProperty("kotlin_repo_url")) {
-        val ver = project.properties["kotlin_version"] as? String
-        require(!ver.isNullOrBlank()) {"kotlin_version must be present if kotlin_repo_url is used" }
-        return@run ver
-    }
-    val targetProp = if (project.hasProperty("bootstrap")) "kotlin.version.snapshot" else "kotlin.version"
-    FileInputStream(file("../gradle.properties")).use { propFile ->
-        val ver = project.findProperty("kotlin.version")?.toString() ?: Properties().apply { load(propFile) }[targetProp]
-        require(ver is String) { "$targetProp must be string in ../gradle.properties, got $ver instead" }
-        ver
-    }
+    maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev")
+    // For Dokka that depends on kotlinx-html
+    maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven")
+
+    mavenCentral()
+    mavenLocal()
 }
 
 dependencies {
-    implementation(kotlin("gradle-plugin", kotlinVersion))
+    implementation(libs.gradlePlugin.kotlin)
+    implementation(libs.gradlePlugin.kover)
+    implementation(libs.gradlePlugin.dokka)
+    implementation(libs.gradlePlugin.animalsniffer)
+    implementation(libs.gradlePlugin.binaryCompatibilityValidator)
 }
 
