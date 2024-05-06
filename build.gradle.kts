@@ -159,22 +159,6 @@ tasks.withType<org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstall
 // == compiler version setup ==
 gradle.taskGraph.whenReady {
     println("Using Kotlin compiler version: ${org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION}")
-    if (propertyIsTrue("build_snapshot_train")) {
-        project(":kotlinx-serialization-core") {
-            configurations.matching { it.name == "kotlinCompilerClasspath" }.configureEach {
-                println("Manifest of kotlin-compiler-embeddable.jar for serialization")
-                resolvedConfiguration.files.filter { it.name.contains("kotlin-compiler-embeddable") }.forEach { file ->
-                    val manifest = zipTree(file).matching {
-                        include("META-INF/MANIFEST.MF")
-                    }.files.first()
-
-                    manifest.readLines().forEach { line ->
-                        println(line)
-                    }
-                }
-            }
-        }
-    }
 }
 
 // == projects lists and flags ==
