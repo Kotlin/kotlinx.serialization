@@ -275,7 +275,7 @@ internal inline fun <T : Any> Decoder.decodeIfNullable(deserializer: Deserializa
  * [CompositeDecoder] is a part of decoding process that is bound to a particular structured part of
  * the serialized form, described by the serial descriptor passed to [Decoder.beginStructure].
  *
- * Typically, for unordered data, [CompositeDecoder] is used by a serializer withing a [decodeElementIndex]-based
+ * Typically, for unordered data, [CompositeDecoder] is used by a serializer within a [decodeElementIndex]-based
  * loop that decodes all the required data one-by-one in any order and then terminates by calling [endStructure].
  * Please refer to [decodeElementIndex] for example of such loop.
  *
@@ -558,6 +558,18 @@ public interface CompositeDecoder {
         deserializer: DeserializationStrategy<T?>,
         previousValue: T? = null
     ): T?
+
+    /**
+     * Called after a key has been read.
+     *
+     * This could be a map or set key, or anything otherwise intended to be
+     * distinct within the collection under normal circumstances.
+     *
+     * Implementations might use this as a hook for throwing an exception when
+     * duplicate keys are encountered.
+     */
+    @ExperimentalSerializationApi
+    public fun visitKey(key: Any?) { }
 }
 
 /**

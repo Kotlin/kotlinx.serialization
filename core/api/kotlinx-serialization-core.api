@@ -19,6 +19,10 @@ public abstract interface class kotlinx/serialization/DeserializationStrategy {
 	public abstract fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 }
 
+public final class kotlinx/serialization/DuplicateMapKeyException : kotlinx/serialization/SerializationException {
+	public fun <init> (Ljava/lang/Object;)V
+}
+
 public abstract interface annotation class kotlinx/serialization/EncodeDefault : java/lang/annotation/Annotation {
 	public abstract fun mode ()Lkotlinx/serialization/EncodeDefault$Mode;
 }
@@ -384,6 +388,7 @@ public abstract class kotlinx/serialization/encoding/AbstractDecoder : kotlinx/s
 	public final fun decodeStringElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/String;
 	public fun decodeValue ()Ljava/lang/Object;
 	public fun endStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)V
+	public fun visitKey (Ljava/lang/Object;)V
 }
 
 public abstract class kotlinx/serialization/encoding/AbstractEncoder : kotlinx/serialization/encoding/CompositeEncoder, kotlinx/serialization/encoding/Encoder {
@@ -448,6 +453,7 @@ public abstract interface class kotlinx/serialization/encoding/CompositeDecoder 
 	public abstract fun decodeStringElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/String;
 	public abstract fun endStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)V
 	public abstract fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public abstract fun visitKey (Ljava/lang/Object;)V
 }
 
 public final class kotlinx/serialization/encoding/CompositeDecoder$Companion {
@@ -460,6 +466,7 @@ public final class kotlinx/serialization/encoding/CompositeDecoder$DefaultImpls 
 	public static synthetic fun decodeNullableSerializableElement$default (Lkotlinx/serialization/encoding/CompositeDecoder;Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;ILjava/lang/Object;)Ljava/lang/Object;
 	public static fun decodeSequentially (Lkotlinx/serialization/encoding/CompositeDecoder;)Z
 	public static synthetic fun decodeSerializableElement$default (Lkotlinx/serialization/encoding/CompositeDecoder;Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/DeserializationStrategy;Ljava/lang/Object;ILjava/lang/Object;)Ljava/lang/Object;
+	public static fun visitKey (Lkotlinx/serialization/encoding/CompositeDecoder;Ljava/lang/Object;)V
 }
 
 public abstract interface class kotlinx/serialization/encoding/CompositeEncoder {
@@ -1119,6 +1126,7 @@ public abstract class kotlinx/serialization/internal/TaggedDecoder : kotlinx/ser
 	protected abstract fun getTag (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Ljava/lang/Object;
 	protected final fun popTag ()Ljava/lang/Object;
 	protected final fun pushTag (Ljava/lang/Object;)V
+	public fun visitKey (Ljava/lang/Object;)V
 }
 
 public abstract class kotlinx/serialization/internal/TaggedEncoder : kotlinx/serialization/encoding/CompositeEncoder, kotlinx/serialization/encoding/Encoder {

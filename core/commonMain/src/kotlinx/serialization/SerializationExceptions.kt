@@ -133,3 +133,10 @@ internal constructor(message: String?) : SerializationException(message) {
     // This constructor is used by the generated serializers
     constructor(index: Int) : this("An unknown field for index $index")
 }
+
+/**
+ * Thrown when a map deserializer encounters a repeated map key (and configuration disallows this.)
+ */
+@ExperimentalSerializationApi
+public class DuplicateMapKeyException(key: Any?) :
+    SerializationException("Duplicate keys not allowed in maps. Key appeared twice: $key")

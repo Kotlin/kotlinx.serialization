@@ -7,7 +7,7 @@ public synthetic class kotlinx/serialization/cbor/ByteString$Impl : kotlinx/seri
 
 public abstract class kotlinx/serialization/cbor/Cbor : kotlinx/serialization/BinaryFormat {
 	public static final field Default Lkotlinx/serialization/cbor/Cbor$Default;
-	public synthetic fun <init> (ZZLkotlinx/serialization/modules/SerializersModule;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (ZZZLkotlinx/serialization/modules/SerializersModule;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun decodeFromByteArray (Lkotlinx/serialization/DeserializationStrategy;[B)Ljava/lang/Object;
 	public fun encodeToByteArray (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)[B
 	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
@@ -17,9 +17,11 @@ public final class kotlinx/serialization/cbor/Cbor$Default : kotlinx/serializati
 }
 
 public final class kotlinx/serialization/cbor/CborBuilder {
+	public final fun getAllowDuplicateKeys ()Z
 	public final fun getEncodeDefaults ()Z
 	public final fun getIgnoreUnknownKeys ()Z
 	public final fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public final fun setAllowDuplicateKeys (Z)V
 	public final fun setEncodeDefaults (Z)V
 	public final fun setIgnoreUnknownKeys (Z)V
 	public final fun setSerializersModule (Lkotlinx/serialization/modules/SerializersModule;)V
