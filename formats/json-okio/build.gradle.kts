@@ -51,13 +51,3 @@ tasks.named<DokkaTaskPartial>("dokkaHtmlPartial") {
         }
     }
 }
-
-
-// TODO: Remove this after okio will be updated to the version with 1.9.20 stdlib dependency
-configurations.all {
-    resolutionStrategy.eachDependency {
-        if (requested.name == "kotlin-stdlib-wasm") {
-            useTarget("org.jetbrains.kotlin:kotlin-stdlib-wasm-js:${requested.version}")
-        }
-    }
-}
