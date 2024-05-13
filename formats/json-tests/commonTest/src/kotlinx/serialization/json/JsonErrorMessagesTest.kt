@@ -76,7 +76,7 @@ class JsonErrorMessagesTest : JsonTestBase() {
             if (mode == JsonTestingMode.TREE)
                 assertContains(message, "Expected JsonPrimitive, but had JsonObject as the serialized body of string at element: \$.boxed")
             else
-                assertContains(message, "Expected beginning of the string, but got { at path: \$.boxed")
+                assertContains(message, "Unexpected JSON token at offset 10: Expected beginning of the string, but got { at path: \$.boxed")
         })
     }
 
