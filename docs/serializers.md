@@ -862,6 +862,7 @@ every time, especially for classes like `Date` or `Instant` that have a fixed st
 For such cases, it is possible to specify serializers using `typealias`es, as they preserve annotations, including serialization-related ones:
 <!--- INCLUDE
 import java.util.Date
+import java.util.TimeZone
 import java.text.SimpleDateFormat
   
 object DateAsLongSerializer : KSerializer<Date> {
@@ -872,7 +873,11 @@ object DateAsLongSerializer : KSerializer<Date> {
 
 object DateAsSimpleTextSerializer: KSerializer<Date> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("DateAsSimpleText", PrimitiveKind.LONG)
-    private val format = SimpleDateFormat("yyyy-MM-dd")
+    private val format = SimpleDateFormat("yyyy-MM-dd").apply {
+        // Here we explicitly set time zone to UTC so output for this sample remains locale-independent.
+        // Depending on your needs, you may have to adjust or remove this line.
+        setTimeZone(TimeZone.getTimeZone("UTC"))
+    }
     override fun serialize(encoder: Encoder, value: Date) = encoder.encodeString(format.format(value))
     override fun deserialize(decoder: Decoder): Date = format.parse(decoder.decodeString())
 }
