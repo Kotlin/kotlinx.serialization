@@ -336,6 +336,6 @@ public abstract class NamedValueDecoder : TaggedDecoder<String>() {
 
     protected fun renderTagStack(): String {
         return if (tagStack.isEmpty()) "$"
-        else tagStack.joinToString(separator = ".", prefix = "$.") { it }
+        else tagStack.joinToString(separator = ".", prefix = "$.")
     }
 }

@@ -68,7 +68,7 @@ private open class DynamicInput(
     }
 
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
-        return decodeSerializableValuePolymorphic(deserializer) { renderTagStack() }
+        return decodeSerializableValuePolymorphic(deserializer, ::renderTagStack)
     }
 
     private fun coerceInputValue(descriptor: SerialDescriptor, index: Int, tag: String): Boolean =
