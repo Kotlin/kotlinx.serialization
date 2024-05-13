@@ -47,7 +47,7 @@ class JsonTreeTest : JsonTestBase() {
         assertTrue(elem.getValue("c") is JsonArray)
 
         val array = elem.getValue("c").jsonArray
-        assertEquals("foo", array.getOrNull(0)?.jsonPrimitive?.content)
+        assertEquals("foo", array.getOrNull(0)?.jsonPrimitive?.contentOrNull)
         assertEquals(100500, array.getOrNull(1)?.jsonPrimitive?.int)
 
         assertTrue(array[2] is JsonObject)
