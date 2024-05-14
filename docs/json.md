@@ -294,7 +294,7 @@ The current list of supported invalid values is:
 * unknown values for enums
 
 If value is missing, it is replaced either with a default property value if it exists,
-or with a `null` if [explicitNulls](#explicit-nulls) flag is set to `false` and a property is nullable.
+or with a `null` if [explicitNulls](#explicit-nulls) flag is set to `false` and a property is nullable (for enums).
 
 > This list may be expanded in the future, so that [Json] instance configured with this property becomes even more
 > permissive to invalid value in the input, replacing them with defaults or nulls.

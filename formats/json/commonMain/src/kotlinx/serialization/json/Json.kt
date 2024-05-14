@@ -464,7 +464,7 @@ public class JsonBuilder internal constructor(json: Json) {
      *   2. Property type is an enum type, but JSON value contains an unknown enum member.
      *
      * Coerced values are treated as missing; they are replaced either with a default property value if it exists, or with a `null` if [explicitNulls] flag
-     * is set to `false` and a property is nullable.
+     * is set to `false` and a property is nullable (for enums).
      *
      * Example of usage:
      * ```

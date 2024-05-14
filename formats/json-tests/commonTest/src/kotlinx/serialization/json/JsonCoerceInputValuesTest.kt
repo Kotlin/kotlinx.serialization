@@ -40,11 +40,6 @@ class JsonCoerceInputValuesTest : JsonTestBase() {
     )
 
     @Serializable
-    data class NullableEnumWithoutDefault(
-        val e: SampleEnum?
-    )
-
-    @Serializable
     data class NullableEnumWithDefault(
         val e: SampleEnum? = SampleEnum.OptionC
     )
@@ -157,8 +152,17 @@ class JsonCoerceInputValuesTest : JsonTestBase() {
     fun testNullableEnumWithoutDefault() {
         val j = Json(json) { explicitNulls = false }
         parametrizedTest { mode ->
-            assertEquals(NullableEnumWithoutDefault(null), j.decodeFromString("{}"))
-            assertEquals(NullableEnumWithoutDefault(null), j.decodeFromString("""{"e":"incorrect"}"""))
+            assertEquals(NullableEnumHolder(null), j.decodeFromString("{}"))
+            assertEquals(NullableEnumHolder(null), j.decodeFromString("""{"enum":"incorrect"}"""))
+        }
+    }
+
+    @Test
+    fun testNullableEnumWithoutDefaultDoesNotCoerceExplicitly() {
+        val j = Json(json) { explicitNulls = true }
+        parametrizedTest { mode ->
+            assertFailsWith<SerializationException> { j.decodeFromString<NullableEnumHolder>("{}") }
+            assertFailsWith<SerializationException> { j.decodeFromString<NullableEnumHolder>("""{"enum":"incorrect"}""") }
         }
     }
 

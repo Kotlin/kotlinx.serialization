@@ -108,6 +108,20 @@ internal fun SerialDescriptor.getJsonNameIndexOrThrow(json: Json, name: String, 
     return index
 }
 
+/**
+ * Tries to coerce value according to the rules of [JsonConfiguration.coerceInputValues] and [JsonConfiguration.explicitNulls] flags:
+ *
+ * - If a property is optional (has default), has a non-nullable type, but input was `null` literal, property is coerced. (1)
+ * - If a property is enum, but input contained string which is not a valid enum constant (3) or a `null` literal (2):
+ *   - Property is coerced in case it is optional AND non-nullable (5), or nullable AND `explicitNulls` is on (4).
+ *
+ * @param descriptor Descriptor of class that owns the property
+ * @param index The index of the element (property).
+ * @param peekNull A function to peek if the next JSON token is `null`. In case `consume` is true, should consume `null` from the input.
+ * @param peekString A function to peek the next JSON token as a string.
+ * @param onEnumCoercing A callback function to be executed when coercing an enum. Use it to discard incorrect enum constant from the input.
+ * @return `true` if value was coerced, `false` otherwise.
+ */
 @OptIn(ExperimentalSerializationApi::class)
 internal inline fun Json.tryCoerceValue(
     descriptor: SerialDescriptor,
@@ -118,17 +132,17 @@ internal inline fun Json.tryCoerceValue(
 ): Boolean {
     val isOptional = descriptor.isElementOptional(index)
     val elementDescriptor = descriptor.getElementDescriptor(index)
-    if (isOptional && !elementDescriptor.isNullable && peekNull(true)) return true
+    if (isOptional && !elementDescriptor.isNullable && peekNull(true)) return true // (1)
     if (elementDescriptor.kind == SerialKind.ENUM) {
-        if (elementDescriptor.isNullable && peekNull(false)) {
+        if (elementDescriptor.isNullable && peekNull(false)) { // (2)
             return false
         }
 
         val enumValue = peekString()
             ?: return false // if value is not a string, decodeEnum() will throw correct exception
-        val enumIndex = elementDescriptor.getJsonNameIndex(this, enumValue)
-        val coerceToNull = !configuration.explicitNulls && elementDescriptor.isNullable
-        if (enumIndex == CompositeDecoder.UNKNOWN_NAME && (isOptional || coerceToNull)) {
+        val enumIndex = elementDescriptor.getJsonNameIndex(this, enumValue) // (3)
+        val coerceToNull = !configuration.explicitNulls && elementDescriptor.isNullable // (4)
+        if (enumIndex == CompositeDecoder.UNKNOWN_NAME && (isOptional || coerceToNull)) { // (3, 4, 5)
             onEnumCoercing()
             return true
         }
