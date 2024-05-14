@@ -41,7 +41,8 @@ public sealed class JsonPrimitive : JsonElement() {
     public abstract val isString: Boolean
 
     /**
-     * Content of given element without quotes. For [JsonNull] this methods returns `null`
+     * Content of given element without quotes. For [JsonNull], this method returns a "null" string.
+     * [JsonPrimitive.contentOrNull] should be used for [JsonNull] to get a `null`.
      */
     public abstract val content: String
 
