@@ -268,10 +268,10 @@ while nullable properties `version` and `description` are filled with their defa
 Project(name=kotlinx.serialization, language=Kotlin, version=1.2.2, website=null, description=null)
 ```
 
-> Pay attention to the fact that `version` was `null` before encoding and because `1.2.2` after decoding. 
-> Encoding/decoding of proeprties like it — nullable with non-null default — becomes asymmetrical if `explicitNulls` is set to `false`.
+> Pay attention to the fact that `version` was `null` before encoding and became `1.2.2` after decoding. 
+> Encoding/decoding of properties like this — nullable with a non-null default — becomes asymmetrical if `explicitNulls` is set to `false`.
 
-It is possible to make decoder treat some invalid input data as the missing field to enhance the functionality of this flag.
+It is possible to make the decoder treat some invalid input data as a missing field to enhance the functionality of this flag.
 See [coerceInputValues](#coercing-input-values) below for details.
 
 `explicitNulls` is `true` by default as it is the default behavior across different versions of the library.
