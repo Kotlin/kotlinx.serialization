@@ -14,9 +14,9 @@ In this chapter, we'll walk through features of [JSON](https://www.json.org/json
   * [Lenient parsing](#lenient-parsing)
   * [Ignoring unknown keys](#ignoring-unknown-keys)
   * [Alternative Json names](#alternative-json-names)
-  * [Coercing input values](#coercing-input-values)
   * [Encoding defaults](#encoding-defaults)
   * [Explicit nulls](#explicit-nulls)
+  * [Coercing input values](#coercing-input-values)
   * [Allowing structured map keys](#allowing-structured-map-keys)
   * [Allowing special floating-point values](#allowing-special-floating-point-values)
   * [Class discriminator for polymorphism](#class-discriminator-for-polymorphism)
@@ -195,51 +195,6 @@ unless you want to do some fine-tuning.
 
 <!--- TEST -->
 
-### Coercing input values
-
-JSON formats that from third parties can evolve, sometimes changing the field types.
-This can lead to exceptions during decoding when the actual values do not match the expected values.
-The default [Json] implementation is strict with respect to input types as was demonstrated in
-the [Type safety is enforced](basic-serialization.md#type-safety-is-enforced) section. You can relax this restriction
-using the [coerceInputValues][JsonBuilder.coerceInputValues] property.
-
-This property only affects decoding. It treats a limited subset of invalid input values as if the
-corresponding property was missing and uses the default value of the corresponding property instead.
-The current list of supported invalid values is:
-
-* `null` inputs for non-nullable types
-* unknown values for enums
-
-> This list may be expanded in the future, so that [Json] instance configured with this property becomes even more
-> permissive to invalid value in the input, replacing them with defaults.
-
-See the example from the [Type safety is enforced](basic-serialization.md#type-safety-is-enforced) section:
-
-```kotlin
-val format = Json { coerceInputValues = true }
-
-@Serializable
-data class Project(val name: String, val language: String = "Kotlin")
-
-fun main() {
-    val data = format.decodeFromString<Project>("""
-        {"name":"kotlinx.serialization","language":null}
-    """)
-    println(data)
-}
-```
-
-> You can get the full code [here](../guide/example/example-json-05.kt).
-
-The invalid `null` value for the `language` property was coerced into the default value:
-
-```text
-Project(name=kotlinx.serialization, language=Kotlin)
-```
-
-<!--- TEST -->
-
-
 ### Encoding defaults
 
 Default values of properties are not encoded by default because they will be assigned to missing fields during decoding anyway.
@@ -263,7 +218,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-06.kt).
+> You can get the full code [here](../guide/example/example-json-05.kt).
 
 It produces the following output which encodes all the property values including the default ones:
 
@@ -302,7 +257,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-07.kt).
+> You can get the full code [here](../guide/example/example-json-06.kt).
 
 As you can see, `version`, `website` and `description` fields are not present in output JSON on the first line.
 After decoding, the missing nullable property `website` without a default values has received a `null` value,
@@ -313,7 +268,91 @@ while nullable properties `version` and `description` are filled with their defa
 Project(name=kotlinx.serialization, language=Kotlin, version=1.2.2, website=null, description=null)
 ```
 
+> Pay attention to the fact that `version` was `null` before encoding and became `1.2.2` after decoding. 
+> Encoding/decoding of properties like this — nullable with a non-null default — becomes asymmetrical if `explicitNulls` is set to `false`.
+
+It is possible to make the decoder treat some invalid input data as a missing field to enhance the functionality of this flag.
+See [coerceInputValues](#coercing-input-values) below for details.
+
 `explicitNulls` is `true` by default as it is the default behavior across different versions of the library.
+
+<!--- TEST -->
+
+### Coercing input values
+
+JSON formats that from third parties can evolve, sometimes changing the field types.
+This can lead to exceptions during decoding when the actual values do not match the expected values.
+The default [Json] implementation is strict with respect to input types as was demonstrated in
+the [Type safety is enforced](basic-serialization.md#type-safety-is-enforced) section. You can relax this restriction
+using the [coerceInputValues][JsonBuilder.coerceInputValues] property.
+
+This property only affects decoding. It treats a limited subset of invalid input values as if the
+corresponding property was missing.
+The current list of supported invalid values is:
+
+* `null` inputs for non-nullable types
+* unknown values for enums
+
+If value is missing, it is replaced either with a default property value if it exists,
+or with a `null` if [explicitNulls](#explicit-nulls) flag is set to `false` and a property is nullable (for enums).
+
+> This list may be expanded in the future, so that [Json] instance configured with this property becomes even more
+> permissive to invalid value in the input, replacing them with defaults or nulls.
+
+See the example from the [Type safety is enforced](basic-serialization.md#type-safety-is-enforced) section:
+
+```kotlin
+val format = Json { coerceInputValues = true }
+
+@Serializable
+data class Project(val name: String, val language: String = "Kotlin")
+
+fun main() {
+    val data = format.decodeFromString<Project>("""
+        {"name":"kotlinx.serialization","language":null}
+    """)
+    println(data)
+}
+```
+
+> You can get the full code [here](../guide/example/example-json-07.kt).
+
+The invalid `null` value for the `language` property was coerced into the default value:
+
+```text
+Project(name=kotlinx.serialization, language=Kotlin)
+```
+
+<!--- TEST -->
+
+Example of using this flag together with [explicitNulls](#explicit-nulls) to coerce invalid enum values:
+
+```kotlin
+enum class Color { BLACK, WHITE }
+
+@Serializable
+data class Brush(val foreground: Color = Color.BLACK, val background: Color?)
+
+val json = Json { 
+  coerceInputValues = true
+  explicitNulls = false
+}
+
+fun main() {
+    val brush = json.decodeFromString<Brush>("""{"foreground":"pink", "background":"purple"}""")
+  println(brush)
+}
+```
+
+> You can get the full code [here](../guide/example/example-json-08.kt).
+
+Despite that we do not have `Color.pink` and `Color.purple` colors, `decodeFromString` function returns successfully:
+
+```text
+Brush(foreground=BLACK, background=null)
+```
+
+`foreground` property received its default value, and `background` property received `null` because of `explicitNulls = false` setting.
 
 <!--- TEST -->
 
@@ -341,7 +380,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-08.kt).
+> You can get the full code [here](../guide/example/example-json-09.kt).
 
 The map with structured keys gets represented as JSON array with the following items: `[key1, value1, key2, value2,...]`.
 
@@ -372,7 +411,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-09.kt).
+> You can get the full code [here](../guide/example/example-json-10.kt).
 
 This example produces the following non-stardard JSON output, yet it is a widely used encoding for
 special values in JVM world:
@@ -406,7 +445,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-10.kt).
+> You can get the full code [here](../guide/example/example-json-11.kt).
 
 In combination with an explicitly specified [SerialName] of the class it provides full
 control over the resulting JSON object:
@@ -462,7 +501,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-11.kt).
+> You can get the full code [here](../guide/example/example-json-12.kt).
 
 As you can see, discriminator from the `Base` class is used:
 
@@ -498,7 +537,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-12.kt).
+> You can get the full code [here](../guide/example/example-json-13.kt).
 
 Note that it would be impossible to deserialize this output back with kotlinx.serialization.
 
@@ -532,7 +571,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-13.kt).
+> You can get the full code [here](../guide/example/example-json-14.kt).
 
 It affects serial names as well as alternative names specified with [JsonNames] annotation, so both values are successfully decoded:
 
@@ -564,7 +603,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-14.kt).
+> You can get the full code [here](../guide/example/example-json-15.kt).
 
 As you can see, both serialization and deserialization work as if all serial names are transformed from camel case to snake case:
 
@@ -662,7 +701,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-15.kt)
+> You can get the full code [here](../guide/example/example-json-16.kt)
 
 ```text
 {"base64Input":"Zm9vIHN0cmluZw=="}
@@ -704,7 +743,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-16.kt).
+> You can get the full code [here](../guide/example/example-json-17.kt).
 
 A `JsonElement` prints itself as a valid JSON:
 
@@ -747,7 +786,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-17.kt).
+> You can get the full code [here](../guide/example/example-json-18.kt).
 
 The above example sums `votes` in all objects in the `forks` array, ignoring the objects that have no `votes`:
 
@@ -787,7 +826,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-18.kt).
+> You can get the full code [here](../guide/example/example-json-19.kt).
 
 As a result, you get a proper JSON string:
 
@@ -816,7 +855,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-19.kt).
+> You can get the full code [here](../guide/example/example-json-20.kt).
 
 The result is exactly what you would expect:
 
@@ -862,7 +901,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-20.kt).
+> You can get the full code [here](../guide/example/example-json-21.kt).
 
 Even though `pi` was defined as a number with 30 decimal places, the resulting JSON does not reflect this. 
 The [Double] value is truncated to 15 decimal places, and the String is wrapped in quotes - which is not a JSON number.
@@ -902,7 +941,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-21.kt).
+> You can get the full code [here](../guide/example/example-json-22.kt).
 
 `pi_literal` now accurately matches the value defined.
 
@@ -942,7 +981,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-22.kt).
+> You can get the full code [here](../guide/example/example-json-23.kt).
 
 The exact value of `pi` is decoded, with all 30 decimal places of precision that were in the source JSON.
 
@@ -964,7 +1003,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-23.kt).
+> You can get the full code [here](../guide/example/example-json-24.kt).
 
 ```text
 Exception in thread "main" kotlinx.serialization.json.internal.JsonEncodingException: Creating a literal unquoted value of 'null' is forbidden. If you want to create JSON null literal, use JsonNull object, otherwise, use JsonPrimitive
@@ -1040,7 +1079,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-24.kt).
+> You can get the full code [here](../guide/example/example-json-25.kt).
 
 The output shows that both cases are correctly deserialized into a Kotlin [List].
 
@@ -1092,7 +1131,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-25.kt).
+> You can get the full code [here](../guide/example/example-json-26.kt).
 
 You end up with a single JSON object, not an array with one element:
 
@@ -1137,7 +1176,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-26.kt).
+> You can get the full code [here](../guide/example/example-json-27.kt).
 
 See the effect of the custom serializer:
 
@@ -1210,7 +1249,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-27.kt).
+> You can get the full code [here](../guide/example/example-json-28.kt).
 
 No class discriminator is added in the JSON output:
 
@@ -1306,7 +1345,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-28.kt).
+> You can get the full code [here](../guide/example/example-json-29.kt).
 
 This gives you fine-grained control on the representation of the `Response` class in the JSON output:
 
@@ -1371,7 +1410,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-29.kt).
+> You can get the full code [here](../guide/example/example-json-30.kt).
 
 ```text
 UnknownProject(name=example, details={"type":"unknown","maintainer":"Unknown","license":"Apache 2.0"})
@@ -1418,9 +1457,9 @@ The next chapter covers [Alternative and custom formats (experimental)](formats.
 [JsonBuilder.ignoreUnknownKeys]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/ignore-unknown-keys.html
 [JsonNames]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-names/index.html
 [JsonBuilder.useAlternativeNames]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/use-alternative-names.html
-[JsonBuilder.coerceInputValues]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/coerce-input-values.html
 [JsonBuilder.encodeDefaults]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/encode-defaults.html
 [JsonBuilder.explicitNulls]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/explicit-nulls.html
+[JsonBuilder.coerceInputValues]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/coerce-input-values.html
 [JsonBuilder.allowStructuredMapKeys]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/allow-structured-map-keys.html
 [JsonBuilder.allowSpecialFloatingPointValues]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/allow-special-floating-point-values.html
 [JsonBuilder.classDiscriminator]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/class-discriminator.html

@@ -4,28 +4,18 @@ package example.exampleJson11
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-@Serializable
-@JsonClassDiscriminator("message_type")
-sealed class Base
-
-@Serializable // Class discriminator is inherited from Base
-sealed class ErrorClass: Base()
-
-@Serializable
-data class Message(val message: Base, val error: ErrorClass?)
-
-@Serializable
-@SerialName("my.app.BaseMessage")
-data class BaseMessage(val message: String) : Base()
-
-@Serializable
-@SerialName("my.app.GenericError")
-data class GenericError(@SerialName("error_code") val errorCode: Int) : ErrorClass()
-
-
 val format = Json { classDiscriminator = "#class" }
 
+@Serializable
+sealed class Project {
+    abstract val name: String
+}
+
+@Serializable
+@SerialName("owned")
+class OwnedProject(override val name: String, val owner: String) : Project()
+
 fun main() {
-    val data = Message(BaseMessage("not found"), GenericError(404))
+    val data: Project = OwnedProject("kotlinx.coroutines", "kotlin")
     println(format.encodeToString(data))
 }

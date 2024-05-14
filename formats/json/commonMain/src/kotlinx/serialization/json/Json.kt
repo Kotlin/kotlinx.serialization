@@ -346,9 +346,13 @@ public class JsonBuilder internal constructor(json: Json) {
      * Specifies whether `null` values should be encoded for nullable properties and must be present in JSON object
      * during decoding.
      *
-     * When this flag is disabled properties with `null` values without default are not encoded;
+     * When this flag is disabled properties with `null` values are not encoded;
      * during decoding, the absence of a field value is treated as `null` for nullable properties without a default value.
+     *
      * `true` by default.
+     *
+     * It is possible to make decoder treat some invalid input data as the missing field to enhance the functionality of this flag.
+     * See [coerceInputValues] documentation for details.
      *
      * Example of usage:
      * ```
@@ -368,8 +372,28 @@ public class JsonBuilder internal constructor(json: Json) {
      * // Fails with "MissingFieldException: Field 'description' is required"
      * Json.decodeFromString<Project>("""{"name":"unknown"}""")
      * ```
+     *
+     * Exercise extra caution if you want to use this flag and have non-typical classes with properties
+     * that are nullable, but have default value that is not `null`. In that case, encoding and decoding will not
+     * be symmetrical if `null` is omitted from the output.
+     * Example of such a pitfall:
+     *
+     * ```
+     * @Serializable
+     * data class Example(val nullable: String? = "non-null default")
+     *
+     * val json = Json { explicitNulls = false }
+     *
+     * val original = Example(null)
+     * val s = json.encodeToString(original)
+     * // prints "{}" because of explicitNulls flag
+     * println(s)
+     * val decoded = json.decodeFromString<Example>(s)
+     * // Prints "non-null default" because default value is inserted since `nullable` field is missing in the input
+     * println(decoded.nullable)
+     * println(decoded != original) // true
+     * ```
      */
-    @ExperimentalSerializationApi
     public var explicitNulls: Boolean = json.configuration.explicitNulls
 
     /**
@@ -434,9 +458,32 @@ public class JsonBuilder internal constructor(json: Json) {
     public var prettyPrintIndent: String = json.configuration.prettyPrintIndent
 
     /**
-     * Enables coercing incorrect JSON values to the default property value (if exists) in the following cases:
+     * Enables coercing incorrect JSON values in the following cases:
+     *
      *   1. JSON value is `null` but the property type is non-nullable.
-     *   2. Property type is an enum type, but JSON value contains unknown enum member.
+     *   2. Property type is an enum type, but JSON value contains an unknown enum member.
+     *
+     * Coerced values are treated as missing; they are replaced either with a default property value if it exists, or with a `null` if [explicitNulls] flag
+     * is set to `false` and a property is nullable (for enums).
+     *
+     * Example of usage:
+     * ```
+     * enum class Choice { A, B, C }
+     *
+     * @Serializable
+     * data class Example1(val a: String = "default", b: Choice = Choice.A, c: Choice? = null)
+     *
+     * val coercingJson = Json { coerceInputValues = true }
+     * // Decodes Example1("default", Choice.A, null) instance
+     * coercingJson.decodeFromString<Example1>("""{"a": null, "b": "unknown", "c": "unknown"}""")
+     *
+     * @Serializable
+     * data class Example2(val c: Choice?)
+     *
+     * val coercingImplicitJson = Json(coercingJson) { explicitNulls = false }
+     * // Decodes Example2(null) instance.
+     * coercingImplicitJson.decodeFromString<Example1>("""{"c": "unknown"}""")
+     * ```
      *
      * `false` by default.
      */
