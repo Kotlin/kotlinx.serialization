@@ -212,6 +212,7 @@ abstract class kotlinx.serialization.internal/NamedValueDecoder : kotlinx.serial
     constructor <init>() // kotlinx.serialization.internal/NamedValueDecoder.<init>|<init>(){}[0]
     final fun (kotlinx.serialization.descriptors/SerialDescriptor).getTag(kotlin/Int): kotlin/String // kotlinx.serialization.internal/NamedValueDecoder.getTag|getTag@kotlinx.serialization.descriptors.SerialDescriptor(kotlin.Int){}[0]
     final fun nested(kotlin/String): kotlin/String // kotlinx.serialization.internal/NamedValueDecoder.nested|nested(kotlin.String){}[0]
+    final fun renderTagStack(): kotlin/String // kotlinx.serialization.internal/NamedValueDecoder.renderTagStack|renderTagStack(){}[0]
     open fun composeName(kotlin/String, kotlin/String): kotlin/String // kotlinx.serialization.internal/NamedValueDecoder.composeName|composeName(kotlin.String;kotlin.String){}[0]
     open fun elementName(kotlinx.serialization.descriptors/SerialDescriptor, kotlin/Int): kotlin/String // kotlinx.serialization.internal/NamedValueDecoder.elementName|elementName(kotlinx.serialization.descriptors.SerialDescriptor;kotlin.Int){}[0]
 }
