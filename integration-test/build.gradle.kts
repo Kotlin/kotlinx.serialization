@@ -128,18 +128,14 @@ kotlin {
         }
         compilations["main"].kotlinOptions {
             allWarningsAsErrors = true
+            // Suppress 'K2 kapt is an experimental feature' warning:
+            freeCompilerArgs += "-Xsuppress-version-warnings"
         }
     }
 }
 
 dependencies {
     "kapt"("com.google.dagger:dagger-compiler:2.13")
-}
-
-rootProject.extensions.configure<NodeJsRootExtension> {
-    // canary nodejs that supports recent Wasm GC changes
-    nodeVersion = "21.0.0-v8-canary202309167e82ab1fa2"
-    nodeDownloadBaseUrl = "https://nodejs.org/download/v8-canary"
 }
 
 tasks.withType<KotlinNpmInstallTask>().configureEach {
