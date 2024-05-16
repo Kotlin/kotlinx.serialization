@@ -1,3 +1,88 @@
+
+1.7.0-RC / 2024-05-16
+==================
+
+This is a release candidate for the next version. It is based on Kotlin 2.0.0-RC3 and is fully compatible with a stable Kotlin 2.0 release. 
+Due to a potential breaking change (see below), it requires a compiler plugin with a version at least of 2.0.0-RC1.
+
+### Important change: priority of PolymorphicSerializer for interfaces during call to serializer<T>() function
+
+Non-sealed interfaces in kotlinx.serialization are always [serializable with a polymorphic serializer](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/polymorphism.md#serializing-interfaces),
+even if they do not have `@Serializable` annotation. This also means that `serializersModule.serializer<SomeInterface>()` call will return you a serializer capable of polymorphism.
+This function was written in a way that it unconditionally returns a `PolymorphicSerializer` if type argument is a non-sealed interface.
+This caused problems with `SerializersModule` functionality, because actual module was not taken into consideration, and therefore it was impossible
+to override serializer for interface using 'contextual serialization' feature. The problem is described in details [here](https://github.com/Kotlin/kotlinx.serialization/issues/2060).
+To overcome these problems, we had to change the behavior of this function regarding interfaces. It now looks into `SerializersModule` first if `T` is a non-sealed interface,
+and only if there is no registered contextual serializer for `T`, it returns a polymorphic serializer.
+
+Behavior **before 1.7.0-RC**:
+
+```kotlin
+interface SomeInterface
+
+val module = SerializersModule {
+    contextual(SomeInterface::class, CustomSomeInterfaceSerializer)
+}
+
+// Prints PolymorphicSerializer<SomeInterface>:
+println(module.serializer<SomeInterface>())
+```
+
+Behavior **in 1.7.0-RC, 1.7.0, and higher**:
+
+```kotlin
+interface SomeInterface
+
+val module = SerializersModule {
+    contextual(SomeInterface::class, CustomSomeInterfaceSerializer)
+}
+
+// Prints CustomSomeInterfaceSerializer:
+println(module.serializer<SomeInterface>())
+```
+
+We expect minimal impact from this change but be aware of it anyway.
+Implementation details are available in [this PR](https://github.com/Kotlin/kotlinx.serialization/issues/2060).
+
+Due to the [serializer() function being also a compiler intrinsic](https://github.com/Kotlin/kotlinx.serialization/issues/1348), code
+of kotlinx.serialization compiler plugin also accommodates for this change in 2.0 branch. To get a consistent result from both plugin and runtime,
+kotlinx.serialization compiler plugin should be **at least of 2.0.0-RC1 version.** 
+**To verify so, 1.7.0-RC runtime will be rejected by older plugins.**
+
+### Json configuration flag to allow commentaries
+
+While JSON standard does not allow any kind of commentaries, they are one of the most popular extensions — for example,
+commentaries are widely used in configuration files.
+To support this use-case, we added a new configuration flag, `allowComments`.
+This flag allows the parser to skip over C/Java-style commentaries in JSON input.
+Note that commentaries cannot affect decoding or encoding in any way and are not stored anywhere.
+See details in [the PR](https://github.com/Kotlin/kotlinx.serialization/pull/2592).
+
+### Promote `JsonConfiguration.explicitNulls` to a stable API
+
+This configuration flag has been around for a long time and got positive feedback.
+Therefore, we are promoting it to a stable state.
+It also received functionality enhancements when used with `JsonConfiguration.coerceInputValues` ([#2586](https://github.com/Kotlin/kotlinx.serialization/issues/2586)).
+See related [PR](https://github.com/Kotlin/kotlinx.serialization/pull/2661) for details.
+
+### `oneof` support in ProtoBuf
+
+`oneof` fields in protobuf messages [represent a set of optional fields](https://protobuf.dev/programming-guides/proto2/#oneof), where the only one of them is present.
+With the help of the new `@ProtoOneOf` annotation, you can naturally map them to Kotlin's sealed class hierarchy.
+Check out the comprehensive guide for this feature [here](https://github.com/Kotlin/kotlinx.serialization/blob/194a188563c612c63a88271eb3f28f37353df514/docs/formats.md#oneof-field-experimental).
+
+This functionality was [contributed](https://github.com/Kotlin/kotlinx.serialization/pull/2546) to us by [xzk](https://github.com/xiaozhikang0916).
+
+### Other improvements and bugfixes
+
+* Update okio to 3.9.0 version (#2671)
+* Add extension to access original descriptor from one made with SerialDescriptor.nullable (#2633) (thanks to [Chuckame](https://github.com/Chuckame))
+* Use @SerialName of inline polymorphic children in Json (#2601) (thanks to [Tad Fisher](https://github.com/tadfisher))
+* Fix serializing nulls for a property of a parameterized type with a nullable upper bound with Protobuf (#2561) (thanks to [Shreck Ye](https://github.com/ShreckYe))
+* Fixed type discriminator value for custom serializer that uses `encodeJsonElement` (#2628)
+* Refine exception messages in case of deserializing data from JsonElement. (#2648)
+
+
 1.6.3 / 2024-02-16
 ==================
 
