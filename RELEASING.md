@@ -13,7 +13,7 @@ To release new `<version>` of `kotlinx.serialization`:
    * [`gradle.properties`](gradle.properties)
    * [`integration-test/gradle.properties`](integration-test/gradle.properties)
 
-   Update Kotlin version, if necessary.
+   Update Kotlin version in [`libs.versions.toml`](gradle/libs.versions.toml), if necessary.
 
 5. Write release notes in [`CHANGELOG.md`](CHANGELOG.md):
    * Use old releases as example of style.
