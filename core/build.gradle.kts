@@ -13,6 +13,10 @@ plugins {
     id("source-sets-conventions")
 }
 
+repositories {
+    maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
+}
+
 kotlin {
     sourceSets {
         jvmTest {
