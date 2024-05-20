@@ -198,18 +198,18 @@ internal class CborEncoder(private val output: ByteArrayOutput) {
 }
 
 private class CborMapReader(val cbor: Cbor, decoder: CborDecoder) : CborListReader(cbor, decoder) {
-    /** Keys that have been seen so far while reading this map. */
+    /**
+     * Keys that have been seen so far while reading this map.
+     *
+     * Only used if [Cbor.forbidDuplicateKeys] is in effect.
+     */
     private val seenKeys = mutableSetOf<Any?>()
 
     override fun skipBeginToken() = setSize(decoder.startMap() * 2)
 
     override fun visitKey(key: Any?) {
-        if (cbor.allowDuplicateKeys)
-            return
-
-        val added = seenKeys.add(key)
-        if (!added) {
-            throw DuplicateMapKeyException(key)
+        if (cbor.forbidDuplicateKeys) {
+            seenKeys.add(key) || throw DuplicateKeyException(key)
         }
     }
 }

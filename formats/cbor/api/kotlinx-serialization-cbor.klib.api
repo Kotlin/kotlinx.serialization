@@ -7,12 +7,12 @@
 
 // Library unique name: <org.jetbrains.kotlinx:kotlinx-serialization-cbor>
 final class kotlinx.serialization.cbor/CborBuilder { // kotlinx.serialization.cbor/CborBuilder|null[0]
-    final var allowDuplicateKeys // kotlinx.serialization.cbor/CborBuilder.allowDuplicateKeys|<get-allowDuplicateKeys>(){}[0]
-        final fun <get-allowDuplicateKeys>(): kotlin/Boolean // kotlinx.serialization.cbor/CborBuilder.allowDuplicateKeys.<get-allowDuplicateKeys>|<get-allowDuplicateKeys>(){}[0]
-        final fun <set-allowDuplicateKeys>(kotlin/Boolean) // kotlinx.serialization.cbor/CborBuilder.allowDuplicateKeys.<set-allowDuplicateKeys>|<set-allowDuplicateKeys>(kotlin.Boolean){}[0]
     final var encodeDefaults // kotlinx.serialization.cbor/CborBuilder.encodeDefaults|<get-encodeDefaults>(){}[0]
         final fun <get-encodeDefaults>(): kotlin/Boolean // kotlinx.serialization.cbor/CborBuilder.encodeDefaults.<get-encodeDefaults>|<get-encodeDefaults>(){}[0]
         final fun <set-encodeDefaults>(kotlin/Boolean) // kotlinx.serialization.cbor/CborBuilder.encodeDefaults.<set-encodeDefaults>|<set-encodeDefaults>(kotlin.Boolean){}[0]
+    final var forbidDuplicateKeys // kotlinx.serialization.cbor/CborBuilder.forbidDuplicateKeys|<get-forbidDuplicateKeys>(){}[0]
+        final fun <get-forbidDuplicateKeys>(): kotlin/Boolean // kotlinx.serialization.cbor/CborBuilder.forbidDuplicateKeys.<get-forbidDuplicateKeys>|<get-forbidDuplicateKeys>(){}[0]
+        final fun <set-forbidDuplicateKeys>(kotlin/Boolean) // kotlinx.serialization.cbor/CborBuilder.forbidDuplicateKeys.<set-forbidDuplicateKeys>|<set-forbidDuplicateKeys>(kotlin.Boolean){}[0]
     final var ignoreUnknownKeys // kotlinx.serialization.cbor/CborBuilder.ignoreUnknownKeys|<get-ignoreUnknownKeys>(){}[0]
         final fun <get-ignoreUnknownKeys>(): kotlin/Boolean // kotlinx.serialization.cbor/CborBuilder.ignoreUnknownKeys.<get-ignoreUnknownKeys>|<get-ignoreUnknownKeys>(){}[0]
         final fun <set-ignoreUnknownKeys>(kotlin/Boolean) // kotlinx.serialization.cbor/CborBuilder.ignoreUnknownKeys.<set-ignoreUnknownKeys>|<set-ignoreUnknownKeys>(kotlin.Boolean){}[0]

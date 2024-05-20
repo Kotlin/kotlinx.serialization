@@ -523,8 +523,8 @@ final class kotlinx.serialization.modules/SerializersModuleBuilder : kotlinx.ser
     final fun build(): kotlinx.serialization.modules/SerializersModule // kotlinx.serialization.modules/SerializersModuleBuilder.build|build(){}[0]
     final fun include(kotlinx.serialization.modules/SerializersModule) // kotlinx.serialization.modules/SerializersModuleBuilder.include|include(kotlinx.serialization.modules.SerializersModule){}[0]
 }
-final class kotlinx.serialization/DuplicateMapKeyException : kotlinx.serialization/SerializationException { // kotlinx.serialization/DuplicateMapKeyException|null[0]
-    constructor <init>(kotlin/Any?) // kotlinx.serialization/DuplicateMapKeyException.<init>|<init>(kotlin.Any?){}[0]
+final class kotlinx.serialization/DuplicateKeyException : kotlinx.serialization/SerializationException { // kotlinx.serialization/DuplicateKeyException|null[0]
+    constructor <init>(kotlin/Any?) // kotlinx.serialization/DuplicateKeyException.<init>|<init>(kotlin.Any?){}[0]
 }
 final class kotlinx.serialization/MissingFieldException : kotlinx.serialization/SerializationException { // kotlinx.serialization/MissingFieldException|null[0]
     constructor <init>(kotlin.collections/List<kotlin/String>, kotlin/String) // kotlinx.serialization/MissingFieldException.<init>|<init>(kotlin.collections.List<kotlin.String>;kotlin.String){}[0]

@@ -32,14 +32,14 @@ import kotlinx.serialization.modules.*
 public sealed class Cbor(
     internal val encodeDefaults: Boolean,
     internal val ignoreUnknownKeys: Boolean,
-    internal val allowDuplicateKeys: Boolean,
+    internal val forbidDuplicateKeys: Boolean,
     override val serializersModule: SerializersModule
 ) : BinaryFormat {
 
     /**
      * The default instance of [Cbor]
      */
-    public companion object Default : Cbor(false, false, true, EmptySerializersModule())
+    public companion object Default : Cbor(false, false, false, EmptySerializersModule())
 
     override fun <T> encodeToByteArray(serializer: SerializationStrategy<T>, value: T): ByteArray {
         val output = ByteArrayOutput()
@@ -57,10 +57,10 @@ public sealed class Cbor(
 
 @OptIn(ExperimentalSerializationApi::class)
 private class CborImpl(
-    encodeDefaults: Boolean, ignoreUnknownKeys: Boolean, allowDuplicateKeys: Boolean,
+    encodeDefaults: Boolean, ignoreUnknownKeys: Boolean, forbidDuplicateKeys: Boolean,
     serializersModule: SerializersModule,
 ) :
-    Cbor(encodeDefaults, ignoreUnknownKeys, allowDuplicateKeys, serializersModule)
+    Cbor(encodeDefaults, ignoreUnknownKeys, forbidDuplicateKeys, serializersModule)
 
 /**
  * Creates an instance of [Cbor] configured from the optionally given [Cbor instance][from]
@@ -70,7 +70,7 @@ private class CborImpl(
 public fun Cbor(from: Cbor = Cbor, builderAction: CborBuilder.() -> Unit): Cbor {
     val builder = CborBuilder(from)
     builder.builderAction()
-    return CborImpl(builder.encodeDefaults, builder.ignoreUnknownKeys, builder.allowDuplicateKeys, builder.serializersModule)
+    return CborImpl(builder.encodeDefaults, builder.ignoreUnknownKeys, builder.forbidDuplicateKeys, builder.serializersModule)
 }
 
 /**
@@ -94,10 +94,10 @@ public class CborBuilder internal constructor(cbor: Cbor) {
     /**
      * Specifies whether it is an error to read a map with duplicate keys.
      *
-     * If this is set to false, decoding a map with two keys that compare as equal
-     * will cause a [DuplicateMapKeyException] error to be thrown.
+     * If this is set to true, decoding a map with two keys that compare as equal
+     * will cause a [DuplicateKeyException] error to be thrown.
      */
-    public var allowDuplicateKeys: Boolean = cbor.allowDuplicateKeys
+    public var forbidDuplicateKeys: Boolean = cbor.forbidDuplicateKeys
 
     /**
      * Module with contextual and polymorphic serializers to be used in the resulting [Cbor] instance.

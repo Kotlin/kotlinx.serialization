@@ -17,12 +17,12 @@ public final class kotlinx/serialization/cbor/Cbor$Default : kotlinx/serializati
 }
 
 public final class kotlinx/serialization/cbor/CborBuilder {
-	public final fun getAllowDuplicateKeys ()Z
 	public final fun getEncodeDefaults ()Z
+	public final fun getForbidDuplicateKeys ()Z
 	public final fun getIgnoreUnknownKeys ()Z
 	public final fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
-	public final fun setAllowDuplicateKeys (Z)V
 	public final fun setEncodeDefaults (Z)V
+	public final fun setForbidDuplicateKeys (Z)V
 	public final fun setIgnoreUnknownKeys (Z)V
 	public final fun setSerializersModule (Lkotlinx/serialization/modules/SerializersModule;)V
 }
