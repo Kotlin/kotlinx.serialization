@@ -197,21 +197,8 @@ internal class CborEncoder(private val output: ByteArrayOutput) {
     }
 }
 
-private class CborMapReader(val cbor: Cbor, decoder: CborDecoder) : CborListReader(cbor, decoder) {
-    /**
-     * Keys that have been seen so far while reading this map.
-     *
-     * Only used if [Cbor.forbidDuplicateKeys] is in effect.
-     */
-    private val seenKeys = mutableSetOf<Any?>()
-
+private class CborMapReader(cbor: Cbor, decoder: CborDecoder) : CborListReader(cbor, decoder) {
     override fun skipBeginToken() = setSize(decoder.startMap() * 2)
-
-    override fun visitKey(key: Any?) {
-        if (cbor.forbidDuplicateKeys) {
-            seenKeys.add(key) || throw DuplicateKeyException(key)
-        }
-    }
 }
 
 private open class CborListReader(cbor: Cbor, decoder: CborDecoder) : CborReader(cbor, decoder) {
@@ -231,6 +218,13 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
     private var readProperties: Int = 0
 
     private var decodeByteArrayAsByteString = false
+
+    /**
+     * Keys that have been seen so far while reading this map.
+     *
+     * Only used if [Cbor.forbidDuplicateKeys] is in effect.
+     */
+    private val seenKeys = mutableSetOf<Any?>()
 
     protected fun setSize(size: Int) {
         if (size >= 0) {
@@ -259,12 +253,19 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
         if (!finiteMode) decoder.end()
     }
 
+    override fun visitKey(key: Any?) {
+        if (cbor.forbidDuplicateKeys) {
+            seenKeys.add(key) || throw DuplicateKeyException(key)
+        }
+    }
+
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         val index = if (cbor.ignoreUnknownKeys) {
             val knownIndex: Int
             while (true) {
                 if (isDone()) return CompositeDecoder.DECODE_DONE
                 val elemName = decoder.nextString()
+                visitKey(elemName)
                 readProperties++
 
                 val index = descriptor.getElementIndex(elemName)
@@ -279,6 +280,7 @@ internal open class CborReader(private val cbor: Cbor, protected val decoder: Cb
         } else {
             if (isDone()) return CompositeDecoder.DECODE_DONE
             val elemName = decoder.nextString()
+            visitKey(elemName)
             readProperties++
             descriptor.getElementIndexOrThrow(elemName)
         }
