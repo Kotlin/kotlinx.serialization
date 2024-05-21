@@ -20,3 +20,6 @@ node_modules
 
 # benchmarks.jar
 /benchmarks.jar
+
+# Intermediate klibs
+.kotlin

@@ -32,7 +32,7 @@ kotlin {
 
  Implementation-Version is used to determine whether runtime library supports a given plugin feature (e.g. value classes serialization
  in Kotlin 1.x may require runtime library version 1.y to work).
- Compiler plugin may enable or disable features by looking on Implementation-Version.
+ Compiler plugin may enable or disable features by looking at Implementation-Version.
 
  Require-Kotlin-Version is used to determine whether runtime library with new features can work with old compilers.
  In ideal case, its value should always be 1.4, but some refactorings (e.g. adding a method to the Encoder interface)
@@ -63,7 +63,7 @@ tasks.withType<Jar>().named(kotlin.jvm().artifactsTaskName) {
     manifest {
         attributes(
                 "Implementation-Version" to version,
-                "Require-Kotlin-Version" to "1.4.30-M1",
+                "Require-Kotlin-Version" to "2.0.0-RC1",
         )
     }
 }

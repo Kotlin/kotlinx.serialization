@@ -179,9 +179,3 @@ kotlin {
         }
     }
 }
-
-rootProject.extensions.configure<NodeJsRootExtension>() {
-    // canary nodejs that supports recent Wasm GC changes
-    nodeVersion = "21.0.0-v8-canary202309167e82ab1fa2"
-    nodeDownloadBaseUrl = "https://nodejs.org/download/v8-canary"
-}
