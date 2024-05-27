@@ -208,7 +208,7 @@ internal class SerialModuleImpl(
         }
 
         polyBase2DefaultDeserializerProvider.forEach { (baseClass, provider) ->
-            collector.polymorphicDefaultDeserializer(baseClass as KClass<Any>, provider as (PolymorphicDeserializerProvider<out Any>))
+            collector.polymorphicDefaultDeserializer(baseClass as KClass<Any>, provider as (PolymorphicDeserializerProvider<Any>))
         }
     }
 }
