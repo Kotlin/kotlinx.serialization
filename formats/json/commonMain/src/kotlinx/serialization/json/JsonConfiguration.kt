@@ -39,6 +39,11 @@ public class JsonConfiguration @OptIn(ExperimentalSerializationApi::class) inter
     @ExperimentalSerializationApi
     public val allowComments: Boolean = false,
     @ExperimentalSerializationApi
+    @set:Deprecated(
+        "JsonConfiguration is not meant to be mutable, and will be made read-only in a future release. " +
+            "The `Json(from = ...) {}` copy builder should be used instead.",
+        level = DeprecationLevel.ERROR
+    )
     public var classDiscriminatorMode: ClassDiscriminatorMode = ClassDiscriminatorMode.POLYMORPHIC,
 ) {
 
