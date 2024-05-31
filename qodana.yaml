@@ -1,0 +1,14 @@
+#-------------------------------------------------------------------------------#
+#               Qodana analysis is configured by qodana.yaml file               #
+#             https://www.jetbrains.com/help/qodana/qodana-yaml.html            #
+#-------------------------------------------------------------------------------#
+version: "1.0"
+
+#Specify inspection profile for code analysis
+profile:
+  path: custom-profile.yaml
+
+
+projectJDK: 17 #(Applied in CI/CD pipeline)
+
+linter: jetbrains/qodana-jvm:latest
