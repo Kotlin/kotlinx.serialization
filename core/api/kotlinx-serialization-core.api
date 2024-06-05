@@ -725,6 +725,12 @@ public final class kotlinx/serialization/internal/EnumSerializer : kotlinx/seria
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class kotlinx/serialization/internal/EnumsKt {
+	public static final fun createAnnotatedEnumSerializer (Ljava/lang/String;[Ljava/lang/Enum;[Ljava/lang/String;[[Ljava/lang/annotation/Annotation;[Ljava/lang/annotation/Annotation;)Lkotlinx/serialization/KSerializer;
+	public static final fun createMarkedEnumSerializer (Ljava/lang/String;[Ljava/lang/Enum;[Ljava/lang/String;[[Ljava/lang/annotation/Annotation;)Lkotlinx/serialization/KSerializer;
+	public static final fun createSimpleEnumSerializer (Ljava/lang/String;[Ljava/lang/Enum;)Lkotlinx/serialization/KSerializer;
+}
+
 public final class kotlinx/serialization/internal/FloatArrayBuilder : kotlinx/serialization/internal/PrimitiveArrayBuilder {
 	public synthetic fun build$kotlinx_serialization_core ()Ljava/lang/Object;
 }
