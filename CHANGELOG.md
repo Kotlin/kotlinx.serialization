@@ -1,4 +1,14 @@
 
+1.7.0 / 2024-06-05
+==================
+
+This release contains all of the changes from 1.7.0-RC and is compatible with Kotlin 2.0.
+Please note that for reasons explained in the [1.7.0-RC changelog](https://github.com/Kotlin/kotlinx.serialization/releases/tag/v1.7.0-RC), it may not be possible to use it with the Kotlin 1.9.x
+compiler plugin. Yet, it is still fully backwards compatible with previous versions.
+
+The only difference with 1.7.0-RC is that `classDiscriminatorMode` property in `JsonBuilder` is marked as experimental,
+as it should have been when it was introduced (#2680).
+
 1.7.0-RC / 2024-05-16
 ==================
 
