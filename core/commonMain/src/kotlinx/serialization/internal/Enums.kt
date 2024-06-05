@@ -49,8 +49,7 @@ internal class EnumDescriptor(
     }
 }
 
-@OptIn(ExperimentalSerializationApi::class)
-@InternalSerializationApi
+@PublishedApi
 internal fun <T : Enum<T>> createSimpleEnumSerializer(serialName: String, values: Array<T>): KSerializer<T> {
     return EnumSerializer(serialName, values)
 }
@@ -58,8 +57,7 @@ internal fun <T : Enum<T>> createSimpleEnumSerializer(serialName: String, values
 /**
  * The function has a bug (#2121) and should not be used by new (1.8.20+) plugins. It is preserved for backward compatibility with previously compiled enum classes.
  */
-@OptIn(ExperimentalSerializationApi::class)
-@InternalSerializationApi
+@PublishedApi
 internal fun <T : Enum<T>> createMarkedEnumSerializer(
     serialName: String,
     values: Array<T>,
@@ -78,8 +76,7 @@ internal fun <T : Enum<T>> createMarkedEnumSerializer(
     return EnumSerializer(serialName, values, descriptor)
 }
 
-@OptIn(ExperimentalSerializationApi::class)
-@InternalSerializationApi
+@PublishedApi
 internal fun <T : Enum<T>> createAnnotatedEnumSerializer(
     serialName: String,
     values: Array<T>,
