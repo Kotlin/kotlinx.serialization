@@ -20,7 +20,7 @@ val isMultiplatform = name in listOf(
     "kotlinx-serialization-core",
     "kotlinx-serialization-json",
     "kotlinx-serialization-json-okio",
-    "kotlinx-serialization-json-kxio",
+    "kotlinx-serialization-json-io",
     "kotlinx-serialization-json-tests",
     "kotlinx-serialization-protobuf",
     "kotlinx-serialization-cbor",

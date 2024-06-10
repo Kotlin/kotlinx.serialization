@@ -7,19 +7,14 @@ import kotlinx.benchmarks.model.MacroTwitterFeed
 import kotlinx.benchmarks.model.MicroTwitterFeed
 import kotlinx.io.*
 import kotlinx.serialization.json.*
-import kotlinx.serialization.json.kxio.*
+import kotlinx.serialization.json.io.*
 import kotlinx.serialization.json.okio.*
 import okio.*
 import org.openjdk.jmh.annotations.*
 import java.io.*
-import java.nio.file.Files
-import java.nio.file.Path
 import java.util.concurrent.TimeUnit
-import kotlin.io.path.deleteIfExists
-import kotlin.io.path.outputStream
 import kotlin.io.use
 import okio.Buffer as OkioBuffer
-import okio.BufferedSource as OkioBufferedSource
 import okio.Sink as OkioSink
 
 @Warmup(iterations = 7, time = 1)

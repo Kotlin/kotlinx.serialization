@@ -7,7 +7,7 @@ package kotlinx.serialization.json
 import kotlinx.io.*
 import kotlinx.serialization.*
 import kotlinx.serialization.json.internal.*
-import kotlinx.serialization.json.kxio.*
+import kotlinx.serialization.json.io.*
 import kotlinx.serialization.json.okio.decodeFromBufferedSource
 import kotlinx.serialization.json.okio.encodeToBufferedSink
 import kotlinx.serialization.modules.EmptySerializersModule

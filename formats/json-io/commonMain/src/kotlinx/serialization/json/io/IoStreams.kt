@@ -2,15 +2,15 @@
  * Copyright 2017-2022 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-package kotlinx.serialization.json.kxio
+package kotlinx.serialization.json.io
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.DecodeSequenceMode
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.internal.*
-import kotlinx.serialization.json.kxio.internal.JsonToKxioStreamWriter
+import kotlinx.serialization.json.io.internal.JsonToIoStreamWriter
 import kotlinx.serialization.json.internal.decodeToSequenceByReader
-import kotlinx.serialization.json.kxio.internal.KxioSerialReader
+import kotlinx.serialization.json.io.internal.IoSerialReader
 import kotlinx.io.*
 
 /**
@@ -25,7 +25,7 @@ public fun <T> Json.encodeToSink(
     value: T,
     sink: Sink
 ) {
-    val writer = JsonToKxioStreamWriter(sink)
+    val writer = JsonToIoStreamWriter(sink)
     try {
         encodeByWriter(this, writer, serializer, value)
     } finally {
@@ -60,7 +60,7 @@ public fun <T> Json.decodeFromSource(
     deserializer: DeserializationStrategy<T>,
     source: Source
 ): T {
-    return decodeByReader(this, deserializer, KxioSerialReader(source))
+    return decodeByReader(this, deserializer, IoSerialReader(source))
 }
 
 /**
@@ -99,7 +99,7 @@ public fun <T> Json.decodeSourceToSequence(
     deserializer: DeserializationStrategy<T>,
     format: DecodeSequenceMode = DecodeSequenceMode.AUTO_DETECT
 ): Sequence<T> {
-    return decodeToSequenceByReader(this, KxioSerialReader(source), deserializer, format)
+    return decodeToSequenceByReader(this, IoSerialReader(source), deserializer, format)
 }
 
 /**

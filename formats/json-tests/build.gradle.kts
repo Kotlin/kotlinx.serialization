@@ -34,7 +34,7 @@ kotlin {
             dependencies {
                 api(project(":kotlinx-serialization-json"))
                 api(project(":kotlinx-serialization-json-okio"))
-                api(project(":kotlinx-serialization-json-kxio"))
+                api(project(":kotlinx-serialization-json-io"))
                 implementation(libs.kotlinx.io)
                 implementation(libs.okio)
             }

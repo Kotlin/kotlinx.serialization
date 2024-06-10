@@ -9,7 +9,7 @@ Stable and ready to use JSON format implementation, `JsonElement` API to operate
 Extensions for kotlinx.serialization.json.Json for integration with the popular [Okio](https://square.github.io/okio/) library.
 Currently experimental.
 
-# Module kotlinx-serialization-json-kxio
+# Module kotlinx-serialization-json-io
 Extensions for kotlinx.serialization.json.Json for integration with the [kotlinx-io](https://github.com/Kotlin/kotlinx-io) library.
 Currently experimental.
 
@@ -53,7 +53,7 @@ and JSON-specific serializers.
 # Package kotlinx.serialization.json.okio
 Extensions for kotlinx.serialization.json.Json for integration with the popular [Okio](https://square.github.io/okio/) library.
 
-# Package kotlinx.serialization.json.kxio
+# Package kotlinx.serialization.json.io
 Extensions for kotlinx.serialization.json.Json for integration with the [kotlinx-io](https://github.com/Kotlin/kotlinx-io) library.
 
 # Package kotlinx.serialization.protobuf

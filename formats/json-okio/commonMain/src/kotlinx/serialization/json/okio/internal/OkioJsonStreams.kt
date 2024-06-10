@@ -23,9 +23,9 @@ internal class JsonToOkioStreamWriter(private val sink: BufferedSink) : Internal
     }
 
     override fun writeQuoted(text: String) {
-        sink.writeUtf8CodePoint('"'.code)
+        sink.writeUtf8CodePoint(QUOTE_CODE)
         InternalJsonWriter.doWriteEscaping(text) { s, start, end -> sink.writeUtf8(s, start, end) }
-        sink.writeUtf8CodePoint('"'.code)
+        sink.writeUtf8CodePoint(QUOTE_CODE)
     }
 
     override fun release() {

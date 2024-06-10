@@ -62,6 +62,6 @@ dependencies {
     implementation(project(":kotlinx-serialization-core"))
     implementation(project(":kotlinx-serialization-json"))
     implementation(project(":kotlinx-serialization-json-okio"))
-    implementation(project(":kotlinx-serialization-json-kxio"))
+    implementation(project(":kotlinx-serialization-json-io"))
     implementation(project(":kotlinx-serialization-protobuf"))
 }
