@@ -165,6 +165,9 @@ private class DynamicObjectEncoder(
     }
 
     override fun encodeJsonElement(element: JsonElement) {
+        if (polymorphicDiscriminator != null && element !is JsonObject) {
+            throwJsonElementPolymorphicException(polymorphicSerialName, element)
+        }
         encodeSerializableValue(JsonElementSerializer, element)
     }
 
