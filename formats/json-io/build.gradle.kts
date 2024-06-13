@@ -28,11 +28,6 @@ kotlin {
                 implementation(libs.kotlinx.io)
             }
         }
-        val commonTest by getting {
-            dependencies {
-                implementation(libs.kotlinx.io)
-            }
-        }
     }
 }
 

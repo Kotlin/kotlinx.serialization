@@ -29,11 +29,6 @@ kotlin {
                 implementation(libs.okio)
             }
         }
-        val commonTest by getting {
-            dependencies {
-                implementation(libs.okio)
-            }
-        }
     }
 }
 
