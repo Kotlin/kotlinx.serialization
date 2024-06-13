@@ -1,0 +1,7 @@
+public final class kotlinx/serialization/json/io/IoStreamsKt {
+	public static final fun decodeFromSource (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/DeserializationStrategy;Lkotlinx/io/Source;)Ljava/lang/Object;
+	public static final fun decodeSourceToSequence (Lkotlinx/serialization/json/Json;Lkotlinx/io/Source;Lkotlinx/serialization/DeserializationStrategy;Lkotlinx/serialization/json/DecodeSequenceMode;)Lkotlin/sequences/Sequence;
+	public static synthetic fun decodeSourceToSequence$default (Lkotlinx/serialization/json/Json;Lkotlinx/io/Source;Lkotlinx/serialization/DeserializationStrategy;Lkotlinx/serialization/json/DecodeSequenceMode;ILjava/lang/Object;)Lkotlin/sequences/Sequence;
+	public static final fun encodeToSink (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;Lkotlinx/io/Sink;)V
+}
+

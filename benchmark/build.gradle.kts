@@ -30,6 +30,7 @@ tasks.processJmhResources {
 tasks.jmhJar {
     archiveBaseName.set("benchmarks")
     archiveVersion.set("")
+    archiveClassifier.set("") // benchmarks.jar, not benchmarks-jmh.jar
     destinationDirectory.set(file("$rootDir"))
 }
 
@@ -57,8 +58,10 @@ dependencies {
     implementation(libs.jackson.databind)
     implementation(libs.jackson.module.kotlin)
     implementation(libs.okio)
+    implementation(libs.kotlinx.io)
     implementation(project(":kotlinx-serialization-core"))
     implementation(project(":kotlinx-serialization-json"))
     implementation(project(":kotlinx-serialization-json-okio"))
+    implementation(project(":kotlinx-serialization-json-io"))
     implementation(project(":kotlinx-serialization-protobuf"))
 }

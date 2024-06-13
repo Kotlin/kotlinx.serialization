@@ -23,6 +23,12 @@ abstract class <#A: kotlin/Any> kotlinx.serialization.json/JsonTransformingSeria
     open val descriptor // kotlinx.serialization.json/JsonTransformingSerializer.descriptor|{}descriptor[0]
         open fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // kotlinx.serialization.json/JsonTransformingSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
 }
+abstract class kotlinx.serialization.json.internal/InternalJsonReaderCodePointImpl : kotlinx.serialization.json.internal/InternalJsonReader { // kotlinx.serialization.json.internal/InternalJsonReaderCodePointImpl|null[0]
+    abstract fun exhausted(): kotlin/Boolean // kotlinx.serialization.json.internal/InternalJsonReaderCodePointImpl.exhausted|exhausted(){}[0]
+    abstract fun nextCodePoint(): kotlin/Int // kotlinx.serialization.json.internal/InternalJsonReaderCodePointImpl.nextCodePoint|nextCodePoint(){}[0]
+    constructor <init>() // kotlinx.serialization.json.internal/InternalJsonReaderCodePointImpl.<init>|<init>(){}[0]
+    final fun read(kotlin/CharArray, kotlin/Int, kotlin/Int): kotlin/Int // kotlinx.serialization.json.internal/InternalJsonReaderCodePointImpl.read|read(kotlin.CharArray;kotlin.Int;kotlin.Int){}[0]
+}
 abstract fun interface kotlinx.serialization.json/JsonNamingStrategy { // kotlinx.serialization.json/JsonNamingStrategy|null[0]
     abstract fun serialNameForJson(kotlinx.serialization.descriptors/SerialDescriptor, kotlin/Int, kotlin/String): kotlin/String // kotlinx.serialization.json/JsonNamingStrategy.serialNameForJson|serialNameForJson(kotlinx.serialization.descriptors.SerialDescriptor;kotlin.Int;kotlin.String){}[0]
     final object Builtins { // kotlinx.serialization.json/JsonNamingStrategy.Builtins|null[0]
@@ -41,6 +47,9 @@ abstract interface kotlinx.serialization.json.internal/InternalJsonWriter { // k
     abstract fun writeChar(kotlin/Char) // kotlinx.serialization.json.internal/InternalJsonWriter.writeChar|writeChar(kotlin.Char){}[0]
     abstract fun writeLong(kotlin/Long) // kotlinx.serialization.json.internal/InternalJsonWriter.writeLong|writeLong(kotlin.Long){}[0]
     abstract fun writeQuoted(kotlin/String) // kotlinx.serialization.json.internal/InternalJsonWriter.writeQuoted|writeQuoted(kotlin.String){}[0]
+    final object Companion { // kotlinx.serialization.json.internal/InternalJsonWriter.Companion|null[0]
+        final inline fun doWriteEscaping(kotlin/String, kotlin/Function3<kotlin/String, kotlin/Int, kotlin/Int, kotlin/Unit>) // kotlinx.serialization.json.internal/InternalJsonWriter.Companion.doWriteEscaping|doWriteEscaping(kotlin.String;kotlin.Function3<kotlin.String,kotlin.Int,kotlin.Int,kotlin.Unit>){}[0]
+    }
 }
 abstract interface kotlinx.serialization.json/JsonDecoder : kotlinx.serialization.encoding/CompositeDecoder, kotlinx.serialization.encoding/Decoder { // kotlinx.serialization.json/JsonDecoder|null[0]
     abstract fun decodeJsonElement(): kotlinx.serialization.json/JsonElement // kotlinx.serialization.json/JsonDecoder.decodeJsonElement|decodeJsonElement(){}[0]
@@ -296,6 +305,8 @@ final object kotlinx.serialization.json/JsonPrimitiveSerializer : kotlinx.serial
     final val descriptor // kotlinx.serialization.json/JsonPrimitiveSerializer.descriptor|{}descriptor[0]
         final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // kotlinx.serialization.json/JsonPrimitiveSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
 }
+final val kotlinx.serialization.json.internal/ESCAPE_STRINGS // kotlinx.serialization.json.internal/ESCAPE_STRINGS|{}ESCAPE_STRINGS[0]
+    final fun <get-ESCAPE_STRINGS>(): kotlin/Array<kotlin/String?> // kotlinx.serialization.json.internal/ESCAPE_STRINGS.<get-ESCAPE_STRINGS>|<get-ESCAPE_STRINGS>(){}[0]
 final val kotlinx.serialization.json/boolean // kotlinx.serialization.json/boolean|@kotlinx.serialization.json.JsonPrimitive{}boolean[0]
     final fun (kotlinx.serialization.json/JsonPrimitive).<get-boolean>(): kotlin/Boolean // kotlinx.serialization.json/boolean.<get-boolean>|<get-boolean>@kotlinx.serialization.json.JsonPrimitive(){}[0]
 final val kotlinx.serialization.json/booleanOrNull // kotlinx.serialization.json/booleanOrNull|@kotlinx.serialization.json.JsonPrimitive{}booleanOrNull[0]
