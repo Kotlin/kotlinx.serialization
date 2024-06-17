@@ -51,7 +51,7 @@ afterEvaluate {
 
     publishing {
         if (!isMultiplatform && !isBom) {
-            publications.withType<MavenPublication>().all {
+            publications.register<MavenPublication>("maven") {
                 artifactId = project.name
                 from(components["java"])
                 artifact(mainSourcesJar)
@@ -59,7 +59,7 @@ afterEvaluate {
             }
         } else {
             // Rename artifacts for backward compatibility
-            publications.withType(MavenPublication::class).all {
+            publications.withType<MavenPublication>().configureEach {
                 val type = name
                 logger.info("Configuring $type")
                 when (type) {
@@ -81,16 +81,16 @@ afterEvaluate {
             }
         }
 
-        publications.withType(MavenPublication::class).all {
-            pom.configureMavenCentralMetadata(project)
-            signPublicationIfKeyPresent(project, this)
+        publications.withType<MavenPublication>().configureEach {
+            pom.configureMavenCentralMetadata()
+            signPublicationIfKeyPresent()
         }
     }
 }
 
 publishing {
     repositories {
-        configureMavenPublication(this, project)
+        configureMavenPublication()
     }
 }
 
@@ -119,7 +119,7 @@ tasks.register("bintrayUpload") {
     dependsOn(tasks.publishToMavenLocal)
 }
 
-fun MavenPom.configureMavenCentralMetadata(project: Project) {
+fun MavenPom.configureMavenCentralMetadata() {
     name = project.name
     description = "Kotlin multiplatform serialization runtime library"
     url = "https://github.com/Kotlin/kotlinx.serialization"
@@ -158,7 +158,7 @@ fun MavenPom.configureMavenCentralMetadata(project: Project) {
  */
 public fun Project.reconfigureMultiplatformPublication(jvmPublication: MavenPublication) {
     val mavenPublications =
-        extensions.getByType(PublishingExtension::class.java).publications.withType<MavenPublication>()
+        extensions.getByType<PublishingExtension>().publications.withType<MavenPublication>()
     val kmpPublication = mavenPublications.getByName("kotlinMultiplatform")
 
     var jvmPublicationXml: XmlProvider? = null
@@ -194,24 +194,24 @@ public fun Project.reconfigureMultiplatformPublication(jvmPublication: MavenPubl
     }
 }
 
-fun signPublicationIfKeyPresent(project: Project, publication: MavenPublication) {
-    val keyId = project.getSensitiveProperty("libs.sign.key.id")
-    val signingKey = project.getSensitiveProperty("libs.sign.key.private")
-    val signingKeyPassphrase = project.getSensitiveProperty("libs.sign.passphrase")
+fun MavenPublication.signPublicationIfKeyPresent() {
+    val keyId = getSensitiveProperty("libs.sign.key.id")
+    val signingKey = getSensitiveProperty("libs.sign.key.private")
+    val signingKeyPassphrase = getSensitiveProperty("libs.sign.passphrase")
     if (!signingKey.isNullOrBlank()) {
-        project.extensions.configure<SigningExtension>("signing") {
+        extensions.configure<SigningExtension>("signing") {
             useInMemoryPgpKeys(keyId, signingKey, signingKeyPassphrase)
-            sign(publication)
+            sign(this@signPublicationIfKeyPresent)
         }
     }
 }
 
-fun configureMavenPublication(rh: RepositoryHandler, project: Project) {
-    rh.maven {
+fun RepositoryHandler.configureMavenPublication() {
+    maven {
         url = mavenRepositoryUri()
         credentials {
-            username = project.getSensitiveProperty("libs.sonatype.user")
-            password = project.getSensitiveProperty("libs.sonatype.password")
+            username = getSensitiveProperty("libs.sonatype.user")
+            password = getSensitiveProperty("libs.sonatype.password")
         }
     }
 }
@@ -226,6 +226,6 @@ fun mavenRepositoryUri(): URI {
     }
 }
 
-fun Project.getSensitiveProperty(name: String): String? {
-    return project.findProperty(name) as? String ?: System.getenv(name)
+fun getSensitiveProperty(name: String): String? {
+    return findProperty(name) as? String ?: System.getenv(name)
 }
