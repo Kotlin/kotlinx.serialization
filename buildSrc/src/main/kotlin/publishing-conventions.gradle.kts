@@ -88,9 +88,42 @@ afterEvaluate {
     }
 }
 
+val testRepositoryDir = project.layout.buildDirectory.dir("testRepository")
+
 publishing {
     repositories {
-        configureMavenPublication()
+        addSonatypeRepository()
+
+        /**
+         * Maven repository in build directory to check published artifacts.
+         */
+        maven {
+            setUrl(testRepositoryDir)
+            name = "test"
+        }
+    }
+}
+
+interface LocalArtifactAttr : Named {
+    companion object {
+        val ATTRIBUTE = Attribute.of(
+            "kotlinx.kover.gradle-plugin",
+            LocalArtifactAttr::class.java
+        )
+    }
+}
+
+val testPublicationTask: TaskCollection<*> = tasks.named { name -> name == "publishAllPublicationsToTestRepository" }
+configurations.register("testPublication") {
+    isVisible = false
+    isCanBeResolved = false
+    // this configuration produces modules that can be consumed by other projects
+    isCanBeConsumed = true
+    attributes {
+        attribute(Attribute.of("kotlinx.serialization.repository", String::class.java), "test")
+    }
+    outgoing.artifact(testRepositoryDir) {
+        builtBy(testPublicationTask)
     }
 }
 
@@ -206,7 +239,7 @@ fun MavenPublication.signPublicationIfKeyPresent() {
     }
 }
 
-fun RepositoryHandler.configureMavenPublication() {
+fun RepositoryHandler.addSonatypeRepository() {
     maven {
         url = mavenRepositoryUri()
         credentials {
