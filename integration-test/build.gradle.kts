@@ -3,6 +3,7 @@
  */
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
 import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
+import org.jetbrains.kotlin.gradle.plugin.mpp.*
 
 val serialization_version = property("mainLibVersion") as String
 
@@ -130,6 +131,16 @@ kotlin {
             allWarningsAsErrors = true
             // Suppress 'K2 kapt is an experimental feature' warning:
             freeCompilerArgs += "-Xsuppress-version-warnings"
+        }
+    }
+
+    // setup tests running in RELEASE mode
+    targets.withType<KotlinNativeTarget>().configureEach {
+        binaries.test(listOf(NativeBuildType.RELEASE))
+    }
+    targets.withType<KotlinNativeTargetWithTests<*>>().configureEach {
+        testRuns.create("releaseTest") {
+            setExecutionSourceFrom(binaries.getTest(NativeBuildType.RELEASE))
         }
     }
 }

@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.*
+import org.jetbrains.kotlin.gradle.plugin.mpp.*
 
 /*
  * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
@@ -47,6 +48,15 @@ kotlin {
         linuxArm32Hfp()
     }
 
+    // setup tests running in RELEASE mode
+    targets.withType<KotlinNativeTarget>().configureEach {
+        binaries.test(listOf(NativeBuildType.RELEASE))
+    }
+    targets.withType<KotlinNativeTargetWithTests<*>>().configureEach {
+        testRuns.create("releaseTest") {
+            setExecutionSourceFrom(binaries.getTest(NativeBuildType.RELEASE))
+        }
+    }
 }
 
 fun doesNotDependOnOkio(project: Project): Boolean {
