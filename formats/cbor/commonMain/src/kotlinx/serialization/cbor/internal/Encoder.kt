@@ -1,12 +1,25 @@
 /*
  * Copyright 2017-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
+@file:OptIn(ExperimentalSerializationApi::class, ExperimentalUnsignedTypes::class)
+
+/**
+ * k.b.cbor.CborBaseline.fromBytes                thrpt   10  1057.030 ±  6.207  ops/ms
+ * k.b.cbor.CborBaseline.toBytes                  thrpt   10  1125.402 ±  2.414  ops/ms
+ * Benchmark                                       Mode  Cnt     Score    Error   Units
+ * k.b.cbor.CborBaseline.fromBytes                thrpt   10  1062.593 ±  4.825  ops/ms
+ * k.b.cbor.CborBaseline.toBytes                  thrpt   10  1132.664 ±  3.215  ops/ms
+ * Benchmark                Mode  Cnt     Score   Error   Units
+ * CborBaseline.fromBytes  thrpt   10  1067.240 ± 7.515  ops/ms
+ * CborBaseline.toBytes    thrpt   10  1148.266 ± 8.356  ops/ms
+ */
 
 package kotlinx.serialization.cbor.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.cbor.*
+import kotlinx.serialization.cbor.internal.CborWriter.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
@@ -14,10 +27,10 @@ import kotlin.experimental.*
 
 
 //value classes are only inlined on the JVM, so we use a typealias and extensions instead
-private typealias Stack = MutableList<CborWriter.Token>
+private typealias Stack = MutableList<CborWriter.Data>
 
 private fun Stack(): Stack = mutableListOf()
-private fun Stack.push(value: CborWriter.Token) = add(value)
+private fun Stack.push(value: CborWriter.Data) = add(value)
 private fun Stack.pop() = removeLast()
 private fun Stack.peek() = last()
 
@@ -30,49 +43,8 @@ internal open class CborWriter(
 
     private var encodeByteArrayAsByteString = false
 
-    /**
-     * A single token to be encoded.
-     *
-     * Since encoding requires two passes (to count all actually to-be-encoded children of any structure), a token
-     * contains references to function which will later on actually write to a [ByteArrayOutput] to avoid pre-allocation
-     * of fire-and-forget [ByteArray]s
-     */
-    inner class Token(
-        /**
-         * Serial descriptor for future reference
-         */
-        var descriptor: SerialDescriptor?,
+    class Data(val bytes: ByteArrayOutput, var elementCount: Int)
 
-        /**
-         * reference to function container responsible for actual data encoding
-         */
-        var data: DeferredEncoding?,
-
-        /**
-         * number of children (if this is a structure)
-         */
-        var numChildren: Int = -1,
-
-        /**
-         * [Preamble] of this token containing metadata, possibly referencing tags and labels for deferred writing to a [ByteArrayOutput]
-         */
-        var preamble: Preamble? = null,
-    ) {
-
-        /**
-         * writes this token's [preamble] to [output] and invokes the [data] deferred encoding function, also writing to [output]
-         */
-        fun encode() {
-            preamble?.let { it.encode(output) }
-
-            //byteStrings are encoded into the data already, as are primitives
-            data?.let { it.encode(output) }
-        }
-
-        override fun toString(): String {
-            return "(${descriptor?.serialName}:${descriptor?.kind}, data: $data, numChildren: $numChildren)"
-        }
-    }
 
     inner class Preamble(
         private val parentDescriptor: SerialDescriptor?,
@@ -81,63 +53,8 @@ internal open class CborWriter(
         private val name: String?
     ) {
 
-        fun encode(output: ByteArrayOutput): ByteArrayOutput {
 
-            if (parentDescriptor != null) {
-                if (!parentDescriptor.hasArrayTag()) {
-                    if (cbor.writeKeyTags) parentDescriptor.getKeyTags(index)?.forEach { output.encodeTag(it) }
-
-                    if ((parentDescriptor.kind !is StructureKind.LIST) && (parentDescriptor.kind !is StructureKind.MAP) && (parentDescriptor.kind !is PolymorphicKind)) {
-                        //indices are put into the name field. we don't want to write those, as it would result in double writes
-                        if (cbor.preferCborLabelsOverNames && label != null) {
-                            output.encodeNumber(label)
-                        } else if (name != null) {
-                            output.encodeString(name)
-                        }
-                    }
-                }
-            }
-
-            if (cbor.writeValueTags) {
-                parentDescriptor?.getValueTags(index)?.forEach { output.encodeTag(it) }
-            }
-            return output
-        }
     }
-
-
-    /**
-     * Functional interface for deferred writing to a [ByteArrayOutput]
-     */
-    fun interface DeferredEncoding {
-        fun encode(output: ByteArrayOutput)
-    }
-
-    /**
-     * 2-Tuple containing data to be written to a [ByteArrayOutput] and a reference to the encoding function responsible for doing so
-     */
-    class DeferredEncode<T>(
-        private val data: T,
-        private val encodingFunction: ByteArrayOutput.(obj: T) -> Unit
-    ) : DeferredEncoding {
-        override fun encode(output: ByteArrayOutput) {
-            output.apply { encodingFunction(data) }
-        }
-    }
-
-    /**
-     * Contains a reference to an unparameterised encoding function, responsible for writing a constant to a [ByteArrayOutput]
-     */
-    class DeferredConstant(
-        private val encodingFunction: ByteArrayOutput.() -> Unit
-    ) : DeferredEncoding {
-        override fun encode(output: ByteArrayOutput) {
-            output.apply { encodingFunction() }
-        }
-    }
-
-    //currently processed token
-    private var currentToken = Token(null, null, -1, null)
 
     /**
      * Encoding requires two passes to support definite length encoding.
@@ -146,25 +63,6 @@ internal open class CborWriter(
      *
      */
     private val structureStack = Stack()
-
-    /**
-     * Encoding requires two passes to support definite length encoding.
-     *
-     * Tokens are added to the encoding queue in the order they need to be written. For definite length encoding, this is a no-brainer as the queue is populated on [encodeElement]
-     * For indefinite length encoding, additional tokens are created and added to the encoding queue every time [endStructure] is called.
-     *
-     * Encoding starts with the first token, so it is added right away
-     */
-    private val encodingQueue = mutableListOf(currentToken)
-
-    /**
-     * To be invoked after the first pass (i.e. processing all tokens, counting all children of structures etc.)
-     *
-     * Kicks off the second pass, where data is actually encoded  and written to [output]
-     */
-    fun encode() {
-        encodingQueue.forEach { it.encode() }
-    }
 
 
     override val serializersModule: SerializersModule
@@ -177,7 +75,7 @@ internal open class CborWriter(
         if ((encodeByteArrayAsByteString || cbor.alwaysUseByteString)
             && serializer.descriptor == ByteArraySerializer().descriptor
         ) {
-            currentToken.data = DeferredEncode(value as ByteArray, ByteArrayOutput::encodeByteString)
+            structureStack.peek().bytes.encodeByteString(value as ByteArray)
         } else {
             encodeByteArrayAsByteString = encodeByteArrayAsByteString || serializer.descriptor.isInlineByteString()
             super.encodeSerializableValue(serializer, value)
@@ -186,73 +84,53 @@ internal open class CborWriter(
 
     override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = cbor.encodeDefaults
 
-    @OptIn(ExperimentalSerializationApi::class)
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
-        currentToken.numChildren = 0
-
-        //if we start encoding structures directly (i.e. map, class, list, array)
-        if (encodingQueue.size == 1) {
-            currentToken.descriptor = descriptor
-        }
-
-        structureStack.push(currentToken)
+        val current = Data(ByteArrayOutput(), 0)
+        descriptor.getArrayTags()?.forEach { current.bytes.encodeTag(it) }
+        structureStack.push(current)
         return this
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
-        val beginToken = structureStack.pop()
 
-        val accumulator = mutableListOf<DeferredEncoding>()
+        val completedCurrent = structureStack.pop()
+        if (!cbor.writeDefiniteLengths)
+            completedCurrent.bytes.end()
+        if(structureStack.isEmpty()) {
+            output.copyFrom(completedCurrent.bytes)
+            return
+        }
+        val outer = structureStack.peek()
+
+        val accumulator = outer.bytes
 
         //If this nullpointers, we have a structural problem anyhow
-        val beginDescriptor = beginToken.descriptor!!
-        val numChildren = beginToken.numChildren
+        val beginDescriptor = descriptor
+        val numChildren = completedCurrent.elementCount
 
         if (beginDescriptor.hasArrayTag()) {
-            beginDescriptor.getArrayTags()?.forEach { accumulator += DeferredEncode(it, ByteArrayOutput::encodeTag) }
-            accumulator += if (cbor.writeDefiniteLengths) DeferredEncode(
-                numChildren.toULong(),
-                ByteArrayOutput::startArray
-            )
-            else DeferredConstant(ByteArrayOutput::startArray)
+            beginDescriptor.getArrayTags()?.forEach { accumulator.encodeTag(it) }
+            if (cbor.writeDefiniteLengths) accumulator.startArray(numChildren.toULong())
+            else accumulator.startArray()
         } else {
             when (beginDescriptor.kind) {
                 StructureKind.LIST, is PolymorphicKind -> {
-                    accumulator += if (cbor.writeDefiniteLengths) DeferredEncode(
-                        numChildren.toULong(),
-                        ByteArrayOutput::startArray
-                    )
-                    else DeferredConstant(ByteArrayOutput::startArray)
+                    if (cbor.writeDefiniteLengths) accumulator.startArray(numChildren.toULong())
+                    else accumulator.startArray()
                 }
 
                 is StructureKind.MAP -> {
-                    accumulator += if (cbor.writeDefiniteLengths) DeferredEncode(
-                        (numChildren / 2).toULong(),
-                        ByteArrayOutput::startMap
-                    )
-                    else DeferredConstant(ByteArrayOutput::startMap)
+                    if (cbor.writeDefiniteLengths) accumulator.startMap((numChildren / 2).toULong())
+                    else accumulator.startMap()
                 }
 
                 else -> {
-                    accumulator += if (cbor.writeDefiniteLengths) DeferredEncode(
-                        (numChildren).toULong(),
-                        ByteArrayOutput::startMap
-                    )
-                    else DeferredConstant(ByteArrayOutput::startMap)
+                    if (cbor.writeDefiniteLengths) accumulator.startMap((numChildren).toULong())
+                    else accumulator.startMap()
                 }
             }
         }
-        beginToken.data = DeferredEncoding {
-            accumulator.forEach { it.encode(output) }
-        }
-
-
-        if (!cbor.writeDefiniteLengths) {
-            Token(descriptor = descriptor, data = DeferredEncode(BREAK, ByteArrayOutput::write)).also {
-                encodingQueue += it
-                currentToken = it
-            }
-        }
+        accumulator.copyFrom(completedCurrent.bytes)
     }
 
 
@@ -261,18 +139,23 @@ internal open class CborWriter(
         val name = descriptor.getElementName(index)
         val label = descriptor.getCborLabel(index)
 
-        val preamble = Preamble(parent.descriptor, index, label, name)
+        if (!descriptor.hasArrayTag()) {
+            if (cbor.writeKeyTags) descriptor.getKeyTags(index)?.forEach { parent.bytes.encodeTag(it) }
 
-        encodeByteArrayAsByteString = descriptor.isByteString(index)
-        Token(
-            descriptor = descriptor.getElementDescriptor(index),
-            data = null,
-            preamble = preamble
-        ).also {
-            encodingQueue += it
-            currentToken = it
+            if ((descriptor.kind !is StructureKind.LIST) && (descriptor.kind !is StructureKind.MAP) && (descriptor.kind !is PolymorphicKind)) {
+                //indices are put into the name field. we don't want to write those, as it would result in double writes
+                if (cbor.preferCborLabelsOverNames && label != null) {
+                    parent.bytes.encodeNumber(label)
+                } else {
+                    parent.bytes.encodeString(name)
+                }
+            }
         }
-        structureStack.peek().numChildren += 1
+
+        if (cbor.writeValueTags) {
+            descriptor.getValueTags(index)?.forEach { parent.bytes.encodeTag(it) }
+        }
+        parent.elementCount++
         return true
     }
 
@@ -280,54 +163,52 @@ internal open class CborWriter(
     //If any of the following functions are called for serializing raw primitives (i.e. something other than a class,
     // list, map or array, no children exist and the root node needs the data
     override fun encodeString(value: String) {
-        currentToken.data = DeferredEncode(value, ByteArrayOutput::encodeString)
+        structureStack.peek().bytes.encodeString(value)
     }
 
 
     override fun encodeFloat(value: Float) {
-        currentToken.data = DeferredEncode(value, ByteArrayOutput::encodeFloat)
+        structureStack.peek().bytes.encodeFloat(value)
     }
 
 
     override fun encodeDouble(value: Double) {
-        currentToken.data = DeferredEncode(value, ByteArrayOutput::encodeDouble)
+        structureStack.peek().bytes.encodeDouble(value)
     }
 
 
     override fun encodeChar(value: Char) {
-        currentToken.data = DeferredEncode(value.code.toLong(), ByteArrayOutput::encodeNumber)
+        structureStack.peek().bytes.encodeNumber(value.code.toLong())
     }
 
 
     override fun encodeByte(value: Byte) {
-        currentToken.data = DeferredEncode(value.toLong(), ByteArrayOutput::encodeNumber)
+        structureStack.peek().bytes.encodeNumber(value.toLong())
     }
 
 
     override fun encodeShort(value: Short) {
-        currentToken.data = DeferredEncode(value.toLong(), ByteArrayOutput::encodeNumber)
+        structureStack.peek().bytes.encodeNumber(value.toLong())
     }
 
 
     override fun encodeInt(value: Int) {
-        currentToken.data = DeferredEncode(value.toLong(), ByteArrayOutput::encodeNumber)
+        structureStack.peek().bytes.encodeNumber(value.toLong())
     }
 
 
     override fun encodeLong(value: Long) {
-        currentToken.data = DeferredEncode(value, ByteArrayOutput::encodeNumber)
+        structureStack.peek().bytes.encodeNumber(value)
     }
 
 
     override fun encodeBoolean(value: Boolean) {
-        currentToken.data = DeferredEncode(value, ByteArrayOutput::encodeBoolean)
+        structureStack.peek().bytes.encodeBoolean(value)
     }
 
 
     override fun encodeNull() {
-        currentToken.data =
-            if (currentToken.descriptor?.kind == StructureKind.CLASS) DeferredConstant(ByteArrayOutput::encodeEmptyMap)
-            else DeferredConstant(ByteArrayOutput::encodeNull)
+        structureStack.peek().bytes.encodeNull()
 
     }
 
@@ -337,13 +218,11 @@ internal open class CborWriter(
         enumDescriptor: SerialDescriptor,
         index: Int
     ) {
-        currentToken.data = DeferredEncode(enumDescriptor.getElementName(index), ByteArrayOutput::encodeString)
+        structureStack.peek().bytes.encodeString(enumDescriptor.getElementName(index))
     }
 
 
 }
-
-
 
 
 private fun ByteArrayOutput.startArray() = write(BEGIN_ARRAY)

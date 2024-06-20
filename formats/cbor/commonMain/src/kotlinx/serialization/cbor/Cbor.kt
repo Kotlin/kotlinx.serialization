@@ -60,7 +60,7 @@ public sealed class Cbor(
         val output = ByteArrayOutput()
         val dumper = CborWriter(this, output)
         dumper.encodeSerializableValue(serializer, value)
-        dumper.encode()
+
         return output.toByteArray()
 
     }

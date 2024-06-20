@@ -58,6 +58,7 @@ dependencies {
     implementation(libs.jackson.module.kotlin)
     implementation(libs.okio)
     implementation(project(":kotlinx-serialization-core"))
+    implementation(project(":kotlinx-serialization-cbor"))
     implementation(project(":kotlinx-serialization-json"))
     implementation(project(":kotlinx-serialization-json-okio"))
     implementation(project(":kotlinx-serialization-protobuf"))
