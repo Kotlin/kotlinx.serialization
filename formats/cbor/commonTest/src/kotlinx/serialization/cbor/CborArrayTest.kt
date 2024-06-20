@@ -91,7 +91,7 @@ class CborArrayTest {
         val alg: Int,
     )
 
-    @CborArray(8U)
+    @CborArray(Tag(8U))
     @Serializable
     data class ClassAs2Array(
         @SerialName("alg")

@@ -37,4 +37,10 @@ import kotlinx.serialization.*
 @SerialInfo
 @Target(AnnotationTarget.CLASS)
 @ExperimentalSerializationApi
-public annotation class CborArray(@OptIn(ExperimentalUnsignedTypes::class) vararg val tag: ULong)
+public annotation class CborArray(vararg val tag: Tag)
+
+
+@SerialInfo
+@Target(AnnotationTarget.ANNOTATION_CLASS)
+@ExperimentalSerializationApi
+public annotation class Tag(val tag: ULong)

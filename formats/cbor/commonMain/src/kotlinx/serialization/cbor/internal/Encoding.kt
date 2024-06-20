@@ -1075,8 +1075,8 @@ private fun SerialDescriptor.getElementNameForCborLabel(label: Long): String? {
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-private fun SerialDescriptor.getArrayTags(): ULongArray? {
-    return annotations.filterIsInstance<CborArray>().firstOrNull()?.tag
+private fun SerialDescriptor.getArrayTags(): Collection<ULong>? {
+    return annotations.filterIsInstance<CborArray>().firstOrNull()?.tag?.map { it.tag }
 }
 
 @OptIn(ExperimentalSerializationApi::class)
