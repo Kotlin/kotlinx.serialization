@@ -64,9 +64,9 @@ open annotation class kotlinx.serialization.cbor/ByteString : kotlin/Annotation 
     constructor <init>() // kotlinx.serialization.cbor/ByteString.<init>|<init>(){}[0]
 }
 open annotation class kotlinx.serialization.cbor/CborArray : kotlin/Annotation { // kotlinx.serialization.cbor/CborArray|null[0]
-    constructor <init>(kotlin/ULongArray...) // kotlinx.serialization.cbor/CborArray.<init>|<init>(kotlin.ULongArray...){}[0]
+    constructor <init>(kotlin/Array<out kotlinx.serialization.cbor/Tag>...) // kotlinx.serialization.cbor/CborArray.<init>|<init>(kotlin.Array<out|kotlinx.serialization.cbor.Tag>...){}[0]
     final val tag // kotlinx.serialization.cbor/CborArray.tag|{}tag[0]
-        final fun <get-tag>(): kotlin/ULongArray // kotlinx.serialization.cbor/CborArray.tag.<get-tag>|<get-tag>(){}[0]
+        final fun <get-tag>(): kotlin/Array<out kotlinx.serialization.cbor/Tag> // kotlinx.serialization.cbor/CborArray.tag.<get-tag>|<get-tag>(){}[0]
 }
 open annotation class kotlinx.serialization.cbor/CborLabel : kotlin/Annotation { // kotlinx.serialization.cbor/CborLabel|null[0]
     constructor <init>(kotlin/Long) // kotlinx.serialization.cbor/CborLabel.<init>|<init>(kotlin.Long){}[0]
@@ -77,6 +77,11 @@ open annotation class kotlinx.serialization.cbor/KeyTags : kotlin/Annotation { /
     constructor <init>(kotlin/ULongArray...) // kotlinx.serialization.cbor/KeyTags.<init>|<init>(kotlin.ULongArray...){}[0]
     final val tags // kotlinx.serialization.cbor/KeyTags.tags|{}tags[0]
         final fun <get-tags>(): kotlin/ULongArray // kotlinx.serialization.cbor/KeyTags.tags.<get-tags>|<get-tags>(){}[0]
+}
+open annotation class kotlinx.serialization.cbor/Tag : kotlin/Annotation { // kotlinx.serialization.cbor/Tag|null[0]
+    constructor <init>(kotlin/ULong) // kotlinx.serialization.cbor/Tag.<init>|<init>(kotlin.ULong){}[0]
+    final val tag // kotlinx.serialization.cbor/Tag.tag|{}tag[0]
+        final fun <get-tag>(): kotlin/ULong // kotlinx.serialization.cbor/Tag.tag.<get-tag>|<get-tag>(){}[0]
 }
 open annotation class kotlinx.serialization.cbor/ValueTags : kotlin/Annotation { // kotlinx.serialization.cbor/ValueTags|null[0]
     constructor <init>(kotlin/ULongArray...) // kotlinx.serialization.cbor/ValueTags.<init>|<init>(kotlin.ULongArray...){}[0]

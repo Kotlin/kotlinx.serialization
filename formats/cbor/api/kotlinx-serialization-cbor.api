@@ -41,12 +41,12 @@ public final class kotlinx/serialization/cbor/Cbor$Default : kotlinx/serializati
 }
 
 public abstract interface annotation class kotlinx/serialization/cbor/CborArray : java/lang/annotation/Annotation {
-	public abstract fun tag ()[J
+	public abstract fun tag ()[Lkotlinx/serialization/cbor/Tag;
 }
 
 public synthetic class kotlinx/serialization/cbor/CborArray$Impl : kotlinx/serialization/cbor/CborArray {
-	public synthetic fun <init> ([JLkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final synthetic fun tag ()[J
+	public fun <init> ([Lkotlinx/serialization/cbor/Tag;)V
+	public final synthetic fun tag ()[Lkotlinx/serialization/cbor/Tag;
 }
 
 public final class kotlinx/serialization/cbor/CborBuilder {
@@ -93,6 +93,15 @@ public abstract interface annotation class kotlinx/serialization/cbor/KeyTags : 
 public synthetic class kotlinx/serialization/cbor/KeyTags$Impl : kotlinx/serialization/cbor/KeyTags {
 	public synthetic fun <init> ([JLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final synthetic fun tags ()[J
+}
+
+public abstract interface annotation class kotlinx/serialization/cbor/Tag : java/lang/annotation/Annotation {
+	public abstract fun tag ()J
+}
+
+public synthetic class kotlinx/serialization/cbor/Tag$Impl : kotlinx/serialization/cbor/Tag {
+	public synthetic fun <init> (JLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final synthetic fun tag ()J
 }
 
 public abstract interface annotation class kotlinx/serialization/cbor/ValueTags : java/lang/annotation/Annotation {
