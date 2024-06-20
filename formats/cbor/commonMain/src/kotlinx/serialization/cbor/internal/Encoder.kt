@@ -12,6 +12,12 @@
  * Benchmark                Mode  Cnt     Score   Error   Units
  * CborBaseline.fromBytes  thrpt   10  1067.240 ± 7.515  ops/ms
  * CborBaseline.toBytes    thrpt   10  1148.266 ± 8.356  ops/ms
+ * Benchmark                Mode  Cnt     Score   Error   Units
+ * CborBaseline.fromBytes  thrpt   10  1065.431 ± 4.217  ops/ms
+ * CborBaseline.toBytes    thrpt   10  1043.322 ± 5.506  ops/ms
+ *
+ * CborBaseline.fromBytes  thrpt   10  1073.279 ± 4.196  ops/ms
+ * CborBaseline.toBytes    thrpt   10  1107.893 ± 5.853  ops/ms
  */
 
 package kotlinx.serialization.cbor.internal
@@ -19,7 +25,6 @@ package kotlinx.serialization.cbor.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.cbor.*
-import kotlinx.serialization.cbor.internal.CborWriter.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
@@ -29,7 +34,7 @@ import kotlin.experimental.*
 //value classes are only inlined on the JVM, so we use a typealias and extensions instead
 private typealias Stack = MutableList<CborWriter.Data>
 
-private fun Stack(): Stack = mutableListOf()
+private fun Stack(vararg elements:CborWriter.Data): Stack = mutableListOf(*elements)
 private fun Stack.push(value: CborWriter.Data) = add(value)
 private fun Stack.pop() = removeLast()
 private fun Stack.peek() = last()
@@ -37,24 +42,14 @@ private fun Stack.peek() = last()
 // Writes class as map [fieldName, fieldValue]
 internal open class CborWriter(
     private val cbor: Cbor,
-    protected val output: ByteArrayOutput,
+    output: ByteArrayOutput,
 ) : AbstractEncoder() {
-
+    var isClass = false
 
     private var encodeByteArrayAsByteString = false
 
     class Data(val bytes: ByteArrayOutput, var elementCount: Int)
 
-
-    inner class Preamble(
-        private val parentDescriptor: SerialDescriptor?,
-        private val index: Int,
-        private val label: Long?,
-        private val name: String?
-    ) {
-
-
-    }
 
     /**
      * Encoding requires two passes to support definite length encoding.
@@ -62,7 +57,7 @@ internal open class CborWriter(
      * Tokens are pushed to the stack when a structure starts, and popped when a structure ends. In between the number to children, which **actually** need to be written, are counted
      *
      */
-    private val structureStack = Stack()
+    private val structureStack = Stack(Data(output,-1))
 
 
     override val serializersModule: SerializersModule
@@ -86,7 +81,7 @@ internal open class CborWriter(
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
         val current = Data(ByteArrayOutput(), 0)
-        descriptor.getArrayTags()?.forEach { current.bytes.encodeTag(it) }
+        //    descriptor.getArrayTags()?.forEach { current.bytes.encodeTag(it) }
         structureStack.push(current)
         return this
     }
@@ -96,13 +91,8 @@ internal open class CborWriter(
         val completedCurrent = structureStack.pop()
         if (!cbor.writeDefiniteLengths)
             completedCurrent.bytes.end()
-        if(structureStack.isEmpty()) {
-            output.copyFrom(completedCurrent.bytes)
-            return
-        }
-        val outer = structureStack.peek()
 
-        val accumulator = outer.bytes
+        val accumulator =  structureStack.peek().bytes
 
         //If this nullpointers, we have a structural problem anyhow
         val beginDescriptor = descriptor
@@ -135,6 +125,8 @@ internal open class CborWriter(
 
 
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
+        isClass = descriptor.getElementDescriptor(index).kind == StructureKind.CLASS
+        encodeByteArrayAsByteString = descriptor.isByteString(index)
         val parent = structureStack.peek()
         val name = descriptor.getElementName(index)
         val label = descriptor.getCborLabel(index)
@@ -163,12 +155,12 @@ internal open class CborWriter(
     //If any of the following functions are called for serializing raw primitives (i.e. something other than a class,
     // list, map or array, no children exist and the root node needs the data
     override fun encodeString(value: String) {
-        structureStack.peek().bytes.encodeString(value)
+      structureStack.peek().bytes.encodeString(value)
     }
 
 
     override fun encodeFloat(value: Float) {
-        structureStack.peek().bytes.encodeFloat(value)
+       structureStack.peek().bytes.encodeFloat(value)
     }
 
 
@@ -183,22 +175,21 @@ internal open class CborWriter(
 
 
     override fun encodeByte(value: Byte) {
-        structureStack.peek().bytes.encodeNumber(value.toLong())
+         structureStack.peek().bytes.encodeNumber(value.toLong())
     }
 
 
     override fun encodeShort(value: Short) {
-        structureStack.peek().bytes.encodeNumber(value.toLong())
+      structureStack.peek().bytes.encodeNumber(value.toLong())
     }
 
-
     override fun encodeInt(value: Int) {
-        structureStack.peek().bytes.encodeNumber(value.toLong())
+     structureStack.peek().bytes.encodeNumber(value.toLong())
     }
 
 
     override fun encodeLong(value: Long) {
-        structureStack.peek().bytes.encodeNumber(value)
+       structureStack.peek().bytes.encodeNumber(value)
     }
 
 
@@ -208,43 +199,34 @@ internal open class CborWriter(
 
 
     override fun encodeNull() {
-        structureStack.peek().bytes.encodeNull()
-
+        if (isClass)  structureStack.peek().bytes.encodeEmptyMap()
+        else  structureStack.peek().bytes.encodeNull()
     }
-
 
     @OptIn(ExperimentalSerializationApi::class) // KT-46731
     override fun encodeEnum(
         enumDescriptor: SerialDescriptor,
         index: Int
     ) {
-        structureStack.peek().bytes.encodeString(enumDescriptor.getElementName(index))
+         structureStack.peek().bytes.encodeString(enumDescriptor.getElementName(index))
     }
-
-
 }
 
 
 private fun ByteArrayOutput.startArray() = write(BEGIN_ARRAY)
 
 private fun ByteArrayOutput.startArray(size: ULong) {
-    val encodedNumber = composePositive(size)
-    encodedNumber[0] = encodedNumber[0] or HEADER_ARRAY.toUByte().toByte()
-    encodedNumber.forEach { this.writeByte(it.toUByte().toInt()) }
+ composePositiveInline(size,HEADER_ARRAY)
 }
 
 private fun ByteArrayOutput.startMap() = write(BEGIN_MAP)
 
 private fun ByteArrayOutput.startMap(size: ULong) {
-    val encodedNumber = composePositive(size)
-    encodedNumber[0] = encodedNumber[0] or HEADER_MAP.toUByte().toByte()
-    encodedNumber.forEach { this.writeByte(it.toUByte().toInt()) }
+  composePositiveInline(size, HEADER_MAP)
 }
 
 private fun ByteArrayOutput.encodeTag(tag: ULong) {
-    val encodedTag = composePositive(tag)
-    encodedTag[0] = encodedTag[0] or HEADER_TAG.toUByte().toByte()
-    encodedTag.forEach { this.writeByte(it.toUByte().toInt()) }
+    composePositiveInline(tag, HEADER_TAG)
 }
 
 internal fun ByteArrayOutput.end() = write(BREAK)
@@ -297,12 +279,33 @@ internal fun ByteArrayOutput.encodeDouble(value: Double) {
 private fun composeNumber(value: Long): ByteArray =
     if (value >= 0) composePositive(value.toULong()) else composeNegative(value)
 
+private fun ByteArrayOutput.composePositiveInline(value: ULong, mod: Int) = when (value) {
+    in 0u..23u -> writeByte(value.toInt() or mod)
+    in 24u..UByte.MAX_VALUE.toUInt() -> {
+        writeByte(24 or mod)
+        writeByte(value.toInt())
+    }
+    in (UByte.MAX_VALUE.toUInt() + 1u)..UShort.MAX_VALUE.toUInt() -> encodeToInline(value, 2, 25 or mod)
+    in (UShort.MAX_VALUE.toUInt() + 1u)..UInt.MAX_VALUE -> encodeToInline(value, 4, 26 or mod )
+    else -> encodeToInline(value, 8, 27 or mod)
+}
+
+
 private fun composePositive(value: ULong): ByteArray = when (value) {
     in 0u..23u -> byteArrayOf(value.toByte())
     in 24u..UByte.MAX_VALUE.toUInt() -> byteArrayOf(24, value.toByte())
     in (UByte.MAX_VALUE.toUInt() + 1u)..UShort.MAX_VALUE.toUInt() -> encodeToByteArray(value, 2, 25)
     in (UShort.MAX_VALUE.toUInt() + 1u)..UInt.MAX_VALUE -> encodeToByteArray(value, 4, 26)
     else -> encodeToByteArray(value, 8, 27)
+}
+
+
+private fun ByteArrayOutput.encodeToInline(value: ULong, bytes: Int, tag: Int) {
+    val limit = bytes * 8 - 8
+    writeByte(tag)
+    for (i in 0 until bytes) {
+        writeByte (((value shr (limit - 8 * i)) and 0xFFu).toInt())
+    }
 }
 
 private fun encodeToByteArray(value: ULong, bytes: Int, tag: Byte): ByteArray {
