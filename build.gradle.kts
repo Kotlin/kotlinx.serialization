@@ -11,6 +11,7 @@ plugins {
     id("org.jetbrains.kotlinx.binary-compatibility-validator")
     id("org.jetbrains.dokka")
     id("benchmark-conventions")
+    id("publishing-check-conventions")
 
     alias(libs.plugins.serialization) apply false
 }
@@ -112,75 +113,14 @@ subprojects {
 }
 
 // == publishing setup ==
-val testRepositoryDependency = configurations.create("testRepository") {
-    isVisible = true
-    isCanBeResolved = false
-    isCanBeConsumed = false
-}
 
 val mergeProject = project
 
 subprojects {
     if (name in unpublishedProjects) return@subprojects
     apply(plugin = "publishing-conventions")
-    mergeProject.dependencies.add(testRepositoryDependency.name, this)
+    mergeProject.dependencies.add(Publishing_check_conventions_gradle.TestPublishing.configurationName, this)
 }
-
-
-
-val testRepositories = configurations.create("testRepositories") {
-    isVisible = false
-    isCanBeResolved = true
-    // this config consumes modules from OTHER projects, and cannot be consumed by other projects
-    isCanBeConsumed = false
-
-    attributes {
-        attribute(Attribute.of("kotlinx.serialization.repository", String::class.java), "test")
-    }
-    extendsFrom(testRepositoryDependency)
-}
-
-tasks.register<ArtifactsCheckTask>("checkArtifacts") {
-    repositories.from(testRepositories)
-}
-
-abstract class ArtifactsCheckTask: DefaultTask() {
-
-    @get:InputFiles
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val repositories: ConfigurableFileCollection
-
-    @TaskAction
-    fun check() {
-        val actualArtifacts = repositories.files.flatMap { file ->
-            file.resolve("org/jetbrains/kotlinx").list()?.toSet() ?: emptySet()
-        }.toSortedSet()
-
-        if (project.hasProperty("dumpArtifacts")) {
-            project.rootDir.resolve("artifacts.txt").bufferedWriter().use { writer ->
-                actualArtifacts.forEach { artifact -> writer.appendLine(artifact) }
-            }
-            return
-        }
-
-        val expectedArtifacts = project.rootDir.resolve("artifacts.txt").readLines().toSet()
-
-        if (expectedArtifacts == actualArtifacts) {
-            logger.lifecycle("All artifacts are published")
-        } else {
-            val missedArtifacts = expectedArtifacts - actualArtifacts
-            val unknownArtifacts = actualArtifacts - expectedArtifacts
-            val message = "The published artifacts differ from the expected ones." +
-                (if (missedArtifacts.isNotEmpty()) missedArtifacts.joinToString(prefix = "\n\tMissing artifacts: ") else "") +
-                (if (unknownArtifacts.isNotEmpty()) unknownArtifacts.joinToString(prefix = "\n\tUnknown artifacts: ") else "") +
-                    "\nTo save current list of artifacts as expecting, call 'checkArtifacts -PdumpArtifacts'"
-
-            logger.error(message)
-            throw GradleException("The published artifacts differ from the expected ones")
-        }
-    }
-}
-
 
 // == animalsniffer setup ==
 subprojects {
