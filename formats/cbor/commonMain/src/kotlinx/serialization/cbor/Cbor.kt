@@ -54,11 +54,15 @@ public sealed class Cbor(
     /**
      * The default instance of [Cbor]
      */
-    public companion object Default : Cbor(false, false, true, true, true, true,  false, true, false, EmptySerializersModule())
+    public companion object Default :
+        Cbor(false, false, true, true, true, true, false, true, false, EmptySerializersModule())
 
     override fun <T> encodeToByteArray(serializer: SerializationStrategy<T>, value: T): ByteArray {
         val output = ByteArrayOutput()
-        val dumper = CborWriter(this, output)
+        val dumper = if (writeDefiniteLengths) DefiniteLengthCborWriter(this, output) else IndefiniteLengthCborWriter(
+            this,
+            output
+        )
         dumper.encodeSerializableValue(serializer, value)
 
         return output.toByteArray()

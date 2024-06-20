@@ -34,31 +34,23 @@ import kotlin.experimental.*
 //value classes are only inlined on the JVM, so we use a typealias and extensions instead
 private typealias Stack = MutableList<CborWriter.Data>
 
-private fun Stack(vararg elements:CborWriter.Data): Stack = mutableListOf(*elements)
+private fun Stack(vararg elements: CborWriter.Data): Stack = mutableListOf(*elements)
 private fun Stack.push(value: CborWriter.Data) = add(value)
 private fun Stack.pop() = removeLast()
 private fun Stack.peek() = last()
 
 // Writes class as map [fieldName, fieldValue]
-internal open class CborWriter(
-    private val cbor: Cbor,
-    output: ByteArrayOutput,
+internal sealed class CborWriter(
+    protected val cbor: Cbor,
+    protected val output: ByteArrayOutput,
 ) : AbstractEncoder() {
-    var isClass = false
+    protected var isClass = false
 
-    private var encodeByteArrayAsByteString = false
+    protected var encodeByteArrayAsByteString = false
 
     class Data(val bytes: ByteArrayOutput, var elementCount: Int)
 
-
-    /**
-     * Encoding requires two passes to support definite length encoding.
-     *
-     * Tokens are pushed to the stack when a structure starts, and popped when a structure ends. In between the number to children, which **actually** need to be written, are counted
-     *
-     */
-    private val structureStack = Stack(Data(output,-1))
-
+    protected abstract fun getDestination(): ByteArrayOutput
 
     override val serializersModule: SerializersModule
         get() = cbor.serializersModule
@@ -70,7 +62,7 @@ internal open class CborWriter(
         if ((encodeByteArrayAsByteString || cbor.alwaysUseByteString)
             && serializer.descriptor == ByteArraySerializer().descriptor
         ) {
-            structureStack.peek().bytes.encodeByteString(value as ByteArray)
+            getDestination().encodeByteString(value as ByteArray)
         } else {
             encodeByteArrayAsByteString = encodeByteArrayAsByteString || serializer.descriptor.isInlineByteString()
             super.encodeSerializableValue(serializer, value)
@@ -79,128 +71,86 @@ internal open class CborWriter(
 
     override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = cbor.encodeDefaults
 
-    override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
-        val current = Data(ByteArrayOutput(), 0)
-        //    descriptor.getArrayTags()?.forEach { current.bytes.encodeTag(it) }
-        structureStack.push(current)
-        return this
-    }
-
-    override fun endStructure(descriptor: SerialDescriptor) {
-
-        val completedCurrent = structureStack.pop()
-        if (!cbor.writeDefiniteLengths)
-            completedCurrent.bytes.end()
-
-        val accumulator =  structureStack.peek().bytes
-
-        //If this nullpointers, we have a structural problem anyhow
-        val beginDescriptor = descriptor
-        val numChildren = completedCurrent.elementCount
-
-        if (beginDescriptor.hasArrayTag()) {
-            beginDescriptor.getArrayTags()?.forEach { accumulator.encodeTag(it) }
-            if (cbor.writeDefiniteLengths) accumulator.startArray(numChildren.toULong())
-            else accumulator.startArray()
-        } else {
-            when (beginDescriptor.kind) {
-                StructureKind.LIST, is PolymorphicKind -> {
-                    if (cbor.writeDefiniteLengths) accumulator.startArray(numChildren.toULong())
-                    else accumulator.startArray()
-                }
-
-                is StructureKind.MAP -> {
-                    if (cbor.writeDefiniteLengths) accumulator.startMap((numChildren / 2).toULong())
-                    else accumulator.startMap()
-                }
-
-                else -> {
-                    if (cbor.writeDefiniteLengths) accumulator.startMap((numChildren).toULong())
-                    else accumulator.startMap()
-                }
-            }
-        }
-        accumulator.copyFrom(completedCurrent.bytes)
-    }
-
 
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
         isClass = descriptor.getElementDescriptor(index).kind == StructureKind.CLASS
         encodeByteArrayAsByteString = descriptor.isByteString(index)
-        val parent = structureStack.peek()
+
         val name = descriptor.getElementName(index)
         val label = descriptor.getCborLabel(index)
 
         if (!descriptor.hasArrayTag()) {
-            if (cbor.writeKeyTags) descriptor.getKeyTags(index)?.forEach { parent.bytes.encodeTag(it) }
+            if (cbor.writeKeyTags) descriptor.getKeyTags(index)?.forEach { getDestination().encodeTag(it) }
 
             if ((descriptor.kind !is StructureKind.LIST) && (descriptor.kind !is StructureKind.MAP) && (descriptor.kind !is PolymorphicKind)) {
                 //indices are put into the name field. we don't want to write those, as it would result in double writes
                 if (cbor.preferCborLabelsOverNames && label != null) {
-                    parent.bytes.encodeNumber(label)
+                    getDestination().encodeNumber(label)
                 } else {
-                    parent.bytes.encodeString(name)
+                    getDestination().encodeString(name)
                 }
             }
         }
 
         if (cbor.writeValueTags) {
-            descriptor.getValueTags(index)?.forEach { parent.bytes.encodeTag(it) }
+            descriptor.getValueTags(index)?.forEach { getDestination().encodeTag(it) }
         }
-        parent.elementCount++
+        incrementChildren()
         return true
     }
+
+    protected abstract fun incrementChildren()
 
 
     //If any of the following functions are called for serializing raw primitives (i.e. something other than a class,
     // list, map or array, no children exist and the root node needs the data
     override fun encodeString(value: String) {
-      structureStack.peek().bytes.encodeString(value)
+        getDestination().encodeString(value)
     }
 
 
     override fun encodeFloat(value: Float) {
-       structureStack.peek().bytes.encodeFloat(value)
+        getDestination().encodeFloat(value)
     }
 
 
     override fun encodeDouble(value: Double) {
-        structureStack.peek().bytes.encodeDouble(value)
+        getDestination().encodeDouble(value)
     }
 
 
     override fun encodeChar(value: Char) {
-        structureStack.peek().bytes.encodeNumber(value.code.toLong())
+        getDestination().encodeNumber(value.code.toLong())
     }
 
 
     override fun encodeByte(value: Byte) {
-         structureStack.peek().bytes.encodeNumber(value.toLong())
+        getDestination().encodeNumber(value.toLong())
     }
 
 
     override fun encodeShort(value: Short) {
-      structureStack.peek().bytes.encodeNumber(value.toLong())
+        getDestination().encodeNumber(value.toLong())
     }
 
     override fun encodeInt(value: Int) {
-     structureStack.peek().bytes.encodeNumber(value.toLong())
+        getDestination().encodeNumber(value.toLong())
     }
 
 
     override fun encodeLong(value: Long) {
-       structureStack.peek().bytes.encodeNumber(value)
+        getDestination().encodeNumber(value)
     }
 
 
     override fun encodeBoolean(value: Boolean) {
-        structureStack.peek().bytes.encodeBoolean(value)
+        getDestination().encodeBoolean(value)
     }
 
 
     override fun encodeNull() {
-        if (isClass)  structureStack.peek().bytes.encodeEmptyMap()
-        else  structureStack.peek().bytes.encodeNull()
+        if (isClass) getDestination().encodeEmptyMap()
+        else getDestination().encodeNull()
     }
 
     @OptIn(ExperimentalSerializationApi::class) // KT-46731
@@ -208,21 +158,139 @@ internal open class CborWriter(
         enumDescriptor: SerialDescriptor,
         index: Int
     ) {
-         structureStack.peek().bytes.encodeString(enumDescriptor.getElementName(index))
+        getDestination().encodeString(enumDescriptor.getElementName(index))
     }
+}
+
+
+// Writes class as map [fieldName, fieldValue]
+internal class IndefiniteLengthCborWriter(cbor: Cbor, output: ByteArrayOutput) : CborWriter(
+    cbor, output
+) {
+
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
+        if (descriptor.hasArrayTag()) {
+            descriptor.getArrayTags()?.forEach { output.encodeTag(it) }
+            output.startArray()
+        } else {
+            when (descriptor.kind) {
+                StructureKind.LIST, is PolymorphicKind -> {
+                    output.startArray()
+                }
+
+                is StructureKind.MAP -> {
+                    output.startMap()
+                }
+
+                else -> {
+                    output.startMap()
+                }
+            }
+        }
+
+        return this
+    }
+
+    override fun endStructure(descriptor: SerialDescriptor) {
+        output.end()
+    }
+
+    override fun getDestination(): ByteArrayOutput = output
+
+
+    override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
+        isClass = descriptor.getElementDescriptor(index).kind == StructureKind.CLASS
+        encodeByteArrayAsByteString = descriptor.isByteString(index)
+
+        val name = descriptor.getElementName(index)
+        val label = descriptor.getCborLabel(index)
+
+        if (!descriptor.hasArrayTag()) {
+            if (cbor.writeKeyTags) descriptor.getKeyTags(index)?.forEach { output.encodeTag(it) }
+
+            if ((descriptor.kind !is StructureKind.LIST) && (descriptor.kind !is StructureKind.MAP) && (descriptor.kind !is PolymorphicKind)) {
+                //indices are put into the name field. we don't want to write those, as it would result in double writes
+                if (cbor.preferCborLabelsOverNames && label != null) {
+                    output.encodeNumber(label)
+                } else {
+                    output.encodeString(name)
+                }
+            }
+        }
+
+        if (cbor.writeValueTags) {
+            descriptor.getValueTags(index)?.forEach { output.encodeTag(it) }
+        }
+
+        return true
+    }
+
+    override fun incrementChildren() {/*NOOP*/
+    }
+
+}
+
+open internal class DefiniteLengthCborWriter(cbor: Cbor, output: ByteArrayOutput) : CborWriter(cbor, output) {
+
+    private val structureStack = Stack(Data(output, -1))
+    override fun getDestination(): ByteArrayOutput =
+        structureStack.peek().bytes
+
+
+    override fun incrementChildren() {
+        structureStack.peek().elementCount++
+    }
+
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
+        val current = Data(ByteArrayOutput(), 0)
+        structureStack.push(current)
+        return this
+    }
+
+    override fun endStructure(descriptor: SerialDescriptor) {
+
+        val completedCurrent = structureStack.pop()
+
+        val accumulator = getDestination()
+
+        //If this nullpointers, we have a structural problem anyhow
+        val beginDescriptor = descriptor
+        val numChildren = completedCurrent.elementCount
+
+        if (beginDescriptor.hasArrayTag()) {
+            beginDescriptor.getArrayTags()?.forEach { accumulator.encodeTag(it) }
+            accumulator.startArray(numChildren.toULong())
+        } else {
+            when (beginDescriptor.kind) {
+                StructureKind.LIST, is PolymorphicKind -> {
+                    accumulator.startArray(numChildren.toULong())
+                }
+
+                is StructureKind.MAP -> {
+                    accumulator.startMap((numChildren / 2).toULong())
+                }
+
+                else -> {
+                    accumulator.startMap((numChildren).toULong())
+                }
+            }
+        }
+        accumulator.copyFrom(completedCurrent.bytes)
+    }
+
 }
 
 
 private fun ByteArrayOutput.startArray() = write(BEGIN_ARRAY)
 
 private fun ByteArrayOutput.startArray(size: ULong) {
- composePositiveInline(size,HEADER_ARRAY)
+    composePositiveInline(size, HEADER_ARRAY)
 }
 
 private fun ByteArrayOutput.startMap() = write(BEGIN_MAP)
 
 private fun ByteArrayOutput.startMap(size: ULong) {
-  composePositiveInline(size, HEADER_MAP)
+    composePositiveInline(size, HEADER_MAP)
 }
 
 private fun ByteArrayOutput.encodeTag(tag: ULong) {
@@ -285,8 +353,9 @@ private fun ByteArrayOutput.composePositiveInline(value: ULong, mod: Int) = when
         writeByte(24 or mod)
         writeByte(value.toInt())
     }
+
     in (UByte.MAX_VALUE.toUInt() + 1u)..UShort.MAX_VALUE.toUInt() -> encodeToInline(value, 2, 25 or mod)
-    in (UShort.MAX_VALUE.toUInt() + 1u)..UInt.MAX_VALUE -> encodeToInline(value, 4, 26 or mod )
+    in (UShort.MAX_VALUE.toUInt() + 1u)..UInt.MAX_VALUE -> encodeToInline(value, 4, 26 or mod)
     else -> encodeToInline(value, 8, 27 or mod)
 }
 
@@ -304,7 +373,7 @@ private fun ByteArrayOutput.encodeToInline(value: ULong, bytes: Int, tag: Int) {
     val limit = bytes * 8 - 8
     writeByte(tag)
     for (i in 0 until bytes) {
-        writeByte (((value shr (limit - 8 * i)) and 0xFFu).toInt())
+        writeByte(((value shr (limit - 8 * i)) and 0xFFu).toInt())
     }
 }
 
