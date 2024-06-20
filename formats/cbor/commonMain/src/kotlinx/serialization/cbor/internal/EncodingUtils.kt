@@ -6,13 +6,8 @@
 package kotlinx.serialization.cbor.internal
 
 import kotlinx.serialization.*
-import kotlinx.serialization.builtins.*
 import kotlinx.serialization.cbor.*
-import kotlinx.serialization.cbor.internal.CborWriter.*
 import kotlinx.serialization.descriptors.*
-import kotlinx.serialization.encoding.*
-import kotlinx.serialization.modules.*
-import kotlin.experimental.*
 
 internal const val FALSE = 0xf4
 internal const val TRUE = 0xf5
@@ -29,8 +24,8 @@ internal const val BREAK = 0xff
 
 internal const val ADDITIONAL_INFORMATION_INDEFINITE_LENGTH = 0x1f
 
-internal const val HEADER_BYTE_STRING: Byte = 0b010_00000
-internal const val HEADER_STRING: Byte = 0b011_00000
+internal const val HEADER_BYTE_STRING: Int = 0b010_00000
+internal const val HEADER_STRING: Int = 0b011_00000
 internal const val HEADER_NEGATIVE: Byte = 0b001_00000
 internal const val HEADER_ARRAY: Int = 0b100_00000
 internal const val HEADER_MAP: Int = 0b101_00000
