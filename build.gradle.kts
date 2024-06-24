@@ -11,6 +11,7 @@ plugins {
     id("org.jetbrains.kotlinx.binary-compatibility-validator")
     id("org.jetbrains.dokka")
     id("benchmark-conventions")
+    id("publishing-check-conventions")
 
     alias(libs.plugins.serialization) apply false
 }
@@ -111,23 +112,33 @@ subprojects {
     apply(plugin = "publishing-conventions")
 }
 
+// == publishing setup ==
+
+val mergeProject = project
+
+subprojects {
+    if (name in unpublishedProjects) return@subprojects
+    apply(plugin = "publishing-conventions")
+    mergeProject.dependencies.add(Publishing_check_conventions_gradle.TestPublishing.configurationName, this)
+}
+
 // == animalsniffer setup ==
 subprojects {
     // Can't be applied to BOM
-    if (excludedFromBomProjects.contains(project.name)) return@subprojects
+    if (project.name in excludedFromBomProjects) return@subprojects
     apply(plugin = "animalsniffer-conventions")
 }
 
 // == BOM setup ==
 subprojects {
     // Can't be applied to BOM
-    if (excludedFromBomProjects.contains(project.name)) return@subprojects
+    if (project.name in excludedFromBomProjects) return@subprojects
     apply(plugin = "bom-conventions")
 }
 
 // == Kover setup ==
 subprojects {
-    if (uncoveredProjects.contains(project.name)) return@subprojects
+    if (project.name in uncoveredProjects) return@subprojects
     apply(plugin = "kover-conventions")
 }
 

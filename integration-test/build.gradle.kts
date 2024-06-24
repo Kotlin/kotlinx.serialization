@@ -80,6 +80,7 @@ kotlin {
             dependencies {
                 implementation(kotlin("stdlib-jdk8"))
                 implementation("com.google.dagger:dagger:2.13")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-hocon:$serialization_version")
             }
         }
         jvmTest {
