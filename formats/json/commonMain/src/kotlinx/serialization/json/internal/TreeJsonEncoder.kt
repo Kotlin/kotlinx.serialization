@@ -41,6 +41,9 @@ private sealed class AbstractJsonTreeEncoder(
         descriptor.getJsonElementName(json, index)
 
     override fun encodeJsonElement(element: JsonElement) {
+        if (polymorphicDiscriminator != null && element !is JsonObject) {
+            throwJsonElementPolymorphicException(polymorphicSerialName, element)
+        }
         encodeSerializableValue(JsonElementSerializer, element)
     }
 

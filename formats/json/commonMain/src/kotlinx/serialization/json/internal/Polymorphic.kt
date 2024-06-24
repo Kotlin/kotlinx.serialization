@@ -100,3 +100,7 @@ internal fun SerialDescriptor.classDiscriminator(json: Json): String {
     return json.configuration.classDiscriminator
 }
 
+internal fun throwJsonElementPolymorphicException(serialName: String?, element: JsonElement): Nothing {
+    throw JsonEncodingException("Class with serial name $serialName cannot be serialized polymorphically because it is represented as ${element::class.simpleName}. Make sure that its JsonTransformingSerializer returns JsonObject, so class discriminator can be added to it.")
+}
+
