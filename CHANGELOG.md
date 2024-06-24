@@ -1,4 +1,27 @@
 
+1.7.1 / 2024-06-25
+==================
+
+This is a bugfix release that aims to fix missing `kotlinx-serialization-hocon` artifact.
+It also contains experimental integration with `kotlinx-io` library.
+Kotlin 2.0.0 is used by default.
+
+## Fixed HOCON publication
+
+Sadly, 1.7.0 release was published incomplete: `kotlinx-serialization-hocon` artifact is missing from 1.7.0 and 1.7.0-RC releases.
+This release fixes this problem and now `kotlinx-serialization-hocon` is available again with 1.7.1 version.
+No other changes were made to this artifact. Related ticket: [#2717](https://github.com/Kotlin/kotlinx.serialization/issues/2717).
+
+## Add integration with a kotlinx-io library
+
+[`kotlinx-io`](https://github.com/Kotlin/kotlinx-io) is an official multiplatform library that provides basic IO primitives, similar to Okio. 
+kotlinx.serialization integration is now available in a separate artifact, located at the `kotlinx-serialization-json-io` coordinates.
+Integration artifact provides functions similar to existing [Okio integration](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json-okio/kotlinx.serialization.json.okio/): `encodeToSink`, `decodeFromSource`, and `decodeSourceToSequence`.
+Check out the [PR](https://github.com/Kotlin/kotlinx.serialization/pull/2707) for more details.
+
+## Other bugfixes
+  * Prohibited use of elements other than JsonObject in JsonTransformingSerializer with polymorphic serialization (#2715)
+
 1.7.0 / 2024-06-05
 ==================
 

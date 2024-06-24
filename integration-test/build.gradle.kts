@@ -66,6 +66,9 @@ kotlin {
                 implementation(kotlin("stdlib"))
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serialization_version")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serialization_version")
+                // To check that all expected artifacts are resolvable:
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-okio:$serialization_version")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-io:$serialization_version")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-protobuf:$serialization_version")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:$serialization_version")
             }
