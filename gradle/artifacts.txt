@@ -109,6 +109,7 @@ kotlinx-serialization-json-okio-tvosarm64
 kotlinx-serialization-json-okio-tvossimulatorarm64
 kotlinx-serialization-json-okio-tvosx64
 kotlinx-serialization-json-okio-wasm-js
+kotlinx-serialization-json-okio-wasm-wasi
 kotlinx-serialization-json-okio-watchosarm32
 kotlinx-serialization-json-okio-watchosarm64
 kotlinx-serialization-json-okio-watchossimulatorarm64

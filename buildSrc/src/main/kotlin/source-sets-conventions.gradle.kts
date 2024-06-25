@@ -25,11 +25,6 @@ tasks.withType<JavaCompile>().configureEach {
     options.release = 8
 }
 
-// Unfortunately there is no compatible version of okio for Wasm WASI target, so we need to skip to configure WASI for json-okio and json-tests.
-// json-tests uses okio with incorporate with other formatter tests so it is hard and not worth to separate it for two projects for WASI.
-// So we disable WASI target in it and we hope, that WASI version of compiler and serialization plugin are identical to the WasmJS target so WASI target is being covered.
-val isOkIoOrFormatTests = (name == "kotlinx-serialization-json-okio" || name == "kotlinx-serialization-json-tests")
-
 kotlin {
     explicitApi()
 
@@ -63,10 +58,8 @@ kotlin {
         nodejs()
     }
 
-    if (!isOkIoOrFormatTests) {
-        wasmWasi {
-            nodejs()
-        }
+    wasmWasi {
+        nodejs()
     }
 
     sourceSets.all {
@@ -140,19 +133,17 @@ kotlin {
             }
         }
 
-        if (!isOkIoOrFormatTests) {
-            named("wasmWasiMain") {
-                dependsOn(named("wasmMain").get())
-                dependencies {
-                    api("org.jetbrains.kotlin:kotlin-stdlib-wasm-wasi")
-                }
+        named("wasmWasiMain") {
+            dependsOn(named("wasmMain").get())
+            dependencies {
+                api("org.jetbrains.kotlin:kotlin-stdlib-wasm-wasi")
             }
+        }
 
-            named("wasmWasiTest") {
-                dependsOn(named("wasmTest").get())
-                dependencies {
-                    api("org.jetbrains.kotlin:kotlin-test-wasm-wasi")
-                }
+        named("wasmWasiTest") {
+            dependsOn(named("wasmTest").get())
+            dependencies {
+                api("org.jetbrains.kotlin:kotlin-test-wasm-wasi")
             }
         }
     }
