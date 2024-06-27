@@ -6,17 +6,27 @@ import kotlinx.serialization.json.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.descriptors.*
 
-import java.util.Date
-import java.text.SimpleDateFormat
+object ColorAsStringSerializer : KSerializer<Color> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Color", PrimitiveKind.STRING)
 
-@Serializable          
-class ProgrammingLanguage(
-    val name: String,
-    @Contextual 
-    val stableReleaseDate: Date
-)
+    override fun serialize(encoder: Encoder, value: Color) {
+        val string = value.rgb.toString(16).padStart(6, '0')
+        encoder.encodeString(string)
+    }
+
+    override fun deserialize(decoder: Decoder): Color {
+        val string = decoder.decodeString()
+        return Color(string.toInt(16))
+    }
+}
+
+@KeepGeneratedSerializer
+@Serializable(with = ColorAsStringSerializer::class)
+class Color(val rgb: Int)
+
 
 fun main() {
-    val data = ProgrammingLanguage("Kotlin", SimpleDateFormat("yyyy-MM-ddX").parse("2016-02-15+00"))
-    println(Json.encodeToString(data))
-}
+    val green = Color(0x00ff00)
+    println(Json.encodeToString(green))
+    println(Json.encodeToString(Color.generatedSerializer(), green))
+}  

@@ -29,6 +29,7 @@ In this chapter we'll take a look at serializers in more detail, and we'll see h
   * [Specifying serializer globally using typealias](#specifying-serializer-globally-using-typealias)
   * [Custom serializers for a generic type](#custom-serializers-for-a-generic-type)
   * [Format-specific serializers](#format-specific-serializers)
+* [Simultaneous use of plugin-generated and custom serializers](#simultaneous-use-of-plugin-generated-and-custom-serializers)
 * [Contextual serialization](#contextual-serialization)
   * [Serializers module](#serializers-module)
   * [Contextual serialization and generic classes](#contextual-serialization-and-generic-classes)
@@ -810,7 +811,7 @@ fun main() {
 
 <!--- TEST -->
 
-### Specifying serializers for a file 
+### Specifying serializers for a file
 
 A serializer for a specific type, like `Date`, can be specified for a whole source code file with the file-level
 [UseSerializers] annotation at the beginning of the file.
@@ -975,6 +976,58 @@ features that a serializer implementation would like to take advantage of.
   
 This chapter proceeds with a generic approach to tweaking the serialization strategy based on the context.   
 
+## Simultaneous use of plugin-generated and custom serializers
+In some cases it may be useful to have a serialization plugin continue to generate a serializer even if a custom one is used for the class.
+
+The most common examples are: using a plugin-generated serializer for fallback strategy, accessing type structure via [descriptor][KSerializer.descriptor] of plugin-generated serializer, use default serialization behavior in descendants that do not use custom serializers.
+
+In order for the plugin to continue generating the serializer, you must specify the `@KeepGeneratedSerializer` annotation in the type declaration.
+In this case, the serializer will be accessible using the `.generatedSerializer()` function on the class's companion object.
+
+Annotation `@KeepGeneratedSerializer` is not allowed on classes involved in polymorphic serialization: interfaces, sealed classes, abstract classes, classes marked by [Polymorphic].
+
+An example of using two serializers at once:
+
+<!--- INCLUDE
+object ColorAsStringSerializer : KSerializer<Color> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Color", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: Color) {
+        val string = value.rgb.toString(16).padStart(6, '0')
+        encoder.encodeString(string)
+    }
+
+    override fun deserialize(decoder: Decoder): Color {
+        val string = decoder.decodeString()
+        return Color(string.toInt(16))
+    }
+}
+-->
+
+```kotlin
+@KeepGeneratedSerializer
+@Serializable(with = ColorAsStringSerializer::class)
+class Color(val rgb: Int)
+
+
+fun main() {
+    val green = Color(0x00ff00)
+    println(Json.encodeToString(green))
+    println(Json.encodeToString(Color.generatedSerializer(), green))
+}  
+```  
+
+> You can get the full code [here](../guide/example/example-serializer-20.kt).
+
+As a result, serialization will occur using custom and plugin-generated serializers:
+
+```text
+"00ff00"
+{"rgb":65280}
+```
+
+<!--- TEST -->
+
 ## Contextual serialization
 
 All the previous approaches to specifying custom serialization strategies were _static_, that is 
@@ -1014,7 +1067,7 @@ fun main() {
 To actually serialize this class we must provide the corresponding context when calling the `encodeToXxx`/`decodeFromXxx`
 functions. Without it we'll get a "Serializer for class 'Date' is not found" exception.
 
-> See [here](../guide/example/example-serializer-20.kt) for an example that produces that exception.
+> See [here](../guide/example/example-serializer-21.kt) for an example that produces that exception.
  
 <!--- TEST LINES_START 
 Exception in thread "main" kotlinx.serialization.SerializationException: Serializer for class 'Date' is not found.
@@ -1073,7 +1126,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-serializer-21.kt).
+> You can get the full code [here](../guide/example/example-serializer-22.kt).
 ```text
 {"name":"Kotlin","stableReleaseDate":1455494400000}
 ```
@@ -1132,7 +1185,7 @@ fun main() {
 }
 ```          
 
-> You can get the full code [here](../guide/example/example-serializer-22.kt).
+> You can get the full code [here](../guide/example/example-serializer-23.kt).
 
 This gets all the `Project` properties serialized:
 
@@ -1173,7 +1226,7 @@ fun main() {
 }
 ```             
 
-> You can get the full code [here](../guide/example/example-serializer-23.kt).
+> You can get the full code [here](../guide/example/example-serializer-24.kt).
 
 The output is shown below.
 
@@ -1203,6 +1256,7 @@ The next chapter covers [Polymorphism](polymorphism.md).
 [Serializable.with]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/with.html
 [SerialName]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serial-name/index.html
 [UseSerializers]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-use-serializers/index.html
+[Polymorphic]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-polymorphic/index.html
 [ContextualSerializer]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-contextual-serializer/index.html
 [Contextual]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-contextual/index.html
 [UseContextualSerialization]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-use-contextual-serialization/index.html
