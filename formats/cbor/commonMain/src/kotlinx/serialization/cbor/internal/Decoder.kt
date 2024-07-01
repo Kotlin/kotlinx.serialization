@@ -170,7 +170,6 @@ internal class CborDecoder(private val input: ByteArrayInput) {
 
     fun isNull() = (curByte == NULL || curByte == EMPTY_MAP)
 
-    fun nextNull(tag: ULong) = nextNull(ulongArrayOf(tag))
     fun nextNull(tags: ULongArray? = null): Nothing? {
         processTags(tags)
         if (curByte == NULL) {
@@ -180,8 +179,6 @@ internal class CborDecoder(private val input: ByteArrayInput) {
         }
         return null
     }
-
-    fun nextBoolean(tag: ULong) = nextBoolean(ulongArrayOf(tag))
 
     fun nextBoolean(tags: ULongArray? = null): Boolean {
         processTags(tags)
@@ -224,10 +221,9 @@ internal class CborDecoder(private val input: ByteArrayInput) {
 
     fun end() = skipByte(BREAK)
 
-    fun nextByteString(tag: ULong) = nextByteString(ulongArrayOf(tag))
     fun nextByteString(tags: ULongArray? = null): ByteArray {
         processTags(tags)
-        if ((curByte and 0b111_00000) != HEADER_BYTE_STRING.toInt())
+        if ((curByte and 0b111_00000) != HEADER_BYTE_STRING)
             throw CborDecodingException("start of byte string", curByte)
         val arr = readBytes()
         readByte()
@@ -238,11 +234,9 @@ internal class CborDecoder(private val input: ByteArrayInput) {
     fun nextString(tags: ULongArray? = null) = nextTaggedString(tags).first
 
     //used for reading the tag names and names of tagged keys (of maps, and serialized classes)
-    fun nextTaggedString() = nextTaggedString(null)
-
     private fun nextTaggedString(tags: ULongArray?): Pair<String, ULongArray?> {
         val collectedTags = processTags(tags)
-        if ((curByte and 0b111_00000) != HEADER_STRING.toInt())
+        if ((curByte and 0b111_00000) != HEADER_STRING)
             throw CborDecodingException("start of string", curByte)
         val arr = readBytes()
         val ans = arr.decodeToString()
@@ -298,7 +292,7 @@ internal class CborDecoder(private val input: ByteArrayInput) {
      */
     fun nextTaggedStringOrNumber(): Triple<String?, Long?, ULongArray?> {
         val collectedTags = processTags(null)
-        if ((curByte and 0b111_00000) == HEADER_STRING.toInt()) {
+        if ((curByte and 0b111_00000) == HEADER_STRING) {
             val arr = readBytes()
             val ans = arr.decodeToString()
             readByte()
@@ -316,15 +310,6 @@ internal class CborDecoder(private val input: ByteArrayInput) {
         val res = readNumber()
         readByte()
         return res
-    }
-
-    fun nextTaggedNumber() = nextTaggedNumber(null)
-
-    private fun nextTaggedNumber(tags: ULongArray?): Pair<Long, ULongArray?> {
-        val collectedTags = processTags(tags)
-        val res = readNumber()
-        readByte()
-        return res to collectedTags
     }
 
     private fun readNumber(): Long {
@@ -363,8 +348,6 @@ internal class CborDecoder(private val input: ByteArrayInput) {
         read(array, 0, bytesCount)
         return array
     }
-
-    fun nextFloat(tag: ULong) = nextFloat(ulongArrayOf(tag))
 
     fun nextFloat(tags: ULongArray? = null): Float {
         processTags(tags)
@@ -490,7 +473,7 @@ internal class CborDecoder(private val input: ByteArrayInput) {
 
         return value == ADDITIONAL_INFORMATION_INDEFINITE_LENGTH &&
             (majorType == HEADER_ARRAY || majorType == HEADER_MAP ||
-                majorType == HEADER_BYTE_STRING.toInt() || majorType == HEADER_STRING.toInt())
+                majorType == HEADER_BYTE_STRING || majorType == HEADER_STRING)
     }
 
     /**
@@ -511,7 +494,7 @@ internal class CborDecoder(private val input: ByteArrayInput) {
         val additionalInformation = curByte and 0b000_11111
 
         return when (majorType) {
-            HEADER_BYTE_STRING.toInt(), HEADER_STRING.toInt(), HEADER_ARRAY -> readNumber().toInt()
+            HEADER_BYTE_STRING, HEADER_STRING, HEADER_ARRAY -> readNumber().toInt()
             HEADER_MAP -> readNumber().toInt() * 2
             else -> when (additionalInformation) {
                 24 -> 1
