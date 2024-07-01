@@ -56,23 +56,21 @@ internal fun SerialDescriptor.isInlineByteString(): Boolean {
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-internal fun SerialDescriptor.getValueTags(index: Int): ULongArray? {
-    return kotlin.runCatching { (getElementAnnotations(index).find { it is ValueTags } as ValueTags?)?.tags }
-        .getOrNull()
-}
+internal fun SerialDescriptor.getValueTags(index: Int): ULongArray? = findAnnotation<ValueTags>(index)?.tags
+
 
 @OptIn(ExperimentalSerializationApi::class)
-internal fun SerialDescriptor.getKeyTags(index: Int): ULongArray? {
-    return kotlin.runCatching { (getElementAnnotations(index).find { it is KeyTags } as KeyTags?)?.tags }.getOrNull()
-}
+internal fun SerialDescriptor.getKeyTags(index: Int): ULongArray? = findAnnotation<KeyTags>(index)?.tags
 
 @OptIn(ExperimentalSerializationApi::class)
-internal fun SerialDescriptor.getCborLabel(index: Int): Long? {
-    return kotlin.runCatching { getElementAnnotations(index).filterIsInstance<CborLabel>().firstOrNull()?.label }
-        .getOrNull()
-}
+internal fun SerialDescriptor.getCborLabel(index: Int): Long? = findAnnotation<CborLabel>(index)?.label
 
 @OptIn(ExperimentalSerializationApi::class)
 internal fun SerialDescriptor.hasArrayTag(): Boolean {
-    return annotations.filterIsInstance<CborArray>().isNotEmpty()
+    return annotations.any { it is CborArray }
 }
+
+@OptIn(ExperimentalSerializationApi::class)
+internal inline fun <reified A : Annotation> SerialDescriptor.findAnnotation(elementIndex: Int): A? =
+    getElementAnnotations(elementIndex).firstOrNull { it is A } as A?
+

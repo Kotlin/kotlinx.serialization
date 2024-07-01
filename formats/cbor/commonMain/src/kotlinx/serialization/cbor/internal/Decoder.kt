@@ -259,6 +259,7 @@ internal class CborDecoder(private val input: ByteArrayInput) {
             input.readExactNBytes(strLen)
         }
 
+    @SuppressAnimalSniffer
     private fun processTags(tags: ULongArray?): ULongArray? {
         var index = 0
         val collectedTags = mutableListOf<ULong>()
