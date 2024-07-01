@@ -12,7 +12,8 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 
-internal open class CborReader(private val cbor: Cbor, protected val decoder: CborDecoder) : AbstractDecoder() {
+internal open class CborReader(override val cbor: Cbor, protected val decoder: CborDecoder) : AbstractDecoder(),
+    CborEncoder {
 
     protected var size = -1
         private set

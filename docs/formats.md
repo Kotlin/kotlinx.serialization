@@ -290,6 +290,12 @@ When annotated with `@CborArray`, serialization of the same object will produce 
 ```
 This may be used to encode COSE structures, see [RFC 9052 2. Basic COSE Structure](https://www.rfc-editor.org/rfc/rfc9052#section-2).
 
+
+### Custom CBOR-specific Serializers
+Both Cbor encoders and decoders implement the interface [CborEncoder](CborEncoder.kt),
+which contains a single property, exposing the current CBOR serialization configuration.
+This makes it possible to react to switches such as, `preferCborLabelsOverNames` or `writeDefiniteLengths`, for example.
+
 ## ProtoBuf (experimental)
 
 [Protocol Buffers](https://developers.google.com/protocol-buffers) is a language-neutral binary format that normally

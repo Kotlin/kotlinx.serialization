@@ -17,7 +17,7 @@ import kotlin.experimental.*
 //value classes are only inlined on the JVM, so we use a typealias and extensions instead
 private typealias Stack = MutableList<CborWriter.Data>
 
-private fun Stack(vararg elements: CborWriter.Data): Stack = mutableListOf(*elements)
+private fun Stack(initial: CborWriter.Data): Stack = mutableListOf(initial)
 private fun Stack.push(value: CborWriter.Data) = add(value)
 private fun Stack.pop() = removeLast()
 private fun Stack.peek() = last()
@@ -25,9 +25,9 @@ private fun Stack.peek() = last()
 // Writes class as map [fieldName, fieldValue]
 // Split implementation to optimize base case
 internal sealed class CborWriter(
-    protected val cbor: Cbor,
+    override val cbor: Cbor,
     protected val output: ByteArrayOutput,
-) : AbstractEncoder() {
+) : AbstractEncoder(), CborEncoder {
     protected var isClass = false
 
     protected var encodeByteArrayAsByteString = false
