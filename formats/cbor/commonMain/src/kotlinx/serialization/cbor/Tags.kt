@@ -27,6 +27,11 @@ import kotlinx.serialization.*
 @Target(AnnotationTarget.PROPERTY)
 @ExperimentalSerializationApi
 public annotation class ValueTags(@OptIn(ExperimentalUnsignedTypes::class) vararg val tags: ULong) {
+
+    /**
+     * Contains a set of predefined tags, named in accordance with
+     * [RFC 8949 3.4. Tagging of Items](https://datatracker.ietf.org/doc/html/rfc8949#name-tagging-of-items)
+     */
     public companion object {
         public const val DATE_TIME_STANDARD: ULong = 0u;
         public const val DATE_TIME_EPOCH: ULong = 1u;
