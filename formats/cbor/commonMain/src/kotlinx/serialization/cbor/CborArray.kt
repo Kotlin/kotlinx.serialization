@@ -39,7 +39,10 @@ import kotlinx.serialization.*
 @ExperimentalSerializationApi
 public annotation class CborArray(vararg val tag: Tag)
 
-
+/**
+ * Enables Tagging a [CborArray] similarly as [ValueTags] or [KeyTags]. The tag values need to be wrapped into this
+ * annotation to clarify the intent of the values inside a [CborArray] annotation.
+ */
 @SerialInfo
 @Target(AnnotationTarget.ANNOTATION_CLASS)
 @ExperimentalSerializationApi
