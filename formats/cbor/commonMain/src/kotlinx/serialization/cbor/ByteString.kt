@@ -4,7 +4,9 @@ import kotlinx.serialization.*
 
 /**
  * Specifies that a [ByteArray] shall be encoded/decoded as CBOR major type 2: a byte string.
- * For types other than [ByteArray], [ByteString] will have no effect.
+ * When annotating a parameterized type such as [List] or [Map], this will also apply to any wrapped [ByteArray] types,
+ * encoding/decoding them as CBOR major type 2: a byte string. For types other than [ByteArray], [ByteString] will have
+ * no effect.
  *
  * Example usage:
  *
