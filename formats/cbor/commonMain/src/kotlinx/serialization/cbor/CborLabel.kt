@@ -3,8 +3,11 @@ package kotlinx.serialization.cbor
 import kotlinx.serialization.*
 
 /**
- * CBOR supports *labels*, which work just as `SerialNames`. The key difference is that labels are not strings,
- * but integer numbers.
+ * CBOR supports keys of all sorts, not just Strings.
+ * In the COSE context, these keys are called *labels* and are limited to Strings and 64-bit negative integers
+ * and 64-bit unsigned integers.
+ * Conceptually, these work just as `SerialName`s, but to also support numbers in addition to Strings, this annotation
+ * can be used.
  *
  * Set the `preferCborLabelsOverNames` configuration switch to prefer them over serial names in case both are present
  * for a property.

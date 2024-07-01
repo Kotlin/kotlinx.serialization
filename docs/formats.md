@@ -244,10 +244,12 @@ The  [`@KeyTags`](Tags.kt) and [`@ValueTags`](Tags.kt) annotations can be used t
 Writing and verifying such tags can be toggled using the  `writeKeyTags`, `writeValueTags`, `verifyKeyTags`, and
 `verifyValueTags` configuration switches respectively.
 
-In addition, CBOR supports *labels*, which work just as `SerialNames`. The key difference is that labels are not strings,
-but integer numbers. Labels can be assigned using the [`@CborLabel`](CborLabel.kt) annotation, while the
-`preferCborLabelsOverNames` configuration switch can be used to prefer them over SerialNames in case both are present
-for a property.
+In addition, CBOR supports keys of all types which work just as `SerialName`s.
+COSE restricts this again to strings and numbers and calls these restricted map keys *labels*. String labels can be
+assigned by using `@SerialName`, while number labels can be assigned using the [`@CborLabel`](CborLabel.kt) annotation.
+The `preferCborLabelsOverNames` configuration switch can be used to prefer number labels over SerialNames in case both
+are present for a property. This duality allows for compact representation of a type when serialized to CBOR, while
+keeping expressive diagnostic names when serializing to JSON.
 
 Well-known tags are specified in [`ValueTags.Companion`](ValueTags.kt).
 
