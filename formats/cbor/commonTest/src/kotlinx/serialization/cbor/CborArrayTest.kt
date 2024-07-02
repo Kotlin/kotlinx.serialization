@@ -15,7 +15,7 @@ class CborArrayTest {
         val referenceHexString = "8126"
         val reference = ClassAs1Array(alg = -7)
 
-        val cbor = Cbor {
+        val cbor = Cbor(from = Cbor.Tagging) {
             writeDefiniteLengths = true
         }
         assertEquals(referenceHexString, cbor.encodeToHexString(ClassAs1Array.serializer(), reference))
@@ -34,7 +34,7 @@ class CborArrayTest {
         val referenceHexString = "c8822663666f6f"
         val reference = ClassAs2Array(alg = -7, kid = "foo")
 
-        val cbor = Cbor {
+        val cbor = Cbor(from = Cbor.Tagging) {
             writeDefiniteLengths = true
         }
         assertEquals(referenceHexString, cbor.encodeToHexString(ClassAs2Array.serializer(), reference))
@@ -54,7 +54,7 @@ class CborArrayTest {
         val referenceHexString = "842663626172f6a0"
         val reference = ClassAs4ArrayNullable(alg = -7, kid = "bar", iv = null, array = null)
 
-        val cbor = Cbor {
+        val cbor = Cbor(from = Cbor.Tagging) {
             writeDefiniteLengths = true
         }
 
@@ -77,7 +77,7 @@ class CborArrayTest {
         val referenceHexString = "a1656172726179c8822663626172"
         val reference = ClassWithArray(array = ClassAs2Array(alg = -7, kid = "bar"))
 
-        val cbor = Cbor {
+        val cbor = Cbor(from = Cbor.Tagging) {
             writeDefiniteLengths = true
         }
         assertEquals(referenceHexString, cbor.encodeToHexString(ClassWithArray.serializer(), reference))
@@ -103,7 +103,7 @@ class CborArrayTest {
         val referenceHexString = "a1656172726179c9c8822663626172"
         val reference = DoubleTaggedClassWithArray(array = ClassAs2Array(alg = -7, kid = "bar"))
 
-        val cbor = Cbor {
+        val cbor = Cbor(from = Cbor.Tagging) {
             writeDefiniteLengths = true
         }
         assertEquals(referenceHexString, cbor.encodeToHexString(DoubleTaggedClassWithArray.serializer(), reference))

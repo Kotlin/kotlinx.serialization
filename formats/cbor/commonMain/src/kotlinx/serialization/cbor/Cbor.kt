@@ -57,10 +57,30 @@ public sealed class Cbor(
 ) : BinaryFormat {
 
     /**
-     * The default instance of [Cbor]
+     * The default instance of [Cbor]. Neither writes nor verifies tags. Uses indefinite length encoding by default.
      */
-    public companion object Default :
-        Cbor(false, false, true, true, true, true, true, false, false, true, false, EmptySerializersModule())
+    public companion object Default:
+        Cbor(false, false, false, false, false, false, false, false, false, false, false, EmptySerializersModule()) {
+
+        /**
+         * Stricter instance of [Cbor]. Writes and verifies all tags. Uses indefinite length encoding by default.
+         */
+        public val Tagging: Cbor =
+            Cbor {
+                encodeDefaults = false
+                ignoreUnknownKeys = false
+                writeKeyTags = true
+                writeValueTags = true
+                writeObjectTags = true
+                verifyKeyTags = true
+                verifyValueTags = true
+                verifyObjectTags = true
+                writeDefiniteLengths = false
+                preferCborLabelsOverNames = false
+                alwaysUseByteString = false
+                serializersModule = EmptySerializersModule()
+            }
+    }
 
     override fun <T> encodeToByteArray(serializer: SerializationStrategy<T>, value: T): ByteArray {
         val output = ByteArrayOutput()
@@ -89,7 +109,7 @@ private class CborImpl(
     writeObjectTags: Boolean,
     verifyKeyTags: Boolean,
     verifyValueTags: Boolean,
-    verifyObjectAndArrayTags: Boolean,
+    verifyObjectTags: Boolean,
     writeDefiniteLengths: Boolean,
     preferCborLabelsOverNames: Boolean,
     alwaysUseByteString: Boolean,
@@ -103,7 +123,7 @@ private class CborImpl(
         writeObjectTags,
         verifyKeyTags,
         verifyValueTags,
-        verifyObjectAndArrayTags,
+        verifyObjectTags,
         writeDefiniteLengths,
         preferCborLabelsOverNames,
         alwaysUseByteString,
