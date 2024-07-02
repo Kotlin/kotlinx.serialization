@@ -120,15 +120,15 @@ internal sealed class CborWriter(
         encodeByteArrayAsByteString = descriptor.isByteString(index)
 
         val name = descriptor.getElementName(index)
-        val label = descriptor.getCborLabel(index)
+
 
         if (!descriptor.hasArrayTag()) {
             if (cbor.writeKeyTags) descriptor.getKeyTags(index)?.forEach { destination.encodeTag(it) }
 
             if ((descriptor.kind !is StructureKind.LIST) && (descriptor.kind !is StructureKind.MAP) && (descriptor.kind !is PolymorphicKind)) {
                 //indices are put into the name field. we don't want to write those, as it would result in double writes
-                if (cbor.preferCborLabelsOverNames && label != null) {
-                    destination.encodeNumber(label)
+                if (cbor.preferCborLabelsOverNames) {
+                    descriptor.getCborLabel(index)?.let { destination.encodeNumber(it) }
                 } else {
                     destination.encodeString(name)
                 }
