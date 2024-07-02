@@ -55,33 +55,6 @@ internal sealed class CborWriter(
 
     override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = cbor.encodeDefaults
 
-    override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
-        isClass = descriptor.getElementDescriptor(index).kind == StructureKind.CLASS
-        encodeByteArrayAsByteString = descriptor.isByteString(index)
-
-        val name = descriptor.getElementName(index)
-        val label = descriptor.getCborLabel(index)
-
-        if (!descriptor.hasArrayTag()) {
-            if (cbor.writeKeyTags) descriptor.getKeyTags(index)?.forEach { getDestination().encodeTag(it) }
-
-            if ((descriptor.kind !is StructureKind.LIST) && (descriptor.kind !is StructureKind.MAP) && (descriptor.kind !is PolymorphicKind)) {
-                //indices are put into the name field. we don't want to write those, as it would result in double writes
-                if (cbor.preferCborLabelsOverNames && label != null) {
-                    getDestination().encodeNumber(label)
-                } else {
-                    getDestination().encodeString(name)
-                }
-            }
-        }
-
-        if (cbor.writeValueTags) {
-            descriptor.getValueTags(index)?.forEach { getDestination().encodeTag(it) }
-        }
-        incrementChildren() //needed for definite len encoding
-        return true
-    }
-
     protected abstract fun incrementChildren()
 
     override fun encodeString(value: String) {
@@ -140,6 +113,34 @@ internal sealed class CborWriter(
     ) {
         getDestination().encodeString(enumDescriptor.getElementName(index))
     }
+
+    override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
+        val destination = getDestination()
+        isClass = descriptor.getElementDescriptor(index).kind == StructureKind.CLASS
+        encodeByteArrayAsByteString = descriptor.isByteString(index)
+
+        val name = descriptor.getElementName(index)
+        val label = descriptor.getCborLabel(index)
+
+        if (!descriptor.hasArrayTag()) {
+            if (cbor.writeKeyTags) descriptor.getKeyTags(index)?.forEach { destination.encodeTag(it) }
+
+            if ((descriptor.kind !is StructureKind.LIST) && (descriptor.kind !is StructureKind.MAP) && (descriptor.kind !is PolymorphicKind)) {
+                //indices are put into the name field. we don't want to write those, as it would result in double writes
+                if (cbor.preferCborLabelsOverNames && label != null) {
+                    destination.encodeNumber(label)
+                } else {
+                    destination.encodeString(name)
+                }
+            }
+        }
+
+        if (cbor.writeValueTags) {
+            descriptor.getValueTags(index)?.forEach { destination.encodeTag(it) }
+        }
+        incrementChildren() //needed for definite len encoding, NOOP for indefiniten len encoding
+        return true
+    }
 }
 
 
@@ -170,33 +171,6 @@ internal class IndefiniteLengthCborWriter(cbor: Cbor, output: ByteArrayOutput) :
 
     override fun getDestination(): ByteArrayOutput = output
 
-
-    override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
-        isClass = descriptor.getElementDescriptor(index).kind == StructureKind.CLASS
-        encodeByteArrayAsByteString = descriptor.isByteString(index)
-
-        val name = descriptor.getElementName(index)
-        val label = descriptor.getCborLabel(index)
-
-        if (!descriptor.hasArrayTag()) {
-            if (cbor.writeKeyTags) descriptor.getKeyTags(index)?.forEach { output.encodeTag(it) }
-
-            if ((descriptor.kind !is StructureKind.LIST) && (descriptor.kind !is StructureKind.MAP) && (descriptor.kind !is PolymorphicKind)) {
-                //indices are put into the name field. we don't want to write those, as it would result in double writes
-                if (cbor.preferCborLabelsOverNames && label != null) {
-                    output.encodeNumber(label)
-                } else {
-                    output.encodeString(name)
-                }
-            }
-        }
-
-        if (cbor.writeValueTags) {
-            descriptor.getValueTags(index)?.forEach { output.encodeTag(it) }
-        }
-
-        return true
-    }
 
     override fun incrementChildren() {/*NOOP*/
     }
