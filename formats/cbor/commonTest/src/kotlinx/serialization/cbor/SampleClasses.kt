@@ -15,15 +15,15 @@ data class Simple(val a: String)
 
 @Serializable
 data class TypesUmbrella(
-        val str: String,
-        val i: Int,
-        val nullable: Double?,
-        val list: List<String>,
-        val map: Map<Int, Boolean>,
-        val inner: Simple,
-        val innersList: List<Simple>,
-        @ByteString val byteString: ByteArray,
-        val byteArray: ByteArray
+    val str: String,
+    val i: Int,
+    val nullable: Double?,
+    val list: List<String>,
+    val map: Map<Int, Boolean>,
+    val inner: Simple,
+    val innersList: List<Simple>,
+    @ByteString val byteString: ByteArray,
+    val byteArray: ByteArray
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -60,17 +60,40 @@ data class TypesUmbrella(
 
 @Serializable
 data class NumberTypesUmbrella(
-        val int: Int,
-        val long: Long,
-        val float: Float,
-        val double: Double,
-        val boolean: Boolean,
-        val char: Char
+    val int: Int,
+    val long: Long,
+    val float: Float,
+    val double: Double,
+    val boolean: Boolean,
+    val char: Char
 )
 
 @Serializable
 data class NullableByteString(
     @ByteString val byteString: ByteArray?
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as NullableByteString
+
+        if (byteString != null) {
+            if (other.byteString == null) return false
+            if (!byteString.contentEquals(other.byteString)) return false
+        } else if (other.byteString != null) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return byteString?.contentHashCode() ?: 0
+    }
+}
+
+@Serializable
+data class NullableByteStringDefaultNull(
+    @ByteString val byteString: ByteArray ? = null
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
