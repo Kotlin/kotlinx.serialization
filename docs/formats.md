@@ -240,9 +240,17 @@ modes of encoding.
 CBOR allows for optionally defining *tags* for properties and their values. These tags are encoded into the resulting
 byte string to transport additional information
 (see [RFC 8949 Tagging of Items](https://datatracker.ietf.org/doc/html/rfc8949#name-tagging-of-items) for more info).
-The  [`@KeyTags`](Tags.kt) and [`@ValueTags`](Tags.kt) annotations can be used to define such tags while.
-Writing and verifying such tags can be toggled using the  `writeKeyTags`, `writeValueTags`, `verifyKeyTags`, and
+The  [`@KeyTags`](Tags.kt) and [`@ValueTags`](Tags.kt) annotations can be used to define such tags while
+writing and verifying such tags can be toggled using the  `writeKeyTags`, `writeValueTags`, `verifyKeyTags`, and
 `verifyValueTags` configuration switches respectively.
+In addition, it is possible to directly declare classes to always be tagged, whether a singular object of such a class
+is serialized or when they are used as a property. This is accomplished by the [`@ObjectTags`](Tags.kt) annotation,
+which works just as `ValueTags`, but for class definitions.
+When serializing, `ObjectTags` will always be encoded directly before to the data of the tagged object, i.e. a
+value-tagged property of an object-tagged type will have the value tags preceding the object tags.
+Writing and verifying object tags can be toggled using the `writeObjectTags` and `verifyObjectTags` configuration
+switches. Note that verifying only value tags can result in some data with superfluous tags to still deserialize
+successfully, since in this case - by definition - only a partial validation of tags happens.
 
 In addition, CBOR supports keys of all types which work just as `SerialName`s.
 COSE restricts this again to strings and numbers and calls these restricted map keys *labels*. String labels can be

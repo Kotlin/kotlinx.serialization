@@ -3,6 +3,7 @@
  */
 
 @file:OptIn(ExperimentalUnsignedTypes::class)
+
 package kotlinx.serialization.cbor
 
 import kotlinx.serialization.*
@@ -361,4 +362,190 @@ class CborTaggedTest {
             assertEquals(reference, cbor.decodeFromHexString(wrongTag55ForPropertyC))
         }
     }
+
+
+    @Test
+    fun objectTags() {
+        /**
+         * D9 0539         # tag(1337)
+         *    BF           # map(*)
+         *       63        # text(3)
+         *          616C67 # "alg"
+         *       13        # unsigned(19)
+         *       FF        # primitive(*)
+         */
+        val referenceHexString = "d90539bf63616c6713ff"
+        val untaggedHexString = "bf63616c6713ff" //no ObjectTags
+        val reference = ClassAsTagged(19)
+
+        val cbor = Cbor {
+            writeDefiniteLengths = false
+            verifyObjectTags = true
+            writeObjectTags = true
+        }
+        /* assertEquals(referenceHexString, cbor.encodeToHexString(ClassAsTagged.serializer(), reference))
+         assertEquals(reference, cbor.decodeFromHexString(ClassAsTagged.serializer(), referenceHexString))
+
+         assertEquals(
+             reference,
+             Cbor { verifyObjectTags = false }.decodeFromHexString(ClassAsTagged.serializer(), referenceHexString)
+         )
+
+         assertEquals(
+             untaggedHexString,
+             Cbor { writeObjectTags = false }.encodeToHexString(ClassAsTagged.serializer(), reference)
+         )
+
+
+         assertEquals(
+             reference,
+             Cbor { verifyObjectTags = false }.decodeFromHexString(ClassAsTagged.serializer(), untaggedHexString)
+         )*/
+
+        assertContains(
+            assertFailsWith(CborDecodingException::class) {
+                cbor.decodeFromHexString(ClassAsTagged.serializer(), untaggedHexString)
+            }.message ?: "", "do not match expected tags"
+        )
+
+
+    }
+
+
+    @Test
+    fun nestedObjectTags() {
+        /**
+         * BF                                 # map(*)
+         *    63                              # text(3)
+         *       616C67                       # "alg"
+         *    0D                              # unsigned(13)
+         *    64                              # text(4)
+         *       696E7473                     # "ints"
+         *    D3                              # tag(19)
+         *       9F                           # array(*)
+         *          18 1A                     # unsigned(26)
+         *          18 18                     # unsigned(24)
+         *          FF                        # primitive(*)
+         *    69                              # text(9)
+         *       6F626A546167676564           # "objTagged"
+         *    D8 2A                           # tag(42)
+         *       D9 0539                      # tag(1337)
+         *          BF                        # map(*)
+         *             63                     # text(3)
+         *                616C67              # "alg"
+         *             13                     # unsigned(19)
+         *             FF                     # primitive(*)
+         *    6E                              # text(14)
+         *       6F626A5461676765644172726179 # "objTaggedArray"
+         *    D8 2A                           # tag(42)
+         *       9F                           # array(*)
+         *          D9 0539                   # tag(1337)
+         *             BF                     # map(*)
+         *                63                  # text(3)
+         *                   616C67           # "alg"
+         *                19 03E8             # unsigned(1000)
+         *                FF                  # primitive(*)
+         *          FF                        # primitive(*)
+         *    FF                              # primitive(*)
+         */
+        val referenceHexString =
+            "bf63616c670d64696e7473d39f181a1818ff696f626a546167676564d82ad90539bf63616c6713ff6e6f626a5461676765644172726179d9038f9fd90539bf63616c671903e8ffffff"
+        val superfluousTagged =
+            "bf63616c670d64696e7473d39f181a1818ff696f626a546167676564d82ad90540d90539bf63616c6713ff6e6f626a5461676765644172726179d9038f9fd90539bf63616c671903e8ffffff"
+        val superfluousWrongTaggedTagged =
+            "bf63616c670d64696e7473d39f181a1818ff696f626a546167676564d82bd82ad90540d90539bf63616c6713ff6e6f626a5461676765644172726179d9038f9fd90539bf63616c671903e8ffffff"
+        val untaggedHexString =
+            "bf63616c670d64696e7473d39f181a1818ff696f626a546167676564d82abf63616c6713ff6e6f626a5461676765644172726179d9038f9fbf63616c671903e8ffffff" //no ObjectTags
+        val reference = NestedTagged(
+            alg = 13,
+            ints = intArrayOf(26, 24),
+            objTagged = ClassAsTagged(19),
+            objTaggedArray = listOf((ClassAsTagged(1000)))
+        )
+        val cbor = Cbor {
+            writeDefiniteLengths = false
+            verifyObjectTags = true
+            writeObjectTags = true
+            writeValueTags = true
+        }
+        assertEquals(referenceHexString, cbor.encodeToHexString(NestedTagged.serializer(), reference))
+        assertEquals(reference, cbor.decodeFromHexString(NestedTagged.serializer(), referenceHexString))
+
+        assertEquals(
+            reference,
+            Cbor { verifyObjectTags = false }.decodeFromHexString(NestedTagged.serializer(), referenceHexString)
+        )
+
+        assertEquals(
+            reference,
+            Cbor { verifyObjectTags = false }.decodeFromHexString(NestedTagged.serializer(), superfluousTagged)
+        )
+
+        assertEquals(
+            untaggedHexString,
+            Cbor { writeObjectTags = false }.encodeToHexString(NestedTagged.serializer(), reference)
+        )
+
+
+        assertEquals(
+            reference,
+            Cbor { verifyObjectTags = false }.decodeFromHexString(NestedTagged.serializer(), untaggedHexString)
+        )
+
+        assertContains(
+            assertFailsWith(CborDecodingException::class) {
+                cbor.decodeFromHexString(NestedTagged.serializer(), untaggedHexString)
+            }.message ?: "", "do not match expected tags"
+        )
+
+        assertContains(
+            assertFailsWith(CborDecodingException::class) {
+                Cbor { verifyObjectTags = false }.decodeFromHexString(NestedTagged.serializer(), superfluousWrongTaggedTagged)
+            }.message ?: "", "does not start with specified tags"
+        )
+
+
+    }
+
+    @ObjectTags(1337uL)
+    @Serializable
+    data class ClassAsTagged(
+        @SerialName("alg")
+        val alg: Int,
+    )
+
+    @Serializable
+    data class NestedTagged(
+        @SerialName("alg")
+        val alg: Int,
+        @ValueTags(19u)
+        val ints: IntArray,
+
+        @ValueTags(42u)
+        val objTagged: ClassAsTagged,
+        @ValueTags(911u)
+        val objTaggedArray: List<ClassAsTagged>
+    ) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is NestedTagged) return false
+
+            if (alg != other.alg) return false
+            if (!ints.contentEquals(other.ints)) return false
+            if (objTagged != other.objTagged) return false
+            if (objTaggedArray != other.objTaggedArray) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = alg
+            result = 31 * result + ints.contentHashCode()
+            result = 31 * result + objTagged.hashCode()
+            result = 31 * result + objTaggedArray.hashCode()
+            return result
+        }
+    }
+
+
 }

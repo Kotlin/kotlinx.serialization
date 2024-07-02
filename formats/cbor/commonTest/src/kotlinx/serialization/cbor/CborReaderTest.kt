@@ -17,7 +17,7 @@ class CborReaderTest {
 
     private fun withDecoder(input: String, block: CborDecoder.() -> Unit) {
         val bytes = HexConverter.parseHexBinary(input.uppercase())
-        CborDecoder(ByteArrayInput(bytes)).block()
+        CborDecoder(ByteArrayInput(bytes), false).block()
     }
 
     @Test

@@ -34,7 +34,7 @@ internal open class CborReader(override val cbor: Cbor, protected val decoder: C
     override val serializersModule: SerializersModule
         get() = cbor.serializersModule
 
-    protected open fun skipBeginToken() = setSize(decoder.startMap())
+    protected open fun skipBeginToken(objectTags: ULongArray?) = setSize(decoder.startMap(objectTags))
 
     @OptIn(ExperimentalSerializationApi::class)
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
@@ -45,7 +45,8 @@ internal open class CborReader(override val cbor: Cbor, protected val decoder: C
             StructureKind.MAP -> CborMapReader(cbor, decoder)
             else -> CborReader(cbor, decoder)
         }
-        re.skipBeginToken()
+        val objectTags = if (cbor.verifyObjectTags) descriptor.getObjectTags() else null
+        re.skipBeginToken(tags?.let { if (objectTags == null) it else ulongArrayOf(*it, *objectTags) } ?: objectTags)
         return re
     }
 
@@ -150,7 +151,7 @@ internal open class CborReader(override val cbor: Cbor, protected val decoder: C
     }
 }
 
-internal class CborDecoder(private val input: ByteArrayInput) {
+internal class CborDecoder(private val input: ByteArrayInput, private val verifyObjectTags: Boolean) {
     private var curByte: Int = -1
 
     init {
@@ -261,29 +262,42 @@ internal class CborDecoder(private val input: ByteArrayInput) {
         while ((curByte and 0b111_00000) == HEADER_TAG) {
             val readTag = readNumber().toULong() // This is the tag number
             collectedTags += readTag
-            tags?.let {
-                if (index++ > it.size) throw CborDecodingException("More tags found than the ${it.size} tags specified.")
-                if (readTag != it[index - 1]) throw CborDecodingException("CBOR tag $readTag does not match expected tag $it")
+            // value tags and object tags are intermingled (keyTags are always separate)
+            // so this check only holds if we verify both
+            if (verifyObjectTags) {
+                tags?.let {
+                    if (index++ > it.size) throw CborDecodingException("More tags found than the ${it.size} tags specified")
+                    if (readTag != it[index - 1]) throw CborDecodingException("CBOR tag $readTag does not match expected tag $it")
+                }
             }
             readByte()
         }
-
         return (if (collectedTags.isEmpty()) null else collectedTags.toULongArray()).also { collected ->
             //We only want to compare if tags are actually set, otherwise, we don't care
             tags?.let {
-                if (!it.contentEquals(collected)) throw CborDecodingException(
-                    "CBOR tags ${
-                        collected?.joinToString(
-                            prefix = "[",
-                            postfix = "]"
-                        ) { it.toString() }
-                    } do not match expected tags ${
-                        it.joinToString(
-                            prefix = "[",
-                            postfix = "]"
-                        ) { it.toString() }
-                    }"
-                )
+                if (verifyObjectTags) { //again, this check only works if we verify value tags and object tags
+                    if (!it.contentEquals(collected))
+                        throw CborDecodingException(
+                            "CBOR tags ${
+                                collected?.joinToString(
+                                    prefix = "[",
+                                    postfix = "]"
+                                ) { it.toString() }
+                            } do not match expected tags ${
+                                it.joinToString(
+                                    prefix = "[",
+                                    postfix = "]"
+                                ) { it.toString() }
+                            }"
+                        )
+                } else {
+                    // If we don't care for object tags, the best we can do is assure that the collected tags start with
+                    // the expected tags. (yes this could co somewhere else, but putting it here groups the code nicely
+                    // into if-else branches.
+                    if ((collectedTags.size < it.size)
+                        || (collectedTags.subList(0, it.size) != it.asList())
+                    ) throw CborDecodingException("CBOR tags $collectedTags does not start with specified tags $it")
+                }
             }
         }
     }
@@ -535,13 +549,17 @@ private fun Iterable<ByteArray>.flatten(): ByteArray {
 
 
 private class CborMapReader(cbor: Cbor, decoder: CborDecoder) : CborListReader(cbor, decoder) {
-    override fun skipBeginToken() = setSize(decoder.startMap(tags) * 2)
+    override fun skipBeginToken(objectTags: ULongArray?) =
+        setSize(decoder.startMap(tags?.let { if (objectTags == null) it else ulongArrayOf(*it, *objectTags) }
+            ?: objectTags) * 2)
 }
 
 private open class CborListReader(cbor: Cbor, decoder: CborDecoder) : CborReader(cbor, decoder) {
     private var ind = 0
 
-    override fun skipBeginToken() = setSize(decoder.startArray(tags))
+    override fun skipBeginToken(objectTags: ULongArray?) =
+        setSize(decoder.startArray(tags?.let { if (objectTags == null) it else ulongArrayOf(*it, *objectTags) }
+            ?: objectTags))
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         return if (!finiteMode && decoder.isEnd() || (finiteMode && ind >= size)) CompositeDecoder.DECODE_DONE else

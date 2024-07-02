@@ -82,6 +82,32 @@ class CborArrayTest {
         }
         assertEquals(referenceHexString, cbor.encodeToHexString(ClassWithArray.serializer(), reference))
         assertEquals(reference, cbor.decodeFromHexString(ClassWithArray.serializer(), referenceHexString))
+
+        println(cbor.encodeToHexString(DoubleTaggedClassWithArray.serializer(), DoubleTaggedClassWithArray(array = ClassAs2Array(alg = -7, kid = "bar"))))
+    }
+
+
+    @Test
+    fun writeReadVerifyDoubleTaggedClassWithArray() {
+        /**
+         * A1                    # map(1)
+         *    65                 # text(5)
+         *       6172726179      # "array"
+         *    C9                 # tag(9)
+         *       C8              # tag(8)
+         *          82           # array(2)
+         *             26        # negative(6)
+         *             63        # text(3)
+         *                626172 # "bar"
+         */
+        val referenceHexString = "a1656172726179c9c8822663626172"
+        val reference = DoubleTaggedClassWithArray(array = ClassAs2Array(alg = -7, kid = "bar"))
+
+        val cbor = Cbor {
+            writeDefiniteLengths = true
+        }
+        assertEquals(referenceHexString, cbor.encodeToHexString(DoubleTaggedClassWithArray.serializer(), reference))
+        assertEquals(reference, cbor.decodeFromHexString(DoubleTaggedClassWithArray.serializer(), referenceHexString))
     }
 
     @CborArray
@@ -91,7 +117,8 @@ class CborArrayTest {
         val alg: Int,
     )
 
-    @CborArray(Tag(8U))
+    @CborArray
+    @ObjectTags(8U)
     @Serializable
     data class ClassAs2Array(
         @SerialName("alg")
@@ -142,6 +169,15 @@ class CborArrayTest {
 
     @Serializable
     data class ClassWithArray(
+        @SerialName("array")
+        val array: ClassAs2Array,
+    )
+
+
+
+    @Serializable
+    data class DoubleTaggedClassWithArray(
+        @ValueTags(9u)
         @SerialName("array")
         val array: ClassAs2Array,
     )

@@ -26,9 +26,12 @@ import kotlinx.serialization.modules.*
  * @param ignoreUnknownKeys specifies if unknown CBOR elements should be ignored (skipped) when decoding.
  * @param writeKeyTags Specifies whether tags set using the [KeyTags] annotation should be written (or omitted)
  * @param writeValueTags Specifies whether tags set using the [ValueTags] annotation should be written (or omitted)
+ * @param writeObjectTags Specifies whether tags set using the [ObjectTags] annotation should be written (or omitted)
  * @param verifyKeyTags Specifies whether tags preceding map keys (i.e. properties) should be matched against the
  *                      [KeyTags] annotation during the deserialization process. Useful for lenient parsing
  * @param verifyValueTags Specifies whether tags preceding values should be matched against the [ValueTags]
+ *                      annotation during the deserialization process. Useful for lenient parsing.
+ * @param verifyObjectTags Specifies whether tags preceding values should be matched against the [ObjectTags]
  *                      annotation during the deserialization process. Useful for lenient parsing.
  * @param alwaysUseByteString Specifies whether to always use the compact [ByteString] encoding when serializing
  *                            or deserializing byte arrays.
@@ -43,8 +46,10 @@ public sealed class Cbor(
     internal val ignoreUnknownKeys: Boolean,
     internal val writeKeyTags: Boolean,
     internal val writeValueTags: Boolean,
+    internal val writeObjectTags: Boolean,
     internal val verifyKeyTags: Boolean,
     internal val verifyValueTags: Boolean,
+    internal val verifyObjectTags: Boolean,
     internal val writeDefiniteLengths: Boolean,
     internal val preferCborLabelsOverNames: Boolean,
     internal val alwaysUseByteString: Boolean,
@@ -55,7 +60,7 @@ public sealed class Cbor(
      * The default instance of [Cbor]
      */
     public companion object Default :
-        Cbor(false, false, true, true, true, true, false, true, false, EmptySerializersModule())
+        Cbor(false, false, true, true, true, true, true, false, false, true, false, EmptySerializersModule())
 
     override fun <T> encodeToByteArray(serializer: SerializationStrategy<T>, value: T): ByteArray {
         val output = ByteArrayOutput()
@@ -71,7 +76,7 @@ public sealed class Cbor(
 
     override fun <T> decodeFromByteArray(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T {
         val stream = ByteArrayInput(bytes)
-        val reader = CborReader(this, CborDecoder(stream))
+        val reader = CborReader(this, CborDecoder(stream, verifyObjectTags))
         return reader.decodeSerializableValue(deserializer)
     }
 }
@@ -81,8 +86,10 @@ private class CborImpl(
     encodeDefaults: Boolean, ignoreUnknownKeys: Boolean,
     writeKeyTags: Boolean,
     writeValueTags: Boolean,
+    writeObjectTags: Boolean,
     verifyKeyTags: Boolean,
     verifyValueTags: Boolean,
+    verifyObjectAndArrayTags: Boolean,
     writeDefiniteLengths: Boolean,
     preferCborLabelsOverNames: Boolean,
     alwaysUseByteString: Boolean,
@@ -93,8 +100,10 @@ private class CborImpl(
         ignoreUnknownKeys,
         writeKeyTags,
         writeValueTags,
+        writeObjectTags,
         verifyKeyTags,
         verifyValueTags,
+        verifyObjectAndArrayTags,
         writeDefiniteLengths,
         preferCborLabelsOverNames,
         alwaysUseByteString,
@@ -114,8 +123,10 @@ public fun Cbor(from: Cbor = Cbor, builderAction: CborBuilder.() -> Unit): Cbor 
         builder.ignoreUnknownKeys,
         builder.writeKeyTags,
         builder.writeValueTags,
+        builder.writeObjectTags,
         builder.verifyKeyTags,
         builder.verifyValueTags,
+        builder.verifyObjectTags,
         builder.writeDefiniteLengths,
         builder.preferCborLabelsOverNames,
         builder.alwaysUseByteString,
@@ -149,7 +160,12 @@ public class CborBuilder internal constructor(cbor: Cbor) {
     /**
      * Specifies whether tags set using the [ValueTags] annotation should be written (or omitted)
      */
-    public var writeValueTags: Boolean = cbor.writeKeyTags
+    public var writeValueTags: Boolean = cbor.writeValueTags
+
+    /**
+     * Specifies whether tags set using the [ObjectTags] annotation should be written (or omitted)
+     */
+    public var writeObjectTags: Boolean = cbor.writeObjectTags
 
     /**
      * Specifies whether tags preceding map keys (i.e. properties) should be matched against the [KeyTags] annotation during the deserialization process
@@ -160,6 +176,12 @@ public class CborBuilder internal constructor(cbor: Cbor) {
      * Specifies whether tags preceding values should be matched against the [ValueTags] annotation during the deserialization process
      */
     public var verifyValueTags: Boolean = cbor.verifyValueTags
+
+    /**
+     * Specifies whether tags preceding objects (maps) and arrays (as in [CborArray]) should be matched against the
+     * specified tags during the deserialization process
+     */
+    public var verifyObjectTags: Boolean = cbor.verifyObjectTags
 
     /**
      * specifies whether structures (maps, object, lists, etc.) should be encoded using definite length encoding

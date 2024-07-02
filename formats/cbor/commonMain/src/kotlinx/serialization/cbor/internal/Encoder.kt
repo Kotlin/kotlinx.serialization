@@ -149,8 +149,10 @@ internal class IndefiniteLengthCborWriter(cbor: Cbor, output: ByteArrayOutput) :
 ) {
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
+        if (cbor.writeObjectTags) descriptor.getObjectTags()?.forEach {
+            output.encodeTag(it)
+        }
         if (descriptor.hasArrayTag()) {
-            descriptor.getArrayTags()?.forEach { output.encodeTag(it) }
             output.startArray()
         } else {
             when (descriptor.kind) {
@@ -226,8 +228,11 @@ internal open class DefiniteLengthCborWriter(cbor: Cbor, output: ByteArrayOutput
 
         val numChildren = completedCurrent.elementCount
 
+        if (cbor.writeObjectTags) descriptor.getObjectTags()?.forEach {
+            accumulator.encodeTag(it)
+        }
+
         if (descriptor.hasArrayTag()) {
-            descriptor.getArrayTags()?.forEach { accumulator.encodeTag(it) }
             accumulator.startArray(numChildren.toULong())
         } else {
             when (descriptor.kind) {
@@ -349,8 +354,3 @@ private fun composeNegative(value: Long): ByteArray {
     return data
 }
 
-
-@OptIn(ExperimentalSerializationApi::class)
-private fun SerialDescriptor.getArrayTags(): Collection<ULong>? {
-    return annotations.filterIsInstance<CborArray>().firstOrNull()?.tag?.map { it.tag }
-}

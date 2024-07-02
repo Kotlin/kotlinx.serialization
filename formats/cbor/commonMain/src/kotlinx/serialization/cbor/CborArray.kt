@@ -1,6 +1,7 @@
 package kotlinx.serialization.cbor
 
 import kotlinx.serialization.*
+import kotlinx.serialization.cbor.internal.SuppressAnimalSniffer
 
 /**
  * Encode a class as a CBOR Array (Major type 4) instead of a CBOR map.
@@ -32,18 +33,8 @@ import kotlinx.serialization.*
  * This may be used to encode COSE structures, see
  * [RFC 9052 2. Basic COSE Structure](https://www.rfc-editor.org/rfc/rfc9052#section-2).
  *
- * @param tag optional tags to add to a [CborArray]
  */
 @SerialInfo
 @Target(AnnotationTarget.CLASS)
 @ExperimentalSerializationApi
-public annotation class CborArray(vararg val tag: Tag)
-
-/**
- * Enables Tagging a [CborArray] similarly as [ValueTags] or [KeyTags]. The tag values need to be wrapped into this
- * annotation to clarify the intent of the values inside a [CborArray] annotation.
- */
-@SerialInfo
-@Target(AnnotationTarget.ANNOTATION_CLASS)
-@ExperimentalSerializationApi
-public annotation class Tag(val tag: ULong)
+public annotation class CborArray
