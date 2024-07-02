@@ -178,7 +178,7 @@ internal class IndefiniteLengthCborWriter(cbor: Cbor, output: ByteArrayOutput) :
 }
 
 //optimized definite length encoder
-internal open class DefiniteLengthCborWriter(cbor: Cbor, output: ByteArrayOutput) : CborWriter(cbor, output) {
+internal class DefiniteLengthCborWriter(cbor: Cbor, output: ByteArrayOutput) : CborWriter(cbor, output) {
 
     private val structureStack = Stack(Data(output, -1))
     override fun getDestination(): ByteArrayOutput =
