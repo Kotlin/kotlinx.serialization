@@ -551,7 +551,7 @@ class CborTaggedTest {
             verifyObjectTags = true
             writeObjectTags = true
         }
-        /* assertEquals(referenceHexString, cbor.encodeToHexString(ClassAsTagged.serializer(), reference))
+         assertEquals(referenceHexString, cbor.encodeToHexString(ClassAsTagged.serializer(), reference))
          assertEquals(reference, cbor.decodeFromHexString(ClassAsTagged.serializer(), referenceHexString))
 
          assertEquals(
@@ -568,7 +568,7 @@ class CborTaggedTest {
          assertEquals(
              reference,
              Cbor { verifyObjectTags = false }.decodeFromHexString(ClassAsTagged.serializer(), untaggedHexString)
-         )*/
+         )
 
         assertContains(
             assertFailsWith(CborDecodingException::class) {
