@@ -16,6 +16,7 @@ stable, these are currently experimental features of Kotlin Serialization.
   * [Definite vs. Indefinite Length Encoding](#definite-vs-indefinite-length-encoding)
   * [Tags and Labels](#tags-and-labels)
   * [Arrays](#arrays)
+  * [Custom CBOR-specific Serializers](#custom-cbor-specific-serializers)
 * [ProtoBuf (experimental)](#protobuf-experimental)
   * [Field numbers](#field-numbers)
   * [Integer types](#integer-types)
