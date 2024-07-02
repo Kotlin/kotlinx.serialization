@@ -10,15 +10,43 @@ kover {
         disable()
     }
 
-    reports {
-        verify {
-            rule("Minimal line coverage rate in percents") {
+    currentProject {
+        projectsForCoverageVerification.forEach { (variantName, _) ->
+            // copy the `main` variant for each module to check the coverage only in its section
+            copyVariant(variantName, "main")
+        }
+    }
 
-                // Core is mainly uncovered because a lot of serializers are tested with JSON
-                val minPercentage = if (project.name.contains("core") || project.name.contains("properties") || project.name.contains("json-okio")) 44 else 80
-                minBound(minPercentage)
-                // valueType is 'COVERED_LINES_PERCENTAGE' by default
+    merge {
+        // collect common coverage for all projects (except excluded) in `main` variant
+        subprojects { subproject ->
+            subproject.path !in uncoveredProjects
+        }
+        createVariant("main") { add("jvm", optional = true) }
+    }
+
+    reports {
+        total.verify.rule("Total coverage") {
+            minBound(90)
+        }
+
+        projectsForCoverageVerification.forEach { (variantName, projectPath) ->
+            variant(variantName) {
+                filters.includes.projects.add(projectPath)
+
+                // verify the coverage individually for each module by `check` task
+                verify {
+                    onCheck = true
+                    rule("Coverage for $projectPath") {
+                        minBound(85)
+                    }
+                }
             }
         }
     }
 }
+
+
+val uncoveredProjects get() = setOf(":kotlinx-serialization-bom", ":benchmark", ":guide")
+// map: variant name -> project path
+val projectsForCoverageVerification get() = mapOf("core" to ":kotlinx-serialization-core", "json" to ":kotlinx-serialization-json", "jsonOkio" to ":kotlinx-serialization-json-okio", "cbor" to ":kotlinx-serialization-cbor", "hocon" to ":kotlinx-serialization-hocon", "properties" to ":kotlinx-serialization-properties", "protobuf" to ":kotlinx-serialization-protobuf", "io" to ":kotlinx-serialization-json-io")

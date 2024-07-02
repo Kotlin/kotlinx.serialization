@@ -12,6 +12,7 @@ plugins {
     id("org.jetbrains.dokka")
     id("benchmark-conventions")
     id("publishing-check-conventions")
+    id("kover-conventions")
 
     alias(libs.plugins.serialization) apply false
 }
@@ -136,12 +137,6 @@ subprojects {
     apply(plugin = "bom-conventions")
 }
 
-// == Kover setup ==
-subprojects {
-    if (project.name in uncoveredProjects) return@subprojects
-    apply(plugin = "kover-conventions")
-}
-
 // == Dokka setup ==
 subprojects {
     if (name in documentedSubprojects) {
@@ -200,5 +195,3 @@ val documentedSubprojects get() = setOf("kotlinx-serialization-core",
     "kotlinx-serialization-properties",
     "kotlinx-serialization-hocon",
     "kotlinx-serialization-protobuf")
-
-val uncoveredProjects get() = setOf("kotlinx-serialization-bom", "benchmark", "guide", "kotlinx-serialization-json-okio", "kotlinx-serialization-json-io")
