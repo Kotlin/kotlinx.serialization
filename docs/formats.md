@@ -253,7 +253,7 @@ Writing and verifying object tags can be toggled using the `writeObjectTags` and
 switches. Note that verifying only value tags can result in some data with superfluous tags to still deserialize
 successfully, since in this case - by definition - only a partial validation of tags happens.  
 A predefined Cbor instance (in addition to the default [`Cbor.Default`](Cbor.kt) one) is available, writing and verifying
-all tags as [`Cbor.Tagged`](Cbor.kt).
+all tags as [`Cbor.Tagging`](Cbor.kt).
 
 In addition, CBOR supports keys of all types which work just as `SerialName`s.
 COSE restricts this again to strings and numbers and calls these restricted map keys *labels*. String labels can be
