@@ -15,9 +15,9 @@ class CborReaderTest {
 
     private val ignoreUnknownKeys = Cbor { ignoreUnknownKeys = true }
 
-    private fun withDecoder(input: String, block: CborDecoder.() -> Unit) {
+    private fun withDecoder(input: String, block: CborParser.() -> Unit) {
         val bytes = HexConverter.parseHexBinary(input.uppercase())
-        CborDecoder(ByteArrayInput(bytes), false).block()
+        CborParser(ByteArrayInput(bytes), false).block()
     }
 
     @Test
@@ -895,14 +895,14 @@ class CborReaderTest {
     }
 }
 
-private fun CborDecoder.expect(expected: String, tag: ULong? = null) {
+private fun CborParser.expect(expected: String, tag: ULong? = null) {
     assertEquals(expected, actual = nextString(tag?.let { ulongArrayOf(it) }), "string")
 }
 
-private fun CborDecoder.expectMap(size: Int, tag: ULong? = null) {
+private fun CborParser.expectMap(size: Int, tag: ULong? = null) {
     assertEquals(size, actual = startMap(tag?.let { ulongArrayOf(it) }), "map size")
 }
 
-private fun CborDecoder.expectEof() {
+private fun CborParser.expectEof() {
     assertTrue(isEof(), "Expected EOF.")
 }

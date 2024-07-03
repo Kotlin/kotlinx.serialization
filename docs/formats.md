@@ -303,9 +303,10 @@ This may be used to encode COSE structures, see [RFC 9052 2. Basic COSE Structur
 
 
 ### Custom CBOR-specific Serializers
-Both Cbor encoders and decoders implement the interface [CborEncoder](CborEncoder.kt),
-which contains a single property, exposing the current CBOR serialization configuration.
-This makes it possible to react to switches such as, `preferCborLabelsOverNames` or `writeDefiniteLengths`, for example.
+Cbor encoders and decoders implement the interfaces [CborEncoder](CborEncoder.kt) and [CborDecoder](CborDecoder.kt), respectively.
+These interfaces contain a single property, `cbor`, exposing the current CBOR serialization configuration.
+This enables custom cbor-specific serializers to react to switches such as, `preferCborLabelsOverNames` or
+`writeDefiniteLengths`, for example.
 
 ## ProtoBuf (experimental)
 

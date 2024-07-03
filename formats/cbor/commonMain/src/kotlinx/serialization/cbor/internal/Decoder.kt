@@ -12,8 +12,8 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 
-internal open class CborReader(override val cbor: Cbor, protected val decoder: CborDecoder) : AbstractDecoder(),
-    CborEncoder {
+internal open class CborReader(override val cbor: Cbor, protected val decoder: CborParser) : AbstractDecoder(),
+    CborDecoder {
 
     protected var size = -1
         private set
@@ -151,7 +151,7 @@ internal open class CborReader(override val cbor: Cbor, protected val decoder: C
     }
 }
 
-internal class CborDecoder(private val input: ByteArrayInput, private val verifyObjectTags: Boolean) {
+internal class CborParser(private val input: ByteArrayInput, private val verifyObjectTags: Boolean) {
     private var curByte: Int = -1
 
     init {
@@ -548,13 +548,13 @@ private fun Iterable<ByteArray>.flatten(): ByteArray {
 }
 
 
-private class CborMapReader(cbor: Cbor, decoder: CborDecoder) : CborListReader(cbor, decoder) {
+private class CborMapReader(cbor: Cbor, decoder: CborParser) : CborListReader(cbor, decoder) {
     override fun skipBeginToken(objectTags: ULongArray?) =
         setSize(decoder.startMap(tags?.let { if (objectTags == null) it else ulongArrayOf(*it, *objectTags) }
             ?: objectTags) * 2)
 }
 
-private open class CborListReader(cbor: Cbor, decoder: CborDecoder) : CborReader(cbor, decoder) {
+private open class CborListReader(cbor: Cbor, decoder: CborParser) : CborReader(cbor, decoder) {
     private var ind = 0
 
     override fun skipBeginToken(objectTags: ULongArray?) =

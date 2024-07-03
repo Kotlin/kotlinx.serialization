@@ -6,6 +6,10 @@
 // - Show declarations: true
 
 // Library unique name: <org.jetbrains.kotlinx:kotlinx-serialization-cbor>
+abstract interface kotlinx.serialization.cbor/CborDecoder { // kotlinx.serialization.cbor/CborDecoder|null[0]
+    abstract val cbor // kotlinx.serialization.cbor/CborDecoder.cbor|{}cbor[0]
+        abstract fun <get-cbor>(): kotlinx.serialization.cbor/Cbor // kotlinx.serialization.cbor/CborDecoder.cbor.<get-cbor>|<get-cbor>(){}[0]
+}
 abstract interface kotlinx.serialization.cbor/CborEncoder { // kotlinx.serialization.cbor/CborEncoder|null[0]
     abstract val cbor // kotlinx.serialization.cbor/CborEncoder.cbor|{}cbor[0]
         abstract fun <get-cbor>(): kotlinx.serialization.cbor/Cbor // kotlinx.serialization.cbor/CborEncoder.cbor.<get-cbor>|<get-cbor>(){}[0]

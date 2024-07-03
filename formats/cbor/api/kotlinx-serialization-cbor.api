@@ -51,6 +51,10 @@ public final class kotlinx/serialization/cbor/CborBuilder {
 	public final fun setWriteValueTags (Z)V
 }
 
+public abstract interface class kotlinx/serialization/cbor/CborDecoder {
+	public abstract fun getCbor ()Lkotlinx/serialization/cbor/Cbor;
+}
+
 public abstract interface class kotlinx/serialization/cbor/CborEncoder {
 	public abstract fun getCbor ()Lkotlinx/serialization/cbor/Cbor;
 }
