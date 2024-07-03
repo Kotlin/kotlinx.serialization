@@ -22,12 +22,14 @@ import kotlinx.serialization.modules.*
  * @param mapElementIndex maps the element index to a new positional zero-based index. If this mapper provides the same index for multiple elements, only the last one will be encoded as the previous ones will be overridden. The mapped index just helps to reorder the elements, but the reordered `encode*Element` method calls will still pass the original element index.
  */
 @ExperimentalSerializationApi
-internal class ReorderingCompositeEncoder(
+public class ReorderingCompositeEncoder(
     structureDescriptor: SerialDescriptor,
     private val compositeEncoderDelegate: CompositeEncoder,
     private val mapElementIndex: (SerialDescriptor, Int) -> Int,
 ) : CompositeEncoder {
-    private var bufferedCalls = Array<BufferedCall?>(structureDescriptor.elementsCount) { null }
+    // TODO we should use a map to have buffered calls per descriptor if the same encoder is reused for different structures
+    //  or we need to ensure that this encoder is not reused
+    private val bufferedCalls = Array<BufferedCall?>(structureDescriptor.elementsCount) { null }
 
     override val serializersModule: SerializersModule
         // No need to return a serializers module as it's not used during buffering
@@ -48,6 +50,7 @@ internal class ReorderingCompositeEncoder(
 
     override fun endStructure(descriptor: SerialDescriptor) {
         encodeBufferedFields(descriptor)
+        // TODO should we clear the buffer after encoding? Is it possible to reuse this encoder?
     }
 
     private fun encodeBufferedFields(descriptor: SerialDescriptor) {
@@ -228,19 +231,7 @@ internal class ReorderingCompositeEncoder(
 
         private fun invalidCall(methodName: String): Nothing {
             // This method is normally called by encodeSerializableValue or encodeNullableSerializableValue that is buffered, so we should never go here during buffering as it will be delegated to the concrete CompositeEncoder
-            throw UnsupportedOperationException("$methodName should not be called when reordering fields, as it should be done by encodeSerializableValue or encodeNullableSerializableValue")
+            throw UnsupportedOperationException("encodeSerializableValue or encodeNullableSerializableValue should be called before $methodName")
         }
     }
 }
-
-/**
- * Encodes the [structureDescriptor] elements in a specific order provided by [elementIndexMapper].
- *
- * @param structureDescriptor descriptor of the structure being encoded and reordered
- * @param elementIndexMapper maps the element index to a new positional zero-based index. If this mapper provides the same index for multiple elements, only the last one will be encoded as the previous ones will be overridden. The mapped index just helps to reorder the elements, but the reordered `encode*Element` method calls will still pass the original element index.
- */
-@ExperimentalSerializationApi
-public fun CompositeEncoder.encodeReorderingElements(
-    structureDescriptor: SerialDescriptor,
-    elementIndexMapper: (SerialDescriptor, Int) -> Int,
-): CompositeEncoder = ReorderingCompositeEncoder(structureDescriptor, this, elementIndexMapper)
