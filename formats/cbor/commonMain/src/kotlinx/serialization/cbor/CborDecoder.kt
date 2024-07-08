@@ -4,7 +4,9 @@
 
 package kotlinx.serialization.cbor
 
+import kotlinx.serialization.*
+
+@ExperimentalSerializationApi
 public interface CborDecoder {
-    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
     public val cbor: Cbor
 }
