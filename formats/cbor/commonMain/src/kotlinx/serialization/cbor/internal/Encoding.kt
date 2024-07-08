@@ -59,10 +59,6 @@ internal fun SerialDescriptor.isInlineByteString(): Boolean {
 internal fun SerialDescriptor.getValueTags(index: Int): ULongArray? = findAnnotation<ValueTags>(index)?.tags
 
 @OptIn(ExperimentalSerializationApi::class)
-internal fun SerialDescriptor.getObjectTags(index: Int): ULongArray? = findAnnotation<ObjectTags>(index)?.tags
-
-
-@OptIn(ExperimentalSerializationApi::class)
 internal fun SerialDescriptor.getKeyTags(index: Int): ULongArray? = findAnnotation<KeyTags>(index)?.tags
 
 @OptIn(ExperimentalSerializationApi::class)
