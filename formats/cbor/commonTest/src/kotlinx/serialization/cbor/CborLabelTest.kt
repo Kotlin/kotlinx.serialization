@@ -109,6 +109,27 @@ class CborLabelTest {
         assertEquals(referenceWithTag, cbor.decodeFromHexString(ClassWithCborLabelAndTag.serializer(), referenceHexLabelWithTagString))
     }
 
+    @Test
+    fun writeClassWithoutLabelBuPreferLabel() {
+
+        //only serialName is present, no label, so fallback to serialName
+        val referenceWithoutLabel = ClassWithoutCborLabel(algorithm = 9)
+        /**
+         * BF           # map(*)
+         *    63        # text(3)
+         *       616C67 # "alg"
+         *    09        # unsigned(9)
+         *    FF        # primitive(*)
+         */
+
+        val referenceHexStringWithoutLabel = "bf63616c6709ff"
+        val cbor = Cbor {
+            preferCborLabelsOverNames = true
+        }
+
+        assertEquals(referenceWithoutLabel, cbor.decodeFromHexString(ClassWithoutCborLabel.serializer(), referenceHexStringWithoutLabel))
+    }
+
     @Serializable
     data class ClassWithCborLabel(
         @CborLabel(1)
@@ -122,6 +143,12 @@ class CborLabelTest {
         @SerialName("alg")
         @KeyTags(5U)
         val alg: Int
+    )
+
+    @Serializable
+    data class ClassWithoutCborLabel(
+        @SerialName("alg")
+        val algorithm: Int
     )
 
 }

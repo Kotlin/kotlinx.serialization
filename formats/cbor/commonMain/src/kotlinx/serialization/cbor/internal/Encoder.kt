@@ -127,8 +127,9 @@ internal sealed class CborWriter(
 
             if ((descriptor.kind !is StructureKind.LIST) && (descriptor.kind !is StructureKind.MAP) && (descriptor.kind !is PolymorphicKind)) {
                 //indices are put into the name field. we don't want to write those, as it would result in double writes
-                if (cbor.preferCborLabelsOverNames) {
-                    descriptor.getCborLabel(index)?.let { destination.encodeNumber(it) }
+                val cborLabel = descriptor.getCborLabel(index)
+                if (cbor.preferCborLabelsOverNames && cborLabel != null) {
+                    destination.encodeNumber(cborLabel)
                 } else {
                     destination.encodeString(name)
                 }
