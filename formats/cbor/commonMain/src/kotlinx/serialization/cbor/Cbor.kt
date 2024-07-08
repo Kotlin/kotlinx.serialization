@@ -42,17 +42,17 @@ import kotlinx.serialization.modules.*
  */
 @ExperimentalSerializationApi
 public sealed class Cbor(
-    internal val encodeDefaults: Boolean,
-    internal val ignoreUnknownKeys: Boolean,
-    internal val writeKeyTags: Boolean,
-    internal val writeValueTags: Boolean,
-    internal val writeObjectTags: Boolean,
-    internal val verifyKeyTags: Boolean,
-    internal val verifyValueTags: Boolean,
-    internal val verifyObjectTags: Boolean,
-    internal val writeDefiniteLengths: Boolean,
-    internal val preferCborLabelsOverNames: Boolean,
-    internal val alwaysUseByteString: Boolean,
+    public val encodeDefaults: Boolean,
+    public val ignoreUnknownKeys: Boolean,
+    public val writeKeyTags: Boolean,
+    public val writeValueTags: Boolean,
+    public val writeObjectTags: Boolean,
+    public val verifyKeyTags: Boolean,
+    public val verifyValueTags: Boolean,
+    public val verifyObjectTags: Boolean,
+    public val writeDefiniteLengths: Boolean,
+    public val preferCborLabelsOverNames: Boolean,
+    public val alwaysUseByteString: Boolean,
     override val serializersModule: SerializersModule
 ) : BinaryFormat {
 
