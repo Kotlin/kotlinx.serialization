@@ -10,7 +10,18 @@ public abstract class kotlinx/serialization/cbor/Cbor : kotlinx/serialization/Bi
 	public synthetic fun <init> (ZZZZZZZZZZZLkotlinx/serialization/modules/SerializersModule;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun decodeFromByteArray (Lkotlinx/serialization/DeserializationStrategy;[B)Ljava/lang/Object;
 	public fun encodeToByteArray (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)[B
+	public final fun getAlwaysUseByteString ()Z
+	public final fun getEncodeDefaults ()Z
+	public final fun getIgnoreUnknownKeys ()Z
+	public final fun getPreferCborLabelsOverNames ()Z
 	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public final fun getVerifyKeyTags ()Z
+	public final fun getVerifyObjectTags ()Z
+	public final fun getVerifyValueTags ()Z
+	public final fun getWriteDefiniteLengths ()Z
+	public final fun getWriteKeyTags ()Z
+	public final fun getWriteObjectTags ()Z
+	public final fun getWriteValueTags ()Z
 }
 
 public final class kotlinx/serialization/cbor/Cbor$Default : kotlinx/serialization/cbor/Cbor {
