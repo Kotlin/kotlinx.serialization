@@ -46,7 +46,7 @@ internal const val SINGLE_PRECISION_NORMALIZE_BASE = 0.5f
 
 @OptIn(ExperimentalSerializationApi::class)
 internal fun SerialDescriptor.isByteString(index: Int): Boolean {
-    return kotlin.runCatching { getElementAnnotations(index).find { it is ByteString } != null }.getOrDefault(false)
+    return getElementAnnotations(index).find { it is ByteString } != null
 }
 
 
