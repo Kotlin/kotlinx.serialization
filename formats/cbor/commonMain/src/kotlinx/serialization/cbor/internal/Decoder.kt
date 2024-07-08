@@ -282,12 +282,12 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
                                 collected?.joinToString(
                                     prefix = "[",
                                     postfix = "]"
-                                ) { "$it" }
+                                ) { it.toString() }
                             } do not match expected tags ${
                                 it.joinToString(
                                     prefix = "[",
                                     postfix = "]"
-                                ) { "$it" }
+                                ) { it.toString() }
                             }"
                         )
                 } else {

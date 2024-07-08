@@ -53,6 +53,7 @@ afterEvaluate { // Can be applied only when the project is evaluated
             "kotlinx-serialization-core" -> "kotlinx.serialization.internal.SuppressAnimalSniffer"
             "kotlinx-serialization-hocon" -> "kotlinx.serialization.hocon.internal.SuppressAnimalSniffer"
             "kotlinx-serialization-protobuf" -> "kotlinx.serialization.protobuf.internal.SuppressAnimalSniffer"
+            "kotlinx-serialization-cbor" -> "kotlinx.serialization.cbor.internal.SuppressAnimalSniffer"
             else -> "kotlinx.serialization.json.internal.SuppressAnimalSniffer"
         }
 
