@@ -66,7 +66,6 @@ kotlin {
             progressiveMode = true
 
             optIn("kotlin.ExperimentalMultiplatform")
-            optIn("kotlin.ExperimentalStdlibApi")
             optIn("kotlinx.serialization.InternalSerializationApi")
         }
     }
