@@ -325,7 +325,6 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
         }
     }
 
-    fun nextNumber(tag: ULong): Long = nextNumber(ulongArrayOf(tag))
     fun nextNumber(tags: ULongArray? = null): Long {
         processTags(tags)
         val res = readNumber()

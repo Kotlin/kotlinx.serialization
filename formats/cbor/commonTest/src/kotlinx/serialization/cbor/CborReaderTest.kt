@@ -895,6 +895,8 @@ class CborReaderTest {
     }
 }
 
+private fun CborParser.nextNumber(tag: ULong): Long = nextNumber(ulongArrayOf(tag))
+
 private fun CborParser.nextString(tag: ULong) = nextString(ulongArrayOf(tag))
 
 private fun CborParser.startArray(tag: ULong): Int = startArray(ulongArrayOf(tag))
