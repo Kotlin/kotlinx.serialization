@@ -15,6 +15,7 @@ jackson = "2.13.3"
 okio = "3.9.0"
 kotlinx-io="0.4.0"
 gson = "2.8.5"
+moshi = "1.15.1"
 kotlintest = "2.0.7"
 coroutines = "1.6.4"
 cbor = "4.2.0"
@@ -48,6 +49,8 @@ typesafe-config = { module = "com.typesafe:config", version.ref = "typesafe-conf
 junit-junit4 = { module = "junit:junit", version.ref = "junit4"}
 protoc = { module = "com.google.protobuf:protoc", version.ref = "protoc"}
 protobuf-java = { module = "com.google.protobuf:protobuf-java", version.ref = "protoc" }
+moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "moshi" }
+moshi-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.ref = "moshi" }
 
 [plugins]
 knit = { id = "org.jetbrains.kotlinx.knit", version.ref = "knit" }
