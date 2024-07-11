@@ -139,7 +139,7 @@ internal sealed class CborWriter(
         if (cbor.writeValueTags) {
             descriptor.getValueTags(index)?.forEach { destination.encodeTag(it) }
         }
-        incrementChildren() //needed for definite len encoding, NOOP for indefiniten len encoding
+        incrementChildren() // needed for definite len encoding, NOOP for indefinite length encoding
         return true
     }
 }
