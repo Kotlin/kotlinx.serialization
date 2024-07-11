@@ -1,7 +1,6 @@
 package kotlinx.serialization.cbor
 
 import kotlinx.serialization.*
-import kotlinx.serialization.cbor.internal.SuppressAnimalSniffer
 
 /**
  * Encode a class as a CBOR Array (Major type 4) instead of a CBOR map.

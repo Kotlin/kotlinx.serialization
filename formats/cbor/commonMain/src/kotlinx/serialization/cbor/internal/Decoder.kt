@@ -45,7 +45,7 @@ internal open class CborReader(override val cbor: Cbor, protected val decoder: C
             StructureKind.MAP -> CborMapReader(cbor, decoder)
             else -> CborReader(cbor, decoder)
         }
-        val objectTags = if (cbor.verifyObjectTags) descriptor.getObjectTags() else null
+        val objectTags = if (cbor.configuration.verifyObjectTags) descriptor.getObjectTags() else null
         re.skipBeginToken(tags?.let { if (objectTags == null) it else ulongArrayOf(*it, *objectTags) } ?: objectTags)
         return re
     }
@@ -55,7 +55,7 @@ internal open class CborReader(override val cbor: Cbor, protected val decoder: C
     }
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-        val index = if (cbor.ignoreUnknownKeys) {
+        val index = if (cbor.configuration.ignoreUnknownKeys) {
             val knownIndex: Int
             while (true) {
                 if (isDone()) return CompositeDecoder.DECODE_DONE
@@ -82,7 +82,7 @@ internal open class CborReader(override val cbor: Cbor, protected val decoder: C
         }
 
         decodeByteArrayAsByteString = descriptor.isByteString(index)
-        tags = if (cbor.verifyValueTags) descriptor.getValueTags(index) else null
+        tags = if (cbor.configuration.verifyValueTags) descriptor.getValueTags(index) else null
         return index
     }
 
@@ -109,7 +109,7 @@ internal open class CborReader(override val cbor: Cbor, protected val decoder: C
 
     @OptIn(ExperimentalSerializationApi::class)
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
-        return if ((decodeByteArrayAsByteString || cbor.alwaysUseByteString)
+        return if ((decodeByteArrayAsByteString || cbor.configuration.alwaysUseByteString)
             && deserializer.descriptor == ByteArraySerializer().descriptor
         ) {
             @Suppress("UNCHECKED_CAST")
@@ -143,7 +143,7 @@ internal open class CborReader(override val cbor: Cbor, protected val decoder: C
     private fun isDone(): Boolean = !finiteMode && decoder.isEnd() || (finiteMode && readProperties >= size)
 
     private fun verifyKeyTags(descriptor: SerialDescriptor, index: Int, tags: ULongArray?) {
-        if (cbor.verifyKeyTags) {
+        if (cbor.configuration.verifyKeyTags) {
             descriptor.getKeyTags(index)?.let { keyTags ->
                 if (!(keyTags contentEquals tags)) throw CborDecodingException("CBOR tags $tags do not match declared tags $keyTags for $descriptor")
             }
