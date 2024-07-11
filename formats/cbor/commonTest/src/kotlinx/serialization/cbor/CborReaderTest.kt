@@ -895,6 +895,12 @@ class CborReaderTest {
     }
 }
 
+private fun CborParser.nextString(tag: ULong) = nextString(ulongArrayOf(tag))
+
+private fun CborParser.startArray(tag: ULong): Int = startArray(ulongArrayOf(tag))
+
+private fun CborParser.startMap(tag: ULong) = startMap(ulongArrayOf(tag))
+
 private fun CborParser.expect(expected: String, tag: ULong? = null) {
     assertEquals(expected, actual = nextString(tag?.let { ulongArrayOf(it) }), "string")
 }

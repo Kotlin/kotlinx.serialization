@@ -194,11 +194,7 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
         return ans
     }
 
-    fun startArray(tag: ULong) = startArray(ulongArrayOf(tag))
-
     fun startArray(tags: ULongArray? = null) = startSized(tags, BEGIN_ARRAY, HEADER_ARRAY, "array")
-
-    fun startMap(tag: ULong) = startMap(ulongArrayOf(tag))
 
     fun startMap(tags: ULongArray? = null) = startSized(tags, BEGIN_MAP, HEADER_MAP, "map")
 
@@ -233,7 +229,6 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
         return arr
     }
 
-    fun nextString(tag: ULong) = nextString(ulongArrayOf(tag))
     fun nextString(tags: ULongArray? = null) = nextTaggedString(tags).first
 
     //used for reading the tag names and names of tagged keys (of maps, and serialized classes)
