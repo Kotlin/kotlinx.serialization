@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE product-profile
+        SYSTEM "https://resources.jetbrains.com/stardust/product-profile.dtd">
+
+<product-profile id="ser"
+                 name="Serialization"
+                 start-page="serialization.md">
+
+    <chunk include-id="serialization">
+        <toc-element id="serialization.md" toc-title="Introduction"/>
+        <toc-element toc-title="Get started">
+            <toc-element id="serialization-get-started.md" toc-title="Get started with Kotlin serialization"/>
+            <toc-element id="serialization-customization-options.md" toc-title="Serialization customization options"/>
+        </toc-element>
+        <toc-element id="create-custom-serializers.md" toc-title="Create custom serializers"/>
+    </chunk>
+</product-profile>

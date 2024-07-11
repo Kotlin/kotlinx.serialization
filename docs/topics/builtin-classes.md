@@ -60,7 +60,7 @@ fun main() {
 }
 ```                                   
 
-> You can get the full code [here](../guide/example/example-builtin-01.kt).
+> You can get the full code [here](../../guide/example/example-builtin-01.kt).
 
 Their natural representation in JSON is used.
 
@@ -85,7 +85,7 @@ fun main() {
 }
 ``` 
 
-> You can get the full code [here](../guide/example/example-builtin-02.kt).
+> You can get the full code [here](../../guide/example/example-builtin-02.kt).
 
 By default they are serialized to JSON as numbers.
 
@@ -127,7 +127,7 @@ fun main() {
 }
 ``` 
 
-> You can get the full code [here](../guide/example/example-builtin-03.kt).
+> You can get the full code [here](../../guide/example/example-builtin-03.kt).
 
 This JSON gets parsed natively by JavaScript without loss of precision.
 
@@ -158,7 +158,7 @@ fun main() {
 }
 ```                                        
 
-> You can get the full code [here](../guide/example/example-builtin-04.kt).
+> You can get the full code [here](../../guide/example/example-builtin-04.kt).
 
 In JSON an enum gets encoded as a string.
 
@@ -189,7 +189,7 @@ fun main() {
 }
 ```                                        
 
-> You can get the full code [here](../guide/example/example-builtin-05.kt).
+> You can get the full code [here](../../guide/example/example-builtin-05.kt).
 
 We see that the specified serial name is now used in the resulting JSON.
 
@@ -217,7 +217,7 @@ fun main() {
 }  
 ```                                
 
-> You can get the full code [here](../guide/example/example-builtin-06.kt).
+> You can get the full code [here](../../guide/example/example-builtin-06.kt).
 
 ```text
 {"first":1,"second":{"name":"kotlinx.serialization"}}
@@ -245,7 +245,7 @@ fun main() {
 }  
 ```
 
-> You can get the full code [here](../guide/example/example-builtin-07.kt).
+> You can get the full code [here](../../guide/example/example-builtin-07.kt).
 
 The result is represented as a list in JSON.
 
@@ -272,7 +272,7 @@ fun main() {
 }  
 ```
 
-> You can get the full code [here](../guide/example/example-builtin-08.kt).
+> You can get the full code [here](../../guide/example/example-builtin-08.kt).
 
 [Set] is also represented as a list in JSON, like all other collections.
 
@@ -307,7 +307,7 @@ fun main() {
 }
 ```    
 
-> You can get the full code [here](../guide/example/example-builtin-09.kt).
+> You can get the full code [here](../../guide/example/example-builtin-09.kt).
 
 Because the `data.b` property is a [Set], the duplicate values from it disappeared.
 
@@ -334,7 +334,7 @@ fun main() {
 }  
 ```                                
 
-> You can get the full code [here](../guide/example/example-builtin-10.kt).
+> You can get the full code [here](../../guide/example/example-builtin-10.kt).
 
 Kotlin maps in JSON are represented as objects. In JSON object keys are always strings, so keys are encoded as strings
 even if they are numbers in Kotlin, as we can see below.
@@ -370,7 +370,7 @@ fun main() {
 }  
 ```                                
 
-> You can get the full code [here](../guide/example/example-builtin-11.kt).
+> You can get the full code [here](../../guide/example/example-builtin-11.kt).
 
 While it may seem useless at first glance, this comes in handy for sealed class serialization,
 which is explained in the [Polymorphism. Objects](polymorphism.md#objects) section.
@@ -399,7 +399,7 @@ fun main() {
     println(Json.encodeToString(duration))
 }
 ```
-> You can get the full code [here](../guide/example/example-builtin-12.kt).
+> You can get the full code [here](../../guide/example/example-builtin-12.kt).
 
 Duration is serialized as a string in the ISO-8601-2 format.
 ```text
@@ -425,7 +425,7 @@ fun main() {
     println(Json.encodeToString(ParametrizedParent.ChildWithoutParameter(42)))
 }
 ``` 
-> You can get the full code [here](../guide/example/example-builtin-13.kt).
+> You can get the full code [here](../../guide/example/example-builtin-13.kt).
 
 When encoding, the serializer for `Nothing` was not used
 

@@ -62,7 +62,7 @@ fun main() {
 }  
 ```                                
 
-> You can get the full code [here](../guide/example/example-poly-01.kt).
+> You can get the full code [here](../../guide/example/example-poly-01.kt).
 
 Despite the runtime type of `OwnedProject`, only the `Project` class properties are getting serialized.  
  
@@ -86,7 +86,7 @@ fun main() {
 }  
 ```                                
 
-> You can get the full code [here](../guide/example/example-poly-02.kt).
+> You can get the full code [here](../../guide/example/example-poly-02.kt).
 
 We get an error, because the `OwnedProject` class is not serializable.  
  
@@ -118,7 +118,7 @@ fun main() {
 }  
 ```
 
-> You can get the full code [here](../guide/example/example-poly-03.kt).
+> You can get the full code [here](../../guide/example/example-poly-03.kt).
 
 This is close to the best design for a serializable hierarchy of classes, but running it produces the following error:
 
@@ -150,7 +150,7 @@ fun main() {
 }  
 ```
 
-> You can get the full code [here](../guide/example/example-poly-04.kt).
+> You can get the full code [here](../../guide/example/example-poly-04.kt).
 
 Now we can see a default way to represent polymorphism in JSON. 
 A `type` key is added to the resulting JSON object as a _discriminator_.  
@@ -184,7 +184,7 @@ fun main() {
 }  
 ```
 
-> You can get the full code [here](../guide/example/example-poly-05.kt).
+> You can get the full code [here](../../guide/example/example-poly-05.kt).
 
 The type of `OwnedProject` is concrete and is not polymorphic, thus the `type`
 discriminator property is not emitted into the resulting JSON.
@@ -221,7 +221,7 @@ fun main() {
 }  
 ```
 
-> You can get the full code [here](../guide/example/example-poly-06.kt).
+> You can get the full code [here](../../guide/example/example-poly-06.kt).
 
 This way we can have a stable _serial name_ that is not affected by the class's name in the source code.
 
@@ -256,7 +256,7 @@ fun main() {
 }  
 ```
 
-> You can get the full code [here](../guide/example/example-poly-07.kt).
+> You can get the full code [here](../../guide/example/example-poly-07.kt).
 
 The properties of the superclass are serialized before the properties of the subclass. 
 
@@ -291,7 +291,7 @@ fun main() {
 }  
 ```
 
-> You can get the full code [here](../guide/example/example-poly-08.kt).
+> You can get the full code [here](../../guide/example/example-poly-08.kt).
 
 An object serializes as an empty class, also using its fully-qualified class name as type by default:
 
@@ -349,7 +349,7 @@ fun main() {
 }    
 ```
 
-> You can get the full code [here](../guide/example/example-poly-09.kt).
+> You can get the full code [here](../../guide/example/example-poly-09.kt).
 
 This additional configuration makes our code work just as it worked with a sealed class in 
 the [Sealed classes](#sealed-classes) section, but here subclasses can be spread arbitrarily throughout the code.
@@ -402,7 +402,7 @@ fun main() {
 }    
 ```
 
-> You can get the full code [here](../guide/example/example-poly-10.kt).
+> You can get the full code [here](../../guide/example/example-poly-10.kt).
 
 ```text 
 {"type":"owned","name":"kotlinx.coroutines","owner":"kotlin"}
@@ -447,7 +447,7 @@ fun main() {
 }        
 ```
 
-> You can get the full code [here](../guide/example/example-poly-11.kt).
+> You can get the full code [here](../../guide/example/example-poly-11.kt).
 
 As long as we've registered the actual subtype of the interface that is being serialized in
 the [SerializersModule] of our `format`, we get it working at runtime.
@@ -492,7 +492,7 @@ fun main() {
 }    
 ```
 
-> You can get the full code [here](../guide/example/example-poly-12.kt).
+> You can get the full code [here](../../guide/example/example-poly-12.kt).
  
 We get the exception.
 
@@ -540,7 +540,7 @@ fun main() {
 }    
 ```
 
-> You can get the full code [here](../guide/example/example-poly-13.kt).
+> You can get the full code [here](../../guide/example/example-poly-13.kt).
 
 However, `Any` is a class and it is not serializable:
 
@@ -582,7 +582,7 @@ fun main() {
 }    
 ```
 
-> You can get the full code [here](../guide/example/example-poly-14.kt).
+> You can get the full code [here](../../guide/example/example-poly-14.kt).
 
 With the explicit serializer it works as before.
 
@@ -635,7 +635,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-poly-15.kt).
+> You can get the full code [here](../../guide/example/example-poly-15.kt).
  
 <!--- TEST 
 {"project":{"type":"owned","name":"kotlinx.coroutines","owner":"kotlin"}}
@@ -688,7 +688,7 @@ fun main() {
 }        
 -->
 
-> You can get the full code [here](../guide/example/example-poly-16.kt).
+> You can get the full code [here](../../guide/example/example-poly-16.kt).
 
 <!--- TEST 
 {"project":{"type":"owned","name":"kotlinx.coroutines","owner":"kotlin"},"any":{"type":"owned","name":"kotlinx.coroutines","owner":"kotlin"}}
@@ -779,7 +779,7 @@ fun main() {
 
 ```
 
-> You can get the full code [here](../guide/example/example-poly-17.kt).
+> You can get the full code [here](../../guide/example/example-poly-17.kt).
 
 The JSON that is being produced is deeply polymorphic.
 
@@ -827,7 +827,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-poly-18.kt).
+> You can get the full code [here](../../guide/example/example-poly-18.kt).
 
 We get the following exception.
 
@@ -890,7 +890,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-poly-19.kt).
+> You can get the full code [here](../../guide/example/example-poly-19.kt).
 
 Notice, how `BasicProject` had also captured the specified type key in its `type` property. 
 
@@ -994,7 +994,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-poly-20.kt)
+> You can get the full code [here](../../guide/example/example-poly-20.kt)
 
 ```text
 {"type":"Cat","catType":"Tabby"}

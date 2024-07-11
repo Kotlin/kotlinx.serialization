@@ -70,7 +70,7 @@ fun main() {
 }
 ```                                  
 
-> You can get the full code [here](../guide/example/example-formats-01.kt).
+> You can get the full code [here](../../guide/example/example-formats-01.kt).
 
 We print a filtered ASCII representation of the output, writing non-ASCII data in hex, so we see how 
 all the original strings are directly represented in CBOR, but the format delimiters themselves are binary.
@@ -125,7 +125,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-formats-02.kt).
+> You can get the full code [here](../../guide/example/example-formats-02.kt).
 
 It decodes the object, despite the fact that `Project` is missing the `language` property.
 
@@ -192,7 +192,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-formats-03.kt).    
+> You can get the full code [here](../../guide/example/example-formats-03.kt).    
 
 As we see, the CBOR byte that precedes the data is different for different types of encoding.
 
@@ -257,7 +257,7 @@ fun main() {
 }
 ```                                  
 
-> You can get the full code [here](../guide/example/example-formats-04.kt).
+> You can get the full code [here](../../guide/example/example-formats-04.kt).
 
 ```text 
 {0A}{15}kotlinx.serialization{12}{06}Kotlin
@@ -307,7 +307,7 @@ fun main() {
 }
 ```                                  
 
-> You can get the full code [here](../guide/example/example-formats-05.kt).
+> You can get the full code [here](../../guide/example/example-formats-05.kt).
 
 We see in the output that the number for the first property `name` did not change (as it is numbered from one by default),
 but it did change for the `language` property. 
@@ -358,7 +358,7 @@ fun main() {
 }
 ```                   
 
-> You can get the full code [here](../guide/example/example-formats-06.kt).
+> You can get the full code [here](../../guide/example/example-formats-06.kt).
 
 * The [default][ProtoIntegerType.DEFAULT] is a varint encoding (`intXX`) that is optimized for 
   small non-negative numbers. The value of `1` is encoded in one byte `01`. 
@@ -415,7 +415,7 @@ fun main() {
 }
 ```                   
 
-> You can get the full code [here](../guide/example/example-formats-07.kt).
+> You can get the full code [here](../../guide/example/example-formats-07.kt).
 
 ```text 
 {08}{01}{08}{02}{08}{03}
@@ -498,7 +498,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-formats-08.kt).
+> You can get the full code [here](../../guide/example/example-formats-08.kt).
 
 ```text
 0a03546f6d1203313233
@@ -570,7 +570,7 @@ fun main() {
   println(schemas)
 }
 ```
-> You can get the full code [here](../guide/example/example-formats-09.kt).
+> You can get the full code [here](../../guide/example/example-formats-09.kt).
 
 Which would output as follows.
 
@@ -622,7 +622,7 @@ fun main() {
 }
 ```      
 
-> You can get the full code [here](../guide/example/example-formats-10.kt).
+> You can get the full code [here](../../guide/example/example-formats-10.kt).
 
 The resulting map has dot-separated keys representing keys of the nested objects.
 
@@ -702,7 +702,7 @@ fun main() {
 }
 ```                                    
 
-> You can get the full code [here](../guide/example/example-formats-11.kt).
+> You can get the full code [here](../../guide/example/example-formats-11.kt).
 
 As a result, we got all the primitive values in our object graph visited and put into a list
 in _serial_ order.
@@ -804,7 +804,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-formats-12.kt).
+> You can get the full code [here](../../guide/example/example-formats-12.kt).
 
 Now we can convert a list of primitives back to an object tree.
 
@@ -895,7 +895,7 @@ fun main() {
 }
 -->
 
-> You can get the full code [here](../guide/example/example-formats-13.kt).
+> You can get the full code [here](../../guide/example/example-formats-13.kt).
 
 <!--- TEST 
 [kotlinx.serialization, kotlin, 9000]
@@ -1002,7 +1002,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-formats-14.kt).
+> You can get the full code [here](../../guide/example/example-formats-14.kt).
 
 We see the size of the list added to the result, letting the decoder know where to stop. 
 
@@ -1114,7 +1114,7 @@ fun main() {
 
 ```
 
-> You can get the full code [here](../guide/example/example-formats-15.kt).
+> You can get the full code [here](../../guide/example/example-formats-15.kt).
 
 In the output we see how not-null`!!` and `NULL` marks are used.
 
@@ -1242,7 +1242,7 @@ fun main() {
 }
 ```
               
-> You can get the full code [here](../guide/example/example-formats-16.kt).
+> You can get the full code [here](../../guide/example/example-formats-16.kt).
 
 As we can see, the result is a dense binary format that only contains the data that is being serialized. 
 It can be easily tweaked for any kind of domain-specific compact encoding.
@@ -1436,7 +1436,7 @@ fun main() {
 }
 ```
               
-> You can get the full code [here](../guide/example/example-formats-17.kt).
+> You can get the full code [here](../../guide/example/example-formats-17.kt).
 
 As we can see, our custom byte array format is being used, with the compact encoding of its size in one byte. 
 

@@ -62,7 +62,7 @@ fun main() {
 }  
 ```              
 
-> You can get the full code [here](../guide/example/example-serializer-01.kt).
+> You can get the full code [here](../../guide/example/example-serializer-01.kt).
 
 By default this class serializes its `rgb` property into JSON.
 
@@ -96,7 +96,7 @@ fun main() {
 } 
 ```             
 
-> You can get the full code [here](../guide/example/example-serializer-02.kt).
+> You can get the full code [here](../../guide/example/example-serializer-02.kt).
 
 ```text
 Color(rgb: kotlin.Int)
@@ -135,7 +135,7 @@ fun main() {
 } 
 ```      
 
-> You can get the full code [here](../guide/example/example-serializer-03.kt).                                                     
+> You can get the full code [here](../../guide/example/example-serializer-03.kt).                                                     
 
 As we can see, a serializer was instantiated to serialize a concrete `Box<Color>`.
 
@@ -162,7 +162,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-serializer-04.kt).   
+> You can get the full code [here](../../guide/example/example-serializer-04.kt).   
 
 <!--- TEST 
 PrimitiveDescriptor(kotlin.Int)
@@ -188,7 +188,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-serializer-05.kt).  
+> You can get the full code [here](../../guide/example/example-serializer-05.kt).  
 
 <!--- TEST 
 kotlin.collections.ArrayList(PrimitiveDescriptor(kotlin.String))
@@ -214,7 +214,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-serializer-06.kt).  
+> You can get the full code [here](../../guide/example/example-serializer-06.kt).  
 
 <!--- TEST 
 kotlin.collections.LinkedHashMap(PrimitiveDescriptor(kotlin.String), Color(rgb: kotlin.Int))
@@ -293,7 +293,7 @@ fun main() {
 }  
 ```              
 
-> You can get the full code [here](../guide/example/example-serializer-07.kt).
+> You can get the full code [here](../../guide/example/example-serializer-07.kt).
 
 We get the serial representation as the hex string we wanted.
 
@@ -331,7 +331,7 @@ fun main() {
 }  
 ```     
 
-> You can get the full code [here](../guide/example/example-serializer-08.kt).
+> You can get the full code [here](../../guide/example/example-serializer-08.kt).
 
 <!--- TEST 
 65280
@@ -370,7 +370,7 @@ fun main() {
 }  
 ```     
 
-> You can get the full code [here](../guide/example/example-serializer-09.kt).
+> You can get the full code [here](../../guide/example/example-serializer-09.kt).
 
 Both `Color` properties are serialized as strings.
 
@@ -437,7 +437,7 @@ fun main() {
 As you can see, such array representation is not very useful in JSON,
 but may save some space when used with a `ByteArray` and a binary format.
 
-> You can get the full code [here](../guide/example/example-serializer-10.kt).
+> You can get the full code [here](../../guide/example/example-serializer-10.kt).
 
 ```text
 [0,255,0]
@@ -508,7 +508,7 @@ fun main() {
 }
 -->
 
-> You can get the full code [here](../guide/example/example-serializer-11.kt).
+> You can get the full code [here](../../guide/example/example-serializer-11.kt).
 
 ```text
 {"r":0,"g":255,"b":0}
@@ -602,7 +602,7 @@ fun main() {
 }  
 ```              
 
-> You can get the full code [here](../guide/example/example-serializer-12.kt).
+> You can get the full code [here](../../guide/example/example-serializer-12.kt).
 
 As before, we got the `Color` class represented as a JSON object with three keys:
 
@@ -676,7 +676,7 @@ fun main() {
 }  
 -->
 
-> You can get the full code [here](../guide/example/example-serializer-13.kt).
+> You can get the full code [here](../../guide/example/example-serializer-13.kt).
 
 <!--- TEST
 {"r":0,"g":255,"b":0}
@@ -723,7 +723,7 @@ fun main() {
 }
 ``` 
 
-> You can get the full code [here](../guide/example/example-serializer-14.kt).
+> You can get the full code [here](../../guide/example/example-serializer-14.kt).
 
 ```text
 1455494400000
@@ -761,7 +761,7 @@ fun main() {
 }
 ``` 
 
-> You can get the full code [here](../guide/example/example-serializer-15.kt).
+> You can get the full code [here](../../guide/example/example-serializer-15.kt).
 
 The `stableReleaseDate` property is serialized with the serialization strategy that we specified for it:
 
@@ -802,7 +802,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-serializer-16.kt).
+> You can get the full code [here](../../guide/example/example-serializer-16.kt).
 
 ```text
 {"name":"Kotlin","releaseDates":[1688601600000,1682380800000,1672185600000]}
@@ -843,7 +843,7 @@ fun main() {
     println(Json.encodeToString(data))
 }
 ```   
-> You can get the full code [here](../guide/example/example-serializer-17.kt).
+> You can get the full code [here](../../guide/example/example-serializer-17.kt).
 
 ```text
 {"name":"Kotlin","stableReleaseDate":1455494400000}
@@ -902,7 +902,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-serializer-18.kt).
+> You can get the full code [here](../../guide/example/example-serializer-18.kt).
 
 ```text
 {"stableReleaseDate":"2016-02-15","lastReleaseTimestamp":1657152000000}
@@ -950,7 +950,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-serializer-19.kt).
+> You can get the full code [here](../../guide/example/example-serializer-19.kt).
 
 The resulting JSON looks like the `Project` class was serialized directly.
 
@@ -1014,7 +1014,7 @@ fun main() {
 To actually serialize this class we must provide the corresponding context when calling the `encodeToXxx`/`decodeFromXxx`
 functions. Without it we'll get a "Serializer for class 'Date' is not found" exception.
 
-> See [here](../guide/example/example-serializer-20.kt) for an example that produces that exception.
+> See [here](../../guide/example/example-serializer-20.kt) for an example that produces that exception.
  
 <!--- TEST LINES_START 
 Exception in thread "main" kotlinx.serialization.SerializationException: Serializer for class 'Date' is not found.
@@ -1073,7 +1073,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-serializer-21.kt).
+> You can get the full code [here](../../guide/example/example-serializer-21.kt).
 ```text
 {"name":"Kotlin","stableReleaseDate":1455494400000}
 ```
@@ -1132,7 +1132,7 @@ fun main() {
 }
 ```          
 
-> You can get the full code [here](../guide/example/example-serializer-22.kt).
+> You can get the full code [here](../../guide/example/example-serializer-22.kt).
 
 This gets all the `Project` properties serialized:
 
@@ -1173,7 +1173,7 @@ fun main() {
 }
 ```             
 
-> You can get the full code [here](../guide/example/example-serializer-23.kt).
+> You can get the full code [here](../../guide/example/example-serializer-23.kt).
 
 The output is shown below.
 

@@ -16,4 +16,4 @@ To simplify your migrations path, it is recommended to enable star imports in ID
 7. If methods are still not resolved, it is recommended to use star imports for `kotlinx.serialization` signatures in the problematic file.
 8. When there are no usages of deprecated code left, you can change dependency version from `1.0.0-RC2` to `1.0.0`.
 
-For less trivial issues, it is recommended to study [the changelog](../CHANGELOG.md#100-rc--2020-08-17) or to ask for help in `#serialization` Kotlin's Slack channel.
+For less trivial issues, it is recommended to study [the changelog](../../CHANGELOG.md#100-rc--2020-08-17) or to ask for help in `#serialization` Kotlin's Slack channel.
