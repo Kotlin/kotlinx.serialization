@@ -232,8 +232,8 @@ CBOR supports two encodings for maps and arrays: definite and indefinite length 
 to the latter, which means that a map's or array's number of elements is not encoded, but instead a terminating byte is
 appended after the last element.
 Definite length encoding, on the other hand, omits this terminating byte, but instead prepends number of elements
-to the contents of a map or array. The `writeDefiniteLengths` configuration switch allows for toggling between the two
-modes of encoding.
+to the contents of a map or array. The `useDefiniteLengthEncoding` configuration switch allows for toggling between the
+two modes of encoding.
 
 
 ### Tags and Labels
@@ -242,14 +242,14 @@ CBOR allows for optionally defining *tags* for properties and their values. Thes
 byte string to transport additional information
 (see [RFC 8949 Tagging of Items](https://datatracker.ietf.org/doc/html/rfc8949#name-tagging-of-items) for more info).
 The  [`@KeyTags`](Tags.kt) and [`@ValueTags`](Tags.kt) annotations can be used to define such tags while
-writing and verifying such tags can be toggled using the  `writeKeyTags`, `writeValueTags`, `verifyKeyTags`, and
+writing and verifying such tags can be toggled using the  `encodeKeyTags`, `encodeValueTags`, `verifyKeyTags`, and
 `verifyValueTags` configuration switches respectively.
 In addition, it is possible to directly declare classes to always be tagged, whether a singular object of such a class
 is serialized or when they are used as a property. This is accomplished by the [`@ObjectTags`](Tags.kt) annotation,
 which works just as `ValueTags`, but for class definitions.
 When serializing, `ObjectTags` will always be encoded directly before to the data of the tagged object, i.e. a
 value-tagged property of an object-tagged type will have the value tags preceding the object tags.
-Writing and verifying object tags can be toggled using the `writeObjectTags` and `verifyObjectTags` configuration
+Writing and verifying object tags can be toggled using the `encodeObjectTags` and `encodeObjectTags` configuration
 switches. Note that verifying only value tags can result in some data with superfluous tags to still deserialize
 successfully, since in this case - by definition - only a partial validation of tags happens.  
 A predefined Cbor instance (in addition to the default [`Cbor.Default`](Cbor.kt) one) is available, writing and verifying

@@ -123,7 +123,7 @@ internal sealed class CborWriter(
 
 
         if (!descriptor.hasArrayTag()) {
-            if (cbor.writeKeyTags) descriptor.getKeyTags(index)?.forEach { destination.encodeTag(it) }
+            if (cbor.encodeKeyTags) descriptor.getKeyTags(index)?.forEach { destination.encodeTag(it) }
 
             if ((descriptor.kind !is StructureKind.LIST) && (descriptor.kind !is StructureKind.MAP) && (descriptor.kind !is PolymorphicKind)) {
                 //indices are put into the name field. we don't want to write those, as it would result in double writes
@@ -136,7 +136,7 @@ internal sealed class CborWriter(
             }
         }
 
-        if (cbor.writeValueTags) {
+        if (cbor.encodeValueTags) {
             descriptor.getValueTags(index)?.forEach { destination.encodeTag(it) }
         }
         incrementChildren() // needed for definite len encoding, NOOP for indefinite length encoding
@@ -151,7 +151,7 @@ internal class IndefiniteLengthCborWriter(cbor: Cbor, output: ByteArrayOutput) :
 ) {
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
-        if (cbor.writeObjectTags) descriptor.getObjectTags()?.forEach {
+        if (cbor.encodeObjectTags) descriptor.getObjectTags()?.forEach {
             output.encodeTag(it)
         }
         if (descriptor.hasArrayTag()) {
@@ -203,7 +203,7 @@ internal class DefiniteLengthCborWriter(cbor: Cbor, output: ByteArrayOutput) : C
 
         val numChildren = completedCurrent.elementCount
 
-        if (cbor.writeObjectTags) descriptor.getObjectTags()?.forEach {
+        if (cbor.encodeObjectTags) descriptor.getObjectTags()?.forEach {
             accumulator.encodeTag(it)
         }
 
