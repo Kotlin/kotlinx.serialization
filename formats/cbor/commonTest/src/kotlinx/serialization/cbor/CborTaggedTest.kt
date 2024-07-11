@@ -509,12 +509,17 @@ class CborTaggedTest {
                 writeDefiniteLengths = true
             }).forEach { cbor ->
 
-            assertFailsWith(CborDecodingException::class, message = "CBOR tags [55] do not match expected tags [56]") {
-                cbor.decodeFromHexString(
-                    DataWithTags.serializer(),
-                    wrongTag55ForPropertyC
-                )
-            }
+            assertContains(
+                assertFailsWith(
+                    CborDecodingException::class,
+                    message = "CBOR tags [55] do not match declared tags [56]"
+                ) {
+                    cbor.decodeFromHexString(
+                        DataWithTags.serializer(),
+                        wrongTag55ForPropertyC
+                    )
+                }.message ?: "", "CBOR tags [55] do not match expected tags [56]"
+            )
         }
         listOf(
             Cbor {
@@ -629,8 +634,11 @@ class CborTaggedTest {
          */
         val referenceHexString =
             "bf63616c670d64696e7473d39f181a1818ff696f626a546167676564d82ad90539bf63616c6713ff6e6f626a5461676765644172726179d9038f9fd90539bf63616c671903e8ffffff"
-        val referenceHexStringWithBoggusTag =
+        val referenceHexStringWithBogusTag =
             "bf63616c670d64696e7473d3d49f181a1818ff696f626a546167676564d82ad90539bf63616c6713ff6e6f626a5461676765644172726179d9038f9fd90539bf63616c671903e8ffffff"
+        val referenceHexStringWithMissingTag =
+            "bf63616c670d64696e74739f181a1818ff696f626a546167676564d82ad90539bf63616c6713ff6e6f626a5461676765644172726179d9038f9fd90539bf63616c671903e8ffffff"
+
         val superfluousTagged =
             "bf63616c670d64696e7473d39f181a1818ff696f626a546167676564d82ad90540d90539bf63616c6713ff6e6f626a5461676765644172726179d9038f9fd90539bf63616c671903e8ffffff"
         val superfluousWrongTaggedTagged =
@@ -655,9 +663,19 @@ class CborTaggedTest {
         assertEquals(referenceHexString, cbor.encodeToHexString(NestedTagged.serializer(), reference))
         assertEquals(reference, cbor.decodeFromHexString(NestedTagged.serializer(), referenceHexString))
 
-        assertFailsWith(CborDecodingException::class, message = "More tags found than the 1 tags specified") {
-            cbor.decodeFromHexString(NestedTagged.serializer(), referenceHexStringWithBoggusTag)
-        }
+        assertEquals(
+            "More tags found than the 1 tags specified",
+            assertFailsWith(CborDecodingException::class, message = "More tags found than the 1 tags specified") {
+                cbor.decodeFromHexString(NestedTagged.serializer(), referenceHexStringWithBogusTag)
+            }.message
+        )
+
+        assertEquals(
+            "CBOR tags null do not match expected tags [19]",
+            assertFailsWith(CborDecodingException::class, message = "CBOR tags null do not match expected tags [19]") {
+                cbor.decodeFromHexString(NestedTagged.serializer(), referenceHexStringWithMissingTag)
+            }.message
+        )
 
 
         assertEquals(

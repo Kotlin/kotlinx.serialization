@@ -145,7 +145,19 @@ internal open class CborReader(override val cbor: Cbor, protected val decoder: C
     private fun verifyKeyTags(descriptor: SerialDescriptor, index: Int, tags: ULongArray?) {
         if (cbor.configuration.verifyKeyTags) {
             descriptor.getKeyTags(index)?.let { keyTags ->
-                if (!(keyTags contentEquals tags)) throw CborDecodingException("CBOR tags $tags do not match declared tags $keyTags for $descriptor")
+                if (!(keyTags contentEquals tags)) throw CborDecodingException(
+                    "CBOR tags ${
+                        tags?.joinToString(
+                            prefix = "[",
+                            postfix = "]"
+                        ) { it.toString() }
+                    } do not match expected tags ${
+                        keyTags.joinToString(
+                            prefix = "[",
+                            postfix = "]"
+                        ) { it.toString() }
+                    } for $descriptor"
+                )
             }
         }
     }
@@ -262,7 +274,6 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
             if (verifyObjectTags) {
                 tags?.let {
                     if (index++ >= it.size) throw CborDecodingException("More tags found than the ${it.size} tags specified")
-                    if (readTag != it[index - 1]) throw CborDecodingException("CBOR tag $readTag does not match expected tag $it")
                 }
             }
             readByte()
