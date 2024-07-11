@@ -49,7 +49,7 @@ internal sealed class CborWriter(
             getDestination().encodeByteString(value as ByteArray)
         } else {
             encodeByteArrayAsByteString = encodeByteArrayAsByteString || serializer.descriptor.isInlineByteString()
-            super.encodeSerializableValue(serializer, value)
+            super<AbstractEncoder>.encodeSerializableValue(serializer, value)
         }
     }
 

@@ -63,9 +63,11 @@ public sealed class Cbor(
         Cbor(false, false, false, false, false, false, false, false, false, false, false, EmptySerializersModule()) {
 
         /**
-         * Stricter instance of [Cbor]. Writes and verifies all tags. Uses indefinite length encoding by default.
+         * Preconfigured instance of [Cbor] for COSE compliance. Writes and verifies all tags, uses definite length
+         * encoding and prefers labels to serial names. **DOES NOT** sort CBOR map keys; declare them in canonical order
+         * for full cbor compliance!
          */
-        public val Tagging: Cbor =
+        public val CoseCompliant: Cbor =
             Cbor {
                 encodeDefaults = false
                 ignoreUnknownKeys = false
@@ -75,8 +77,8 @@ public sealed class Cbor(
                 verifyKeyTags = true
                 verifyValueTags = true
                 verifyObjectTags = true
-                writeDefiniteLengths = false
-                preferCborLabelsOverNames = false
+                writeDefiniteLengths = true
+                preferCborLabelsOverNames = true
                 alwaysUseByteString = false
                 serializersModule = EmptySerializersModule()
             }

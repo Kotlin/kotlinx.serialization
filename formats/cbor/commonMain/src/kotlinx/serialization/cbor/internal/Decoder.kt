@@ -116,7 +116,7 @@ internal open class CborReader(override val cbor: Cbor, protected val decoder: C
             decoder.nextByteString(tags) as T
         } else {
             decodeByteArrayAsByteString = decodeByteArrayAsByteString || deserializer.descriptor.isInlineByteString()
-            super.decodeSerializableValue(deserializer)
+            super<AbstractDecoder>.decodeSerializableValue(deserializer)
         }
     }
 

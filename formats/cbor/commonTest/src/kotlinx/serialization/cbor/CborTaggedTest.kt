@@ -223,7 +223,15 @@ class CborTaggedTest {
 
     @Test
     fun writeReadVerifyTaggedClass() {
-        assertEquals(referenceHexString, Cbor.Tagging.encodeToHexString(DataWithTags.serializer(), reference))
+        assertEquals(referenceHexString, Cbor {
+            writeDefiniteLengths = false
+            writeKeyTags = true
+            writeValueTags = true
+            writeObjectTags = true
+            verifyKeyTags = true
+            verifyValueTags = true
+            verifyObjectTags = true
+        }.encodeToHexString(DataWithTags.serializer(), reference))
         assertEquals(
             referenceHexStringDefLen,
             Cbor {
@@ -236,8 +244,11 @@ class CborTaggedTest {
                 verifyObjectTags = true
             }.encodeToHexString(DataWithTags.serializer(), reference)
         )
-        assertEquals(reference, Cbor.Tagging.decodeFromHexString(DataWithTags.serializer(), referenceHexString))
-        assertEquals(reference, Cbor.Tagging.decodeFromHexString(DataWithTags.serializer(), referenceHexStringDefLen))
+        assertEquals(reference, Cbor.CoseCompliant.decodeFromHexString(DataWithTags.serializer(), referenceHexString))
+        assertEquals(
+            reference,
+            Cbor.CoseCompliant.decodeFromHexString(DataWithTags.serializer(), referenceHexStringDefLen)
+        )
     }
 
     @Test
@@ -291,7 +302,7 @@ class CborTaggedTest {
         }.decodeFromHexString(referenceHexString))
 
         assertFailsWith(CborDecodingException::class) {
-            Cbor.Tagging.decodeFromHexString(
+            Cbor.CoseCompliant.decodeFromHexString(
                 DataWithTags.serializer(),
                 noKeyTags
             )
@@ -551,24 +562,24 @@ class CborTaggedTest {
             verifyObjectTags = true
             writeObjectTags = true
         }
-         assertEquals(referenceHexString, cbor.encodeToHexString(ClassAsTagged.serializer(), reference))
-         assertEquals(reference, cbor.decodeFromHexString(ClassAsTagged.serializer(), referenceHexString))
+        assertEquals(referenceHexString, cbor.encodeToHexString(ClassAsTagged.serializer(), reference))
+        assertEquals(reference, cbor.decodeFromHexString(ClassAsTagged.serializer(), referenceHexString))
 
-         assertEquals(
-             reference,
-             Cbor { verifyObjectTags = false }.decodeFromHexString(ClassAsTagged.serializer(), referenceHexString)
-         )
+        assertEquals(
+            reference,
+            Cbor { verifyObjectTags = false }.decodeFromHexString(ClassAsTagged.serializer(), referenceHexString)
+        )
 
-         assertEquals(
-             untaggedHexString,
-             Cbor { writeObjectTags = false }.encodeToHexString(ClassAsTagged.serializer(), reference)
-         )
+        assertEquals(
+            untaggedHexString,
+            Cbor { writeObjectTags = false }.encodeToHexString(ClassAsTagged.serializer(), reference)
+        )
 
 
-         assertEquals(
-             reference,
-             Cbor { verifyObjectTags = false }.decodeFromHexString(ClassAsTagged.serializer(), untaggedHexString)
-         )
+        assertEquals(
+            reference,
+            Cbor { verifyObjectTags = false }.decodeFromHexString(ClassAsTagged.serializer(), untaggedHexString)
+        )
 
         assertContains(
             assertFailsWith(CborDecodingException::class) {
