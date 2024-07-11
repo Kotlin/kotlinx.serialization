@@ -567,6 +567,7 @@ class CborTaggedTest {
             verifyObjectTags = true
             writeObjectTags = true
         }
+
         assertEquals(referenceHexString, cbor.encodeToHexString(ClassAsTagged.serializer(), reference))
         assertEquals(reference, cbor.decodeFromHexString(ClassAsTagged.serializer(), referenceHexString))
 
@@ -591,6 +592,17 @@ class CborTaggedTest {
                 cbor.decodeFromHexString(ClassAsTagged.serializer(), untaggedHexString)
             }.message ?: "", "do not match expected tags"
         )
+
+        /**
+         * 81                 # array(1)
+         *    D9 0539         # tag(1337)
+         *       A1           # map(1)
+         *          63        # text(3)
+         *             616C67 # "alg"
+         *          13        # unsigned(19)
+         */
+        val listOfObjectTagged = listOf(reference)
+        assertEquals("81d90539a163616c6713", Cbor.CoseCompliant.encodeToHexString(listOfObjectTagged))
 
 
     }

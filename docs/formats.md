@@ -244,8 +244,10 @@ byte string to transport additional information
 The  [`@KeyTags`](Tags.kt) and [`@ValueTags`](Tags.kt) annotations can be used to define such tags while
 writing and verifying such tags can be toggled using the  `encodeKeyTags`, `encodeValueTags`, `verifyKeyTags`, and
 `verifyValueTags` configuration switches respectively.
-In addition, it is possible to directly declare classes to always be tagged, whether a singular object of such a class
-is serialized or when they are used as a property. This is accomplished by the [`@ObjectTags`](Tags.kt) annotation,
+In addition, it is possible to directly declare classes to always be tagged.
+This then applies to isolated objects of such a class being serialized and to objects of such a class used as values
+in a list, but also or when they are used as a property in another class.
+Forcing objects to always be tagged in such a manner is accomplished by the [`@ObjectTags`](Tags.kt) annotation,
 which works just as `ValueTags`, but for class definitions.
 When serializing, `ObjectTags` will always be encoded directly before to the data of the tagged object, i.e. a
 value-tagged property of an object-tagged type will have the value tags preceding the object tags.
