@@ -302,7 +302,7 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
                     // into if-else branches.
                     if ((collectedTags.size < it.size)
                         || (collectedTags.subList(0, it.size) != it.asList())
-                    ) throw CborDecodingException("CBOR tags $collectedTags does not start with specified tags $it")
+                    ) throw CborDecodingException("CBOR tags $collectedTags do not start with specified tags $it")
                 }
             }
         }

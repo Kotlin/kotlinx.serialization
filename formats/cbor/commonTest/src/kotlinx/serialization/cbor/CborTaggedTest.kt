@@ -746,7 +746,7 @@ class CborTaggedTest {
                     NestedTagged.serializer(),
                     superfluousWrongTaggedTagged
                 )
-            }.message ?: "", "does not start with specified tags"
+            }.message ?: "", "do not start with specified tags"
         )
 
 
