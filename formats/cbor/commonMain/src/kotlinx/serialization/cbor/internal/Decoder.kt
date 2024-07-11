@@ -151,6 +151,7 @@ internal open class CborReader(override val cbor: Cbor, protected val decoder: C
     }
 }
 
+@SuppressAnimalSniffer
 internal class CborParser(private val input: ByteArrayInput, private val verifyObjectTags: Boolean) {
     private var curByte: Int = -1
 
@@ -255,7 +256,6 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
             input.readExactNBytes(strLen)
         }
 
-    @SuppressAnimalSniffer
     private fun processTags(tags: ULongArray?): ULongArray? {
         var index = 0
         val collectedTags = mutableListOf<ULong>()
