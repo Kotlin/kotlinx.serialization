@@ -5,6 +5,7 @@
 package kotlinx.serialization.cbor
 
 import kotlinx.serialization.*
+import kotlinx.serialization.encoding.*
 
 /**
  * This interface provides access to the current Cbor instance, so it can be properly taken into account in a
@@ -24,7 +25,7 @@ import kotlinx.serialization.*
  * ```
  */
 @ExperimentalSerializationApi
-public interface CborDecoder {
+public interface CborDecoder : Decoder {
     /**
      * Exposes the current [Cbor] instance and all its configuration flags. Useful for low-level custom serializers.
      */
