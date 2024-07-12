@@ -253,9 +253,8 @@ When serializing, `ObjectTags` will always be encoded directly before to the dat
 value-tagged property of an object-tagged type will have the value tags preceding the object tags.
 Writing and verifying object tags can be toggled using the `encodeObjectTags` and `encodeObjectTags` configuration
 switches. Note that verifying only value tags can result in some data with superfluous tags to still deserialize
-successfully, since in this case - by definition - only a partial validation of tags happens.  
-A predefined Cbor instance (in addition to the default [`Cbor.Default`](Cbor.kt) one) is available, adhering to COSE
-encoding requirements as [`Cbor.CoseCompliant`](Cbor.kt).
+successfully, since in this case - by definition - only a partial validation of tags happens.
+Well-known tags are specified in [`CborTag`](Tags.kt).
 
 In addition, CBOR supports keys of all types which work just as `SerialName`s.
 COSE restricts this again to strings and numbers and calls these restricted map keys *labels*. String labels can be
@@ -264,7 +263,9 @@ The `preferCborLabelsOverNames` configuration switch can be used to prefer numbe
 are present for a property. This duality allows for compact representation of a type when serialized to CBOR, while
 keeping expressive diagnostic names when serializing to JSON.
 
-Well-known tags are specified in [`CborTag`](Tags.kt).
+A predefined Cbor instance (in addition to the default [`Cbor.Default`](Cbor.kt) one) is available, adhering to COSE
+encoding requirements as [`Cbor.CoseCompliant`](Cbor.kt). This instance uses definite length encoding,
+encodes and verifies all tags and prefers labels to serial names.
 
 ### Arrays
 
