@@ -16,7 +16,7 @@ class CborArrayTest {
         val reference = ClassAs1Array(alg = -7)
 
         val cbor = Cbor(from = Cbor.CoseCompliant) {
-            writeDefiniteLengths = true
+            useDefiniteLengthEncoding = true
         }
         assertEquals(referenceHexString, cbor.encodeToHexString(ClassAs1Array.serializer(), reference))
         assertEquals(reference, cbor.decodeFromHexString(ClassAs1Array.serializer(), referenceHexString))
@@ -35,7 +35,7 @@ class CborArrayTest {
         val reference = ClassAs2Array(alg = -7, kid = "foo")
 
         val cbor = Cbor(from = Cbor.CoseCompliant) {
-            writeDefiniteLengths = true
+            useDefiniteLengthEncoding = true
         }
         assertEquals(referenceHexString, cbor.encodeToHexString(ClassAs2Array.serializer(), reference))
         assertEquals(reference, cbor.decodeFromHexString(ClassAs2Array.serializer(), referenceHexString))
@@ -55,7 +55,7 @@ class CborArrayTest {
         val reference = ClassAs4ArrayNullable(alg = -7, kid = "bar", iv = null, array = null)
 
         val cbor = Cbor(from = Cbor.CoseCompliant) {
-            writeDefiniteLengths = true
+            useDefiniteLengthEncoding = true
         }
 
         assertEquals(referenceHexString, cbor.encodeToHexString(ClassAs4ArrayNullable.serializer(), reference))
@@ -78,7 +78,7 @@ class CborArrayTest {
         val reference = ClassWithArray(array = ClassAs2Array(alg = -7, kid = "bar"))
 
         val cbor = Cbor(from = Cbor.CoseCompliant) {
-            writeDefiniteLengths = true
+            useDefiniteLengthEncoding = true
         }
         assertEquals(referenceHexString, cbor.encodeToHexString(ClassWithArray.serializer(), reference))
         assertEquals(reference, cbor.decodeFromHexString(ClassWithArray.serializer(), referenceHexString))
@@ -104,7 +104,7 @@ class CborArrayTest {
         val reference = DoubleTaggedClassWithArray(array = ClassAs2Array(alg = -7, kid = "bar"))
 
         val cbor = Cbor(from = Cbor.CoseCompliant) {
-            writeDefiniteLengths = true
+            useDefiniteLengthEncoding = true
         }
         assertEquals(referenceHexString, cbor.encodeToHexString(DoubleTaggedClassWithArray.serializer(), reference))
         assertEquals(reference, cbor.decodeFromHexString(DoubleTaggedClassWithArray.serializer(), referenceHexString))

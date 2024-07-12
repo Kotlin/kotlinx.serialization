@@ -48,7 +48,7 @@ class CbrWriterTest {
         )
         assertEquals(
             "a9637374726d48656c6c6f2c20776f726c64216169182a686e756c6c61626c65f6646c6973748261616162636d6170a201f502f465696e6e6572a16161636c6f6c6a696e6e6572734c69737481a16161636b656b6a62797465537472696e6742cafe6962797465417272617982383521",
-            Cbor { writeDefiniteLengths = true }.encodeToHexString(TypesUmbrella.serializer(), test)
+            Cbor { useDefiniteLengthEncoding = true }.encodeToHexString(TypesUmbrella.serializer(), test)
         )
     }
 
@@ -138,7 +138,7 @@ class CbrWriterTest {
          */
         assertEquals(
             expected = "a0",
-            actual = Cbor { writeDefiniteLengths = true }.encodeToHexString(
+            actual = Cbor { useDefiniteLengthEncoding = true }.encodeToHexString(
                 serializer = NullableByteStringDefaultNull.serializer(),
                 value = NullableByteStringDefaultNull(byteString = null)
             )

@@ -168,7 +168,7 @@ Per the [RFC 7049 Major Types] section, CBOR supports the following data types:
 
 By default, Kotlin `ByteArray` instances are encoded as **major type 4**.
 When **major type 2** is desired, then the [`@ByteString`][ByteString] annotation can be used.
-Moreover, the `alwaysUseByteString` configuration switch allows for globally preferring ** major type 2** without needing
+Moreover, the `alwaysUseByteString` configuration switch allows for globally preferring **major type 2** without needing
 to annotate every `ByteArray` in a class hierarchy.
 
 <!--- INCLUDE
@@ -245,8 +245,8 @@ The  [`@KeyTags`](Tags.kt) and [`@ValueTags`](Tags.kt) annotations can be used t
 writing and verifying such tags can be toggled using the  `encodeKeyTags`, `encodeValueTags`, `verifyKeyTags`, and
 `verifyValueTags` configuration switches respectively.
 In addition, it is possible to directly declare classes to always be tagged.
-This then applies to isolated objects of such a class being serialized and to objects of such a class used as values
-in a list, but also or when they are used as a property in another class.
+This then applies to isolated objects of such a tagged class being serialized and to objects of such a class used as
+values in a list, but also or when they are used as a property in another class.
 Forcing objects to always be tagged in such a manner is accomplished by the [`@ObjectTags`](Tags.kt) annotation,
 which works just as `ValueTags`, but for class definitions.
 When serializing, `ObjectTags` will always be encoded directly before to the data of the tagged object, i.e. a
@@ -308,8 +308,8 @@ This may be used to encode COSE structures, see [RFC 9052 2. Basic COSE Structur
 ### Custom CBOR-specific Serializers
 Cbor encoders and decoders implement the interfaces [CborEncoder](CborEncoder.kt) and [CborDecoder](CborDecoder.kt), respectively.
 These interfaces contain a single property, `cbor`, exposing the current CBOR serialization configuration.
-This enables custom cbor-specific serializers to react to switches such as, `preferCborLabelsOverNames` or
-`writeDefiniteLengths`, for example.
+This enables custom cbor-specific serializers to reuse teh current `cbor` instance to produce embedded byte arrays or
+react to configuration settings such as `preferCborLabelsOverNames` or `useDefiniteLengthEncoding`, for example.
 
 ## ProtoBuf (experimental)
 

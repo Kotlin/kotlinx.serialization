@@ -55,13 +55,13 @@ public sealed class Cbor(
             Cbor {
                 encodeDefaults = false
                 ignoreUnknownKeys = false
-                writeKeyTags = true
-                writeValueTags = true
-                writeObjectTags = true
+                encodeKeyTags = true
+                encodeValueTags = true
+                encodeObjectTags = true
                 verifyKeyTags = true
                 verifyValueTags = true
                 verifyObjectTags = true
-                writeDefiniteLengths = true
+                useDefiniteLengthEncoding = true
                 preferCborLabelsOverNames = true
                 alwaysUseByteString = false
                 serializersModule = EmptySerializersModule()
@@ -132,13 +132,13 @@ public fun Cbor(from: Cbor = Cbor, builderAction: CborBuilder.() -> Unit): Cbor 
     return CborImpl(
         builder.encodeDefaults,
         builder.ignoreUnknownKeys,
-        builder.writeKeyTags,
-        builder.writeValueTags,
-        builder.writeObjectTags,
+        builder.encodeKeyTags,
+        builder.encodeValueTags,
+        builder.encodeObjectTags,
         builder.verifyKeyTags,
         builder.verifyValueTags,
         builder.verifyObjectTags,
-        builder.writeDefiniteLengths,
+        builder.useDefiniteLengthEncoding,
         builder.preferCborLabelsOverNames,
         builder.alwaysUseByteString,
         builder.serializersModule
@@ -164,48 +164,103 @@ public class CborBuilder internal constructor(cbor: Cbor) {
     public var ignoreUnknownKeys: Boolean = cbor.configuration.ignoreUnknownKeys
 
     /**
-     * Specifies whether tags set using the [KeyTags] annotation should be written (or omitted)
+     * Specifies whether tags set using the [KeyTags] annotation should be written.
+     * CBOR allows for optionally defining *tags* for properties and their values. When this switch is set to `true` tags on
+     * CBOR map keys (i.e. properties) are encoded into the resulting byte string to transport additional information.
+     * See [RFC 8949 Tagging of Items](https://datatracker.ietf.org/doc/html/rfc8949#name-tagging-of-items) for more info.
      */
-    public var writeKeyTags: Boolean = cbor.configuration.encodeKeyTags
+    public var encodeKeyTags: Boolean = cbor.configuration.encodeKeyTags
 
     /**
-     * Specifies whether tags set using the [ValueTags] annotation should be written (or omitted)
+     * Specifies whether tags set using the [ValueTags] annotation should be written.
+     * CBOR allows for optionally defining *tags* for properties and their values. When this switch is set to `true`, tags on
+     * CBOR map values (i.e. the values of properties and map entries) are encoded into the resulting byte string to
+     * transport additional information. Well-known tags are specified in [CborTag].
+     * See [RFC 8949 Tagging of Items](https://datatracker.ietf.org/doc/html/rfc8949#name-tagging-of-items) for more info.
      */
-    public var writeValueTags: Boolean = cbor.configuration.encodeValueTags
+    public var encodeValueTags: Boolean = cbor.configuration.encodeValueTags
 
     /**
-     * Specifies whether tags set using the [ObjectTags] annotation should be written (or omitted)
+     * Specifies whether tags set using the [ObjectTags] annotation should be written.
+     * When this switch is set to `true` , it is possible to directly declare classes to always be tagged.
+     * This then applies to isolated objects of such a tagged class being serialized and to objects of such a class used as
+     * values in a list, but also or when they are used as a property in another class.
+     * Forcing objects to always be tagged in such a manner is accomplished by the [ObjectTags] annotation,
+     * which works just as [ValueTags], but for class definitions.
+     * When serializing, object tags will always be encoded directly before to the data of the tagged object, i.e. a
+     * value-tagged property of an object-tagged type will have the value tags preceding the object tags.
+     * Well-known tags are specified in [CborTag].
+     * See [RFC 8949 Tagging of Items](https://datatracker.ietf.org/doc/html/rfc8949#name-tagging-of-items) for more info.
      */
-    public var writeObjectTags: Boolean = cbor.configuration.encodeObjectTags
+    public var encodeObjectTags: Boolean = cbor.configuration.encodeObjectTags
 
     /**
-     * Specifies whether tags preceding map keys (i.e. properties) should be matched against the [KeyTags] annotation during the deserialization process
+     * Specifies whether tags preceding map keys (i.e. properties) should be matched against the
+     * [KeyTags] annotation during the deserialization process.
+     * CBOR allows for optionally defining *tags* for properties and their values. When the [encodeKeyTags] switch is set to
+     * `true` tags on CBOR map keys (i.e. properties) are encoded into the resulting byte string to transport additional
+     * information. Setting [verifyKeyTags] to `true` forces strict verification of such tags during deserialization.
+     * I.e. tags must be present on all properties of a class annotated with [KeyTags] in the CBOR byte stream
+     * **in full and in order**.
+     * See [RFC 8949 Tagging of Items](https://datatracker.ietf.org/doc/html/rfc8949#name-tagging-of-items) for more info.
      */
     public var verifyKeyTags: Boolean = cbor.configuration.verifyKeyTags
 
     /**
-     * Specifies whether tags preceding values should be matched against the [ValueTags] annotation during the deserialization process
+     * Specifies whether tags preceding values should be matched against the [ValueTags]
+     * annotation during the deserialization process.
+     * CBOR allows for optionally defining *tags* for properties and their values. When [encodeValueTags] is set to `true`,
+     * tags on CBOR map values (i.e. the values of properties and map entries) are encoded into the resulting byte string to
+     * transport additional information.
+     * Setting [verifyValueTags] to `true` forces verification of such tags during deserialization. I.e. tags must be
+     * present on all values annotated with [ValueTags] in the CBOR byte stream **in full and in order**.
+     * See also [verifyObjectTags], since a value may have both kinds of tags. [ValueTags] precede [ObjectTags] in the CBOR
+     * byte stream. [verifyValueTags] and [verifyObjectTags] can be toggled independently.
+     * Well-known tags are specified in [CborTag].
      */
     public var verifyValueTags: Boolean = cbor.configuration.verifyValueTags
 
     /**
-     * Specifies whether tags preceding objects (maps) and arrays (as in [CborArray]) should be matched against the
-     * specified tags during the deserialization process
+     * Specifies whether tags preceding values should be matched against the [ObjectTags]
+     * annotation during the deserialization process. [ObjectTags] are applied when serializing classes tagged using this
+     * annotation. This applies to isolated objects of such a class and properties, whose values are of such a tagged class.
+     * [verifyValueTags] and [verifyObjectTags] can be toggled independently. Hence, it is possible to only partially verify
+     * tags on values (if only one such configuration switch is set to true). [ValueTags] precede [ObjectTags] in the CBOR
+     * byte stream.
+     * Well-known tags are specified in [CborTag].
      */
     public var verifyObjectTags: Boolean = cbor.configuration.verifyObjectTags
 
     /**
-     * specifies whether structures (maps, object, lists, etc.) should be encoded using definite length encoding
+     * Specifies whether the definite length encoding should be used (as required for COSE, for example).
+     * CBOR supports two encodings for maps and arrays: definite and indefinite length encoding. kotlinx.serialization defaults
+     * to the latter, which means that a map's or array's number of elements is not encoded, but instead a terminating byte is
+     * appended after the last element.
+     * Definite length encoding, on the other hand, omits this terminating byte, but instead prepends number of elements
+     * to the contents of a map or array. This configuration switch allows for toggling between the
+     * two modes of encoding.
      */
-    public var writeDefiniteLengths: Boolean = cbor.configuration.useDefiniteLengthEncoding
+    public var useDefiniteLengthEncoding: Boolean = cbor.configuration.useDefiniteLengthEncoding
 
     /**
-     * Specifies whether to serialize element labels (i.e. Long from [CborLabel]) instead of the element names (i.e. String from [SerialName]) for map keys
+     * Specifies whether to serialize element labels (i.e. Long from [CborLabel])
+     * instead of the element names (i.e. String from [SerialName]). CBOR supports keys of all types which work just as
+     * `SerialName`s.
+     * COSE restricts this again to strings and numbers and calls these restricted map keys *labels*. String labels can be
+     * assigned by using `@SerialName`, while number labels can be assigned using the [CborLabel] annotation.
+     * The [preferCborLabelsOverNames] configuration switch can be used to prefer number labels over SerialNames in case both
+     * are present for a property. This duality allows for compact representation of a type when serialized to CBOR, while
+     * keeping expressive diagnostic names when serializing to JSON.
      */
     public var preferCborLabelsOverNames: Boolean = cbor.configuration.preferCborLabelsOverNames
 
     /**
-     * Specifies whether to always use the compact [ByteString] encoding when serializing or deserializing byte arrays.
+     * Specifies whether to always use the compact [ByteString] encoding when serializing
+     * or deserializing byte arrays.
+     * By default, Kotlin `ByteArray` instances are encoded as **major type 4**.
+     * When **major type 2** is desired, then the [`@ByteString`][ByteString] annotation can be used on a case-by-case
+     * basis. The [alwaysUseByteString] configuration switch allows for globally preferring **major type 2** without needing
+     * to annotate every `ByteArray` in a class hierarchy.
      */
     public var alwaysUseByteString: Boolean = cbor.configuration.alwaysUseByteString
 

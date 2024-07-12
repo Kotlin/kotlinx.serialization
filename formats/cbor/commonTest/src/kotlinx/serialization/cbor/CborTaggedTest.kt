@@ -224,10 +224,10 @@ class CborTaggedTest {
     @Test
     fun writeReadVerifyTaggedClass() {
         assertEquals(referenceHexString, Cbor {
-            writeDefiniteLengths = false
-            writeKeyTags = true
-            writeValueTags = true
-            writeObjectTags = true
+            useDefiniteLengthEncoding = false
+            encodeKeyTags = true
+            encodeValueTags = true
+            encodeObjectTags = true
             verifyKeyTags = true
             verifyValueTags = true
             verifyObjectTags = true
@@ -235,10 +235,10 @@ class CborTaggedTest {
         assertEquals(
             referenceHexStringDefLen,
             Cbor {
-                writeDefiniteLengths = true
-                writeKeyTags = true
-                writeValueTags = true
-                writeObjectTags = true
+                useDefiniteLengthEncoding = true
+                encodeKeyTags = true
+                encodeValueTags = true
+                encodeObjectTags = true
                 verifyKeyTags = true
                 verifyValueTags = true
                 verifyObjectTags = true
@@ -254,9 +254,9 @@ class CborTaggedTest {
     @Test
     fun writeReadUntaggedKeys() {
         assertEquals(noKeyTags, Cbor {
-            writeKeyTags = false
-            writeValueTags = true
-            writeObjectTags = true
+            encodeKeyTags = false
+            encodeValueTags = true
+            encodeObjectTags = true
             verifyKeyTags = false
             verifyValueTags = true
             verifyObjectTags = true
@@ -264,10 +264,10 @@ class CborTaggedTest {
         assertEquals(
             noKeyTagsDefLen,
             Cbor {
-                writeDefiniteLengths = true
-                writeKeyTags = false
-                writeValueTags = true
-                writeObjectTags = true
+                useDefiniteLengthEncoding = true
+                encodeKeyTags = false
+                encodeValueTags = true
+                encodeObjectTags = true
                 verifyKeyTags = true
                 verifyValueTags = true
                 verifyObjectTags = true
@@ -277,25 +277,25 @@ class CborTaggedTest {
             )
         )
         assertEquals(reference, Cbor {
-            writeKeyTags = true
-            writeValueTags = true
-            writeObjectTags = true
+            encodeKeyTags = true
+            encodeValueTags = true
+            encodeObjectTags = true
             verifyValueTags = true
             verifyObjectTags = true
             verifyKeyTags = false
         }.decodeFromHexString(noKeyTags))
         assertEquals(reference, Cbor {
-            writeKeyTags = true
-            writeValueTags = true
-            writeObjectTags = true
+            encodeKeyTags = true
+            encodeValueTags = true
+            encodeObjectTags = true
             verifyValueTags = true
             verifyObjectTags = true
             verifyKeyTags = false
         }.decodeFromHexString(noKeyTagsDefLen))
         assertEquals(reference, Cbor {
-            writeKeyTags = true
-            writeValueTags = true
-            writeObjectTags = true
+            encodeKeyTags = true
+            encodeValueTags = true
+            encodeObjectTags = true
             verifyValueTags = true
             verifyObjectTags = true
             verifyKeyTags = false
@@ -310,9 +310,9 @@ class CborTaggedTest {
 
         assertFailsWith(CborDecodingException::class) {
             Cbor {
-                writeKeyTags = true
-                writeValueTags = true
-                writeObjectTags = true
+                encodeKeyTags = true
+                encodeValueTags = true
+                encodeObjectTags = true
                 verifyValueTags = true
                 verifyObjectTags = true
                 verifyKeyTags = false
@@ -325,26 +325,26 @@ class CborTaggedTest {
         assertEquals(
             noValueTags,
             Cbor {
-                writeKeyTags = true
-                writeObjectTags = true
+                encodeKeyTags = true
+                encodeObjectTags = true
                 verifyKeyTags = true
                 verifyValueTags = true
                 verifyObjectTags = true
-                writeValueTags = false
+                encodeValueTags = false
             }.encodeToHexString(DataWithTags.serializer(), reference)
         )
         assertEquals(reference, Cbor {
-            writeKeyTags = true
-            writeValueTags = true
-            writeObjectTags = true
+            encodeKeyTags = true
+            encodeValueTags = true
+            encodeObjectTags = true
             verifyKeyTags = true
             verifyObjectTags = true
             verifyValueTags = false
         }.decodeFromHexString(noValueTags))
         assertEquals(reference, Cbor {
-            writeKeyTags = true
-            writeValueTags = true
-            writeObjectTags = true
+            encodeKeyTags = true
+            encodeValueTags = true
+            encodeObjectTags = true
             verifyKeyTags = true
             verifyObjectTags = true
             verifyValueTags = false
@@ -352,9 +352,9 @@ class CborTaggedTest {
 
         assertFailsWith(CborDecodingException::class) {
             Cbor {
-                writeKeyTags = true
-                writeValueTags = true
-                writeObjectTags = true
+                encodeKeyTags = true
+                encodeValueTags = true
+                encodeObjectTags = true
                 verifyKeyTags = true
                 verifyValueTags = true
                 verifyObjectTags = true
@@ -366,9 +366,9 @@ class CborTaggedTest {
 
         assertFailsWith(CborDecodingException::class) {
             Cbor {
-                writeKeyTags = true
-                writeValueTags = true
-                writeObjectTags = true
+                encodeKeyTags = true
+                encodeValueTags = true
+                encodeObjectTags = true
                 verifyKeyTags = true
                 verifyObjectTags = true
                 verifyValueTags = false
@@ -385,87 +385,87 @@ class CborTaggedTest {
         assertEquals(
             noTags,
             Cbor {
-                writeObjectTags = true
+                encodeObjectTags = true
                 verifyKeyTags = true
                 verifyValueTags = true
                 verifyObjectTags = true
-                writeValueTags = false
-                writeKeyTags = false
+                encodeValueTags = false
+                encodeKeyTags = false
             }.encodeToHexString(DataWithTags.serializer(), reference)
         )
         assertEquals(
             noTagsDefLen,
             Cbor {
-                writeObjectTags = true
+                encodeObjectTags = true
                 verifyKeyTags = true
                 verifyValueTags = true
                 verifyObjectTags = true
-                writeValueTags = false
-                writeKeyTags = false
-                writeDefiniteLengths = true
+                encodeValueTags = false
+                encodeKeyTags = false
+                useDefiniteLengthEncoding = true
             }.encodeToHexString(DataWithTags.serializer(), reference)
         )
 
         assertEquals(reference, Cbor {
-            writeKeyTags = true
-            writeValueTags = true
-            writeObjectTags = true
+            encodeKeyTags = true
+            encodeValueTags = true
+            encodeObjectTags = true
             verifyObjectTags = true
             verifyKeyTags = false
             verifyValueTags = false
         }.decodeFromHexString(noTags))
 
         assertEquals(reference, Cbor {
-            writeKeyTags = true
-            writeValueTags = true
-            writeObjectTags = true
+            encodeKeyTags = true
+            encodeValueTags = true
+            encodeObjectTags = true
             verifyObjectTags = true
             verifyKeyTags = false
             verifyValueTags = false
         }.decodeFromHexString(noTagsDefLen))
 
         assertEquals(reference, Cbor {
-            writeKeyTags = true
-            writeValueTags = true
-            writeObjectTags = true
+            encodeKeyTags = true
+            encodeValueTags = true
+            encodeObjectTags = true
             verifyObjectTags = true
             verifyKeyTags = false
             verifyValueTags = false
-            writeDefiniteLengths = true
+            useDefiniteLengthEncoding = true
         }.decodeFromHexString(noTags))
 
         assertEquals(reference, Cbor {
-            writeKeyTags = true
-            writeValueTags = true
-            writeObjectTags = true
+            encodeKeyTags = true
+            encodeValueTags = true
+            encodeObjectTags = true
             verifyObjectTags = true
             verifyKeyTags = false
             verifyValueTags = false
-            writeDefiniteLengths = true
+            useDefiniteLengthEncoding = true
         }.decodeFromHexString(noTagsDefLen))
 
         assertEquals(reference, Cbor {
-            writeKeyTags = true
-            writeValueTags = true
-            writeObjectTags = true
+            encodeKeyTags = true
+            encodeValueTags = true
+            encodeObjectTags = true
             verifyObjectTags = true
             verifyKeyTags = false
             verifyValueTags = false
         }.decodeFromHexString(noKeyTags))
 
         assertEquals(reference, Cbor {
-            writeKeyTags = true
-            writeValueTags = true
-            writeObjectTags = true
+            encodeKeyTags = true
+            encodeValueTags = true
+            encodeObjectTags = true
             verifyObjectTags = true
             verifyKeyTags = false
             verifyValueTags = false
         }.decodeFromHexString(noValueTags))
 
         assertEquals(reference, Cbor {
-            writeKeyTags = true
-            writeValueTags = true
-            writeObjectTags = true
+            encodeKeyTags = true
+            encodeValueTags = true
+            encodeObjectTags = true
             verifyObjectTags = true
             verifyKeyTags = false
             verifyValueTags = false
@@ -473,9 +473,9 @@ class CborTaggedTest {
 
         assertFailsWith(CborDecodingException::class) {
             Cbor {
-                writeKeyTags = true
-                writeValueTags = true
-                writeObjectTags = true
+                encodeKeyTags = true
+                encodeValueTags = true
+                encodeObjectTags = true
                 verifyKeyTags = true
                 verifyValueTags = true
                 verifyObjectTags = true
@@ -492,21 +492,21 @@ class CborTaggedTest {
         val wrongTag55ForPropertyC = "A46161CC1A0FFFFFFFD822616220D8376163D84E42CAFE6164D85ACC6B48656C6C6F20576F726C64"
         listOf(
             Cbor {
-                writeKeyTags = true
-                writeValueTags = true
-                writeObjectTags = true
+                encodeKeyTags = true
+                encodeValueTags = true
+                encodeObjectTags = true
                 verifyKeyTags = true
                 verifyValueTags = true
                 verifyObjectTags = true
             },
             Cbor {
-                writeKeyTags = true
-                writeValueTags = true
-                writeObjectTags = true
+                encodeKeyTags = true
+                encodeValueTags = true
+                encodeObjectTags = true
                 verifyKeyTags = true
                 verifyValueTags = true
                 verifyObjectTags = true
-                writeDefiniteLengths = true
+                useDefiniteLengthEncoding = true
             }).forEach { cbor ->
 
             assertContains(
@@ -523,18 +523,18 @@ class CborTaggedTest {
         }
         listOf(
             Cbor {
-                writeKeyTags = true
-                writeValueTags = true
-                writeObjectTags = true
+                encodeKeyTags = true
+                encodeValueTags = true
+                encodeObjectTags = true
                 verifyValueTags = true
                 verifyObjectTags = true
                 verifyKeyTags = false
-                writeDefiniteLengths = true
+                useDefiniteLengthEncoding = true
             },
             Cbor {
-                writeKeyTags = true
-                writeValueTags = true
-                writeObjectTags = true
+                encodeKeyTags = true
+                encodeValueTags = true
+                encodeObjectTags = true
                 verifyValueTags = true
                 verifyObjectTags = true
                 verifyKeyTags = false
@@ -559,13 +559,13 @@ class CborTaggedTest {
         val reference = ClassAsTagged(19)
 
         val cbor = Cbor {
-            writeKeyTags = true
-            writeValueTags = true
+            encodeKeyTags = true
+            encodeValueTags = true
             verifyKeyTags = true
             verifyValueTags = true
-            writeDefiniteLengths = false
+            useDefiniteLengthEncoding = false
             verifyObjectTags = true
-            writeObjectTags = true
+            encodeObjectTags = true
         }
 
         assertEquals(referenceHexString, cbor.encodeToHexString(ClassAsTagged.serializer(), reference))
@@ -578,7 +578,7 @@ class CborTaggedTest {
 
         assertEquals(
             untaggedHexString,
-            Cbor { writeObjectTags = false }.encodeToHexString(ClassAsTagged.serializer(), reference)
+            Cbor { encodeObjectTags = false }.encodeToHexString(ClassAsTagged.serializer(), reference)
         )
 
 
@@ -664,13 +664,13 @@ class CborTaggedTest {
             objTaggedArray = listOf((ClassAsTagged(1000)))
         )
         val cbor = Cbor {
-            writeKeyTags = true
+            encodeKeyTags = true
             verifyKeyTags = true
             verifyValueTags = true
-            writeDefiniteLengths = false
+            useDefiniteLengthEncoding = false
             verifyObjectTags = true
-            writeObjectTags = true
-            writeValueTags = true
+            encodeObjectTags = true
+            encodeValueTags = true
         }
         assertEquals(referenceHexString, cbor.encodeToHexString(NestedTagged.serializer(), reference))
         assertEquals(reference, cbor.decodeFromHexString(NestedTagged.serializer(), referenceHexString))
@@ -693,9 +693,9 @@ class CborTaggedTest {
         assertEquals(
             reference,
             Cbor {
-                writeKeyTags = true
-                writeValueTags = true
-                writeObjectTags = true
+                encodeKeyTags = true
+                encodeValueTags = true
+                encodeObjectTags = true
                 verifyKeyTags = true
                 verifyValueTags = true
                 verifyObjectTags = false
@@ -705,9 +705,9 @@ class CborTaggedTest {
         assertEquals(
             reference,
             Cbor {
-                writeKeyTags = true
-                writeValueTags = true
-                writeObjectTags = true
+                encodeKeyTags = true
+                encodeValueTags = true
+                encodeObjectTags = true
                 verifyKeyTags = true
                 verifyValueTags = true
                 verifyObjectTags = false
@@ -717,12 +717,12 @@ class CborTaggedTest {
         assertEquals(
             untaggedHexString,
             Cbor {
-                writeKeyTags = true
-                writeValueTags = true
+                encodeKeyTags = true
+                encodeValueTags = true
                 verifyKeyTags = true
                 verifyValueTags = true
                 verifyObjectTags = true
-                writeObjectTags = false
+                encodeObjectTags = false
             }.encodeToHexString(NestedTagged.serializer(), reference)
         )
 
@@ -730,9 +730,9 @@ class CborTaggedTest {
         assertEquals(
             reference,
             Cbor {
-                writeKeyTags = true
-                writeValueTags = true
-                writeObjectTags = true
+                encodeKeyTags = true
+                encodeValueTags = true
+                encodeObjectTags = true
                 verifyKeyTags = true
                 verifyValueTags = true
                 verifyObjectTags = false
@@ -748,9 +748,9 @@ class CborTaggedTest {
         assertContains(
             assertFailsWith(CborDecodingException::class) {
                 Cbor {
-                    writeKeyTags = true
-                    writeValueTags = true
-                    writeObjectTags = true
+                    encodeKeyTags = true
+                    encodeValueTags = true
+                    encodeObjectTags = true
                     verifyKeyTags = true
                     verifyValueTags = true
                     verifyObjectTags = false

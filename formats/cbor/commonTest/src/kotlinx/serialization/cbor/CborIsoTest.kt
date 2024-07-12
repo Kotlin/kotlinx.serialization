@@ -23,7 +23,7 @@ class CborIsoTest {
     fun writeReadVerifyCoseSigned() {
         val cbor = Cbor {
             alwaysUseByteString = true
-            writeDefiniteLengths = true
+            useDefiniteLengthEncoding = true
         }
         assertEquals(reference, cbor.decodeFromHexString(DataClass.serializer(), referenceHexString))
         assertEquals(referenceHexString, cbor.encodeToHexString(DataClass.serializer(), reference))

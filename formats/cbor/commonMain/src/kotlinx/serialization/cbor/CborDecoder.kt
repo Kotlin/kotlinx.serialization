@@ -19,7 +19,7 @@ import kotlinx.serialization.encoding.*
  * override fun deserialize(decoder: Decoder): AlgorithmParameters {
  *   if(decoder is CborDecoder){
  *     val useDefiniteLengthEncoding = (decoder as CborDecoder).cbor.configuration.writeDefiniteLengths
- *     //Do CBOR-agnostic low-level stuff
+ *     // Do CBOR-specific low-level stuff
  *   }
  * }
  * ```

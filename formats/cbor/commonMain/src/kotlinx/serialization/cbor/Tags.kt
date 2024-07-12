@@ -4,7 +4,7 @@ import kotlinx.serialization.cbor.internal.SuppressAnimalSniffer
 import kotlinx.serialization.*
 
 /**
- * Specifies that a property shall be tagged and serialized as CBOR major type 6: optional semantic tagging
+ * Specifies that a property shall be tagged and the tag is serialized as CBOR major type 6: optional semantic tagging
  * of other major types.
  *
  * Example usage:
@@ -86,11 +86,11 @@ public annotation class KeyTags(@OptIn(ExperimentalUnsignedTypes::class) vararg 
  *
  * ```
  * @ObjectTags(1337uL)
- *     @Serializable
- *     data class ClassAsTagged(
- *         @SerialName("alg")
- *         val alg: Int,
- *     )
+ * @Serializable
+ * data class ClassAsTagged(
+ *     @SerialName("alg")
+ *     val alg: Int,
+ * )
  * ```
  *
  * Encoding to CBOR results in the following byte string:

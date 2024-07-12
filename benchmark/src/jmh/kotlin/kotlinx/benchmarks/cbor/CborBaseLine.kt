@@ -45,9 +45,9 @@ open class CborBaseline {
 
         val cbor = Cbor {
                 encodeDefaults = true
-                writeKeyTags = false
-                writeValueTags = false
-                writeDefiniteLengths = false
+                encodeKeyTags = false
+                encodeValueTags = false
+                useDefiniteLengthEncoding = false
                 preferCborLabelsOverNames = false
             }
 

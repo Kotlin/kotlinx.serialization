@@ -58,9 +58,9 @@ class CborLabelTest {
         val referenceHexLabelWithTagString = "a1c50126"
         val cbor = Cbor {
             preferCborLabelsOverNames = true
-            writeKeyTags = true
+            encodeKeyTags = true
             verifyKeyTags = true
-            writeDefiniteLengths = true
+            useDefiniteLengthEncoding = true
         }
         assertEquals(referenceHexLabelWithTagString, cbor.encodeToHexString(ClassWithCborLabelAndTag.serializer(), referenceWithTag))
         assertEquals(referenceWithTag, cbor.decodeFromHexString(ClassWithCborLabelAndTag.serializer(), referenceHexLabelWithTagString))
@@ -77,9 +77,9 @@ class CborLabelTest {
         val referenceHexLabelWithTagString = "a1c60126"
         val cbor = Cbor {
             preferCborLabelsOverNames = true
-            writeKeyTags = true
+            encodeKeyTags = true
             verifyKeyTags = true
-            writeDefiniteLengths = true
+            useDefiniteLengthEncoding = true
         }
         assertFailsWith(CborDecodingException::class) {
             cbor.decodeFromHexString(ClassWithCborLabelAndTag.serializer(), referenceHexLabelWithTagString)
@@ -101,10 +101,10 @@ class CborLabelTest {
         val referenceHexLabelWithTagString = "a2c50126026362617a"
         val cbor = Cbor {
             preferCborLabelsOverNames = true
-            writeKeyTags = true
+            encodeKeyTags = true
             verifyKeyTags = true
             ignoreUnknownKeys = true
-            writeDefiniteLengths = true
+            useDefiniteLengthEncoding = true
         }
         assertEquals(referenceWithTag, cbor.decodeFromHexString(ClassWithCborLabelAndTag.serializer(), referenceHexLabelWithTagString))
     }
