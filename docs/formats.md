@@ -280,7 +280,7 @@ data class DataClass(
 Cbor.encodeToByteArray(DataClass(alg = -7, kid = null))
 ```
 
-will produce bytes `0xa263616c6726636b6964f6`, or in diagnostic notation:
+will normally produce a Cbor map: bytes `0xa263616c6726636b6964f6`, or in diagnostic notation:
 
 ```
 A2           # map(2)
