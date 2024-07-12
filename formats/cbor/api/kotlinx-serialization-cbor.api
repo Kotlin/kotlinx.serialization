@@ -7,25 +7,15 @@ public synthetic class kotlinx/serialization/cbor/ByteString$Impl : kotlinx/seri
 
 public abstract class kotlinx/serialization/cbor/Cbor : kotlinx/serialization/BinaryFormat {
 	public static final field Default Lkotlinx/serialization/cbor/Cbor$Default;
-	public synthetic fun <init> (ZZZZZZZZZZZLkotlinx/serialization/modules/SerializersModule;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lkotlinx/serialization/cbor/CborConfiguration;Lkotlinx/serialization/modules/SerializersModule;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun decodeFromByteArray (Lkotlinx/serialization/DeserializationStrategy;[B)Ljava/lang/Object;
 	public fun encodeToByteArray (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)[B
-	public final fun getAlwaysUseByteString ()Z
-	public final fun getEncodeDefaults ()Z
-	public final fun getIgnoreUnknownKeys ()Z
-	public final fun getPreferCborLabelsOverNames ()Z
+	public final fun getConfiguration ()Lkotlinx/serialization/cbor/CborConfiguration;
 	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
-	public final fun getVerifyKeyTags ()Z
-	public final fun getVerifyObjectTags ()Z
-	public final fun getVerifyValueTags ()Z
-	public final fun getWriteDefiniteLengths ()Z
-	public final fun getWriteKeyTags ()Z
-	public final fun getWriteObjectTags ()Z
-	public final fun getWriteValueTags ()Z
 }
 
 public final class kotlinx/serialization/cbor/Cbor$Default : kotlinx/serialization/cbor/Cbor {
-	public final fun getTagging ()Lkotlinx/serialization/cbor/Cbor;
+	public final fun getCoseCompliant ()Lkotlinx/serialization/cbor/Cbor;
 }
 
 public abstract interface annotation class kotlinx/serialization/cbor/CborArray : java/lang/annotation/Annotation {
@@ -38,36 +28,63 @@ public synthetic class kotlinx/serialization/cbor/CborArray$Impl : kotlinx/seria
 public final class kotlinx/serialization/cbor/CborBuilder {
 	public final fun getAlwaysUseByteString ()Z
 	public final fun getEncodeDefaults ()Z
+	public final fun getEncodeKeyTags ()Z
+	public final fun getEncodeObjectTags ()Z
+	public final fun getEncodeValueTags ()Z
 	public final fun getIgnoreUnknownKeys ()Z
 	public final fun getPreferCborLabelsOverNames ()Z
 	public final fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public final fun getUseDefiniteLengthEncoding ()Z
 	public final fun getVerifyKeyTags ()Z
 	public final fun getVerifyObjectTags ()Z
 	public final fun getVerifyValueTags ()Z
-	public final fun getWriteDefiniteLengths ()Z
-	public final fun getWriteKeyTags ()Z
-	public final fun getWriteObjectTags ()Z
-	public final fun getWriteValueTags ()Z
 	public final fun setAlwaysUseByteString (Z)V
 	public final fun setEncodeDefaults (Z)V
+	public final fun setEncodeKeyTags (Z)V
+	public final fun setEncodeObjectTags (Z)V
+	public final fun setEncodeValueTags (Z)V
 	public final fun setIgnoreUnknownKeys (Z)V
 	public final fun setPreferCborLabelsOverNames (Z)V
 	public final fun setSerializersModule (Lkotlinx/serialization/modules/SerializersModule;)V
+	public final fun setUseDefiniteLengthEncoding (Z)V
 	public final fun setVerifyKeyTags (Z)V
 	public final fun setVerifyObjectTags (Z)V
 	public final fun setVerifyValueTags (Z)V
-	public final fun setWriteDefiniteLengths (Z)V
-	public final fun setWriteKeyTags (Z)V
-	public final fun setWriteObjectTags (Z)V
-	public final fun setWriteValueTags (Z)V
 }
 
-public abstract interface class kotlinx/serialization/cbor/CborDecoder {
+public final class kotlinx/serialization/cbor/CborConfiguration {
+	public fun <init> (ZZZZZZZZZZZ)V
+	public final fun getAlwaysUseByteString ()Z
+	public final fun getEncodeDefaults ()Z
+	public final fun getEncodeKeyTags ()Z
+	public final fun getEncodeObjectTags ()Z
+	public final fun getEncodeValueTags ()Z
+	public final fun getIgnoreUnknownKeys ()Z
+	public final fun getPreferCborLabelsOverNames ()Z
+	public final fun getUseDefiniteLengthEncoding ()Z
+	public final fun getVerifyKeyTags ()Z
+	public final fun getVerifyObjectTags ()Z
+	public final fun getVerifyValueTags ()Z
+}
+
+public abstract interface class kotlinx/serialization/cbor/CborDecoder : kotlinx/serialization/encoding/Decoder {
 	public abstract fun getCbor ()Lkotlinx/serialization/cbor/Cbor;
 }
 
-public abstract interface class kotlinx/serialization/cbor/CborEncoder {
+public final class kotlinx/serialization/cbor/CborDecoder$DefaultImpls {
+	public static fun decodeNullableSerializableValue (Lkotlinx/serialization/cbor/CborDecoder;Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	public static fun decodeSerializableValue (Lkotlinx/serialization/cbor/CborDecoder;Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+}
+
+public abstract interface class kotlinx/serialization/cbor/CborEncoder : kotlinx/serialization/encoding/Encoder {
 	public abstract fun getCbor ()Lkotlinx/serialization/cbor/Cbor;
+}
+
+public final class kotlinx/serialization/cbor/CborEncoder$DefaultImpls {
+	public static fun beginCollection (Lkotlinx/serialization/cbor/CborEncoder;Lkotlinx/serialization/descriptors/SerialDescriptor;I)Lkotlinx/serialization/encoding/CompositeEncoder;
+	public static fun encodeNotNullMark (Lkotlinx/serialization/cbor/CborEncoder;)V
+	public static fun encodeNullableSerializableValue (Lkotlinx/serialization/cbor/CborEncoder;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
+	public static fun encodeSerializableValue (Lkotlinx/serialization/cbor/CborEncoder;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
 }
 
 public final class kotlinx/serialization/cbor/CborKt {
