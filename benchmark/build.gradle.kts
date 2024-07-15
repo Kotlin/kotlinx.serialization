@@ -12,6 +12,7 @@ plugins {
     alias(libs.plugins.serialization)
     alias(libs.plugins.shadow)
     alias(libs.plugins.jmh)
+    kotlin("kapt") // For annotation processing
 }
 
 java {
@@ -64,4 +65,8 @@ dependencies {
     implementation(project(":kotlinx-serialization-json-okio"))
     implementation(project(":kotlinx-serialization-json-io"))
     implementation(project(":kotlinx-serialization-protobuf"))
+
+    // Moshi
+    implementation(libs.moshi.kotlin)
+    kapt(libs.moshi.codegen)
 }
