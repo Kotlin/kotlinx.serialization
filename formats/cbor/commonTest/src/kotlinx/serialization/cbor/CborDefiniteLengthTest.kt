@@ -8,7 +8,7 @@ import kotlinx.serialization.*
 import kotlin.test.*
 
 
-class CborDefLenTest {
+class CborDefiniteLengthTest {
     @Test
     fun writeComplicatedClass() {
         val test = TypesUmbrella(
