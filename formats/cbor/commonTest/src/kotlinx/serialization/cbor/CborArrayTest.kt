@@ -15,9 +15,7 @@ class CborArrayTest {
         val referenceHexString = "8126"
         val reference = ClassAs1Array(alg = -7)
 
-        val cbor = Cbor(from = Cbor.CoseCompliant) {
-            useDefiniteLengthEncoding = true
-        }
+        val cbor = Cbor.CoseCompliant
         assertEquals(referenceHexString, cbor.encodeToHexString(ClassAs1Array.serializer(), reference))
         assertEquals(reference, cbor.decodeFromHexString(ClassAs1Array.serializer(), referenceHexString))
     }
@@ -34,9 +32,7 @@ class CborArrayTest {
         val referenceHexString = "c8822663666f6f"
         val reference = ClassAs2Array(alg = -7, kid = "foo")
 
-        val cbor = Cbor(from = Cbor.CoseCompliant) {
-            useDefiniteLengthEncoding = true
-        }
+        val cbor = Cbor.CoseCompliant
         assertEquals(referenceHexString, cbor.encodeToHexString(ClassAs2Array.serializer(), reference))
         assertEquals(reference, cbor.decodeFromHexString(ClassAs2Array.serializer(), referenceHexString))
     }
@@ -54,9 +50,7 @@ class CborArrayTest {
         val referenceHexString = "842663626172f6a0"
         val reference = ClassAs4ArrayNullable(alg = -7, kid = "bar", iv = null, array = null)
 
-        val cbor = Cbor(from = Cbor.CoseCompliant) {
-            useDefiniteLengthEncoding = true
-        }
+        val cbor = Cbor.CoseCompliant
 
         assertEquals(referenceHexString, cbor.encodeToHexString(ClassAs4ArrayNullable.serializer(), reference))
         assertEquals(reference, cbor.decodeFromHexString(ClassAs4ArrayNullable.serializer(), referenceHexString))
@@ -77,13 +71,16 @@ class CborArrayTest {
         val referenceHexString = "a1656172726179c8822663626172"
         val reference = ClassWithArray(array = ClassAs2Array(alg = -7, kid = "bar"))
 
-        val cbor = Cbor(from = Cbor.CoseCompliant) {
-            useDefiniteLengthEncoding = true
-        }
+        val cbor = Cbor.CoseCompliant
         assertEquals(referenceHexString, cbor.encodeToHexString(ClassWithArray.serializer(), reference))
         assertEquals(reference, cbor.decodeFromHexString(ClassWithArray.serializer(), referenceHexString))
 
-        println(cbor.encodeToHexString(DoubleTaggedClassWithArray.serializer(), DoubleTaggedClassWithArray(array = ClassAs2Array(alg = -7, kid = "bar"))))
+        println(
+            cbor.encodeToHexString(
+                DoubleTaggedClassWithArray.serializer(),
+                DoubleTaggedClassWithArray(array = ClassAs2Array(alg = -7, kid = "bar"))
+            )
+        )
     }
 
 
@@ -103,9 +100,7 @@ class CborArrayTest {
         val referenceHexString = "a1656172726179c9c8822663626172"
         val reference = DoubleTaggedClassWithArray(array = ClassAs2Array(alg = -7, kid = "bar"))
 
-        val cbor = Cbor(from = Cbor.CoseCompliant) {
-            useDefiniteLengthEncoding = true
-        }
+        val cbor = Cbor.CoseCompliant
         assertEquals(referenceHexString, cbor.encodeToHexString(DoubleTaggedClassWithArray.serializer(), reference))
         assertEquals(reference, cbor.decodeFromHexString(DoubleTaggedClassWithArray.serializer(), referenceHexString))
     }
@@ -172,7 +167,6 @@ class CborArrayTest {
         @SerialName("array")
         val array: ClassAs2Array,
     )
-
 
 
     @Serializable
