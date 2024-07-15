@@ -4,6 +4,8 @@
 
 package kotlinx.serialization.cbor
 
+import kotlinx.serialization.*
+
 /**
  * Configuration of the current [Cbor] instance available through [Cbor.configuration].
  *
@@ -88,7 +90,8 @@ package kotlinx.serialization.cbor
  * to annotate every `ByteArray` in a class hierarchy.
  *
  */
-public class CborConfiguration(
+@ExperimentalSerializationApi
+public class CborConfiguration internal constructor(
     public val encodeDefaults: Boolean,
     public val ignoreUnknownKeys: Boolean,
     public val encodeKeyTags: Boolean,
@@ -100,4 +103,12 @@ public class CborConfiguration(
     public val useDefiniteLengthEncoding: Boolean,
     public val preferCborLabelsOverNames: Boolean,
     public val alwaysUseByteString: Boolean,
-)
+) {
+    override fun toString(): String {
+        return "CborConfiguration(encodeDefaults=$encodeDefaults, ignoreUnknownKeys=$ignoreUnknownKeys, " +
+            "encodeKeyTags=$encodeKeyTags, encodeValueTags=$encodeValueTags, encodeObjectTags=$encodeObjectTags, " +
+            "verifyKeyTags=$verifyKeyTags, verifyValueTags=$verifyValueTags, verifyObjectTags=$verifyObjectTags, " +
+            "useDefiniteLengthEncoding=$useDefiniteLengthEncoding, " +
+            "preferCborLabelsOverNames=$preferCborLabelsOverNames, alwaysUseByteString=$alwaysUseByteString)"
+    }
+}

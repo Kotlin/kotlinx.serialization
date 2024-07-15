@@ -53,7 +53,6 @@ public final class kotlinx/serialization/cbor/CborBuilder {
 }
 
 public final class kotlinx/serialization/cbor/CborConfiguration {
-	public fun <init> (ZZZZZZZZZZZ)V
 	public final fun getAlwaysUseByteString ()Z
 	public final fun getEncodeDefaults ()Z
 	public final fun getEncodeKeyTags ()Z
@@ -65,6 +64,7 @@ public final class kotlinx/serialization/cbor/CborConfiguration {
 	public final fun getVerifyKeyTags ()Z
 	public final fun getVerifyObjectTags ()Z
 	public final fun getVerifyValueTags ()Z
+	public fun toString ()Ljava/lang/String;
 }
 
 public abstract interface class kotlinx/serialization/cbor/CborDecoder : kotlinx/serialization/encoding/Decoder {

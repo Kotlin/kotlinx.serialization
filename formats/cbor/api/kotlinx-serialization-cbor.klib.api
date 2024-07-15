@@ -53,7 +53,7 @@ final class kotlinx.serialization.cbor/CborBuilder { // kotlinx.serialization.cb
         final fun <set-verifyValueTags>(kotlin/Boolean) // kotlinx.serialization.cbor/CborBuilder.verifyValueTags.<set-verifyValueTags>|<set-verifyValueTags>(kotlin.Boolean){}[0]
 }
 final class kotlinx.serialization.cbor/CborConfiguration { // kotlinx.serialization.cbor/CborConfiguration|null[0]
-    constructor <init>(kotlin/Boolean, kotlin/Boolean, kotlin/Boolean, kotlin/Boolean, kotlin/Boolean, kotlin/Boolean, kotlin/Boolean, kotlin/Boolean, kotlin/Boolean, kotlin/Boolean, kotlin/Boolean) // kotlinx.serialization.cbor/CborConfiguration.<init>|<init>(kotlin.Boolean;kotlin.Boolean;kotlin.Boolean;kotlin.Boolean;kotlin.Boolean;kotlin.Boolean;kotlin.Boolean;kotlin.Boolean;kotlin.Boolean;kotlin.Boolean;kotlin.Boolean){}[0]
+    final fun toString(): kotlin/String // kotlinx.serialization.cbor/CborConfiguration.toString|toString(){}[0]
     final val alwaysUseByteString // kotlinx.serialization.cbor/CborConfiguration.alwaysUseByteString|{}alwaysUseByteString[0]
         final fun <get-alwaysUseByteString>(): kotlin/Boolean // kotlinx.serialization.cbor/CborConfiguration.alwaysUseByteString.<get-alwaysUseByteString>|<get-alwaysUseByteString>(){}[0]
     final val encodeDefaults // kotlinx.serialization.cbor/CborConfiguration.encodeDefaults|{}encodeDefaults[0]
