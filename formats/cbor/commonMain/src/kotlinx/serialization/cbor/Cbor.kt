@@ -92,32 +92,11 @@ public sealed class Cbor(
 
 @OptIn(ExperimentalSerializationApi::class)
 private class CborImpl(
-    encodeDefaults: Boolean, ignoreUnknownKeys: Boolean,
-    writeKeyTags: Boolean,
-    writeValueTags: Boolean,
-    writeObjectTags: Boolean,
-    verifyKeyTags: Boolean,
-    verifyValueTags: Boolean,
-    verifyObjectTags: Boolean,
-    writeDefiniteLengths: Boolean,
-    preferCborLabelsOverNames: Boolean,
-    alwaysUseByteString: Boolean,
+    configuration: CborConfiguration,
     serializersModule: SerializersModule
 ) :
     Cbor(
-        CborConfiguration(
-            encodeDefaults,
-            ignoreUnknownKeys,
-            writeKeyTags,
-            writeValueTags,
-            writeObjectTags,
-            verifyKeyTags,
-            verifyValueTags,
-            verifyObjectTags,
-            writeDefiniteLengths,
-            preferCborLabelsOverNames,
-            alwaysUseByteString
-        ),
+        configuration,
         serializersModule
     )
 
@@ -129,7 +108,7 @@ private class CborImpl(
 public fun Cbor(from: Cbor = Cbor, builderAction: CborBuilder.() -> Unit): Cbor {
     val builder = CborBuilder(from)
     builder.builderAction()
-    return CborImpl(
+    return CborImpl(CborConfiguration(
         builder.encodeDefaults,
         builder.ignoreUnknownKeys,
         builder.encodeKeyTags,
@@ -140,7 +119,7 @@ public fun Cbor(from: Cbor = Cbor, builderAction: CborBuilder.() -> Unit): Cbor 
         builder.verifyObjectTags,
         builder.useDefiniteLengthEncoding,
         builder.preferCborLabelsOverNames,
-        builder.alwaysUseByteString,
+        builder.alwaysUseByteString),
         builder.serializersModule
     )
 }
