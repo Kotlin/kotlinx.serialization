@@ -12,7 +12,8 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 
-internal open class CborReader(override val cbor: Cbor, protected val decoder: CborParser) : AbstractDecoder(),
+@SuppressAnimalSniffer
+internal open class CborReader(override val cbor: Cbor, protected val parser: CborParser) : AbstractDecoder(),
     CborDecoder {
 
     protected var size = -1
@@ -34,16 +35,16 @@ internal open class CborReader(override val cbor: Cbor, protected val decoder: C
     override val serializersModule: SerializersModule
         get() = cbor.serializersModule
 
-    protected open fun skipBeginToken(objectTags: ULongArray?) = setSize(decoder.startMap(objectTags))
+    protected open fun skipBeginToken(objectTags: ULongArray?) = setSize(parser.startMap(objectTags))
 
     @OptIn(ExperimentalSerializationApi::class)
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
         val re = if (descriptor.hasArrayTag()) {
-            CborListReader(cbor, decoder)
+            CborListReader(cbor, parser)
         } else when (descriptor.kind) {
-            StructureKind.LIST, is PolymorphicKind -> CborListReader(cbor, decoder)
-            StructureKind.MAP -> CborMapReader(cbor, decoder)
-            else -> CborReader(cbor, decoder)
+            StructureKind.LIST, is PolymorphicKind -> CborListReader(cbor, parser)
+            StructureKind.MAP -> CborMapReader(cbor, parser)
+            else -> CborReader(cbor, parser)
         }
         val objectTags = if (cbor.configuration.verifyObjectTags) descriptor.getObjectTags() else null
         re.skipBeginToken(tags?.let { if (objectTags == null) it else ulongArrayOf(*it, *objectTags) } ?: objectTags)
@@ -51,7 +52,7 @@ internal open class CborReader(override val cbor: Cbor, protected val decoder: C
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
-        if (!finiteMode) decoder.end()
+        if (!finiteMode) parser.end()
     }
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
@@ -64,7 +65,7 @@ internal open class CborReader(override val cbor: Cbor, protected val decoder: C
 
                 val index = elemName?.let { descriptor.getElementIndex(it) } ?: CompositeDecoder.UNKNOWN_NAME
                 if (index == CompositeDecoder.UNKNOWN_NAME) {
-                    decoder.skipElement(tags)
+                    parser.skipElement(tags)
                 } else {
                     verifyKeyTags(descriptor, index, tags)
                     knownIndex = index
@@ -88,7 +89,7 @@ internal open class CborReader(override val cbor: Cbor, protected val decoder: C
 
 
     private fun decodeElementNameWithTags(descriptor: SerialDescriptor): Pair<String, ULongArray?> {
-        var (elemName, cborLabel, tags) = decoder.nextTaggedStringOrNumber()
+        var (elemName, cborLabel, tags) = parser.nextTaggedStringOrNumber()
         if (elemName == null && cborLabel != null) {
             elemName = descriptor.getElementNameForCborLabel(cborLabel)
                 ?: throw CborDecodingException("CborLabel unknown: $cborLabel for $descriptor")
@@ -100,7 +101,7 @@ internal open class CborReader(override val cbor: Cbor, protected val decoder: C
     }
 
     private fun decodeElementNameWithTagsLenient(descriptor: SerialDescriptor): Pair<String?, ULongArray?> {
-        var (elemName, cborLabel, tags) = decoder.nextTaggedStringOrNumber()
+        var (elemName, cborLabel, tags) = parser.nextTaggedStringOrNumber()
         if (elemName == null && cborLabel != null) {
             elemName = descriptor.getElementNameForCborLabel(cborLabel)
         }
@@ -113,51 +114,39 @@ internal open class CborReader(override val cbor: Cbor, protected val decoder: C
             && deserializer.descriptor == ByteArraySerializer().descriptor
         ) {
             @Suppress("UNCHECKED_CAST")
-            decoder.nextByteString(tags) as T
+            parser.nextByteString(tags) as T
         } else {
             decodeByteArrayAsByteString = decodeByteArrayAsByteString || deserializer.descriptor.isInlineByteString()
             super<AbstractDecoder>.decodeSerializableValue(deserializer)
         }
     }
 
-    override fun decodeString() = decoder.nextString(tags)
+    override fun decodeString() = parser.nextString(tags)
 
-    override fun decodeNotNullMark(): Boolean = !decoder.isNull()
+    override fun decodeNotNullMark(): Boolean = !parser.isNull()
 
-    override fun decodeDouble() = decoder.nextDouble(tags)
-    override fun decodeFloat() = decoder.nextFloat(tags)
+    override fun decodeDouble() = parser.nextDouble(tags)
+    override fun decodeFloat() = parser.nextFloat(tags)
 
-    override fun decodeBoolean() = decoder.nextBoolean(tags)
+    override fun decodeBoolean() = parser.nextBoolean(tags)
 
-    override fun decodeByte() = decoder.nextNumber(tags).toByte()
-    override fun decodeShort() = decoder.nextNumber(tags).toShort()
-    override fun decodeChar() = decoder.nextNumber(tags).toInt().toChar()
-    override fun decodeInt() = decoder.nextNumber(tags).toInt()
-    override fun decodeLong() = decoder.nextNumber(tags)
+    override fun decodeByte() = parser.nextNumber(tags).toByte()
+    override fun decodeShort() = parser.nextNumber(tags).toShort()
+    override fun decodeChar() = parser.nextNumber(tags).toInt().toChar()
+    override fun decodeInt() = parser.nextNumber(tags).toInt()
+    override fun decodeLong() = parser.nextNumber(tags)
 
-    override fun decodeNull() = decoder.nextNull(tags)
+    override fun decodeNull() = parser.nextNull(tags)
 
     override fun decodeEnum(enumDescriptor: SerialDescriptor): Int =
-        enumDescriptor.getElementIndexOrThrow(decoder.nextString(tags))
+        enumDescriptor.getElementIndexOrThrow(parser.nextString(tags))
 
-    private fun isDone(): Boolean = !finiteMode && decoder.isEnd() || (finiteMode && readProperties >= size)
+    private fun isDone(): Boolean = !finiteMode && parser.isEnd() || (finiteMode && readProperties >= size)
 
     private fun verifyKeyTags(descriptor: SerialDescriptor, index: Int, tags: ULongArray?) {
         if (cbor.configuration.verifyKeyTags) {
             descriptor.getKeyTags(index)?.let { keyTags ->
-                if (!(keyTags contentEquals tags)) throw CborDecodingException(
-                    "CBOR tags ${
-                        tags?.joinToString(
-                            prefix = "[",
-                            postfix = "]"
-                        ) { it.toString() }
-                    } do not match expected tags ${
-                        keyTags.joinToString(
-                            prefix = "[",
-                            postfix = "]"
-                        ) { it.toString() }
-                    } for $descriptor"
-                )
+                parser.verifyTagsAndThrow(keyTags, tags)
             }
         }
     }
@@ -282,20 +271,7 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
             //We only want to compare if tags are actually set, otherwise, we don't care
             tags?.let {
                 if (verifyObjectTags) { //again, this check only works if we verify value tags and object tags
-                    if (!it.contentEquals(collected))
-                        throw CborDecodingException(
-                            "CBOR tags ${
-                                collected?.joinToString(
-                                    prefix = "[",
-                                    postfix = "]"
-                                ) { it.toString() }
-                            } do not match expected tags ${
-                                it.joinToString(
-                                    prefix = "[",
-                                    postfix = "]"
-                                ) { it.toString() }
-                            }"
-                        )
+                    verifyTagsAndThrow(it, collected)
                 } else {
                     // If we don't care for object tags, the best we can do is assure that the collected tags start with
                     // the expected tags. (yes this could co somewhere else, but putting it here groups the code nicely
@@ -306,6 +282,23 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
                 }
             }
         }
+    }
+
+    internal fun verifyTagsAndThrow(expected: ULongArray, actual: ULongArray?) {
+        if (!expected.contentEquals(actual))
+            throw CborDecodingException(
+                "CBOR tags ${
+                    actual?.joinToString(
+                        prefix = "[",
+                        postfix = "]"
+                    ) { it.toString() }
+                } do not match expected tags ${
+                    expected.joinToString(
+                        prefix = "[",
+                        postfix = "]"
+                    ) { it.toString() }
+                }"
+            )
     }
 
     /**
@@ -555,7 +548,7 @@ private fun Iterable<ByteArray>.flatten(): ByteArray {
 
 private class CborMapReader(cbor: Cbor, decoder: CborParser) : CborListReader(cbor, decoder) {
     override fun skipBeginToken(objectTags: ULongArray?) =
-        setSize(decoder.startMap(tags?.let { if (objectTags == null) it else ulongArrayOf(*it, *objectTags) }
+        setSize(parser.startMap(tags?.let { if (objectTags == null) it else ulongArrayOf(*it, *objectTags) }
             ?: objectTags) * 2)
 }
 
@@ -563,11 +556,11 @@ private open class CborListReader(cbor: Cbor, decoder: CborParser) : CborReader(
     private var ind = 0
 
     override fun skipBeginToken(objectTags: ULongArray?) =
-        setSize(decoder.startArray(tags?.let { if (objectTags == null) it else ulongArrayOf(*it, *objectTags) }
+        setSize(parser.startArray(tags?.let { if (objectTags == null) it else ulongArrayOf(*it, *objectTags) }
             ?: objectTags))
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-        return if (!finiteMode && decoder.isEnd() || (finiteMode && ind >= size)) CompositeDecoder.DECODE_DONE else
+        return if (!finiteMode && parser.isEnd() || (finiteMode && ind >= size)) CompositeDecoder.DECODE_DONE else
             ind++.also {
                 decodeByteArrayAsByteString = descriptor.isByteString(it)
             }
