@@ -21,6 +21,7 @@ import org.jetbrains.kotlin.gradle.targets.jvm.*
 import org.jetbrains.kotlin.gradle.tasks.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
+import org.jetbrains.kotlin.gradle.utils.*
 import org.jetbrains.kotlin.tooling.core.*
 import java.io.*
 import kotlin.reflect.*
@@ -113,6 +114,7 @@ object Java9Modularity {
         sourceFile: File
     ): TaskProvider<out KotlinJvmCompile> {
         apply<KotlinApiPlugin>()
+        @Suppress("DEPRECATION")
         val verifyModuleTaskName = "verify${compileTask.name.removePrefix("compile").capitalize()}Module"
         // work-around for https://youtrack.jetbrains.com/issue/KT-60542
         val kotlinApiPlugin = plugins.getPlugin(KotlinApiPlugin::class)
@@ -139,7 +141,7 @@ object Java9Modularity {
                 freeCompilerArgs.addAll(
                     listOf("-Xjdk-release=9",  "-Xsuppress-version-warnings", "-Xexpect-actual-classes")
                 )
-                optIn.addAll(compileTask.kotlinOptions.options.optIn)
+                optIn.addAll(compileTask.compilerOptions.optIn)
             }
             // work-around for https://youtrack.jetbrains.com/issue/KT-60583
             inputs.files(
@@ -160,7 +162,7 @@ object Java9Modularity {
                     .declaredMemberProperties
                     .find { it.name == "ownModuleName" }
                     ?.get(this) as? Property<String>
-                ownModuleNameProp?.set(compileTask.kotlinOptions.moduleName)
+                ownModuleNameProp?.set(compileTask.compilerOptions.moduleName)
             }
 
             val taskKotlinLanguageVersion = compilerOptions.languageVersion.orElse(KotlinVersion.DEFAULT)

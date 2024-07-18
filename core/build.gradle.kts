@@ -71,5 +71,5 @@ tasks.withType<Jar>().named(kotlin.jvm().artifactsTaskName) {
 configureJava9ModuleInfo()
 
 tasks.withType<KotlinJsIrLink>().configureEach {
-    kotlinOptions.freeCompilerArgs += "-Xwasm-enable-array-range-checks"
+    compilerOptions.freeCompilerArgs.add("-Xwasm-enable-array-range-checks")
 }
