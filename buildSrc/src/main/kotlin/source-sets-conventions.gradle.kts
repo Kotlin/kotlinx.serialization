@@ -5,6 +5,8 @@
 @file:OptIn(ExperimentalWasmDsl::class)
 
 import org.gradle.kotlin.dsl.*
+import org.jetbrains.kotlin.gradle.*
+import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
 import org.jetbrains.kotlin.gradle.targets.js.dsl.*
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
@@ -30,11 +32,10 @@ kotlin {
 
     jvm {
         withJava()
-        compilations.configureEach {
-            kotlinOptions {
-                jvmTarget = "1.8"
-                freeCompilerArgs += "-Xjdk-release=1.8"
-            }
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_1_8)
+            freeCompilerArgs.add("-Xjdk-release=1.8")
         }
     }
 
