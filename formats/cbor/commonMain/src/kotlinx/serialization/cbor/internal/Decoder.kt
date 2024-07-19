@@ -12,7 +12,6 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 
-@SuppressAnimalSniffer
 internal open class CborReader(override val cbor: Cbor, protected val parser: CborParser) : AbstractDecoder(),
     CborDecoder {
 
@@ -152,7 +151,6 @@ internal open class CborReader(override val cbor: Cbor, protected val parser: Cb
     }
 }
 
-@SuppressAnimalSniffer
 internal class CborParser(private val input: ByteArrayInput, private val verifyObjectTags: Boolean) {
     private var curByte: Int = -1
 
@@ -287,17 +285,7 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
     internal fun verifyTagsAndThrow(expected: ULongArray, actual: ULongArray?) {
         if (!expected.contentEquals(actual))
             throw CborDecodingException(
-                "CBOR tags ${
-                    actual?.joinToString(
-                        prefix = "[",
-                        postfix = "]"
-                    ) { it.toString() }
-                } do not match expected tags ${
-                    expected.joinToString(
-                        prefix = "[",
-                        postfix = "]"
-                    ) { it.toString() }
-                }"
+                "CBOR tags ${actual?.contentToString()} do not match expected tags ${expected.contentToString()}"
             )
     }
 
