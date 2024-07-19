@@ -9,7 +9,7 @@ import kotlinx.serialization.*
 /**
  * Configuration of the current [Cbor] instance available through [Cbor.configuration].
  *
- *  * Can be used for debug purposes and for custom Json-specific serializers
+ *  * Can be used for debug purposes and for custom Cbor-specific serializers
  *  * via [CborEncoder] and [CborDecoder].
  *
  * @param encodeDefaults specifies whether default values of Kotlin properties are encoded.

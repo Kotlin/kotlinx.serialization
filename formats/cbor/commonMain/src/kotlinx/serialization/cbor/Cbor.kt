@@ -47,7 +47,7 @@ public sealed class Cbor(
         ) {
 
         /**
-         * Preconfigured instance of [Cbor] for COSE compliance. Writes and verifies all tags, uses definite length
+         * Preconfigured instance of [Cbor] for COSE compliance. Encodes and verifies all tags, uses definite length
          * encoding and prefers labels to serial names. **DOES NOT** sort CBOR map keys; declare them in canonical order
          * for full cbor compliance!
          */

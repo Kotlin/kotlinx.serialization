@@ -245,13 +245,13 @@ The  [`@KeyTags`](Tags.kt) and [`@ValueTags`](Tags.kt) annotations can be used t
 writing and verifying such tags can be toggled using the  `encodeKeyTags`, `encodeValueTags`, `verifyKeyTags`, and
 `verifyValueTags` configuration switches respectively.
 In addition, it is possible to directly declare classes to always be tagged.
-This then applies to isolated objects of such a tagged class being serialized and to objects of such a class used as
-values in a list, but also or when they are used as a property in another class.
+This then applies to all instances of such a tagged class, regardless of whether they are used as values in a list
+or when they are used as a property in another class.
 Forcing objects to always be tagged in such a manner is accomplished by the [`@ObjectTags`](Tags.kt) annotation,
 which works just as `ValueTags`, but for class definitions.
 When serializing, `ObjectTags` will always be encoded directly before to the data of the tagged object, i.e. a
 value-tagged property of an object-tagged type will have the value tags preceding the object tags.
-Writing and verifying object tags can be toggled using the `encodeObjectTags` and `encodeObjectTags` configuration
+Writing and verifying object tags can be toggled using the `encodeObjectTags` and `verifyObjectTags` configuration
 switches. Note that verifying only value tags can result in some data with superfluous tags to still deserialize
 successfully, since in this case - by definition - only a partial validation of tags happens.
 Well-known tags are specified in [`CborTag`](Tags.kt).
@@ -308,7 +308,7 @@ This may be used to encode COSE structures, see [RFC 9052 2. Basic COSE Structur
 ### Custom CBOR-specific Serializers
 Cbor encoders and decoders implement the interfaces [CborEncoder](CborEncoder.kt) and [CborDecoder](CborDecoder.kt), respectively.
 These interfaces contain a single property, `cbor`, exposing the current CBOR serialization configuration.
-This enables custom cbor-specific serializers to reuse teh current `cbor` instance to produce embedded byte arrays or
+This enables custom cbor-specific serializers to reuse the current `Cbor` instance to produce embedded byte arrays or
 react to configuration settings such as `preferCborLabelsOverNames` or `useDefiniteLengthEncoding`, for example.
 
 ## ProtoBuf (experimental)
