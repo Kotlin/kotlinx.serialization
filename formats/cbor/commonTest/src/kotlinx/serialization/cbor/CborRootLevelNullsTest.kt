@@ -15,7 +15,9 @@ class CborRootLevelNullsTest {
     @Test
     fun testNull() {
         val obj: Simple? = null
-        val content = Cbor.encodeToByteArray(Simple.serializer().nullable, obj)
-        assertTrue(content.contentEquals(byteArrayOf(0xf6.toByte())))
+        listOf(Cbor, Cbor { useDefiniteLengthEncoding = true }).forEach {
+            val content = it.encodeToByteArray(Simple.serializer().nullable, obj)
+            assertTrue(content.contentEquals(byteArrayOf(0xf6.toByte())))
+        }
     }
 }

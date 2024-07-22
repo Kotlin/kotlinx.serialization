@@ -13,6 +13,10 @@ stable, these are currently experimental features of Kotlin Serialization.
 * [CBOR (experimental)](#cbor-experimental)
   * [Ignoring unknown keys](#ignoring-unknown-keys)
   * [Byte arrays and CBOR data types](#byte-arrays-and-cbor-data-types)
+  * [Definite vs. Indefinite Length Encoding](#definite-vs-indefinite-length-encoding)
+  * [Tags and Labels](#tags-and-labels)
+  * [Arrays](#arrays)
+  * [Custom CBOR-specific Serializers](#custom-cbor-specific-serializers)
 * [ProtoBuf (experimental)](#protobuf-experimental)
   * [Field numbers](#field-numbers)
   * [Integer types](#integer-types)
@@ -164,6 +168,8 @@ Per the [RFC 7049 Major Types] section, CBOR supports the following data types:
 
 By default, Kotlin `ByteArray` instances are encoded as **major type 4**.
 When **major type 2** is desired, then the [`@ByteString`][ByteString] annotation can be used.
+Moreover, the `alwaysUseByteString` configuration switch allows for globally preferring **major type 2** without needing
+to annotate every `ByteArray` in a class hierarchy.
 
 <!--- INCLUDE
 import kotlinx.serialization.*
@@ -220,6 +226,90 @@ BF               # map(*)
       FF         # primitive(*)
    FF            # primitive(*)
 ```
+
+### Definite vs. Indefinite Length Encoding
+CBOR supports two encodings for maps and arrays: definite and indefinite length encoding. kotlinx.serialization defaults
+to the latter, which means that a map's or array's number of elements is not encoded, but instead a terminating byte is
+appended after the last element.
+Definite length encoding, on the other hand, omits this terminating byte, but instead prepends number of elements
+to the contents of a map or array. The `useDefiniteLengthEncoding` configuration switch allows for toggling between the
+two modes of encoding.
+
+
+### Tags and Labels
+
+CBOR allows for optionally defining *tags* for properties and their values. These tags are encoded into the resulting
+byte string to transport additional information
+(see [RFC 8949 Tagging of Items](https://datatracker.ietf.org/doc/html/rfc8949#name-tagging-of-items) for more info).
+The  [`@KeyTags`](Tags.kt) and [`@ValueTags`](Tags.kt) annotations can be used to define such tags while
+writing and verifying such tags can be toggled using the  `encodeKeyTags`, `encodeValueTags`, `verifyKeyTags`, and
+`verifyValueTags` configuration switches respectively.
+In addition, it is possible to directly declare classes to always be tagged.
+This then applies to all instances of such a tagged class, regardless of whether they are used as values in a list
+or when they are used as a property in another class.
+Forcing objects to always be tagged in such a manner is accomplished by the [`@ObjectTags`](Tags.kt) annotation,
+which works just as `ValueTags`, but for class definitions.
+When serializing, `ObjectTags` will always be encoded directly before to the data of the tagged object, i.e. a
+value-tagged property of an object-tagged type will have the value tags preceding the object tags.
+Writing and verifying object tags can be toggled using the `encodeObjectTags` and `verifyObjectTags` configuration
+switches. Note that verifying only value tags can result in some data with superfluous tags to still deserialize
+successfully, since in this case - by definition - only a partial validation of tags happens.
+Well-known tags are specified in [`CborTag`](Tags.kt).
+
+In addition, CBOR supports keys of all types which work just as `SerialName`s.
+COSE restricts this again to strings and numbers and calls these restricted map keys *labels*. String labels can be
+assigned by using `@SerialName`, while number labels can be assigned using the [`@CborLabel`](CborLabel.kt) annotation.
+The `preferCborLabelsOverNames` configuration switch can be used to prefer number labels over SerialNames in case both
+are present for a property. This duality allows for compact representation of a type when serialized to CBOR, while
+keeping expressive diagnostic names when serializing to JSON.
+
+A predefined Cbor instance (in addition to the default [`Cbor.Default`](Cbor.kt) one) is available, adhering to COSE
+encoding requirements as [`Cbor.CoseCompliant`](Cbor.kt). This instance uses definite length encoding,
+encodes and verifies all tags and prefers labels to serial names.
+
+### Arrays
+
+Classes may be serialized as a CBOR Array (major type 4) instead of a CBOR Map (major type 5).
+
+Example usage:
+
+```
+@Serializable
+data class DataClass(
+    val alg: Int,
+    val kid: String?
+)
+
+Cbor.encodeToByteArray(DataClass(alg = -7, kid = null))
+```
+
+will normally produce a Cbor map: bytes `0xa263616c6726636b6964f6`, or in diagnostic notation:
+
+```
+A2           # map(2)
+   63        # text(3)
+      616C67 # "alg"
+   26        # negative(6)
+   63        # text(3)
+      6B6964 # "kid"
+   F6        # primitive(22)
+```
+
+When annotated with `@CborArray`, serialization of the same object will produce a Cbor array: bytes `0x8226F6`, or in diagnostic notation:
+
+```
+82    # array(2)
+   26 # negative(6)
+   F6 # primitive(22)
+```
+This may be used to encode COSE structures, see [RFC 9052 2. Basic COSE Structure](https://www.rfc-editor.org/rfc/rfc9052#section-2).
+
+
+### Custom CBOR-specific Serializers
+Cbor encoders and decoders implement the interfaces [CborEncoder](CborEncoder.kt) and [CborDecoder](CborDecoder.kt), respectively.
+These interfaces contain a single property, `cbor`, exposing the current CBOR serialization configuration.
+This enables custom cbor-specific serializers to reuse the current `Cbor` instance to produce embedded byte arrays or
+react to configuration settings such as `preferCborLabelsOverNames` or `useDefiniteLengthEncoding`, for example.
 
 ## ProtoBuf (experimental)
 
