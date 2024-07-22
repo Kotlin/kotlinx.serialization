@@ -12,6 +12,14 @@
             <toc-element id="serialization-get-started.md" toc-title="Get started with Kotlin serialization"/>
             <toc-element id="serialization-customization-options.md" toc-title="Serialization customization options"/>
         </toc-element>
+        <toc-element toc-title="Configure JSON serialization">
+            <toc-element id="configure-json-serialization.md" toc-title="JSON serialization overview"/>
+            <toc-element id="serialization-json-configuration.md" toc-title="Customize JSON serialization settings"/>
+            <toc-element id="serialization-json-elements.md" toc-title="Managing JSON elements"/>
+            <toc-element id="serialization-transform-json.md" toc-title="JSON transformation"/>
+        </toc-element>
+        <toc-element id="serialization-polymorphism.md" toc-title="Serialize polymorphic classes"/>
         <toc-element id="create-custom-serializers.md" toc-title="Create custom serializers"/>
+        <toc-element id="alternative-serialization-formats.md" toc-title="Alternative serialization formats"/>
     </chunk>
 </product-profile>

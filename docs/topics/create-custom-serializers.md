@@ -1,7 +1,7 @@
 [//]: # (title: Create custom serializers)
 
-A plugin-generated serializer is convenient, but it may not produce the JSON we want for such a class as `Color`.
-Let's study the alternatives.
+A plugin-generated serializer is convenient, but it may not produce the JSON we want for classes such as `Color`.
+In this section we will cover the alternatives.
 
 ## Primitive serializer
 
