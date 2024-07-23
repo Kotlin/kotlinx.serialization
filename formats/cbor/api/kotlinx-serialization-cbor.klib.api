@@ -6,26 +6,168 @@
 // - Show declarations: true
 
 // Library unique name: <org.jetbrains.kotlinx:kotlinx-serialization-cbor>
-final class kotlinx.serialization.cbor/CborBuilder { // kotlinx.serialization.cbor/CborBuilder|null[0]
-    final var encodeDefaults // kotlinx.serialization.cbor/CborBuilder.encodeDefaults|{}encodeDefaults[0]
-        final fun <get-encodeDefaults>(): kotlin/Boolean // kotlinx.serialization.cbor/CborBuilder.encodeDefaults.<get-encodeDefaults>|<get-encodeDefaults>(){}[0]
-        final fun <set-encodeDefaults>(kotlin/Boolean) // kotlinx.serialization.cbor/CborBuilder.encodeDefaults.<set-encodeDefaults>|<set-encodeDefaults>(kotlin.Boolean){}[0]
-    final var ignoreUnknownKeys // kotlinx.serialization.cbor/CborBuilder.ignoreUnknownKeys|{}ignoreUnknownKeys[0]
-        final fun <get-ignoreUnknownKeys>(): kotlin/Boolean // kotlinx.serialization.cbor/CborBuilder.ignoreUnknownKeys.<get-ignoreUnknownKeys>|<get-ignoreUnknownKeys>(){}[0]
-        final fun <set-ignoreUnknownKeys>(kotlin/Boolean) // kotlinx.serialization.cbor/CborBuilder.ignoreUnknownKeys.<set-ignoreUnknownKeys>|<set-ignoreUnknownKeys>(kotlin.Boolean){}[0]
-    final var serializersModule // kotlinx.serialization.cbor/CborBuilder.serializersModule|{}serializersModule[0]
-        final fun <get-serializersModule>(): kotlinx.serialization.modules/SerializersModule // kotlinx.serialization.cbor/CborBuilder.serializersModule.<get-serializersModule>|<get-serializersModule>(){}[0]
-        final fun <set-serializersModule>(kotlinx.serialization.modules/SerializersModule) // kotlinx.serialization.cbor/CborBuilder.serializersModule.<set-serializersModule>|<set-serializersModule>(kotlinx.serialization.modules.SerializersModule){}[0]
-}
-final fun kotlinx.serialization.cbor/Cbor(kotlinx.serialization.cbor/Cbor = ..., kotlin/Function1<kotlinx.serialization.cbor/CborBuilder, kotlin/Unit>): kotlinx.serialization.cbor/Cbor // kotlinx.serialization.cbor/Cbor|Cbor(kotlinx.serialization.cbor.Cbor;kotlin.Function1<kotlinx.serialization.cbor.CborBuilder,kotlin.Unit>){}[0]
 open annotation class kotlinx.serialization.cbor/ByteString : kotlin/Annotation { // kotlinx.serialization.cbor/ByteString|null[0]
     constructor <init>() // kotlinx.serialization.cbor/ByteString.<init>|<init>(){}[0]
 }
+
+open annotation class kotlinx.serialization.cbor/CborArray : kotlin/Annotation { // kotlinx.serialization.cbor/CborArray|null[0]
+    constructor <init>() // kotlinx.serialization.cbor/CborArray.<init>|<init>(){}[0]
+}
+
+open annotation class kotlinx.serialization.cbor/CborLabel : kotlin/Annotation { // kotlinx.serialization.cbor/CborLabel|null[0]
+    constructor <init>(kotlin/Long) // kotlinx.serialization.cbor/CborLabel.<init>|<init>(kotlin.Long){}[0]
+
+    final val label // kotlinx.serialization.cbor/CborLabel.label|{}label[0]
+        final fun <get-label>(): kotlin/Long // kotlinx.serialization.cbor/CborLabel.label.<get-label>|<get-label>(){}[0]
+}
+
+open annotation class kotlinx.serialization.cbor/KeyTags : kotlin/Annotation { // kotlinx.serialization.cbor/KeyTags|null[0]
+    constructor <init>(kotlin/ULongArray...) // kotlinx.serialization.cbor/KeyTags.<init>|<init>(kotlin.ULongArray...){}[0]
+
+    final val tags // kotlinx.serialization.cbor/KeyTags.tags|{}tags[0]
+        final fun <get-tags>(): kotlin/ULongArray // kotlinx.serialization.cbor/KeyTags.tags.<get-tags>|<get-tags>(){}[0]
+}
+
+open annotation class kotlinx.serialization.cbor/ObjectTags : kotlin/Annotation { // kotlinx.serialization.cbor/ObjectTags|null[0]
+    constructor <init>(kotlin/ULongArray...) // kotlinx.serialization.cbor/ObjectTags.<init>|<init>(kotlin.ULongArray...){}[0]
+
+    final val tags // kotlinx.serialization.cbor/ObjectTags.tags|{}tags[0]
+        final fun <get-tags>(): kotlin/ULongArray // kotlinx.serialization.cbor/ObjectTags.tags.<get-tags>|<get-tags>(){}[0]
+}
+
+open annotation class kotlinx.serialization.cbor/ValueTags : kotlin/Annotation { // kotlinx.serialization.cbor/ValueTags|null[0]
+    constructor <init>(kotlin/ULongArray...) // kotlinx.serialization.cbor/ValueTags.<init>|<init>(kotlin.ULongArray...){}[0]
+
+    final val tags // kotlinx.serialization.cbor/ValueTags.tags|{}tags[0]
+        final fun <get-tags>(): kotlin/ULongArray // kotlinx.serialization.cbor/ValueTags.tags.<get-tags>|<get-tags>(){}[0]
+}
+
+abstract interface kotlinx.serialization.cbor/CborDecoder : kotlinx.serialization.encoding/Decoder { // kotlinx.serialization.cbor/CborDecoder|null[0]
+    abstract val cbor // kotlinx.serialization.cbor/CborDecoder.cbor|{}cbor[0]
+        abstract fun <get-cbor>(): kotlinx.serialization.cbor/Cbor // kotlinx.serialization.cbor/CborDecoder.cbor.<get-cbor>|<get-cbor>(){}[0]
+}
+
+abstract interface kotlinx.serialization.cbor/CborEncoder : kotlinx.serialization.encoding/Encoder { // kotlinx.serialization.cbor/CborEncoder|null[0]
+    abstract val cbor // kotlinx.serialization.cbor/CborEncoder.cbor|{}cbor[0]
+        abstract fun <get-cbor>(): kotlinx.serialization.cbor/Cbor // kotlinx.serialization.cbor/CborEncoder.cbor.<get-cbor>|<get-cbor>(){}[0]
+}
+
+final class kotlinx.serialization.cbor/CborBuilder { // kotlinx.serialization.cbor/CborBuilder|null[0]
+    final var alwaysUseByteString // kotlinx.serialization.cbor/CborBuilder.alwaysUseByteString|{}alwaysUseByteString[0]
+        final fun <get-alwaysUseByteString>(): kotlin/Boolean // kotlinx.serialization.cbor/CborBuilder.alwaysUseByteString.<get-alwaysUseByteString>|<get-alwaysUseByteString>(){}[0]
+        final fun <set-alwaysUseByteString>(kotlin/Boolean) // kotlinx.serialization.cbor/CborBuilder.alwaysUseByteString.<set-alwaysUseByteString>|<set-alwaysUseByteString>(kotlin.Boolean){}[0]
+    final var encodeDefaults // kotlinx.serialization.cbor/CborBuilder.encodeDefaults|{}encodeDefaults[0]
+        final fun <get-encodeDefaults>(): kotlin/Boolean // kotlinx.serialization.cbor/CborBuilder.encodeDefaults.<get-encodeDefaults>|<get-encodeDefaults>(){}[0]
+        final fun <set-encodeDefaults>(kotlin/Boolean) // kotlinx.serialization.cbor/CborBuilder.encodeDefaults.<set-encodeDefaults>|<set-encodeDefaults>(kotlin.Boolean){}[0]
+    final var encodeKeyTags // kotlinx.serialization.cbor/CborBuilder.encodeKeyTags|{}encodeKeyTags[0]
+        final fun <get-encodeKeyTags>(): kotlin/Boolean // kotlinx.serialization.cbor/CborBuilder.encodeKeyTags.<get-encodeKeyTags>|<get-encodeKeyTags>(){}[0]
+        final fun <set-encodeKeyTags>(kotlin/Boolean) // kotlinx.serialization.cbor/CborBuilder.encodeKeyTags.<set-encodeKeyTags>|<set-encodeKeyTags>(kotlin.Boolean){}[0]
+    final var encodeObjectTags // kotlinx.serialization.cbor/CborBuilder.encodeObjectTags|{}encodeObjectTags[0]
+        final fun <get-encodeObjectTags>(): kotlin/Boolean // kotlinx.serialization.cbor/CborBuilder.encodeObjectTags.<get-encodeObjectTags>|<get-encodeObjectTags>(){}[0]
+        final fun <set-encodeObjectTags>(kotlin/Boolean) // kotlinx.serialization.cbor/CborBuilder.encodeObjectTags.<set-encodeObjectTags>|<set-encodeObjectTags>(kotlin.Boolean){}[0]
+    final var encodeValueTags // kotlinx.serialization.cbor/CborBuilder.encodeValueTags|{}encodeValueTags[0]
+        final fun <get-encodeValueTags>(): kotlin/Boolean // kotlinx.serialization.cbor/CborBuilder.encodeValueTags.<get-encodeValueTags>|<get-encodeValueTags>(){}[0]
+        final fun <set-encodeValueTags>(kotlin/Boolean) // kotlinx.serialization.cbor/CborBuilder.encodeValueTags.<set-encodeValueTags>|<set-encodeValueTags>(kotlin.Boolean){}[0]
+    final var ignoreUnknownKeys // kotlinx.serialization.cbor/CborBuilder.ignoreUnknownKeys|{}ignoreUnknownKeys[0]
+        final fun <get-ignoreUnknownKeys>(): kotlin/Boolean // kotlinx.serialization.cbor/CborBuilder.ignoreUnknownKeys.<get-ignoreUnknownKeys>|<get-ignoreUnknownKeys>(){}[0]
+        final fun <set-ignoreUnknownKeys>(kotlin/Boolean) // kotlinx.serialization.cbor/CborBuilder.ignoreUnknownKeys.<set-ignoreUnknownKeys>|<set-ignoreUnknownKeys>(kotlin.Boolean){}[0]
+    final var preferCborLabelsOverNames // kotlinx.serialization.cbor/CborBuilder.preferCborLabelsOverNames|{}preferCborLabelsOverNames[0]
+        final fun <get-preferCborLabelsOverNames>(): kotlin/Boolean // kotlinx.serialization.cbor/CborBuilder.preferCborLabelsOverNames.<get-preferCborLabelsOverNames>|<get-preferCborLabelsOverNames>(){}[0]
+        final fun <set-preferCborLabelsOverNames>(kotlin/Boolean) // kotlinx.serialization.cbor/CborBuilder.preferCborLabelsOverNames.<set-preferCborLabelsOverNames>|<set-preferCborLabelsOverNames>(kotlin.Boolean){}[0]
+    final var serializersModule // kotlinx.serialization.cbor/CborBuilder.serializersModule|{}serializersModule[0]
+        final fun <get-serializersModule>(): kotlinx.serialization.modules/SerializersModule // kotlinx.serialization.cbor/CborBuilder.serializersModule.<get-serializersModule>|<get-serializersModule>(){}[0]
+        final fun <set-serializersModule>(kotlinx.serialization.modules/SerializersModule) // kotlinx.serialization.cbor/CborBuilder.serializersModule.<set-serializersModule>|<set-serializersModule>(kotlinx.serialization.modules.SerializersModule){}[0]
+    final var useDefiniteLengthEncoding // kotlinx.serialization.cbor/CborBuilder.useDefiniteLengthEncoding|{}useDefiniteLengthEncoding[0]
+        final fun <get-useDefiniteLengthEncoding>(): kotlin/Boolean // kotlinx.serialization.cbor/CborBuilder.useDefiniteLengthEncoding.<get-useDefiniteLengthEncoding>|<get-useDefiniteLengthEncoding>(){}[0]
+        final fun <set-useDefiniteLengthEncoding>(kotlin/Boolean) // kotlinx.serialization.cbor/CborBuilder.useDefiniteLengthEncoding.<set-useDefiniteLengthEncoding>|<set-useDefiniteLengthEncoding>(kotlin.Boolean){}[0]
+    final var verifyKeyTags // kotlinx.serialization.cbor/CborBuilder.verifyKeyTags|{}verifyKeyTags[0]
+        final fun <get-verifyKeyTags>(): kotlin/Boolean // kotlinx.serialization.cbor/CborBuilder.verifyKeyTags.<get-verifyKeyTags>|<get-verifyKeyTags>(){}[0]
+        final fun <set-verifyKeyTags>(kotlin/Boolean) // kotlinx.serialization.cbor/CborBuilder.verifyKeyTags.<set-verifyKeyTags>|<set-verifyKeyTags>(kotlin.Boolean){}[0]
+    final var verifyObjectTags // kotlinx.serialization.cbor/CborBuilder.verifyObjectTags|{}verifyObjectTags[0]
+        final fun <get-verifyObjectTags>(): kotlin/Boolean // kotlinx.serialization.cbor/CborBuilder.verifyObjectTags.<get-verifyObjectTags>|<get-verifyObjectTags>(){}[0]
+        final fun <set-verifyObjectTags>(kotlin/Boolean) // kotlinx.serialization.cbor/CborBuilder.verifyObjectTags.<set-verifyObjectTags>|<set-verifyObjectTags>(kotlin.Boolean){}[0]
+    final var verifyValueTags // kotlinx.serialization.cbor/CborBuilder.verifyValueTags|{}verifyValueTags[0]
+        final fun <get-verifyValueTags>(): kotlin/Boolean // kotlinx.serialization.cbor/CborBuilder.verifyValueTags.<get-verifyValueTags>|<get-verifyValueTags>(){}[0]
+        final fun <set-verifyValueTags>(kotlin/Boolean) // kotlinx.serialization.cbor/CborBuilder.verifyValueTags.<set-verifyValueTags>|<set-verifyValueTags>(kotlin.Boolean){}[0]
+}
+
+final class kotlinx.serialization.cbor/CborConfiguration { // kotlinx.serialization.cbor/CborConfiguration|null[0]
+    final val alwaysUseByteString // kotlinx.serialization.cbor/CborConfiguration.alwaysUseByteString|{}alwaysUseByteString[0]
+        final fun <get-alwaysUseByteString>(): kotlin/Boolean // kotlinx.serialization.cbor/CborConfiguration.alwaysUseByteString.<get-alwaysUseByteString>|<get-alwaysUseByteString>(){}[0]
+    final val encodeDefaults // kotlinx.serialization.cbor/CborConfiguration.encodeDefaults|{}encodeDefaults[0]
+        final fun <get-encodeDefaults>(): kotlin/Boolean // kotlinx.serialization.cbor/CborConfiguration.encodeDefaults.<get-encodeDefaults>|<get-encodeDefaults>(){}[0]
+    final val encodeKeyTags // kotlinx.serialization.cbor/CborConfiguration.encodeKeyTags|{}encodeKeyTags[0]
+        final fun <get-encodeKeyTags>(): kotlin/Boolean // kotlinx.serialization.cbor/CborConfiguration.encodeKeyTags.<get-encodeKeyTags>|<get-encodeKeyTags>(){}[0]
+    final val encodeObjectTags // kotlinx.serialization.cbor/CborConfiguration.encodeObjectTags|{}encodeObjectTags[0]
+        final fun <get-encodeObjectTags>(): kotlin/Boolean // kotlinx.serialization.cbor/CborConfiguration.encodeObjectTags.<get-encodeObjectTags>|<get-encodeObjectTags>(){}[0]
+    final val encodeValueTags // kotlinx.serialization.cbor/CborConfiguration.encodeValueTags|{}encodeValueTags[0]
+        final fun <get-encodeValueTags>(): kotlin/Boolean // kotlinx.serialization.cbor/CborConfiguration.encodeValueTags.<get-encodeValueTags>|<get-encodeValueTags>(){}[0]
+    final val ignoreUnknownKeys // kotlinx.serialization.cbor/CborConfiguration.ignoreUnknownKeys|{}ignoreUnknownKeys[0]
+        final fun <get-ignoreUnknownKeys>(): kotlin/Boolean // kotlinx.serialization.cbor/CborConfiguration.ignoreUnknownKeys.<get-ignoreUnknownKeys>|<get-ignoreUnknownKeys>(){}[0]
+    final val preferCborLabelsOverNames // kotlinx.serialization.cbor/CborConfiguration.preferCborLabelsOverNames|{}preferCborLabelsOverNames[0]
+        final fun <get-preferCborLabelsOverNames>(): kotlin/Boolean // kotlinx.serialization.cbor/CborConfiguration.preferCborLabelsOverNames.<get-preferCborLabelsOverNames>|<get-preferCborLabelsOverNames>(){}[0]
+    final val useDefiniteLengthEncoding // kotlinx.serialization.cbor/CborConfiguration.useDefiniteLengthEncoding|{}useDefiniteLengthEncoding[0]
+        final fun <get-useDefiniteLengthEncoding>(): kotlin/Boolean // kotlinx.serialization.cbor/CborConfiguration.useDefiniteLengthEncoding.<get-useDefiniteLengthEncoding>|<get-useDefiniteLengthEncoding>(){}[0]
+    final val verifyKeyTags // kotlinx.serialization.cbor/CborConfiguration.verifyKeyTags|{}verifyKeyTags[0]
+        final fun <get-verifyKeyTags>(): kotlin/Boolean // kotlinx.serialization.cbor/CborConfiguration.verifyKeyTags.<get-verifyKeyTags>|<get-verifyKeyTags>(){}[0]
+    final val verifyObjectTags // kotlinx.serialization.cbor/CborConfiguration.verifyObjectTags|{}verifyObjectTags[0]
+        final fun <get-verifyObjectTags>(): kotlin/Boolean // kotlinx.serialization.cbor/CborConfiguration.verifyObjectTags.<get-verifyObjectTags>|<get-verifyObjectTags>(){}[0]
+    final val verifyValueTags // kotlinx.serialization.cbor/CborConfiguration.verifyValueTags|{}verifyValueTags[0]
+        final fun <get-verifyValueTags>(): kotlin/Boolean // kotlinx.serialization.cbor/CborConfiguration.verifyValueTags.<get-verifyValueTags>|<get-verifyValueTags>(){}[0]
+
+    final fun toString(): kotlin/String // kotlinx.serialization.cbor/CborConfiguration.toString|toString(){}[0]
+}
+
 sealed class kotlinx.serialization.cbor/Cbor : kotlinx.serialization/BinaryFormat { // kotlinx.serialization.cbor/Cbor|null[0]
-    constructor <init>(kotlin/Boolean, kotlin/Boolean, kotlinx.serialization.modules/SerializersModule) // kotlinx.serialization.cbor/Cbor.<init>|<init>(kotlin.Boolean;kotlin.Boolean;kotlinx.serialization.modules.SerializersModule){}[0]
-    final object Default : kotlinx.serialization.cbor/Cbor // kotlinx.serialization.cbor/Cbor.Default|null[0]
-    open fun <#A1: kotlin/Any?> decodeFromByteArray(kotlinx.serialization/DeserializationStrategy<#A1>, kotlin/ByteArray): #A1 // kotlinx.serialization.cbor/Cbor.decodeFromByteArray|decodeFromByteArray(kotlinx.serialization.DeserializationStrategy<0:0>;kotlin.ByteArray){0§<kotlin.Any?>}[0]
-    open fun <#A1: kotlin/Any?> encodeToByteArray(kotlinx.serialization/SerializationStrategy<#A1>, #A1): kotlin/ByteArray // kotlinx.serialization.cbor/Cbor.encodeToByteArray|encodeToByteArray(kotlinx.serialization.SerializationStrategy<0:0>;0:0){0§<kotlin.Any?>}[0]
+    constructor <init>(kotlinx.serialization.cbor/CborConfiguration, kotlinx.serialization.modules/SerializersModule) // kotlinx.serialization.cbor/Cbor.<init>|<init>(kotlinx.serialization.cbor.CborConfiguration;kotlinx.serialization.modules.SerializersModule){}[0]
+
+    final val configuration // kotlinx.serialization.cbor/Cbor.configuration|{}configuration[0]
+        final fun <get-configuration>(): kotlinx.serialization.cbor/CborConfiguration // kotlinx.serialization.cbor/Cbor.configuration.<get-configuration>|<get-configuration>(){}[0]
     open val serializersModule // kotlinx.serialization.cbor/Cbor.serializersModule|{}serializersModule[0]
         open fun <get-serializersModule>(): kotlinx.serialization.modules/SerializersModule // kotlinx.serialization.cbor/Cbor.serializersModule.<get-serializersModule>|<get-serializersModule>(){}[0]
+
+    open fun <#A1: kotlin/Any?> decodeFromByteArray(kotlinx.serialization/DeserializationStrategy<#A1>, kotlin/ByteArray): #A1 // kotlinx.serialization.cbor/Cbor.decodeFromByteArray|decodeFromByteArray(kotlinx.serialization.DeserializationStrategy<0:0>;kotlin.ByteArray){0§<kotlin.Any?>}[0]
+    open fun <#A1: kotlin/Any?> encodeToByteArray(kotlinx.serialization/SerializationStrategy<#A1>, #A1): kotlin/ByteArray // kotlinx.serialization.cbor/Cbor.encodeToByteArray|encodeToByteArray(kotlinx.serialization.SerializationStrategy<0:0>;0:0){0§<kotlin.Any?>}[0]
+
+    final object Default : kotlinx.serialization.cbor/Cbor { // kotlinx.serialization.cbor/Cbor.Default|null[0]
+        final val CoseCompliant // kotlinx.serialization.cbor/Cbor.Default.CoseCompliant|{}CoseCompliant[0]
+            final fun <get-CoseCompliant>(): kotlinx.serialization.cbor/Cbor // kotlinx.serialization.cbor/Cbor.Default.CoseCompliant.<get-CoseCompliant>|<get-CoseCompliant>(){}[0]
+    }
 }
+
+final object kotlinx.serialization.cbor/CborTag { // kotlinx.serialization.cbor/CborTag|null[0]
+    final const val BASE16 // kotlinx.serialization.cbor/CborTag.BASE16|{}BASE16[0]
+        final fun <get-BASE16>(): kotlin/ULong // kotlinx.serialization.cbor/CborTag.BASE16.<get-BASE16>|<get-BASE16>(){}[0]
+    final const val BASE64 // kotlinx.serialization.cbor/CborTag.BASE64|{}BASE64[0]
+        final fun <get-BASE64>(): kotlin/ULong // kotlinx.serialization.cbor/CborTag.BASE64.<get-BASE64>|<get-BASE64>(){}[0]
+    final const val BASE64_URL // kotlinx.serialization.cbor/CborTag.BASE64_URL|{}BASE64_URL[0]
+        final fun <get-BASE64_URL>(): kotlin/ULong // kotlinx.serialization.cbor/CborTag.BASE64_URL.<get-BASE64_URL>|<get-BASE64_URL>(){}[0]
+    final const val BIGFLOAT // kotlinx.serialization.cbor/CborTag.BIGFLOAT|{}BIGFLOAT[0]
+        final fun <get-BIGFLOAT>(): kotlin/ULong // kotlinx.serialization.cbor/CborTag.BIGFLOAT.<get-BIGFLOAT>|<get-BIGFLOAT>(){}[0]
+    final const val BIGNUM_NEGAIVE // kotlinx.serialization.cbor/CborTag.BIGNUM_NEGAIVE|{}BIGNUM_NEGAIVE[0]
+        final fun <get-BIGNUM_NEGAIVE>(): kotlin/ULong // kotlinx.serialization.cbor/CborTag.BIGNUM_NEGAIVE.<get-BIGNUM_NEGAIVE>|<get-BIGNUM_NEGAIVE>(){}[0]
+    final const val BIGNUM_POSITIVE // kotlinx.serialization.cbor/CborTag.BIGNUM_POSITIVE|{}BIGNUM_POSITIVE[0]
+        final fun <get-BIGNUM_POSITIVE>(): kotlin/ULong // kotlinx.serialization.cbor/CborTag.BIGNUM_POSITIVE.<get-BIGNUM_POSITIVE>|<get-BIGNUM_POSITIVE>(){}[0]
+    final const val CBOR_ENCODED_DATA // kotlinx.serialization.cbor/CborTag.CBOR_ENCODED_DATA|{}CBOR_ENCODED_DATA[0]
+        final fun <get-CBOR_ENCODED_DATA>(): kotlin/ULong // kotlinx.serialization.cbor/CborTag.CBOR_ENCODED_DATA.<get-CBOR_ENCODED_DATA>|<get-CBOR_ENCODED_DATA>(){}[0]
+    final const val CBOR_SELF_DESCRIBE // kotlinx.serialization.cbor/CborTag.CBOR_SELF_DESCRIBE|{}CBOR_SELF_DESCRIBE[0]
+        final fun <get-CBOR_SELF_DESCRIBE>(): kotlin/ULong // kotlinx.serialization.cbor/CborTag.CBOR_SELF_DESCRIBE.<get-CBOR_SELF_DESCRIBE>|<get-CBOR_SELF_DESCRIBE>(){}[0]
+    final const val DATE_TIME_EPOCH // kotlinx.serialization.cbor/CborTag.DATE_TIME_EPOCH|{}DATE_TIME_EPOCH[0]
+        final fun <get-DATE_TIME_EPOCH>(): kotlin/ULong // kotlinx.serialization.cbor/CborTag.DATE_TIME_EPOCH.<get-DATE_TIME_EPOCH>|<get-DATE_TIME_EPOCH>(){}[0]
+    final const val DATE_TIME_STANDARD // kotlinx.serialization.cbor/CborTag.DATE_TIME_STANDARD|{}DATE_TIME_STANDARD[0]
+        final fun <get-DATE_TIME_STANDARD>(): kotlin/ULong // kotlinx.serialization.cbor/CborTag.DATE_TIME_STANDARD.<get-DATE_TIME_STANDARD>|<get-DATE_TIME_STANDARD>(){}[0]
+    final const val DECIMAL_FRACTION // kotlinx.serialization.cbor/CborTag.DECIMAL_FRACTION|{}DECIMAL_FRACTION[0]
+        final fun <get-DECIMAL_FRACTION>(): kotlin/ULong // kotlinx.serialization.cbor/CborTag.DECIMAL_FRACTION.<get-DECIMAL_FRACTION>|<get-DECIMAL_FRACTION>(){}[0]
+    final const val MIME_MESSAGE // kotlinx.serialization.cbor/CborTag.MIME_MESSAGE|{}MIME_MESSAGE[0]
+        final fun <get-MIME_MESSAGE>(): kotlin/ULong // kotlinx.serialization.cbor/CborTag.MIME_MESSAGE.<get-MIME_MESSAGE>|<get-MIME_MESSAGE>(){}[0]
+    final const val REGEX // kotlinx.serialization.cbor/CborTag.REGEX|{}REGEX[0]
+        final fun <get-REGEX>(): kotlin/ULong // kotlinx.serialization.cbor/CborTag.REGEX.<get-REGEX>|<get-REGEX>(){}[0]
+    final const val STRING_BASE64 // kotlinx.serialization.cbor/CborTag.STRING_BASE64|{}STRING_BASE64[0]
+        final fun <get-STRING_BASE64>(): kotlin/ULong // kotlinx.serialization.cbor/CborTag.STRING_BASE64.<get-STRING_BASE64>|<get-STRING_BASE64>(){}[0]
+    final const val STRING_BASE64_URL // kotlinx.serialization.cbor/CborTag.STRING_BASE64_URL|{}STRING_BASE64_URL[0]
+        final fun <get-STRING_BASE64_URL>(): kotlin/ULong // kotlinx.serialization.cbor/CborTag.STRING_BASE64_URL.<get-STRING_BASE64_URL>|<get-STRING_BASE64_URL>(){}[0]
+    final const val URI // kotlinx.serialization.cbor/CborTag.URI|{}URI[0]
+        final fun <get-URI>(): kotlin/ULong // kotlinx.serialization.cbor/CborTag.URI.<get-URI>|<get-URI>(){}[0]
+}
+
+final fun kotlinx.serialization.cbor/Cbor(kotlinx.serialization.cbor/Cbor = ..., kotlin/Function1<kotlinx.serialization.cbor/CborBuilder, kotlin/Unit>): kotlinx.serialization.cbor/Cbor // kotlinx.serialization.cbor/Cbor|Cbor(kotlinx.serialization.cbor.Cbor;kotlin.Function1<kotlinx.serialization.cbor.CborBuilder,kotlin.Unit>){}[0]
