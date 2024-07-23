@@ -6,6 +6,40 @@
 // - Show declarations: true
 
 // Library unique name: <org.jetbrains.kotlinx:kotlinx-serialization-protobuf>
+open annotation class kotlinx.serialization.protobuf/ProtoNumber : kotlin/Annotation { // kotlinx.serialization.protobuf/ProtoNumber|null[0]
+    constructor <init>(kotlin/Int) // kotlinx.serialization.protobuf/ProtoNumber.<init>|<init>(kotlin.Int){}[0]
+
+    final val number // kotlinx.serialization.protobuf/ProtoNumber.number|{}number[0]
+        final fun <get-number>(): kotlin/Int // kotlinx.serialization.protobuf/ProtoNumber.number.<get-number>|<get-number>(){}[0]
+}
+
+open annotation class kotlinx.serialization.protobuf/ProtoOneOf : kotlin/Annotation { // kotlinx.serialization.protobuf/ProtoOneOf|null[0]
+    constructor <init>() // kotlinx.serialization.protobuf/ProtoOneOf.<init>|<init>(){}[0]
+}
+
+open annotation class kotlinx.serialization.protobuf/ProtoPacked : kotlin/Annotation { // kotlinx.serialization.protobuf/ProtoPacked|null[0]
+    constructor <init>() // kotlinx.serialization.protobuf/ProtoPacked.<init>|<init>(){}[0]
+}
+
+open annotation class kotlinx.serialization.protobuf/ProtoType : kotlin/Annotation { // kotlinx.serialization.protobuf/ProtoType|null[0]
+    constructor <init>(kotlinx.serialization.protobuf/ProtoIntegerType) // kotlinx.serialization.protobuf/ProtoType.<init>|<init>(kotlinx.serialization.protobuf.ProtoIntegerType){}[0]
+
+    final val type // kotlinx.serialization.protobuf/ProtoType.type|{}type[0]
+        final fun <get-type>(): kotlinx.serialization.protobuf/ProtoIntegerType // kotlinx.serialization.protobuf/ProtoType.type.<get-type>|<get-type>(){}[0]
+}
+
+final enum class kotlinx.serialization.protobuf/ProtoIntegerType : kotlin/Enum<kotlinx.serialization.protobuf/ProtoIntegerType> { // kotlinx.serialization.protobuf/ProtoIntegerType|null[0]
+    enum entry DEFAULT // kotlinx.serialization.protobuf/ProtoIntegerType.DEFAULT|null[0]
+    enum entry FIXED // kotlinx.serialization.protobuf/ProtoIntegerType.FIXED|null[0]
+    enum entry SIGNED // kotlinx.serialization.protobuf/ProtoIntegerType.SIGNED|null[0]
+
+    final val entries // kotlinx.serialization.protobuf/ProtoIntegerType.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<kotlinx.serialization.protobuf/ProtoIntegerType> // kotlinx.serialization.protobuf/ProtoIntegerType.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): kotlinx.serialization.protobuf/ProtoIntegerType // kotlinx.serialization.protobuf/ProtoIntegerType.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<kotlinx.serialization.protobuf/ProtoIntegerType> // kotlinx.serialization.protobuf/ProtoIntegerType.values|values#static(){}[0]
+}
+
 final class kotlinx.serialization.protobuf/ProtoBufBuilder { // kotlinx.serialization.protobuf/ProtoBufBuilder|null[0]
     final var encodeDefaults // kotlinx.serialization.protobuf/ProtoBufBuilder.encodeDefaults|{}encodeDefaults[0]
         final fun <get-encodeDefaults>(): kotlin/Boolean // kotlinx.serialization.protobuf/ProtoBufBuilder.encodeDefaults.<get-encodeDefaults>|<get-encodeDefaults>(){}[0]
@@ -14,41 +48,22 @@ final class kotlinx.serialization.protobuf/ProtoBufBuilder { // kotlinx.serializ
         final fun <get-serializersModule>(): kotlinx.serialization.modules/SerializersModule // kotlinx.serialization.protobuf/ProtoBufBuilder.serializersModule.<get-serializersModule>|<get-serializersModule>(){}[0]
         final fun <set-serializersModule>(kotlinx.serialization.modules/SerializersModule) // kotlinx.serialization.protobuf/ProtoBufBuilder.serializersModule.<set-serializersModule>|<set-serializersModule>(kotlinx.serialization.modules.SerializersModule){}[0]
 }
-final enum class kotlinx.serialization.protobuf/ProtoIntegerType : kotlin/Enum<kotlinx.serialization.protobuf/ProtoIntegerType> { // kotlinx.serialization.protobuf/ProtoIntegerType|null[0]
-    enum entry DEFAULT // kotlinx.serialization.protobuf/ProtoIntegerType.DEFAULT|null[0]
-    enum entry FIXED // kotlinx.serialization.protobuf/ProtoIntegerType.FIXED|null[0]
-    enum entry SIGNED // kotlinx.serialization.protobuf/ProtoIntegerType.SIGNED|null[0]
-    final fun valueOf(kotlin/String): kotlinx.serialization.protobuf/ProtoIntegerType // kotlinx.serialization.protobuf/ProtoIntegerType.valueOf|valueOf#static(kotlin.String){}[0]
-    final fun values(): kotlin/Array<kotlinx.serialization.protobuf/ProtoIntegerType> // kotlinx.serialization.protobuf/ProtoIntegerType.values|values#static(){}[0]
-    final val entries // kotlinx.serialization.protobuf/ProtoIntegerType.entries|#static{}entries[0]
-        final fun <get-entries>(): kotlin.enums/EnumEntries<kotlinx.serialization.protobuf/ProtoIntegerType> // kotlinx.serialization.protobuf/ProtoIntegerType.entries.<get-entries>|<get-entries>#static(){}[0]
+
+sealed class kotlinx.serialization.protobuf/ProtoBuf : kotlinx.serialization/BinaryFormat { // kotlinx.serialization.protobuf/ProtoBuf|null[0]
+    constructor <init>(kotlin/Boolean, kotlinx.serialization.modules/SerializersModule) // kotlinx.serialization.protobuf/ProtoBuf.<init>|<init>(kotlin.Boolean;kotlinx.serialization.modules.SerializersModule){}[0]
+
+    open val serializersModule // kotlinx.serialization.protobuf/ProtoBuf.serializersModule|{}serializersModule[0]
+        open fun <get-serializersModule>(): kotlinx.serialization.modules/SerializersModule // kotlinx.serialization.protobuf/ProtoBuf.serializersModule.<get-serializersModule>|<get-serializersModule>(){}[0]
+
+    open fun <#A1: kotlin/Any?> decodeFromByteArray(kotlinx.serialization/DeserializationStrategy<#A1>, kotlin/ByteArray): #A1 // kotlinx.serialization.protobuf/ProtoBuf.decodeFromByteArray|decodeFromByteArray(kotlinx.serialization.DeserializationStrategy<0:0>;kotlin.ByteArray){0§<kotlin.Any?>}[0]
+    open fun <#A1: kotlin/Any?> encodeToByteArray(kotlinx.serialization/SerializationStrategy<#A1>, #A1): kotlin/ByteArray // kotlinx.serialization.protobuf/ProtoBuf.encodeToByteArray|encodeToByteArray(kotlinx.serialization.SerializationStrategy<0:0>;0:0){0§<kotlin.Any?>}[0]
+
+    final object Default : kotlinx.serialization.protobuf/ProtoBuf // kotlinx.serialization.protobuf/ProtoBuf.Default|null[0]
 }
-final fun kotlinx.serialization.protobuf/ProtoBuf(kotlinx.serialization.protobuf/ProtoBuf = ..., kotlin/Function1<kotlinx.serialization.protobuf/ProtoBufBuilder, kotlin/Unit>): kotlinx.serialization.protobuf/ProtoBuf // kotlinx.serialization.protobuf/ProtoBuf|ProtoBuf(kotlinx.serialization.protobuf.ProtoBuf;kotlin.Function1<kotlinx.serialization.protobuf.ProtoBufBuilder,kotlin.Unit>){}[0]
+
 final object kotlinx.serialization.protobuf.schema/ProtoBufSchemaGenerator { // kotlinx.serialization.protobuf.schema/ProtoBufSchemaGenerator|null[0]
     final fun generateSchemaText(kotlin.collections/List<kotlinx.serialization.descriptors/SerialDescriptor>, kotlin/String? = ..., kotlin.collections/Map<kotlin/String, kotlin/String> = ...): kotlin/String // kotlinx.serialization.protobuf.schema/ProtoBufSchemaGenerator.generateSchemaText|generateSchemaText(kotlin.collections.List<kotlinx.serialization.descriptors.SerialDescriptor>;kotlin.String?;kotlin.collections.Map<kotlin.String,kotlin.String>){}[0]
     final fun generateSchemaText(kotlinx.serialization.descriptors/SerialDescriptor, kotlin/String? = ..., kotlin.collections/Map<kotlin/String, kotlin/String> = ...): kotlin/String // kotlinx.serialization.protobuf.schema/ProtoBufSchemaGenerator.generateSchemaText|generateSchemaText(kotlinx.serialization.descriptors.SerialDescriptor;kotlin.String?;kotlin.collections.Map<kotlin.String,kotlin.String>){}[0]
 }
-open annotation class kotlinx.serialization.protobuf/ProtoNumber : kotlin/Annotation { // kotlinx.serialization.protobuf/ProtoNumber|null[0]
-    constructor <init>(kotlin/Int) // kotlinx.serialization.protobuf/ProtoNumber.<init>|<init>(kotlin.Int){}[0]
-    final val number // kotlinx.serialization.protobuf/ProtoNumber.number|{}number[0]
-        final fun <get-number>(): kotlin/Int // kotlinx.serialization.protobuf/ProtoNumber.number.<get-number>|<get-number>(){}[0]
-}
-open annotation class kotlinx.serialization.protobuf/ProtoOneOf : kotlin/Annotation { // kotlinx.serialization.protobuf/ProtoOneOf|null[0]
-    constructor <init>() // kotlinx.serialization.protobuf/ProtoOneOf.<init>|<init>(){}[0]
-}
-open annotation class kotlinx.serialization.protobuf/ProtoPacked : kotlin/Annotation { // kotlinx.serialization.protobuf/ProtoPacked|null[0]
-    constructor <init>() // kotlinx.serialization.protobuf/ProtoPacked.<init>|<init>(){}[0]
-}
-open annotation class kotlinx.serialization.protobuf/ProtoType : kotlin/Annotation { // kotlinx.serialization.protobuf/ProtoType|null[0]
-    constructor <init>(kotlinx.serialization.protobuf/ProtoIntegerType) // kotlinx.serialization.protobuf/ProtoType.<init>|<init>(kotlinx.serialization.protobuf.ProtoIntegerType){}[0]
-    final val type // kotlinx.serialization.protobuf/ProtoType.type|{}type[0]
-        final fun <get-type>(): kotlinx.serialization.protobuf/ProtoIntegerType // kotlinx.serialization.protobuf/ProtoType.type.<get-type>|<get-type>(){}[0]
-}
-sealed class kotlinx.serialization.protobuf/ProtoBuf : kotlinx.serialization/BinaryFormat { // kotlinx.serialization.protobuf/ProtoBuf|null[0]
-    constructor <init>(kotlin/Boolean, kotlinx.serialization.modules/SerializersModule) // kotlinx.serialization.protobuf/ProtoBuf.<init>|<init>(kotlin.Boolean;kotlinx.serialization.modules.SerializersModule){}[0]
-    final object Default : kotlinx.serialization.protobuf/ProtoBuf // kotlinx.serialization.protobuf/ProtoBuf.Default|null[0]
-    open fun <#A1: kotlin/Any?> decodeFromByteArray(kotlinx.serialization/DeserializationStrategy<#A1>, kotlin/ByteArray): #A1 // kotlinx.serialization.protobuf/ProtoBuf.decodeFromByteArray|decodeFromByteArray(kotlinx.serialization.DeserializationStrategy<0:0>;kotlin.ByteArray){0§<kotlin.Any?>}[0]
-    open fun <#A1: kotlin/Any?> encodeToByteArray(kotlinx.serialization/SerializationStrategy<#A1>, #A1): kotlin/ByteArray // kotlinx.serialization.protobuf/ProtoBuf.encodeToByteArray|encodeToByteArray(kotlinx.serialization.SerializationStrategy<0:0>;0:0){0§<kotlin.Any?>}[0]
-    open val serializersModule // kotlinx.serialization.protobuf/ProtoBuf.serializersModule|{}serializersModule[0]
-        open fun <get-serializersModule>(): kotlinx.serialization.modules/SerializersModule // kotlinx.serialization.protobuf/ProtoBuf.serializersModule.<get-serializersModule>|<get-serializersModule>(){}[0]
-}
+
+final fun kotlinx.serialization.protobuf/ProtoBuf(kotlinx.serialization.protobuf/ProtoBuf = ..., kotlin/Function1<kotlinx.serialization.protobuf/ProtoBufBuilder, kotlin/Unit>): kotlinx.serialization.protobuf/ProtoBuf // kotlinx.serialization.protobuf/ProtoBuf|ProtoBuf(kotlinx.serialization.protobuf.ProtoBuf;kotlin.Function1<kotlinx.serialization.protobuf.ProtoBufBuilder,kotlin.Unit>){}[0]

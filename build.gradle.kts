@@ -63,7 +63,7 @@ allprojects {
 
 // == BCV setup ==
 apiValidation {
-    ignoredProjects.addAll(listOf("benchmark", "guide", "kotlinx-serialization"))
+    ignoredProjects.addAll(listOf("benchmark", "guide", "kotlinx-serialization", "kotlinx-serialization-json-tests"))
     @OptIn(ExperimentalBCVApi::class)
     klib {
         enabled = true

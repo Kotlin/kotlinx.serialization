@@ -6,31 +6,58 @@
 // - Show declarations: true
 
 // Library unique name: <org.jetbrains.kotlinx:kotlinx-serialization-json>
-abstract class <#A: kotlin/Any> kotlinx.serialization.json/JsonContentPolymorphicSerializer : kotlinx.serialization/KSerializer<#A> { // kotlinx.serialization.json/JsonContentPolymorphicSerializer|null[0]
-    abstract fun selectDeserializer(kotlinx.serialization.json/JsonElement): kotlinx.serialization/DeserializationStrategy<#A> // kotlinx.serialization.json/JsonContentPolymorphicSerializer.selectDeserializer|selectDeserializer(kotlinx.serialization.json.JsonElement){}[0]
-    constructor <init>(kotlin.reflect/KClass<#A>) // kotlinx.serialization.json/JsonContentPolymorphicSerializer.<init>|<init>(kotlin.reflect.KClass<1:0>){}[0]
-    final fun deserialize(kotlinx.serialization.encoding/Decoder): #A // kotlinx.serialization.json/JsonContentPolymorphicSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-    final fun serialize(kotlinx.serialization.encoding/Encoder, #A) // kotlinx.serialization.json/JsonContentPolymorphicSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;1:0){}[0]
-    open val descriptor // kotlinx.serialization.json/JsonContentPolymorphicSerializer.descriptor|{}descriptor[0]
-        open fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // kotlinx.serialization.json/JsonContentPolymorphicSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+open annotation class kotlinx.serialization.json.internal/FormatLanguage : kotlin/Annotation { // kotlinx.serialization.json.internal/FormatLanguage|null[0]
+    constructor <init>(kotlin/String, kotlin/String, kotlin/String) // kotlinx.serialization.json.internal/FormatLanguage.<init>|<init>(kotlin.String;kotlin.String;kotlin.String){}[0]
+
+    final val prefix // kotlinx.serialization.json.internal/FormatLanguage.prefix|{}prefix[0]
+        final fun <get-prefix>(): kotlin/String // kotlinx.serialization.json.internal/FormatLanguage.prefix.<get-prefix>|<get-prefix>(){}[0]
+    final val suffix // kotlinx.serialization.json.internal/FormatLanguage.suffix|{}suffix[0]
+        final fun <get-suffix>(): kotlin/String // kotlinx.serialization.json.internal/FormatLanguage.suffix.<get-suffix>|<get-suffix>(){}[0]
+    final val value // kotlinx.serialization.json.internal/FormatLanguage.value|{}value[0]
+        final fun <get-value>(): kotlin/String // kotlinx.serialization.json.internal/FormatLanguage.value.<get-value>|<get-value>(){}[0]
 }
-abstract class <#A: kotlin/Any> kotlinx.serialization.json/JsonTransformingSerializer : kotlinx.serialization/KSerializer<#A> { // kotlinx.serialization.json/JsonTransformingSerializer|null[0]
-    constructor <init>(kotlinx.serialization/KSerializer<#A>) // kotlinx.serialization.json/JsonTransformingSerializer.<init>|<init>(kotlinx.serialization.KSerializer<1:0>){}[0]
-    final fun deserialize(kotlinx.serialization.encoding/Decoder): #A // kotlinx.serialization.json/JsonTransformingSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-    final fun serialize(kotlinx.serialization.encoding/Encoder, #A) // kotlinx.serialization.json/JsonTransformingSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;1:0){}[0]
-    open fun transformDeserialize(kotlinx.serialization.json/JsonElement): kotlinx.serialization.json/JsonElement // kotlinx.serialization.json/JsonTransformingSerializer.transformDeserialize|transformDeserialize(kotlinx.serialization.json.JsonElement){}[0]
-    open fun transformSerialize(kotlinx.serialization.json/JsonElement): kotlinx.serialization.json/JsonElement // kotlinx.serialization.json/JsonTransformingSerializer.transformSerialize|transformSerialize(kotlinx.serialization.json.JsonElement){}[0]
-    open val descriptor // kotlinx.serialization.json/JsonTransformingSerializer.descriptor|{}descriptor[0]
-        open fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // kotlinx.serialization.json/JsonTransformingSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+open annotation class kotlinx.serialization.json/JsonClassDiscriminator : kotlin/Annotation { // kotlinx.serialization.json/JsonClassDiscriminator|null[0]
+    constructor <init>(kotlin/String) // kotlinx.serialization.json/JsonClassDiscriminator.<init>|<init>(kotlin.String){}[0]
+
+    final val discriminator // kotlinx.serialization.json/JsonClassDiscriminator.discriminator|{}discriminator[0]
+        final fun <get-discriminator>(): kotlin/String // kotlinx.serialization.json/JsonClassDiscriminator.discriminator.<get-discriminator>|<get-discriminator>(){}[0]
 }
-abstract class kotlinx.serialization.json.internal/InternalJsonReaderCodePointImpl : kotlinx.serialization.json.internal/InternalJsonReader { // kotlinx.serialization.json.internal/InternalJsonReaderCodePointImpl|null[0]
-    abstract fun exhausted(): kotlin/Boolean // kotlinx.serialization.json.internal/InternalJsonReaderCodePointImpl.exhausted|exhausted(){}[0]
-    abstract fun nextCodePoint(): kotlin/Int // kotlinx.serialization.json.internal/InternalJsonReaderCodePointImpl.nextCodePoint|nextCodePoint(){}[0]
-    constructor <init>() // kotlinx.serialization.json.internal/InternalJsonReaderCodePointImpl.<init>|<init>(){}[0]
-    final fun read(kotlin/CharArray, kotlin/Int, kotlin/Int): kotlin/Int // kotlinx.serialization.json.internal/InternalJsonReaderCodePointImpl.read|read(kotlin.CharArray;kotlin.Int;kotlin.Int){}[0]
+
+open annotation class kotlinx.serialization.json/JsonNames : kotlin/Annotation { // kotlinx.serialization.json/JsonNames|null[0]
+    constructor <init>(kotlin/Array<out kotlin/String>...) // kotlinx.serialization.json/JsonNames.<init>|<init>(kotlin.Array<out|kotlin.String>...){}[0]
+
+    final val names // kotlinx.serialization.json/JsonNames.names|{}names[0]
+        final fun <get-names>(): kotlin/Array<out kotlin/String> // kotlinx.serialization.json/JsonNames.names.<get-names>|<get-names>(){}[0]
 }
+
+final enum class kotlinx.serialization.json/ClassDiscriminatorMode : kotlin/Enum<kotlinx.serialization.json/ClassDiscriminatorMode> { // kotlinx.serialization.json/ClassDiscriminatorMode|null[0]
+    enum entry ALL_JSON_OBJECTS // kotlinx.serialization.json/ClassDiscriminatorMode.ALL_JSON_OBJECTS|null[0]
+    enum entry NONE // kotlinx.serialization.json/ClassDiscriminatorMode.NONE|null[0]
+    enum entry POLYMORPHIC // kotlinx.serialization.json/ClassDiscriminatorMode.POLYMORPHIC|null[0]
+
+    final val entries // kotlinx.serialization.json/ClassDiscriminatorMode.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<kotlinx.serialization.json/ClassDiscriminatorMode> // kotlinx.serialization.json/ClassDiscriminatorMode.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): kotlinx.serialization.json/ClassDiscriminatorMode // kotlinx.serialization.json/ClassDiscriminatorMode.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<kotlinx.serialization.json/ClassDiscriminatorMode> // kotlinx.serialization.json/ClassDiscriminatorMode.values|values#static(){}[0]
+}
+
+final enum class kotlinx.serialization.json/DecodeSequenceMode : kotlin/Enum<kotlinx.serialization.json/DecodeSequenceMode> { // kotlinx.serialization.json/DecodeSequenceMode|null[0]
+    enum entry ARRAY_WRAPPED // kotlinx.serialization.json/DecodeSequenceMode.ARRAY_WRAPPED|null[0]
+    enum entry AUTO_DETECT // kotlinx.serialization.json/DecodeSequenceMode.AUTO_DETECT|null[0]
+    enum entry WHITESPACE_SEPARATED // kotlinx.serialization.json/DecodeSequenceMode.WHITESPACE_SEPARATED|null[0]
+
+    final val entries // kotlinx.serialization.json/DecodeSequenceMode.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<kotlinx.serialization.json/DecodeSequenceMode> // kotlinx.serialization.json/DecodeSequenceMode.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): kotlinx.serialization.json/DecodeSequenceMode // kotlinx.serialization.json/DecodeSequenceMode.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<kotlinx.serialization.json/DecodeSequenceMode> // kotlinx.serialization.json/DecodeSequenceMode.values|values#static(){}[0]
+}
+
 abstract fun interface kotlinx.serialization.json/JsonNamingStrategy { // kotlinx.serialization.json/JsonNamingStrategy|null[0]
     abstract fun serialNameForJson(kotlinx.serialization.descriptors/SerialDescriptor, kotlin/Int, kotlin/String): kotlin/String // kotlinx.serialization.json/JsonNamingStrategy.serialNameForJson|serialNameForJson(kotlinx.serialization.descriptors.SerialDescriptor;kotlin.Int;kotlin.String){}[0]
+
     final object Builtins { // kotlinx.serialization.json/JsonNamingStrategy.Builtins|null[0]
         final val KebabCase // kotlinx.serialization.json/JsonNamingStrategy.Builtins.KebabCase|{}KebabCase[0]
             final fun <get-KebabCase>(): kotlinx.serialization.json/JsonNamingStrategy // kotlinx.serialization.json/JsonNamingStrategy.Builtins.KebabCase.<get-KebabCase>|<get-KebabCase>(){}[0]
@@ -38,31 +65,74 @@ abstract fun interface kotlinx.serialization.json/JsonNamingStrategy { // kotlin
             final fun <get-SnakeCase>(): kotlinx.serialization.json/JsonNamingStrategy // kotlinx.serialization.json/JsonNamingStrategy.Builtins.SnakeCase.<get-SnakeCase>|<get-SnakeCase>(){}[0]
     }
 }
+
 abstract interface kotlinx.serialization.json.internal/InternalJsonReader { // kotlinx.serialization.json.internal/InternalJsonReader|null[0]
     abstract fun read(kotlin/CharArray, kotlin/Int, kotlin/Int): kotlin/Int // kotlinx.serialization.json.internal/InternalJsonReader.read|read(kotlin.CharArray;kotlin.Int;kotlin.Int){}[0]
 }
+
 abstract interface kotlinx.serialization.json.internal/InternalJsonWriter { // kotlinx.serialization.json.internal/InternalJsonWriter|null[0]
     abstract fun release() // kotlinx.serialization.json.internal/InternalJsonWriter.release|release(){}[0]
     abstract fun write(kotlin/String) // kotlinx.serialization.json.internal/InternalJsonWriter.write|write(kotlin.String){}[0]
     abstract fun writeChar(kotlin/Char) // kotlinx.serialization.json.internal/InternalJsonWriter.writeChar|writeChar(kotlin.Char){}[0]
     abstract fun writeLong(kotlin/Long) // kotlinx.serialization.json.internal/InternalJsonWriter.writeLong|writeLong(kotlin.Long){}[0]
     abstract fun writeQuoted(kotlin/String) // kotlinx.serialization.json.internal/InternalJsonWriter.writeQuoted|writeQuoted(kotlin.String){}[0]
+
     final object Companion { // kotlinx.serialization.json.internal/InternalJsonWriter.Companion|null[0]
         final inline fun doWriteEscaping(kotlin/String, kotlin/Function3<kotlin/String, kotlin/Int, kotlin/Int, kotlin/Unit>) // kotlinx.serialization.json.internal/InternalJsonWriter.Companion.doWriteEscaping|doWriteEscaping(kotlin.String;kotlin.Function3<kotlin.String,kotlin.Int,kotlin.Int,kotlin.Unit>){}[0]
     }
 }
+
 abstract interface kotlinx.serialization.json/JsonDecoder : kotlinx.serialization.encoding/CompositeDecoder, kotlinx.serialization.encoding/Decoder { // kotlinx.serialization.json/JsonDecoder|null[0]
-    abstract fun decodeJsonElement(): kotlinx.serialization.json/JsonElement // kotlinx.serialization.json/JsonDecoder.decodeJsonElement|decodeJsonElement(){}[0]
     abstract val json // kotlinx.serialization.json/JsonDecoder.json|{}json[0]
         abstract fun <get-json>(): kotlinx.serialization.json/Json // kotlinx.serialization.json/JsonDecoder.json.<get-json>|<get-json>(){}[0]
+
+    abstract fun decodeJsonElement(): kotlinx.serialization.json/JsonElement // kotlinx.serialization.json/JsonDecoder.decodeJsonElement|decodeJsonElement(){}[0]
 }
+
 abstract interface kotlinx.serialization.json/JsonEncoder : kotlinx.serialization.encoding/CompositeEncoder, kotlinx.serialization.encoding/Encoder { // kotlinx.serialization.json/JsonEncoder|null[0]
-    abstract fun encodeJsonElement(kotlinx.serialization.json/JsonElement) // kotlinx.serialization.json/JsonEncoder.encodeJsonElement|encodeJsonElement(kotlinx.serialization.json.JsonElement){}[0]
     abstract val json // kotlinx.serialization.json/JsonEncoder.json|{}json[0]
         abstract fun <get-json>(): kotlinx.serialization.json/Json // kotlinx.serialization.json/JsonEncoder.json.<get-json>|<get-json>(){}[0]
+
+    abstract fun encodeJsonElement(kotlinx.serialization.json/JsonElement) // kotlinx.serialization.json/JsonEncoder.encodeJsonElement|encodeJsonElement(kotlinx.serialization.json.JsonElement){}[0]
 }
+
+abstract class <#A: kotlin/Any> kotlinx.serialization.json/JsonContentPolymorphicSerializer : kotlinx.serialization/KSerializer<#A> { // kotlinx.serialization.json/JsonContentPolymorphicSerializer|null[0]
+    constructor <init>(kotlin.reflect/KClass<#A>) // kotlinx.serialization.json/JsonContentPolymorphicSerializer.<init>|<init>(kotlin.reflect.KClass<1:0>){}[0]
+
+    open val descriptor // kotlinx.serialization.json/JsonContentPolymorphicSerializer.descriptor|{}descriptor[0]
+        open fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // kotlinx.serialization.json/JsonContentPolymorphicSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+    abstract fun selectDeserializer(kotlinx.serialization.json/JsonElement): kotlinx.serialization/DeserializationStrategy<#A> // kotlinx.serialization.json/JsonContentPolymorphicSerializer.selectDeserializer|selectDeserializer(kotlinx.serialization.json.JsonElement){}[0]
+    final fun deserialize(kotlinx.serialization.encoding/Decoder): #A // kotlinx.serialization.json/JsonContentPolymorphicSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+    final fun serialize(kotlinx.serialization.encoding/Encoder, #A) // kotlinx.serialization.json/JsonContentPolymorphicSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;1:0){}[0]
+}
+
+abstract class <#A: kotlin/Any> kotlinx.serialization.json/JsonTransformingSerializer : kotlinx.serialization/KSerializer<#A> { // kotlinx.serialization.json/JsonTransformingSerializer|null[0]
+    constructor <init>(kotlinx.serialization/KSerializer<#A>) // kotlinx.serialization.json/JsonTransformingSerializer.<init>|<init>(kotlinx.serialization.KSerializer<1:0>){}[0]
+
+    open val descriptor // kotlinx.serialization.json/JsonTransformingSerializer.descriptor|{}descriptor[0]
+        open fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // kotlinx.serialization.json/JsonTransformingSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+    final fun deserialize(kotlinx.serialization.encoding/Decoder): #A // kotlinx.serialization.json/JsonTransformingSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+    final fun serialize(kotlinx.serialization.encoding/Encoder, #A) // kotlinx.serialization.json/JsonTransformingSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;1:0){}[0]
+    open fun transformDeserialize(kotlinx.serialization.json/JsonElement): kotlinx.serialization.json/JsonElement // kotlinx.serialization.json/JsonTransformingSerializer.transformDeserialize|transformDeserialize(kotlinx.serialization.json.JsonElement){}[0]
+    open fun transformSerialize(kotlinx.serialization.json/JsonElement): kotlinx.serialization.json/JsonElement // kotlinx.serialization.json/JsonTransformingSerializer.transformSerialize|transformSerialize(kotlinx.serialization.json.JsonElement){}[0]
+}
+
+abstract class kotlinx.serialization.json.internal/InternalJsonReaderCodePointImpl : kotlinx.serialization.json.internal/InternalJsonReader { // kotlinx.serialization.json.internal/InternalJsonReaderCodePointImpl|null[0]
+    constructor <init>() // kotlinx.serialization.json.internal/InternalJsonReaderCodePointImpl.<init>|<init>(){}[0]
+
+    abstract fun exhausted(): kotlin/Boolean // kotlinx.serialization.json.internal/InternalJsonReaderCodePointImpl.exhausted|exhausted(){}[0]
+    abstract fun nextCodePoint(): kotlin/Int // kotlinx.serialization.json.internal/InternalJsonReaderCodePointImpl.nextCodePoint|nextCodePoint(){}[0]
+    final fun read(kotlin/CharArray, kotlin/Int, kotlin/Int): kotlin/Int // kotlinx.serialization.json.internal/InternalJsonReaderCodePointImpl.read|read(kotlin.CharArray;kotlin.Int;kotlin.Int){}[0]
+}
+
 final class kotlinx.serialization.json/JsonArray : kotlin.collections/List<kotlinx.serialization.json/JsonElement>, kotlinx.serialization.json/JsonElement { // kotlinx.serialization.json/JsonArray|null[0]
     constructor <init>(kotlin.collections/List<kotlinx.serialization.json/JsonElement>) // kotlinx.serialization.json/JsonArray.<init>|<init>(kotlin.collections.List<kotlinx.serialization.json.JsonElement>){}[0]
+
+    final val size // kotlinx.serialization.json/JsonArray.size|{}size[0]
+        final fun <get-size>(): kotlin/Int // kotlinx.serialization.json/JsonArray.size.<get-size>|<get-size>(){}[0]
+
     final fun contains(kotlinx.serialization.json/JsonElement): kotlin/Boolean // kotlinx.serialization.json/JsonArray.contains|contains(kotlinx.serialization.json.JsonElement){}[0]
     final fun containsAll(kotlin.collections/Collection<kotlinx.serialization.json/JsonElement>): kotlin/Boolean // kotlinx.serialization.json/JsonArray.containsAll|containsAll(kotlin.collections.Collection<kotlinx.serialization.json.JsonElement>){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // kotlinx.serialization.json/JsonArray.equals|equals(kotlin.Any?){}[0]
@@ -76,20 +146,23 @@ final class kotlinx.serialization.json/JsonArray : kotlin.collections/List<kotli
     final fun listIterator(kotlin/Int): kotlin.collections/ListIterator<kotlinx.serialization.json/JsonElement> // kotlinx.serialization.json/JsonArray.listIterator|listIterator(kotlin.Int){}[0]
     final fun subList(kotlin/Int, kotlin/Int): kotlin.collections/List<kotlinx.serialization.json/JsonElement> // kotlinx.serialization.json/JsonArray.subList|subList(kotlin.Int;kotlin.Int){}[0]
     final fun toString(): kotlin/String // kotlinx.serialization.json/JsonArray.toString|toString(){}[0]
+
     final object Companion { // kotlinx.serialization.json/JsonArray.Companion|null[0]
         final fun serializer(): kotlinx.serialization/KSerializer<kotlinx.serialization.json/JsonArray> // kotlinx.serialization.json/JsonArray.Companion.serializer|serializer(){}[0]
     }
-    final val size // kotlinx.serialization.json/JsonArray.size|{}size[0]
-        final fun <get-size>(): kotlin/Int // kotlinx.serialization.json/JsonArray.size.<get-size>|<get-size>(){}[0]
+
     // Targets: [js]
     final fun asJsReadonlyArrayView(): kotlin.js.collections/JsReadonlyArray<kotlinx.serialization.json/JsonElement> // kotlinx.serialization.json/JsonArray.asJsReadonlyArrayView|asJsReadonlyArrayView(){}[0]
 }
+
 final class kotlinx.serialization.json/JsonArrayBuilder { // kotlinx.serialization.json/JsonArrayBuilder|null[0]
     constructor <init>() // kotlinx.serialization.json/JsonArrayBuilder.<init>|<init>(){}[0]
+
     final fun add(kotlinx.serialization.json/JsonElement): kotlin/Boolean // kotlinx.serialization.json/JsonArrayBuilder.add|add(kotlinx.serialization.json.JsonElement){}[0]
     final fun addAll(kotlin.collections/Collection<kotlinx.serialization.json/JsonElement>): kotlin/Boolean // kotlinx.serialization.json/JsonArrayBuilder.addAll|addAll(kotlin.collections.Collection<kotlinx.serialization.json.JsonElement>){}[0]
     final fun build(): kotlinx.serialization.json/JsonArray // kotlinx.serialization.json/JsonArrayBuilder.build|build(){}[0]
 }
+
 final class kotlinx.serialization.json/JsonBuilder { // kotlinx.serialization.json/JsonBuilder|null[0]
     final var allowComments // kotlinx.serialization.json/JsonBuilder.allowComments|{}allowComments[0]
         final fun <get-allowComments>(): kotlin/Boolean // kotlinx.serialization.json/JsonBuilder.allowComments.<get-allowComments>|<get-allowComments>(){}[0]
@@ -146,8 +219,8 @@ final class kotlinx.serialization.json/JsonBuilder { // kotlinx.serialization.js
         final fun <get-useArrayPolymorphism>(): kotlin/Boolean // kotlinx.serialization.json/JsonBuilder.useArrayPolymorphism.<get-useArrayPolymorphism>|<get-useArrayPolymorphism>(){}[0]
         final fun <set-useArrayPolymorphism>(kotlin/Boolean) // kotlinx.serialization.json/JsonBuilder.useArrayPolymorphism.<set-useArrayPolymorphism>|<set-useArrayPolymorphism>(kotlin.Boolean){}[0]
 }
+
 final class kotlinx.serialization.json/JsonConfiguration { // kotlinx.serialization.json/JsonConfiguration|null[0]
-    final fun toString(): kotlin/String // kotlinx.serialization.json/JsonConfiguration.toString|toString(){}[0]
     final val allowComments // kotlinx.serialization.json/JsonConfiguration.allowComments|{}allowComments[0]
         final fun <get-allowComments>(): kotlin/Boolean // kotlinx.serialization.json/JsonConfiguration.allowComments.<get-allowComments>|<get-allowComments>(){}[0]
     final val allowSpecialFloatingPointValues // kotlinx.serialization.json/JsonConfiguration.allowSpecialFloatingPointValues|{}allowSpecialFloatingPointValues[0]
@@ -180,22 +253,17 @@ final class kotlinx.serialization.json/JsonConfiguration { // kotlinx.serializat
         final fun <get-useAlternativeNames>(): kotlin/Boolean // kotlinx.serialization.json/JsonConfiguration.useAlternativeNames.<get-useAlternativeNames>|<get-useAlternativeNames>(){}[0]
     final val useArrayPolymorphism // kotlinx.serialization.json/JsonConfiguration.useArrayPolymorphism|{}useArrayPolymorphism[0]
         final fun <get-useArrayPolymorphism>(): kotlin/Boolean // kotlinx.serialization.json/JsonConfiguration.useArrayPolymorphism.<get-useArrayPolymorphism>|<get-useArrayPolymorphism>(){}[0]
+
     final var classDiscriminatorMode // kotlinx.serialization.json/JsonConfiguration.classDiscriminatorMode|{}classDiscriminatorMode[0]
         final fun <get-classDiscriminatorMode>(): kotlinx.serialization.json/ClassDiscriminatorMode // kotlinx.serialization.json/JsonConfiguration.classDiscriminatorMode.<get-classDiscriminatorMode>|<get-classDiscriminatorMode>(){}[0]
         final fun <set-classDiscriminatorMode>(kotlinx.serialization.json/ClassDiscriminatorMode) // kotlinx.serialization.json/JsonConfiguration.classDiscriminatorMode.<set-classDiscriminatorMode>|<set-classDiscriminatorMode>(kotlinx.serialization.json.ClassDiscriminatorMode){}[0]
+
+    final fun toString(): kotlin/String // kotlinx.serialization.json/JsonConfiguration.toString|toString(){}[0]
 }
+
 final class kotlinx.serialization.json/JsonObject : kotlin.collections/Map<kotlin/String, kotlinx.serialization.json/JsonElement>, kotlinx.serialization.json/JsonElement { // kotlinx.serialization.json/JsonObject|null[0]
     constructor <init>(kotlin.collections/Map<kotlin/String, kotlinx.serialization.json/JsonElement>) // kotlinx.serialization.json/JsonObject.<init>|<init>(kotlin.collections.Map<kotlin.String,kotlinx.serialization.json.JsonElement>){}[0]
-    final fun containsKey(kotlin/String): kotlin/Boolean // kotlinx.serialization.json/JsonObject.containsKey|containsKey(kotlin.String){}[0]
-    final fun containsValue(kotlinx.serialization.json/JsonElement): kotlin/Boolean // kotlinx.serialization.json/JsonObject.containsValue|containsValue(kotlinx.serialization.json.JsonElement){}[0]
-    final fun equals(kotlin/Any?): kotlin/Boolean // kotlinx.serialization.json/JsonObject.equals|equals(kotlin.Any?){}[0]
-    final fun get(kotlin/String): kotlinx.serialization.json/JsonElement? // kotlinx.serialization.json/JsonObject.get|get(kotlin.String){}[0]
-    final fun hashCode(): kotlin/Int // kotlinx.serialization.json/JsonObject.hashCode|hashCode(){}[0]
-    final fun isEmpty(): kotlin/Boolean // kotlinx.serialization.json/JsonObject.isEmpty|isEmpty(){}[0]
-    final fun toString(): kotlin/String // kotlinx.serialization.json/JsonObject.toString|toString(){}[0]
-    final object Companion { // kotlinx.serialization.json/JsonObject.Companion|null[0]
-        final fun serializer(): kotlinx.serialization/KSerializer<kotlinx.serialization.json/JsonObject> // kotlinx.serialization.json/JsonObject.Companion.serializer|serializer(){}[0]
-    }
+
     final val entries // kotlinx.serialization.json/JsonObject.entries|{}entries[0]
         final fun <get-entries>(): kotlin.collections/Set<kotlin.collections/Map.Entry<kotlin/String, kotlinx.serialization.json/JsonElement>> // kotlinx.serialization.json/JsonObject.entries.<get-entries>|<get-entries>(){}[0]
     final val keys // kotlinx.serialization.json/JsonObject.keys|{}keys[0]
@@ -204,32 +272,154 @@ final class kotlinx.serialization.json/JsonObject : kotlin.collections/Map<kotli
         final fun <get-size>(): kotlin/Int // kotlinx.serialization.json/JsonObject.size.<get-size>|<get-size>(){}[0]
     final val values // kotlinx.serialization.json/JsonObject.values|{}values[0]
         final fun <get-values>(): kotlin.collections/Collection<kotlinx.serialization.json/JsonElement> // kotlinx.serialization.json/JsonObject.values.<get-values>|<get-values>(){}[0]
+
+    final fun containsKey(kotlin/String): kotlin/Boolean // kotlinx.serialization.json/JsonObject.containsKey|containsKey(kotlin.String){}[0]
+    final fun containsValue(kotlinx.serialization.json/JsonElement): kotlin/Boolean // kotlinx.serialization.json/JsonObject.containsValue|containsValue(kotlinx.serialization.json.JsonElement){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // kotlinx.serialization.json/JsonObject.equals|equals(kotlin.Any?){}[0]
+    final fun get(kotlin/String): kotlinx.serialization.json/JsonElement? // kotlinx.serialization.json/JsonObject.get|get(kotlin.String){}[0]
+    final fun hashCode(): kotlin/Int // kotlinx.serialization.json/JsonObject.hashCode|hashCode(){}[0]
+    final fun isEmpty(): kotlin/Boolean // kotlinx.serialization.json/JsonObject.isEmpty|isEmpty(){}[0]
+    final fun toString(): kotlin/String // kotlinx.serialization.json/JsonObject.toString|toString(){}[0]
+
+    final object Companion { // kotlinx.serialization.json/JsonObject.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<kotlinx.serialization.json/JsonObject> // kotlinx.serialization.json/JsonObject.Companion.serializer|serializer(){}[0]
+    }
+
     // Targets: [js]
     final fun asJsReadonlyMapView(): kotlin.js.collections/JsReadonlyMap<kotlin/String, kotlinx.serialization.json/JsonElement> // kotlinx.serialization.json/JsonObject.asJsReadonlyMapView|asJsReadonlyMapView(){}[0]
 }
+
 final class kotlinx.serialization.json/JsonObjectBuilder { // kotlinx.serialization.json/JsonObjectBuilder|null[0]
     constructor <init>() // kotlinx.serialization.json/JsonObjectBuilder.<init>|<init>(){}[0]
+
     final fun build(): kotlinx.serialization.json/JsonObject // kotlinx.serialization.json/JsonObjectBuilder.build|build(){}[0]
     final fun put(kotlin/String, kotlinx.serialization.json/JsonElement): kotlinx.serialization.json/JsonElement? // kotlinx.serialization.json/JsonObjectBuilder.put|put(kotlin.String;kotlinx.serialization.json.JsonElement){}[0]
 }
-final enum class kotlinx.serialization.json/ClassDiscriminatorMode : kotlin/Enum<kotlinx.serialization.json/ClassDiscriminatorMode> { // kotlinx.serialization.json/ClassDiscriminatorMode|null[0]
-    enum entry ALL_JSON_OBJECTS // kotlinx.serialization.json/ClassDiscriminatorMode.ALL_JSON_OBJECTS|null[0]
-    enum entry NONE // kotlinx.serialization.json/ClassDiscriminatorMode.NONE|null[0]
-    enum entry POLYMORPHIC // kotlinx.serialization.json/ClassDiscriminatorMode.POLYMORPHIC|null[0]
-    final fun valueOf(kotlin/String): kotlinx.serialization.json/ClassDiscriminatorMode // kotlinx.serialization.json/ClassDiscriminatorMode.valueOf|valueOf#static(kotlin.String){}[0]
-    final fun values(): kotlin/Array<kotlinx.serialization.json/ClassDiscriminatorMode> // kotlinx.serialization.json/ClassDiscriminatorMode.values|values#static(){}[0]
-    final val entries // kotlinx.serialization.json/ClassDiscriminatorMode.entries|#static{}entries[0]
-        final fun <get-entries>(): kotlin.enums/EnumEntries<kotlinx.serialization.json/ClassDiscriminatorMode> // kotlinx.serialization.json/ClassDiscriminatorMode.entries.<get-entries>|<get-entries>#static(){}[0]
+
+sealed class kotlinx.serialization.json/Json : kotlinx.serialization/StringFormat { // kotlinx.serialization.json/Json|null[0]
+    constructor <init>(kotlinx.serialization.json/JsonConfiguration, kotlinx.serialization.modules/SerializersModule) // kotlinx.serialization.json/Json.<init>|<init>(kotlinx.serialization.json.JsonConfiguration;kotlinx.serialization.modules.SerializersModule){}[0]
+
+    final val configuration // kotlinx.serialization.json/Json.configuration|{}configuration[0]
+        final fun <get-configuration>(): kotlinx.serialization.json/JsonConfiguration // kotlinx.serialization.json/Json.configuration.<get-configuration>|<get-configuration>(){}[0]
+    open val serializersModule // kotlinx.serialization.json/Json.serializersModule|{}serializersModule[0]
+        open fun <get-serializersModule>(): kotlinx.serialization.modules/SerializersModule // kotlinx.serialization.json/Json.serializersModule.<get-serializersModule>|<get-serializersModule>(){}[0]
+
+    final fun <#A1: kotlin/Any?> decodeFromJsonElement(kotlinx.serialization/DeserializationStrategy<#A1>, kotlinx.serialization.json/JsonElement): #A1 // kotlinx.serialization.json/Json.decodeFromJsonElement|decodeFromJsonElement(kotlinx.serialization.DeserializationStrategy<0:0>;kotlinx.serialization.json.JsonElement){0§<kotlin.Any?>}[0]
+    final fun <#A1: kotlin/Any?> decodeFromString(kotlinx.serialization/DeserializationStrategy<#A1>, kotlin/String): #A1 // kotlinx.serialization.json/Json.decodeFromString|decodeFromString(kotlinx.serialization.DeserializationStrategy<0:0>;kotlin.String){0§<kotlin.Any?>}[0]
+    final fun <#A1: kotlin/Any?> encodeToJsonElement(kotlinx.serialization/SerializationStrategy<#A1>, #A1): kotlinx.serialization.json/JsonElement // kotlinx.serialization.json/Json.encodeToJsonElement|encodeToJsonElement(kotlinx.serialization.SerializationStrategy<0:0>;0:0){0§<kotlin.Any?>}[0]
+    final fun <#A1: kotlin/Any?> encodeToString(kotlinx.serialization/SerializationStrategy<#A1>, #A1): kotlin/String // kotlinx.serialization.json/Json.encodeToString|encodeToString(kotlinx.serialization.SerializationStrategy<0:0>;0:0){0§<kotlin.Any?>}[0]
+    final fun parseToJsonElement(kotlin/String): kotlinx.serialization.json/JsonElement // kotlinx.serialization.json/Json.parseToJsonElement|parseToJsonElement(kotlin.String){}[0]
+    final inline fun <#A1: reified kotlin/Any?> decodeFromString(kotlin/String): #A1 // kotlinx.serialization.json/Json.decodeFromString|decodeFromString(kotlin.String){0§<kotlin.Any?>}[0]
+
+    final object Default : kotlinx.serialization.json/Json // kotlinx.serialization.json/Json.Default|null[0]
 }
-final enum class kotlinx.serialization.json/DecodeSequenceMode : kotlin/Enum<kotlinx.serialization.json/DecodeSequenceMode> { // kotlinx.serialization.json/DecodeSequenceMode|null[0]
-    enum entry ARRAY_WRAPPED // kotlinx.serialization.json/DecodeSequenceMode.ARRAY_WRAPPED|null[0]
-    enum entry AUTO_DETECT // kotlinx.serialization.json/DecodeSequenceMode.AUTO_DETECT|null[0]
-    enum entry WHITESPACE_SEPARATED // kotlinx.serialization.json/DecodeSequenceMode.WHITESPACE_SEPARATED|null[0]
-    final fun valueOf(kotlin/String): kotlinx.serialization.json/DecodeSequenceMode // kotlinx.serialization.json/DecodeSequenceMode.valueOf|valueOf#static(kotlin.String){}[0]
-    final fun values(): kotlin/Array<kotlinx.serialization.json/DecodeSequenceMode> // kotlinx.serialization.json/DecodeSequenceMode.values|values#static(){}[0]
-    final val entries // kotlinx.serialization.json/DecodeSequenceMode.entries|#static{}entries[0]
-        final fun <get-entries>(): kotlin.enums/EnumEntries<kotlinx.serialization.json/DecodeSequenceMode> // kotlinx.serialization.json/DecodeSequenceMode.entries.<get-entries>|<get-entries>#static(){}[0]
+
+sealed class kotlinx.serialization.json/JsonElement { // kotlinx.serialization.json/JsonElement|null[0]
+    constructor <init>() // kotlinx.serialization.json/JsonElement.<init>|<init>(){}[0]
+
+    final object Companion { // kotlinx.serialization.json/JsonElement.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<kotlinx.serialization.json/JsonElement> // kotlinx.serialization.json/JsonElement.Companion.serializer|serializer(){}[0]
+    }
 }
+
+sealed class kotlinx.serialization.json/JsonPrimitive : kotlinx.serialization.json/JsonElement { // kotlinx.serialization.json/JsonPrimitive|null[0]
+    constructor <init>() // kotlinx.serialization.json/JsonPrimitive.<init>|<init>(){}[0]
+
+    abstract val content // kotlinx.serialization.json/JsonPrimitive.content|{}content[0]
+        abstract fun <get-content>(): kotlin/String // kotlinx.serialization.json/JsonPrimitive.content.<get-content>|<get-content>(){}[0]
+    abstract val isString // kotlinx.serialization.json/JsonPrimitive.isString|{}isString[0]
+        abstract fun <get-isString>(): kotlin/Boolean // kotlinx.serialization.json/JsonPrimitive.isString.<get-isString>|<get-isString>(){}[0]
+
+    open fun toString(): kotlin/String // kotlinx.serialization.json/JsonPrimitive.toString|toString(){}[0]
+
+    final object Companion { // kotlinx.serialization.json/JsonPrimitive.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<kotlinx.serialization.json/JsonPrimitive> // kotlinx.serialization.json/JsonPrimitive.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final object kotlinx.serialization.json/JsonArraySerializer : kotlinx.serialization/KSerializer<kotlinx.serialization.json/JsonArray> { // kotlinx.serialization.json/JsonArraySerializer|null[0]
+    final val descriptor // kotlinx.serialization.json/JsonArraySerializer.descriptor|{}descriptor[0]
+        final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // kotlinx.serialization.json/JsonArraySerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+    final fun deserialize(kotlinx.serialization.encoding/Decoder): kotlinx.serialization.json/JsonArray // kotlinx.serialization.json/JsonArraySerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+    final fun serialize(kotlinx.serialization.encoding/Encoder, kotlinx.serialization.json/JsonArray) // kotlinx.serialization.json/JsonArraySerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;kotlinx.serialization.json.JsonArray){}[0]
+}
+
+final object kotlinx.serialization.json/JsonElementSerializer : kotlinx.serialization/KSerializer<kotlinx.serialization.json/JsonElement> { // kotlinx.serialization.json/JsonElementSerializer|null[0]
+    final val descriptor // kotlinx.serialization.json/JsonElementSerializer.descriptor|{}descriptor[0]
+        final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // kotlinx.serialization.json/JsonElementSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+    final fun deserialize(kotlinx.serialization.encoding/Decoder): kotlinx.serialization.json/JsonElement // kotlinx.serialization.json/JsonElementSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+    final fun serialize(kotlinx.serialization.encoding/Encoder, kotlinx.serialization.json/JsonElement) // kotlinx.serialization.json/JsonElementSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;kotlinx.serialization.json.JsonElement){}[0]
+}
+
+final object kotlinx.serialization.json/JsonNull : kotlinx.serialization.internal/SerializerFactory, kotlinx.serialization.json/JsonPrimitive { // kotlinx.serialization.json/JsonNull|null[0]
+    final val content // kotlinx.serialization.json/JsonNull.content|{}content[0]
+        final fun <get-content>(): kotlin/String // kotlinx.serialization.json/JsonNull.content.<get-content>|<get-content>(){}[0]
+    final val isString // kotlinx.serialization.json/JsonNull.isString|{}isString[0]
+        final fun <get-isString>(): kotlin/Boolean // kotlinx.serialization.json/JsonNull.isString.<get-isString>|<get-isString>(){}[0]
+
+    final fun serializer(): kotlinx.serialization/KSerializer<kotlinx.serialization.json/JsonNull> // kotlinx.serialization.json/JsonNull.serializer|serializer(){}[0]
+    final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // kotlinx.serialization.json/JsonNull.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+}
+
+final object kotlinx.serialization.json/JsonNullSerializer : kotlinx.serialization/KSerializer<kotlinx.serialization.json/JsonNull> { // kotlinx.serialization.json/JsonNullSerializer|null[0]
+    final val descriptor // kotlinx.serialization.json/JsonNullSerializer.descriptor|{}descriptor[0]
+        final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // kotlinx.serialization.json/JsonNullSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+    final fun deserialize(kotlinx.serialization.encoding/Decoder): kotlinx.serialization.json/JsonNull // kotlinx.serialization.json/JsonNullSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+    final fun serialize(kotlinx.serialization.encoding/Encoder, kotlinx.serialization.json/JsonNull) // kotlinx.serialization.json/JsonNullSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;kotlinx.serialization.json.JsonNull){}[0]
+}
+
+final object kotlinx.serialization.json/JsonObjectSerializer : kotlinx.serialization/KSerializer<kotlinx.serialization.json/JsonObject> { // kotlinx.serialization.json/JsonObjectSerializer|null[0]
+    final val descriptor // kotlinx.serialization.json/JsonObjectSerializer.descriptor|{}descriptor[0]
+        final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // kotlinx.serialization.json/JsonObjectSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+    final fun deserialize(kotlinx.serialization.encoding/Decoder): kotlinx.serialization.json/JsonObject // kotlinx.serialization.json/JsonObjectSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+    final fun serialize(kotlinx.serialization.encoding/Encoder, kotlinx.serialization.json/JsonObject) // kotlinx.serialization.json/JsonObjectSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;kotlinx.serialization.json.JsonObject){}[0]
+}
+
+final object kotlinx.serialization.json/JsonPrimitiveSerializer : kotlinx.serialization/KSerializer<kotlinx.serialization.json/JsonPrimitive> { // kotlinx.serialization.json/JsonPrimitiveSerializer|null[0]
+    final val descriptor // kotlinx.serialization.json/JsonPrimitiveSerializer.descriptor|{}descriptor[0]
+        final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // kotlinx.serialization.json/JsonPrimitiveSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+    final fun deserialize(kotlinx.serialization.encoding/Decoder): kotlinx.serialization.json/JsonPrimitive // kotlinx.serialization.json/JsonPrimitiveSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+    final fun serialize(kotlinx.serialization.encoding/Encoder, kotlinx.serialization.json/JsonPrimitive) // kotlinx.serialization.json/JsonPrimitiveSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;kotlinx.serialization.json.JsonPrimitive){}[0]
+}
+
+final val kotlinx.serialization.json.internal/ESCAPE_STRINGS // kotlinx.serialization.json.internal/ESCAPE_STRINGS|{}ESCAPE_STRINGS[0]
+    final fun <get-ESCAPE_STRINGS>(): kotlin/Array<kotlin/String?> // kotlinx.serialization.json.internal/ESCAPE_STRINGS.<get-ESCAPE_STRINGS>|<get-ESCAPE_STRINGS>(){}[0]
+final val kotlinx.serialization.json/boolean // kotlinx.serialization.json/boolean|@kotlinx.serialization.json.JsonPrimitive{}boolean[0]
+    final fun (kotlinx.serialization.json/JsonPrimitive).<get-boolean>(): kotlin/Boolean // kotlinx.serialization.json/boolean.<get-boolean>|<get-boolean>@kotlinx.serialization.json.JsonPrimitive(){}[0]
+final val kotlinx.serialization.json/booleanOrNull // kotlinx.serialization.json/booleanOrNull|@kotlinx.serialization.json.JsonPrimitive{}booleanOrNull[0]
+    final fun (kotlinx.serialization.json/JsonPrimitive).<get-booleanOrNull>(): kotlin/Boolean? // kotlinx.serialization.json/booleanOrNull.<get-booleanOrNull>|<get-booleanOrNull>@kotlinx.serialization.json.JsonPrimitive(){}[0]
+final val kotlinx.serialization.json/contentOrNull // kotlinx.serialization.json/contentOrNull|@kotlinx.serialization.json.JsonPrimitive{}contentOrNull[0]
+    final fun (kotlinx.serialization.json/JsonPrimitive).<get-contentOrNull>(): kotlin/String? // kotlinx.serialization.json/contentOrNull.<get-contentOrNull>|<get-contentOrNull>@kotlinx.serialization.json.JsonPrimitive(){}[0]
+final val kotlinx.serialization.json/double // kotlinx.serialization.json/double|@kotlinx.serialization.json.JsonPrimitive{}double[0]
+    final fun (kotlinx.serialization.json/JsonPrimitive).<get-double>(): kotlin/Double // kotlinx.serialization.json/double.<get-double>|<get-double>@kotlinx.serialization.json.JsonPrimitive(){}[0]
+final val kotlinx.serialization.json/doubleOrNull // kotlinx.serialization.json/doubleOrNull|@kotlinx.serialization.json.JsonPrimitive{}doubleOrNull[0]
+    final fun (kotlinx.serialization.json/JsonPrimitive).<get-doubleOrNull>(): kotlin/Double? // kotlinx.serialization.json/doubleOrNull.<get-doubleOrNull>|<get-doubleOrNull>@kotlinx.serialization.json.JsonPrimitive(){}[0]
+final val kotlinx.serialization.json/float // kotlinx.serialization.json/float|@kotlinx.serialization.json.JsonPrimitive{}float[0]
+    final fun (kotlinx.serialization.json/JsonPrimitive).<get-float>(): kotlin/Float // kotlinx.serialization.json/float.<get-float>|<get-float>@kotlinx.serialization.json.JsonPrimitive(){}[0]
+final val kotlinx.serialization.json/floatOrNull // kotlinx.serialization.json/floatOrNull|@kotlinx.serialization.json.JsonPrimitive{}floatOrNull[0]
+    final fun (kotlinx.serialization.json/JsonPrimitive).<get-floatOrNull>(): kotlin/Float? // kotlinx.serialization.json/floatOrNull.<get-floatOrNull>|<get-floatOrNull>@kotlinx.serialization.json.JsonPrimitive(){}[0]
+final val kotlinx.serialization.json/int // kotlinx.serialization.json/int|@kotlinx.serialization.json.JsonPrimitive{}int[0]
+    final fun (kotlinx.serialization.json/JsonPrimitive).<get-int>(): kotlin/Int // kotlinx.serialization.json/int.<get-int>|<get-int>@kotlinx.serialization.json.JsonPrimitive(){}[0]
+final val kotlinx.serialization.json/intOrNull // kotlinx.serialization.json/intOrNull|@kotlinx.serialization.json.JsonPrimitive{}intOrNull[0]
+    final fun (kotlinx.serialization.json/JsonPrimitive).<get-intOrNull>(): kotlin/Int? // kotlinx.serialization.json/intOrNull.<get-intOrNull>|<get-intOrNull>@kotlinx.serialization.json.JsonPrimitive(){}[0]
+final val kotlinx.serialization.json/jsonArray // kotlinx.serialization.json/jsonArray|@kotlinx.serialization.json.JsonElement{}jsonArray[0]
+    final fun (kotlinx.serialization.json/JsonElement).<get-jsonArray>(): kotlinx.serialization.json/JsonArray // kotlinx.serialization.json/jsonArray.<get-jsonArray>|<get-jsonArray>@kotlinx.serialization.json.JsonElement(){}[0]
+final val kotlinx.serialization.json/jsonNull // kotlinx.serialization.json/jsonNull|@kotlinx.serialization.json.JsonElement{}jsonNull[0]
+    final fun (kotlinx.serialization.json/JsonElement).<get-jsonNull>(): kotlinx.serialization.json/JsonNull // kotlinx.serialization.json/jsonNull.<get-jsonNull>|<get-jsonNull>@kotlinx.serialization.json.JsonElement(){}[0]
+final val kotlinx.serialization.json/jsonObject // kotlinx.serialization.json/jsonObject|@kotlinx.serialization.json.JsonElement{}jsonObject[0]
+    final fun (kotlinx.serialization.json/JsonElement).<get-jsonObject>(): kotlinx.serialization.json/JsonObject // kotlinx.serialization.json/jsonObject.<get-jsonObject>|<get-jsonObject>@kotlinx.serialization.json.JsonElement(){}[0]
+final val kotlinx.serialization.json/jsonPrimitive // kotlinx.serialization.json/jsonPrimitive|@kotlinx.serialization.json.JsonElement{}jsonPrimitive[0]
+    final fun (kotlinx.serialization.json/JsonElement).<get-jsonPrimitive>(): kotlinx.serialization.json/JsonPrimitive // kotlinx.serialization.json/jsonPrimitive.<get-jsonPrimitive>|<get-jsonPrimitive>@kotlinx.serialization.json.JsonElement(){}[0]
+final val kotlinx.serialization.json/long // kotlinx.serialization.json/long|@kotlinx.serialization.json.JsonPrimitive{}long[0]
+    final fun (kotlinx.serialization.json/JsonPrimitive).<get-long>(): kotlin/Long // kotlinx.serialization.json/long.<get-long>|<get-long>@kotlinx.serialization.json.JsonPrimitive(){}[0]
+final val kotlinx.serialization.json/longOrNull // kotlinx.serialization.json/longOrNull|@kotlinx.serialization.json.JsonPrimitive{}longOrNull[0]
+    final fun (kotlinx.serialization.json/JsonPrimitive).<get-longOrNull>(): kotlin/Long? // kotlinx.serialization.json/longOrNull.<get-longOrNull>|<get-longOrNull>@kotlinx.serialization.json.JsonPrimitive(){}[0]
+
 final fun (kotlinx.serialization.json/JsonArrayBuilder).kotlinx.serialization.json/add(kotlin/Boolean?): kotlin/Boolean // kotlinx.serialization.json/add|add@kotlinx.serialization.json.JsonArrayBuilder(kotlin.Boolean?){}[0]
 final fun (kotlinx.serialization.json/JsonArrayBuilder).kotlinx.serialization.json/add(kotlin/Nothing?): kotlin/Boolean // kotlinx.serialization.json/add|add@kotlinx.serialization.json.JsonArrayBuilder(kotlin.Nothing?){}[0]
 final fun (kotlinx.serialization.json/JsonArrayBuilder).kotlinx.serialization.json/add(kotlin/Number?): kotlin/Boolean // kotlinx.serialization.json/add|add@kotlinx.serialization.json.JsonArrayBuilder(kotlin.Number?){}[0]
@@ -267,131 +457,15 @@ final inline fun <#A: reified kotlin/Any?> (kotlinx.serialization.json/Json).kot
 final inline fun <#A: reified kotlin/Any?> kotlinx.serialization.json.internal/decodeToSequenceByReader(kotlinx.serialization.json/Json, kotlinx.serialization.json.internal/InternalJsonReader, kotlinx.serialization.json/DecodeSequenceMode = ...): kotlin.sequences/Sequence<#A> // kotlinx.serialization.json.internal/decodeToSequenceByReader|decodeToSequenceByReader(kotlinx.serialization.json.Json;kotlinx.serialization.json.internal.InternalJsonReader;kotlinx.serialization.json.DecodeSequenceMode){0§<kotlin.Any?>}[0]
 final inline fun kotlinx.serialization.json/buildJsonArray(kotlin/Function1<kotlinx.serialization.json/JsonArrayBuilder, kotlin/Unit>): kotlinx.serialization.json/JsonArray // kotlinx.serialization.json/buildJsonArray|buildJsonArray(kotlin.Function1<kotlinx.serialization.json.JsonArrayBuilder,kotlin.Unit>){}[0]
 final inline fun kotlinx.serialization.json/buildJsonObject(kotlin/Function1<kotlinx.serialization.json/JsonObjectBuilder, kotlin/Unit>): kotlinx.serialization.json/JsonObject // kotlinx.serialization.json/buildJsonObject|buildJsonObject(kotlin.Function1<kotlinx.serialization.json.JsonObjectBuilder,kotlin.Unit>){}[0]
-final object kotlinx.serialization.json/JsonArraySerializer : kotlinx.serialization/KSerializer<kotlinx.serialization.json/JsonArray> { // kotlinx.serialization.json/JsonArraySerializer|null[0]
-    final fun deserialize(kotlinx.serialization.encoding/Decoder): kotlinx.serialization.json/JsonArray // kotlinx.serialization.json/JsonArraySerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-    final fun serialize(kotlinx.serialization.encoding/Encoder, kotlinx.serialization.json/JsonArray) // kotlinx.serialization.json/JsonArraySerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;kotlinx.serialization.json.JsonArray){}[0]
-    final val descriptor // kotlinx.serialization.json/JsonArraySerializer.descriptor|{}descriptor[0]
-        final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // kotlinx.serialization.json/JsonArraySerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-}
-final object kotlinx.serialization.json/JsonElementSerializer : kotlinx.serialization/KSerializer<kotlinx.serialization.json/JsonElement> { // kotlinx.serialization.json/JsonElementSerializer|null[0]
-    final fun deserialize(kotlinx.serialization.encoding/Decoder): kotlinx.serialization.json/JsonElement // kotlinx.serialization.json/JsonElementSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-    final fun serialize(kotlinx.serialization.encoding/Encoder, kotlinx.serialization.json/JsonElement) // kotlinx.serialization.json/JsonElementSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;kotlinx.serialization.json.JsonElement){}[0]
-    final val descriptor // kotlinx.serialization.json/JsonElementSerializer.descriptor|{}descriptor[0]
-        final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // kotlinx.serialization.json/JsonElementSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-}
-final object kotlinx.serialization.json/JsonNull : kotlinx.serialization.internal/SerializerFactory, kotlinx.serialization.json/JsonPrimitive { // kotlinx.serialization.json/JsonNull|null[0]
-    final fun serializer(): kotlinx.serialization/KSerializer<kotlinx.serialization.json/JsonNull> // kotlinx.serialization.json/JsonNull.serializer|serializer(){}[0]
-    final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // kotlinx.serialization.json/JsonNull.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
-    final val content // kotlinx.serialization.json/JsonNull.content|{}content[0]
-        final fun <get-content>(): kotlin/String // kotlinx.serialization.json/JsonNull.content.<get-content>|<get-content>(){}[0]
-    final val isString // kotlinx.serialization.json/JsonNull.isString|{}isString[0]
-        final fun <get-isString>(): kotlin/Boolean // kotlinx.serialization.json/JsonNull.isString.<get-isString>|<get-isString>(){}[0]
-}
-final object kotlinx.serialization.json/JsonNullSerializer : kotlinx.serialization/KSerializer<kotlinx.serialization.json/JsonNull> { // kotlinx.serialization.json/JsonNullSerializer|null[0]
-    final fun deserialize(kotlinx.serialization.encoding/Decoder): kotlinx.serialization.json/JsonNull // kotlinx.serialization.json/JsonNullSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-    final fun serialize(kotlinx.serialization.encoding/Encoder, kotlinx.serialization.json/JsonNull) // kotlinx.serialization.json/JsonNullSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;kotlinx.serialization.json.JsonNull){}[0]
-    final val descriptor // kotlinx.serialization.json/JsonNullSerializer.descriptor|{}descriptor[0]
-        final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // kotlinx.serialization.json/JsonNullSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-}
-final object kotlinx.serialization.json/JsonObjectSerializer : kotlinx.serialization/KSerializer<kotlinx.serialization.json/JsonObject> { // kotlinx.serialization.json/JsonObjectSerializer|null[0]
-    final fun deserialize(kotlinx.serialization.encoding/Decoder): kotlinx.serialization.json/JsonObject // kotlinx.serialization.json/JsonObjectSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-    final fun serialize(kotlinx.serialization.encoding/Encoder, kotlinx.serialization.json/JsonObject) // kotlinx.serialization.json/JsonObjectSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;kotlinx.serialization.json.JsonObject){}[0]
-    final val descriptor // kotlinx.serialization.json/JsonObjectSerializer.descriptor|{}descriptor[0]
-        final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // kotlinx.serialization.json/JsonObjectSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-}
-final object kotlinx.serialization.json/JsonPrimitiveSerializer : kotlinx.serialization/KSerializer<kotlinx.serialization.json/JsonPrimitive> { // kotlinx.serialization.json/JsonPrimitiveSerializer|null[0]
-    final fun deserialize(kotlinx.serialization.encoding/Decoder): kotlinx.serialization.json/JsonPrimitive // kotlinx.serialization.json/JsonPrimitiveSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-    final fun serialize(kotlinx.serialization.encoding/Encoder, kotlinx.serialization.json/JsonPrimitive) // kotlinx.serialization.json/JsonPrimitiveSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;kotlinx.serialization.json.JsonPrimitive){}[0]
-    final val descriptor // kotlinx.serialization.json/JsonPrimitiveSerializer.descriptor|{}descriptor[0]
-        final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // kotlinx.serialization.json/JsonPrimitiveSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-}
-final val kotlinx.serialization.json.internal/ESCAPE_STRINGS // kotlinx.serialization.json.internal/ESCAPE_STRINGS|{}ESCAPE_STRINGS[0]
-    final fun <get-ESCAPE_STRINGS>(): kotlin/Array<kotlin/String?> // kotlinx.serialization.json.internal/ESCAPE_STRINGS.<get-ESCAPE_STRINGS>|<get-ESCAPE_STRINGS>(){}[0]
-final val kotlinx.serialization.json/boolean // kotlinx.serialization.json/boolean|@kotlinx.serialization.json.JsonPrimitive{}boolean[0]
-    final fun (kotlinx.serialization.json/JsonPrimitive).<get-boolean>(): kotlin/Boolean // kotlinx.serialization.json/boolean.<get-boolean>|<get-boolean>@kotlinx.serialization.json.JsonPrimitive(){}[0]
-final val kotlinx.serialization.json/booleanOrNull // kotlinx.serialization.json/booleanOrNull|@kotlinx.serialization.json.JsonPrimitive{}booleanOrNull[0]
-    final fun (kotlinx.serialization.json/JsonPrimitive).<get-booleanOrNull>(): kotlin/Boolean? // kotlinx.serialization.json/booleanOrNull.<get-booleanOrNull>|<get-booleanOrNull>@kotlinx.serialization.json.JsonPrimitive(){}[0]
-final val kotlinx.serialization.json/contentOrNull // kotlinx.serialization.json/contentOrNull|@kotlinx.serialization.json.JsonPrimitive{}contentOrNull[0]
-    final fun (kotlinx.serialization.json/JsonPrimitive).<get-contentOrNull>(): kotlin/String? // kotlinx.serialization.json/contentOrNull.<get-contentOrNull>|<get-contentOrNull>@kotlinx.serialization.json.JsonPrimitive(){}[0]
-final val kotlinx.serialization.json/double // kotlinx.serialization.json/double|@kotlinx.serialization.json.JsonPrimitive{}double[0]
-    final fun (kotlinx.serialization.json/JsonPrimitive).<get-double>(): kotlin/Double // kotlinx.serialization.json/double.<get-double>|<get-double>@kotlinx.serialization.json.JsonPrimitive(){}[0]
-final val kotlinx.serialization.json/doubleOrNull // kotlinx.serialization.json/doubleOrNull|@kotlinx.serialization.json.JsonPrimitive{}doubleOrNull[0]
-    final fun (kotlinx.serialization.json/JsonPrimitive).<get-doubleOrNull>(): kotlin/Double? // kotlinx.serialization.json/doubleOrNull.<get-doubleOrNull>|<get-doubleOrNull>@kotlinx.serialization.json.JsonPrimitive(){}[0]
-final val kotlinx.serialization.json/float // kotlinx.serialization.json/float|@kotlinx.serialization.json.JsonPrimitive{}float[0]
-    final fun (kotlinx.serialization.json/JsonPrimitive).<get-float>(): kotlin/Float // kotlinx.serialization.json/float.<get-float>|<get-float>@kotlinx.serialization.json.JsonPrimitive(){}[0]
-final val kotlinx.serialization.json/floatOrNull // kotlinx.serialization.json/floatOrNull|@kotlinx.serialization.json.JsonPrimitive{}floatOrNull[0]
-    final fun (kotlinx.serialization.json/JsonPrimitive).<get-floatOrNull>(): kotlin/Float? // kotlinx.serialization.json/floatOrNull.<get-floatOrNull>|<get-floatOrNull>@kotlinx.serialization.json.JsonPrimitive(){}[0]
-final val kotlinx.serialization.json/int // kotlinx.serialization.json/int|@kotlinx.serialization.json.JsonPrimitive{}int[0]
-    final fun (kotlinx.serialization.json/JsonPrimitive).<get-int>(): kotlin/Int // kotlinx.serialization.json/int.<get-int>|<get-int>@kotlinx.serialization.json.JsonPrimitive(){}[0]
-final val kotlinx.serialization.json/intOrNull // kotlinx.serialization.json/intOrNull|@kotlinx.serialization.json.JsonPrimitive{}intOrNull[0]
-    final fun (kotlinx.serialization.json/JsonPrimitive).<get-intOrNull>(): kotlin/Int? // kotlinx.serialization.json/intOrNull.<get-intOrNull>|<get-intOrNull>@kotlinx.serialization.json.JsonPrimitive(){}[0]
-final val kotlinx.serialization.json/jsonArray // kotlinx.serialization.json/jsonArray|@kotlinx.serialization.json.JsonElement{}jsonArray[0]
-    final fun (kotlinx.serialization.json/JsonElement).<get-jsonArray>(): kotlinx.serialization.json/JsonArray // kotlinx.serialization.json/jsonArray.<get-jsonArray>|<get-jsonArray>@kotlinx.serialization.json.JsonElement(){}[0]
-final val kotlinx.serialization.json/jsonNull // kotlinx.serialization.json/jsonNull|@kotlinx.serialization.json.JsonElement{}jsonNull[0]
-    final fun (kotlinx.serialization.json/JsonElement).<get-jsonNull>(): kotlinx.serialization.json/JsonNull // kotlinx.serialization.json/jsonNull.<get-jsonNull>|<get-jsonNull>@kotlinx.serialization.json.JsonElement(){}[0]
-final val kotlinx.serialization.json/jsonObject // kotlinx.serialization.json/jsonObject|@kotlinx.serialization.json.JsonElement{}jsonObject[0]
-    final fun (kotlinx.serialization.json/JsonElement).<get-jsonObject>(): kotlinx.serialization.json/JsonObject // kotlinx.serialization.json/jsonObject.<get-jsonObject>|<get-jsonObject>@kotlinx.serialization.json.JsonElement(){}[0]
-final val kotlinx.serialization.json/jsonPrimitive // kotlinx.serialization.json/jsonPrimitive|@kotlinx.serialization.json.JsonElement{}jsonPrimitive[0]
-    final fun (kotlinx.serialization.json/JsonElement).<get-jsonPrimitive>(): kotlinx.serialization.json/JsonPrimitive // kotlinx.serialization.json/jsonPrimitive.<get-jsonPrimitive>|<get-jsonPrimitive>@kotlinx.serialization.json.JsonElement(){}[0]
-final val kotlinx.serialization.json/long // kotlinx.serialization.json/long|@kotlinx.serialization.json.JsonPrimitive{}long[0]
-    final fun (kotlinx.serialization.json/JsonPrimitive).<get-long>(): kotlin/Long // kotlinx.serialization.json/long.<get-long>|<get-long>@kotlinx.serialization.json.JsonPrimitive(){}[0]
-final val kotlinx.serialization.json/longOrNull // kotlinx.serialization.json/longOrNull|@kotlinx.serialization.json.JsonPrimitive{}longOrNull[0]
-    final fun (kotlinx.serialization.json/JsonPrimitive).<get-longOrNull>(): kotlin/Long? // kotlinx.serialization.json/longOrNull.<get-longOrNull>|<get-longOrNull>@kotlinx.serialization.json.JsonPrimitive(){}[0]
-open annotation class kotlinx.serialization.json.internal/FormatLanguage : kotlin/Annotation { // kotlinx.serialization.json.internal/FormatLanguage|null[0]
-    constructor <init>(kotlin/String, kotlin/String, kotlin/String) // kotlinx.serialization.json.internal/FormatLanguage.<init>|<init>(kotlin.String;kotlin.String;kotlin.String){}[0]
-    final val prefix // kotlinx.serialization.json.internal/FormatLanguage.prefix|{}prefix[0]
-        final fun <get-prefix>(): kotlin/String // kotlinx.serialization.json.internal/FormatLanguage.prefix.<get-prefix>|<get-prefix>(){}[0]
-    final val suffix // kotlinx.serialization.json.internal/FormatLanguage.suffix|{}suffix[0]
-        final fun <get-suffix>(): kotlin/String // kotlinx.serialization.json.internal/FormatLanguage.suffix.<get-suffix>|<get-suffix>(){}[0]
-    final val value // kotlinx.serialization.json.internal/FormatLanguage.value|{}value[0]
-        final fun <get-value>(): kotlin/String // kotlinx.serialization.json.internal/FormatLanguage.value.<get-value>|<get-value>(){}[0]
-}
-open annotation class kotlinx.serialization.json/JsonClassDiscriminator : kotlin/Annotation { // kotlinx.serialization.json/JsonClassDiscriminator|null[0]
-    constructor <init>(kotlin/String) // kotlinx.serialization.json/JsonClassDiscriminator.<init>|<init>(kotlin.String){}[0]
-    final val discriminator // kotlinx.serialization.json/JsonClassDiscriminator.discriminator|{}discriminator[0]
-        final fun <get-discriminator>(): kotlin/String // kotlinx.serialization.json/JsonClassDiscriminator.discriminator.<get-discriminator>|<get-discriminator>(){}[0]
-}
-open annotation class kotlinx.serialization.json/JsonNames : kotlin/Annotation { // kotlinx.serialization.json/JsonNames|null[0]
-    constructor <init>(kotlin/Array<out kotlin/String>...) // kotlinx.serialization.json/JsonNames.<init>|<init>(kotlin.Array<out|kotlin.String>...){}[0]
-    final val names // kotlinx.serialization.json/JsonNames.names|{}names[0]
-        final fun <get-names>(): kotlin/Array<out kotlin/String> // kotlinx.serialization.json/JsonNames.names.<get-names>|<get-names>(){}[0]
-}
-sealed class kotlinx.serialization.json/Json : kotlinx.serialization/StringFormat { // kotlinx.serialization.json/Json|null[0]
-    constructor <init>(kotlinx.serialization.json/JsonConfiguration, kotlinx.serialization.modules/SerializersModule) // kotlinx.serialization.json/Json.<init>|<init>(kotlinx.serialization.json.JsonConfiguration;kotlinx.serialization.modules.SerializersModule){}[0]
-    final fun <#A1: kotlin/Any?> decodeFromJsonElement(kotlinx.serialization/DeserializationStrategy<#A1>, kotlinx.serialization.json/JsonElement): #A1 // kotlinx.serialization.json/Json.decodeFromJsonElement|decodeFromJsonElement(kotlinx.serialization.DeserializationStrategy<0:0>;kotlinx.serialization.json.JsonElement){0§<kotlin.Any?>}[0]
-    final fun <#A1: kotlin/Any?> decodeFromString(kotlinx.serialization/DeserializationStrategy<#A1>, kotlin/String): #A1 // kotlinx.serialization.json/Json.decodeFromString|decodeFromString(kotlinx.serialization.DeserializationStrategy<0:0>;kotlin.String){0§<kotlin.Any?>}[0]
-    final fun <#A1: kotlin/Any?> encodeToJsonElement(kotlinx.serialization/SerializationStrategy<#A1>, #A1): kotlinx.serialization.json/JsonElement // kotlinx.serialization.json/Json.encodeToJsonElement|encodeToJsonElement(kotlinx.serialization.SerializationStrategy<0:0>;0:0){0§<kotlin.Any?>}[0]
-    final fun <#A1: kotlin/Any?> encodeToString(kotlinx.serialization/SerializationStrategy<#A1>, #A1): kotlin/String // kotlinx.serialization.json/Json.encodeToString|encodeToString(kotlinx.serialization.SerializationStrategy<0:0>;0:0){0§<kotlin.Any?>}[0]
-    final fun parseToJsonElement(kotlin/String): kotlinx.serialization.json/JsonElement // kotlinx.serialization.json/Json.parseToJsonElement|parseToJsonElement(kotlin.String){}[0]
-    final inline fun <#A1: reified kotlin/Any?> decodeFromString(kotlin/String): #A1 // kotlinx.serialization.json/Json.decodeFromString|decodeFromString(kotlin.String){0§<kotlin.Any?>}[0]
-    final object Default : kotlinx.serialization.json/Json // kotlinx.serialization.json/Json.Default|null[0]
-    final val configuration // kotlinx.serialization.json/Json.configuration|{}configuration[0]
-        final fun <get-configuration>(): kotlinx.serialization.json/JsonConfiguration // kotlinx.serialization.json/Json.configuration.<get-configuration>|<get-configuration>(){}[0]
-    open val serializersModule // kotlinx.serialization.json/Json.serializersModule|{}serializersModule[0]
-        open fun <get-serializersModule>(): kotlinx.serialization.modules/SerializersModule // kotlinx.serialization.json/Json.serializersModule.<get-serializersModule>|<get-serializersModule>(){}[0]
-}
-sealed class kotlinx.serialization.json/JsonElement { // kotlinx.serialization.json/JsonElement|null[0]
-    constructor <init>() // kotlinx.serialization.json/JsonElement.<init>|<init>(){}[0]
-    final object Companion { // kotlinx.serialization.json/JsonElement.Companion|null[0]
-        final fun serializer(): kotlinx.serialization/KSerializer<kotlinx.serialization.json/JsonElement> // kotlinx.serialization.json/JsonElement.Companion.serializer|serializer(){}[0]
-    }
-}
-sealed class kotlinx.serialization.json/JsonPrimitive : kotlinx.serialization.json/JsonElement { // kotlinx.serialization.json/JsonPrimitive|null[0]
-    abstract val content // kotlinx.serialization.json/JsonPrimitive.content|{}content[0]
-        abstract fun <get-content>(): kotlin/String // kotlinx.serialization.json/JsonPrimitive.content.<get-content>|<get-content>(){}[0]
-    abstract val isString // kotlinx.serialization.json/JsonPrimitive.isString|{}isString[0]
-        abstract fun <get-isString>(): kotlin/Boolean // kotlinx.serialization.json/JsonPrimitive.isString.<get-isString>|<get-isString>(){}[0]
-    constructor <init>() // kotlinx.serialization.json/JsonPrimitive.<init>|<init>(){}[0]
-    final object Companion { // kotlinx.serialization.json/JsonPrimitive.Companion|null[0]
-        final fun serializer(): kotlinx.serialization/KSerializer<kotlinx.serialization.json/JsonPrimitive> // kotlinx.serialization.json/JsonPrimitive.Companion.serializer|serializer(){}[0]
-    }
-    open fun toString(): kotlin/String // kotlinx.serialization.json/JsonPrimitive.toString|toString(){}[0]
-}
+
 // Targets: [js]
 final fun <#A: kotlin/Any?> (kotlinx.serialization.json/Json).kotlinx.serialization.json/decodeFromDynamic(kotlinx.serialization/DeserializationStrategy<#A>, dynamic): #A // kotlinx.serialization.json/decodeFromDynamic|decodeFromDynamic@kotlinx.serialization.json.Json(kotlinx.serialization.DeserializationStrategy<0:0>;<dynamic>){0§<kotlin.Any?>}[0]
+
 // Targets: [js]
 final fun <#A: kotlin/Any?> (kotlinx.serialization.json/Json).kotlinx.serialization.json/encodeToDynamic(kotlinx.serialization/SerializationStrategy<#A>, #A): dynamic // kotlinx.serialization.json/encodeToDynamic|encodeToDynamic@kotlinx.serialization.json.Json(kotlinx.serialization.SerializationStrategy<0:0>;0:0){0§<kotlin.Any?>}[0]
+
 // Targets: [js]
 final inline fun <#A: reified kotlin/Any?> (kotlinx.serialization.json/Json).kotlinx.serialization.json/decodeFromDynamic(dynamic): #A // kotlinx.serialization.json/decodeFromDynamic|decodeFromDynamic@kotlinx.serialization.json.Json(<dynamic>){0§<kotlin.Any?>}[0]
+
 // Targets: [js]
 final inline fun <#A: reified kotlin/Any?> (kotlinx.serialization.json/Json).kotlinx.serialization.json/encodeToDynamic(#A): dynamic // kotlinx.serialization.json/encodeToDynamic|encodeToDynamic@kotlinx.serialization.json.Json(0:0){0§<kotlin.Any?>}[0]
