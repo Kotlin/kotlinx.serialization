@@ -6,18 +6,22 @@
 // - Show declarations: true
 
 // Library unique name: <org.jetbrains.kotlinx:kotlinx-serialization-properties>
+sealed class kotlinx.serialization.properties/Properties : kotlinx.serialization/SerialFormat { // kotlinx.serialization.properties/Properties|null[0]
+    constructor <init>(kotlinx.serialization.modules/SerializersModule, kotlin/Nothing?) // kotlinx.serialization.properties/Properties.<init>|<init>(kotlinx.serialization.modules.SerializersModule;kotlin.Nothing?){}[0]
+
+    open val serializersModule // kotlinx.serialization.properties/Properties.serializersModule|{}serializersModule[0]
+        open fun <get-serializersModule>(): kotlinx.serialization.modules/SerializersModule // kotlinx.serialization.properties/Properties.serializersModule.<get-serializersModule>|<get-serializersModule>(){}[0]
+
+    final fun <#A1: kotlin/Any?> decodeFromMap(kotlinx.serialization/DeserializationStrategy<#A1>, kotlin.collections/Map<kotlin/String, kotlin/Any>): #A1 // kotlinx.serialization.properties/Properties.decodeFromMap|decodeFromMap(kotlinx.serialization.DeserializationStrategy<0:0>;kotlin.collections.Map<kotlin.String,kotlin.Any>){0§<kotlin.Any?>}[0]
+    final fun <#A1: kotlin/Any?> decodeFromStringMap(kotlinx.serialization/DeserializationStrategy<#A1>, kotlin.collections/Map<kotlin/String, kotlin/String>): #A1 // kotlinx.serialization.properties/Properties.decodeFromStringMap|decodeFromStringMap(kotlinx.serialization.DeserializationStrategy<0:0>;kotlin.collections.Map<kotlin.String,kotlin.String>){0§<kotlin.Any?>}[0]
+    final fun <#A1: kotlin/Any?> encodeToMap(kotlinx.serialization/SerializationStrategy<#A1>, #A1): kotlin.collections/Map<kotlin/String, kotlin/Any> // kotlinx.serialization.properties/Properties.encodeToMap|encodeToMap(kotlinx.serialization.SerializationStrategy<0:0>;0:0){0§<kotlin.Any?>}[0]
+    final fun <#A1: kotlin/Any?> encodeToStringMap(kotlinx.serialization/SerializationStrategy<#A1>, #A1): kotlin.collections/Map<kotlin/String, kotlin/String> // kotlinx.serialization.properties/Properties.encodeToStringMap|encodeToStringMap(kotlinx.serialization.SerializationStrategy<0:0>;0:0){0§<kotlin.Any?>}[0]
+
+    final object Default : kotlinx.serialization.properties/Properties // kotlinx.serialization.properties/Properties.Default|null[0]
+}
+
 final fun kotlinx.serialization.properties/Properties(kotlinx.serialization.modules/SerializersModule): kotlinx.serialization.properties/Properties // kotlinx.serialization.properties/Properties|Properties(kotlinx.serialization.modules.SerializersModule){}[0]
 final inline fun <#A: reified kotlin/Any?> (kotlinx.serialization.properties/Properties).kotlinx.serialization.properties/decodeFromMap(kotlin.collections/Map<kotlin/String, kotlin/Any>): #A // kotlinx.serialization.properties/decodeFromMap|decodeFromMap@kotlinx.serialization.properties.Properties(kotlin.collections.Map<kotlin.String,kotlin.Any>){0§<kotlin.Any?>}[0]
 final inline fun <#A: reified kotlin/Any?> (kotlinx.serialization.properties/Properties).kotlinx.serialization.properties/decodeFromStringMap(kotlin.collections/Map<kotlin/String, kotlin/String>): #A // kotlinx.serialization.properties/decodeFromStringMap|decodeFromStringMap@kotlinx.serialization.properties.Properties(kotlin.collections.Map<kotlin.String,kotlin.String>){0§<kotlin.Any?>}[0]
 final inline fun <#A: reified kotlin/Any?> (kotlinx.serialization.properties/Properties).kotlinx.serialization.properties/encodeToMap(#A): kotlin.collections/Map<kotlin/String, kotlin/Any> // kotlinx.serialization.properties/encodeToMap|encodeToMap@kotlinx.serialization.properties.Properties(0:0){0§<kotlin.Any?>}[0]
 final inline fun <#A: reified kotlin/Any?> (kotlinx.serialization.properties/Properties).kotlinx.serialization.properties/encodeToStringMap(#A): kotlin.collections/Map<kotlin/String, kotlin/String> // kotlinx.serialization.properties/encodeToStringMap|encodeToStringMap@kotlinx.serialization.properties.Properties(0:0){0§<kotlin.Any?>}[0]
-sealed class kotlinx.serialization.properties/Properties : kotlinx.serialization/SerialFormat { // kotlinx.serialization.properties/Properties|null[0]
-    constructor <init>(kotlinx.serialization.modules/SerializersModule, kotlin/Nothing?) // kotlinx.serialization.properties/Properties.<init>|<init>(kotlinx.serialization.modules.SerializersModule;kotlin.Nothing?){}[0]
-    final fun <#A1: kotlin/Any?> decodeFromMap(kotlinx.serialization/DeserializationStrategy<#A1>, kotlin.collections/Map<kotlin/String, kotlin/Any>): #A1 // kotlinx.serialization.properties/Properties.decodeFromMap|decodeFromMap(kotlinx.serialization.DeserializationStrategy<0:0>;kotlin.collections.Map<kotlin.String,kotlin.Any>){0§<kotlin.Any?>}[0]
-    final fun <#A1: kotlin/Any?> decodeFromStringMap(kotlinx.serialization/DeserializationStrategy<#A1>, kotlin.collections/Map<kotlin/String, kotlin/String>): #A1 // kotlinx.serialization.properties/Properties.decodeFromStringMap|decodeFromStringMap(kotlinx.serialization.DeserializationStrategy<0:0>;kotlin.collections.Map<kotlin.String,kotlin.String>){0§<kotlin.Any?>}[0]
-    final fun <#A1: kotlin/Any?> encodeToMap(kotlinx.serialization/SerializationStrategy<#A1>, #A1): kotlin.collections/Map<kotlin/String, kotlin/Any> // kotlinx.serialization.properties/Properties.encodeToMap|encodeToMap(kotlinx.serialization.SerializationStrategy<0:0>;0:0){0§<kotlin.Any?>}[0]
-    final fun <#A1: kotlin/Any?> encodeToStringMap(kotlinx.serialization/SerializationStrategy<#A1>, #A1): kotlin.collections/Map<kotlin/String, kotlin/String> // kotlinx.serialization.properties/Properties.encodeToStringMap|encodeToStringMap(kotlinx.serialization.SerializationStrategy<0:0>;0:0){0§<kotlin.Any?>}[0]
-    final object Default : kotlinx.serialization.properties/Properties // kotlinx.serialization.properties/Properties.Default|null[0]
-    open val serializersModule // kotlinx.serialization.properties/Properties.serializersModule|{}serializersModule[0]
-        open fun <get-serializersModule>(): kotlinx.serialization.modules/SerializersModule // kotlinx.serialization.properties/Properties.serializersModule.<get-serializersModule>|<get-serializersModule>(){}[0]
-}
