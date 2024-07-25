@@ -361,8 +361,6 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
         return res
     }
 
-    fun nextDouble(tag: ULong) = nextDouble(ulongArrayOf(tag))
-
     fun nextDouble(tags: ULongArray? = null): Double {
         processTags(tags)
         val res = when (curByte) {
@@ -411,7 +409,7 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
      * been skipped, the "length stack" is [pruned][prune]. For indefinite length elements, a special marker is added to
      * the "length stack" which is only popped from the "length stack" when a CBOR [break][isEnd] is encountered.
      */
-    fun skipElement(tags: ULongArray? = null) {
+    fun skipElement(tags: ULongArray?) {
         val lengthStack = mutableListOf<Int>()
 
         processTags(tags)
@@ -440,8 +438,6 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
             readByte()
         } while (lengthStack.isNotEmpty())
     }
-
-    fun skipElement(singleTag: ULong?) = skipElement(singleTag?.let { ulongArrayOf(it) })
 
     /**
      * Removes an item from the top of the [lengthStack], cascading the removal if the item represents the last item

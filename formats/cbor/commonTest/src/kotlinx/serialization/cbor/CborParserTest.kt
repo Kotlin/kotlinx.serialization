@@ -540,11 +540,17 @@ class CborParserTest {
 
 private fun CborParser.nextNumber(tag: ULong): Long = nextNumber(ulongArrayOf(tag))
 
+private fun CborParser.nextDouble(tag: ULong) = nextDouble(ulongArrayOf(tag))
+
 private fun CborParser.nextString(tag: ULong) = nextString(ulongArrayOf(tag))
 
 private fun CborParser.startArray(tag: ULong): Int = startArray(ulongArrayOf(tag))
 
 private fun CborParser.startMap(tag: ULong) = startMap(ulongArrayOf(tag))
+
+private fun CborParser.skipElement(singleTag: ULong) = skipElement(ulongArrayOf(singleTag))
+
+private fun CborParser.skipElement() = skipElement(null)
 
 private fun CborParser.expect(expected: String, tag: ULong? = null) {
     assertEquals(expected, actual = nextString(tag?.let { ulongArrayOf(it) }), "string")
