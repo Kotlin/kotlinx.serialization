@@ -220,14 +220,21 @@ class JsonTest {
     @Test
     fun testExampleJson29() {
         captureOutput("ExampleJson29") { example.exampleJson29.main() }.verifyOutputLines(
-            "[{\"name\":\"kotlinx.serialization\"},{\"error\":\"Not found\"}]",
-            "[Ok(data=Project(name=kotlinx.serialization)), Error(message=Not found)]"
+            "BasicProject(name=example)"
         )
     }
 
     @Test
     fun testExampleJson30() {
         captureOutput("ExampleJson30") { example.exampleJson30.main() }.verifyOutputLines(
+            "[{\"name\":\"kotlinx.serialization\"},{\"error\":\"Not found\"}]",
+            "[Ok(data=Project(name=kotlinx.serialization)), Error(message=Not found)]"
+        )
+    }
+
+    @Test
+    fun testExampleJson31() {
+        captureOutput("ExampleJson31") { example.exampleJson31.main() }.verifyOutputLines(
             "UnknownProject(name=example, details={\"type\":\"unknown\",\"maintainer\":\"Unknown\",\"license\":\"Apache 2.0\"})"
         )
     }

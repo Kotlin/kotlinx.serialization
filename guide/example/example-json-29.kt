@@ -4,56 +4,29 @@ package example.exampleJson29
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-import kotlinx.serialization.descriptors.*
-import kotlinx.serialization.encoding.*
-
-@Serializable(with = ResponseSerializer::class)
-sealed class Response<out T> {
-    data class Ok<out T>(val data: T) : Response<T>()
-    data class Error(val message: String) : Response<Nothing>()
-}
-
-class ResponseSerializer<T>(private val dataSerializer: KSerializer<T>) : KSerializer<Response<T>> {
-    override val descriptor: SerialDescriptor = buildSerialDescriptor("Response", PolymorphicKind.SEALED) {
-        element("Ok", dataSerializer.descriptor)
-        element("Error", buildClassSerialDescriptor("Error") {
-          element<String>("message")
-        })
-    }
-
-    override fun deserialize(decoder: Decoder): Response<T> {
-        // Decoder -> JsonDecoder
-        require(decoder is JsonDecoder) // this class can be decoded only by Json
-        // JsonDecoder -> JsonElement
-        val element = decoder.decodeJsonElement()
-        // JsonElement -> value
-        if (element is JsonObject && "error" in element)
-            return Response.Error(element["error"]!!.jsonPrimitive.content)
-        return Response.Ok(decoder.json.decodeFromJsonElement(dataSerializer, element))
-    }
-
-    override fun serialize(encoder: Encoder, value: Response<T>) {
-        // Encoder -> JsonEncoder
-        require(encoder is JsonEncoder) // This class can be encoded only by Json
-        // value -> JsonElement
-        val element = when (value) {
-            is Response.Ok -> encoder.json.encodeToJsonElement(dataSerializer, value.data)
-            is Response.Error -> buildJsonObject { put("error", value.message) }
-        }
-        // JsonElement -> JsonEncoder
-        encoder.encodeJsonElement(element)
-    }
-}
-
 @Serializable
-data class Project(val name: String)
+sealed class Project {
+    abstract val name: String
+}
+
+@Serializable(with = BasicProjectSerializer::class)
+@SerialName("basic")
+data class BasicProject(override val name: String): Project()
+
+object BasicProjectSerializer : JsonTransformingSerializer<BasicProject>(BasicProject.generatedSerializer()) {
+    override fun transformDeserialize(element: JsonElement): JsonElement {
+        val jsonObject = element.jsonObject
+        return if ("basic-name" in jsonObject) {
+            val nameElement = jsonObject["basic-name"] ?: throw IllegalStateException()
+            JsonObject(mapOf("name" to nameElement))
+        } else {
+            jsonObject
+        }
+    }
+}
+
 
 fun main() {
-    val responses = listOf(
-        Response.Ok(Project("kotlinx.serialization")),
-        Response.Error("Not found")
-    )
-    val string = Json.encodeToString(responses)
-    println(string)
-    println(Json.decodeFromString<List<Response<Project>>>(string))
+    val project = Json.decodeFromString<Project>("""{"type":"basic","basic-name":"example"}""")
+    println(project)
 }

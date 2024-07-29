@@ -37,6 +37,7 @@ In this chapter, we'll walk through features of [JSON](https://www.json.org/json
   * [Array unwrapping](#array-unwrapping)
   * [Manipulating default values](#manipulating-default-values)
   * [Content-based polymorphic deserialization](#content-based-polymorphic-deserialization)
+  * [Extending the behavior of the plugin generated serializer](#extending-the-behavior-of-the-plugin-generated-serializer)
   * [Under the hood (experimental)](#under-the-hood-experimental)
   * [Maintaining custom JSON attributes](#maintaining-custom-json-attributes)
 
@@ -1260,6 +1261,51 @@ No class discriminator is added in the JSON output:
 
 <!--- TEST -->
 
+### Extending the behavior of the plugin generated serializer
+In some cases, it may be necessary to add additional serialization logic on top of the plugin generated logic.
+For example, it is necessary to add a preliminary modification of JSON elements or to add processing of unknown values of enums.
+
+In this case, you should mark the serializable class with the [`@KeepGeneratedSerializer`][KeepGeneratedSerializer] annotation and get the generated serializer using the `generatedSerializer()` function.
+
+An example of the simultaneous use of [JsonTransformingSerializer] and polymorphism:
+```kotlin
+@Serializable
+sealed class Project {
+    abstract val name: String
+}
+
+@Serializable(with = BasicProjectSerializer::class)
+@SerialName("basic")
+data class BasicProject(override val name: String): Project()
+
+object BasicProjectSerializer : JsonTransformingSerializer<BasicProject>(BasicProject.generatedSerializer()) {
+    override fun transformDeserialize(element: JsonElement): JsonElement {
+        val jsonObject = element.jsonObject
+        return if ("basic-name" in jsonObject) {
+            val nameElement = jsonObject["basic-name"] ?: throw IllegalStateException()
+            JsonObject(mapOf("name" to nameElement))
+        } else {
+            jsonObject
+        }
+    }
+}
+
+
+fun main() {
+    val project = Json.decodeFromString<Project>("""{"type":"basic","basic-name":"example"}""")
+    println(project)
+}
+```
+
+> You can get the full code [here](../guide/example/example-json-29.kt).
+
+`BasicProject` will be printed to the output:
+
+```text
+BasicProject(name=example)
+```
+<!--- TEST -->
+
 ### Under the hood (experimental)
 
 Although abstract serializers mentioned above can cover most of the cases, it is possible to implement similar machinery
@@ -1345,7 +1391,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-29.kt).
+> You can get the full code [here](../guide/example/example-json-30.kt).
 
 This gives you fine-grained control on the representation of the `Response` class in the JSON output:
 
@@ -1410,7 +1456,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-json-30.kt).
+> You can get the full code [here](../guide/example/example-json-31.kt).
 
 ```text
 UnknownProject(name=example, details={"type":"unknown","maintainer":"Unknown","license":"Apache 2.0"})
@@ -1440,6 +1486,7 @@ The next chapter covers [Alternative and custom formats (experimental)](formats.
 [InheritableSerialInfo]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-inheritable-serial-info/index.html
 [KSerializer]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-k-serializer/index.html
 [Serializable]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/index.html
+[KeepGeneratedSerializer]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-keep-generated-serializer/index.html
 
 <!--- INDEX kotlinx-serialization-core/kotlinx.serialization.encoding -->
 

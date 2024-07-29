@@ -138,6 +138,7 @@ Once the project is set up, we can start serializing some classes.
   * <a name='array-unwrapping'></a>[Array unwrapping](json.md#array-unwrapping)
   * <a name='manipulating-default-values'></a>[Manipulating default values](json.md#manipulating-default-values)
   * <a name='content-based-polymorphic-deserialization'></a>[Content-based polymorphic deserialization](json.md#content-based-polymorphic-deserialization)
+  * <a name='extending-the-behavior-of-the-plugin-generated-serializer'></a>[Extending the behavior of the plugin generated serializer](json.md#extending-the-behavior-of-the-plugin-generated-serializer)
   * <a name='under-the-hood-experimental'></a>[Under the hood (experimental)](json.md#under-the-hood-experimental)
   * <a name='maintaining-custom-json-attributes'></a>[Maintaining custom JSON attributes](json.md#maintaining-custom-json-attributes)
 <!--- END -->
