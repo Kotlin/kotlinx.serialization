@@ -1263,11 +1263,12 @@ No class discriminator is added in the JSON output:
 
 ### Extending the behavior of the plugin generated serializer
 In some cases, it may be necessary to add additional serialization logic on top of the plugin generated logic.
-For example, it is necessary to add a preliminary modification of JSON elements or to add processing of unknown values of enums.
+For example, to add a preliminary modification of JSON elements or to add processing of unknown values of enums.
 
-In this case, you should mark the serializable class with the [`@KeepGeneratedSerializer`][KeepGeneratedSerializer] annotation and get the generated serializer using the `generatedSerializer()` function.
+In this case, you can mark the serializable class with the [`@KeepGeneratedSerializer`][KeepGeneratedSerializer] annotation and get the generated serializer using the `generatedSerializer()` function.
 
-An example of the simultaneous use of [JsonTransformingSerializer] and polymorphism:
+Here is an example of the simultaneous use of [JsonTransformingSerializer] and polymorphism.
+In this example, we use `transformDeserialize` function to rename `basic-name` key into `name` so it matches the `abstract val name` property from the `Project` supertype.
 ```kotlin
 @Serializable
 sealed class Project {
