@@ -98,11 +98,12 @@ class JvmMissingFieldsExceptionTest {
                 subclass(ChildA::class)
             }
         }
+        val json = Json {
+            serializersModule = module
+        }
 
         assertFailsWithMessages(listOf("p2", "c3")) {
-            Json {
-                serializersModule = module
-            }.decodeFromString<PolymorphicWrapper>("""{"nested": {"type": "a", "p1": 1, "c1": 11}}""")
+            json.decodeFromString<PolymorphicWrapper>("""{"nested": {"type": "a", "p1": 1, "c1": 11}}""")
         }
     }
 

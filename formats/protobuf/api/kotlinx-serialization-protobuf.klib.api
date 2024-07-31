@@ -50,8 +50,6 @@ final class kotlinx.serialization.protobuf/ProtoBufBuilder { // kotlinx.serializ
 }
 
 sealed class kotlinx.serialization.protobuf/ProtoBuf : kotlinx.serialization/BinaryFormat { // kotlinx.serialization.protobuf/ProtoBuf|null[0]
-    constructor <init>(kotlin/Boolean, kotlinx.serialization.modules/SerializersModule) // kotlinx.serialization.protobuf/ProtoBuf.<init>|<init>(kotlin.Boolean;kotlinx.serialization.modules.SerializersModule){}[0]
-
     open val serializersModule // kotlinx.serialization.protobuf/ProtoBuf.serializersModule|{}serializersModule[0]
         open fun <get-serializersModule>(): kotlinx.serialization.modules/SerializersModule // kotlinx.serialization.protobuf/ProtoBuf.serializersModule.<get-serializersModule>|<get-serializersModule>(){}[0]
 

@@ -38,6 +38,7 @@ class InterfaceContextualSerializerTestJvm {
         assertEquals(PolymorphicKind.OPEN, serializer(typeTokenOf<JApiError>()).descriptor.kind)
     }
 
+    @Suppress("UNCHECKED_CAST")
     @Test
     fun testContextual() {
         val module = serializersModuleOf(JApiError::class, MyApiErrorSerializer)

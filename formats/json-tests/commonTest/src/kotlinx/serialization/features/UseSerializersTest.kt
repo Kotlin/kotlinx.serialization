@@ -21,9 +21,11 @@ data class Carrier2(
 )
 
 class UseSerializersTest {
+    private val jsonWithDefaults = Json { encodeDefaults = true }
+
     @Test
     fun testOnFile() {
-        val str = Json { encodeDefaults = true }.encodeToString(
+        val str = jsonWithDefaults.encodeToString(
             Carrier2.serializer(),
             Carrier2(IntHolder(42), 2, 2, IntHolder(42))
         )
