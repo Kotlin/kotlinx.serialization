@@ -9,6 +9,7 @@ sealed class Project {
     abstract val name: String
 }
 
+@KeepGeneratedSerializer
 @Serializable(with = BasicProjectSerializer::class)
 @SerialName("basic")
 data class BasicProject(override val name: String): Project()
