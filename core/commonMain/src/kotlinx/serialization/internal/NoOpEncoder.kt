@@ -12,7 +12,7 @@ import kotlinx.serialization.modules.*
 /**
  * Encoder that does not do any operations. Its main purpose is to ignore data instead of writing it.
  */
-@OptIn(ExperimentalSerializationApi::class)
+@OptIn(ExperimentalSerializationApi::class, AdvancedEncodingApi::class)
 internal object NoOpEncoder : AbstractEncoder() {
     override val serializersModule: SerializersModule = EmptySerializersModule()
 

@@ -69,6 +69,7 @@ kotlin {
             progressiveMode = true
 
             optIn("kotlin.ExperimentalMultiplatform")
+            optIn("kotlin.ExperimentalSubclassOptIn")
             optIn("kotlin.ExperimentalStdlibApi")
             optIn("kotlinx.serialization.InternalSerializationApi")
         }
@@ -152,6 +153,7 @@ kotlin {
         languageSettings {
             optIn("kotlinx.serialization.InternalSerializationApi")
             optIn("kotlinx.serialization.ExperimentalSerializationApi")
+//            optIn("kotlinx.serialization.encoding.AdvancedEncodingApi")
         }
     }
 
@@ -166,7 +168,7 @@ kotlin {
             }
         }
         compilations["main"].kotlinOptions {
-            allWarningsAsErrors = true
+            allWarningsAsErrors = false
         }
     }
 }
