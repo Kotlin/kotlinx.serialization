@@ -76,6 +76,7 @@ Once the project is set up, we can start serializing some classes.
   * <a name='specifying-serializer-globally-using-typealias'></a>[Specifying serializer globally using typealias](serializers.md#specifying-serializer-globally-using-typealias)
   * <a name='custom-serializers-for-a-generic-type'></a>[Custom serializers for a generic type](serializers.md#custom-serializers-for-a-generic-type)
   * <a name='format-specific-serializers'></a>[Format-specific serializers](serializers.md#format-specific-serializers)
+* <a name='simultaneous-use-of-plugin-generated-and-custom-serializers'></a>[Simultaneous use of plugin-generated and custom serializers](serializers.md#simultaneous-use-of-plugin-generated-and-custom-serializers)
 * <a name='contextual-serialization'></a>[Contextual serialization](serializers.md#contextual-serialization)
   * <a name='serializers-module'></a>[Serializers module](serializers.md#serializers-module)
   * <a name='contextual-serialization-and-generic-classes'></a>[Contextual serialization and generic classes](serializers.md#contextual-serialization-and-generic-classes)
@@ -137,6 +138,7 @@ Once the project is set up, we can start serializing some classes.
   * <a name='array-unwrapping'></a>[Array unwrapping](json.md#array-unwrapping)
   * <a name='manipulating-default-values'></a>[Manipulating default values](json.md#manipulating-default-values)
   * <a name='content-based-polymorphic-deserialization'></a>[Content-based polymorphic deserialization](json.md#content-based-polymorphic-deserialization)
+  * <a name='extending-the-behavior-of-the-plugin-generated-serializer'></a>[Extending the behavior of the plugin generated serializer](json.md#extending-the-behavior-of-the-plugin-generated-serializer)
   * <a name='under-the-hood-experimental'></a>[Under the hood (experimental)](json.md#under-the-hood-experimental)
   * <a name='maintaining-custom-json-attributes'></a>[Maintaining custom JSON attributes](json.md#maintaining-custom-json-attributes)
 <!--- END -->

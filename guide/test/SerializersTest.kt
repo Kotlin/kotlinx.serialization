@@ -141,29 +141,37 @@ class SerializersTest {
 
     @Test
     fun testExampleSerializer20() {
-        captureOutput("ExampleSerializer20") { example.exampleSerializer20.main() }.verifyOutputLinesStart(
+        captureOutput("ExampleSerializer20") { example.exampleSerializer20.main() }.verifyOutputLines(
+            "\"00ff00\"",
+            "{\"rgb\":65280}"
+        )
+    }
+
+    @Test
+    fun testExampleSerializer21() {
+        captureOutput("ExampleSerializer21") { example.exampleSerializer21.main() }.verifyOutputLinesStart(
             "Exception in thread \"main\" kotlinx.serialization.SerializationException: Serializer for class 'Date' is not found.",
             "Please ensure that class is marked as '@Serializable' and that the serialization compiler plugin is applied."
         )
     }
 
     @Test
-    fun testExampleSerializer21() {
-        captureOutput("ExampleSerializer21") { example.exampleSerializer21.main() }.verifyOutputLines(
-            "{\"name\":\"Kotlin\",\"stableReleaseDate\":1455494400000}"
-        )
-    }
-
-    @Test
     fun testExampleSerializer22() {
         captureOutput("ExampleSerializer22") { example.exampleSerializer22.main() }.verifyOutputLines(
-            "{\"name\":\"kotlinx.serialization\",\"language\":\"Kotlin\"}"
+            "{\"name\":\"Kotlin\",\"stableReleaseDate\":1455494400000}"
         )
     }
 
     @Test
     fun testExampleSerializer23() {
         captureOutput("ExampleSerializer23") { example.exampleSerializer23.main() }.verifyOutputLines(
+            "{\"name\":\"kotlinx.serialization\",\"language\":\"Kotlin\"}"
+        )
+    }
+
+    @Test
+    fun testExampleSerializer24() {
+        captureOutput("ExampleSerializer24") { example.exampleSerializer24.main() }.verifyOutputLines(
             "{\"name\":\"kotlinx.serialization\",\"stars\":9000}"
         )
     }
