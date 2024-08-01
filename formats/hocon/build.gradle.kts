@@ -12,7 +12,7 @@ plugins {
     alias(libs.plugins.serialization)
 }
 
-tasks.compileKotlin {
+kotlin {
     compilerOptions {
         allWarningsAsErrors = true
         jvmTarget = JvmTarget.JVM_1_8
@@ -21,6 +21,7 @@ tasks.compileKotlin {
             freeCompilerArgs.add("-Xsuppress-version-warnings")
         }
     }
+    jvmToolchain(jdkToolchainVersion)
 }
 
 java {

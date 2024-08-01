@@ -12,6 +12,8 @@ fun Project.propertyIsTrue(propertyName: String): Boolean {
     return (findProperty(propertyName) as? String?).equals("true", true)
 }
 
+val Project.jdkToolchainVersion: Int get() = findProperty("jdk_toolchain_version").toString().toInt()
+
 val Project.overriddenLanguageVersion : String?
     get() = findProperty("kotlin_language_version") as String?
 

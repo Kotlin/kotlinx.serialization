@@ -39,6 +39,7 @@ kotlin {
             freeCompilerArgs.add("-Xjdk-release=1.8")
         }
     }
+    jvmToolchain(jdkToolchainVersion)
 
     js {
         nodejs {
