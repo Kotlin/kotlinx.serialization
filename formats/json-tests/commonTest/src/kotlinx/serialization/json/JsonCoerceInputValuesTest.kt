@@ -49,7 +49,7 @@ class JsonCoerceInputValuesTest : JsonTestBase() {
         isLenient = true
     }
 
-    private val jsonLenient = Json(json) { isLenient = false }
+    private val jsonNonLenient = Json(json) { isLenient = false }
 
 
     private fun <T> doTest(inputs: List<String>, expected: T, serializer: KSerializer<T>) {
@@ -87,7 +87,7 @@ class JsonCoerceInputValuesTest : JsonTestBase() {
             json.decodeFromString(WithEnum.serializer(), """{"e":{"x":"definitely not a valid enum value"}}""")
         }
         assertFailsWithSerial("JsonDecodingException") { // test user still sees exception on missing quotes
-            jsonLenient.decodeFromString(WithEnum.serializer(), """{"e":unknown_value}""")
+            jsonNonLenient.decodeFromString(WithEnum.serializer(), """{"e":unknown_value}""")
         }
     }
 
