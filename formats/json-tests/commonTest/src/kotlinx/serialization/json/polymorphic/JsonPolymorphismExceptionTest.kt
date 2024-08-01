@@ -31,8 +31,9 @@ class JsonPolymorphismExceptionTest : JsonTestBase() {
             }
         }
 
+        val json = Json { serializersModule = serialModule }
         assertFailsWithSerial("JsonDecodingException") {
-            Json { serializersModule = serialModule }.decodeFromString(Base.serializer(), """{"type":"derived","nested":null}""", jsonTestingMode)
+            json.decodeFromString(Base.serializer(), """{"type":"derived","nested":null}""", jsonTestingMode)
         }
     }
 
@@ -44,8 +45,9 @@ class JsonPolymorphismExceptionTest : JsonTestBase() {
             }
         }
 
+        val json = Json { serializersModule = serialModule }
         assertFailsWithSerial("JsonDecodingException") {
-            Json { serializersModule = serialModule }.decodeFromString(Base.serializer(), """{"nested":{}}""", jsonTestingMode)
+            json.decodeFromString(Base.serializer(), """{"nested":{}}""", jsonTestingMode)
         }
     }
 }

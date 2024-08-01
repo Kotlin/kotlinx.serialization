@@ -780,8 +780,6 @@ open class kotlinx.serialization/SerializationException : kotlin/IllegalArgument
 }
 
 sealed class <#A: kotlin/Any?, #B: kotlin/Any?, #C: kotlin/Any?, #D: kotlin.collections/MutableMap<#A, #B>> kotlinx.serialization.internal/MapLikeSerializer : kotlinx.serialization.internal/AbstractCollectionSerializer<kotlin.collections/Map.Entry<#A, #B>, #C, #D> { // kotlinx.serialization.internal/MapLikeSerializer|null[0]
-    constructor <init>(kotlinx.serialization/KSerializer<#A>, kotlinx.serialization/KSerializer<#B>) // kotlinx.serialization.internal/MapLikeSerializer.<init>|<init>(kotlinx.serialization.KSerializer<1:0>;kotlinx.serialization.KSerializer<1:1>){}[0]
-
     abstract val descriptor // kotlinx.serialization.internal/MapLikeSerializer.descriptor|{}descriptor[0]
         abstract fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // kotlinx.serialization.internal/MapLikeSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
     final val keySerializer // kotlinx.serialization.internal/MapLikeSerializer.keySerializer|{}keySerializer[0]
@@ -796,8 +794,6 @@ sealed class <#A: kotlin/Any?, #B: kotlin/Any?, #C: kotlin/Any?, #D: kotlin.coll
 }
 
 sealed class <#A: kotlin/Any?, #B: kotlin/Any?, #C: kotlin/Any?> kotlinx.serialization.internal/AbstractCollectionSerializer : kotlinx.serialization/KSerializer<#B> { // kotlinx.serialization.internal/AbstractCollectionSerializer|null[0]
-    constructor <init>() // kotlinx.serialization.internal/AbstractCollectionSerializer.<init>|<init>(){}[0]
-
     abstract fun (#B).collectionIterator(): kotlin.collections/Iterator<#A> // kotlinx.serialization.internal/AbstractCollectionSerializer.collectionIterator|collectionIterator@1:1(){}[0]
     abstract fun (#B).collectionSize(): kotlin/Int // kotlinx.serialization.internal/AbstractCollectionSerializer.collectionSize|collectionSize@1:1(){}[0]
     abstract fun (#B).toBuilder(): #C // kotlinx.serialization.internal/AbstractCollectionSerializer.toBuilder|toBuilder@1:1(){}[0]
@@ -813,8 +809,6 @@ sealed class <#A: kotlin/Any?, #B: kotlin/Any?, #C: kotlin/Any?> kotlinx.seriali
 }
 
 sealed class <#A: kotlin/Any?, #B: kotlin/Any?, #C: kotlin/Any?> kotlinx.serialization.internal/CollectionLikeSerializer : kotlinx.serialization.internal/AbstractCollectionSerializer<#A, #B, #C> { // kotlinx.serialization.internal/CollectionLikeSerializer|null[0]
-    constructor <init>(kotlinx.serialization/KSerializer<#A>) // kotlinx.serialization.internal/CollectionLikeSerializer.<init>|<init>(kotlinx.serialization.KSerializer<1:0>){}[0]
-
     abstract val descriptor // kotlinx.serialization.internal/CollectionLikeSerializer.descriptor|{}descriptor[0]
         abstract fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // kotlinx.serialization.internal/CollectionLikeSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
 
@@ -825,8 +819,6 @@ sealed class <#A: kotlin/Any?, #B: kotlin/Any?, #C: kotlin/Any?> kotlinx.seriali
 }
 
 sealed class <#A: kotlin/Any?, #B: kotlin/Any?, #C: kotlin/Any?> kotlinx.serialization.internal/KeyValueSerializer : kotlinx.serialization/KSerializer<#C> { // kotlinx.serialization.internal/KeyValueSerializer|null[0]
-    constructor <init>(kotlinx.serialization/KSerializer<#A>, kotlinx.serialization/KSerializer<#B>) // kotlinx.serialization.internal/KeyValueSerializer.<init>|<init>(kotlinx.serialization.KSerializer<1:0>;kotlinx.serialization.KSerializer<1:1>){}[0]
-
     abstract val key // kotlinx.serialization.internal/KeyValueSerializer.key|@1:2{}key[0]
         abstract fun (#C).<get-key>(): #A // kotlinx.serialization.internal/KeyValueSerializer.key.<get-key>|<get-key>@1:2(){}[0]
     abstract val value // kotlinx.serialization.internal/KeyValueSerializer.value|@1:2{}value[0]
@@ -842,16 +834,12 @@ sealed class <#A: kotlin/Any?, #B: kotlin/Any?, #C: kotlin/Any?> kotlinx.seriali
 }
 
 sealed class kotlinx.serialization.descriptors/PolymorphicKind : kotlinx.serialization.descriptors/SerialKind { // kotlinx.serialization.descriptors/PolymorphicKind|null[0]
-    constructor <init>() // kotlinx.serialization.descriptors/PolymorphicKind.<init>|<init>(){}[0]
-
     final object OPEN : kotlinx.serialization.descriptors/PolymorphicKind // kotlinx.serialization.descriptors/PolymorphicKind.OPEN|null[0]
 
     final object SEALED : kotlinx.serialization.descriptors/PolymorphicKind // kotlinx.serialization.descriptors/PolymorphicKind.SEALED|null[0]
 }
 
 sealed class kotlinx.serialization.descriptors/PrimitiveKind : kotlinx.serialization.descriptors/SerialKind { // kotlinx.serialization.descriptors/PrimitiveKind|null[0]
-    constructor <init>() // kotlinx.serialization.descriptors/PrimitiveKind.<init>|<init>(){}[0]
-
     final object BOOLEAN : kotlinx.serialization.descriptors/PrimitiveKind // kotlinx.serialization.descriptors/PrimitiveKind.BOOLEAN|null[0]
 
     final object BYTE : kotlinx.serialization.descriptors/PrimitiveKind // kotlinx.serialization.descriptors/PrimitiveKind.BYTE|null[0]
@@ -872,8 +860,6 @@ sealed class kotlinx.serialization.descriptors/PrimitiveKind : kotlinx.serializa
 }
 
 sealed class kotlinx.serialization.descriptors/SerialKind { // kotlinx.serialization.descriptors/SerialKind|null[0]
-    constructor <init>() // kotlinx.serialization.descriptors/SerialKind.<init>|<init>(){}[0]
-
     open fun hashCode(): kotlin/Int // kotlinx.serialization.descriptors/SerialKind.hashCode|hashCode(){}[0]
     open fun toString(): kotlin/String // kotlinx.serialization.descriptors/SerialKind.toString|toString(){}[0]
 
@@ -883,8 +869,6 @@ sealed class kotlinx.serialization.descriptors/SerialKind { // kotlinx.serializa
 }
 
 sealed class kotlinx.serialization.descriptors/StructureKind : kotlinx.serialization.descriptors/SerialKind { // kotlinx.serialization.descriptors/StructureKind|null[0]
-    constructor <init>() // kotlinx.serialization.descriptors/StructureKind.<init>|<init>(){}[0]
-
     final object CLASS : kotlinx.serialization.descriptors/StructureKind // kotlinx.serialization.descriptors/StructureKind.CLASS|null[0]
 
     final object LIST : kotlinx.serialization.descriptors/StructureKind // kotlinx.serialization.descriptors/StructureKind.LIST|null[0]
@@ -895,8 +879,6 @@ sealed class kotlinx.serialization.descriptors/StructureKind : kotlinx.serializa
 }
 
 sealed class kotlinx.serialization.modules/SerializersModule { // kotlinx.serialization.modules/SerializersModule|null[0]
-    constructor <init>() // kotlinx.serialization.modules/SerializersModule.<init>|<init>(){}[0]
-
     abstract fun <#A1: kotlin/Any> getContextual(kotlin.reflect/KClass<#A1>, kotlin.collections/List<kotlinx.serialization/KSerializer<*>> = ...): kotlinx.serialization/KSerializer<#A1>? // kotlinx.serialization.modules/SerializersModule.getContextual|getContextual(kotlin.reflect.KClass<0:0>;kotlin.collections.List<kotlinx.serialization.KSerializer<*>>){0§<kotlin.Any>}[0]
     abstract fun <#A1: kotlin/Any> getPolymorphic(kotlin.reflect/KClass<in #A1>, #A1): kotlinx.serialization/SerializationStrategy<#A1>? // kotlinx.serialization.modules/SerializersModule.getPolymorphic|getPolymorphic(kotlin.reflect.KClass<in|0:0>;0:0){0§<kotlin.Any>}[0]
     abstract fun <#A1: kotlin/Any> getPolymorphic(kotlin.reflect/KClass<in #A1>, kotlin/String?): kotlinx.serialization/DeserializationStrategy<#A1>? // kotlinx.serialization.modules/SerializersModule.getPolymorphic|getPolymorphic(kotlin.reflect.KClass<in|0:0>;kotlin.String?){0§<kotlin.Any>}[0]

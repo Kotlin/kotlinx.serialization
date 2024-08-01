@@ -129,9 +129,11 @@ class ContextAndPolymorphicTest {
         assertEquals("BinaryPayload", resolvedToBinary.serialName)
     }
 
+    private val jsonArrayWithDefaults = Json { useArrayPolymorphism = true; encodeDefaults = true }
+
     @Test
     fun testContextualSerializerUsesDefaultIfModuleIsEmpty() {
-        val s = Json { useArrayPolymorphism = true; encodeDefaults = true }.encodeToString(EnhancedData.serializer(), value)
+        val s = jsonArrayWithDefaults.encodeToString(EnhancedData.serializer(), value)
         assertEquals("""{"data":{"a":100500,"b":42},"stringPayload":{"s":"string"},"binaryPayload":"62696E617279"}""", s)
     }
 }

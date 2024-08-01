@@ -19,9 +19,11 @@ class SerializerJvmSpecificTest {
 
     interface ImplicitInterface
 
+    @Suppress("SERIALIZER_TYPE_INCOMPATIBLE")
     @Serializable(with = PolymorphicSerializer::class)
     interface ExplicitInterface
 
+    @Suppress("SERIALIZER_TYPE_INCOMPATIBLE")
     @Serializable
     class Holder(
         val iif: ImplicitInterface,

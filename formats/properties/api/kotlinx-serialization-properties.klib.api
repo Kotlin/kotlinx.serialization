@@ -7,8 +7,6 @@
 
 // Library unique name: <org.jetbrains.kotlinx:kotlinx-serialization-properties>
 sealed class kotlinx.serialization.properties/Properties : kotlinx.serialization/SerialFormat { // kotlinx.serialization.properties/Properties|null[0]
-    constructor <init>(kotlinx.serialization.modules/SerializersModule, kotlin/Nothing?) // kotlinx.serialization.properties/Properties.<init>|<init>(kotlinx.serialization.modules.SerializersModule;kotlin.Nothing?){}[0]
-
     open val serializersModule // kotlinx.serialization.properties/Properties.serializersModule|{}serializersModule[0]
         open fun <get-serializersModule>(): kotlinx.serialization.modules/SerializersModule // kotlinx.serialization.properties/Properties.serializersModule.<get-serializersModule>|<get-serializersModule>(){}[0]
 

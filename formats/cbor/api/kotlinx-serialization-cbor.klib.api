@@ -119,8 +119,6 @@ final class kotlinx.serialization.cbor/CborConfiguration { // kotlinx.serializat
 }
 
 sealed class kotlinx.serialization.cbor/Cbor : kotlinx.serialization/BinaryFormat { // kotlinx.serialization.cbor/Cbor|null[0]
-    constructor <init>(kotlinx.serialization.cbor/CborConfiguration, kotlinx.serialization.modules/SerializersModule) // kotlinx.serialization.cbor/Cbor.<init>|<init>(kotlinx.serialization.cbor.CborConfiguration;kotlinx.serialization.modules.SerializersModule){}[0]
-
     final val configuration // kotlinx.serialization.cbor/Cbor.configuration|{}configuration[0]
         final fun <get-configuration>(): kotlinx.serialization.cbor/CborConfiguration // kotlinx.serialization.cbor/Cbor.configuration.<get-configuration>|<get-configuration>(){}[0]
     open val serializersModule // kotlinx.serialization.cbor/Cbor.serializersModule|{}serializersModule[0]

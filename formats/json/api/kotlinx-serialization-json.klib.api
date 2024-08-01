@@ -297,8 +297,6 @@ final class kotlinx.serialization.json/JsonObjectBuilder { // kotlinx.serializat
 }
 
 sealed class kotlinx.serialization.json/Json : kotlinx.serialization/StringFormat { // kotlinx.serialization.json/Json|null[0]
-    constructor <init>(kotlinx.serialization.json/JsonConfiguration, kotlinx.serialization.modules/SerializersModule) // kotlinx.serialization.json/Json.<init>|<init>(kotlinx.serialization.json.JsonConfiguration;kotlinx.serialization.modules.SerializersModule){}[0]
-
     final val configuration // kotlinx.serialization.json/Json.configuration|{}configuration[0]
         final fun <get-configuration>(): kotlinx.serialization.json/JsonConfiguration // kotlinx.serialization.json/Json.configuration.<get-configuration>|<get-configuration>(){}[0]
     open val serializersModule // kotlinx.serialization.json/Json.serializersModule|{}serializersModule[0]
@@ -315,16 +313,12 @@ sealed class kotlinx.serialization.json/Json : kotlinx.serialization/StringForma
 }
 
 sealed class kotlinx.serialization.json/JsonElement { // kotlinx.serialization.json/JsonElement|null[0]
-    constructor <init>() // kotlinx.serialization.json/JsonElement.<init>|<init>(){}[0]
-
     final object Companion { // kotlinx.serialization.json/JsonElement.Companion|null[0]
         final fun serializer(): kotlinx.serialization/KSerializer<kotlinx.serialization.json/JsonElement> // kotlinx.serialization.json/JsonElement.Companion.serializer|serializer(){}[0]
     }
 }
 
 sealed class kotlinx.serialization.json/JsonPrimitive : kotlinx.serialization.json/JsonElement { // kotlinx.serialization.json/JsonPrimitive|null[0]
-    constructor <init>() // kotlinx.serialization.json/JsonPrimitive.<init>|<init>(){}[0]
-
     abstract val content // kotlinx.serialization.json/JsonPrimitive.content|{}content[0]
         abstract fun <get-content>(): kotlin/String // kotlinx.serialization.json/JsonPrimitive.content.<get-content>|<get-content>(){}[0]
     abstract val isString // kotlinx.serialization.json/JsonPrimitive.isString|{}isString[0]

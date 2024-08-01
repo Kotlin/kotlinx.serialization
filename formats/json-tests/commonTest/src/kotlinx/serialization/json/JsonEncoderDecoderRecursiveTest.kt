@@ -47,10 +47,12 @@ class JsonEncoderDecoderRecursiveTest : JsonTestBase() {
         assertEquals(inputDataString, ev)
     }
 
+    private val jsonPretty = Json { prettyPrint = true }
+
     @Test
     fun testWriteDataStringIndented() = parametrizedTest { jsonTestingMode ->
         val outputData = Event(0, Either.Right(Payload(42, 43, "Hello world")), 1000)
-        val ev = Json { prettyPrint = true }.encodeToString(Event.serializer(), outputData, jsonTestingMode)
+        val ev = jsonPretty.encodeToString(Event.serializer(), outputData, jsonTestingMode)
         assertEquals("""{
             |    "id": 0,
             |    "payload": {
