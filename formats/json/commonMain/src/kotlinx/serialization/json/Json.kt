@@ -418,6 +418,9 @@ public class JsonBuilder internal constructor(json: Json) {
      * Removes JSON specification restriction (RFC-4627) and makes parser
      * more liberal to the malformed input. In lenient mode, unquoted JSON keys and string values are allowed.
      *
+     * Example of invalid JSON that is accepted with this flag set:
+     * `{key: value}` can be parsed into `@Serializable class Data(val key: String)`.
+     *
      * Its relaxations can be expanded in the future, so that lenient parser becomes even more
      * permissive to invalid values in the input.
      *
