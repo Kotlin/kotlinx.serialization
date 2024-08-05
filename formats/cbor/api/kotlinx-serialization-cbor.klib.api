@@ -6,6 +6,10 @@
 // - Show declarations: true
 
 // Library unique name: <org.jetbrains.kotlinx:kotlinx-serialization-cbor>
+open annotation class kotlinx.serialization.cbor/ByteString : kotlin/Annotation { // kotlinx.serialization.cbor/ByteString|null[0]
+    constructor <init>() // kotlinx.serialization.cbor/ByteString.<init>|<init>(){}[0]
+}
+
 final class kotlinx.serialization.cbor/CborBuilder { // kotlinx.serialization.cbor/CborBuilder|null[0]
     final var encodeDefaults // kotlinx.serialization.cbor/CborBuilder.encodeDefaults|{}encodeDefaults[0]
         final fun <get-encodeDefaults>(): kotlin/Boolean // kotlinx.serialization.cbor/CborBuilder.encodeDefaults.<get-encodeDefaults>|<get-encodeDefaults>(){}[0]
@@ -17,15 +21,17 @@ final class kotlinx.serialization.cbor/CborBuilder { // kotlinx.serialization.cb
         final fun <get-serializersModule>(): kotlinx.serialization.modules/SerializersModule // kotlinx.serialization.cbor/CborBuilder.serializersModule.<get-serializersModule>|<get-serializersModule>(){}[0]
         final fun <set-serializersModule>(kotlinx.serialization.modules/SerializersModule) // kotlinx.serialization.cbor/CborBuilder.serializersModule.<set-serializersModule>|<set-serializersModule>(kotlinx.serialization.modules.SerializersModule){}[0]
 }
-final fun kotlinx.serialization.cbor/Cbor(kotlinx.serialization.cbor/Cbor = ..., kotlin/Function1<kotlinx.serialization.cbor/CborBuilder, kotlin/Unit>): kotlinx.serialization.cbor/Cbor // kotlinx.serialization.cbor/Cbor|Cbor(kotlinx.serialization.cbor.Cbor;kotlin.Function1<kotlinx.serialization.cbor.CborBuilder,kotlin.Unit>){}[0]
-open annotation class kotlinx.serialization.cbor/ByteString : kotlin/Annotation { // kotlinx.serialization.cbor/ByteString|null[0]
-    constructor <init>() // kotlinx.serialization.cbor/ByteString.<init>|<init>(){}[0]
-}
+
 sealed class kotlinx.serialization.cbor/Cbor : kotlinx.serialization/BinaryFormat { // kotlinx.serialization.cbor/Cbor|null[0]
     constructor <init>(kotlin/Boolean, kotlin/Boolean, kotlinx.serialization.modules/SerializersModule) // kotlinx.serialization.cbor/Cbor.<init>|<init>(kotlin.Boolean;kotlin.Boolean;kotlinx.serialization.modules.SerializersModule){}[0]
-    final object Default : kotlinx.serialization.cbor/Cbor // kotlinx.serialization.cbor/Cbor.Default|null[0]
-    open fun <#A1: kotlin/Any?> decodeFromByteArray(kotlinx.serialization/DeserializationStrategy<#A1>, kotlin/ByteArray): #A1 // kotlinx.serialization.cbor/Cbor.decodeFromByteArray|decodeFromByteArray(kotlinx.serialization.DeserializationStrategy<0:0>;kotlin.ByteArray){0§<kotlin.Any?>}[0]
-    open fun <#A1: kotlin/Any?> encodeToByteArray(kotlinx.serialization/SerializationStrategy<#A1>, #A1): kotlin/ByteArray // kotlinx.serialization.cbor/Cbor.encodeToByteArray|encodeToByteArray(kotlinx.serialization.SerializationStrategy<0:0>;0:0){0§<kotlin.Any?>}[0]
+
     open val serializersModule // kotlinx.serialization.cbor/Cbor.serializersModule|{}serializersModule[0]
         open fun <get-serializersModule>(): kotlinx.serialization.modules/SerializersModule // kotlinx.serialization.cbor/Cbor.serializersModule.<get-serializersModule>|<get-serializersModule>(){}[0]
+
+    open fun <#A1: kotlin/Any?> decodeFromByteArray(kotlinx.serialization/DeserializationStrategy<#A1>, kotlin/ByteArray): #A1 // kotlinx.serialization.cbor/Cbor.decodeFromByteArray|decodeFromByteArray(kotlinx.serialization.DeserializationStrategy<0:0>;kotlin.ByteArray){0§<kotlin.Any?>}[0]
+    open fun <#A1: kotlin/Any?> encodeToByteArray(kotlinx.serialization/SerializationStrategy<#A1>, #A1): kotlin/ByteArray // kotlinx.serialization.cbor/Cbor.encodeToByteArray|encodeToByteArray(kotlinx.serialization.SerializationStrategy<0:0>;0:0){0§<kotlin.Any?>}[0]
+
+    final object Default : kotlinx.serialization.cbor/Cbor // kotlinx.serialization.cbor/Cbor.Default|null[0]
 }
+
+final fun kotlinx.serialization.cbor/Cbor(kotlinx.serialization.cbor/Cbor = ..., kotlin/Function1<kotlinx.serialization.cbor/CborBuilder, kotlin/Unit>): kotlinx.serialization.cbor/Cbor // kotlinx.serialization.cbor/Cbor|Cbor(kotlinx.serialization.cbor.Cbor;kotlin.Function1<kotlinx.serialization.cbor.CborBuilder,kotlin.Unit>){}[0]
