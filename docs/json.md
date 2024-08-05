@@ -121,14 +121,14 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-json-02.kt).
 
-You get the object, even though all keys of the source JSON, string, and enum values are unquoted:
+You get the object, even though all keys of the source JSON, string and enum values are unquoted:
 
 ```text
 Project(name=kotlinx.serialization, status=SUPPORTED, votes=9000)
 ```
 
 > Note that parsing of quoted numbers or booleans such as `votes: "9000"` to `val votes: Int` is generally allowed by kotlinx.serialization
-> regardless of `isLenient` flag, since such JSON is syntactically valid.
+> regardless of the `isLenient` flag, since such JSON is syntactically valid.
 
 <!--- TEST -->
 
