@@ -216,7 +216,7 @@ public fun <T> SetSerializer(elementSerializer: KSerializer<T>): KSerializer<Set
 
 /**
  * Creates a serializer for [`Map<K, V>`][Map] for the given serializers for
- * its ket type [K] and value type [V].
+ * its key type [K] and value type [V].
  */
 public fun <K, V> MapSerializer(
     keySerializer: KSerializer<K>,
