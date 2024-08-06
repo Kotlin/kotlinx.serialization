@@ -766,6 +766,7 @@ import kotlinx.serialization.modules.*
 
 ```kotlin
 @ExperimentalSerializationApi
+@OptIn(AdvancedEncodingApi::class)
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
 
@@ -837,6 +838,7 @@ import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 
 @ExperimentalSerializationApi
+@OptIn(AdvancedEncodingApi::class)
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
 
@@ -871,6 +873,7 @@ A decoder needs to implement more substance.
 
 ```kotlin
 @ExperimentalSerializationApi
+@OptIn(AdvancedEncodingApi::class)
 class ListDecoder(val list: ArrayDeque<Any>) : AbstractDecoder() {
     private var elementIndex = 0
 
@@ -952,6 +955,7 @@ import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 
 @ExperimentalSerializationApi
+@OptIn(AdvancedEncodingApi::class)
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
 
@@ -975,6 +979,7 @@ inline fun <reified T> encodeToList(value: T) = encodeToList(serializer(), value
 
 ```kotlin
 @ExperimentalSerializationApi
+@OptIn(AdvancedEncodingApi::class)
 class ListDecoder(val list: ArrayDeque<Any>) : AbstractDecoder() {
     private var elementIndex = 0
 
@@ -1046,6 +1051,7 @@ import kotlinx.serialization.modules.*
 
 ```kotlin
 @ExperimentalSerializationApi
+@OptIn(AdvancedEncodingApi::class)
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
 
@@ -1082,6 +1088,7 @@ in addition to the previous code.
 
 ```kotlin
 @ExperimentalSerializationApi
+@OptIn(AdvancedEncodingApi::class)
 class ListDecoder(val list: ArrayDeque<Any>, var elementsCount: Int = 0) : AbstractDecoder() {
     private var elementIndex = 0
 
@@ -1158,6 +1165,7 @@ import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 
 @ExperimentalSerializationApi
+@OptIn(AdvancedEncodingApi::class)
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
 
@@ -1194,6 +1202,7 @@ fun <T> encodeToList(serializer: SerializationStrategy<T>, value: T): List<Any> 
 inline fun <reified T> encodeToList(value: T) = encodeToList(serializer(), value)
 
 @ExperimentalSerializationApi
+@OptIn(AdvancedEncodingApi::class)
 class ListDecoder(val list: ArrayDeque<Any>, var elementsCount: Int = 0) : AbstractDecoder() {
     private var elementIndex = 0
     
@@ -1282,6 +1291,7 @@ import java.io.*
 
 ```kotlin     
 @ExperimentalSerializationApi
+@OptIn(AdvancedEncodingApi::class)
 class DataOutputEncoder(val output: DataOutput) : AbstractEncoder() {
     override val serializersModule: SerializersModule = EmptySerializersModule()
     override fun encodeBoolean(value: Boolean) = output.writeByte(if (value) 1 else 0)
@@ -1321,6 +1331,7 @@ The decoder implementation mirrors encoder's implementation overriding all the p
 
 ```kotlin 
 @ExperimentalSerializationApi
+@OptIn(AdvancedEncodingApi::class)
 class DataInputDecoder(val input: DataInput, var elementsCount: Int = 0) : AbstractDecoder() {
     private var elementIndex = 0
     override val serializersModule: SerializersModule = EmptySerializersModule()
@@ -1441,6 +1452,7 @@ a size of up to 254 bytes.
 
 <!--- INCLUDE
 @ExperimentalSerializationApi
+@OptIn(AdvancedEncodingApi::class)
 class DataOutputEncoder(val output: DataOutput) : AbstractEncoder() {
     override val serializersModule: SerializersModule = EmptySerializersModule()
     override fun encodeBoolean(value: Boolean) = output.writeByte(if (value) 1 else 0)
@@ -1499,6 +1511,7 @@ fun <T> encodeTo(output: DataOutput, serializer: SerializationStrategy<T>, value
 inline fun <reified T> encodeTo(output: DataOutput, value: T) = encodeTo(output, serializer(), value)
 
 @ExperimentalSerializationApi
+@OptIn(AdvancedEncodingApi::class)
 class DataInputDecoder(val input: DataInput, var elementsCount: Int = 0) : AbstractDecoder() {
     private var elementIndex = 0
     override val serializersModule: SerializersModule = EmptySerializersModule()

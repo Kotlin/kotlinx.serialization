@@ -66,7 +66,10 @@ kotlin {
             progressiveMode = true
 
             optIn("kotlin.ExperimentalMultiplatform")
+            optIn("kotlin.ExperimentalSubclassOptIn")
+            optIn("kotlin.ExperimentalStdlibApi")
             optIn("kotlinx.serialization.InternalSerializationApi")
+            optIn("kotlinx.serialization.SealedSerializationApi")
         }
     }
 
@@ -147,7 +150,9 @@ kotlin {
     sourceSets.matching({ it.name.contains("Test") }).configureEach {
         languageSettings {
             optIn("kotlinx.serialization.InternalSerializationApi")
+            optIn("kotlinx.serialization.SealedSerializationApi")
             optIn("kotlinx.serialization.ExperimentalSerializationApi")
+            optIn("kotlinx.serialization.encoding.AdvancedEncodingApi")
         }
     }
 }

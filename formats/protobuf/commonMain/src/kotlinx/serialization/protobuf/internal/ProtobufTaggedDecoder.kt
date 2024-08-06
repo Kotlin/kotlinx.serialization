@@ -9,6 +9,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 
+@OptIn(AdvancedEncodingApi::class)
 internal abstract class ProtobufTaggedDecoder : ProtobufTaggedBase(), Decoder, CompositeDecoder {
     protected abstract fun SerialDescriptor.getTag(index: Int): ProtoDesc
 

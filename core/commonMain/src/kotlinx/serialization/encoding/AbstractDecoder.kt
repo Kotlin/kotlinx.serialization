@@ -14,6 +14,7 @@ import kotlinx.serialization.descriptors.*
  * See [Decoder] documentation for information about each particular `decode*` method.
  */
 @ExperimentalSerializationApi
+@SubclassOptInRequired(AdvancedEncodingApi::class)
 public abstract class AbstractDecoder : Decoder, CompositeDecoder {
 
     /**

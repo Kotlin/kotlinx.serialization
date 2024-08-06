@@ -16,6 +16,7 @@ import kotlinx.serialization.internal.*
  * See [Encoder] documentation for information about each particular `encode*` method.
  */
 @ExperimentalSerializationApi
+@SubclassOptInRequired(AdvancedEncodingApi::class)
 public abstract class AbstractEncoder : Encoder, CompositeEncoder {
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder = this

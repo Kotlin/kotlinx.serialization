@@ -43,7 +43,7 @@ internal fun <T> Json.encodeDynamic(serializer: SerializationStrategy<T>, value:
     return encoder.result
 }
 
-@OptIn(ExperimentalSerializationApi::class)
+@OptIn(ExperimentalSerializationApi::class, AdvancedEncodingApi::class)
 private class DynamicObjectEncoder(
     override val json: Json,
     private val encodeNullAsUndefined: Boolean
@@ -245,6 +245,7 @@ private class DynamicObjectEncoder(
     }
 }
 
+@OptIn(AdvancedEncodingApi::class)
 private class DynamicPrimitiveEncoder(
     override val json: Json,
 ) : AbstractEncoder(), JsonEncoder {

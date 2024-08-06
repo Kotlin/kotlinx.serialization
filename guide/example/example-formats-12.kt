@@ -7,6 +7,7 @@ import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 
 @ExperimentalSerializationApi
+@OptIn(AdvancedEncodingApi::class)
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
 
@@ -28,6 +29,7 @@ fun <T> encodeToList(serializer: SerializationStrategy<T>, value: T): List<Any> 
 inline fun <reified T> encodeToList(value: T) = encodeToList(serializer(), value)
 
 @ExperimentalSerializationApi
+@OptIn(AdvancedEncodingApi::class)
 class ListDecoder(val list: ArrayDeque<Any>) : AbstractDecoder() {
     private var elementIndex = 0
 

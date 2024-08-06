@@ -4,6 +4,7 @@
 
 package kotlinx.serialization.json
 
+import kotlinx.serialization.*
 import kotlinx.serialization.encoding.*
 
 /**
@@ -49,6 +50,8 @@ import kotlinx.serialization.encoding.*
  * Accepting this interface in your API methods, casting [Encoder] to [JsonEncoder] and invoking its
  * methods is considered stable.
  */
+@OptIn(AdvancedEncodingApi::class)
+@SubclassOptInRequired(SealedSerializationApi::class)
 public interface JsonEncoder : Encoder, CompositeEncoder {
     /**
      * An instance of the current [Json].

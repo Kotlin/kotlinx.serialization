@@ -22,7 +22,6 @@ public fun <T> writeJson(json: Json, value: T, serializer: SerializationStrategy
     return result
 }
 
-@ExperimentalSerializationApi
 private sealed class AbstractJsonTreeEncoder(
     final override val json: Json,
     protected val nodeConsumer: (JsonElement) -> Unit
@@ -128,6 +127,7 @@ private sealed class AbstractJsonTreeEncoder(
     }
 
     @SuppressAnimalSniffer // Long(Integer).toUnsignedString(long)
+    @OptIn(AdvancedEncodingApi::class)
     private fun inlineUnsignedNumberEncoder(tag: String) = object : AbstractEncoder() {
             override val serializersModule: SerializersModule = json.serializersModule
 
@@ -138,6 +138,7 @@ private sealed class AbstractJsonTreeEncoder(
             override fun encodeShort(value: Short) = putUnquotedString(value.toUShort().toString())
         }
 
+    @OptIn(AdvancedEncodingApi::class)
     private fun inlineUnquotedLiteralEncoder(tag: String, inlineDescriptor: SerialDescriptor) = object : AbstractEncoder() {
         override val serializersModule: SerializersModule get() = json.serializersModule
 

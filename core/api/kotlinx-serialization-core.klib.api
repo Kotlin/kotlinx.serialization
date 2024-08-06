@@ -7,6 +7,10 @@
 // - Show declarations: true
 
 // Library unique name: <org.jetbrains.kotlinx:kotlinx-serialization-core>
+open annotation class kotlinx.serialization.encoding/AdvancedEncodingApi : kotlin/Annotation { // kotlinx.serialization.encoding/AdvancedEncodingApi|null[0]
+    constructor <init>() // kotlinx.serialization.encoding/AdvancedEncodingApi.<init>|<init>(){}[0]
+}
+
 open annotation class kotlinx.serialization.internal/NamedCompanion : kotlin/Annotation { // kotlinx.serialization.internal/NamedCompanion|null[0]
     constructor <init>() // kotlinx.serialization.internal/NamedCompanion.<init>|<init>(){}[0]
 }
@@ -59,6 +63,10 @@ open annotation class kotlinx.serialization/Polymorphic : kotlin/Annotation { //
 
 open annotation class kotlinx.serialization/Required : kotlin/Annotation { // kotlinx.serialization/Required|null[0]
     constructor <init>() // kotlinx.serialization/Required.<init>|<init>(){}[0]
+}
+
+open annotation class kotlinx.serialization/SealedSerializationApi : kotlin/Annotation { // kotlinx.serialization/SealedSerializationApi|null[0]
+    constructor <init>() // kotlinx.serialization/SealedSerializationApi.<init>|<init>(){}[0]
 }
 
 open annotation class kotlinx.serialization/SerialInfo : kotlin/Annotation { // kotlinx.serialization/SerialInfo|null[0]

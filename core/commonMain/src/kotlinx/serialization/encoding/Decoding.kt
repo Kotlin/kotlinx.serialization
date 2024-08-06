@@ -111,6 +111,7 @@ import kotlinx.serialization.modules.*
  * `Decoder` interface is not stable for inheritance in 3rd-party libraries, as new methods
  * might be added to this interface or contracts of the existing methods can be changed.
  */
+@SubclassOptInRequired(AdvancedEncodingApi::class)
 public interface Decoder {
     /**
      * Context of the current serialization process, including contextual and polymorphic serialization and,
@@ -292,6 +293,7 @@ internal inline fun <T : Any> Decoder.decodeIfNullable(deserializer: Deserializa
  * `CompositeDecoder` interface is not stable for inheritance in 3rd party libraries, as new methods
  * might be added to this interface or contracts of the existing methods can be changed.
  */
+@SubclassOptInRequired(AdvancedEncodingApi::class)
 public interface CompositeDecoder {
 
     /**
