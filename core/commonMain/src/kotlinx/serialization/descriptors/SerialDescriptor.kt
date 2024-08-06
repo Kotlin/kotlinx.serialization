@@ -11,16 +11,16 @@ import kotlinx.serialization.encoding.*
 /**
  * Serial descriptor is an inherent property of [KSerializer] that describes the structure of the serializable type.
  * The structure of the serializable type is not only the characteristic of the type itself, but also of the serializer as well,
- * meaning that one type can have multiple descriptors that have completely different structure.
+ * meaning that one type can have multiple descriptors that have completely different structures.
  *
  * For example, the class `class Color(val rgb: Int)` can have multiple serializable representations,
  * such as `{"rgb": 255}`, `"#0000FF"`, `[0, 0, 255]` and `{"red": 0, "green": 0, "blue": 255}`.
- * Representations are determined by serializers and each such serializer has its own descriptor that identifies
+ * Representations are determined by serializers, and each such serializer has its own descriptor that identifies
  * each structure in a distinguishable and format-agnostic manner.
  *
  * ### Structure
  * Serial descriptor is identified by its [name][serialName] and consists of a kind, potentially empty set of
- * children elements and additional metadata.
+ * children elements, and additional metadata.
  *
  * * [serialName] uniquely identifies the descriptor (and the corresponding serializer) for non-generic types.
  *   For generic types, the actual type substitution is omitted from the string representation, and the name
@@ -29,7 +29,7 @@ import kotlinx.serialization.encoding.*
  *   arguments are not equal to each other.
  *   [serialName] is typically used to specify the type of the target class during serialization of polymorphic and sealed
  *   classes, for observability and diagnostics.
- * * [Kind][SerialKind] defines what this descriptor represents: primitive, enum, object, collection etc.
+ * * [Kind][SerialKind] defines what this descriptor represents: primitive, enum, object, collection, etc.
  * * Children elements are represented as serial descriptors as well and define the structure of the type's elements.
  * * Metadata carries additional information, such as [nullability][nullable], [optionality][isElementOptional]
  *   and [serial annotations][getElementAnnotations].
@@ -40,7 +40,7 @@ import kotlinx.serialization.encoding.*
  * #### Serialization
  * Serial descriptor is used as a bridge between decoders/encoders and serializers.
  * When asking for a next element, the serializer provides an expected descriptor to the decoder, and,
- * based on the descriptor content, decoder decides how to parse its input.
+ * based on the descriptor content, the decoder decides how to parse its input.
  * In JSON, for example, when the encoder is asked to encode the next element and this element
  * is a subtype of [List], the encoder receives a descriptor with [StructureKind.LIST] and, based on that,
  * first writes an opening square bracket before writing the content of the list.
@@ -51,7 +51,7 @@ import kotlinx.serialization.encoding.*
  *
  * #### Introspection
  * Another usage of a serial descriptor is type introspection without its serialization.
- * Introspection can be used to check, whether the given serializable class complies the
+ * Introspection can be used to check whether the given serializable class complies the
  * corresponding scheme and to generate JSON or ProtoBuf schema from the given class.
  *
  * ### Indices
@@ -60,13 +60,13 @@ import kotlinx.serialization.encoding.*
  * the range from zero to [elementsCount] and represent and index of the property in this class.
  * Consequently, primitives do not have children and their element count is zero.
  *
- * For collections and maps indices don't have fixed bound. Regular collections descriptors usually
+ * For collections and maps indices do not have a fixed bound. Regular collections descriptors usually
  * have one element (`T`, maps have two, one for keys and one for values), but potentially unlimited
- * number of actual children values. Valid indices range is not known statically
- * and implementations of such descriptor should provide consistent and unbounded names and indices.
+ * number of actual children values. Valid indices range is not known statically,
+ * and implementations of such a descriptor should provide consistent and unbounded names and indices.
  *
  * In practice, for regular classes it is allowed to invoke `getElement*(index)` methods
- * with an index from `0` to [elementsCount] range and element at the particular index corresponds to the
+ * with an index from `0` to [elementsCount] range and the element at the particular index corresponds to the
  * serializable property at the given position.
  * For collections and maps, index parameter for `getElement*(index)` methods is effectively bounded
  * by the maximal number of collection/map elements.
@@ -80,12 +80,12 @@ import kotlinx.serialization.encoding.*
  *
  * An [equals] implementation should use both [serialName] and elements structure.
  * Comparing [elementDescriptors] directly is discouraged,
- * because it may cause a stack overflow error, e.g. if a serializable class `T` contains elements of type `T`.
+ * because it may cause a stack overflow error, e.g., if a serializable class `T` contains elements of type `T`.
  * To avoid it, a serial descriptor implementation should compare only descriptors
  * of class' type parameters, in a way that `serializer<Box<Int>>().descriptor != serializer<Box<String>>().descriptor`.
- * If type parameters are equal, descriptors structure should be compared by using children elements
+ * If type parameters are equal, descriptor structure should be compared by using children elements
  * descriptors' [serialName]s, which correspond to class names
- * (do not confuse with elements own names, which correspond to properties names); and/or other [SerialDescriptor]
+ * (do not confuse with elements' own names, which correspond to properties' names); and/or other [SerialDescriptor]
  * properties, such as [kind].
  * An example of [equals] implementation:
  * ```
@@ -128,31 +128,43 @@ import kotlinx.serialization.encoding.*
  * }
  * ```
  *
- * For a classes that are represented as a single primitive value, [PrimitiveSerialDescriptor] builder function can be used instead.
+ * For classes that are represented as a single primitive value, [PrimitiveSerialDescriptor] builder function can be used instead.
  *
  * ### Consistency violations
  * An implementation of [SerialDescriptor] should be consistent with the implementation of the corresponding [KSerializer].
- * Yet it is not type-checked statically, thus making it possible to declare a non-consistent implementations of descriptor and serializer.
- * In such cases, the behaviour of an underlying format is unspecified and may lead to both runtime errors and encoding of
+ * Yet it is not type-checked statically, thus making it possible to declare a non-consistent implementation of descriptor and serializer.
+ * In such cases, the behavior of an underlying format is unspecified and may lead to both runtime errors and encoding of
  * corrupted data that is impossible to decode back.
  *
- * ### Not stable for inheritance
+ * ### Not for implementation
  *
- * `SerialDescriptor` interface is not stable for inheritance in 3rd party libraries, as new methods
- * might be added to this interface or contracts of the existing methods can be changed.
- * This interface is safe to build using [buildClassSerialDescriptor] and [PrimitiveSerialDescriptor],
- * and is safe to delegate implementation to existing instances.
+ * `SerialDescriptor` interface should not be implemented in 3rd party libraries, as new methods
+ * might be added to this interface when kotlinx.serialization adds support for new Kotlin features.
+ * This interface is safe to use and construct via [buildClassSerialDescriptor], [PrimitiveSerialDescriptor], and `SerialDescriptor` factory function.
  */
 public interface SerialDescriptor {
     /**
      * Serial name of the descriptor that identifies a pair of the associated serializer and target class.
      *
-     * For generated and default serializers, the serial name should be equal to the corresponding class's fully qualified name
+     * For generated and default serializers, the serial name is equal to the corresponding class's fully qualified name
      * or, if overridden, [SerialName].
      * Custom serializers should provide a unique serial name that identifies both the serializable class and
-     * the serializer itself, ignoring type arguments, if they are present, for example: `my.package.LongAsTrimmedString`
+     * the serializer itself, ignoring type arguments if they are present, for example: `my.package.LongAsTrimmedString`.
+     *
+     * Do not confuse with [getElementName], which returns property name:
+     *
+     * ```
+     * package my.app
+     *
+     * @Serializable
+     * class User(val name: String)
+     *
+     * val userDescriptor = User.serializer().descriptor
+     *
+     * userDescriptor.serialName // Returns "my.app.User"
+     * userDescriptor.getElementName(0) // Returns "name"
+     * ```
      */
-    @ExperimentalSerializationApi
     public val serialName: String
 
     /**
@@ -163,21 +175,58 @@ public interface SerialDescriptor {
      * brackets, while ProtoBuf just serialize these types in separate ways.
      *
      * Kind should be consistent with the implementation, for example, if it is a [primitive][PrimitiveKind],
-     * then its elements count should be zero and vice versa.
+     * then its element count should be zero and vice versa.
+     *
+     * Example of introspecting kinds:
+     *
+     * ```
+     * @Serializable
+     * class User(val name: String)
+     *
+     * val userDescriptor = User.serializer().descriptor
+     *
+     * userDescriptor.kind // Returns StructureKind.CLASS
+     * userDescriptor.getElementDescriptor(0).kind // Returns PrimitiveKind.STRING
+     * ```
      */
-    @ExperimentalSerializationApi
     public val kind: SerialKind
 
     /**
-     * Whether the descriptor describes nullable element.
+     * Whether the descriptor describes a nullable type.
      * Returns `true` if associated serializer can serialize/deserialize nullable elements of the described type.
+     *
+     * Example:
+     *
+     * ```
+     * @Serializable
+     * class User(val name: String, val alias: String?)
+     *
+     * val userDescriptor = User.serializer().descriptor
+     *
+     * userDescriptor.isNullable // Returns false
+     * userDescriptor.getElementDescriptor(0).isNullable // Returns false
+     * userDescriptor.getElementDescriptor(1).isNullable // Returns true
+     * ```
      */
-    @ExperimentalSerializationApi
     public val isNullable: Boolean get() = false
 
     /**
      * Returns `true` if this descriptor describes a serializable value class which underlying value
      * is serialized directly.
+     *
+     * This property is true for serializable `@JvmInline value` classes:
+     * ```
+     * @Serializable
+     * class User(val name: Name)
+     *
+     * @Serializable
+     * @JvmInline
+     * value class Name(val value: String)
+     *
+     * User.serializer().descriptor.isInline // false
+     * User.serializer().descriptor.getElementDescriptor(0).isInline // true
+     * Name.serializer().descriptor.isInline // true
+     * ```
      */
     public val isInline: Boolean get() = false
 
@@ -188,19 +237,44 @@ public interface SerialDescriptor {
      *
      * For example, for the following class
      * `class Complex(val real: Long, val imaginary: Long)` the corresponding descriptor
-     * and the serialized form both have two elements, while for `class IntList : ArrayList<Int>()`
+     * and the serialized form both have two elements, while for `List<Int>`
      * the corresponding descriptor has a single element (`IntDescriptor`, the type of list element),
-     * but from zero up to `Int.MAX_VALUE` values in the serialized form.
+     * but from zero up to `Int.MAX_VALUE` values in the serialized form:
+     *
+     * ```
+     * @Serializable
+     * class Complex(val real: Long, val imaginary: Long)
+     *
+     * Complex.serializer().descriptor.elementsCount // Returns 2
+     *
+     * @Serializable
+     * class OuterList(val list: List<Int>)
+     *
+     * OuterList.serializer().descriptor.getElementDescriptor(0).elementsCount // Returns 1
+     * ```
      */
-    @ExperimentalSerializationApi
     public val elementsCount: Int
 
     /**
      * Returns serial annotations of the associated class.
-     * Serial annotations can be used to specify an additional metadata that may be used during serialization.
+     * Serial annotations can be used to specify additional metadata that may be used during serialization.
      * Only annotations marked with [SerialInfo] are added to the resulting list.
+     *
+     * Do not confuse with [getElementAnnotations]:
+     * ```
+     * @Serializable
+     * @OnClassSerialAnnotation
+     * class Nested(...)
+     *
+     * @Serializable
+     * class Outer(@OnPropertySerialAnnotation val nested: Nested)
+     *
+     * val outerDescriptor = Outer.serializer().descriptor
+     *
+     * outerDescriptor.getElementAnnotations(0) // Returns [@OnPropertySerialAnnotation]
+     * outerDescriptor.getElementDescriptor(0).annotations // Returns [@OnClassSerialAnnotation]
+     * ```
      */
-    @ExperimentalSerializationApi
     public val annotations: List<Annotation> get() = emptyList()
 
     /**
@@ -208,41 +282,67 @@ public interface SerialDescriptor {
      * Positional name represents a corresponding property name in the class, associated with
      * the current descriptor.
      *
+     * Do not confuse with [serialName], which returns class name:
+     *
+     * ```
+     * package my.app
+     *
+     * @Serializable
+     * class User(val name: String)
+     *
+     * val userDescriptor = User.serializer().descriptor
+     *
+     * userDescriptor.serialName // Returns "my.app.User"
+     * userDescriptor.getElementName(0) // Returns "name"
+     * ```
+     *
      * @throws IndexOutOfBoundsException for an illegal [index] values.
      * @throws IllegalStateException if the current descriptor does not support children elements (e.g. is a primitive)
      */
-    @ExperimentalSerializationApi
     public fun getElementName(index: Int): String
 
     /**
      * Returns an index in the children list of the given element by its name or [CompositeDecoder.UNKNOWN_NAME]
      * if there is no such element.
      * The resulting index, if it is not [CompositeDecoder.UNKNOWN_NAME], is guaranteed to be usable with [getElementName].
+     *
+     * Example:
+     *
+     * ```
+     * @Serializable
+     * class User(val name: String, val alias: String?)
+     *
+     * val userDescriptor = User.serializer().descriptor
+     *
+     * userDescriptor.getElementIndex("name") // Returns 0
+     * userDescriptor.getElementIndex("alias") // Returns 1
+     * userDescriptor.getElementIndex("lastName") // Returns CompositeDecoder.UNKNOWN_NAME = -3
+     * ```
      */
-    @ExperimentalSerializationApi
     public fun getElementIndex(name: String): Int
 
     /**
      * Returns serial annotations of the child element at the given [index].
      * This method differs from `getElementDescriptor(index).annotations` by reporting only
-     * declaration-specific annotations:
+     * element-specific annotations:
      * ```
      * @Serializable
-     * @SomeSerialAnnotation
+     * @OnClassSerialAnnotation
      * class Nested(...)
      *
      * @Serializable
-     * class Outer(@AnotherSerialAnnotation val nested: Nested)
+     * class Outer(@OnPropertySerialAnnotation val nested: Nested)
      *
-     * outerDescriptor.getElementAnnotations(0) // Returns [@AnotherSerialAnnotation]
-     * outerDescriptor.getElementDescriptor(0).annotations // Returns [@SomeSerialAnnotation]
+     * val outerDescriptor = Outer.serializer().descriptor
+     *
+     * outerDescriptor.getElementAnnotations(0) // Returns [@OnPropertySerialAnnotation]
+     * outerDescriptor.getElementDescriptor(0).annotations // Returns [@OnClassSerialAnnotation]
      * ```
      * Only annotations marked with [SerialInfo] are added to the resulting list.
      *
      * @throws IndexOutOfBoundsException for an illegal [index] values.
      * @throws IllegalStateException if the current descriptor does not support children elements (e.g. is a primitive).
      */
-    @ExperimentalSerializationApi
     public fun getElementAnnotations(index: Int): List<Annotation>
 
     /**
@@ -252,42 +352,63 @@ public interface SerialDescriptor {
      * with `@Serializable(with = ...`)`, [Polymorphic] or [Contextual].
      * This method can be used to completely introspect the type that the current descriptor describes.
      *
+     * Example:
+     * ```
+     * @Serializable
+     * @OnClassSerialAnnotation
+     * class Nested(...)
+     *
+     * @Serializable
+     * class Outer(val nested: Nested)
+     *
+     * val outerDescriptor = Outer.serializer().descriptor
+     *
+     * outerDescriptor.getElementDescriptor(0).serialName // Returns "Nested"
+     * outerDescriptor.getElementDescriptor(0).annotations // Returns [@OnClassSerialAnnotation]
+     * ```
+     *
      * @throws IndexOutOfBoundsException for illegal [index] values.
      * @throws IllegalStateException if the current descriptor does not support children elements (e.g. is a primitive).
      */
-    @ExperimentalSerializationApi
     public fun getElementDescriptor(index: Int): SerialDescriptor
 
     /**
      * Whether the element at the given [index] is optional (can be absent in serialized form).
      * For generated descriptors, all elements that have a corresponding default parameter value are
      * marked as optional. Custom serializers can treat optional values in a serialization-specific manner
-     * without default parameters constraint.
+     * without a default parameters constraint.
      *
      * Example of optionality:
      * ```
      * @Serializable
      * class Holder(
-     *     val a: Int, // Optional == false
-     *     val b: Int?, // Optional == false
-     *     val c: Int? = null, // Optional == true
-     *     val d: List<Int>, // Optional == false
-     *     val e: List<Int> = listOf(1), // Optional == true
+     *     val a: Int, // isElementOptional(0) == false
+     *     val b: Int?, // isElementOptional(1) == false
+     *     val c: Int? = null, // isElementOptional(2) == true
+     *     val d: List<Int>, // isElementOptional(3) == false
+     *     val e: List<Int> = listOf(1), // isElementOptional(4) == true
      * )
      * ```
-     * Returns `false` for valid indices of collections, maps and enums.
+     * Returns `false` for valid indices of collections, maps, and enums.
      *
      * @throws IndexOutOfBoundsException for an illegal [index] values.
      * @throws IllegalStateException if the current descriptor does not support children elements (e.g. is a primitive).
      */
-    @ExperimentalSerializationApi
     public fun isElementOptional(index: Int): Boolean
 }
 
 /**
  * Returns an iterable of all descriptor [elements][SerialDescriptor.getElementDescriptor].
+ *
+ * Example:
+ *
+ * ```
+ * @Serializable
+ * class User(val name: String, val alias: String?)
+ *
+ * User.serializer().descriptor.elementDescriptors.toList() // Returns [PrimitiveDescriptor(kotlin.String), PrimitiveDescriptor(kotlin.String)?]
+ * ```
  */
-@ExperimentalSerializationApi
 public val SerialDescriptor.elementDescriptors: Iterable<SerialDescriptor>
     get() = Iterable {
         object : Iterator<SerialDescriptor> {
@@ -302,8 +423,16 @@ public val SerialDescriptor.elementDescriptors: Iterable<SerialDescriptor>
 
 /**
  * Returns an iterable of all descriptor [element names][SerialDescriptor.getElementName].
+ *
+ * Example:
+ *
+ * ```
+ * @Serializable
+ * class User(val name: String, val alias: String?)
+ *
+ * User.serializer().descriptor.elementNames.toList() // Returns ["name", "alias"]
+ * ```
  */
-@ExperimentalSerializationApi
 public val SerialDescriptor.elementNames: Iterable<String>
     get() = Iterable {
         object : Iterator<String> {
