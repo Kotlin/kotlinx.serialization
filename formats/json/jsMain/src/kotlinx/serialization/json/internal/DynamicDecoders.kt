@@ -248,7 +248,7 @@ private class DynamicMapInput(
         if (isKey) {
             val value = decodeTaggedValue(tag)
             if (value !is String) return decode(tag)
-            return value.toString().cast() ?: throwIllegalKeyType(tag, value, type)
+            return value.cast() ?: throwIllegalKeyType(tag, value, type)
         }
         return decode(tag)
     }
