@@ -175,6 +175,7 @@ val excludedFromBomProjects get() = unpublishedProjects + "kotlinx-serialization
 val experimentalsEnabled get() = listOf(
     "-progressive",
     "-opt-in=kotlin.ExperimentalMultiplatform",
+    "-opt-in=kotlin.ExperimentalSubclassOptIn",
     "-opt-in=kotlinx.serialization.InternalSerializationApi",
     "-P", "plugin:org.jetbrains.kotlinx.serialization:disableIntrinsic=false"
 )

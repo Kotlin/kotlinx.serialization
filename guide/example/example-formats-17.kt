@@ -9,6 +9,7 @@ import kotlinx.serialization.encoding.*
 import java.io.*
 
 private val byteArraySerializer = serializer<ByteArray>()
+@OptIn(AdvancedEncodingApi::class)
 class DataOutputEncoder(val output: DataOutput) : AbstractEncoder() {
     override val serializersModule: SerializersModule = EmptySerializersModule()
     override fun encodeBoolean(value: Boolean) = output.writeByte(if (value) 1 else 0)
@@ -59,6 +60,7 @@ fun <T> encodeTo(output: DataOutput, serializer: SerializationStrategy<T>, value
 
 inline fun <reified T> encodeTo(output: DataOutput, value: T) = encodeTo(output, serializer(), value)
 
+@OptIn(AdvancedEncodingApi::class)
 class DataInputDecoder(val input: DataInput, var elementsCount: Int = 0) : AbstractDecoder() {
     private var elementIndex = 0
     override val serializersModule: SerializersModule = EmptySerializersModule()

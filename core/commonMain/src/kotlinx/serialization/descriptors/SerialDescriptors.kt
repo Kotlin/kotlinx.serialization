@@ -49,8 +49,6 @@ import kotlin.reflect.*
  * }
  * ```
  */
-@Suppress("FunctionName")
-@OptIn(ExperimentalSerializationApi::class)
 public fun buildClassSerialDescriptor(
     serialName: String,
     vararg typeParameters: SerialDescriptor,
@@ -69,7 +67,7 @@ public fun buildClassSerialDescriptor(
 }
 
 /**
- * Factory to create a trivial primitive descriptors.
+ * Factory to create trivial primitive descriptors. [serialName] must be non-blank and unique.
  * Primitive descriptors should be used when the serialized form of the data has a primitive form, for example:
  * ```
  * object LongAsStringSerializer : KSerializer<Long> {
@@ -86,6 +84,7 @@ public fun buildClassSerialDescriptor(
  * }
  * ```
  */
+@Suppress("FunctionName")
 public fun PrimitiveSerialDescriptor(serialName: String, kind: PrimitiveKind): SerialDescriptor {
     require(serialName.isNotBlank()) { "Blank serial names are prohibited" }
     return PrimitiveDescriptorSafe(serialName, kind)
@@ -93,9 +92,8 @@ public fun PrimitiveSerialDescriptor(serialName: String, kind: PrimitiveKind): S
 
 /**
  * Factory to create a new descriptor that is identical to [original] except that the name is equal to [serialName].
- * Should be used when you want to serialize a type as another non-primitive type.
- * Don't use this if you want to serialize a type as a primitive value, use [PrimitiveSerialDescriptor] instead.
- * 
+ * Usually used when you want to serialize a type as another type, delegating implementation of `serialize` and `deserialize`.
+ *
  * Example:
  * ```
  * @Serializable(CustomSerializer::class)
@@ -115,27 +113,24 @@ public fun PrimitiveSerialDescriptor(serialName: String, kind: PrimitiveKind): S
  * }
  * ```
  */
-@ExperimentalSerializationApi
 public fun SerialDescriptor(serialName: String, original: SerialDescriptor): SerialDescriptor {
     require(serialName.isNotBlank()) { "Blank serial names are prohibited" }
-    require(original.kind !is PrimitiveKind) { "For primitive descriptors please use 'PrimitiveSerialDescriptor' instead" }
     require(serialName != original.serialName) { "The name of the wrapped descriptor ($serialName) cannot be the same as the name of the original descriptor (${original.serialName})" }
-    
+    if(original.kind is PrimitiveKind) checkNameIsNotAPrimitive(serialName)
+
     return WrappedSerialDescriptor(serialName, original)
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 internal class WrappedSerialDescriptor(override val serialName: String, original: SerialDescriptor) : SerialDescriptor by original
 
 /**
  * An unsafe alternative to [buildClassSerialDescriptor] that supports an arbitrary [SerialKind].
  * This function is left public only for migration of pre-release users and is not intended to be used
- * as generally-safe and stable mechanism. Beware that it can produce inconsistent or non spec-compliant instances.
+ * as a generally safe and stable mechanism. Beware that it can produce inconsistent or non-spec-compliant instances.
  *
- * If you end up using this builder, please file an issue with your use-case in kotlinx.serialization issue tracker.
+ * If you end up using this builder, please file an issue with your use-case to the kotlinx.serialization issue tracker.
  */
 @InternalSerializationApi
-@OptIn(ExperimentalSerializationApi::class)
 public fun buildSerialDescriptor(
     serialName: String,
     kind: SerialKind,
@@ -156,9 +151,15 @@ public fun buildSerialDescriptor(
 public inline fun <reified T> serialDescriptor(): SerialDescriptor = serializer<T>().descriptor
 
 /**
- * Retrieves descriptor of type associated with the given [KType][type]
+ * Retrieves descriptor of a type associated with the given [KType][type]
  */
 public fun serialDescriptor(type: KType): SerialDescriptor = serializer(type).descriptor
+
+/* The rest of the functions intentionally left experimental for later stabilization
+ It is unclear whether they should be left as-is,
+ or moved to ClassSerialDescriptorBuilder (because this is the main place for them to be used),
+ or simply deprecated in favor of ListSerializer(Element.serializer()).descriptor
+*/
 
 /**
  * Creates a descriptor for the type `List<T>` where `T` is the type associated with [elementDescriptor].
@@ -227,9 +228,10 @@ public val SerialDescriptor.nullable: SerialDescriptor
  * Returns non-nullable serial descriptor for the type if this descriptor has been auto-generated (plugin
  * generated descriptors) or created with `.nullable` extension on a descriptor or serializer.
  *
- * Otherwise, returns this.
+ * Otherwise, returns `this`.
  *
- * It may return nullable descriptor if this descriptor has been created manually as nullable by directly implementing SerialDescriptor interface.
+ * It may return a nullable descriptor
+ * if `this` descriptor has been created manually as nullable by directly implementing SerialDescriptor interface.
  *
  * @see SerialDescriptor.nullable
  * @see KSerializer.nullable

@@ -376,3 +376,17 @@ public annotation class ExperimentalSerializationApi
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION, AnnotationTarget.TYPEALIAS)
 @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
 public annotation class InternalSerializationApi
+
+/**
+ * Marks interfaces and non-final classes that can be freely referenced in users' code but should not be
+ * implemented or inherited. Such declarations are effectively `sealed` and do not have this modifier purely for technical reasons.
+ *
+ * kotlinx.serialization library provides compatibility guarantees for existing signatures of such classes;
+ * however, new functions or properties can be added to them in any release.
+ */
+@MustBeDocumented
+@Target(AnnotationTarget.CLASS)
+@RequiresOptIn(message = "This class or interface should not be inherited/implemented outside of kotlinx.serialization library. " +
+    "Note it is still permitted to use it directly. Read its documentation about inheritance for details.", level = RequiresOptIn.Level.ERROR)
+public annotation class SealedSerializationApi
+

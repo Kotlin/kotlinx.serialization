@@ -24,6 +24,7 @@ private fun Stack.peek() = last()
 
 // Writes class as map [fieldName, fieldValue]
 // Split implementation to optimize base case
+@OptIn(AdvancedEncodingApi::class)
 internal sealed class CborWriter(
     override val cbor: Cbor,
     protected val output: ByteArrayOutput,

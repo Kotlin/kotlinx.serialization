@@ -18,6 +18,7 @@ tasks.withType<KotlinCompile>().configureEach {
         if (overriddenLanguageVersion != null) {
             languageVersion = overriddenLanguageVersion
             freeCompilerArgs += "-Xsuppress-version-warnings"
+            allWarningsAsErrors = true
         }
     }
 }

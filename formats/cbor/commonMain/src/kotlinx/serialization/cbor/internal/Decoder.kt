@@ -12,6 +12,7 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 
+@OptIn(AdvancedEncodingApi::class)
 internal open class CborReader(override val cbor: Cbor, protected val parser: CborParser) : AbstractDecoder(),
     CborDecoder {
 

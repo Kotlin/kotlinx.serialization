@@ -11,7 +11,6 @@ import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
-import kotlin.native.concurrent.*
 import kotlin.reflect.*
 import kotlin.time.Duration
 
@@ -65,15 +64,15 @@ internal class PrimitiveSerialDescriptor(
         return false
     }
     override fun hashCode() = serialName.hashCode() + 31 * kind.hashCode()
-    private fun error(): Nothing = throw IllegalStateException("Primitive descriptor does not have elements")
+    private fun error(): Nothing = throw IllegalStateException("Primitive descriptor $serialName does not have elements")
 }
 
 internal fun PrimitiveDescriptorSafe(serialName: String, kind: PrimitiveKind): SerialDescriptor {
-    checkName(serialName)
+    checkNameIsNotAPrimitive(serialName)
     return PrimitiveSerialDescriptor(serialName, kind)
 }
 
-private fun checkName(serialName: String) {
+internal fun checkNameIsNotAPrimitive(serialName: String) {
     val keys = BUILTIN_SERIALIZERS.keys
     for (primitive in keys) {
         val simpleName = primitive.simpleName!!.capitalize()

@@ -6,6 +6,7 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 
+@OptIn(AdvancedEncodingApi::class)
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
 

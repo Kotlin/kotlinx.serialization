@@ -32,7 +32,7 @@ internal fun <T> Json.decodeDynamic(deserializer: DeserializationStrategy<T>, dy
     return input.decodeSerializableValue(deserializer)
 }
 
-@OptIn(ExperimentalSerializationApi::class)
+@OptIn(ExperimentalSerializationApi::class, AdvancedEncodingApi::class)
 private open class DynamicInput(
     protected val value: dynamic,
     override val json: Json

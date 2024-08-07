@@ -747,6 +747,7 @@ import kotlinx.serialization.modules.*
 -->
 
 ```kotlin
+@OptIn(AdvancedEncodingApi::class)
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
 
@@ -814,6 +815,7 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 
+@OptIn(AdvancedEncodingApi::class)
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
 
@@ -845,6 +847,7 @@ A decoder needs to implement more substance.
   each structure that is being recursively decoded keeps track of its own `elementIndex` state separately.  
 
 ```kotlin
+@OptIn(AdvancedEncodingApi::class)
 class ListDecoder(val list: ArrayDeque<Any>) : AbstractDecoder() {
     private var elementIndex = 0
 
@@ -922,6 +925,7 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 
+@OptIn(AdvancedEncodingApi::class)
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
 
@@ -942,6 +946,7 @@ inline fun <reified T> encodeToList(value: T) = encodeToList(serializer(), value
 -->
 
 ```kotlin
+@OptIn(AdvancedEncodingApi::class)
 class ListDecoder(val list: ArrayDeque<Any>) : AbstractDecoder() {
     private var elementIndex = 0
 
@@ -1009,6 +1014,7 @@ import kotlinx.serialization.modules.*
 -->
 
 ```kotlin
+@OptIn(AdvancedEncodingApi::class)
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
 
@@ -1042,6 +1048,7 @@ in addition to the previous code.
 > The formats that store collection size in advance have to return `true` from `decodeSequentially`.
 
 ```kotlin
+@OptIn(AdvancedEncodingApi::class)
 class ListDecoder(val list: ArrayDeque<Any>, var elementsCount: Int = 0) : AbstractDecoder() {
     private var elementIndex = 0
 
@@ -1114,6 +1121,7 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 
+@OptIn(AdvancedEncodingApi::class)
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
 
@@ -1147,6 +1155,7 @@ fun <T> encodeToList(serializer: SerializationStrategy<T>, value: T): List<Any> 
 
 inline fun <reified T> encodeToList(value: T) = encodeToList(serializer(), value)
 
+@OptIn(AdvancedEncodingApi::class)
 class ListDecoder(val list: ArrayDeque<Any>, var elementsCount: Int = 0) : AbstractDecoder() {
     private var elementIndex = 0
     
@@ -1230,7 +1239,8 @@ import kotlinx.serialization.modules.*
 import java.io.*
 -->
 
-```kotlin            
+```kotlin
+@OptIn(AdvancedEncodingApi::class)
 class DataOutputEncoder(val output: DataOutput) : AbstractEncoder() {
     override val serializersModule: SerializersModule = EmptySerializersModule()
     override fun encodeBoolean(value: Boolean) = output.writeByte(if (value) 1 else 0)
@@ -1267,6 +1277,7 @@ inline fun <reified T> encodeTo(output: DataOutput, value: T) = encodeTo(output,
 The decoder implementation mirrors encoder's implementation overriding all the primitive `decodeXxx` functions.
 
 ```kotlin 
+@OptIn(AdvancedEncodingApi::class)
 class DataInputDecoder(val input: DataInput, var elementsCount: Int = 0) : AbstractDecoder() {
     private var elementIndex = 0
     override val serializersModule: SerializersModule = EmptySerializersModule()
@@ -1383,6 +1394,7 @@ we add a trivial implementation of `encodeCompactSize` function that uses only o
 a size of up to 254 bytes.  
 
 <!--- INCLUDE
+@OptIn(AdvancedEncodingApi::class)
 class DataOutputEncoder(val output: DataOutput) : AbstractEncoder() {
     override val serializersModule: SerializersModule = EmptySerializersModule()
     override fun encodeBoolean(value: Boolean) = output.writeByte(if (value) 1 else 0)
@@ -1438,6 +1450,7 @@ fun <T> encodeTo(output: DataOutput, serializer: SerializationStrategy<T>, value
 
 inline fun <reified T> encodeTo(output: DataOutput, value: T) = encodeTo(output, serializer(), value)
 
+@OptIn(AdvancedEncodingApi::class)
 class DataInputDecoder(val input: DataInput, var elementsCount: Int = 0) : AbstractDecoder() {
     private var elementIndex = 0
     override val serializersModule: SerializersModule = EmptySerializersModule()

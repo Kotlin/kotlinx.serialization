@@ -15,6 +15,7 @@ import kotlinx.serialization.modules.*
  * They neither do have stable API, nor internal invariants and are changed without any warnings.
  */
 @InternalSerializationApi
+@OptIn(AdvancedEncodingApi::class)
 public abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
 
     /**
@@ -176,6 +177,7 @@ public abstract class NamedValueEncoder : TaggedEncoder<String>() {
 }
 
 @InternalSerializationApi
+@OptIn(AdvancedEncodingApi::class)
 public abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
     override val serializersModule: SerializersModule
         get() = EmptySerializersModule()

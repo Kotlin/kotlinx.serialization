@@ -86,6 +86,9 @@ public final class kotlinx/serialization/SealedClassSerializer : kotlinx/seriali
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 }
 
+public abstract interface annotation class kotlinx/serialization/SealedSerializationApi : java/lang/annotation/Annotation {
+}
+
 public abstract interface class kotlinx/serialization/SerialFormat {
 	public abstract fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
 }
@@ -421,6 +424,9 @@ public abstract class kotlinx/serialization/encoding/AbstractEncoder : kotlinx/s
 	public fun encodeValue (Ljava/lang/Object;)V
 	public fun endStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)V
 	public fun shouldEncodeElementDefault (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Z
+}
+
+public abstract interface annotation class kotlinx/serialization/encoding/AdvancedEncodingApi : java/lang/annotation/Annotation {
 }
 
 public abstract interface class kotlinx/serialization/encoding/ChunkedDecoder {
