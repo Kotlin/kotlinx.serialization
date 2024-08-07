@@ -129,7 +129,7 @@ public annotation class Serializer(
  * the name of the property, e.g. by `Json`.
  *
  * By default, [SerialDescriptor.serialName] and [SerialDescriptor.getElementName]
- * are associated with fully-qualified name of the target class and the name of the property respectively.
+ * are associated with fully qualified name of the target class and the name of the property respectively.
  * Applying this annotation changes the visible name to the given [value]:
  *
  * ```

@@ -293,7 +293,7 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-poly-08.kt).
 
-An object serializes as an empty class, also using its fully-qualified class name as type by default:
+An object serializes as an empty class, also using its fully qualified class name as type by default:
 
 ```text 
 [{"type":"example.examplePoly08.EmptyResponse"},{"type":"example.examplePoly08.TextResponse","text":"OK"}]

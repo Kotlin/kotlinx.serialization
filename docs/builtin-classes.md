@@ -383,7 +383,7 @@ which is explained in the [Polymorphism. Objects](polymorphism.md#objects) secti
 <!--- TEST -->
 
 > Serialization of objects is format specific. Other formats may represent objects differently, 
-> e.g. using their fully-qualified names.
+> e.g. using their fully qualified names.
 
 ### Duration
 

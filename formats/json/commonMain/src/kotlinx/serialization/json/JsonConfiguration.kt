@@ -63,7 +63,7 @@ public class JsonConfiguration @OptIn(ExperimentalSerializationApi::class) inter
  * Defines which classes and objects should have their serial name included in the json as so-called class discriminator.
  *
  * Class discriminator is a JSON field added by kotlinx.serialization that has [JsonBuilder.classDiscriminator] as a key (`type` by default),
- * and class' serial name as a value (fully-qualified name by default, can be changed with [SerialName] annotation).
+ * and class' serial name as a value (fully qualified name by default, can be changed with [SerialName] annotation).
  *
  * Class discriminator is important for serializing and deserializing [polymorphic class hierarchies](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/polymorphism.md#sealed-classes).
  * Default [ClassDiscriminatorMode.POLYMORPHIC] mode adds discriminator only to polymorphic classes.
