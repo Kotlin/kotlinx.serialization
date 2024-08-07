@@ -160,6 +160,7 @@ kotlin {
             kotlinOptions {
                 if (overriddenLanguageVersion != null) {
                     languageVersion = overriddenLanguageVersion
+                    println("Using LanguageVersion = $overriddenLanguageVersion")
                     freeCompilerArgs += "-Xsuppress-version-warnings"
                 }
                 freeCompilerArgs += "-Xexpect-actual-classes"
