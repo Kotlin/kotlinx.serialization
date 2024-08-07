@@ -397,7 +397,7 @@ internal abstract class AbstractJsonLexer {
             // some escaped chars were there
             decodedString(lastPosition, currentPosition)
         }
-        this.currentPosition = currentPosition + 1
+        this.currentPosition += currentPosition
         return string
     }
 
