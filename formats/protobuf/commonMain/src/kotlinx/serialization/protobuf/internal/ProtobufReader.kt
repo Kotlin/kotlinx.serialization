@@ -79,7 +79,7 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
         assertWireType(SIZE_DELIMITED)
         val length = decode32()
         checkLength(length)
-        input.scipExactNBytes(length)
+        input.skipExactNBytes(length)
     }
 
     fun readByteArrayNoTag(): ByteArray {

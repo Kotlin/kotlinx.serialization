@@ -14,15 +14,7 @@ class SkipFieldsTest {
     data class Holder(val value: Int)
 
     @Test
-    fun testSkipZeroId() {
-        // first value with id = 0
-        val hexString = "000f082a"
-        val holder = ProtoBuf.decodeFromHexString<Holder>(hexString)
-        assertEquals(42, holder.value)
-    }
-
-    @Test
-    fun testSkipBigId() {
+    fun testSkipBigFieldNumber() {
         // first value with id = 2047 and takes 2 bytes
         val hexString = "f87f20082a"
         val holder = ProtoBuf.decodeFromHexString<Holder>(hexString)
@@ -30,7 +22,7 @@ class SkipFieldsTest {
     }
 
     @Test
-    fun testSkipString() {
+    fun testSkipUnknownFiledNumberForString() {
         // first value is size delimited (string) with id = 42
         val hexString = "d2020c48656c6c6f20576f726c6421082a"
         val holder = ProtoBuf.decodeFromHexString<Holder>(hexString)

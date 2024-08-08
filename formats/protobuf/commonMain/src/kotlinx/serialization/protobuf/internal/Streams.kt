@@ -34,7 +34,7 @@ internal class ByteArrayInput(private var array: ByteArray, private val endIndex
     }
 
 
-    fun scipExactNBytes(bytesCount: Int) {
+    fun skipExactNBytes(bytesCount: Int) {
         ensureEnoughBytes(bytesCount)
         position += bytesCount
     }

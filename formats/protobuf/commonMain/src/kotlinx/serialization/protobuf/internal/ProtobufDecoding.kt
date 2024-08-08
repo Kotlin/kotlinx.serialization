@@ -311,6 +311,9 @@ internal open class ProtobufDecoder(
                 if (protoId == -1) { // EOF
                     return elementMarker.nextUnmarkedIndex()
                 }
+                if (protoId == 0) {
+                    throw SerializationException("0 is not allowed as the protobuf field number in ${descriptor.serialName}, the input bytes may have been corrupted")
+                }
                 val index = getIndexByNum(protoId)
                 if (index == -1) { // not found
                     reader.skipElement()
