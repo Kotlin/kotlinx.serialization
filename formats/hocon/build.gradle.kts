@@ -12,25 +12,16 @@ plugins {
     alias(libs.plugins.serialization)
 }
 
-tasks.compileKotlin {
+kotlin {
     compilerOptions {
         allWarningsAsErrors = true
-    }
-}
-
-tasks.withType<KotlinCompile>().configureEach {
-    compilerOptions {
         jvmTarget = JvmTarget.JVM_1_8
-    }
-}
-
-tasks.withType<KotlinCompile>().configureEach {
-    kotlinOptions {
         if (overriddenLanguageVersion != null) {
-            languageVersion = overriddenLanguageVersion
-            freeCompilerArgs += "-Xsuppress-version-warnings"
+            languageVersion.set(KotlinVersion.fromVersion(overriddenLanguageVersion!!))
+            freeCompilerArgs.add("-Xsuppress-version-warnings")
         }
     }
+    jvmToolchain(jdkToolchainVersion)
 }
 
 java {

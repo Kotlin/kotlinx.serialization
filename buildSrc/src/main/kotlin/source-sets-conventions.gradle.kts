@@ -5,10 +5,13 @@
 @file:OptIn(ExperimentalWasmDsl::class)
 
 import org.gradle.kotlin.dsl.*
+import org.jetbrains.kotlin.gradle.*
+import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
-import org.jetbrains.kotlin.gradle.targets.js.dsl.*
+import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
 import org.jetbrains.kotlin.gradle.targets.native.tasks.*
+import org.jetbrains.kotlin.gradle.tasks.*
 import org.jetbrains.kotlin.gradle.testing.*
 
 plugins {
@@ -30,13 +33,13 @@ kotlin {
 
     jvm {
         withJava()
-        compilations.configureEach {
-            kotlinOptions {
-                jvmTarget = "1.8"
-                freeCompilerArgs += "-Xjdk-release=1.8"
-            }
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_1_8)
+            freeCompilerArgs.add("-Xjdk-release=1.8")
         }
     }
+    jvmToolchain(jdkToolchainVersion)
 
     js {
         nodejs {
@@ -46,11 +49,11 @@ kotlin {
                 }
             }
         }
-        compilations.matching { it.name == "main" || it.name == "test" }.configureEach {
-            kotlinOptions {
-                sourceMap = true
-                moduleKind = "umd"
-            }
+
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+            sourceMap = true
+            moduleKind.set(JsModuleKind.MODULE_UMD)
         }
     }
 
@@ -154,19 +157,17 @@ kotlin {
             optIn("kotlinx.serialization.ExperimentalSerializationApi")
         }
     }
+}
 
-    targets.all {
-        compilations.all {
-            kotlinOptions {
-                if (overriddenLanguageVersion != null) {
-                    languageVersion = overriddenLanguageVersion
-                    freeCompilerArgs += "-Xsuppress-version-warnings"
-                }
-                freeCompilerArgs += "-Xexpect-actual-classes"
-            }
-        }
-        compilations["main"].kotlinOptions {
+tasks.withType(KotlinCompilationTask::class).configureEach {
+    compilerOptions {
+        if (name == "main") {
             allWarningsAsErrors = true
         }
+        if (overriddenLanguageVersion != null) {
+            languageVersion.set(KotlinVersion.fromVersion(overriddenLanguageVersion!!))
+            freeCompilerArgs.add("-Xsuppress-version-warnings")
+        }
+        freeCompilerArgs.add("-Xexpect-actual-classes")
     }
 }
