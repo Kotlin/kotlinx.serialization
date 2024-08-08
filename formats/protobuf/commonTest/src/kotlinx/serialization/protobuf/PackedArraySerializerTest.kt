@@ -47,7 +47,6 @@ class PackedArraySerializerTest {
 
     @Serializable
     data class PackedStringCarrier(
-        @ProtoNumber(0)
         @ProtoPacked
         val s: List<String>
     )
@@ -110,12 +109,12 @@ class PackedArraySerializerTest {
     @Test
     fun testEncodeAnnotatedStringList() {
         val obj = PackedStringCarrier(listOf("aaa", "bbb", "ccc"))
-        val expectedHex = "020361616102036262620203636363"
+        val expectedHex = "0a036161610a036262620a03636363"
         val encodedHex = ProtoBuf.encodeToHexString(obj)
         assertEquals(expectedHex, encodedHex)
         assertEquals(obj, ProtoBuf.decodeFromHexString<PackedStringCarrier>(expectedHex))
 
-        val invalidPackedHex = "020C036161610362626203636363"
+        val invalidPackedHex = "0a0C036161610362626203636363"
         val decoded = ProtoBuf.decodeFromHexString<PackedStringCarrier>(invalidPackedHex)
         val invalidString = "\u0003aaa\u0003bbb\u0003ccc"
         assertEquals(PackedStringCarrier(listOf(invalidString)), decoded)
