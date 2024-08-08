@@ -45,8 +45,12 @@ internal open class ProtobufDecoder(
              * If we have reasonably small count of elements, try to build sequential
              * array for the fast-path. Fast-path implies that elements are not marked with @ProtoId
              * explicitly or are monotonic and incremental (maybe, 1-indexed)
+             *
+             * Since the library allows the use of fields with proto ID 0,
+             * it is necessary to initialize all elements, because there will always be one extra element
+             * in the fast path array, which misses in the descriptor
              */
-            val cache = IntArray(elements + 1)
+            val cache = IntArray(elements + 1) { -1 }
             for (i in 0 until elements) {
                 val protoId = extractProtoId(descriptor, i, false)
                 // If any element is marked as ProtoOneOf,

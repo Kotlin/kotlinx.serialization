@@ -33,6 +33,12 @@ internal class ByteArrayInput(private var array: ByteArray, private val endIndex
         return b
     }
 
+
+    fun scipExactNBytes(bytesCount: Int) {
+        ensureEnoughBytes(bytesCount)
+        position += bytesCount
+    }
+
     private fun ensureEnoughBytes(bytesCount: Int) {
         if (bytesCount > availableBytes) {
             throw SerializationException("Unexpected EOF, available $availableBytes bytes, requested: $bytesCount")
