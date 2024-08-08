@@ -26,6 +26,7 @@ kotlin {
     sourceSets {
         configureEach {
             languageSettings {
+                optIn("kotlin.ExperimentalStdlibApi")
                 optIn("kotlinx.serialization.internal.CoreFriendModuleApi")
                 optIn("kotlinx.serialization.json.internal.JsonFriendModuleApi")
             }

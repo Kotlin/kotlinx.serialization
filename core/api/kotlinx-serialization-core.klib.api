@@ -1046,6 +1046,14 @@ final object kotlinx.serialization.internal/UnitSerializer : kotlinx.serializati
     final fun serialize(kotlinx.serialization.encoding/Encoder, kotlin/Unit) // kotlinx.serialization.internal/UnitSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;kotlin.Unit){}[0]
 }
 
+final object kotlinx.serialization.internal/UuidSerializer : kotlinx.serialization/KSerializer<kotlin.uuid/Uuid> { // kotlinx.serialization.internal/UuidSerializer|null[0]
+    final val descriptor // kotlinx.serialization.internal/UuidSerializer.descriptor|{}descriptor[0]
+        final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // kotlinx.serialization.internal/UuidSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+    final fun deserialize(kotlinx.serialization.encoding/Decoder): kotlin.uuid/Uuid // kotlinx.serialization.internal/UuidSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+    final fun serialize(kotlinx.serialization.encoding/Encoder, kotlin.uuid/Uuid) // kotlinx.serialization.internal/UuidSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;kotlin.uuid.Uuid){}[0]
+}
+
 final val kotlinx.serialization.builtins/nullable // kotlinx.serialization.builtins/nullable|@kotlinx.serialization.KSerializer<0:0>{0§<kotlin.Any>}nullable[0]
     final fun <#A1: kotlin/Any> (kotlinx.serialization/KSerializer<#A1>).<get-nullable>(): kotlinx.serialization/KSerializer<#A1?> // kotlinx.serialization.builtins/nullable.<get-nullable>|<get-nullable>@kotlinx.serialization.KSerializer<0:0>(){0§<kotlin.Any>}[0]
 final val kotlinx.serialization.descriptors/capturedKClass // kotlinx.serialization.descriptors/capturedKClass|@kotlinx.serialization.descriptors.SerialDescriptor{}capturedKClass[0]
@@ -1062,6 +1070,7 @@ final val kotlinx.serialization.modules/EmptySerializersModule // kotlinx.serial
     final fun <get-EmptySerializersModule>(): kotlinx.serialization.modules/SerializersModule // kotlinx.serialization.modules/EmptySerializersModule.<get-EmptySerializersModule>|<get-EmptySerializersModule>(){}[0]
 
 final fun (kotlin.time/Duration.Companion).kotlinx.serialization.builtins/serializer(): kotlinx.serialization/KSerializer<kotlin.time/Duration> // kotlinx.serialization.builtins/serializer|serializer@kotlin.time.Duration.Companion(){}[0]
+final fun (kotlin.uuid/Uuid.Companion).kotlinx.serialization.builtins/serializer(): kotlinx.serialization/KSerializer<kotlin.uuid/Uuid> // kotlinx.serialization.builtins/serializer|serializer@kotlin.uuid.Uuid.Companion(){}[0]
 final fun (kotlin/Boolean.Companion).kotlinx.serialization.builtins/serializer(): kotlinx.serialization/KSerializer<kotlin/Boolean> // kotlinx.serialization.builtins/serializer|serializer@kotlin.Boolean.Companion(){}[0]
 final fun (kotlin/Byte.Companion).kotlinx.serialization.builtins/serializer(): kotlinx.serialization/KSerializer<kotlin/Byte> // kotlinx.serialization.builtins/serializer|serializer@kotlin.Byte.Companion(){}[0]
 final fun (kotlin/Char.Companion).kotlinx.serialization.builtins/serializer(): kotlinx.serialization/KSerializer<kotlin/Char> // kotlinx.serialization.builtins/serializer|serializer@kotlin.Char.Companion(){}[0]

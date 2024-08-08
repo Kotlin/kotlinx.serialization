@@ -11,11 +11,11 @@ import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
-import kotlin.native.concurrent.*
 import kotlin.reflect.*
 import kotlin.time.Duration
+import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalUnsignedTypes::class)
+@OptIn(ExperimentalUnsignedTypes::class, ExperimentalStdlibApi::class)
 private val BUILTIN_SERIALIZERS = mapOf(
     String::class to String.serializer(),
     Char::class to Char.serializer(),
@@ -44,7 +44,8 @@ private val BUILTIN_SERIALIZERS = mapOf(
     BooleanArray::class to BooleanArraySerializer(),
     Unit::class to Unit.serializer(),
     Nothing::class to NothingSerializer(),
-    Duration::class to Duration.serializer()
+    Duration::class to Duration.serializer(),
+    Uuid::class to Uuid.serializer()
 )
 
 internal class PrimitiveSerialDescriptor(

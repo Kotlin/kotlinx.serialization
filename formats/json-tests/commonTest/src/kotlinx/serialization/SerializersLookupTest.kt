@@ -15,6 +15,7 @@ import kotlinx.serialization.test.*
 import kotlin.reflect.*
 import kotlin.test.*
 import kotlin.time.Duration
+import kotlin.uuid.*
 
 @Suppress("RemoveExplicitTypeArguments") // This is exactly what's being tested
 class SerializersLookupTest : JsonTestBase() {
@@ -139,6 +140,13 @@ class SerializersLookupTest : JsonTestBase() {
     fun testLookupDuration() {
         assertNotNull(serializerOrNull(typeOf<Duration>()))
         assertSame(Duration.serializer(), serializer<Duration>())
+    }
+
+    @Test
+    fun testLookupUuid() {
+        assertSame<KSerializer<*>?>(Uuid.serializer(), serializerOrNull(typeOf<Uuid>()))
+        // TODO: uncomment in 2.1 release
+//        assertSame<KSerializer<*>?>(Uuid.serializer(), serializer<Uuid>())
     }
 
     @Test
