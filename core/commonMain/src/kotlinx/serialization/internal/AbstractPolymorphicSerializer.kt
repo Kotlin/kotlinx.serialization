@@ -17,7 +17,7 @@ import kotlin.reflect.*
  *
  * By default, without special support from [Encoder], polymorphic types are serialized as list with
  * two elements: class [serial name][SerialDescriptor.serialName] (String) and the object itself.
- * Serial name equals to fully-qualified class name by default and can be changed via @[SerialName] annotation.
+ * Serial name equals to fully qualified class name by default and can be changed via @[SerialName] annotation.
  */
 @InternalSerializationApi
 @OptIn(ExperimentalSerializationApi::class)

@@ -6,7 +6,7 @@ import kotlinx.serialization.InternalSerializationApi
  * Multiplatform analogue of `org.intellij.lang.annotations.Language` annotation.
  *
  * An alias is used instead of class, because the actual class in the JVM will conflict with the class from the stdlib -
- * we want to avoid the situation with different classes having the same fully-qualified name.
+ * we want to avoid the situation with different classes having the same fully qualified name.
  * [see](https://github.com/JetBrains/java-annotations/issues/34)
  *
  * Specifies that an element of the program represents a string that is a source code on a specified language.

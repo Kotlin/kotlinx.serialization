@@ -147,7 +147,7 @@ public interface SerialDescriptor {
     /**
      * Serial name of the descriptor that identifies a pair of the associated serializer and target class.
      *
-     * For generated and default serializers, the serial name should be equal to the corresponding class's fully-qualified name
+     * For generated and default serializers, the serial name should be equal to the corresponding class's fully qualified name
      * or, if overridden, [SerialName].
      * Custom serializers should provide a unique serial name that identifies both the serializable class and
      * the serializer itself, ignoring type arguments, if they are present, for example: `my.package.LongAsTrimmedString`
