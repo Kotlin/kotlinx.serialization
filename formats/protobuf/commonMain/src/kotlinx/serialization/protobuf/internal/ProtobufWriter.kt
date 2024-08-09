@@ -10,7 +10,7 @@ import kotlinx.serialization.protobuf.*
 
 internal class ProtobufWriter(private val out: ByteArrayOutput) {
     fun writeBytes(bytes: ByteArray, tag: Int) {
-        out.encode32((tag shl 3) or SIZE_DELIMITED)
+        out.encode32(ProtoWireType.SIZE_DELIMITED.wireIntWithTag(tag))
         writeBytes(bytes)
     }
 
@@ -20,7 +20,7 @@ internal class ProtobufWriter(private val out: ByteArrayOutput) {
     }
 
     fun writeOutput(output: ByteArrayOutput, tag: Int) {
-        out.encode32((tag shl 3) or SIZE_DELIMITED)
+        out.encode32(ProtoWireType.SIZE_DELIMITED.wireIntWithTag(tag))
         writeOutput(output)
     }
 
@@ -30,8 +30,8 @@ internal class ProtobufWriter(private val out: ByteArrayOutput) {
     }
 
     fun writeInt(value: Int, tag: Int, format: ProtoIntegerType) {
-        val wireType = if (format == ProtoIntegerType.FIXED) i32 else VARINT
-        out.encode32((tag shl 3) or wireType)
+        val wireType = if (format == ProtoIntegerType.FIXED) ProtoWireType.i32 else ProtoWireType.VARINT
+        out.encode32(wireType.wireIntWithTag(tag))
         out.encode32(value, format)
     }
 
@@ -40,8 +40,8 @@ internal class ProtobufWriter(private val out: ByteArrayOutput) {
     }
 
     fun writeLong(value: Long, tag: Int, format: ProtoIntegerType) {
-        val wireType = if (format == ProtoIntegerType.FIXED) i64 else VARINT
-        out.encode32((tag shl 3) or wireType)
+        val wireType = if (format == ProtoIntegerType.FIXED) ProtoWireType.i64 else ProtoWireType.VARINT
+        out.encode32(wireType.wireIntWithTag(tag))
         out.encode64(value, format)
     }
 
@@ -60,7 +60,7 @@ internal class ProtobufWriter(private val out: ByteArrayOutput) {
     }
 
     fun writeDouble(value: Double, tag: Int) {
-        out.encode32((tag shl 3) or i64)
+        out.encode32(ProtoWireType.i64.wireIntWithTag(tag))
         out.writeLong(value.reverseBytes())
     }
 
@@ -69,7 +69,7 @@ internal class ProtobufWriter(private val out: ByteArrayOutput) {
     }
 
     fun writeFloat(value: Float, tag: Int) {
-        out.encode32((tag shl 3) or i32)
+        out.encode32(ProtoWireType.i32.wireIntWithTag(tag))
         out.writeInt(value.reverseBytes())
     }
 

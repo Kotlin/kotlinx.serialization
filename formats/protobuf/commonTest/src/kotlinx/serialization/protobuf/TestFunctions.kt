@@ -5,6 +5,7 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
+import kotlin.reflect.KClass
 import kotlin.test.*
 
 fun <T> testConversion(data: T, serializer: KSerializer<T>, expectedHexString: String) {
@@ -24,9 +25,74 @@ inline fun <reified T : Throwable> assertFailsWithMessage(
     assertionMessage: String? = null,
     block: () -> Unit
 ) {
-    val exception = assertFailsWith(T::class, assertionMessage, block)
-    assertTrue(
-        exception.message!!.contains(message),
-        "expected:<$message> but was:<${exception.message}>"
+    assertFailsWith<T>(
+        assertionMessage,
+        {
+            assertFailsWith(message)
+        },
+        block,
     )
+}
+
+@DslMarker
+annotation class ExceptionCheckDsl
+
+@ExceptionCheckDsl
+interface ExceptionCheckScope<T> {
+    fun assertFailsWith(vararg message: String)
+    fun <R : Throwable> assertCausedBy(byType: KClass<R>, assertion: ExceptionCheckScope<R>.() -> Unit)
+}
+
+@ExceptionCheckDsl
+inline fun <reified R : Throwable> ExceptionCheckScope<*>.assertCausedBy(noinline assertion: ExceptionCheckScope<R>.() -> Unit) {
+    assertCausedBy(R::class, assertion)
+}
+
+inline fun <reified T : Throwable> assertFailsWith(
+    assertionMessage: String? = null,
+    assertion: ExceptionCheckScope<T>.() -> Unit = {},
+    block: () -> Unit
+) {
+    val exception = assertFailsWith(T::class, assertionMessage, block = block)
+    val scope = buildExceptionCheckScope(exception)
+    scope.assertion()
+}
+
+fun <T : Throwable> buildExceptionCheckScope(exception: T): ExceptionCheckScope<T> = object : ExceptionCheckScope<T> {
+    override fun assertFailsWith(vararg message: String) {
+        val exceptionStackSize = exception.exceptionStackSize
+        assertTrue(message.size <= exceptionStackSize, "Expected exception to be assembled by ${message.size} throwable, but it has $exceptionStackSize, is $exception")
+        var index = 0
+        var currentException: Throwable? = exception
+        while (index < message.size) {
+            val currentMessage = message[index]
+            assertNotNull(currentException, "Expected exception to have a cause with message $currentMessage, but it was null")
+            require(currentException != null)
+            assertTrue(currentException.message?.contains(currentMessage) == true, "Expected exception to have a cause with message <$currentMessage>, but it was <${currentException.message}> at cause stack $index")
+            val nextException = currentException.cause
+            currentException = nextException
+            index++
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <R : Throwable> assertCausedBy(byType: KClass<R>, assertion: ExceptionCheckScope<R>.() -> Unit) {
+        val cause = exception.cause
+        assertNotNull(cause, "Expected exception to have a cause of type $byType, but it was null")
+        require(cause != null)
+        assertEquals(byType, cause::class, "Expected exception to have a cause of type $byType, but it was ${cause::class}")
+        buildExceptionCheckScope<R>(cause as R).assertion()
+    }
+
+}
+
+private val Throwable.exceptionStackSize: Int
+    get() {
+    var count = 1
+    var current = this
+    while (current.cause != null) {
+        count++
+        current = current.cause!!
+    }
+    return count
 }

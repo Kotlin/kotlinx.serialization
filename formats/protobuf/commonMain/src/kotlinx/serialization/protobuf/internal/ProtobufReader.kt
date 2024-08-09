@@ -13,7 +13,7 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
     @JvmField
     public var currentId = -1
     @JvmField
-    public var currentType = -1
+    public var currentType : ProtoWireType = ProtoWireType.INVALID
     private var pushBack = false
     private var pushBackHeader = 0
 
@@ -23,13 +23,13 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
     public fun readTag(): Int {
         if (pushBack) {
             pushBack = false
-            val previousHeader = (currentId shl 3) or currentType
+            val previousHeader = (currentId shl 3) or currentType.typeId
             return updateIdAndType(pushBackHeader).also {
                 pushBackHeader = previousHeader
             }
         }
         // Header to use when pushed back is the old id/type
-        pushBackHeader = (currentId shl 3) or currentType
+        pushBackHeader = (currentId shl 3) or currentType.typeId
 
         val header = input.readVarint64(true).toInt()
         return updateIdAndType(header)
@@ -38,11 +38,11 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
     private fun updateIdAndType(header: Int): Int {
         return if (header == -1) {
             currentId = -1
-            currentType = -1
+            currentType = ProtoWireType.INVALID
             -1
         } else {
             currentId = header ushr 3
-            currentType = header and 0b111
+            currentType = ProtoWireType.fromTypeId(header and 0b111)
             currentId
         }
     }
@@ -50,28 +50,28 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
     public fun pushBackTag() {
         pushBack = true
 
-        val nextHeader = (currentId shl 3) or currentType
+        val nextHeader = (currentId shl 3) or currentType.typeId
         updateIdAndType(pushBackHeader)
         pushBackHeader = nextHeader
     }
 
     fun skipElement() {
         when (currentType) {
-            VARINT -> readInt(ProtoIntegerType.DEFAULT)
-            i64 -> readLong(ProtoIntegerType.FIXED)
-            SIZE_DELIMITED -> readByteArray()
-            i32 -> readInt(ProtoIntegerType.FIXED)
+            ProtoWireType.VARINT -> readInt(ProtoIntegerType.DEFAULT)
+            ProtoWireType.i64 -> readLong(ProtoIntegerType.FIXED)
+            ProtoWireType.SIZE_DELIMITED -> readByteArray()
+            ProtoWireType.i32 -> readInt(ProtoIntegerType.FIXED)
             else -> throw ProtobufDecodingException("Unsupported start group or end group wire type: $currentType")
         }
     }
 
     @Suppress("NOTHING_TO_INLINE")
-    private inline fun assertWireType(expected: Int) {
+    private inline fun assertWireType(expected: ProtoWireType) {
         if (currentType != expected) throw ProtobufDecodingException("Expected wire type $expected, but found $currentType")
     }
 
     fun readByteArray(): ByteArray {
-        assertWireType(SIZE_DELIMITED)
+        assertWireType(ProtoWireType.SIZE_DELIMITED)
         return readByteArrayNoTag()
     }
 
@@ -82,7 +82,7 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
     }
 
     fun objectInput(): ByteArrayInput {
-        assertWireType(SIZE_DELIMITED)
+        assertWireType(ProtoWireType.SIZE_DELIMITED)
         return objectTaglessInput()
     }
 
@@ -93,7 +93,7 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
     }
 
     fun readInt(format: ProtoIntegerType): Int {
-        val wireType = if (format == ProtoIntegerType.FIXED) i32 else VARINT
+        val wireType = if (format == ProtoIntegerType.FIXED) ProtoWireType.i32 else ProtoWireType.VARINT
         assertWireType(wireType)
         return decode32(format)
     }
@@ -101,7 +101,7 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
     fun readInt32NoTag(): Int = decode32()
 
     fun readLong(format: ProtoIntegerType): Long {
-        val wireType = if (format == ProtoIntegerType.FIXED) i64 else VARINT
+        val wireType = if (format == ProtoIntegerType.FIXED) ProtoWireType.i64 else ProtoWireType.VARINT
         assertWireType(wireType)
         return decode64(format)
     }
@@ -109,7 +109,7 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
     fun readLongNoTag(): Long = decode64(ProtoIntegerType.DEFAULT)
 
     fun readFloat(): Float {
-        assertWireType(i32)
+        assertWireType(ProtoWireType.i32)
         return Float.fromBits(readIntLittleEndian())
     }
 
@@ -136,7 +136,7 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
     }
 
     fun readDouble(): Double {
-        assertWireType(i64)
+        assertWireType(ProtoWireType.i64)
         return Double.fromBits(readLongLittleEndian())
     }
 
@@ -145,7 +145,7 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
     }
 
     fun readString(): String {
-        assertWireType(SIZE_DELIMITED)
+        assertWireType(ProtoWireType.SIZE_DELIMITED)
         val length = decode32()
         checkLength(length)
         return input.readString(length)
