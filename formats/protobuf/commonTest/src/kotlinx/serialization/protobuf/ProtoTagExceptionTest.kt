@@ -7,6 +7,8 @@ package kotlinx.serialization.protobuf
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromHexString
 import kotlinx.serialization.encodeToHexString
+import kotlinx.serialization.protobuf.internal.ProtobufDecodingException
+import kotlinx.serialization.protobuf.internal.protoId
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -95,6 +97,63 @@ class ProtoTagExceptionTest {
             }
         ) {
             ProtoBuf.decodeFromHexString<TestData>(build)
+        }
+    }
+
+    @Serializable
+    data class TestDataWithMessageList(@ProtoNumber(1) @ProtoPacked val list: List<TestData>)
+
+    @Serializable
+    data class TestDataWithWrongList(@ProtoNumber(1) @ProtoPacked val list: List<TestDataToBuildWrongWireType>)
+
+    @Test
+    fun `require string in list nested message but get int`() {
+        val build = ProtoBuf.encodeToHexString(TestDataWithWrongList(listOf(TestDataToBuildWrongWireType(42, 42))))
+        assertFailsWith<ProtobufDecodingException>(
+            assertion = {
+                assertFailsWith("Error while decoding kotlinx.serialization.protobuf.ProtoTagExceptionTest.TestDataWithMessageList")
+                assertCausedBy<ProtobufDecodingException> {
+                    assertFailsWith("Error while decoding kotlin.collections.ArrayList at proto number 1 of kotlinx.serialization.protobuf.ProtoTagExceptionTest.TestDataWithMessageList")
+                    assertCausedBy<ProtobufDecodingException> {
+                        assertFailsWith(
+                            "Error while decoding index 0 in repeated field of kotlinx.serialization.protobuf.ProtoTagExceptionTest.TestData",
+                            "Error while decoding proto number 2 of kotlinx.serialization.protobuf.ProtoTagExceptionTest.TestData",
+                            "Expected wire type SIZE_DELIMITED(2), but found VARINT(0)",
+                        )
+                    }
+                }
+            }
+        ) {
+            val result = ProtoBuf.decodeFromHexString<TestDataWithMessageList>(build)
+        }
+    }
+
+    @Serializable
+    data class TestDataWithMessageMapValue(@ProtoNumber(1) val map: Map<String, TestData>)
+
+    @Serializable
+    data class TestDataWithWrongMapValue(@ProtoNumber(1) val map: Map<String, TestDataToBuildWrongWireType>)
+
+    @Test
+    fun `require string in map nested value but get int`() {
+        val build = ProtoBuf.encodeToHexString(TestDataWithWrongMapValue(map = mapOf("1" to TestDataToBuildWrongWireType(42, 42))))
+        assertFailsWith<ProtobufDecodingException>(
+            assertion = {
+                assertFailsWith("Error while decoding kotlinx.serialization.protobuf.ProtoTagExceptionTest.TestDataWithMessageMapValue")
+                assertCausedBy<ProtobufDecodingException> {
+                    assertFailsWith("Error while decoding kotlin.collections.LinkedHashMap at proto number 1 of kotlinx.serialization.protobuf.ProtoTagExceptionTest.TestDataWithMessageMapValue")
+                    assertCausedBy<ProtobufDecodingException> {
+                        assertFailsWith(
+                            "Error while decoding kotlin.collections.Map.Entry at proto number 1 of kotlin.collections.LinkedHashSet",
+                            "Error while decoding value of index 0 in map field of kotlinx.serialization.protobuf.ProtoTagExceptionTest.TestData",
+                            "Error while decoding proto number 2 of kotlinx.serialization.protobuf.ProtoTagExceptionTest.TestData",
+                            "Expected wire type SIZE_DELIMITED(2), but found VARINT(0)",
+                        )
+                    }
+                }
+            }
+        ) {
+            ProtoBuf.decodeFromHexString<TestDataWithMessageMapValue>(build)
         }
     }
 

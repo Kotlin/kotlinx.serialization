@@ -58,7 +58,7 @@ inline fun <reified T : Throwable> assertFailsWith(
     scope.assertion()
 }
 
-fun <T : Throwable> buildExceptionCheckScope(exception: T): ExceptionCheckScope<T> = object : ExceptionCheckScope<T> {
+fun <T : Throwable> buildExceptionCheckScope(exception: T, depth: Int = 0): ExceptionCheckScope<T> = object : ExceptionCheckScope<T> {
     override fun assertFailsWith(vararg message: String) {
         val exceptionStackSize = exception.exceptionStackSize
         assertTrue(message.size <= exceptionStackSize, "Expected exception to be assembled by ${message.size} throwable, but it has $exceptionStackSize, is $exception")
@@ -68,7 +68,7 @@ fun <T : Throwable> buildExceptionCheckScope(exception: T): ExceptionCheckScope<
             val currentMessage = message[index]
             assertNotNull(currentException, "Expected exception to have a cause with message $currentMessage, but it was null")
             require(currentException != null)
-            assertTrue(currentException.message?.contains(currentMessage) == true, "Expected exception to have a cause with message <$currentMessage>, but it was <${currentException.message}> at cause stack $index")
+            assertEquals(currentMessage, currentException.message, "Expected exception to have a cause with message <$currentMessage>, but it was <${currentException.message}> at cause stack ${index + depth}")
             val nextException = currentException.cause
             currentException = nextException
             index++
@@ -81,7 +81,7 @@ fun <T : Throwable> buildExceptionCheckScope(exception: T): ExceptionCheckScope<
         assertNotNull(cause, "Expected exception to have a cause of type $byType, but it was null")
         require(cause != null)
         assertEquals(byType, cause::class, "Expected exception to have a cause of type $byType, but it was ${cause::class}")
-        buildExceptionCheckScope<R>(cause as R).assertion()
+        buildExceptionCheckScope<R>(cause as R, depth + 1).assertion()
     }
 
 }

@@ -258,7 +258,18 @@ internal open class ProtobufDecoder(
         val currentTag = currentTagOrDefault
         val msg = if (descriptor != deserializer.descriptor) {
             // Decoding child element
-            "Error while decoding ${deserializer.descriptor.serialName} at proto number ${currentTag.protoId} of ${descriptor.serialName}"
+            if (descriptor.kind == StructureKind.LIST && deserializer.descriptor.kind != StructureKind.MAP) {
+                // Decoding repeated field
+                "Error while decoding index ${currentTag.protoId - 1} in repeated field of ${deserializer.descriptor.serialName}"
+            } else if (descriptor.kind == StructureKind.MAP) {
+                // Decoding map field
+                val index = (currentTag.protoId - 1) / 2
+                val field = if ((currentTag.protoId - 1) % 2 == 0) { "key" } else "value"
+                "Error while decoding $field of index $index in map field of ${deserializer.descriptor.serialName}"
+            } else {
+                // Decoding common class
+                "Error while decoding ${deserializer.descriptor.serialName} at proto number ${currentTag.protoId} of ${descriptor.serialName}"
+            }
         } else {
             // Decoding self
             "Error while decoding ${descriptor.serialName}"
