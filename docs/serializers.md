@@ -223,7 +223,8 @@ kotlin.collections.LinkedHashMap(PrimitiveDescriptor(kotlin.String), Color(rgb: 
 ## Custom serializers
 
 A plugin-generated serializer is convenient, but it may not produce the JSON we want 
-for such a class as `Color`. Let's study alternatives.
+for such a class as `Color`.
+Let's study the alternatives.
 
 ### Primitive serializer
 
