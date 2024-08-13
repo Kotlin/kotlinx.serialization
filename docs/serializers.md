@@ -851,7 +851,7 @@ fun main() {
 
 <!--- TEST --> 
 
-### Specifying serializer globally using typealias
+### Specifying a serializer globally using a typealias
 
 kotlinx.serialization tends to be the always-explicit framework when it comes to serialization strategies: normally,
 they should be explicitly mentioned in `@Serializable` annotation. Therefore, we do not provide any kind of global serializer
