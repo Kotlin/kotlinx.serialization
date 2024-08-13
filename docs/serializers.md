@@ -1045,7 +1045,7 @@ class ProgrammingLanguage(
 To provide a context, we define a [SerializersModule] instance that describes which serializers shall be used 
 at run-time to serialize which contextually-serializable classes. This is done using the 
 [SerializersModule {}][SerializersModule()] builder function, which provides the [SerializersModuleBuilder] DSL to 
-register serializers. In the below example we use the [contextual][_contextual] function with the serializer. The corresponding
+register serializers. In the example below we use the [contextual][_contextual] function with the serializer. The corresponding
 class this serializer is defined for is fetched automatically via the `reified` type parameter.  
 
 ```kotlin
