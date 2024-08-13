@@ -712,9 +712,15 @@ We cannot bind the `DateAsLongSerializer` serializer to the `Date` class with th
 because we don't control the `Date` source code. There are several ways to work around that.
 
 ### Passing a serializer manually
- 
-All `encodeToXxx` and `decodeFromXxx` functions have an overload with the first serializer parameter. 
-When a non-serializable class, like `Date`, is the top-level class being serialized, we can use those.
+
+The `encodeToXxx` and `decodeFromXxx` functions offer overloaded versions
+that accept either a [SerializationStrategy] or [DeserializationStrategy] as their first parameter, respectively.
+This feature allows you
+to provide a custom serializer for types that aren't annotated with [`@Serializable`][Serializable] by default.
+
+This approach is particularly useful
+when working with non-serializable classes like `Date` as the top-level object being serialized.
+Here's an example:
 
 ```kotlin
 fun main() {                                              
