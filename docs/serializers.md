@@ -714,11 +714,10 @@ because we don't control the `Date` source code. There are several ways to work 
 ### Passing a serializer manually
 
 The `encodeToXxx` and `decodeFromXxx` functions offer overloaded versions
-that accept either a [SerializationStrategy] or [DeserializationStrategy] as their first parameter, respectively.
-This feature allows you
-to provide a custom serializer for types that aren't annotated with [`@Serializable`][Serializable] by default.
+that accept either a [SerializationStrategy] or a [DeserializationStrategy] as their first parameter, respectively.
+This feature lets you provide a custom serializer for types not annotated with [`@Serializable`][Serializable] by default.
 
-This approach is particularly useful
+This approach is beneficial
 when working with non-serializable classes like `Date` as the top-level object being serialized.
 Here's an example:
 
