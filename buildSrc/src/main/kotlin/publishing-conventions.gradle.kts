@@ -145,13 +145,6 @@ tasks.withType<KotlinNativeLink>() {
     mustRunAfter(tasks.withType<Sign>().named { it == "sign${targetName}Publication" })
 }
 
-// Compatibility with old TeamCity configurations that perform :kotlinx-coroutines-core:bintrayUpload
-tasks.register("bintrayUpload") {
-    dependsOn(tasks.publish)
-    // This is required for K/N publishing
-    dependsOn(tasks.publishToMavenLocal)
-}
-
 fun MavenPom.configureMavenCentralMetadata() {
     name = project.name
     description = "Kotlin multiplatform serialization runtime library"
