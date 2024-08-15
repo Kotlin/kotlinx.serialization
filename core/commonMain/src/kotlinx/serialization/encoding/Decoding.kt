@@ -250,8 +250,8 @@ public interface Decoder {
 
     /**
      * Decodes the value of type [T] by delegating the decoding process to the given [deserializer].
-     * For example, `decodeInt` call us equivalent to delegating integer decoding to [Int.serializer][Int.Companion.serializer]:
-     * `decodeSerializableValue(IntSerializer)`
+     * For example, `decodeInt` call is equivalent to delegating integer decoding to [Int.serializer][Int.Companion.serializer]:
+     * `decodeSerializableValue(Int.serializer())`
      */
     public fun <T : Any?> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T =
         deserializer.deserialize(this)

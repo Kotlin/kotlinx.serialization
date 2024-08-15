@@ -272,7 +272,7 @@ public interface Encoder {
 
     /**
      * Encodes the [value] of type [T] by delegating the encoding process to the given [serializer].
-     * For example, `encodeInt` call us equivalent to delegating integer encoding to [Int.serializer][Int.Companion.serializer]:
+     * For example, `encodeInt` call is equivalent to delegating integer encoding to [Int.serializer][Int.Companion.serializer]:
      * `encodeSerializableValue(Int.serializer())`
      */
     public fun <T : Any?> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
