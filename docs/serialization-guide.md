@@ -73,7 +73,7 @@ Once the project is set up, we can start serializing some classes.
   * <a name='specifying-serializer-on-a-property'></a>[Specifying serializer on a property](serializers.md#specifying-serializer-on-a-property)
   * <a name='specifying-serializer-for-a-particular-type'></a>[Specifying serializer for a particular type](serializers.md#specifying-serializer-for-a-particular-type)
   * <a name='specifying-serializers-for-a-file'></a>[Specifying serializers for a file](serializers.md#specifying-serializers-for-a-file)
-  * <a name='specifying-serializer-globally-using-typealias'></a>[Specifying serializer globally using typealias](serializers.md#specifying-serializer-globally-using-typealias)
+  * <a name='specifying-a-serializer-globally-using-a-typealias'></a>[Specifying a serializer globally using a typealias](serializers.md#specifying-a-serializer-globally-using-a-typealias)
   * <a name='custom-serializers-for-a-generic-type'></a>[Custom serializers for a generic type](serializers.md#custom-serializers-for-a-generic-type)
   * <a name='format-specific-serializers'></a>[Format-specific serializers](serializers.md#format-specific-serializers)
 * <a name='contextual-serialization'></a>[Contextual serialization](serializers.md#contextual-serialization)

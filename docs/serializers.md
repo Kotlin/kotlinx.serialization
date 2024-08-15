@@ -26,7 +26,7 @@ In this chapter we'll take a look at serializers in more detail, and we'll see h
   * [Specifying serializer on a property](#specifying-serializer-on-a-property)
   * [Specifying serializer for a particular type](#specifying-serializer-for-a-particular-type)
   * [Specifying serializers for a file](#specifying-serializers-for-a-file)
-  * [Specifying serializer globally using typealias](#specifying-serializer-globally-using-typealias)
+  * [Specifying a serializer globally using a typealias](#specifying-a-serializer-globally-using-a-typealias)
   * [Custom serializers for a generic type](#custom-serializers-for-a-generic-type)
   * [Format-specific serializers](#format-specific-serializers)
 * [Contextual serialization](#contextual-serialization)
@@ -168,9 +168,7 @@ fun main() {
 PrimitiveDescriptor(kotlin.Int)
 ```
 
-<!--- TEST 
-PrimitiveDescriptor(kotlin.Int)
---> 
+<!--- TEST -->
 
 ### Constructing collection serializers
 
@@ -198,9 +196,7 @@ fun main() {
 kotlin.collections.ArrayList(PrimitiveDescriptor(kotlin.String))
 ```
 
-<!--- TEST 
-kotlin.collections.ArrayList(PrimitiveDescriptor(kotlin.String))
---> 
+<!--- TEST -->
 
 ### Using top-level serializer function
 
@@ -228,9 +224,7 @@ fun main() {
 kotlin.collections.LinkedHashMap(PrimitiveDescriptor(kotlin.String), Color(rgb: kotlin.Int))
 ```
 
-<!--- TEST 
-kotlin.collections.LinkedHashMap(PrimitiveDescriptor(kotlin.String), Color(rgb: kotlin.Int))
---> 
+<!--- TEST -->
 
 ## Custom serializers
 
