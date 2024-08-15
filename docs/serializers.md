@@ -628,10 +628,10 @@ As before, we got the `Color` class represented as a JSON object with three keys
 ### Sequential decoding protocol (experimental)
 
 The implementation of the `deserialize` function from the previous section works with any format. However,
-some formats either always store all the complex data in order, or only do so sometimes (JSON always stores
-collections in order). With these formats the complex protocol of calling `decodeElementIndex` in the loop is 
-not needed, and a faster implementation can be used if the [CompositeDecoder.decodeSequentially] function returns `true`.
-The plugin-generated serializers are actually conceptually similar to the below code.
+some formats either always store all the complex data in order or only do so sometimes (JSON always stores
+collections in order). With these formats the complex protocol of calling `decodeElementIndex` in a loop is 
+unnecessary, and a faster implementation can be used if the [CompositeDecoder.decodeSequentially] function returns `true`.
+The plugin-generated serializers are actually conceptually similar to the code below.
 
 <!--- INCLUDE
 object ColorAsObjectSerializer : KSerializer<Color> {
