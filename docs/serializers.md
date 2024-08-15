@@ -266,7 +266,7 @@ object ColorAsStringSerializer : KSerializer<Color> {
 }
 ```
 
-Serializer has three required pieces. 
+A serializer has three required pieces. 
 
 * The [serialize][SerializationStrategy.serialize] function implements [SerializationStrategy].
   It receives an instance of [Encoder] and a value to serialize.
