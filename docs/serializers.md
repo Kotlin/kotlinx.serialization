@@ -164,6 +164,10 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-serializer-04.kt).   
 
+```text
+PrimitiveDescriptor(kotlin.Int)
+```
+
 <!--- TEST 
 PrimitiveDescriptor(kotlin.Int)
 --> 
@@ -190,6 +194,10 @@ fun main() {
 
 > You can get the full code [here](../guide/example/example-serializer-05.kt).  
 
+```text
+kotlin.collections.ArrayList(PrimitiveDescriptor(kotlin.String))
+```
+
 <!--- TEST 
 kotlin.collections.ArrayList(PrimitiveDescriptor(kotlin.String))
 --> 
@@ -215,6 +223,10 @@ fun main() {
 ```
 
 > You can get the full code [here](../guide/example/example-serializer-06.kt).  
+
+```text
+kotlin.collections.LinkedHashMap(PrimitiveDescriptor(kotlin.String), Color(rgb: kotlin.Int))
+```
 
 <!--- TEST 
 kotlin.collections.LinkedHashMap(PrimitiveDescriptor(kotlin.String), Color(rgb: kotlin.Int))
