@@ -823,7 +823,7 @@ fun main() {
 
 <!--- TEST -->
 
-### Specifying serializers for a file 
+### Specifying serializers for a file
 
 A serializer for a specific type, like `Date`, can be specified for a whole source code file with the file-level
 [UseSerializers] annotation at the beginning of the file.
@@ -1155,7 +1155,7 @@ This gets all the `Project` properties serialized:
 
 <!--- TEST -->
 
-### External serialization uses properties 
+### External serialization uses properties
 
 As we saw earlier, the regular `@Serializable` annotation creates a serializer so that 
 [Backing fields are serialized](basic-serialization.md#backing-fields-are-serialized). _External_ serialization using 
