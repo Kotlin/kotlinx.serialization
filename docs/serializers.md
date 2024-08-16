@@ -19,7 +19,7 @@ In this chapter we'll take a look at serializers in more detail, and we'll see h
   * [Primitive serializer](#primitive-serializer)
   * [Delegating serializers](#delegating-serializers)
   * [Composite serializer via surrogate](#composite-serializer-via-surrogate)
-  * [Hand-written composite serializer](#hand-written-composite-serializer)
+  * [Handwritten composite serializer](#handwritten-composite-serializer)
   * [Sequential decoding protocol (experimental)](#sequential-decoding-protocol-experimental)
   * [Serializing 3rd party classes](#serializing-3rd-party-classes)
   * [Passing a serializer manually](#passing-a-serializer-manually)
@@ -523,7 +523,7 @@ fun main() {
 
 <!--- TEST -->    
 
-### Hand-written composite serializer
+### Handwritten composite serializer
 
 There are some cases where a surrogate solution does not fit. Perhaps we want to avoid the performance 
 implications of additional allocation, or we want a configurable/dynamic set of properties for the 

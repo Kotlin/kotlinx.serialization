@@ -66,7 +66,7 @@ Once the project is set up, we can start serializing some classes.
   * <a name='primitive-serializer'></a>[Primitive serializer](serializers.md#primitive-serializer)
   * <a name='delegating-serializers'></a>[Delegating serializers](serializers.md#delegating-serializers)
   * <a name='composite-serializer-via-surrogate'></a>[Composite serializer via surrogate](serializers.md#composite-serializer-via-surrogate)
-  * <a name='hand-written-composite-serializer'></a>[Hand-written composite serializer](serializers.md#hand-written-composite-serializer)
+  * <a name='handwritten-composite-serializer'></a>[Handwritten composite serializer](serializers.md#handwritten-composite-serializer)
   * <a name='sequential-decoding-protocol-experimental'></a>[Sequential decoding protocol (experimental)](serializers.md#sequential-decoding-protocol-experimental)
   * <a name='serializing-3rd-party-classes'></a>[Serializing 3rd party classes](serializers.md#serializing-3rd-party-classes)
   * <a name='passing-a-serializer-manually'></a>[Passing a serializer manually](serializers.md#passing-a-serializer-manually)
