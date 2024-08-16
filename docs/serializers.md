@@ -23,8 +23,8 @@ In this chapter we'll take a look at serializers in more detail, and we'll see h
   * [Sequential decoding protocol (experimental)](#sequential-decoding-protocol-experimental)
   * [Serializing 3rd party classes](#serializing-3rd-party-classes)
   * [Passing a serializer manually](#passing-a-serializer-manually)
-  * [Specifying serializer on a property](#specifying-serializer-on-a-property)
-  * [Specifying serializer for a particular type](#specifying-serializer-for-a-particular-type)
+  * [Specifying a serializer on a property](#specifying-a-serializer-on-a-property)
+  * [Specifying a serializer for a particular type](#specifying-a-serializer-for-a-particular-type)
   * [Specifying serializers for a file](#specifying-serializers-for-a-file)
   * [Specifying a serializer globally using a typealias](#specifying-a-serializer-globally-using-a-typealias)
   * [Custom serializers for a generic type](#custom-serializers-for-a-generic-type)
@@ -744,7 +744,7 @@ fun main() {
 
 <!--- TEST -->
 
-### Specifying serializer on a property
+### Specifying a serializer on a property
 
 When a property of a non-serializable class, like `Date`, is serialized as part of a serializable class we must supply
 its serializer or the code will not compile. This is accomplished using the [`@Serializable`][Serializable] annotation on the property.
@@ -784,7 +784,7 @@ The `stableReleaseDate` property is serialized with the serialization strategy t
 
 <!--- TEST -->
 
-### Specifying serializer for a particular type
+### Specifying a serializer for a particular type
 
 [`@Serializable`][Serializable] annotation can also be applied directly to the types. 
 This is handy when a class that requires a custom serializer, such as `Date`, happens to be a generic type argument.
