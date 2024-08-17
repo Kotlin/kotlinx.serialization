@@ -161,7 +161,8 @@ kotlin {
 
 tasks.withType(KotlinCompilationTask::class).configureEach {
     compilerOptions {
-        if (name == "main") {
+        val isMainTaskName = name.startsWith("compileKotlin")
+        if (isMainTaskName) {
             allWarningsAsErrors = true
         }
         if (overriddenLanguageVersion != null) {
