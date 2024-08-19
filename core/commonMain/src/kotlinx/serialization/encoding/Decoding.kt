@@ -358,7 +358,7 @@ public interface CompositeDecoder {
      * Sequential decoding is a performance optimization for formats with strictly ordered schema,
      * usually binary ones. Regular formats such as JSON or ProtoBuf cannot use this optimization,
      * because e.g. in the latter example, the same data can be represented both as
-     * `{"i": 1, "d": 1.0}`"` and `{"d": 1.0, "i": 1}` (thus, unordered).
+     * `{"i": 1, "d": 1.0}`" and `{"d": 1.0, "i": 1}` (thus, unordered).
      */
     @ExperimentalSerializationApi
     public fun decodeSequentially(): Boolean = false
