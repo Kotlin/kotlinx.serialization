@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromHexString
 import kotlinx.serialization.encodeToHexString
 import kotlinx.serialization.protobuf.internal.ProtobufDecodingException
-import kotlinx.serialization.protobuf.internal.protoId
+import kotlin.js.JsName
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -56,6 +56,7 @@ class ProtoTagExceptionTest {
     )
 
     @Test
+    @JsName("require_string_in_nested_message_but_got_int")
     fun `require string in nested message but got int`() {
         val build = ProtoBuf.encodeToHexString(TestNestedDataToBuild(TestDataToBuildWrongWireType(42, 42), "foo"))
 
@@ -85,6 +86,7 @@ class ProtoTagExceptionTest {
     }
 
     @Test
+    @JsName("require_int_in_nested_message_but_got_string")
     fun `require int in top message but get nested message`() {
         val build = ProtoBuf.encodeToHexString(TestNestedDataToBuild(TestDataToBuildWrongWireType(42, 42), "foo"))
         assertFailsWith<IllegalArgumentException>(
@@ -107,6 +109,7 @@ class ProtoTagExceptionTest {
     data class TestDataWithWrongList(@ProtoNumber(1) @ProtoPacked val list: List<TestDataToBuildWrongWireType>)
 
     @Test
+    @JsName("require_string_in_list_nested_message_but_get_int")
     fun `require string in list nested message but get int`() {
         val build = ProtoBuf.encodeToHexString(TestDataWithWrongList(listOf(TestDataToBuildWrongWireType(42, 42))))
         assertFailsWith<ProtobufDecodingException>(
@@ -135,6 +138,7 @@ class ProtoTagExceptionTest {
     data class TestDataWithWrongMapValue(@ProtoNumber(1) val map: Map<String, TestDataToBuildWrongWireType>)
 
     @Test
+    @JsName("require_string_in_map_nested_value_but_get_int")
     fun `require string in map nested value but get int`() {
         val build = ProtoBuf.encodeToHexString(TestDataWithWrongMapValue(map = mapOf("1" to TestDataToBuildWrongWireType(42, 42))))
         assertFailsWith<ProtobufDecodingException>(
