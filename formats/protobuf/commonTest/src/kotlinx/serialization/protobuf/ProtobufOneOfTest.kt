@@ -361,7 +361,9 @@ class ProtobufOneOfTest {
         }
 
         assertFailsWithMessage<SerializationException>(
-            message = "Serializer for subclass 'OtherIntType' is not found in the polymorphic scope of 'OtherType'."
+            message = "Serializer for subclass 'OtherIntType' is not found in the polymorphic scope of 'OtherType'.\n" +
+                "Check if class with serial name 'OtherIntType' exists and serializer is registered in a corresponding SerializersModule.\n" +
+                "To be registered automatically, class 'OtherIntType' has to be '@Serializable', and the base class 'OtherType' has to be sealed and '@Serializable'."
         ) {
             buf.encodeToHexString(
                 DoubleOneOfElement.serializer(), DoubleOneOfElement(
@@ -701,7 +703,7 @@ class ProtobufOneOfTest {
     fun testNonePolymorphicClass() {
         val data = Outer(Inner(42))
         assertFailsWithMessage<IllegalArgumentException>(
-            "The serializer of one of type kotlinx.serialization.protobuf.ProtobufOneOfTest.Inner should be using generic polymorphic serializer, but got CLASS"
+            "The serializer of one of type kotlinx.serialization.protobuf.ProtobufOneOfTest.Inner should be using generic polymorphic serializer, but got CLASS."
         ) {
             // Fails in [kotlinx.serialization.protobuf.internal.OneOfPolymorphicEncoder.init]
             ProtoBuf.encodeToHexString(data)
