@@ -159,7 +159,7 @@ kotlin {
     }
 }
 
-tasks.withType<KotlinCompilationTask>().configureEach {
+tasks.withType(KotlinCompilationTask::class).configureEach {
     compilerOptions {
         val isMainTaskName = name.startsWith("compileKotlin")
         if (isMainTaskName) {
