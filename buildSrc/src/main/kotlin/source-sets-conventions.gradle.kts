@@ -35,7 +35,7 @@ kotlin {
         withJava()
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_1_8)
+            jvmTarget = JvmTarget.JVM_1_8
             freeCompilerArgs.add("-Xjdk-release=1.8")
         }
     }
@@ -53,7 +53,7 @@ kotlin {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
             sourceMap = true
-            moduleKind.set(JsModuleKind.MODULE_UMD)
+            moduleKind = JsModuleKind.MODULE_UMD
         }
     }
 
@@ -159,14 +159,14 @@ kotlin {
     }
 }
 
-tasks.withType(KotlinCompilationTask::class).configureEach {
+tasks.withType<KotlinCompilationTask>().configureEach {
     compilerOptions {
         val isMainTaskName = name.startsWith("compileKotlin")
         if (isMainTaskName) {
             allWarningsAsErrors = true
         }
         if (overriddenLanguageVersion != null) {
-            languageVersion.set(KotlinVersion.fromVersion(overriddenLanguageVersion!!))
+            languageVersion = KotlinVersion.fromVersion(overriddenLanguageVersion!!)
             freeCompilerArgs.add("-Xsuppress-version-warnings")
         }
         freeCompilerArgs.add("-Xexpect-actual-classes")

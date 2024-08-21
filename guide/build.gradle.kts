@@ -15,7 +15,7 @@ kotlin {
 
     compilerOptions {
         if (overriddenLanguageVersion != null) {
-            languageVersion.set(KotlinVersion.fromVersion(overriddenLanguageVersion!!))
+            languageVersion = KotlinVersion.fromVersion(overriddenLanguageVersion!!)
             freeCompilerArgs.add("-Xsuppress-version-warnings")
         }
     }
