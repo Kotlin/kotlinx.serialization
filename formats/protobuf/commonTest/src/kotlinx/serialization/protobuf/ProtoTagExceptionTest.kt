@@ -8,7 +8,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromHexString
 import kotlinx.serialization.encodeToHexString
 import kotlinx.serialization.protobuf.internal.ProtobufDecodingException
-import kotlin.js.JsName
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -56,8 +55,7 @@ class ProtoTagExceptionTest {
     )
 
     @Test
-    @JsName("require_string_in_nested_message_but_got_int")
-    fun `require string in nested message but got int`() {
+    fun testWrongIntFieldInNestedMessage() {
         val build = ProtoBuf.encodeToHexString(TestNestedDataToBuild(TestDataToBuildWrongWireType(42, 42), "foo"))
 
         assertFailsWith<IllegalArgumentException>(
@@ -86,8 +84,7 @@ class ProtoTagExceptionTest {
     }
 
     @Test
-    @JsName("require_int_in_nested_message_but_got_string")
-    fun `require int in top message but get nested message`() {
+    fun testWrongStringFieldInNestedMessage() {
         val build = ProtoBuf.encodeToHexString(TestNestedDataToBuild(TestDataToBuildWrongWireType(42, 42), "foo"))
         assertFailsWith<IllegalArgumentException>(
             assertion = {
@@ -109,8 +106,7 @@ class ProtoTagExceptionTest {
     data class TestDataWithWrongList(@ProtoNumber(1) @ProtoPacked val list: List<TestDataToBuildWrongWireType>)
 
     @Test
-    @JsName("require_string_in_list_nested_message_but_get_int")
-    fun `require string in list nested message but get int`() {
+    fun testWrongIntFieldInNestedMessageInList() {
         val build = ProtoBuf.encodeToHexString(TestDataWithWrongList(listOf(TestDataToBuildWrongWireType(42, 42))))
         assertFailsWith<ProtobufDecodingException>(
             assertion = {
@@ -138,8 +134,7 @@ class ProtoTagExceptionTest {
     data class TestDataWithWrongMapValue(@ProtoNumber(1) val map: Map<String, TestDataToBuildWrongWireType>)
 
     @Test
-    @JsName("require_string_in_map_nested_value_but_get_int")
-    fun `require string in map nested value but get int`() {
+    fun testWrongIntFieldInNestedMapValue() {
         val build = ProtoBuf.encodeToHexString(TestDataWithWrongMapValue(map = mapOf("1" to TestDataToBuildWrongWireType(42, 42))))
         assertFailsWith<ProtobufDecodingException>(
             assertion = {
@@ -186,10 +181,7 @@ class ProtoTagExceptionTest {
             assertEquals("1a03666f6f182a", it)
         }
 
-        // Without checking duplication of proto numbers,
-        // ProtoBuf just throw exception about wrong wire type
         assertFailsWith<IllegalArgumentException>(
-//            "Duplicated proto number 3 in kotlinx.serialization.protobuf.ProtobufOneOfTest.DuplicatingIdData for elements: d, bad."
             assertion = {
                 assertFailsWith(
                     "Error while decoding kotlinx.serialization.protobuf.ProtoTagExceptionTest.DuplicatingIdData",

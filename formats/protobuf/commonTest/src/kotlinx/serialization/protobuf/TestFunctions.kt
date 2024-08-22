@@ -58,41 +58,54 @@ inline fun <reified T : Throwable> assertFailsWith(
     scope.assertion()
 }
 
-fun <T : Throwable> buildExceptionCheckScope(exception: T, depth: Int = 0): ExceptionCheckScope<T> = object : ExceptionCheckScope<T> {
-    override fun assertFailsWith(vararg message: String) {
-        val exceptionStackSize = exception.exceptionStackSize
-        assertTrue(message.size <= exceptionStackSize, "Expected exception to be assembled by ${message.size} throwable, but it has $exceptionStackSize, is $exception")
-        var index = 0
-        var currentException: Throwable? = exception
-        while (index < message.size) {
-            val currentMessage = message[index]
-            assertNotNull(currentException, "Expected exception to have a cause with message $currentMessage, but it was null")
-            require(currentException != null)
-            assertEquals(currentMessage, currentException.message, "Expected exception to have a cause with message <$currentMessage>, but it was <${currentException.message}> at cause stack ${index + depth}")
-            val nextException = currentException.cause
-            currentException = nextException
-            index++
+fun <T : Throwable> buildExceptionCheckScope(exception: T, depth: Int = 0): ExceptionCheckScope<T> =
+    object : ExceptionCheckScope<T> {
+        override fun assertFailsWith(vararg message: String) {
+            val exceptionStackSize = exception.exceptionStackSize
+            assertTrue(
+                message.size <= exceptionStackSize,
+                "Expected exception to be assembled by at least ${message.size} throwable(s), but it has $exceptionStackSize, text is is $exception."
+            )
+            var index = 0
+            var currentException: Throwable? = exception
+            while (index < message.size) {
+                val currentMessage = message[index]
+                assertNotNull(
+                    currentException,
+                    "Expected exception to have a cause with message $currentMessage, but it was null."
+                )
+                assertEquals(
+                    currentMessage,
+                    currentException.message,
+                    "Exception messages are different at cause stack ${index + depth}."
+                )
+                val nextException = currentException.cause
+                currentException = nextException
+                index++
+            }
         }
-    }
 
-    @Suppress("UNCHECKED_CAST")
-    override fun <R : Throwable> assertCausedBy(byType: KClass<R>, assertion: ExceptionCheckScope<R>.() -> Unit) {
-        val cause = exception.cause
-        assertNotNull(cause, "Expected exception to have a cause of type $byType, but it was null")
-        require(cause != null)
-        assertEquals(byType, cause::class, "Expected exception to have a cause of type $byType, but it was ${cause::class}")
-        buildExceptionCheckScope<R>(cause as R, depth + 1).assertion()
-    }
+        @Suppress("UNCHECKED_CAST")
+        override fun <R : Throwable> assertCausedBy(byType: KClass<R>, assertion: ExceptionCheckScope<R>.() -> Unit) {
+            val cause = exception.cause
+            assertNotNull(cause, "Expected exception to have a cause of type $byType, but it was null.")
+            assertEquals(
+                byType,
+                cause::class,
+                "Current exception is caused by unexpected exception at cause stack $depth."
+            )
+            buildExceptionCheckScope<R>(cause as R, depth + 1).assertion()
+        }
 
-}
+    }
 
 private val Throwable.exceptionStackSize: Int
     get() {
-    var count = 1
-    var current = this
-    while (current.cause != null) {
-        count++
-        current = current.cause!!
+        var count = 1
+        var current = this
+        while (current.cause != null) {
+            count++
+            current = current.cause!!
+        }
+        return count
     }
-    return count
-}
