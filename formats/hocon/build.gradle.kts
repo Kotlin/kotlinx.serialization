@@ -13,22 +13,28 @@ plugins {
 }
 
 kotlin {
+    jvmToolchain(jdkToolchainVersion)
     compilerOptions {
-        allWarningsAsErrors = true
         jvmTarget = JvmTarget.JVM_1_8
         if (overriddenLanguageVersion != null) {
             languageVersion = KotlinVersion.fromVersion(overriddenLanguageVersion!!)
             freeCompilerArgs.add("-Xsuppress-version-warnings")
         }
+        freeCompilerArgs.add("-Xjdk-release=1.8")
     }
-    jvmToolchain(jdkToolchainVersion)
+}
+
+// Only main
+tasks.compileKotlin {
+    compilerOptions {
+        allWarningsAsErrors = true
+    }
 }
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
 }
-
 
 dependencies {
     api(project(":kotlinx-serialization-core"))
