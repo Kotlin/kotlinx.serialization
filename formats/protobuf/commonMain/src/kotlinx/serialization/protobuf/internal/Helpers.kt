@@ -12,10 +12,29 @@ import kotlinx.serialization.modules.*
 import kotlinx.serialization.protobuf.*
 
 internal typealias ProtoDesc = Long
-internal const val VARINT = 0
-internal const val i64 = 1
-internal const val SIZE_DELIMITED = 2
-internal const val i32 = 5
+
+internal enum class ProtoWireType(val typeId: Int) {
+    INVALID(-1),
+    VARINT(0),
+    i64(1),
+    SIZE_DELIMITED(2),
+    i32(5),
+    ;
+
+    companion object {
+        fun from(typeId: Int): ProtoWireType {
+            return ProtoWireType.entries.find { it.typeId == typeId } ?: INVALID
+        }
+    }
+
+    fun wireIntWithTag(tag: Int): Int {
+        return ((tag shl 3) or typeId)
+    }
+
+    override fun toString(): String {
+        return "${this.name}($typeId)"
+    }
+}
 
 internal const val ID_HOLDER_ONE_OF = -2
 
@@ -104,7 +123,7 @@ internal fun extractProtoId(descriptor: SerialDescriptor, index: Int, zeroBasedD
     return result
 }
 
-internal class ProtobufDecodingException(message: String) : SerializationException(message)
+internal class ProtobufDecodingException(message: String, e: Throwable? = null) : SerializationException(message, e)
 
 internal expect fun Int.reverseBytes(): Int
 internal expect fun Long.reverseBytes(): Long

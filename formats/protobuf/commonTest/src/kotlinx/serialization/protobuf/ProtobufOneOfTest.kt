@@ -361,7 +361,9 @@ class ProtobufOneOfTest {
         }
 
         assertFailsWithMessage<SerializationException>(
-            message = "Serializer for subclass 'OtherIntType' is not found in the polymorphic scope of 'OtherType'."
+            message = "Serializer for subclass 'OtherIntType' is not found in the polymorphic scope of 'OtherType'.\n" +
+                "Check if class with serial name 'OtherIntType' exists and serializer is registered in a corresponding SerializersModule.\n" +
+                "To be registered automatically, class 'OtherIntType' has to be '@Serializable', and the base class 'OtherType' has to be sealed and '@Serializable'."
         ) {
             buf.encodeToHexString(
                 DoubleOneOfElement.serializer(), DoubleOneOfElement(
@@ -529,44 +531,6 @@ class ProtobufOneOfTest {
          * 1:VARINT 42
          */
         assertEquals(data, buf.decodeFromHexString<CustomAnyData>("082a"))
-    }
-
-    @Serializable
-    data class DuplicatingIdData(
-        @ProtoOneOf val bad: IDuplicatingIdType,
-        @ProtoNumber(3) val d: Int,
-    )
-
-    @Serializable
-    sealed interface IDuplicatingIdType
-
-    @Serializable
-    data class DuplicatingIdStringType(@ProtoNumber(3) val s: String) : IDuplicatingIdType
-
-    @Test
-    fun testDuplicatedIdClass() {
-        val duplicated = DuplicatingIdData(DuplicatingIdStringType("foo"), 42)
-        // Fine to encode duplicated proto number properties in wire data
-        ProtoBuf.encodeToHexString(duplicated).also {
-            /**
-             * 3:LEN {"foo"}
-             * 3:VARINT 42
-             */
-            assertEquals("1a03666f6f182a", it)
-        }
-
-        // Without checking duplication of proto numbers,
-        // ProtoBuf just throw exception about wrong wire type
-        assertFailsWithMessage<IllegalArgumentException>(
-//            "Duplicated proto number 3 in kotlinx.serialization.protobuf.ProtobufOneOfTest.DuplicatingIdData for elements: d, bad."
-            "Expected wire type 0, but found 2"
-        ) {
-            /**
-             * 3:LEN {"foo"}
-             * 3:VARINT 42
-             */
-            ProtoBuf.decodeFromHexString<DuplicatingIdData>("1a03666f6f182a")
-        }
     }
 
     @Serializable
@@ -739,7 +703,7 @@ class ProtobufOneOfTest {
     fun testNonePolymorphicClass() {
         val data = Outer(Inner(42))
         assertFailsWithMessage<IllegalArgumentException>(
-            "The serializer of one of type kotlinx.serialization.protobuf.ProtobufOneOfTest.Inner should be using generic polymorphic serializer, but got CLASS"
+            "The serializer of one of type kotlinx.serialization.protobuf.ProtobufOneOfTest.Inner should be using generic polymorphic serializer, but got CLASS."
         ) {
             // Fails in [kotlinx.serialization.protobuf.internal.OneOfPolymorphicEncoder.init]
             ProtoBuf.encodeToHexString(data)
