@@ -64,7 +64,7 @@ fun <T : Throwable> buildExceptionCheckScope(exception: T, depth: Int = 0): Exce
             val exceptionStackSize = exception.exceptionStackSize
             assertTrue(
                 message.size <= exceptionStackSize,
-                "Expected exception to be assembled by at least ${message.size} throwable(s), but it has $exceptionStackSize, text is is $exception."
+                "Expected exception to be assembled by at least ${message.size} throwable(s), but it has $exceptionStackSize, actual exception is $exception."
             )
             var index = 0
             var currentException: Throwable? = exception

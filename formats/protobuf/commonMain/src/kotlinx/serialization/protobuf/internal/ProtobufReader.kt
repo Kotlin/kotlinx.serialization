@@ -13,7 +13,7 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
     @JvmField
     public var currentId = -1
     @JvmField
-    public var currentType : ProtoWireType = ProtoWireType.INVALID
+    public var currentType = ProtoWireType.INVALID
     private var pushBack = false
     private var pushBackHeader = 0
 
@@ -42,7 +42,7 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
             -1
         } else {
             currentId = header ushr 3
-            currentType = ProtoWireType.fromTypeId(header and 0b111)
+            currentType = ProtoWireType.from(header and 0b111)
             currentId
         }
     }

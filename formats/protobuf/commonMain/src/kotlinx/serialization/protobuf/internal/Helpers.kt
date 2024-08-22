@@ -22,7 +22,7 @@ internal enum class ProtoWireType(val typeId: Int) {
     ;
 
     companion object {
-        fun fromTypeId(typeId: Int): ProtoWireType {
+        fun from(typeId: Int): ProtoWireType {
             return ProtoWireType.entries.find { it.typeId == typeId } ?: INVALID
         }
     }

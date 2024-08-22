@@ -185,14 +185,12 @@ internal open class ProtobufDecoder(
     override fun decodeTaggedByte(tag: ProtoDesc): Byte = decodeTaggedInt(tag).toByte()
     override fun decodeTaggedShort(tag: ProtoDesc): Short = decodeTaggedInt(tag).toShort()
     override fun decodeTaggedInt(tag: ProtoDesc): Int {
-        try {
-            return if (tag == MISSING_TAG) {
+        return decodeOrThrow(tag) {
+            if (tag == MISSING_TAG) {
                 reader.readInt32NoTag()
             } else {
                 reader.readInt(tag.integerType)
             }
-        } catch (e: ProtobufDecodingException) {
-            rethrowException(tag, e)
         }
     }
     override fun decodeTaggedLong(tag: ProtoDesc): Long {
@@ -352,7 +350,7 @@ internal open class ProtobufDecoder(
         return false
     }
 
-    private inline fun <T> decodeOrThrow(tag: ProtoDesc, crossinline action: (tag: ProtoDesc) -> T): T {
+    private inline fun <T> decodeOrThrow(tag: ProtoDesc, action: (tag: ProtoDesc) -> T): T {
         try {
             return action(tag)
         } catch (e: ProtobufDecodingException) {
