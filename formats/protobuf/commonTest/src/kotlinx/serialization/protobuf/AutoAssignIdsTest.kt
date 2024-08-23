@@ -30,4 +30,15 @@ class AutoAssignIdsTest {
         assertEquals(w1.a, w2.a)
         assertEquals(w1.b, w2.b)
     }
+
+    class NestedClass {
+        companion object
+    }
+
+    object X
+
+    @Test
+    fun testName() {
+        println(X::class.qualifiedName)
+    }
 }

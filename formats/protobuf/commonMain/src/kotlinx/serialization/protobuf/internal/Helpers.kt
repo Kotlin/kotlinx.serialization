@@ -87,7 +87,7 @@ internal fun SerialDescriptor.extractParameters(index: Int): ProtoDesc {
         val annotation = annotations[i]
         if (annotation is ProtoNumber) {
             protoId = annotation.number
-            checkFieldNumber(protoId, this)
+            checkFieldNumber(protoId, i, this)
         } else if (annotation is ProtoType) {
             format = annotation.type
         } else if (annotation is ProtoPacked) {
@@ -121,16 +121,16 @@ internal fun extractProtoId(descriptor: SerialDescriptor, index: Int, zeroBasedD
             result = annotation.number
             // 0 or negative numbers are acceptable for enums
             if (!zeroBasedDefault) {
-                checkFieldNumber(result, descriptor)
+                checkFieldNumber(result, i, descriptor)
             }
         }
     }
     return result
 }
 
-private fun checkFieldNumber(fieldNumber: Int, descriptor: SerialDescriptor) {
+private fun checkFieldNumber(fieldNumber: Int, propertyIndex: Int, descriptor: SerialDescriptor) {
     if (fieldNumber <= 0) {
-        throw SerializationException("$fieldNumber is not allowed in ProtoNumber for ${descriptor.serialName}, because protobuf support field numbers in range 1..${Int.MAX_VALUE}}")
+        throw SerializationException("$fieldNumber is not allowed in ProtoNumber for property '${descriptor.getElementName(propertyIndex)}' of '${descriptor.serialName}', because protobuf support field numbers in range 1..${Int.MAX_VALUE}")
     }
 }
 
