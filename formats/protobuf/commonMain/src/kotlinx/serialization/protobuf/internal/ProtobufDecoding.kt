@@ -48,7 +48,6 @@ internal open class ProtobufDecoder(
              *
              * Initialize all elements, because there will always be one extra element as arrays are numbered from 0
              * but in protobuf field number starts from 1.
-             * in the fast path array, which is missing from the descriptor
              */
             val cache = IntArray(elements + 1) { -1 }
             for (i in 0 until elements) {
