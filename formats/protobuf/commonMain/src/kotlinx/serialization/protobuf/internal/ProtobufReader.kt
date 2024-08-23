@@ -76,7 +76,7 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
     }
 
     fun skipSizeDelimited() {
-        assertWireType(SIZE_DELIMITED)
+        assertWireType(ProtoWireType.SIZE_DELIMITED)
         val length = decode32()
         checkLength(length)
         input.skipExactNBytes(length)
