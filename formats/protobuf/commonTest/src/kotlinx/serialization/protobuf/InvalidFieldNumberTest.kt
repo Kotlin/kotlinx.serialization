@@ -42,28 +42,28 @@ class InvalidFieldNumberTest {
 
     @Test
     fun testSerializeZeroProtoNumber() {
-        assertFailsWithMessage<SerializationException>("0 is not allowed in ProtoNumber for property 'value' of 'kotlinx.serialization.protobuf.InvalidFieldNumberTest.ZeroProtoNumber', because protobuf support field numbers in range 1..2147483647") {
+        assertFailsWithMessage<SerializationException>("0 is not allowed in ProtoNumber for property 'value' of 'kotlinx.serialization.protobuf.InvalidFieldNumberTest.ZeroProtoNumber', because protobuf supports field numbers in range 1..2147483647") {
             ProtoBuf.encodeToHexString(ZeroProtoNumber(42))
         }
     }
 
     @Test
     fun testDeserializeZeroProtoNumber() {
-        assertFailsWithMessage<SerializationException>("0 is not allowed in ProtoNumber for property 'value' of 'kotlinx.serialization.protobuf.InvalidFieldNumberTest.ZeroProtoNumber', because protobuf support field numbers in range 1..2147483647") {
+        assertFailsWithMessage<SerializationException>("0 is not allowed in ProtoNumber for property 'value' of 'kotlinx.serialization.protobuf.InvalidFieldNumberTest.ZeroProtoNumber', because protobuf supports field numbers in range 1..2147483647") {
             ProtoBuf.decodeFromHexString<ZeroProtoNumber>("000f")
         }
     }
 
     @Test
     fun testSerializeNegativeProtoNumber() {
-        assertFailsWithMessage<SerializationException>("-5 is not allowed in ProtoNumber for property 'value' of 'kotlinx.serialization.protobuf.InvalidFieldNumberTest.NegativeProtoNumber', because protobuf support field numbers in range 1..2147483647") {
+        assertFailsWithMessage<SerializationException>("-5 is not allowed in ProtoNumber for property 'value' of 'kotlinx.serialization.protobuf.InvalidFieldNumberTest.NegativeProtoNumber', because protobuf supports field numbers in range 1..2147483647") {
             ProtoBuf.encodeToHexString(NegativeProtoNumber(42))
         }
     }
 
     @Test
     fun testDeserializeNegativeProtoNumber() {
-        assertFailsWithMessage<SerializationException>("-5 is not allowed in ProtoNumber for property 'value' of 'kotlinx.serialization.protobuf.InvalidFieldNumberTest.NegativeProtoNumber', because protobuf support field numbers in range 1..2147483647") {
+        assertFailsWithMessage<SerializationException>("-5 is not allowed in ProtoNumber for property 'value' of 'kotlinx.serialization.protobuf.InvalidFieldNumberTest.NegativeProtoNumber', because protobuf supports field numbers in range 1..2147483647") {
             ProtoBuf.decodeFromHexString<NegativeProtoNumber>("000f")
         }
     }
