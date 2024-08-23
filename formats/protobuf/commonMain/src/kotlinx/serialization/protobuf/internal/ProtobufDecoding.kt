@@ -48,7 +48,7 @@ internal open class ProtobufDecoder(
              *
              * Since the library allows the use of fields with proto ID 0,
              * it is necessary to initialize all elements, because there will always be one extra element
-             * in the fast path array, which misses in the descriptor
+             * in the fast path array, which is missing from the descriptor
              */
             val cache = IntArray(elements + 1) { -1 }
             for (i in 0 until elements) {
