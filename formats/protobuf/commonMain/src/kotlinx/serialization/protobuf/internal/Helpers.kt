@@ -130,7 +130,7 @@ internal fun extractProtoId(descriptor: SerialDescriptor, index: Int, zeroBasedD
 
 private fun checkFieldNumber(fieldNumber: Int, propertyIndex: Int, descriptor: SerialDescriptor) {
     if (fieldNumber <= 0) {
-        throw SerializationException("$fieldNumber is not allowed in ProtoNumber for property '${descriptor.getElementName(propertyIndex)}' of '${descriptor.serialName}', because protobuf support field numbers in range 1..${Int.MAX_VALUE}")
+        throw SerializationException("$fieldNumber is not allowed in ProtoNumber for property '${descriptor.getElementName(propertyIndex)}' of '${descriptor.serialName}', because protobuf supports field numbers in range 1..${Int.MAX_VALUE}")
     }
 }
 
