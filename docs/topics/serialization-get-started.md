@@ -140,7 +140,7 @@ commonMain {
 Serialization is the process of converting an object into a format that can be easily stored or transmitted, such as JSON.
 In Kotlin, you can serialize objects to JSON using the `kotlinx.serialization` library.
 
-To make a class serializable, you need to use the `@Serializable` annotation.
+To make a class serializable, you need to use the [`@Serializable`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/) annotation.
 This annotation indicates to the compiler to generate the necessary code for serializing and deserializing instances of the class.
 For more information, see [The @Serialization annotation](serialization.md#the-serializable-annotation) section.
 

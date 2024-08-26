@@ -10,7 +10,7 @@
         <toc-element id="serialization.md" toc-title="Introduction"/>
         <toc-element toc-title="Get started">
             <toc-element id="serialization-get-started.md" toc-title="Get started with Kotlin serialization"/>
-            <toc-element id="serialization-customization-options.md" toc-title="Serialization customization options"/>
+            <toc-element id="serialization-customization-options.md" toc-title="Serializable classes"/>
         </toc-element>
         <toc-element toc-title="Configure JSON serialization">
             <toc-element id="configure-json-serialization.md" toc-title="JSON serialization overview"/>
