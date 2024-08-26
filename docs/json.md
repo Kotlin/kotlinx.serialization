@@ -1277,6 +1277,8 @@ For example, to add a preliminary modification of JSON elements or to add proces
 
 In this case, you can mark the serializable class with the [`@KeepGeneratedSerializer`][KeepGeneratedSerializer] annotation and get the generated serializer using the `generatedSerializer()` function.
 
+> This annotation is currently experimental. Kotlin 2.0.20 or higher is required for this feature to work.
+
 Here is an example of the simultaneous use of [JsonTransformingSerializer] and polymorphism.
 In this example, we use `transformDeserialize` function to rename `basic-name` key into `name` so it matches the `abstract val name` property from the `Project` supertype.
 ```kotlin
@@ -1285,6 +1287,7 @@ sealed class Project {
     abstract val name: String
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 @KeepGeneratedSerializer
 @Serializable(with = BasicProjectSerializer::class)
 @SerialName("basic")

@@ -986,6 +986,8 @@ The most common examples are: using a plugin-generated serializer for fallback s
 In order for the plugin to continue generating the serializer, you must specify the `@KeepGeneratedSerializer` annotation in the type declaration.
 In this case, the serializer will be accessible using the `.generatedSerializer()` function on the class's companion object.
 
+> This annotation is currently experimental. Kotlin 2.0.20 or higher is required for this feature to work.
+
 Annotation `@KeepGeneratedSerializer` is not allowed on classes involved in polymorphic serialization: interfaces, sealed classes, abstract classes, classes marked by [Polymorphic].
 
 An example of using two serializers at once:
@@ -1007,6 +1009,7 @@ object ColorAsStringSerializer : KSerializer<Color> {
 -->
 
 ```kotlin
+@OptIn(ExperimentalSerializationApi::class)
 @KeepGeneratedSerializer
 @Serializable(with = ColorAsStringSerializer::class)
 class Color(val rgb: Int)

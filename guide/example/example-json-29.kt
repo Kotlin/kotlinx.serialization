@@ -9,6 +9,7 @@ sealed class Project {
     abstract val name: String
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 @KeepGeneratedSerializer
 @Serializable(with = BasicProjectSerializer::class)
 @SerialName("basic")
