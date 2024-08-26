@@ -94,11 +94,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile>().configur
 
 subprojects {
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompile<*>>().configureEach {
-        if (name.contains("Test") || name.contains("Jmh")) {
-            compilerOptions.freeCompilerArgs.addAll(experimentalsInTestEnabled)
-        } else {
-            compilerOptions.freeCompilerArgs.addAll(experimentalsEnabled)
-        }
+        compilerOptions.freeCompilerArgs.addAll(globalCompilerArgs)
     }
 }
 
@@ -172,18 +168,8 @@ gradle.taskGraph.whenReady {
 // getters are required because of variable lazy initialization in Gradle
 val unpublishedProjects get() = setOf("benchmark", "guide", "kotlinx-serialization-json-tests")
 val excludedFromBomProjects get() = unpublishedProjects + "kotlinx-serialization-bom"
-val experimentalsEnabled get() = listOf(
-    "-progressive",
-    "-opt-in=kotlin.ExperimentalMultiplatform",
-    "-opt-in=kotlinx.serialization.InternalSerializationApi",
-    "-P", "plugin:org.jetbrains.kotlinx.serialization:disableIntrinsic=false"
-)
-
-val experimentalsInTestEnabled get() = listOf(
-    "-progressive",
-    "-opt-in=kotlin.ExperimentalMultiplatform",
-    "-opt-in=kotlinx.serialization.ExperimentalSerializationApi",
-    "-opt-in=kotlinx.serialization.InternalSerializationApi",
+val globalCompilerArgs
+    get() = listOf(
     "-P", "plugin:org.jetbrains.kotlinx.serialization:disableIntrinsic=false"
 )
 
