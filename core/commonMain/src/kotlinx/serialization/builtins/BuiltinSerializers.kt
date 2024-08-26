@@ -10,6 +10,7 @@ import kotlinx.serialization.internal.*
 import kotlin.reflect.*
 import kotlinx.serialization.descriptors.*
 import kotlin.time.Duration
+import kotlin.uuid.*
 
 /**
  * Returns a nullable serializer for the given serializer of non-null type.
@@ -250,6 +251,20 @@ public fun UShort.Companion.serializer(): KSerializer<UShort> = UShortSerializer
  * The result of serialization is similar to calling [Duration.toIsoString], for deserialization is [Duration.parseIsoString].
  */
 public fun Duration.Companion.serializer(): KSerializer<Duration> = DurationSerializer
+
+/**
+ * Returns serializer for [Uuid].
+ * Serializer operates with a standard UUID string representation, also known as "hex-and-dash" format —
+ * [RFC 9562 section 4](https://www.rfc-editor.org/rfc/rfc9562.html#section-4).
+ *
+ * Serialization always produces lowercase string, deserialization is case-insensitive.
+ * More details can be found in the documentation of [Uuid.toString] and [Uuid.parse] functions.
+ *
+ * @see Uuid.toString
+ * @see Uuid.parse
+ */
+@ExperimentalUuidApi
+public fun Uuid.Companion.serializer(): KSerializer<Uuid> = UuidSerializer
 
 /**
  * Returns serializer for [Nothing].
