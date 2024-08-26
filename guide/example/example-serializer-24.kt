@@ -17,8 +17,9 @@ class Project(
         get() = "kotlin/$name"                                         
 
     private var locked: Boolean = false // private, not accessible -- not serialized 
-}              
+}
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializer(forClass = Project::class)
 object ProjectSerializer
 

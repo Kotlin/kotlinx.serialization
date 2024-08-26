@@ -397,6 +397,7 @@ import kotlinx.serialization.builtins.IntArraySerializer
 
 class ColorIntArraySerializer : KSerializer<Color> {
     private val delegateSerializer = IntArraySerializer()
+    @OptIn(ExperimentalSerializationApi::class)
     override val descriptor = SerialDescriptor("Color", delegateSerializer.descriptor)
 
     override fun serialize(encoder: Encoder, value: Color) {
@@ -644,7 +645,8 @@ object ColorAsObjectSerializer : KSerializer<Color> {
         decoder.decodeStructure(descriptor) {
             var r = -1
             var g = -1
-            var b = -1     
+            var b = -1
+            @OptIn(ExperimentalSerializationApi::class)
             if (decodeSequentially()) { // sequential decoding protocol
                 r = decodeIntElement(descriptor, 0)           
                 g = decodeIntElement(descriptor, 1)  
@@ -1170,7 +1172,8 @@ using the [Serializer] annotation on an object with the [`forClass`][Serializer.
 ```kotlin         
 // NOT @Serializable
 class Project(val name: String, val language: String)
-                           
+
+@OptIn(ExperimentalSerializationApi::class)
 @Serializer(forClass = Project::class)
 object ProjectSerializer
 ```
@@ -1215,8 +1218,9 @@ class Project(
         get() = "kotlin/$name"                                         
 
     private var locked: Boolean = false // private, not accessible -- not serialized 
-}              
+}
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializer(forClass = Project::class)
 object ProjectSerializer
 

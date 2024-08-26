@@ -12,6 +12,7 @@ fun ByteArray.toAsciiHexString() = joinToString("") {
 @Serializable
 data class Project(val name: String, val language: String)
 
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
     val data = Project("kotlinx.serialization", "Kotlin") 
     val bytes = Cbor.encodeToByteArray(data)   

@@ -172,6 +172,7 @@ but such renaming blocks the ability to decode data with the old name.
 To support multiple JSON names for the one Kotlin property, there is the [JsonNames] annotation:
 
 ```kotlin
+@OptIn(ExperimentalSerializationApi::class) // JsonNames is an experimental annotation for now
 @Serializable
 data class Project(@JsonNames("title") val name: String)
 
@@ -462,6 +463,7 @@ control over the resulting JSON object:
 It is also possible to specify different class discriminators for different hierarchies. Instead of Json instance property, use [JsonClassDiscriminator] annotation directly on base serializable class:
 
 ```kotlin
+@OptIn(ExperimentalSerializationApi::class) // JsonClassDiscriminator is an experimental annotation for now
 @Serializable
 @JsonClassDiscriminator("message_type")
 sealed class Base
@@ -524,6 +526,7 @@ addition of the class discriminator with the [JsonBuilder.classDiscriminatorMode
 For example, [ClassDiscriminatorMode.NONE] does not add class discriminator at all, in case the receiving party is not interested in Kotlin types:
 
 ```kotlin
+@OptIn(ExperimentalSerializationApi::class) // classDiscriminatorMode is an experimental setting for now
 val format = Json { classDiscriminatorMode = ClassDiscriminatorMode.NONE }
 
 @Serializable
@@ -562,8 +565,10 @@ However, sometimes third-party JSONs have such values named in lowercase or some
 In this case, it is possible to decode enum values in a case-insensitive manner using [JsonBuilder.decodeEnumsCaseInsensitive] property:
 
 ```kotlin
+@OptIn(ExperimentalSerializationApi::class) // decodeEnumsCaseInsensitive is an experimental setting for now
 val format = Json { decodeEnumsCaseInsensitive = true }
 
+@OptIn(ExperimentalSerializationApi::class) // JsonNames is an experimental annotation for now
 enum class Cases { VALUE_A, @JsonNames("Alternative") VALUE_B }
 
 @Serializable
@@ -598,6 +603,7 @@ for a [Json] instance. `kotlinx.serialization` provides one strategy implementat
 @Serializable
 data class Project(val projectName: String, val projectOwner: String)
 
+@OptIn(ExperimentalSerializationApi::class) // namingStrategy is an experimental setting for now
 val format = Json { namingStrategy = JsonNamingStrategy.SnakeCase }
 
 fun main() {
@@ -929,6 +935,7 @@ fun main() {
     val pi = BigDecimal("3.141592653589793238462643383279")
 
     // use JsonUnquotedLiteral to encode raw JSON content
+    @OptIn(ExperimentalSerializationApi::class)
     val piJsonLiteral = JsonUnquotedLiteral(pi.toString())
 
     val piJsonDouble = JsonPrimitive(pi.toDouble())
@@ -1000,6 +1007,7 @@ To avoid creating an inconsistent state, encoding a String equal to `"null"` is 
 Use [JsonNull] or [JsonPrimitive] instead.
 
 ```kotlin
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
     // caution: creating null with JsonUnquotedLiteral will cause an exception! 
     JsonUnquotedLiteral("null")
@@ -1345,7 +1353,7 @@ sealed class Response<out T> {
 }
 
 class ResponseSerializer<T>(private val dataSerializer: KSerializer<T>) : KSerializer<Response<T>> {
-    override val descriptor: SerialDescriptor = buildSerialDescriptor("Response", PolymorphicKind.SEALED) {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("Response") {
         element("Ok", dataSerializer.descriptor)
         element("Error", buildClassSerialDescriptor("Error") {
           element<String>("message")

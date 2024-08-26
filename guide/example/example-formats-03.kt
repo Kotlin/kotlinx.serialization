@@ -10,12 +10,14 @@ fun ByteArray.toAsciiHexString() = joinToString("") {
 }
 
 @Serializable
+@OptIn(ExperimentalSerializationApi::class)
 data class Data(
     @ByteString
     val type2: ByteArray, // CBOR Major type 2
     val type4: ByteArray  // CBOR Major type 4
-)        
+)
 
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
     val data = Data(byteArrayOf(1, 2, 3, 4), byteArrayOf(5, 6, 7, 8)) 
     val bytes = Cbor.encodeToByteArray(data)   

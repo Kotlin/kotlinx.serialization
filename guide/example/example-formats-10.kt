@@ -11,6 +11,7 @@ class Project(val name: String, val owner: User)
 @Serializable
 class User(val name: String)
 
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
     val data = Project("kotlinx.serialization",  User("kotlin"))
     val map = Properties.encodeToMap(data)

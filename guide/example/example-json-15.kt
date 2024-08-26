@@ -7,6 +7,7 @@ import kotlinx.serialization.json.*
 @Serializable
 data class Project(val projectName: String, val projectOwner: String)
 
+@OptIn(ExperimentalSerializationApi::class) // namingStrategy is an experimental setting for now
 val format = Json { namingStrategy = JsonNamingStrategy.SnakeCase }
 
 fun main() {

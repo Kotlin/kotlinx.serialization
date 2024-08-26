@@ -8,7 +8,8 @@ import kotlinx.serialization.descriptors.*
 
 // NOT @Serializable
 class Project(val name: String, val language: String)
-                           
+
+@OptIn(ExperimentalSerializationApi::class)
 @Serializer(forClass = Project::class)
 object ProjectSerializer
 

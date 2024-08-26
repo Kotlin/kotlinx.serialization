@@ -11,6 +11,8 @@ data class SampleData(
     val description: String?,
     val department: String = "QA"
 )
+
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
   val descriptors = listOf(SampleData.serializer().descriptor)
   val schemas = ProtoBufSchemaGenerator.generateSchemaText(descriptors)

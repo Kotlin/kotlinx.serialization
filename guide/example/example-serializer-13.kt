@@ -26,7 +26,8 @@ object ColorAsObjectSerializer : KSerializer<Color> {
         decoder.decodeStructure(descriptor) {
             var r = -1
             var g = -1
-            var b = -1     
+            var b = -1
+            @OptIn(ExperimentalSerializationApi::class)
             if (decodeSequentially()) { // sequential decoding protocol
                 r = decodeIntElement(descriptor, 0)           
                 g = decodeIntElement(descriptor, 1)  

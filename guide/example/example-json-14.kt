@@ -4,8 +4,10 @@ package example.exampleJson14
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
+@OptIn(ExperimentalSerializationApi::class) // decodeEnumsCaseInsensitive is an experimental setting for now
 val format = Json { decodeEnumsCaseInsensitive = true }
 
+@OptIn(ExperimentalSerializationApi::class) // JsonNames is an experimental annotation for now
 enum class Cases { VALUE_A, @JsonNames("Alternative") VALUE_B }
 
 @Serializable

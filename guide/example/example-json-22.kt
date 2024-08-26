@@ -12,6 +12,7 @@ fun main() {
     val pi = BigDecimal("3.141592653589793238462643383279")
 
     // use JsonUnquotedLiteral to encode raw JSON content
+    @OptIn(ExperimentalSerializationApi::class)
     val piJsonLiteral = JsonUnquotedLiteral(pi.toString())
 
     val piJsonDouble = JsonPrimitive(pi.toDouble())
