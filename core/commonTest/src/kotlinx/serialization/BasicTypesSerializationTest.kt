@@ -198,7 +198,6 @@ class BasicTypesSerializationTest {
         // impossible to deserialize Nothing
         assertFailsWith(SerializationException::class, "'kotlin.Nothing' does not have instances") {
             val inp = KeyValueInput(Parser(StringReader("42")))
-            @Suppress("IMPLICIT_NOTHING_TYPE_ARGUMENT_IN_RETURN_POSITION")
             inp.decodeSerializableValue(NothingSerializer())
         }
 

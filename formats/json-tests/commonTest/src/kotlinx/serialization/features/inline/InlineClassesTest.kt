@@ -2,8 +2,6 @@
  * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-@file:Suppress("INLINE_CLASSES_NOT_SUPPORTED", "SERIALIZER_NOT_FOUND")
-
 package kotlinx.serialization.features.inline
 
 import kotlinx.serialization.*
