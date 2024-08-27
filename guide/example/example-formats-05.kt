@@ -9,6 +9,7 @@ fun ByteArray.toAsciiHexString() = joinToString("") {
         "{${it.toUByte().toString(16).padStart(2, '0').uppercase()}}"
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class Project(
     @ProtoNumber(1)
@@ -17,6 +18,7 @@ data class Project(
     val language: String
 )
 
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
     val data = Project("kotlinx.serialization", "Kotlin") 
     val bytes = ProtoBuf.encodeToByteArray(data)   

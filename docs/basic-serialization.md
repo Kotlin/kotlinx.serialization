@@ -450,6 +450,7 @@ For that purposes, [EncodeDefault] annotation can be used:
 
 ```kotlin
 @Serializable
+@OptIn(ExperimentalSerializationApi::class) // EncodeDefault is an experimental annotation for now
 data class Project(
     val name: String,
     @EncodeDefault val language: String = "Kotlin"
@@ -462,6 +463,7 @@ It's also possible to tweak it into the opposite behavior using [EncodeDefault.M
 ```kotlin
 
 @Serializable
+@OptIn(ExperimentalSerializationApi::class) // EncodeDefault is an experimental annotation for now
 data class User(
     val name: String,
     @EncodeDefault(EncodeDefault.Mode.NEVER) val projects: List<Project> = emptyList()

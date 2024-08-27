@@ -20,6 +20,7 @@ object ColorAsStringSerializer : KSerializer<Color> {
     }
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 @KeepGeneratedSerializer
 @Serializable(with = ColorAsStringSerializer::class)
 class Color(val rgb: Int)

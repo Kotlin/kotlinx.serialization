@@ -4,6 +4,7 @@ package example.exampleJson04
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
+@OptIn(ExperimentalSerializationApi::class) // JsonNames is an experimental annotation for now
 @Serializable
 data class Project(@JsonNames("title") val name: String)
 

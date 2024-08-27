@@ -341,8 +341,9 @@ public annotation class Polymorphic
  * Annotation is not allowed on classes involved in polymorphic serialization:
  * interfaces, sealed classes, abstract classes, classes marked by [Polymorphic].
  *
- * A compiler version `2.0.20` and higher is required.
+ * A compiler version `2.0.20` or higher is required.
  */
+@ExperimentalSerializationApi
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 public annotation class KeepGeneratedSerializer

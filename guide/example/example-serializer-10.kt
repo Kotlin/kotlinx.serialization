@@ -10,6 +10,7 @@ import kotlinx.serialization.builtins.IntArraySerializer
 
 class ColorIntArraySerializer : KSerializer<Color> {
     private val delegateSerializer = IntArraySerializer()
+    @OptIn(ExperimentalSerializationApi::class)
     override val descriptor = SerialDescriptor("Color", delegateSerializer.descriptor)
 
     override fun serialize(encoder: Encoder, value: Color) {

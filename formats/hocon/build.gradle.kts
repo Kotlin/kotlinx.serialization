@@ -14,6 +14,7 @@ plugins {
 
 kotlin {
     jvmToolchain(jdkToolchainVersion)
+
     compilerOptions {
         jvmTarget = JvmTarget.JVM_1_8
         if (overriddenLanguageVersion != null) {
@@ -21,6 +22,14 @@ kotlin {
             freeCompilerArgs.add("-Xsuppress-version-warnings")
         }
         freeCompilerArgs.add("-Xjdk-release=1.8")
+    }
+
+    sourceSets.all {
+        languageSettings {
+            progressiveMode = true
+
+            optIn("kotlinx.serialization.InternalSerializationApi")
+        }
     }
 }
 

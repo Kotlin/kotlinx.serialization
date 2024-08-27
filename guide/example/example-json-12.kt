@@ -4,6 +4,7 @@ package example.exampleJson12
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
+@OptIn(ExperimentalSerializationApi::class) // JsonClassDiscriminator is an experimental annotation for now
 @Serializable
 @JsonClassDiscriminator("message_type")
 sealed class Base

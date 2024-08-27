@@ -15,6 +15,7 @@ data class Data(
     val b: List<Int> = emptyList()
 )
 
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
     val data = Data(listOf(1, 2, 3), listOf())
     val bytes = ProtoBuf.encodeToByteArray(data)

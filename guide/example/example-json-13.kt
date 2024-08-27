@@ -4,6 +4,7 @@ package example.exampleJson13
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
+@OptIn(ExperimentalSerializationApi::class) // classDiscriminatorMode is an experimental setting for now
 val format = Json { classDiscriminatorMode = ClassDiscriminatorMode.NONE }
 
 @Serializable

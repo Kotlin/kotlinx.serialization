@@ -6,6 +6,7 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 
+@ExperimentalSerializationApi
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
 
@@ -24,14 +25,17 @@ class ListEncoder : AbstractEncoder() {
     override fun encodeNotNullMark() = encodeValue("!!")
 }
 
+@ExperimentalSerializationApi
 fun <T> encodeToList(serializer: SerializationStrategy<T>, value: T): List<Any> {
     val encoder = ListEncoder()
     encoder.encodeSerializableValue(serializer, value)
     return encoder.list
 }
 
+@ExperimentalSerializationApi
 inline fun <reified T> encodeToList(value: T) = encodeToList(serializer(), value)
 
+@ExperimentalSerializationApi
 class ListDecoder(val list: ArrayDeque<Any>, var elementsCount: Int = 0) : AbstractDecoder() {
     private var elementIndex = 0
     
@@ -55,11 +59,13 @@ class ListDecoder(val list: ArrayDeque<Any>, var elementsCount: Int = 0) : Abstr
     override fun decodeNotNullMark(): Boolean = decodeString() != "NULL"
 }
 
+@ExperimentalSerializationApi
 fun <T> decodeFromList(list: List<Any>, deserializer: DeserializationStrategy<T>): T {
     val decoder = ListDecoder(ArrayDeque(list))
     return decoder.decodeSerializableValue(deserializer)
 }
 
+@ExperimentalSerializationApi
 inline fun <reified T> decodeFromList(list: List<Any>): T = decodeFromList(list, serializer())
 
 @Serializable
@@ -68,6 +74,7 @@ data class Project(val name: String, val owner: User?, val votes: Int?)
 @Serializable
 data class User(val name: String)
 
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
     val data = Project("kotlinx.serialization",  User("kotlin") , null)
     val list = encodeToList(data)

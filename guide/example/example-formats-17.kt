@@ -9,6 +9,7 @@ import kotlinx.serialization.encoding.*
 import java.io.*
 
 private val byteArraySerializer = serializer<ByteArray>()
+@ExperimentalSerializationApi
 class DataOutputEncoder(val output: DataOutput) : AbstractEncoder() {
     override val serializersModule: SerializersModule = EmptySerializersModule()
     override fun encodeBoolean(value: Boolean) = output.writeByte(if (value) 1 else 0)
@@ -52,13 +53,16 @@ class DataOutputEncoder(val output: DataOutput) : AbstractEncoder() {
     }            
 }
 
+@ExperimentalSerializationApi
 fun <T> encodeTo(output: DataOutput, serializer: SerializationStrategy<T>, value: T) {
     val encoder = DataOutputEncoder(output)
     encoder.encodeSerializableValue(serializer, value)
 }
 
+@ExperimentalSerializationApi
 inline fun <reified T> encodeTo(output: DataOutput, value: T) = encodeTo(output, serializer(), value)
 
+@ExperimentalSerializationApi
 class DataInputDecoder(val input: DataInput, var elementsCount: Int = 0) : AbstractDecoder() {
     private var elementIndex = 0
     override val serializersModule: SerializersModule = EmptySerializersModule()
@@ -108,11 +112,13 @@ class DataInputDecoder(val input: DataInput, var elementsCount: Int = 0) : Abstr
     }
 }
 
+@ExperimentalSerializationApi
 fun <T> decodeFrom(input: DataInput, deserializer: DeserializationStrategy<T>): T {
     val decoder = DataInputDecoder(input)
     return decoder.decodeSerializableValue(deserializer)
 }
 
+@ExperimentalSerializationApi
 inline fun <reified T> decodeFrom(input: DataInput): T = decodeFrom(input, serializer())
 
 fun ByteArray.toAsciiHexString() = joinToString("") {
@@ -123,6 +129,7 @@ fun ByteArray.toAsciiHexString() = joinToString("") {
 @Serializable
 data class Project(val name: String, val attachment: ByteArray)
 
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
     val data = Project("kotlinx.serialization", byteArrayOf(0x0A, 0x0B, 0x0C, 0x0D))
     val output = ByteArrayOutputStream()

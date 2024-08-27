@@ -5,6 +5,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
 @Serializable
+@OptIn(ExperimentalSerializationApi::class) // EncodeDefault is an experimental annotation for now
 data class Project(
     val name: String,
     @EncodeDefault val language: String = "Kotlin"
@@ -12,6 +13,7 @@ data class Project(
 
 
 @Serializable
+@OptIn(ExperimentalSerializationApi::class) // EncodeDefault is an experimental annotation for now
 data class User(
     val name: String,
     @EncodeDefault(EncodeDefault.Mode.NEVER) val projects: List<Project> = emptyList()

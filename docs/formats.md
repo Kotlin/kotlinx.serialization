@@ -65,6 +65,7 @@ fun ByteArray.toAsciiHexString() = joinToString("") {
 @Serializable
 data class Project(val name: String, val language: String)
 
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
     val data = Project("kotlinx.serialization", "Kotlin") 
     val bytes = Cbor.encodeToByteArray(data)   
@@ -116,13 +117,14 @@ import kotlinx.serialization.cbor.*
 -->
 
 ```kotlin
-val format = Cbor { ignoreUnknownKeys = true }
-
 @Serializable
 data class Project(val name: String)
 
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
-    val data = format.decodeFromHexString<Project>(
+  val format = Cbor { ignoreUnknownKeys = true }
+  
+  val data = format.decodeFromHexString<Project>(
         "bf646e616d65756b6f746c696e782e73657269616c697a6174696f6e686c616e6775616765664b6f746c696eff"
     )
     println(data)
@@ -183,12 +185,14 @@ fun ByteArray.toAsciiHexString() = joinToString("") {
 
 ```kotlin
 @Serializable
+@OptIn(ExperimentalSerializationApi::class)
 data class Data(
     @ByteString
     val type2: ByteArray, // CBOR Major type 2
     val type4: ByteArray  // CBOR Major type 4
-)        
+)
 
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
     val data = Data(byteArrayOf(1, 2, 3, 4), byteArrayOf(5, 6, 7, 8)) 
     val bytes = Cbor.encodeToByteArray(data)   
@@ -338,6 +342,7 @@ fun ByteArray.toAsciiHexString() = joinToString("") {
 @Serializable
 data class Project(val name: String, val language: String)
 
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
     val data = Project("kotlinx.serialization", "Kotlin") 
     val bytes = ProtoBuf.encodeToByteArray(data)   
@@ -380,6 +385,7 @@ fun ByteArray.toAsciiHexString() = joinToString("") {
 -->
 
 ```kotlin    
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class Project(
     @ProtoNumber(1)
@@ -388,6 +394,7 @@ data class Project(
     val language: String
 )
 
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
     val data = Project("kotlinx.serialization", "Kotlin") 
     val bytes = ProtoBuf.encodeToByteArray(data)   
@@ -432,6 +439,7 @@ fun ByteArray.toAsciiHexString() = joinToString("") {
 -->
 
 ```kotlin    
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 class Data(
     @ProtoType(ProtoIntegerType.DEFAULT)
@@ -442,6 +450,7 @@ class Data(
     val c: Int
 )
 
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
     val data = Data(1, -2, 3) 
     println(ProtoBuf.encodeToByteArray(data).toAsciiHexString())
@@ -497,6 +506,7 @@ data class Data(
     val b: List<Int> = emptyList()
 )
 
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
     val data = Data(listOf(1, 2, 3), listOf())
     val bytes = ProtoBuf.encodeToByteArray(data)
@@ -561,6 +571,7 @@ import kotlinx.serialization.protobuf.*
 
 ```kotlin
 // The outer class
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class Data(
     @ProtoNumber(1) val name: String,
@@ -571,11 +582,14 @@ data class Data(
 @Serializable sealed interface IPhoneType
 
 // Message holder for home_phone
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable @JvmInline value class HomePhone(@ProtoNumber(2) val number: String): IPhoneType
 
 // Message holder for work_phone. Can also be a value class, but we leave it as `data` to demonstrate that both variants can be used.
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable data class WorkPhone(@ProtoNumber(3) val number: String): IPhoneType
 
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
   val dataTom = Data("Tom", HomePhone("123"))
   val stringTom = ProtoBuf.encodeToHexString(dataTom)
@@ -654,6 +668,8 @@ data class SampleData(
     val description: String?,
     val department: String = "QA"
 )
+
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
   val descriptors = listOf(SampleData.serializer().descriptor)
   val schemas = ProtoBufSchemaGenerator.generateSchemaText(descriptors)
@@ -705,6 +721,7 @@ class Project(val name: String, val owner: User)
 @Serializable
 class User(val name: String)
 
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
     val data = Project("kotlinx.serialization",  User("kotlin"))
     val map = Properties.encodeToMap(data)
@@ -737,7 +754,8 @@ implemented to get a basic working format.
 
 Let us start with a trivial format implementation that encodes the data into a single list of primitive
 constituent objects in the order they were written in the source code. To start, we implement a simple [Encoder] by
-overriding `encodeValue` in [AbstractEncoder].
+overriding `encodeValue` in [AbstractEncoder]. Since encoders are intended to be consumed by other parts of application,
+it is recommended to propagate the `@ExperimentalSerializationApi` annotation instead of opting-in.
 
 <!--- INCLUDE
 import kotlinx.serialization.*
@@ -747,6 +765,7 @@ import kotlinx.serialization.modules.*
 -->
 
 ```kotlin
+@ExperimentalSerializationApi
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
 
@@ -762,6 +781,7 @@ Now we write a convenience top-level function that creates an encoder that encod
 and returns a list.
 
 ```kotlin
+@ExperimentalSerializationApi
 fun <T> encodeToList(serializer: SerializationStrategy<T>, value: T): List<Any> {
     val encoder = ListEncoder()
     encoder.encodeSerializableValue(serializer, value)
@@ -774,6 +794,7 @@ the `encodeToList` function with a `reified` type parameter using the [serialize
 the appropriate [KSerializer] instance for the actual type.
 
 ```kotlin 
+@ExperimentalSerializationApi
 inline fun <reified T> encodeToList(value: T) = encodeToList(serializer(), value)
 ```                  
 
@@ -786,6 +807,7 @@ data class Project(val name: String, val owner: User, val votes: Int)
 @Serializable
 data class User(val name: String)
 
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
     val data = Project("kotlinx.serialization",  User("kotlin"), 9000)
     println(encodeToList(data))
@@ -814,6 +836,7 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 
+@ExperimentalSerializationApi
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
 
@@ -824,12 +847,14 @@ class ListEncoder : AbstractEncoder() {
     }
 }
 
+@ExperimentalSerializationApi
 fun <T> encodeToList(serializer: SerializationStrategy<T>, value: T): List<Any> {
     val encoder = ListEncoder()
     encoder.encodeSerializableValue(serializer, value)
     return encoder.list
 }
 
+@ExperimentalSerializationApi
 inline fun <reified T> encodeToList(value: T) = encodeToList(serializer(), value)
 -->
 
@@ -845,6 +870,7 @@ A decoder needs to implement more substance.
   each structure that is being recursively decoded keeps track of its own `elementIndex` state separately.  
 
 ```kotlin
+@ExperimentalSerializationApi
 class ListDecoder(val list: ArrayDeque<Any>) : AbstractDecoder() {
     private var elementIndex = 0
 
@@ -865,11 +891,13 @@ class ListDecoder(val list: ArrayDeque<Any>) : AbstractDecoder() {
 A couple of convenience functions for decoding.
 
 ```kotlin
+@ExperimentalSerializationApi
 fun <T> decodeFromList(list: List<Any>, deserializer: DeserializationStrategy<T>): T {
     val decoder = ListDecoder(ArrayDeque(list))
     return decoder.decodeSerializableValue(deserializer)
 }
 
+@ExperimentalSerializationApi
 inline fun <reified T> decodeFromList(list: List<Any>): T = decodeFromList(list, serializer())
 ```
 
@@ -885,6 +913,7 @@ data class User(val name: String)
 -->
 
 ```kotlin    
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
     val data = Project("kotlinx.serialization",  User("kotlin"), 9000)
     val list = encodeToList(data)
@@ -922,6 +951,7 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 
+@ExperimentalSerializationApi
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
 
@@ -932,16 +962,19 @@ class ListEncoder : AbstractEncoder() {
     }
 }
 
+@ExperimentalSerializationApi
 fun <T> encodeToList(serializer: SerializationStrategy<T>, value: T): List<Any> {
     val encoder = ListEncoder()
     encoder.encodeSerializableValue(serializer, value)
     return encoder.list
 }
 
+@ExperimentalSerializationApi
 inline fun <reified T> encodeToList(value: T) = encodeToList(serializer(), value)
 -->
 
 ```kotlin
+@ExperimentalSerializationApi
 class ListDecoder(val list: ArrayDeque<Any>) : AbstractDecoder() {
     private var elementIndex = 0
 
@@ -963,11 +996,13 @@ class ListDecoder(val list: ArrayDeque<Any>) : AbstractDecoder() {
 
 <!--- INCLUDE
 
+@ExperimentalSerializationApi
 fun <T> decodeFromList(list: List<Any>, deserializer: DeserializationStrategy<T>): T {
     val decoder = ListDecoder(ArrayDeque(list))
     return decoder.decodeSerializableValue(deserializer)
 }
 
+@ExperimentalSerializationApi
 inline fun <reified T> decodeFromList(list: List<Any>): T = decodeFromList(list, serializer())
 
 @Serializable
@@ -976,6 +1011,7 @@ data class Project(val name: String, val owner: User, val votes: Int)
 @Serializable
 data class User(val name: String)
 
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
     val data = Project("kotlinx.serialization",  User("kotlin"), 9000)
     val list = encodeToList(data)
@@ -1009,6 +1045,7 @@ import kotlinx.serialization.modules.*
 -->
 
 ```kotlin
+@ExperimentalSerializationApi
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
 
@@ -1027,12 +1064,14 @@ class ListEncoder : AbstractEncoder() {
 
 <!--- INCLUDE
 
+@ExperimentalSerializationApi
 fun <T> encodeToList(serializer: SerializationStrategy<T>, value: T): List<Any> {
     val encoder = ListEncoder()
     encoder.encodeSerializableValue(serializer, value)
     return encoder.list
 }
 
+@ExperimentalSerializationApi
 inline fun <reified T> encodeToList(value: T) = encodeToList(serializer(), value)
 -->
 
@@ -1042,6 +1081,7 @@ in addition to the previous code.
 > The formats that store collection size in advance have to return `true` from `decodeSequentially`.
 
 ```kotlin
+@ExperimentalSerializationApi
 class ListDecoder(val list: ArrayDeque<Any>, var elementsCount: Int = 0) : AbstractDecoder() {
     private var elementIndex = 0
 
@@ -1066,11 +1106,13 @@ class ListDecoder(val list: ArrayDeque<Any>, var elementsCount: Int = 0) : Abstr
 
 <!--- INCLUDE
 
+@ExperimentalSerializationApi
 fun <T> decodeFromList(list: List<Any>, deserializer: DeserializationStrategy<T>): T {
     val decoder = ListDecoder(ArrayDeque(list))
     return decoder.decodeSerializableValue(deserializer)
 }
 
+@ExperimentalSerializationApi
 inline fun <reified T> decodeFromList(list: List<Any>): T = decodeFromList(list, serializer())
 -->
 
@@ -1083,6 +1125,7 @@ data class Project(val name: String, val owners: List<User>, val votes: Int)
 @Serializable
 data class User(val name: String)
 
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
     val data = Project("kotlinx.serialization",  listOf(User("kotlin"), User("jetbrains")), 9000)
     val list = encodeToList(data)
@@ -1114,6 +1157,7 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 
+@ExperimentalSerializationApi
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
 
@@ -1139,14 +1183,17 @@ In the encoder implementation we override [Encoder.encodeNull] and [Encoder.enco
 <!--- INCLUDE
 }
 
+@ExperimentalSerializationApi
 fun <T> encodeToList(serializer: SerializationStrategy<T>, value: T): List<Any> {
     val encoder = ListEncoder()
     encoder.encodeSerializableValue(serializer, value)
     return encoder.list
 }
 
+@ExperimentalSerializationApi
 inline fun <reified T> encodeToList(value: T) = encodeToList(serializer(), value)
 
+@ExperimentalSerializationApi
 class ListDecoder(val list: ArrayDeque<Any>, var elementsCount: Int = 0) : AbstractDecoder() {
     private var elementIndex = 0
     
@@ -1177,11 +1224,13 @@ In the decoder implementation we override [Decoder.decodeNotNullMark].
 <!--- INCLUDE
 }
 
+@ExperimentalSerializationApi
 fun <T> decodeFromList(list: List<Any>, deserializer: DeserializationStrategy<T>): T {
     val decoder = ListDecoder(ArrayDeque(list))
     return decoder.decodeSerializableValue(deserializer)
 }
 
+@ExperimentalSerializationApi
 inline fun <reified T> decodeFromList(list: List<Any>): T = decodeFromList(list, serializer())
 -->
 
@@ -1194,6 +1243,7 @@ data class Project(val name: String, val owner: User?, val votes: Int?)
 @Serializable
 data class User(val name: String)
 
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
     val data = Project("kotlinx.serialization",  User("kotlin") , null)
     val list = encodeToList(data)
@@ -1230,7 +1280,8 @@ import kotlinx.serialization.modules.*
 import java.io.*
 -->
 
-```kotlin            
+```kotlin     
+@ExperimentalSerializationApi
 class DataOutputEncoder(val output: DataOutput) : AbstractEncoder() {
     override val serializersModule: SerializersModule = EmptySerializersModule()
     override fun encodeBoolean(value: Boolean) = output.writeByte(if (value) 1 else 0)
@@ -1256,17 +1307,20 @@ class DataOutputEncoder(val output: DataOutput) : AbstractEncoder() {
 
 <!--- INCLUDE
 
+@ExperimentalSerializationApi
 fun <T> encodeTo(output: DataOutput, serializer: SerializationStrategy<T>, value: T) {
     val encoder = DataOutputEncoder(output)
     encoder.encodeSerializableValue(serializer, value)
 }
 
+@ExperimentalSerializationApi
 inline fun <reified T> encodeTo(output: DataOutput, value: T) = encodeTo(output, serializer(), value)
 -->
 
 The decoder implementation mirrors encoder's implementation overriding all the primitive `decodeXxx` functions.
 
 ```kotlin 
+@ExperimentalSerializationApi
 class DataInputDecoder(val input: DataInput, var elementsCount: Int = 0) : AbstractDecoder() {
     private var elementIndex = 0
     override val serializersModule: SerializersModule = EmptySerializersModule()
@@ -1300,11 +1354,13 @@ class DataInputDecoder(val input: DataInput, var elementsCount: Int = 0) : Abstr
 
 <!--- INCLUDE
 
+@ExperimentalSerializationApi
 fun <T> decodeFrom(input: DataInput, deserializer: DeserializationStrategy<T>): T {
     val decoder = DataInputDecoder(input)
     return decoder.decodeSerializableValue(deserializer)
 }
 
+@ExperimentalSerializationApi
 inline fun <reified T> decodeFrom(input: DataInput): T = decodeFrom(input, serializer())
 
 fun ByteArray.toAsciiHexString() = joinToString("") {
@@ -1320,6 +1376,7 @@ used in the [CBOR (experimental)](#cbor-experimental) and [ProtoBuf (experimenta
 @Serializable
 data class Project(val name: String, val language: String)
 
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
     val data = Project("kotlinx.serialization", "Kotlin")
     val output = ByteArrayOutputStream()
@@ -1383,6 +1440,7 @@ we add a trivial implementation of `encodeCompactSize` function that uses only o
 a size of up to 254 bytes.  
 
 <!--- INCLUDE
+@ExperimentalSerializationApi
 class DataOutputEncoder(val output: DataOutput) : AbstractEncoder() {
     override val serializersModule: SerializersModule = EmptySerializersModule()
     override fun encodeBoolean(value: Boolean) = output.writeByte(if (value) 1 else 0)
@@ -1431,13 +1489,16 @@ class DataOutputEncoder(val output: DataOutput) : AbstractEncoder() {
 <!--- INCLUDE
 }
 
+@ExperimentalSerializationApi
 fun <T> encodeTo(output: DataOutput, serializer: SerializationStrategy<T>, value: T) {
     val encoder = DataOutputEncoder(output)
     encoder.encodeSerializableValue(serializer, value)
 }
 
+@ExperimentalSerializationApi
 inline fun <reified T> encodeTo(output: DataOutput, value: T) = encodeTo(output, serializer(), value)
 
+@ExperimentalSerializationApi
 class DataInputDecoder(val input: DataInput, var elementsCount: Int = 0) : AbstractDecoder() {
     private var elementIndex = 0
     override val serializersModule: SerializersModule = EmptySerializersModule()
@@ -1495,11 +1556,13 @@ the [decodeSerializableValue][Decoder.decodeSerializableValue] function.
 <!--- INCLUDE
 }
 
+@ExperimentalSerializationApi
 fun <T> decodeFrom(input: DataInput, deserializer: DeserializationStrategy<T>): T {
     val decoder = DataInputDecoder(input)
     return decoder.decodeSerializableValue(deserializer)
 }
 
+@ExperimentalSerializationApi
 inline fun <reified T> decodeFrom(input: DataInput): T = decodeFrom(input, serializer())
 
 fun ByteArray.toAsciiHexString() = joinToString("") {
@@ -1514,6 +1577,7 @@ Now everything is ready to perform serialization of some byte arrays.
 @Serializable
 data class Project(val name: String, val attachment: ByteArray)
 
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
     val data = Project("kotlinx.serialization", byteArrayOf(0x0A, 0x0B, 0x0C, 0x0D))
     val output = ByteArrayOutputStream()
