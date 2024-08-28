@@ -1,4 +1,56 @@
 
+1.7.2 / 2024-08-28
+==================
+
+This release provides several new features, including a major Cbor configuration rework.
+It uses Kotlin 2.0.20 by default. 
+
+## Cbor feature set for COSE compliance
+
+This change brings a lot of features to the CBOR format, namely:
+
+- Serial Labels — see `@CborLabel` annotation and `preferCborLabelsOverNames` flag.
+- Tagging of keys and values — see `encode*Tags` and `verify*Tags` set of flags
+- Definite length encoding — see `useDefiniteLengthEncoding`. This flag affects object encoding, since decoding of arrays with definite lenghts is automatically supported.
+- Option to globally prefer major type 2 for byte array encoding — see `alwaysUseByteString` flag.
+
+Since there are quite a lot of flags now, they were restructured to a separate `CborConfiguration` class, similarly to `JsonConfiguration`.
+It is possible to retrieve this configuration from `CborEncoder/CborDecoder` interfaces in your custom serializers (see their documentation for details).
+
+All of these features make it possible to serialize and parse [COSE-compliant CBOR](https://datatracker.ietf.org/doc/html/rfc8152), for example, ISO/IEC 18013-5:2021-compliant mobile driving license data.
+However, some canonicalization steps (such as sorting keys) still need to be performed manually.
+
+This functionality [was contributed](https://github.com/Kotlin/kotlinx.serialization/pull/2412) to us by [Bernd Prünster](https://github.com/JesusMcCloud).
+
+## Keeping generated serializers
+
+One of the most requested features for serialization plugin was to continue to generate a serializer even if a custom one is specified for the class.
+It allows using a plugin-generated serializer in a fallback or delegate strategy, accessing type structure via descriptor, using default serialization behavior in inheritors that do not use custom serializers.
+
+Starting with this release, you can specify the `@KeepGeneratedSerializer` annotation on the class declaration to instruct the plugin to continue generating the serializer.
+In this case, the serializer will be accessible using the `.generatedSerializer()` function on the class's companion object.
+
+> This annotation is currently experimental. Kotlin 2.0.20 or higher is required for this feature to work.
+
+You can check out the examples in [the documentation](docs/serializers.md#simultaneous-use-of-plugin-generated-and-custom-serializers) and in the PRs: [#2758](https://github.com/Kotlin/kotlinx.serialization/pull/2758), [#2669](https://github.com/Kotlin/kotlinx.serialization/pull/2669).
+
+## Serializer for kotlin.uuid.Uuid
+
+Kotlin 2.0.20 [added](https://kotlinlang.org/docs/whatsnew2020.html#support-for-uuids-in-the-common-kotlin-standard-library) a common class to represent UUIDs in a multiplatform code.
+kotlinx.serialization 1.7.2 provides a corresponding `Uuid.serializer()` for it, making it possible to use it in `@Serializable` classes.
+Note that for now, serializer should be provided manually with [`@Contextual` annotation](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/serializers.md#contextual-serialization).
+Plugin will be able to automatically insert `Uuid` serializer in Kotlin 2.1.0.
+
+See more details in the [corresponding PR](https://github.com/Kotlin/kotlinx.serialization/pull/2744).
+
+## Other bugfixes and improvements
+
+  * Prohibited using of zero and negative field numbers in ProtoNumber (#2766)
+  * Improve readability of protobuf decoding exception messages (#2768) (thanks to [xiaozhikang0916](https://github.com/xiaozhikang0916))
+  * docs(serializers): Fix grammatical errors (#2779) (thanks to [jamhour1g](https://github.com/jamhour1g))
+  * Fixed VerifyError after ProGuard optimization (#2728)
+  * Add wasm-wasi target to Okio integration (#2727)
+
 1.7.1 / 2024-06-25
 ==================
 
