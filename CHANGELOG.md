@@ -18,7 +18,8 @@ Since there are quite a lot of flags now, they were restructured to a separate `
 It is possible to retrieve this configuration from `CborEncoder/CborDecoder` interfaces in your custom serializers (see their documentation for details).
 
 All of these features make it possible to serialize and parse [COSE-compliant CBOR](https://datatracker.ietf.org/doc/html/rfc8152), for example, ISO/IEC 18013-5:2021-compliant mobile driving license data.
-However, some canonicalization steps (such as sorting keys) still need to be performed manually.
+In case you want to make use of them, there is a predefined `Cbor.CoseCompliant` instance.
+However, some canonicalization steps (such as sorting keys) still need to be performed manually. 
 
 This functionality [was contributed](https://github.com/Kotlin/kotlinx.serialization/pull/2412) to us by [Bernd Prünster](https://github.com/JesusMcCloud).
 
