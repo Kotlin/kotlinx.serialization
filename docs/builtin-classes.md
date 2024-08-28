@@ -351,8 +351,8 @@ even if they are numbers in Kotlin, as we can see below.
 
 ### Unit and singleton objects
 
-The Kotlin builtin `Unit` type is also serializable. 
-`Unit` is a Kotlin [singleton object](https://kotlinlang.org/docs/tutorials/kotlin-for-py/objects-and-companion-objects.html), 
+The Kotlin builtin [Unit](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-unit/) type is also serializable. 
+`Unit` is a Kotlin [singleton object](https://kotlinlang.org/docs/object-declarations.html#object-declarations-overview), 
 and is handled equally with other Kotlin objects.
 
 Conceptually, a singleton is a class with only one instance, meaning that state does not define the object, 

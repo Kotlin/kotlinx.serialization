@@ -42,9 +42,9 @@ import kotlin.reflect.*
  *
  * @Serializable
  * class RgbExample(
- *     @Serializable(with = RgbAsHexString::class) p1: RgpPixel, // Serialize as HEX string, e.g. #FFFF00
- *     @Serializable(with = RgbAsSingleInt::class) p2: RgpPixel, // Serialize as single integer, e.g. 16711680
- *     p3: RgpPixel // Serialize as 3 short components, e.g. { "red": 255, "green": 255, "blue": 0 }
+ *     @Serializable(with = RgbAsHexString::class) p1: RgbPixel, // Serialize as HEX string, e.g. #FFFF00
+ *     @Serializable(with = RgbAsSingleInt::class) p2: RgbPixel, // Serialize as single integer, e.g. 16711680
+ *     p3: RgbPixel // Serialize as 3 short components, e.g. { "red": 255, "green": 255, "blue": 0 }
  * )
  * ```
  * In this example, each pixel will be serialized using different data representation.
