@@ -5,7 +5,10 @@
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlin.reflect.*
+import kotlin.time.*
+import kotlin.uuid.*
 
 @Suppress("NOTHING_TO_INLINE")
 internal actual inline fun <T> Array<T>.getChecked(index: Int): T {
@@ -71,3 +74,36 @@ internal actual fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KCl
 private fun <T> arrayOfAnyNulls(size: Int): Array<T> = arrayOfNulls<Any>(size) as Array<T>
 
 internal actual fun isReferenceArray(rootClass: KClass<Any>): Boolean = rootClass == Array::class
+
+@OptIn(ExperimentalUnsignedTypes::class, ExperimentalUuidApi::class, ExperimentalSerializationApi::class)
+internal actual fun initBuiltins(): Map<KClass<*>, KSerializer<*>> = mapOf(
+    String::class to String.serializer(),
+    Char::class to Char.serializer(),
+    CharArray::class to CharArraySerializer(),
+    Double::class to Double.serializer(),
+    DoubleArray::class to DoubleArraySerializer(),
+    Float::class to Float.serializer(),
+    FloatArray::class to FloatArraySerializer(),
+    Long::class to Long.serializer(),
+    LongArray::class to LongArraySerializer(),
+    ULong::class to ULong.serializer(),
+    ULongArray::class to ULongArraySerializer(),
+    Int::class to Int.serializer(),
+    IntArray::class to IntArraySerializer(),
+    UInt::class to UInt.serializer(),
+    UIntArray::class to UIntArraySerializer(),
+    Short::class to Short.serializer(),
+    ShortArray::class to ShortArraySerializer(),
+    UShort::class to UShort.serializer(),
+    UShortArray::class to UShortArraySerializer(),
+    Byte::class to Byte.serializer(),
+    ByteArray::class to ByteArraySerializer(),
+    UByte::class to UByte.serializer(),
+    UByteArray::class to UByteArraySerializer(),
+    Boolean::class to Boolean.serializer(),
+    BooleanArray::class to BooleanArraySerializer(),
+    Unit::class to Unit.serializer(),
+    Nothing::class to NothingSerializer(),
+    Duration::class to Duration.serializer(),
+    Uuid::class to Uuid.serializer()
+)

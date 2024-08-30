@@ -5,8 +5,11 @@
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import java.lang.reflect.*
 import kotlin.reflect.*
+import kotlin.time.*
+import kotlin.uuid.*
 
 @Suppress("NOTHING_TO_INLINE")
 internal actual inline fun <T> Array<T>.getChecked(index: Int): T {
@@ -158,3 +161,53 @@ private fun <T : Any> Class<T>.findObjectSerializer(): KSerializer<T>? {
 }
 
 internal actual fun isReferenceArray(rootClass: KClass<Any>): Boolean = rootClass.java.isArray
+
+@OptIn(ExperimentalSerializationApi::class)
+internal actual fun initBuiltins(): Map<KClass<*>, KSerializer<*>> = buildMap {
+    // Standard classes are always present
+    put(String::class, String.serializer())
+    put(Char::class, Char.serializer())
+    put(CharArray::class, CharArraySerializer())
+    put(Double::class, Double.serializer())
+    put(DoubleArray::class, DoubleArraySerializer())
+    put(Float::class, Float.serializer())
+    put(FloatArray::class, FloatArraySerializer())
+    put(Long::class, Long.serializer())
+    put(LongArray::class, LongArraySerializer())
+    put(ULong::class, ULong.serializer())
+    put(Int::class, Int.serializer())
+    put(IntArray::class, IntArraySerializer())
+    put(UInt::class, UInt.serializer())
+    put(Short::class, Short.serializer())
+    put(ShortArray::class, ShortArraySerializer())
+    put(UShort::class, UShort.serializer())
+    put(Byte::class, Byte.serializer())
+    put(ByteArray::class, ByteArraySerializer())
+    put(UByte::class, UByte.serializer())
+    put(Boolean::class, Boolean.serializer())
+    put(BooleanArray::class, BooleanArraySerializer())
+    put(Unit::class, Unit.serializer())
+    put(Nothing::class, NothingSerializer())
+
+    // Duration is a stable class, but may be missing in very old stdlibs
+    loadSafe { put(Duration::class, Duration.serializer()) }
+
+    // Experimental types that may be missing
+    @OptIn(ExperimentalUnsignedTypes::class) run {
+        loadSafe { put(ULongArray::class, ULongArraySerializer()) }
+        loadSafe { put(UIntArray::class, UIntArraySerializer()) }
+        loadSafe { put(UShortArray::class, UShortArraySerializer()) }
+        loadSafe { put(UByteArray::class, UByteArraySerializer()) }
+    }
+    @OptIn(ExperimentalUuidApi::class)
+    loadSafe { put(Uuid::class, Uuid.serializer()) }
+}
+
+// Reference classes in [block] ignoring any exceptions related to class loading
+private inline fun loadSafe(block: () -> Unit) {
+    try {
+        block()
+    } catch (_: NoClassDefFoundError) {
+    } catch (_: ClassNotFoundException) {
+    }
+}
