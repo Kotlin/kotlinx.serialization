@@ -204,9 +204,10 @@ class SerialDescriptorSpecificationTest {
 
     @Test
     fun testCustomPrimitiveDescriptor() {
+        // It is allowed to have a custom descriptor with 'Int' or 'int', but not 'kotlin.Int'.
         assertFailsWith<IllegalArgumentException> { PrimitiveSerialDescriptor("kotlin.Int", PrimitiveKind.INT) }
-        assertFailsWith<IllegalArgumentException> { PrimitiveSerialDescriptor("Int", PrimitiveKind.INT) }
-        assertFailsWith<IllegalArgumentException> { PrimitiveSerialDescriptor("int", PrimitiveKind.INT) }
+        assertEquals("Int", PrimitiveSerialDescriptor("Int", PrimitiveKind.INT).serialName)
+        assertEquals("int", PrimitiveSerialDescriptor("int", PrimitiveKind.INT).serialName)
     }
 
     private fun checkPrimitiveDescriptor(type: String, descriptor: SerialDescriptor) {

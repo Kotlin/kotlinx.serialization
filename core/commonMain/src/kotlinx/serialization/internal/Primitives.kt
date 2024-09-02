@@ -46,14 +46,13 @@ internal fun PrimitiveDescriptorSafe(serialName: String, kind: PrimitiveKind): S
 }
 
 private fun checkName(serialName: String) {
-    val keys = BUILTIN_SERIALIZERS.keys
-    for (primitive in keys) {
-        val simpleName = primitive.simpleName!!.capitalize()
-        val qualifiedName = "kotlin.$simpleName" // KClass.qualifiedName is not supported in JS
-        if (serialName.equals(qualifiedName, ignoreCase = true) || serialName.equals(simpleName, ignoreCase = true)) {
+    val values = BUILTIN_SERIALIZERS.values
+    for (primitive in values) {
+        val primitiveName = primitive.descriptor.serialName
+        if (serialName == primitiveName) {
             throw IllegalArgumentException("""
                 The name of serial descriptor should uniquely identify associated serializer.
-                For serial name $serialName there already exist ${simpleName.capitalize()}Serializer.
+                For serial name $serialName there already exists ${primitive::class.simpleName}.
                 Please refer to SerialDescriptor documentation for additional information.
             """.trimIndent())
         }
