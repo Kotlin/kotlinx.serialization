@@ -1,19 +1,16 @@
-// This file was automatically generated from basic-serialization.md by Knit tool. Do not edit.
+// This file was automatically generated from serialization-customization-options.md by Knit tool. Do not edit.
 package example.exampleClasses03
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
 @Serializable
-class Project(val name: String) {
-    init {
-        require(name.isNotEmpty()) { "name cannot be empty" }
-    }
-}
+data class Project(val name: String, val language: String = "Kotlin")
 
 fun main() {
     val data = Json.decodeFromString<Project>("""
-        {"name":""}
+        {"name":"kotlinx.serialization","language":null}
     """)
     println(data)
+    // JsonDecodingException
 }

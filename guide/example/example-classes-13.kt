@@ -1,17 +1,22 @@
-// This file was automatically generated from basic-serialization.md by Knit tool. Do not edit.
+// This file was automatically generated from serialization-customization-options.md by Knit tool. Do not edit.
 package example.exampleClasses13
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-@Serializable
-class Project(val name: String, val owner: User)
+// Imports the necessary libraries
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
+import kotlinx.serialization.json.Json
 
 @Serializable
-class User(val name: String)
+// Excludes the `language` property from serialization
+data class Project(val name: String, @Transient val language: String = "Kotlin")
 
 fun main() {
-    val owner = User("kotlin")
-    val data = Project("kotlinx.serialization", owner)
-    println(Json.encodeToString(data))
+    val data = Json.decodeFromString<Project>("""
+        {"name":"kotlinx.serialization","language":"Kotlin"}
+    """)
+    println(data)
+    // JsonDecodingException
 }

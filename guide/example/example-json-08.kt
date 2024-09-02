@@ -1,4 +1,4 @@
-// This file was automatically generated from json.md by Knit tool. Do not edit.
+// This file was automatically generated from serialization-json-configuration.md by Knit tool. Do not edit.
 package example.exampleJson08
 
 import kotlinx.serialization.*
@@ -15,6 +15,9 @@ val json = Json {
 }
 
 fun main() {
+
+    // Decodes `foreground` to its default value and `background` to `null`
     val brush = json.decodeFromString<Brush>("""{"foreground":"pink", "background":"purple"}""")
-  println(brush)
+    println(brush)
+    // Brush(foreground=BLACK, background=null)
 }

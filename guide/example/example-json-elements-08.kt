@@ -1,5 +1,5 @@
-// This file was automatically generated from json.md by Knit tool. Do not edit.
-package example.exampleJson24
+// This file was automatically generated from serialization-json-elements.md by Knit tool. Do not edit.
+package example.exampleJsonElements08
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*

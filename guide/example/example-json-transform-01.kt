@@ -1,10 +1,9 @@
-// This file was automatically generated from json.md by Knit tool. Do not edit.
-package example.exampleJson25
+// This file was automatically generated from serialization-transform-json.md by Knit tool. Do not edit.
+package example.exampleJsonTransform01
 
 import kotlinx.serialization.*
-import kotlinx.serialization.json.*
-
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.json.*
 
 @Serializable
 data class Project(

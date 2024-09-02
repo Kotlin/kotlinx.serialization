@@ -1,15 +1,22 @@
-// This file was automatically generated from basic-serialization.md by Knit tool. Do not edit.
+// This file was automatically generated from serialization-customization-options.md by Knit tool. Do not edit.
 package example.exampleClasses04
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
+fun computeLanguage(): String {
+    println("Computing")
+    return "Kotlin"
+}
+
 @Serializable
-data class Project(val name: String, val language: String)
+// Initializer is skipped if `language` is in input
+data class Project(val name: String, val language: String = computeLanguage())
 
 fun main() {
     val data = Json.decodeFromString<Project>("""
-        {"name":"kotlinx.serialization"}
+        {"name":"kotlinx.serialization","language":"Java"}
     """)
     println(data)
+    // Project(name=kotlinx.serialization, language=Java)
 }

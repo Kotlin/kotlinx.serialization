@@ -1,4 +1,4 @@
-// This file was automatically generated from json.md by Knit tool. Do not edit.
+// This file was automatically generated from serialization-json-configuration.md by Knit tool. Do not edit.
 package example.exampleJson02
 
 import kotlinx.serialization.*
@@ -12,6 +12,8 @@ enum class Status { SUPPORTED }
 data class Project(val name: String, val status: Status, val votes: Int)
 
 fun main() {
+    // Decodes a JSON string with lenient parsing
+    // Lenient parsing allows unquoted keys, string and enum values, and quoted integers
     val data = format.decodeFromString<Project>("""
         {
             name   : kotlinx.serialization,
@@ -20,4 +22,5 @@ fun main() {
         }
     """)
     println(data)
+    // Project(name=kotlinx.serialization, status=SUPPORTED, votes=9000)
 }

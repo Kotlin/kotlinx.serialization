@@ -13,8 +13,8 @@
             <toc-element id="serialization-customization-options.md" toc-title="Serializable classes"/>
         </toc-element>
         <toc-element toc-title="Configure JSON serialization">
-            <toc-element id="configure-json-serialization.md" toc-title="JSON serialization overview"/>
-            <toc-element id="serialization-json-configuration.md" toc-title="Customize JSON serialization settings"/>
+            <toc-element id="configure-json-serialization.md" toc-title="Overview"/>
+            <toc-element id="serialization-json-configuration.md" toc-title="Customize JSON serialization"/>
             <toc-element id="serialization-json-elements.md" toc-title="Managing JSON elements"/>
             <toc-element id="serialization-transform-json.md" toc-title="JSON transformation"/>
         </toc-element>

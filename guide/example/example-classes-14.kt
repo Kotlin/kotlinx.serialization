@@ -1,17 +1,14 @@
-// This file was automatically generated from basic-serialization.md by Knit tool. Do not edit.
+// This file was automatically generated from serialization-customization-options.md by Knit tool. Do not edit.
 package example.exampleClasses14
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
 @Serializable
-class Project(val name: String, val owner: User, val maintainer: User)
-
-@Serializable
-class User(val name: String)
+data class Project(val name: String, val language: String = "Kotlin")
 
 fun main() {
-    val owner = User("kotlin")
-    val data = Project("kotlinx.serialization", owner, owner)
+    val data = Project("kotlinx.serialization")
     println(Json.encodeToString(data))
+    // {"name":"kotlinx.serialization"}
 }

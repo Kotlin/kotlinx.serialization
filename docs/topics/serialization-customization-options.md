@@ -1,3 +1,4 @@
+<!--- TEST_NAME BasicSerializationTest -->
 [//]: # (title: Serializable classes)
 
 The [`@Serializable`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/) annotation in Kotlin enables the serialization of all properties in classes defined by the primary constructor.
@@ -15,6 +16,11 @@ allowing classes to be easily converted to and from formats like JSON.
 
 In Kotlin, only properties with backing fields are serialized.
 This means that properties defined solely by getter/setter methods or delegated properties without backing fields are excluded from serialization:
+
+<!--- INCLUDE .*-classes-.*
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+-->
 
 ```kotlin
 @Serializable
@@ -41,6 +47,16 @@ fun main() {
 }
 ```
 
+<!--- > You can get the full code [here](../../guide/example/example-classes-01.kt). -->
+
+<!---
+```text
+{"name":"kotlinx.serialization","stars":9000}
+```
+-->
+
+<!--- TEST LINES_START -->
+
 Kotlin Serialization natively supports nullable properties.
 Like [other defaults](#set-default-values-for-optional-properties), `null` values are not encoded in JSON:
 
@@ -55,6 +71,16 @@ fun main() {
     // {"name":"kotlinx.serialization"}
 }
 ```
+
+<!--- > You can get the full code [here](../../guide/example/example-classes-02.kt). -->
+
+<!---
+```text
+{"name":"kotlinx.serialization"}
+```
+-->
+
+<!--- TEST -->
 
 Additionally, the type safety of Kotlin is strongly enforced.
 If a `null` value is encountered in a JSON object for a non-nullable Kotlin property,
@@ -72,6 +98,17 @@ fun main() {
     // JsonDecodingException
 }
 ```
+
+<!--- > You can get the full code [here](../../guide/example/example-classes-03.kt). -->
+
+<!---
+```text
+Exception in thread "main" kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 52: Expected string literal but 'null' literal was found at path: $.language
+Use 'coerceInputValues = true' in 'Json {}' builder to coerce nulls if property has a default value.
+```
+-->
+
+<!--- TEST LINES_START -->
 
 > If you need to handle `null` values from third-party JSON, you can [coerce them to a default value](json.md#coercing-input-values).
 >
@@ -99,6 +136,17 @@ fun main() {
     // Project(name=kotlinx.serialization, language=Java)
 }
 ```
+
+<!--- > You can get the full code [here](../../guide/example/example-classes-04.kt). -->
+
+<!---
+
+```text
+Project(name=kotlinx.serialization, language=Java)
+```
+-->
+
+<!--- TEST -->
 
 > This behavior is intended to improve performance.
 > Avoid relying on any side effects in the initializer, as they will be bypassed if the initializer is not called.
@@ -128,8 +176,18 @@ fun main() {
 }
 ```
 
+<!--- > You can get the full code [here](../../guide/example/example-classes-05.kt). -->
+
+<!---
+```text
+{"name":"kotlinx.serialization","owner":{"name":"kotlin"}}
+```
+-->
+
+<!--- TEST -->
+
 > If you need to reference non-serializable classes, you can mark them as [transient properties](#exclude-properties-with-the-transient-annotation), or
-> provide a [custom serializer](serializers.md)for them.
+> provide a [custom serializer](serializers.md) for them.
 >
 {type="tip"}
 
@@ -154,6 +212,16 @@ fun main() {
     // {"name":"kotlinx.serialization","owner":{"name":"kotlin"},"maintainer":{"name":"kotlin"}}
 }
 ```
+
+<!--- > You can get the full code [here](../../guide/example/example-classes-06.kt). -->
+
+<!---
+```text
+{"name":"kotlinx.serialization","owner":{"name":"kotlin"},"maintainer":{"name":"kotlin"}}
+```
+-->
+
+<!--- TEST -->
 
 > If you attempt to serialize a circular structure, it will result in stack overflow.
 > You can use the [Transient properties](#exclude-properties-with-the-transient-annotation) to exclude some references from serialization.
@@ -185,6 +253,16 @@ fun main() {
 }
 ```
 
+<!--- > You can get the full code [here](../../guide/example/example-classes-07.kt). -->
+
+<!---
+```text
+{"a":{"contents":42},"b":{"contents":{"name":"kotlinx.serialization","language":"Kotlin"}}}
+```
+-->
+
+<!--- TEST -->
+
 The type that is serialized to JSON depends on the actual compile-time type parameter specified for `Box`.
 
 If the generic type is not serializable, a compile-time error will occur, preventing the code from compiling.
@@ -198,7 +276,7 @@ This section covers techniques for customizing property names, managing default 
 
 By default, the property names in the serialization output, such as JSON, match their names in the source code.
 These names, known as _serial names_, can be customized
-using the [`@SerialName`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serial-name/) annotation:
+using the [`@SerialName`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serial-name/) annotation.
 For example, you can customize a property’s serial name to be shorter or more descriptive in the serialized output:
 
 ```kotlin
@@ -213,6 +291,16 @@ fun main() {
     // {"name":"kotlinx.serialization","lang":"Kotlin"}
 }
 ```
+
+<!--- > You can get the full code [here](../../guide/example/example-classes-08.kt). -->
+
+<!---
+```text
+{"name":"kotlinx.serialization","lang":"Kotlin"}
+```
+-->
+
+<!--- TEST -->
 
 ### Define constructor properties for serialization
 
@@ -240,6 +328,16 @@ fun main() {
 }
 ```
 
+<!--- > You can get the full code [here](../../guide/example/example-classes-09.kt). -->
+
+<!---
+```text
+{"owner":"kotlin","name":"kotlinx.serialization"}
+```
+-->
+
+<!--- TEST -->
+
 ### Validate data in primary constructor
 
 When you need to validate a constructor parameter before storing it in a property,
@@ -264,6 +362,16 @@ fun main() {
 }
 ```
 
+<!--- > You can get the full code [here](../../guide/example/example-classes-10.kt). -->
+
+<!---
+```text
+Exception in thread "main" java.lang.IllegalArgumentException: name cannot be empty
+```
+-->
+
+<!--- TEST LINES_START -->
+
 ### Set default values for optional properties
 
 In Kotlin, an object can only be deserialized when all its properties are present in the input.
@@ -285,6 +393,16 @@ fun main() {
     // Project(name=kotlinx.serialization, language=Kotlin)
 }
 ```
+
+<!--- > You can get the full code [here](../../guide/example/example-classes-11.kt). -->
+
+<!---
+```text
+Project(name=kotlinx.serialization, language=Kotlin)
+```
+-->
+
+<!--- TEST -->
 
 ### Make properties required with the @Required annotation
 
@@ -309,6 +427,16 @@ fun main() {
     // MissingFieldException
 }
 ```
+
+<!--- > You can get the full code [here](../../guide/example/example-classes-12.kt). -->
+
+<!---
+```text
+Exception in thread "main" kotlinx.serialization.MissingFieldException: Field 'language' is required for type with serial name 'example.exampleClasses07.Project', but it was missing at path: $
+```
+-->
+
+<!--- TEST LINES_START -->
 
 ### Exclude properties with the @Transient annotation
 
@@ -338,6 +466,17 @@ fun main() {
 }
 ```
 
+<!--- > You can get the full code [here](../../guide/example/example-classes-13.kt). -->
+
+<!---
+```text
+Exception in thread "main" kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 42: Encountered an unknown key 'language' at path: $.name
+Use 'ignoreUnknownKeys = true' in 'Json {}' builder to ignore unknown keys.
+```
+-->
+
+<!--- TEST LINES_START -->
+
 > You can avoid exceptions from unknown keys in JSON, including those marked with the @Transient annotation, with the [`ignoreUnknownKeys`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/ignore-unknown-keys.html) setting. 
 > For more information, see the [Ignoring Unknown Keys](json.md#ignoring-unknown-keys) section.
 > 
@@ -359,6 +498,16 @@ fun main() {
     // {"name":"kotlinx.serialization"}
 }
 ```
+
+<!--- > You can get the full code [here](../../guide/example/example-classes-14.kt). -->
+
+<!---
+```text
+{"name":"kotlinx.serialization"}
+```
+-->
+
+<!--- TEST -->
 
 > You can learn more about how this behavior can be configured in the JSON format in the [Encoding defaults](json.md#encoding-defaults) section.
 > 
@@ -397,3 +546,14 @@ fun main() {
     // {"name":"Bob"}
 }
 ```
+
+<!--- > You can get the full code [here](../../guide/example/example-classes-15.kt). -->
+
+<!---
+```text
+{"name":"Alice","projects":[{"name":"kotlinx.serialization","language":"Kotlin"}]}
+{"name":"Bob"}
+```
+-->
+
+<!--- TEST -->

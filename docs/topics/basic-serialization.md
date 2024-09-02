@@ -98,7 +98,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../../guide/example/example-basic-02.kt).
+> You can get the full code [here](../guide/example/example-basic-02.kt).
 
 The `@Serializable` annotation instructs the Kotlin Serialization plugin to automatically generate and hook
 up a _serializer_ for this class. Now the output of the example is the corresponding JSON.
@@ -134,7 +134,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../../guide/example/example-basic-03.kt).
+> You can get the full code [here](../guide/example/example-basic-03.kt).
 
 Running this code we get back the object.
 
@@ -178,7 +178,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../../guide/example/example-classes-01.kt).
+> You can get the full code [here](../guide/example/example-classes-01.kt).
 
 We can clearly see that only the `name` and `stars` properties are present in the JSON output.
 
@@ -228,7 +228,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../../guide/example/example-classes-02.kt).
+> You can get the full code [here](../guide/example/example-classes-02.kt).
 
 This example produces the expected output.
 
@@ -265,7 +265,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../../guide/example/example-classes-03.kt).
+> You can get the full code [here](../guide/example/example-classes-03.kt).
 
 Running this code produces the exception:
 
@@ -292,7 +292,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../../guide/example/example-classes-04.kt).
+> You can get the full code [here](../guide/example/example-classes-04.kt).
 
 It produces the exception:
 
@@ -317,7 +317,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../../guide/example/example-classes-05.kt).
+> You can get the full code [here](../guide/example/example-classes-05.kt).
 
 It produces the following output with the default value for the `language` property.
 
@@ -350,7 +350,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../../guide/example/example-classes-06.kt).
+> You can get the full code [here](../guide/example/example-classes-06.kt).
 
 Since the `language` property was specified in the input, we don't see the "Computing" string printed
 in the output.
@@ -378,7 +378,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../../guide/example/example-classes-07.kt).
+> You can get the full code [here](../guide/example/example-classes-07.kt).
 
 We get the following exception.
 
@@ -405,7 +405,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../../guide/example/example-classes-08.kt).
+> You can get the full code [here](../guide/example/example-classes-08.kt).
 
 Attempts to explicitly specify its value in the serial format, even if the specified
 value is equal to the default one, produces the following exception.
@@ -434,7 +434,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../../guide/example/example-classes-09.kt).
+> You can get the full code [here](../guide/example/example-classes-09.kt).
 
 It produces the following output, which does not have the `language` property because its value is equal to the default one.
 
@@ -475,7 +475,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../../guide/example/example-classes-10.kt).
+> You can get the full code [here](../guide/example/example-classes-10.kt).
 
 As you can see, `language` property is preserved and `projects` is omitted:
 
@@ -500,7 +500,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../../guide/example/example-classes-11.kt).
+> You can get the full code [here](../guide/example/example-classes-11.kt).
 
 This example does not encode `null` in JSON because [Defaults are not encoded](#defaults-are-not-encoded).
 
@@ -527,7 +527,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../../guide/example/example-classes-12.kt).
+> You can get the full code [here](../guide/example/example-classes-12.kt).
 
 Even though the `language` property has a default value, it is still an error to attempt to assign
 the `null` value to it.
@@ -561,7 +561,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../../guide/example/example-classes-13.kt).
+> You can get the full code [here](../guide/example/example-classes-13.kt).
 
 When encoded to JSON it results in a nested JSON object.
 
@@ -594,7 +594,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../../guide/example/example-classes-14.kt).
+> You can get the full code [here](../guide/example/example-classes-14.kt).
 
 We simply get the `owner` value encoded twice.
 
@@ -638,7 +638,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../../guide/example/example-classes-15.kt).
+> You can get the full code [here](../guide/example/example-classes-15.kt).
 
 The actual type that we get in JSON depends on the actual compile-time type parameter that was specified for `Box`.
 
@@ -667,7 +667,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../../guide/example/example-classes-16.kt).
+> You can get the full code [here](../guide/example/example-classes-16.kt).
 
 Now we see that an abbreviated name `lang` is used in the JSON output.
 

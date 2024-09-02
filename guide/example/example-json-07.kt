@@ -1,4 +1,4 @@
-// This file was automatically generated from json.md by Knit tool. Do not edit.
+// This file was automatically generated from serialization-json-configuration.md by Knit tool. Do not edit.
 package example.exampleJson07
 
 import kotlinx.serialization.*
@@ -13,5 +13,8 @@ fun main() {
     val data = format.decodeFromString<Project>("""
         {"name":"kotlinx.serialization","language":null}
     """)
+
+    // The invalid `null` value for `language` is coerced to its default value
     println(data)
+    // Project(name=kotlinx.serialization, language=Kotlin)
 }

@@ -1,20 +1,19 @@
-// This file was automatically generated from basic-serialization.md by Knit tool. Do not edit.
+// This file was automatically generated from serialization-customization-options.md by Knit tool. Do not edit.
 package example.exampleClasses06
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-fun computeLanguage(): String {
-    println("Computing")
-    return "Kotlin"
-}
+@Serializable
+class Project(val name: String, val owner: User, val maintainer: User)
 
 @Serializable
-data class Project(val name: String, val language: String = computeLanguage())
+class User(val name: String)
 
 fun main() {
-    val data = Json.decodeFromString<Project>("""
-        {"name":"kotlinx.serialization","language":"Kotlin"}
-    """)
-    println(data)
+    val owner = User("kotlin")
+    // 'owner' is referenced twice
+    val data = Project("kotlinx.serialization", owner, owner)
+    println(Json.encodeToString(data))
+    // {"name":"kotlinx.serialization","owner":{"name":"kotlin"},"maintainer":{"name":"kotlin"}}
 }
