@@ -66,7 +66,11 @@ It produces the following result:
 
 <!--- TEST -->
 
-## Lenient parsing
+## Customizing JSON parsing behavior
+
+Kotlin’s `Json` parser offers various settings to customize how JSON data is parsed and deserialized.
+
+### Lenient parsing
 
 <!--- INCLUDE .*-json-.*
 import kotlinx.serialization.*
@@ -112,7 +116,7 @@ Project(name=kotlinx.serialization, status=SUPPORTED, votes=9000)
 
 <!--- TEST -->
 
-## Ignore unknown keys
+### Ignore unknown keys
 
 The JSON format is often used to process data from third-party services or other dynamic environments where new properties may be added over time.
 By default, unknown keys encountered during deserialization cause an error.
@@ -146,49 +150,13 @@ Project(name=kotlinx.serialization)
 
 <!--- TEST -->
 
-## Handle multiple JSON field names with @JsonNames
+## Managing default and null values
 
-When JSON fields are renamed due to schema version changes,
-you can use the [`@SerialName`](serialization-customization-options.md#customize-serial-names) annotation to change the name of a JSON field.
-However, this approach prevents decoding data with the old name.
-To support multiple JSON names for a single Kotlin property, use the [`@JsonNames`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-names/) annotation:
+When working with JSON, managing default and `null` values helps ensure your data stays consistent.
+`kotlinx.serialization` provides control over when to include default values, how to handle nulls,
+and how to coerce unexpected or missing data into valid values during deserialization.
 
-```kotlin
-@Serializable
-// Maps both "name" and "title" JSON fields to the `name` property
-data class Project(@JsonNames("title") val name: String)
-
-fun main() {
-    val project = Json.decodeFromString<Project>("""{"name":"kotlinx.serialization"}""")
-    println(project)
-    // Project(name=kotlinx.serialization)
-
-    val oldProject = Json.decodeFromString<Project>("""{"title":"kotlinx.coroutines"}""")
-    // Both `name` and `title` Json fields correspond to `name` property
-    println(oldProject)
-    // Project(name=kotlinx.coroutines)
-}
-```
-
-<!--- > You can get the full code [here](../../guide/example/example-json-04.kt). -->
-
-<!---
-```text
-Project(name=kotlinx.serialization)
-Project(name=kotlinx.coroutines)
-```
--->
-
-> The `@JsonNames` annotation is enabled by the [`useAlternativeNames`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/use-alternative-names.html) property in [`JsonBuilder`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/).
-> This property is set to `true` by default and allows Json to recognize and handle multiple names for a single property.
-> If you are not using `@JsonNames` and want to optimize performance,
-> especially when skipping many unknown fields with `ignoreUnknownKeys`, you can set this property to `false`.
-> 
-{type="note"}
-
-<!--- TEST -->
-
-## Encode default values
+### Encode default values
 
 By default, the JSON serializer does not encode default property values because they are automatically assigned to missing fields during decoding.
 This behavior is especially useful for nullable properties with null defaults, as it avoids writing unnecessary `null` values.
@@ -226,9 +194,9 @@ fun main() {
 
 <!--- TEST -->
 
-## Omit explicit nulls
+### Omit explicit nulls
 
-By default, all `null` values are encoded into JSON strings. 
+By default, all `null` values are encoded into JSON strings.
 To omit `null` values, set the [`explicitNulls`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/explicit-nulls.html) property to `false`:
 
 ```kotlin
@@ -273,12 +241,12 @@ Project(name=kotlinx.serialization, language=Kotlin, version=1.2.2, website=null
 
 > You can configure the decoder to handle certain invalid input values by treating them as missing fields using the [`coerceInputValues`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/coerce-input-values.html) property.
 > For more information, see the [Coerce input values](#coerce-input-values) section.
-> 
+>
 {type="tip"}
 
 <!--- TEST -->
 
-## Coerce input values
+### Coerce input values
 
 When working with JSON data from third parties, the format can evolve over time, leading to changes in field types.
 This can lead to exceptions during decoding when the actual values do not match the expected types.
@@ -578,15 +546,64 @@ fun main() {
 
 <!--- TEST -->
 
-## Decode enums in a case-insensitive manner
+## Naming conventions and formats
 
-[Kotlin's naming policy recommends](https://kotlinlang.org/docs/coding-conventions.html#property-names) naming enum values
-using either uppercase underscore-separated names or upper camel case names.
-[Json] uses exact Kotlin enum values names for decoding by default.
-However, sometimes third-party JSONs have such values named in lowercase or some mixed case.
-In this case, it is possible to decode enum values in a case-insensitive manner using [JsonBuilder.decodeEnumsCaseInsensitive] property:
+In some scenarios, JSON data may not perfectly align with Kotlin’s naming conventions or expected formats.
+To address these challenges, `kotlinx.serialization` provides several tools to manage naming discrepancies,
+handle multiple JSON field names, and ensure consistent naming strategies across your serialized data.
+
+### Handle multiple JSON field names with @JsonNames
+
+When JSON fields are renamed due to schema version changes,
+you can [use the `@SerialName` annotation to change the name of a JSON field](serialization-customization-options.md#customize-serial-names).
+However, this approach prevents decoding data with the old name.
+To support multiple JSON names for a single Kotlin property, use the [`@JsonNames`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-names/) annotation:
 
 ```kotlin
+@Serializable
+// Maps both "name" and "title" JSON fields to the `name` property
+data class Project(@JsonNames("title") val name: String)
+
+fun main() {
+    val project = Json.decodeFromString<Project>("""{"name":"kotlinx.serialization"}""")
+    println(project)
+    // Project(name=kotlinx.serialization)
+
+    val oldProject = Json.decodeFromString<Project>("""{"title":"kotlinx.coroutines"}""")
+    // Both `name` and `title` Json fields correspond to `name` property
+    println(oldProject)
+    // Project(name=kotlinx.coroutines)
+}
+```
+
+<!--- > You can get the full code [here](../../guide/example/example-json-04.kt). -->
+
+<!---
+```text
+Project(name=kotlinx.serialization)
+Project(name=kotlinx.coroutines)
+```
+-->
+
+> The `@JsonNames` annotation is enabled by the [`useAlternativeNames`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/use-alternative-names.html) property in [`JsonBuilder`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/).
+> This property is set to `true` by default and allows Json to recognize and handle multiple names for a single property.
+> If you are not using `@JsonNames` and want to optimize performance,
+> especially when skipping many unknown fields with `ignoreUnknownKeys`, you can set this property to `false`.
+>
+{type="note"}
+
+<!--- TEST -->
+
+### Decode enums in a case-insensitive manner
+
+[Kotlin's naming policy recommends](coding-conventions.md#property-names) naming enum values
+using either uppercase underscore-separated names or upper camel case names.
+By default, `Json` uses these exact Kotlin enum values names for decoding.
+However, third-party JSONs might have enum values in lowercase or mixed case.
+To handle such cases, you can configure the `Json` instance to decode enum values in a case-insensitive way using the [`JsonBuilder.decodeEnumsCaseInsensitive`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/decode-enums-case-insensitive.html) property:
+
+```kotlin
+// Configures a Json instance to decode enum values in a case-insensitive way
 val format = Json { decodeEnumsCaseInsensitive = true }
 
 enum class Cases { VALUE_A, @JsonNames("Alternative") VALUE_B }
@@ -595,13 +612,18 @@ enum class Cases { VALUE_A, @JsonNames("Alternative") VALUE_B }
 data class CasesList(val cases: List<Cases>)
 
 fun main() {
-  println(format.decodeFromString<CasesList>("""{"cases":["value_A", "alternative"]}""")) 
+    // Decodes enum values regardless of their case, affecting both serial names and alternative names
+    println(format.decodeFromString<CasesList>("""{"cases":["value_A", "alternative"]}""")) 
+    // CasesList(cases=[VALUE_A, VALUE_B])
 }
 ```
 
-<!--- > You can get the full code [here](../../guide/example/example-json-14.kt). -->
+> This property affects both serial names and alternative names specified with the `@JsonNames` annotation,
+> ensuring that all values are successfully decoded. This property does not affect encoding.
+> 
+{type="note"}
 
-It affects serial names as well as alternative names specified with [JsonNames] annotation, so both values are successfully decoded:
+<!--- > You can get the full code [here](../../guide/example/example-json-14.kt). -->
 
 <!---
 ```text
@@ -609,33 +631,31 @@ CasesList(cases=[VALUE_A, VALUE_B])
 ```
 -->
 
-This property does not affect encoding in any way.
-
 <!--- TEST -->
 
-## Global naming strategy
+### Apply a global naming strategy
 
-If properties' names in Json input are different from Kotlin ones, it is recommended to specify the name
-for each property explicitly using [`@SerialName` annotation](basic-serialization.md#serial-field-names).
-However, there are certain situations where transformation should be applied to every serial name — such as migration
-from other frameworks or legacy codebase. For that cases, it is possible to specify a [namingStrategy][JsonBuilder.namingStrategy]
-for a [Json] instance. `kotlinx.serialization` provides one strategy implementation out of the box, the [JsonNamingStrategy.SnakeCase](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-naming-strategy/-builtins/-snake-case.html):
+When the property names in JSON input differ from those in Kotlin, you can specify the name for each property explicitly using the [`@SerialName`](serialization-customization-options.md#customize-serial-names) annotation.
+However, in cases like migrating from other frameworks or a legacy codebase, you might need to apply a transformation to every serial name.
+For these scenarios, you can specify a global naming strategy using the [JsonBuilder.namingStrategy](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/naming-strategy.html) property in a `Json` instance.
+`kotlinx.serialization` provides a built-in strategy, [JsonNamingStrategy.SnakeCase](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-naming-strategy/-builtins/-snake-case.html):
 
 ```kotlin
 @Serializable
 data class Project(val projectName: String, val projectOwner: String)
 
+// Configures a Json instance to apply SnakeCase naming strategy
 val format = Json { namingStrategy = JsonNamingStrategy.SnakeCase }
 
 fun main() {
     val project = format.decodeFromString<Project>("""{"project_name":"kotlinx.coroutines", "project_owner":"Kotlin"}""")
+    // Serializes and deserializes as if all serial names are transformed from camel case to snake case
     println(format.encodeToString(project.copy(projectName = "kotlinx.serialization")))
+    // {"project_name":"kotlinx.serialization","project_owner":"Kotlin"}
 }
 ```
 
 <!--- > You can get the full code [here](../../guide/example/example-json-15.kt). -->
-
-As you can see, both serialization and deserialization work as if all serial names are transformed from camel case to snake case:
 
 <!---
 ```text
@@ -643,50 +663,17 @@ As you can see, both serialization and deserialization work as if all serial nam
 ```
 -->
 
-There are some caveats one should remember while dealing with a [JsonNamingStrategy]:
+When using a global naming strategy like [JsonNamingStrategy](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-naming-strategy/), keep the following in mind:
 
-* Due to the nature of the `kotlinx.serialization` framework, naming strategy transformation is applied to all properties regardless
-  of whether their serial name was taken from the property name or provided by [SerialName] annotation.
-  Effectively, it means one cannot avoid transformation by explicitly specifying the serial name. To be able to deserialize
-  non-transformed names, [JsonNames] annotation can be used instead.
+* The naming strategy transformation applies to all properties, whether the serial name comes from the property name or is specified by the [`@SerialName`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serial-name/) annotation. 
+This means you cannot avoid the transformation by explicitly specifying a serial name.
+To ensure certain names are kept during serialization, consider using the `@JsonNames` annotation instead.
+* If a transformed name conflicts with other transformed property names or with alternative names specified by the `@JsonNames` annotation,
+it will result in a deserialization exception.
+* Global naming strategies are implicit.
+By just looking at a class definition, it’s hard to tell what the serialized names will be.
+This can make tasks like **Find Usages**, **Rename** in IDEs, or full-text search by tools like `grep` challenging, potentially introducing bugs or increasing maintenance efforts.
 
-* Collision of the transformed name with any other (transformed) properties serial names or any alternative names
-  specified with [JsonNames] will lead to a deserialization exception.
-
-* Global naming strategies are very implicit: by looking only at the definition of the class,
-  it is impossible to determine which names it will have in the serialized form.
-  As a consequence, naming strategies are not friendly to actions like Find Usages/Rename in IDE, full-text search by grep, etc.
-  For them, the original name and the transformed are two different things;
-  changing one without the other may introduce bugs in many unexpected ways and lead to greater maintenance efforts for code with global naming strategies.
-
-Therefore, one should carefully weigh the pros and cons before considering adding global naming strategies to an application.
+Given these factors, it’s important to weigh the pros and cons before implementing global naming strategies in your application.
 
 <!--- TEST -->
-
-
-<!-- references -->
-[RFC-4627]: https://www.ietf.org/rfc/rfc4627.txt
-[BigDecimal]: https://docs.oracle.com/javase/8/docs/api/java/math/BigDecimal.html
-
-<!-- stdlib references -->
-[Double]: https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-double/
-[Double.NaN]: https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-double/-na-n.html
-[List]: https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/
-[Map]: https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/
-
-<!--- MODULE /kotlinx-serialization-core -->
-<!--- INDEX kotlinx-serialization-core/kotlinx.serialization -->
-
-[SerialName]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serial-name/index.html
-
-<!--- INDEX kotlinx-serialization-core/kotlinx.serialization.encoding -->
-<!--- MODULE /kotlinx-serialization-json -->
-<!--- INDEX kotlinx-serialization-json/kotlinx.serialization.json -->
-
-[Json]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/index.html
-[JsonBuilder.decodeEnumsCaseInsensitive]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/decode-enums-case-insensitive.html
-[JsonNames]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-names/index.html
-[JsonBuilder.namingStrategy]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/naming-strategy.html
-[JsonNamingStrategy]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-naming-strategy/index.html
-
-<!--- END -->

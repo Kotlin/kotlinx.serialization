@@ -1,28 +1,37 @@
 <!--- TEST_NAME JsonTestTransform -->
-[//]: # (title: Transform JSON during serialization and deserialization)
+[//]: # (title: Transform JSON output)
 
-To affect the shape and contents of JSON output after serialization, or adapt input to deserialization,
-it is possible to write a [custom serializer](serializers.md). However, it may be inconvenient to
-carefully follow [Encoder] and [Decoder] calling conventions, especially for relatively small and easy tasks.
-For that purpose, Kotlin serialization provides an API that can reduce the burden of implementing a custom
-serializer to a problem of manipulating a Json elements tree.
+To modify the structure and content of JSON after serialization, or adapt input for deserialization, you can create a [custom serializer](create-custom-serializers.md).
+While the [`Encoder`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-encoder/)
+and [`Decoder`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-decoder/) offer precise control,
+Kotlin serialization also provides an API that makes it easy to manipulate a JSON elements tree.
+This can be ideal for smaller tasks or quick transformations.
 
-We recommend that you get familiar with the [Serializers](serializers.md) chapter: among other things, it
-explains how custom serializers are bound to classes.
+> For an extensive guide about how to create custom serializers and how custom serializers are bound to classes, see [Create custom serializers](create-custom-serializers.md).
+>
+{type="note"}
 
-Transformation capabilities are provided by the abstract [JsonTransformingSerializer] class which implements [KSerializer].
-Instead of direct interaction with `Encoder` or `Decoder`, this class asks you to supply transformations for JSON tree
-represented by the [JsonElement] class using the`transformSerialize` and
-`transformDeserialize` methods. Let's take a look at the examples.
+The transformation features are available through the abstract [`JsonTransformingSerializer`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-transforming-serializer/) class, which implements [`KSerializer`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-k-serializer/).
+Instead of interacting directly with `Encoder` or `Decoder`, this class allows you to define transformations using the
+`transformSerialize()` and `transformDeserialize()` functions for the JSON tree
+represented by the [`JsonElement`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-element/) class.
 
-### Array wrapping
+Before exploring the specific features in the following sections, ensure that the following libraries are imported:
+
+```kotlin
+import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
+import kotlinx.serialization.json.*
+```
+
+## Array wrapping
 
 The first example is an implementation of JSON array wrapping for lists.
 
 Consider a REST API that returns a JSON array of `User` objects, or a single object (not wrapped into an array) if there
 is only one element in the result.
 
-In the data model, use the [`@Serializable`][Serializable] annotation to specify a custom serializer for a
+In the data model, use the [`@Serializable`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/) annotation to specify a custom serializer for a
 `users: List<User>` property.
 
 <!--- INCLUDE .*-json-.*
@@ -32,6 +41,7 @@ import kotlinx.serialization.json.*
 -->
 
 ```kotlin
+// Uses UserListSerializer to handle the serialization of the users property
 @Serializable
 data class Project(
     val name: String,
@@ -39,49 +49,52 @@ data class Project(
     val users: List<User>
 )
 
+// Defines the User data class
 @Serializable
 data class User(val name: String)
-```
 
-Since this example covers only the deserialization case, you can implement `UserListSerializer` and override only the
-`transformDeserialize` function. The `JsonTransformingSerializer` constructor takes an original serializer
-as parameter (this approach is shown in the section [Constructing collection serializers](serializers.md#constructing-collection-serializers)):
-
-```kotlin
+// Implements a custom serializer that wraps single objects into arrays during deserialization
 object UserListSerializer : JsonTransformingSerializer<List<User>>(ListSerializer(User.serializer())) {
-    // If response is not an array, then it is a single object that should be wrapped into the array
+    // If response is not an array, then it is a single object that should be wrapped in an array
     override fun transformDeserialize(element: JsonElement): JsonElement =
         if (element !is JsonArray) JsonArray(listOf(element)) else element
 }
-```
 
-Now you can test the code with a JSON array or a single JSON object as inputs.
-
-```kotlin
 fun main() {
+    // Deserializes a single JSON object response wrapped as an array
     println(Json.decodeFromString<Project>("""
         {"name":"kotlinx.serialization","users":{"name":"kotlin"}}
     """))
+    // Project(name=kotlinx.serialization, users=[User(name=kotlin)])
+
+    // Deserializes a JSON array of objects
     println(Json.decodeFromString<Project>("""
         {"name":"kotlinx.serialization","users":[{"name":"kotlin"},{"name":"jetbrains"}]}
     """))
+    // Project(name=kotlinx.serialization, users=[User(name=kotlin), User(name=jetbrains)])
 }
 ```
 
-> You can get the full code [here](../../guide/example/example-json-transform-01.kt).
+Since this example covers only the deserialization case, you can implement `UserListSerializer` and override only the
+`transformDeserialize()` function. The `JsonTransformingSerializer` constructor takes an original serializer
+as parameter (this approach is shown in the section [Constructing collection serializers](serializers.md#constructing-collection-serializers)):
+
+<!--- > You can get the full code [here](../../guide/example/example-json-transform-01.kt). -->
 
 The output shows that both cases are correctly deserialized into a Kotlin [List].
 
+<!---
 ```text
 Project(name=kotlinx.serialization, users=[User(name=kotlin)])
 Project(name=kotlinx.serialization, users=[User(name=kotlin), User(name=jetbrains)])
 ```
+-->
 
 <!--- TEST -->
 
-### Array unwrapping
+## Array unwrapping
 
-You can also implement the `transformSerialize` function to unwrap a single-element list into a single JSON object
+You can also implement the `transformSerialize()` function to unwrap a single-element list into a single JSON object
 during serialization:
 
 <!--- INCLUDE
@@ -130,7 +143,7 @@ You end up with a single JSON object, not an array with one element:
 
 <!--- TEST -->
 
-### Manipulating default values
+## Manipulate default values
 
 Another kind of useful transformation is omitting specific values from the output JSON, for example, if it
 is used as default when missing or for other reasons.
