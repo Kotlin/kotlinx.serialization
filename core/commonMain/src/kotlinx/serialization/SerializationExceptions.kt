@@ -22,12 +22,14 @@ import kotlinx.serialization.descriptors.*
  * It is also an established pattern to validate input in user's classes in the following manner:
  * ```
  * @Serializable
- * class Foo(...) {
+ * class User(val age: Int, val name: String) {
  *     init {
- *         required(age > 0) { ... }
+ *         require(age > 0) { ... }
  *         require(name.isNotBlank()) { ... }
  *     }
  * }
+ *
+ * Json.decodeFromString<User>("""{"age": -100, "name": ""}""") // throws IllegalArgumentException from require()
  * ```
  * While clearly being serialization error (when compromised data was deserialized),
  * Kotlin way is to throw `IllegalArgumentException` here instead of using library-specific `SerializationException`.
