@@ -22,7 +22,7 @@ class MultiWorkerJsonTest {
                 assertEquals(PlainOne(42), json().decodeFromString("""{"one":42,"two":239}"""))
             }
         }
-        worker.executeAfter(1000, operation.freeze())
+        worker.executeAfter(1000, operation)
         for (i in 0..999) {
             assertEquals(PlainTwo(239), json().decodeFromString("""{"one":42,"two":239}"""))
         }
