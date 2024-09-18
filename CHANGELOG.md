@@ -1,3 +1,16 @@
+1.7.3 / 2024-09-19
+==================
+
+This release aims to fix important issues that were discovered in the 1.7.2 release,
+including the inability to sync certain projects into Android Studio/IntelliJ IDEA and exceptions from custom Uuid serializers.
+
+It uses Kotlin 2.0.20 by default.
+
+  * Use explicit kotlin-stdlib and kotlin-test versions from version catalog (#2818)
+  * Drop usage of deprecated Any?.freeze() in K/N target (#2819)
+  * Check against serialName instead of simpleClassName (#2802)
+  * Ignore NoClassDefFoundError when initializing builtins map for serializer() function (#2803)
+  * Clarify example for SerializationException (#2806)
 
 1.7.2 / 2024-08-28
 ==================
