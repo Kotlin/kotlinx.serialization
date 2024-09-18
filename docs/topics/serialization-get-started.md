@@ -155,9 +155,8 @@ Let's look at an example:
 1. Import the necessary serialization libraries:
 
     ```kotlin
-    import kotlinx.serialization.Serializable
-    import kotlinx.serialization.json.Json
-    import kotlinx.serialization.encodeToString
+    import kotlinx.serialization.*
+    import kotlinx.serialization.json.*
     ```
 
 2. Make a class serializable by annotating it with `@Serializable`.
@@ -167,8 +166,8 @@ Let's look at an example:
     data class Data(val a: Int, val b: String)
     ```
 
-   > The `@Serialization` annotation enables default serialization of all properties in the primary constructor,
-   > but you can adjust this behavior using various techniques. These include serialization of backing fields, defining
+   > The `@Serialization` annotation enables default serialization of all properties in the primary constructor.
+   > You can adjust this behavior using various techniques. These include serialization of backing fields, defining
    > custom constructors, specifying optional properties, marking properties as required and more. 
    > These techniques allow for precise control over which properties are serialized and how the serialization process is managed.
    > For more information, see [Serialization customization options](serialization-customization-options.md).
@@ -239,9 +238,8 @@ To deserialize an object from JSON in Kotlin:
 1. Import the necessary serialization libraries:
 
     ```kotlin
-    import kotlinx.serialization.Serializable
-    import kotlinx.serialization.json.Json
-    import kotlinx.serialization.decodeFromString
+    import kotlinx.serialization.*
+    import kotlinx.serialization.json.*
     ```
 
 2. Make a class serializable by annotating it with `@Serializable`:
@@ -254,19 +252,24 @@ To deserialize an object from JSON in Kotlin:
 3. Use the `Json.decodeFromString()` function to deserialize an object from JSON:
 
     ```kotlin
-    import kotlinx.serialization.Serializable
-    import kotlinx.serialization.json.Json
-    import kotlinx.serialization.decodeFromString
+    // Imports the necessary libraries for serialization and JSON handling
+    import kotlinx.serialization.*
+    import kotlinx.serialization.json.*
     
+    // Marks the Data class as serializable
     @Serializable
     data class Data(val a: Int, val b: String)
     
     fun main() {
-       val obj = Json.decodeFromString<Data>("""{"a":42, "b": "str"}""")
+        // Deserializes a JSON string into an instance of the Data class
+        val obj = Json.decodeFromString<Data>("""{"a":42, "b": "str"}""")
+        println(obj)
+        // Data(a=42, b="str")
     }
     ```
 
 ## What's next?
 
-* Learn how to create custom serializers in [Create custom serializers](create-custom-serializers.md).
 * Discover various techniques for adjusting serialization behavior in [Serialization customization options](serialization-customization-options.md).
+* Learn how to create custom serializers in [Create custom serializers](create-custom-serializers.md).
+* 

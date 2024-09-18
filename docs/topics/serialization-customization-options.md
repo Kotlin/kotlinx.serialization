@@ -1,5 +1,5 @@
 <!--- TEST_NAME BasicSerializationTest -->
-[//]: # (title: Serializable classes)
+[//]: # (title: Serialize classes)
 
 The [`@Serializable`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/) annotation in Kotlin enables the serialization of all properties in classes defined by the primary constructor.
 However, you can customize this behavior to fit your specific needs.
@@ -375,9 +375,9 @@ Exception in thread "main" java.lang.IllegalArgumentException: name cannot be em
 ### Set default values for optional properties
 
 In Kotlin, an object can only be deserialized when all its properties are present in the input.
-If a property is missing, deserialization will fail.
+If a property is missing, deserialization fails.
 
-This issue can be resolved by adding a default value to the property, which automatically makes it optional for
+To resolve this issue, you can add a default value to the property, which automatically makes it optional for
 serialization:
 
 ```kotlin
@@ -482,7 +482,7 @@ Use 'ignoreUnknownKeys = true' in 'Json {}' builder to ignore unknown keys.
 > 
 {type="tip"}
 
-### Manage serialization of default properties with @EncodedDefault
+### Manage the serialization of default properties with @EncodedDefault
 
 In JSON, default values are not encoded by default.
 This behavior improves efficiency by reducing visual clutter and minimizing the amount of serialized data.

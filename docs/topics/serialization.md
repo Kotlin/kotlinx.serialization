@@ -51,10 +51,6 @@ Use the same dependencies in JVM, JS, Native, and multiplatform projects.
 Note that the `kotlinx.serialization` libraries use their own versioning structure, which doesn't match Kotlin's versioning.
 Check out the releases on [GitHub](https://github.com/Kotlin/kotlinx.serialization/releases) to find the latest versions.
 
-## The @Serializable annotation
-
-[TBD]
-
 ## Supported formats
 
 `kotlinx.serialization` includes libraries for various serialization formats:
@@ -76,15 +72,11 @@ For more details about the available serialization formats, see [Serialization f
 Kotlin serialization supports the following built-in primitive types:
 
 * `Boolean`
-* `Byte`
-* `Short`
-* `Int`
-* `Long`
-* `Float`
-* `Double`
 * `Char`
+* Integer types: `Byte`, `Short`, `Int`, and `Long`
+* Floating-point types: `Float` and `Double`
 * `String`
-* `enums`
+* `enum`
 
 In addition to primitives Kotlin serialization also supports a number of composite types:
 
@@ -96,15 +88,18 @@ These types are represented as lists in formats like JSON. A JSON list can be de
 * Duration: Since Kotlin 1.7.20, the [`Duration`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.time/-duration/) class of the `kotlin.time` package is serializable. It is serialized as a string in the ISO-8601-2 format. For example, "PT16M40S" is 16 minutes and 40 seconds.
 * Nothing: The [`Nothing`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-nothing.html) type is also serializable. However, since there are no instances of this class, it is impossible to encode or decode its values. This serializer is used when syntactically some type is needed, but it is not actually used in serialization.
 
-> Not all classes from the Kotlin standard library are serializable. In particular, ranges and the [`Regex`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.text/-regex/) class are not serializable at the moment.
+> Not all types from the Kotlin standard library are serializable. In particular, [ranges](ranges.md) and the [`Regex`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.text/-regex/) class are not serializable at the moment.
 > Support for their serialization may be added in the future.
 > 
 {type="note"}
 
-If you would like to see code examples for the supported types, see the GitHub repository with [Built-in types examples](https://github.com/Kotlin/kotlinx.serialization/tree/master/guide/example).
+Additionally, classes annotated with `@Serializable` are fully supported for serialization, enabling the conversion of class instances to and from formats like JSON.
+For more information, see [Serializable types](serialization-customization-options.md).
+
+For more details and examples about the supported built-in types, see [Serialization GitHub repository](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/builtin-classes.md).
 
 ## What's next
 
 * Learn the basics of Kotlin serialization in the [Get started with serialization guide](serialization-get-started-overview.md).
-* To explore more complex scenarios of JSON serialization, see Advanced JSON Serialization Techniques.
-* Delve into Custom JSON Configuration to learn how to create and configure custom formats, write your own serializers, and optimize performance for specific use cases.
+* To explore more complex scenarios of JSON serialization, see [JSON serialization overview](configure-json-serialization.md).
+* Dive into the [Serializable classes](serialization-customization-options.md) section to learn how to modify the default behavior of the `@Serializable` annotation.
