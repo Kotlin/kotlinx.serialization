@@ -29,7 +29,7 @@ import kotlinx.serialization.descriptors.*
  *     }
  * }
  *
- * Json.decodeFromString<User>("""{"age": -100, "name": ""}""") // throws IAE from require()
+ * Json.decodeFromString<User>("""{"age": -100, "name": ""}""") // throws IllegalArgumentException from require()
  * ```
  * While clearly being serialization error (when compromised data was deserialized),
  * Kotlin way is to throw `IllegalArgumentException` here instead of using library-specific `SerializationException`.
