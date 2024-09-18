@@ -22,7 +22,7 @@ tasks.withType<JavaCompile>().configureEach {
     options.release = 8
 }
 
-internal fun Project.versionCatalog(): VersionCatalog = extensions.getByType<VersionCatalogsExtension>().named("libs")
+internal fun Project.versionCatalog(): VersionCatalog = versionCatalogs.named("libs")
 
 kotlin {
     explicitApi()
