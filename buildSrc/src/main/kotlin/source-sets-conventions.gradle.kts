@@ -22,6 +22,8 @@ tasks.withType<JavaCompile>().configureEach {
     options.release = 8
 }
 
+internal fun Project.versionCatalog(): VersionCatalog = versionCatalogs.named("libs")
+
 kotlin {
     explicitApi()
 
@@ -73,38 +75,13 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                api("org.jetbrains.kotlin:kotlin-stdlib-common")
+                api(versionCatalog().findLibrary("kotlin.stdlib").get())
             }
         }
 
         commonTest {
             dependencies {
-                api("org.jetbrains.kotlin:kotlin-test-common")
-                api("org.jetbrains.kotlin:kotlin-test-annotations-common")
-            }
-        }
-
-        jvmMain {
-            dependencies {
-                api("org.jetbrains.kotlin:kotlin-stdlib")
-            }
-        }
-
-        jvmTest {
-            dependencies {
-                api("org.jetbrains.kotlin:kotlin-test-junit")
-            }
-        }
-
-        jsMain {
-            dependencies {
-                api("org.jetbrains.kotlin:kotlin-stdlib-js")
-            }
-        }
-
-        jsTest {
-            dependencies {
-                api("org.jetbrains.kotlin:kotlin-test-js")
+                api(versionCatalog().findLibrary("kotlin.test").get())
             }
         }
 
@@ -117,30 +94,18 @@ kotlin {
 
         named("wasmJsMain") {
             dependsOn(named("wasmMain").get())
-            dependencies {
-                api("org.jetbrains.kotlin:kotlin-stdlib-wasm-js")
-            }
         }
 
         named("wasmJsTest") {
             dependsOn(named("wasmTest").get())
-            dependencies {
-                api("org.jetbrains.kotlin:kotlin-test-wasm-js")
-            }
         }
 
         named("wasmWasiMain") {
             dependsOn(named("wasmMain").get())
-            dependencies {
-                api("org.jetbrains.kotlin:kotlin-stdlib-wasm-wasi")
-            }
         }
 
         named("wasmWasiTest") {
             dependsOn(named("wasmTest").get())
-            dependencies {
-                api("org.jetbrains.kotlin:kotlin-test-wasm-wasi")
-            }
         }
     }
 
