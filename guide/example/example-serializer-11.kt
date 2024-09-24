@@ -15,7 +15,8 @@ private class ColorSurrogate(val r: Int, val g: Int, val b: Int) {
 }
 
 object ColorSerializer : KSerializer<Color> {
-    override val descriptor: SerialDescriptor = ColorSurrogate.serializer().descriptor
+    // Serial names of descriptors should be unique, so we cannot use ColorSurrogate.serializer().descriptor directly
+    override val descriptor: SerialDescriptor = SerialDescriptor("my.app.Color", ColorSurrogate.serializer().descriptor)
 
     override fun serialize(encoder: Encoder, value: Color) {
         val surrogate = ColorSurrogate((value.rgb shr 16) and 0xff, (value.rgb shr 8) and 0xff, value.rgb and 0xff)

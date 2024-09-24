@@ -10,8 +10,9 @@ import kotlinx.serialization.builtins.IntArraySerializer
 
 class ColorIntArraySerializer : KSerializer<Color> {
     private val delegateSerializer = IntArraySerializer()
-    @OptIn(ExperimentalSerializationApi::class)
-    override val descriptor = SerialDescriptor("Color", delegateSerializer.descriptor)
+
+    // Serial names of descriptors should be unique, this is why we advise including app package in the name.
+    override val descriptor = SerialDescriptor("my.app.Color", delegateSerializer.descriptor)
 
     override fun serialize(encoder: Encoder, value: Color) {
         val data = intArrayOf(
