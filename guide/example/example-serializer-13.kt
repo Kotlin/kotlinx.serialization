@@ -9,7 +9,7 @@ import kotlinx.serialization.descriptors.*
 object ColorAsObjectSerializer : KSerializer<Color> {
 
     override val descriptor: SerialDescriptor =
-        buildClassSerialDescriptor("Color") {
+        buildClassSerialDescriptor("my.app.Color") {
             element<Int>("r")
             element<Int>("g")
             element<Int>("b")

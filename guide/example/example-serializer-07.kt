@@ -7,7 +7,8 @@ import kotlinx.serialization.encoding.*
 import kotlinx.serialization.descriptors.*
 
 object ColorAsStringSerializer : KSerializer<Color> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Color", PrimitiveKind.STRING)
+    // Serial names of descriptors should be unique, this is why we advise including app package in the name.
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("my.app.Color", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: Color) {
         val string = value.rgb.toString(16).padStart(6, '0')

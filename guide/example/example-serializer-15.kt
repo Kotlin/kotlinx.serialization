@@ -10,7 +10,7 @@ import java.util.Date
 import java.text.SimpleDateFormat
   
 object DateAsLongSerializer : KSerializer<Date> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Date", PrimitiveKind.LONG)
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("my.app.DateAsLong", PrimitiveKind.LONG)
     override fun serialize(encoder: Encoder, value: Date) = encoder.encodeLong(value.time)
     override fun deserialize(decoder: Decoder): Date = Date(decoder.decodeLong())
 }
