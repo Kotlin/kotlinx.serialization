@@ -21,7 +21,7 @@ class OkioTests {
         val originalChars = text.toCharArray()
 
         val buffer = Buffer()
-        buffer.writeUtf8(text)
+        val _ = buffer.writeUtf8(text)
         val reader = OkioSerialReader(buffer)
 
         val readArray = CharArray(2)
@@ -41,7 +41,7 @@ class OkioTests {
         val encoded = buffer.readUtf8()
         assertEquals(json, encoded)
 
-        buffer.writeUtf8(encoded)
+        val _ = buffer.writeUtf8(encoded)
         val decoded = Json.decodeFromBufferedSource<Simple>(buffer)
         assertEquals(value, decoded)
 
@@ -54,14 +54,14 @@ class OkioTests {
         val value1 = Simple(1)
         val value2 = Simple(2)
         val buffer = Buffer()
-        buffer.writeUtf8(json)
+        val _1 = buffer.writeUtf8(json)
         val decoded = Json.decodeBufferedSourceToSequence<Simple>(buffer).toList()
 
         assertTrue(buffer.exhausted())
         assertEquals(2, decoded.size)
         assertEquals(listOf(value1, value2), decoded)
 
-        buffer.writeUtf8(json)
+        val _2 = buffer.writeUtf8(json)
         val decodedExplicit = Json.decodeBufferedSourceToSequence(buffer, Simple.serializer()).toList()
         assertTrue(buffer.exhausted())
         assertEquals(2, decodedExplicit.size)

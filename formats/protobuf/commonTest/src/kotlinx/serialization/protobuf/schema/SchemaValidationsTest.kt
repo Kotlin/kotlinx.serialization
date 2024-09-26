@@ -125,6 +125,7 @@ class SchemaValidationsTest {
     }
 
     @Test
+    @Suppress("RETURN_VALUE_NOT_USED")
     fun testValidPackageNames() {
         val descriptors = listOf(ValidClass.serializer().descriptor)
         ProtoBufSchemaGenerator.generateSchemaText(descriptors, "singleIdent")
@@ -162,6 +163,7 @@ class SchemaValidationsTest {
     data class InnerType(val innerContent: String)
 
     @Test
+    @Suppress("RETURN_VALUE_NOT_USED")
     fun testOneOfGenerate() {
         val descriptors = listOf(OneOfData.serializer().descriptor)
         ProtoBufSchemaGenerator.generateSchemaText(descriptors).also {

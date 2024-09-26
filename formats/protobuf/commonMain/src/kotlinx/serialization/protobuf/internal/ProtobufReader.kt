@@ -51,12 +51,12 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
         pushBack = true
 
         val nextHeader = (currentId shl 3) or currentType.typeId
-        updateIdAndType(pushBackHeader)
+        val _ = updateIdAndType(pushBackHeader)
         pushBackHeader = nextHeader
     }
 
     fun skipElement() {
-        when (currentType) {
+        val _ = when (currentType) {
             ProtoWireType.VARINT -> readInt(ProtoIntegerType.DEFAULT)
             ProtoWireType.i64 -> readLong(ProtoIntegerType.FIXED)
             ProtoWireType.SIZE_DELIMITED -> skipSizeDelimited()

@@ -6,7 +6,7 @@ package kotlinx.serialization
 
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.internal.UnitSerializer
-import kotlin.test.Test
+import kotlin.test.*
 
 class SealedGenericClassesTest {
     interface Output
@@ -31,13 +31,13 @@ class SealedGenericClassesTest {
     // Test that compilation and retrieval is successful
     @Test
     fun testQuery() {
-        Query.SimpleQuery.serializer(String.serializer())
-        Query.serializer(UnitSerializer)
+        assertNotNull(Query.SimpleQuery.serializer(String.serializer()))
+        assertNotNull(Query.serializer(UnitSerializer))
     }
 
     @Test
     fun testFetcher() {
-        Fetcher.SomethingFetcher.serializer()
-        Fetcher.serializer(Something.serializer())
+        assertNotNull(Fetcher.SomethingFetcher.serializer())
+        assertNotNull(Fetcher.serializer(Something.serializer()))
     }
 }

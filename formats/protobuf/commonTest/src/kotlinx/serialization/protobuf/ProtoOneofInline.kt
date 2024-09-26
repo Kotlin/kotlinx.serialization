@@ -24,6 +24,7 @@ class ProtoInline {
     value class StringInlineType(@ProtoNumber(12) val s: String) : ITypeWithInlineClass
 
     @Test
+    @Suppress("RETURN_VALUE_NOT_USED")
     fun testOneOfStringTypeNullable() {
         val dataString = OneOfDataNullable(
             StringInlineType("bar"),

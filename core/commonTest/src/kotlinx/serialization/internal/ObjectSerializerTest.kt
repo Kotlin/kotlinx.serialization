@@ -10,7 +10,7 @@ import kotlinx.serialization.*
 class ObjectSerializerTest {
     @Test
     fun testSequentialDecoding() {
-        SimpleObject.serializer().deserialize(DummySequentialDecoder())
+        assertSame(SimpleObject, SimpleObject.serializer().deserialize(DummySequentialDecoder()))
     }
 
     @Serializable

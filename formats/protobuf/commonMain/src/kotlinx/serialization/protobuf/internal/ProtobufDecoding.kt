@@ -132,7 +132,7 @@ internal open class ProtobufDecoder(
                     return if (this.descriptor.kind == StructureKind.LIST && tag != MISSING_TAG && this.descriptor != descriptor) {
                         val reader = makeDelimited(reader, tag)
                         // repeated decoder expects the first tag to be read already
-                        reader.readTag()
+                        val _ = reader.readTag()
                         // all elements always have id = 1
                         RepeatedDecoder(proto, reader, ProtoDesc(1, ProtoIntegerType.DEFAULT), descriptor)
 

@@ -81,7 +81,7 @@ class CborDecoderTest {
 
     @Test
     fun testNullables() {
-        Cbor.decodeFromHexString<NullableByteStringDefaultNull>("a0")
+        assertEquals(NullableByteStringDefaultNull(), Cbor.decodeFromHexString<NullableByteStringDefaultNull>("a0"))
     }
 
     /**

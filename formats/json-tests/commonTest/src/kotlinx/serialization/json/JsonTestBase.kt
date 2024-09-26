@@ -92,7 +92,7 @@ abstract class JsonTestBase {
             }
             JsonTestingMode.OKIO_STREAMS -> {
                 val buffer = OkioBuffer()
-                buffer.writeUtf8(source)
+                val _ = buffer.writeUtf8(source)
                 decodeFromBufferedSource(deserializer, buffer)
             }
             JsonTestingMode.KXIO_STREAMS -> {

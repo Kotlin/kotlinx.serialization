@@ -88,7 +88,7 @@ class JsonModesTest : JsonTestBase() {
         doTest("""{"a":[{"b":[{"c":{}d",""e"":"}]}""")
         doTest("""{"a":[}""")
         doTest("""{"a":""")
-        lenient.decodeFromString(Empty.serializer(), """{"a":[]}""") // should not throw
+        val _ = lenient.decodeFromString(Empty.serializer(), """{"a":[]}""") // should not throw
     }
 
     @Test

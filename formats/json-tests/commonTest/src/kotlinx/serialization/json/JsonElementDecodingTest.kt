@@ -51,7 +51,7 @@ class JsonElementDecodingTest : JsonTestBase() {
             json = json.replace("%", json)
         }
         json = json.replace("%", "0")
-        Json.parseToJsonElement(json)
+        val _ = Json.parseToJsonElement(json)
     }
 
     private open class NullAsElementSerializer<T : Any>(private val serializer: KSerializer<T>, val nullElement: T) : KSerializer<T?> {

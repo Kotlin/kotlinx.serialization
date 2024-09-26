@@ -9,6 +9,7 @@ import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.test.*
 
+@Suppress("RETURN_VALUE_NOT_USED")
 class JsonProhibitedPolymorphicKindsTest : JsonTestBase() {
 
     @Serializable

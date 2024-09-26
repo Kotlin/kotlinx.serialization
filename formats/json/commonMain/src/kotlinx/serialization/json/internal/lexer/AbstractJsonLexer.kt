@@ -4,6 +4,7 @@
 
 package kotlinx.serialization.json.internal
 
+import kotlinx.serialization.*
 import kotlinx.serialization.json.internal.CharMappings.CHAR_TO_TOKEN
 import kotlinx.serialization.json.internal.CharMappings.ESCAPE_2_CHAR
 import kotlin.js.*
@@ -200,6 +201,7 @@ internal abstract class AbstractJsonLexer {
     protected var escapedString = StringBuilder()
 
     // TODO consider replacing usages of this method in JsonParser with char overload
+    @_Discardable
     fun consumeNextToken(expected: Byte): Byte {
         val token = consumeNextToken()
         if (token != expected) {
@@ -303,6 +305,7 @@ internal abstract class AbstractJsonLexer {
      * This method is a copy of consumeString, but used for key of json objects, so there
      * is no need to lookup peeked string.
      */
+    @_Discardable
     abstract fun consumeKeyString(): String
 
     private fun insideString(isLenient: Boolean, char: Char): Boolean = if (isLenient) {
@@ -434,6 +437,7 @@ internal abstract class AbstractJsonLexer {
     }
 
     // Allows consuming unquoted string
+    @_Discardable // TODO: maybe its better to explicitly drop it though
     fun consumeStringLenient(): String {
         if (peekedString != null) {
             return takePeeked()
@@ -558,7 +562,7 @@ internal abstract class AbstractJsonLexer {
                 }
                 TC_EOF -> fail("Unexpected end of input due to malformed JSON during ignoring unknown keys")
             }
-            consumeNextToken()
+            val unused = consumeNextToken()
             if (tokenStack.size == 0) return
         }
     }

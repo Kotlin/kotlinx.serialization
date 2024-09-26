@@ -1,5 +1,6 @@
 package kotlinx.serialization.json.internal
 
+import kotlinx.serialization.*
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -91,6 +92,7 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : Intern
         flush()
     }
 
+    @_Discardable
     private fun ensureTotalCapacity(oldSize: Int, additional: Int): Int {
         val newSize = oldSize + additional
         if (charArray.size <= newSize) {

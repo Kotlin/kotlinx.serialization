@@ -10,6 +10,7 @@ import kotlin.test.*
 
 private const val prefix = "kotlinx.serialization.modules.SerialNameCollisionInSealedClassesTest"
 
+@Suppress("RETURN_VALUE_NOT_USED")
 class SerialNameCollisionInSealedClassesTest {
     @Serializable
     sealed class Base {

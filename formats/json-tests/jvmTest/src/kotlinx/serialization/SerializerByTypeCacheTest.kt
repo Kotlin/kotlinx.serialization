@@ -39,6 +39,7 @@ class SerializerByTypeCacheTest {
      * [see](https://youtrack.jetbrains.com/issue/KT-54523).
      */
     @Test
+    @Suppress("RETURN_VALUE_NOT_USED")
     fun testDifferentClassLoaders() {
         val elementKType1 = SimpleKType(loadClass().kotlin)
         val elementKType2 = SimpleKType(loadClass().kotlin)

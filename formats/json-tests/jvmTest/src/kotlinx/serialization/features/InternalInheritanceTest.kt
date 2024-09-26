@@ -106,12 +106,14 @@ class InternalInheritanceTest : JsonTestBase() {
     }
 
     @Test(expected = SerializationException::class)
+    @Suppress("RETURN_VALUE_NOT_USED")
     fun testThrowTransient() {
         Json.decodeFromString<B>("""{"parent":100,"rootOptional":"rootOptional","transientDerived":"X",""" +
                 """"parent2":100,"derived":"wowstring","bodyDerived":"body"}""")
     }
 
     @Test(expected = SerializationException::class)
+    @Suppress("RETURN_VALUE_NOT_USED")
     fun testThrowMissingField() {
         default.decodeFromString<C>("""{"parent":42,"rootOptional":"rootOptional","derived":"derived",""" +
                 """"bodyDerived":"body","parent3":42,"lastDerived":"optional"}""")

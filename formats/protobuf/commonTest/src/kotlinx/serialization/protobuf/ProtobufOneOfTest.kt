@@ -13,6 +13,7 @@ import kotlinx.serialization.protobuf.internal.*
 import kotlin.jvm.*
 import kotlin.test.*
 
+@Suppress("RETURN_VALUE_NOT_USED")
 class ProtobufOneOfTest {
     @Serializable
     data class OneOfData(

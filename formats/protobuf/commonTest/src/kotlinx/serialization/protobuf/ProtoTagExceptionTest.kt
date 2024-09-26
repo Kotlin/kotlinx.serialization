@@ -170,6 +170,7 @@ class ProtoTagExceptionTest {
     data class DuplicatingIdStringType(@ProtoNumber(3) val s: String) : IDuplicatingIdType
 
     @Test
+    @Suppress("RETURN_VALUE_NOT_USED")
     fun testDuplicatedIdClass() {
         val duplicated = DuplicatingIdData(DuplicatingIdStringType("foo"), 42)
         // Fine to encode duplicated proto number properties in wire data

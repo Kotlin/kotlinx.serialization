@@ -1,5 +1,7 @@
 package kotlinx.serialization.json.internal
 
+import kotlinx.serialization.*
+
 /**
  * Optimized version of StringBuilder that is specific to JSON-encoding.
  *
@@ -126,6 +128,7 @@ internal actual class JsonToStringWriter : InternalJsonWriter {
     }
 
     // Old size is passed and returned separately to avoid excessive [size] field read
+    @_Discardable
     private fun ensureTotalCapacity(oldSize: Int, additional: Int): Int {
         val newSize = oldSize + additional
         if (array.size <= newSize) {

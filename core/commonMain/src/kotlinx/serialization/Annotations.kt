@@ -377,3 +377,8 @@ public annotation class ExperimentalSerializationApi
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION, AnnotationTarget.TYPEALIAS)
 @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
 public annotation class InternalSerializationApi
+
+
+@Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION)
+@Suppress("ClassName")
+public annotation class _Discardable

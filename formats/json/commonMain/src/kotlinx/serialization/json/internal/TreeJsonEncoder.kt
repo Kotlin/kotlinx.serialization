@@ -85,7 +85,7 @@ private sealed class AbstractJsonTreeEncoder(
                 polymorphicDiscriminator = discriminatorName
                 polymorphicSerialName = serialName
             }
-        } else JsonPrimitiveEncoder(json, nodeConsumer).apply {
+        } else JsonPrimitiveEncoder(json, nodeConsumer).run {
             encodeSerializableValue(serializer, value)
         }
     }

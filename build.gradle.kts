@@ -58,6 +58,7 @@ allprojects {
     repositories {
         mavenCentral()
         maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
+        mavenLocal()
     }
 }
 

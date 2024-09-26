@@ -9,6 +9,7 @@ import kotlin.test.*
 class JsonConfigurationTest {
 
     @Test
+    @Suppress("RETURN_VALUE_NOT_USED")
     fun testPrettyPrint() {
         json(true, "")
         json(true, "\n")

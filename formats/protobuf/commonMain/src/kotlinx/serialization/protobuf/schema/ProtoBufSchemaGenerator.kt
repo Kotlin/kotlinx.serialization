@@ -106,7 +106,7 @@ public object ProtoBufSchemaGenerator {
     ) {
         appendLine("""syntax = "proto2";""").appendLine()
 
-        packageName?.let { append("package ").append(it).appendLine(';') }
+        val _ = packageName?.let { append("package ").append(it).appendLine(';') }
 
         for ((optionName, optionValue) in options) {
             val safeOptionName = removeLineBreaks(optionName)
