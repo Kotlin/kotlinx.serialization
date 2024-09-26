@@ -2,7 +2,7 @@
 [//]: # (title: Serialize classes)
 
 The [`@Serializable`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/) annotation in Kotlin enables the serialization of all properties in classes defined by the primary constructor.
-However, you can customize this behavior to fit your specific needs.
+You can further customize this behavior to fit your specific needs.
 This section covers how to adjust serialization using various techniques to control which properties are serialized and
 how the serialization process is managed.
 
@@ -17,12 +17,12 @@ allowing classes to be easily converted to and from formats like JSON.
 In Kotlin, only properties with backing fields are serialized.
 This means that properties defined solely by getter/setter methods or delegated properties without backing fields are excluded from serialization:
 
-<!--- INCLUDE .*-classes-.*
+```kotlin
+// Imports the necessary libraries
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
--->
 
-```kotlin
+//sampleStart
 @Serializable
 class Project(
     // name is a property with backing field -- serialized
@@ -45,7 +45,9 @@ fun main() {
     println(Json.encodeToString(data))
     // {"name":"kotlinx.serialization","stars":9000}
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 <!--- > You can get the full code [here](../../guide/example/example-classes-01.kt). -->
 
@@ -61,8 +63,13 @@ Kotlin Serialization natively supports nullable properties.
 Like [other defaults](#set-default-values-for-optional-properties), `null` values are not encoded in JSON:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 @Serializable
-// The 'renamedTo' property is nullable and defaults to null, and it's not encoded
+// The renamedTo property is nullable and defaults to null, and it's not encoded
 class Project(val name: String, val renamedTo: String? = null)
 
 fun main() {
@@ -70,7 +77,9 @@ fun main() {
     println(Json.encodeToString(data))
     // {"name":"kotlinx.serialization"}
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 <!--- > You can get the full code [here](../../guide/example/example-classes-02.kt). -->
 
@@ -87,6 +96,11 @@ If a `null` value is encountered in a JSON object for a non-nullable Kotlin prop
 even if the property has a default value, an exception is raised:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 @Serializable
 data class Project(val name: String, val language: String = "Kotlin")
 
@@ -97,7 +111,9 @@ fun main() {
     println(data)
     // JsonDecodingException
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 <!--- > You can get the full code [here](../../guide/example/example-classes-03.kt). -->
 
@@ -119,13 +135,18 @@ In the following example, since the `language` property is specified in the inpu
 in the output:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 fun computeLanguage(): String {
     println("Computing")
     return "Kotlin"
 }
 
 @Serializable
-// Initializer is skipped if `language` is in input
+// Initializer is skipped if language is in input
 data class Project(val name: String, val language: String = computeLanguage())
 
 fun main() {
@@ -135,7 +156,9 @@ fun main() {
     println(data)
     // Project(name=kotlinx.serialization, language=Java)
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 <!--- > You can get the full code [here](../../guide/example/example-classes-04.kt). -->
 
@@ -160,11 +183,16 @@ To ensure proper serialization, the referenced classes must also be annotated wi
 When encoded to JSON, this results in a nested JSON object:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 @Serializable
-// The 'owner' property references another serializable class `User`
+// The owner property references another serializable class `User`
 class Project(val name: String, val owner: User)
 
-// The referenced class must also be annotated with `@Serializable`
+// The referenced class must also be annotated with @Serializable
 @Serializable
 class User(val name: String)
 
@@ -174,7 +202,9 @@ fun main() {
     println(Json.encodeToString(data))
     // {"name":"kotlinx.serialization","owner":{"name":"kotlin"}}
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 <!--- > You can get the full code [here](../../guide/example/example-classes-05.kt). -->
 
@@ -198,6 +228,11 @@ of arbitrary object graphs with repeated object references.
 For example, when serializing an object that references the same instance twice, it is simply encoded twice:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 @Serializable
 class Project(val name: String, val owner: User, val maintainer: User)
 
@@ -206,12 +241,14 @@ class User(val name: String)
 
 fun main() {
     val owner = User("kotlin")
-    // 'owner' is referenced twice
+    // owner is referenced twice
     val data = Project("kotlinx.serialization", owner, owner)
     println(Json.encodeToString(data))
     // {"name":"kotlinx.serialization","owner":{"name":"kotlin"},"maintainer":{"name":"kotlin"}}
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 <!--- > You can get the full code [here](../../guide/example/example-classes-06.kt). -->
 
@@ -234,8 +271,13 @@ Generic classes in Kotlin provide type-polymorphic behavior, which is enforced b
 compile-time. For example, consider a generic serializable class `Box<T>`:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 @Serializable
-// The `Box<T>` class can be used with built-in types like `Int`, or with user-defined types like `Project`.
+// The Box<T> class can be used with built-in types like Int, or with user-defined types like Project.
 class Box<T>(val contents: T)
 @Serializable
 data class Project(val name: String, val language: String)
@@ -251,7 +293,9 @@ fun main() {
     println(Json.encodeToString(data))
     // {"a":{"contents":42},"b":{"contents":{"name":"kotlinx.serialization","language":"Kotlin"}}}
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 <!--- > You can get the full code [here](../../guide/example/example-classes-07.kt). -->
 
@@ -280,6 +324,11 @@ using the [`@SerialName`](https://kotlinlang.org/api/kotlinx.serialization/kotli
 For example, you can customize a property’s serial name to be shorter or more descriptive in the serialized output:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 @Serializable
 // The language property is abbreviated to lang using @SerialName
 class Project(val name: String, @SerialName("lang") val language: String)
@@ -290,7 +339,9 @@ fun main() {
     println(Json.encodeToString(data))
     // {"name":"kotlinx.serialization","lang":"Kotlin"}
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 <!--- > You can get the full code [here](../../guide/example/example-classes-08.kt). -->
 
@@ -311,6 +362,11 @@ secondary constructor to handle the path string.
 Serialization works with a private primary constructor and still serializes only the backing fields:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 @Serializable
 class Project private constructor(val owner: String, val name: String) {
     // Creates a Project object using a path string
@@ -326,7 +382,9 @@ fun main() {
     println(Json.encodeToString(Project("kotlin/kotlinx.serialization")))
     // {"owner":"kotlin","name":"kotlinx.serialization"}
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 <!--- > You can get the full code [here](../../guide/example/example-classes-09.kt). -->
 
@@ -345,6 +403,11 @@ replace the parameter with a property in the primary constructor and perform val
 This ensures the class is serializable and that invalid data cannot be deserialized:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 @Serializable
 class Project(val name: String) {
     // Validates that the name is not empty
@@ -360,7 +423,9 @@ fun main() {
     println(data)
     // Exception in thread "main" java.lang.IllegalArgumentException: name cannot be empty
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 <!--- > You can get the full code [here](../../guide/example/example-classes-10.kt). -->
 
@@ -381,6 +446,11 @@ To resolve this issue, you can add a default value to the property, which automa
 serialization:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 @Serializable
 // Sets a default value for the optional `language` property
 data class Project(val name: String, val language: String = "Kotlin")
@@ -392,7 +462,9 @@ fun main() {
     println(data)
     // Project(name=kotlinx.serialization, language=Kotlin)
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 <!--- > You can get the full code [here](../../guide/example/example-classes-11.kt). -->
 
@@ -411,10 +483,11 @@ This ensures that the property must be present in the input, even if it has a de
 
 ```kotlin
 // Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
 import kotlinx.serialization.Required
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 
+//sampleStart
 @Serializable
 // Marks the `language` property as required
 data class Project(val name: String, @Required val language: String = "Kotlin")
@@ -426,7 +499,9 @@ fun main() {
     println(data)
     // MissingFieldException
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 <!--- > You can get the full code [here](../../guide/example/example-classes-12.kt). -->
 
@@ -453,6 +528,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 
+//sampleStart
 @Serializable
 // Excludes the `language` property from serialization
 data class Project(val name: String, @Transient val language: String = "Kotlin")
@@ -464,7 +540,9 @@ fun main() {
     println(data)
     // JsonDecodingException
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 <!--- > You can get the full code [here](../../guide/example/example-classes-13.kt). -->
 
@@ -489,6 +567,11 @@ This behavior improves efficiency by reducing visual clutter and minimizing the 
 In the example below, the `language` property is omitted from the output because its value is equal to the default one:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 @Serializable
 data class Project(val name: String, val language: String = "Kotlin")
 
@@ -497,7 +580,9 @@ fun main() {
     println(Json.encodeToString(data))
     // {"name":"kotlinx.serialization"}
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 <!--- > You can get the full code [here](../../guide/example/example-classes-14.kt). -->
 
@@ -519,6 +604,11 @@ Let's look at an example, where the `language` property is included in the seria
 while the `projects` property is not serialized when it is an empty list:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 @Serializable
 data class Project(
     val name: String,
@@ -545,7 +635,9 @@ fun main() {
     println(Json.encodeToString(userB))
     // {"name":"Bob"}
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 <!--- > You can get the full code [here](../../guide/example/example-classes-15.kt). -->
 

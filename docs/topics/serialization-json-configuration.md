@@ -66,7 +66,7 @@ It produces the following result:
 
 <!--- TEST -->
 
-## Customizing JSON parsing behavior
+## Customize JSON parsing behavior
 
 Kotlin’s `Json` parser offers various settings to customize how JSON data is parsed and deserialized.
 
@@ -150,7 +150,7 @@ Project(name=kotlinx.serialization)
 
 <!--- TEST -->
 
-## Managing default and null values
+## Manage default and null values
 
 When working with JSON, managing default and `null` values helps ensure your data stays consistent.
 `kotlinx.serialization` provides control over when to include default values, how to handle nulls,

@@ -9,16 +9,14 @@ In the context of serialization, polymorphism helps manage data structures where
 
 ## Closed polymorphism in Kotlin serialization
 
-Closed polymorphism ensures that all possible subclasses are known at compile-time,
-making it a reliable and predictable approach for serializing and deserializing polymorphic data structures.
+A class hierarchy is considered to use closed polymorphism when all possible subclasses are guaranteed to be known at compile-time.
+This makes it a reliable and predictable approach for serializing and deserializing polymorphic data structures.
 The best way to serialize closed polymorphic classes is to use [`sealed classes`](#serialize-closed-polymorphic-classes), which restrict subclassing to the same file.
 
 Kotlin Serialization is fully static by default, where the structure of encoded objects is based on their compile-time types.
 This means that only the properties defined in the static type are serialized, even if the object is initialized with a subclass at runtime.
 
-Let's look at an example where an `open class Project` has a `name` property, and its subclass `class OwnedProject` adds an `owner` property.
-Although the `data` variable is initialized with an instance of `OwnedProject` at runtime, its compile-time type is `Project`.
-As a result, only the properties of the `Project` class are serialized:
+When serializing open classes, only the properties of the base class are serialized, and any additional properties in subclasses are ignored:
 
 ```kotlin
 // Imports the necessary libraries
@@ -53,50 +51,10 @@ fun main() {
 
 <!--- TEST -->
 
-In this example, the `owner` property is not serialized because `data` is statically typed as `Project`.
-
-Changing the compile-time type of `data` to `OwnedProject` throws an exception:
-
-```kotlin
-// Imports the necessary libraries
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
-
-
-@Serializable
-open class Project(val name: String)
-
-class OwnedProject(name: String, val owner: String) : Project(name)
-
-fun main() { 
-//sampleStart
-    val data = OwnedProject("kotlinx.coroutines", "kotlin")
-    // Throws an exception, because the `OwnedProject` class is not serializable
-    println(Json.encodeToString(data))
-    // Exception in thread "main" kotlinx.serialization.SerializationException: Serializer for class 'OwnedProject' is not found.
-}
-//sampleEnd
-```
-{kotlin-runnable="true" validate="false"}
-
-This exception occurs because the `OwnedProject` class is not serializable and cannot be annotated with `@Serializable`
-as its primary constructor parameters (`name` and `owner`) are not properties.
-To resolve this, you can [define constructor properties for serialization](serialization-customization-options.md#define-constructor-properties-for-serialization).
-
-<!--- > You can get the full code [here](../../guide/example/example-poly-02.kt). -->
-
-<!---
-```text
-Exception in thread "main" kotlinx.serialization.SerializationException: Serializer for class 'OwnedProject' is not found.
-Please ensure that class is marked as '@Serializable' and that the serialization compiler plugin is applied.
-```
--->
-
-<!--- TEST LINES_START -->
-
-Alternatively, you might consider defining `Project` as an [`abstract class`](classes.md#abstract-classes) with abstract properties.
-That way, instead of `Project` providing actual values for its properties, its subclasses are responsible for defining them.
-Unfortunately, this still throws an exception:
+Alternatively, you might consider defining the base class as an [`abstract class`](classes.md#abstract-classes) with abstract properties,
+allowing subclasses to provide actual values for those properties.
+However, this approach still doesn't resolve the issue with serialization,
+and attempting to serialize instances of subclasses will result in an exception:
 
 ```kotlin
 // Imports the necessary libraries
@@ -120,9 +78,6 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-This exception indicates that defining `Project` as an abstract class doesn't resolve the serialization issue.
-To fix this, you need to [use sealed classes](#serialize-closed-polymorphic-classes).
-
 <!---  > You can get the full code [here](../../guide/example/example-poly-03.kt). -->
 
 <!--- 
@@ -135,10 +90,18 @@ To be registered automatically, class 'OwnedProject' has to be '@Serializable', 
 
 <!--- TEST LINES_START -->
 
+This exception highlights that using an `abstract class` still doesn't solve the issue.
+To fix this and ensure proper serialization of subclasses, you need to [use sealed classes](#serialize-closed-polymorphic-classes),
+which provide the necessary compile-time guarantees for closed polymorphic serialization.
+
+> To handle polymorphism with `open` and `abstract` classes, you must use [open polymorphism with explicit configuration](#open-polymorphism-in-kotlin-serialization).
+>
+{type="note"}
+
 ### Serialize closed polymorphic classes
 
-The simplest way to handle polymorphic serialization is to use a `sealed class` as the base.
-_All_ subclasses of a sealed class must be explicitly marked as `@Serializable`.
+You can serialize closed polymorphic classes by using a `sealed class` as the base.
+All subclasses of a sealed class must be explicitly marked as `@Serializable`.
 This approach ensures that polymorphism is represented in JSON with a type discriminator:
 
 ```kotlin
@@ -264,7 +227,6 @@ A value of the `type` key is a fully qualified class name by default.
 You can change this by using the [`@SerialName`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serial-name/) annotation on the 
 corresponding class. This allows you to define stable _serial name_ that remains consistent,
 regardless of changes to the class name in the source code:
-
 
 ```kotlin
 // Imports the necessary libraries
@@ -406,8 +368,10 @@ As a result, the list of subclasses cannot be determined at compile time and mus
 To serialize and deserialize instances of open polymorphic classes, you need to provide all subclasses in a `SerializersModule` class.
 
 You can use the [`SerializersModule {}`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/-serializers-module.html) builder function to create an instance of the `SerializersModule`.
-Within this module, specify the base class in the [`polymorphic()`] builder function and specify each subclass with the [`subclass()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/subclass.html) function.
-This module is then passed to the `Json` configuration:
+Within this module, specify the base class in the [`polymorphic()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/polymorphic.html) builder function.
+Then, _register_ each subclass with the [`subclass()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/subclass.html) function.
+Registering means specifying the subclass so the serialization framework can recognize and handle these types.
+Once the subclasses are registered, the module is then passed to the `Json` configuration:
 
 ```kotlin 
 // Imports the necessary libraries
@@ -419,7 +383,7 @@ import kotlinx.serialization.modules.*
 // Defines a SerializersModule with polymorphic serialization
 val module = SerializersModule {
     polymorphic(Project::class) {
-        // Specifies OwnedProject as a subclass of Project
+        // Registers OwnedProject as a subclass of Project
         subclass(OwnedProject::class)
     }
 }
@@ -474,7 +438,7 @@ but allows the serialization of open polymorphic classes.
 ### Serialize interfaces
 
 Although you cannot annotate an interface with `@Serializable`, interfaces are implicitly serializable with `PolymorphicSerializer`. 
-To do so, mark the classes that implement the interface as `@Serializable` and specify them in a `SerializersModule`:
+To do so, mark the classes that implement the interface as `@Serializable` and register them in a `SerializersModule`:
 
 ```kotlin 
 // Imports the necessary libraries
@@ -483,7 +447,7 @@ import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 
 //sampleStart
-// Creates a SerializersModule to specify the implementing classes of the interface
+// Creates a SerializersModule to register the implementing classes of the interface
 val module = SerializersModule {
     polymorphic(Project::class) {
         subclass(OwnedProject::class)
@@ -510,6 +474,7 @@ fun main() {
 }
 //sampleEnd
 ```
+{kotlin-runnable="true"}
 
 <!--- > You can get the full code [here](../../guide/example/example-poly-10.kt). -->
 
@@ -562,6 +527,7 @@ fun main() {
 }
 //sampleEnd
 ```
+{kotlin-runnable="true"}
 
 <!--- > You can get the full code [here](../../guide/example/example-poly-11.kt). -->
 
@@ -573,17 +539,27 @@ fun main() {
 
 <!--- TEST --> 
 
-### Static parent type lookup for polymorphism
+### Serialize polymorphic types with generic base types
 
-During serialization of a polymorphic class the root type of the polymorphic hierarchy (`Project` in our example)
-is determined statically. Let us take the example with the serializable `abstract class Project`,
-but change the `main` function to declare `data` as having a type of `Any`:
+Since Kotlin Serialization is fully static, the root type of a polymorphic hierarchy is determined at compile time.
+When the base type is generic, such as `Any`, the system cannot resolve the correct subclass without additional instructions.
 
-<!--- INCLUDE 
+To serialize a variable with a generic base type:
+
+1. Specify the generic base type and its subclasses in a `SerializersModule`.
+2. Use `PolymorphicSerializer` as the first parameter to the [`encodeToString()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/encode-to-string.html) function. 
+This explicitly informs the system how to handle the polymorphic structure at runtime.
+
+```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 
+//sampleStart
 val module = SerializersModule {
-    polymorphic(Project::class) {
+    // Registers OwnedProject as a subclass of Any for polymorphic serialization
+    polymorphic(Any::class) {
         subclass(OwnedProject::class)
     }
 }
@@ -594,82 +570,49 @@ val format = Json { serializersModule = module }
 abstract class Project {
     abstract val name: String
 }
-            
+
 @Serializable
 @SerialName("owned")
 class OwnedProject(override val name: String, val owner: String) : Project()
---> 
 
-```kotlin 
 fun main() {
+    // Declares data as Any, requiring explicit handling of polymorphism
     val data: Any = OwnedProject("kotlinx.coroutines", "kotlin")
-    println(format.encodeToString(data))
-}    
+    // Uses PolymorphicSerializer to serialize data of type Any
+    println(format.encodeToString(PolymorphicSerializer(Any::class), data))
+    // {"type":"owned","name":"kotlinx.coroutines","owner":"kotlin"}
+}
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
-> You can get the full code [here](../../guide/example/example-poly-12.kt).
+<!--- > You can get the full code [here](../../guide/example/example-poly-14.kt). -->
 
-We get the exception.
+<!---
+```text 
+{"type":"owned","name":"kotlinx.coroutines","owner":"kotlin"}
+```
+-->
+
+<!--- TEST -->
+
+If the subclass is not registered or the `PolymorphicSerializer` is not provided, an exception is thrown:
 
 ```text
 Exception in thread "main" kotlinx.serialization.SerializationException: Serializer for class 'Any' is not found.
 Please ensure that class is marked as '@Serializable' and that the serialization compiler plugin is applied.
 ```
 
-<!--- TEST LINES_START -->
+### Serialize non-serializable properties polymorphically
 
-We have to register classes for polymorphic serialization with respect for the corresponding static type we
-use in the source code. First of all, we change our module to register a subclass of `Any`:
-
-<!--- INCLUDE 
-import kotlinx.serialization.modules.*
--->
+When a property has a non-serializable type, such as `Any`, you can explicitly mark it with
+the [`@Polymorphic`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-polymorphic/) annotation to serialize it.
+This applies [`PolymorphicSerializer`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-polymorphic-serializer/) to the property, allowing it to be serialized at runtime:
 
 ```kotlin
-val module = SerializersModule {
-    polymorphic(Any::class) {
-        subclass(OwnedProject::class)
-    }
-}
-```                                                                                    
-
-<!--- INCLUDE 
-val format = Json { serializersModule = module }
-
-@Serializable
-abstract class Project {
-    abstract val name: String
-}
-            
-@Serializable
-@SerialName("owned")
-class OwnedProject(override val name: String, val owner: String) : Project()
--->
-
-Then we can try to serialize the variable of type `Any`:
-
-```kotlin
-fun main() {
-    val data: Any = OwnedProject("kotlinx.coroutines", "kotlin")
-    println(format.encodeToString(data))
-}    
-```
-
-> You can get the full code [here](../../guide/example/example-poly-13.kt).
-
-However, `Any` is a class and it is not serializable:
-
-```text 
-Exception in thread "main" kotlinx.serialization.SerializationException: Serializer for class 'Any' is not found.
-Please ensure that class is marked as '@Serializable' and that the serialization compiler plugin is applied.
-```
-
-<!--- TEST LINES_START -->
-
-We must to explicitly pass an instance of [PolymorphicSerializer] for the base class `Any` as the
-first parameter to the [encodeToString][Json.encodeToString] function.
-
-<!--- INCLUDE 
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 
 val module = SerializersModule {
@@ -680,54 +623,7 @@ val module = SerializersModule {
 
 val format = Json { serializersModule = module }
 
-@Serializable
-abstract class Project {
-    abstract val name: String
-}
-            
-@Serializable
-@SerialName("owned")
-class OwnedProject(override val name: String, val owner: String) : Project()
--->
-
-```kotlin
-fun main() {
-    val data: Any = OwnedProject("kotlinx.coroutines", "kotlin")
-    println(format.encodeToString(PolymorphicSerializer(Any::class), data))
-}    
-```
-
-> You can get the full code [here](../../guide/example/example-poly-14.kt).
-
-With the explicit serializer it works as before.
-
-```text 
-{"type":"owned","name":"kotlinx.coroutines","owner":"kotlin"}
-```                  
-
-<!--- TEST -->
-
-### Explicitly marking polymorphic class properties
-
-The property of an interface type is implicitly considered polymorphic, since interfaces are all about runtime polymorphism.
-However, Kotlin Serialization does not compile a serializable class with a property of a non-serializable class type.
-If we have a property of `Any` class or other non-serializable class, then we must explicitly provide its serialization
-strategy via the [`@Serializable`][Serializable] annotation as we saw in
-the [Specifying serializer on a property](serializers.md#specifying-serializer-on-a-property) section.
-To specify a polymorphic serialization strategy of a property, the special-purpose [`@Polymorphic`][Polymorphic]
-annotation is used.
-
-<!--- INCLUDE 
-import kotlinx.serialization.modules.*
-
-val module = SerializersModule {
-    polymorphic(Any::class) {
-        subclass(OwnedProject::class)
-    }
-}
-
-val format = Json { serializersModule = module }
-
+//sampleStart
 interface Project {
     val name: String
 }
@@ -735,50 +631,56 @@ interface Project {
 @Serializable
 @SerialName("owned")
 class OwnedProject(override val name: String, val owner: String) : Project
--->
 
-```kotlin
 @Serializable
 class Data(
-    @Polymorphic // the code does not compile without it 
+    // Ensures the project property is serialized using PolymorphicSerializer
+    @Polymorphic
     val project: Any 
 )
 
 fun main() {
     val data = Data(OwnedProject("kotlinx.coroutines", "kotlin"))
     println(format.encodeToString(data))
+    // {"project":{"type":"owned","name":"kotlinx.coroutines","owner":"kotlin"}}
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
-> You can get the full code [here](../../guide/example/example-poly-15.kt).
+<!--- > You can get the full code [here](../../guide/example/example-poly-15.kt). -->
 
 <!--- TEST 
 {"project":{"type":"owned","name":"kotlinx.coroutines","owner":"kotlin"}}
 -->
 
-### Registering multiple superclasses
+### Register multiple superclasses
 
-When the same class gets serialized as a value of properties with different compile-time type from the list of
-its superclasses, we must register it in the [SerializersModule] for each of its superclasses separately.
-It is convenient to extract registration of all the subclasses into a separate function and
-use it for each superclass. You can use the following template to write it.
+When the same class is serialized as a value of properties with different compile-time types from its list of
+superclasses, you must register it in the [SerializersModule](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/-serializers-module/) for each of its superclasses separately.
+To do so, you can use the [`subclass()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/subclass.html) function.
 
-<!--- INCLUDE 
-import kotlinx.serialization.modules.*
-import kotlin.reflect.KClass
--->
+To avoid repeating `subclass()` calls for each superclass, you can create a function that registers the subclasses and apply it to each superclass.
+For example:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+import kotlinx.serialization.modules.*
+import kotlin.reflect.KClass
+
+//sampleStart
 val module = SerializersModule {
+    // Creates a function to register subclasses for each superclass
     fun PolymorphicModuleBuilder<Project>.registerProjectSubclasses() {
         subclass(OwnedProject::class)
     }
+    // Applies the subclass registration to Any and Project
     polymorphic(Any::class) { registerProjectSubclasses() }
     polymorphic(Project::class) { registerProjectSubclasses() }
-}        
-```
-
-<!--- INCLUDE
+}
+//sampleEnd
 
 val format = Json { serializersModule = module }
 
@@ -793,63 +695,133 @@ class OwnedProject(override val name: String, val owner: String) : Project
 @Serializable
 class Data(
     val project: Project,
-    @Polymorphic val any: Any 
+    @Polymorphic val any: Any
 )
 
 fun main() {
     val project = OwnedProject("kotlinx.coroutines", "kotlin")
     val data = Data(project, project)
     println(format.encodeToString(data))
-}        
--->
+    // {"project":{"type":"owned","name":"kotlinx.coroutines","owner":"kotlin"},"any":{"type":"owned","name":"kotlinx.coroutines","owner":"kotlin"}}
+}
+```
+{kotlin-runnable="true"}
 
-> You can get the full code [here](../../guide/example/example-poly-16.kt).
+<!--- > You can get the full code [here](../../guide/example/example-poly-16.kt). -->
 
 <!--- TEST 
 {"project":{"type":"owned","name":"kotlinx.coroutines","owner":"kotlin"},"any":{"type":"owned","name":"kotlinx.coroutines","owner":"kotlin"}}
 -->
 
-### Polymorphism and generic classes
+### Serialize generic subtypes in a polymorphic hierarchy
 
-Generic subtypes for a serializable class require a special handling. Consider the following hierarchy.
+When serializing generic subtypes in a polymorphic class hierarchy, Kotlin Serialization requires explicit handling.
+Since the framework cannot automatically determine the actual type of generic parameters,
+you can use a `PolymorphicSerializer` to handle these cases.
 
-<!--- INCLUDE
-import kotlinx.serialization.modules.*
--->
+To serialize generic subtypes, register the appropriate serializers within a `SerializersModule`, ensuring that
+each polymorphic type is correctly serialized and deserialized within the hierarchy:
 
 ```kotlin 
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+import kotlinx.serialization.modules.*
+
+// Defines an abstract response class with a generic parameter T
 @Serializable
 abstract class Response<out T>
-            
+
+// Represents a successful response with a generic data type
 @Serializable
 @SerialName("OkResponse")
 data class OkResponse<out T>(val data: T) : Response<T>()
+
+// Defines the abstract class Project
+@Serializable
+abstract class Project {
+    abstract val name: String
+}
+
+// Concrete subclass of Project
+@Serializable
+@SerialName("OwnedProject")
+data class OwnedProject(override val name: String, val owner: String) : Project()
+
+//sampleStart
+// Defines a serializers module for polymorphic classes
+val responseModule = SerializersModule {
+    polymorphic(Response::class) {
+        // Registers the polymorphic serializer for OkResponse
+        subclass(OkResponse.serializer(PolymorphicSerializer(Any::class)))
+    }
+    polymorphic(Any::class) {
+        // Registers OwnedProject as a subclass of Any
+        subclass(OwnedProject::class)
+    }
+    polymorphic(Project::class) {
+        // Registers OwnedProject as a subclass of Project
+        subclass(OwnedProject::class)
+    }
+}
+
+// Creates a Json format with the registered serializers
+val format = Json { serializersModule = responseModule }
+
+fun main() {
+    // Creates an instance of OkResponse with a Project subtype
+    val data: Response<Project> = OkResponse(OwnedProject("kotlinx.serialization", "kotlin"))
+
+    // Serializes the data to JSON
+    val jsonString = format.encodeToString(data)
+    println(jsonString)
+    // {"type":"OkResponse","data":{"type":"OwnedProject","name":"kotlinx.serialization","owner":"kotlin"}}
+
+    // Deserializes the JSON back to Response<Project>
+    val deserializedData = format.decodeFromString<Response<Project>>(jsonString)
+    println(deserializedData)
+    // OkResponse(data=OwnedProject(name=kotlinx.serialization, owner=kotlin))
+}
 ```
+{kotlin-runnable="true"}
 
-Kotlin Serialization does not have a builtin strategy to represent the actually provided argument type for the
-type parameter `T` when serializing a property of the polymorphic type `OkResponse<T>`. We have to provide this
-strategy explicitly when defining the serializers module for `Response`. In the below example we
-use `OkResponse.serializer(...)` to retrieve
-the [Plugin-generated generic serializer](serializers.md#plugin-generated-generic-serializer) of
-the `OkResponse` class and instantiate it with the [PolymorphicSerializer] instance with
-`Any` class as its base. This way, we can serialize an instance of `OkResponse` with any `data` property that
-was polymorphically registered as a subtype of `Any`.
+<!--- > You can get the full code [here](../../guide/example/example-poly-16.kt). -->
 
-```kotlin   
+<!---
+```text 
+{"type":"OkResponse","data":{"type":"OwnedProject","name":"kotlinx.serialization","owner":"kotlin"}}
+OkResponse(data=OwnedProject(name=kotlinx.serialization, owner=kotlin))
+```
+-->
+
+<!--- TEST -->
+
+### Merge multiple SerializerModule instances
+
+As an application grows and splits into multiple source code modules, managing all class hierarchies within a single `SerializerModule` may become cumbersome.
+You can combine multiple `SerializersModule` instances using the [`plus`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/plus.html) operator,
+allowing them to be used together in the same `Json` format instance:
+
+```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+import kotlinx.serialization.modules.*
+
+//sampleStart
+@Serializable
+abstract class Response<out T>
+
+@Serializable
+@SerialName("OkResponse")
+data class OkResponse<out T>(val data: T) : Response<T>()
+
 val responseModule = SerializersModule {
     polymorphic(Response::class) {
         subclass(OkResponse.serializer(PolymorphicSerializer(Any::class)))
     }
 }
-```
 
-### Merging library serializers modules
-
-When the application grows in size and splits into source code modules,
-it may become inconvenient to store all class hierarchies in one serializers module.
-Let us add a library with the `Project` hierarchy to the code from the previous section.
-
-```kotlin
 val projectModule = SerializersModule {
     fun PolymorphicModuleBuilder<Project>.registerProjectSubclasses() {
         subclass(OwnedProject::class)
@@ -857,181 +829,144 @@ val projectModule = SerializersModule {
     polymorphic(Any::class) { registerProjectSubclasses() }
     polymorphic(Project::class) { registerProjectSubclasses() }
 }
-```
-
-<!--- INCLUDE
 
 @Serializable
 abstract class Project {
     abstract val name: String
 }
-            
+
 @Serializable
 @SerialName("OwnedProject")
 data class OwnedProject(override val name: String, val owner: String) : Project()
--->
 
-We can compose those two modules together using the  [plus] operator to merge them,
-so that we can use them both in the same [Json] format instance.
-
-> You can also use the [include][SerializersModuleBuilder.include] function
-> in the [SerializersModule {}][SerializersModule()] DSL.
-
-```kotlin
+// Now classes from both hierarchies can be serialized together and deserialized together.
 val format = Json { serializersModule = projectModule + responseModule }
-````                                                                  
+// The JSON that is being produced is deeply polymorphic.
+//sampleEnd
 
-Now classes from both hierarchies can be serialized together and deserialized together.
-
-```kotlin 
 fun main() {
     // both Response and Project are abstract and their concrete subtypes are being serialized
     val data: Response<Project> =  OkResponse(OwnedProject("kotlinx.serialization", "kotlin"))
     val string = format.encodeToString(data)
     println(string)
+    // {"type":"OkResponse","data":{"type":"OwnedProject","name":"kotlinx.serialization","owner":"kotlin"}}
     println(format.decodeFromString<Response<Project>>(string))
+    // OkResponse(data=OwnedProject(name=kotlinx.serialization, owner=kotlin))
 }
-
 ```
+{kotlin-runnable="true"}
 
-> You can get the full code [here](../../guide/example/example-poly-17.kt).
+> You can also use the [`include()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/-serializers-module-builder/include.html) function
+> within the [`SerializersModule`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/-serializers-module.html) block:
+> 
+> ```kotlin
+> // Combines the two modules using the `include()` function
+> val combinedModule = SerializersModule {
+> include(projectModule)
+> include(responseModule)
+> }
+> ```
+>
+{type="note"}
 
-The JSON that is being produced is deeply polymorphic.
+If you're building a library or shared module that defines an abstract class and its implementations,
+you can expose your `SerializersModule` to your clients.
+This allows them to combine your module with their own `SerializersModule` for seamless integration.
 
+<!--- > You can get the full code [here](../../guide/example/example-poly-17.kt). -->
+
+<!---
 ```text
 {"type":"OkResponse","data":{"type":"OwnedProject","name":"kotlinx.serialization","owner":"kotlin"}}
 OkResponse(data=OwnedProject(name=kotlinx.serialization, owner=kotlin))
 ```
+-->
 
 <!--- TEST -->
 
-If you're writing a library or shared module with an abstract class and some implementations of it,
-you can expose your own serializers module for your clients to use so that a client can combine your
-module with their modules.
-
 ### Default polymorphic type handler for deserialization
 
-What happens when we deserialize a subclass that was not registered?
+When deserializing a subclass that's not registered, a `JsonDecodingException` exception is thrown. 
+To handle this more gracefully, you can register a default deserializer for unrecognized subclasses using the [`defaultDeserializer()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/-polymorphic-module-builder/default-deserializer.html) function
+in the [`PolymorphicModuleBuilder { ... }`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/-polymorphic-module-builder/) DSL.
+This allows you to map unrecognized types to a specific deserialization strategy.
 
-<!--- INCLUDE
+In the following example, the `BasicProject` class is used to represent unknown subtypes.
+The example doesn't rely on the `type` field to differentiate subtypes and instead uses the [plugin-generated serializer]((serializers.md#plugin-generated-serializer)) for `BasicProject`:
+
+```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 
+//sampleStart
 @Serializable
 abstract class Project {
     abstract val name: String
 }
 
-@Serializable
-@SerialName("OwnedProject")
-data class OwnedProject(override val name: String, val owner: String) : Project()
-
-val module = SerializersModule {
-    polymorphic(Project::class) {
-        subclass(OwnedProject::class)
-    }
-}
-
-val format = Json { serializersModule = module }
--->  
-
-```kotlin
-fun main() {
-    println(format.decodeFromString<Project>("""
-        {"type":"unknown","name":"example"}
-    """))
-}
-```
-
-> You can get the full code [here](../../guide/example/example-poly-18.kt).
-
-We get the following exception.
-
-```text 
-Exception in thread "main" kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 0: Serializer for subclass 'unknown' is not found in the polymorphic scope of 'Project' at path: $
-Check if class with serial name 'unknown' exists and serializer is registered in a corresponding SerializersModule.
-```
-
-<!--- TEST LINES_START -->
-
-When reading a flexible input we might want to provide some default behavior in this case. For example,
-we can have a `BasicProject` subtype to represent all kinds of unknown `Project` subtypes.
-
-<!--- INCLUDE
-import kotlinx.serialization.modules.*
--->
-
-```kotlin
-@Serializable
-abstract class Project {
-    abstract val name: String
-}
-
+// Represents unknown project types, capturing the type and name
 @Serializable
 data class BasicProject(override val name: String, val type: String): Project()
 
 @Serializable
 @SerialName("OwnedProject")
 data class OwnedProject(override val name: String, val owner: String) : Project()
-```
 
-We register a default deserializer handler using the [`defaultDeserializer`][PolymorphicModuleBuilder.defaultDeserializer] function in
-the [`polymorphic { ... }`][PolymorphicModuleBuilder] DSL that defines a strategy which maps the `type` string from the input
-to the [deserialization strategy][DeserializationStrategy]. In the below example we don't use the type,
-but always return the [Plugin-generated serializer](serializers.md#plugin-generated-serializer)
-of the `BasicProject` class.
-
-```kotlin
+// Registers a default deserializer for unknown Project subtypes
 val module = SerializersModule {
     polymorphic(Project::class) {
         subclass(OwnedProject::class)
         defaultDeserializer { BasicProject.serializer() }
     }
 }
-```
 
-Using this module we can now deserialize both instances of the registered `OwnedProject` and
-any unregistered one.
-
-```kotlin
 val format = Json { serializersModule = module }
 
 fun main() {
+    // Deserializes both a known and an unknown Project subtype
     println(format.decodeFromString<List<Project>>("""
         [
             {"type":"unknown","name":"example"},
             {"type":"OwnedProject","name":"kotlinx.serialization","owner":"kotlin"} 
         ]
     """))
+    // [BasicProject(name=example, type=unknown), OwnedProject(name=kotlinx.serialization, owner=kotlin)]
 }
+//sampleEnd
 ```
 
-> You can get the full code [here](../../guide/example/example-poly-19.kt).
+Using a default serializer assumes that the structure of the "unknown" data is known in advance.
+In cases where the structure may vary, you need to create a custom serializer to handle more flexible or less-structured data.
+For more details on working with custom JSON structures, see the [Maintaining custom JSON attributes]((serialization-json-transform-json.md#maintain-custom-json-attributes)) section.
 
-Notice, how `BasicProject` had also captured the specified type key in its `type` property.
+<!--- > You can get the full code [here](../../guide/example/example-poly-19.kt). -->
 
+<!---
 ```text
 [BasicProject(name=example, type=unknown), OwnedProject(name=kotlinx.serialization, owner=kotlin)]
 ```
+-->
 
 <!--- TEST -->
 
-We used a plugin-generated serializer as a default serializer, implying that
-the structure of the "unknown" data is known in advance. In a real-world API it's rarely the case.
-For that purpose a custom, less-structured serializer is needed. You will see the example of such serializer in the future section
-on [Maintaining custom JSON attributes](json.md#maintaining-custom-json-attributes).
-
 ### Default polymorphic type handler for serialization
 
-Sometimes you need to dynamically choose which serializer to use for a polymorphic type based on the instance, for example if you
-don't have access to the full type hierarchy, or if it changes a lot. For this situation, you can register a default serializer.
+To dynamically choose a serializer for a polymorphic type based on the instance, use the [`polymorphicDefaultSerializer()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/-serializers-module-builder/polymorphic-default-serializer.html) function within the [`SerializersModule { ... }`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/-serializers-module-builder/) DSL.
+This function defines a strategy that takes an instance of the base class and provides a corresponding  [`SerializationStrategy`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serialization-strategy/).
 
-<!--- INCLUDE
+Let's look at an example where a `when` block is used to determine the appropriate serializer based on the instance, without needing to reference private implementation classes:
+
+```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
--->
 
-```kotlin
+// sampleStart
 interface Animal {
 }
 
@@ -1051,18 +986,13 @@ private class DogImpl : Dog {
     override val dogType: String = "Husky"
 }
 
+// Provides instances of Cat and Dog
 object AnimalProvider {
     fun createCat(): Cat = CatImpl()
     fun createDog(): Dog = DogImpl()
 }
-```
 
-We register a default serializer handler using the [`polymorphicDefaultSerializer`][SerializersModuleBuilder.polymorphicDefaultSerializer] function in
-the [`SerializersModule { ... }`][SerializersModuleBuilder] DSL that defines a strategy which takes an instance of the base class and
-provides a [serialization strategy][SerializationStrategy]. In the below example we use a `when` block to check the type of the
-instance, without ever having to refer to the private implementation classes.
-
-```kotlin
+// Registers a default serializer for unknown Animal subtypes
 val module = SerializersModule {
     polymorphicDefaultSerializer(Animal::class) { instance ->
         @Suppress("UNCHECKED_CAST")
@@ -1074,46 +1004,48 @@ val module = SerializersModule {
     }
 }
 
+// Defines custom serializers for Cat and Dog
 object CatSerializer : SerializationStrategy<Cat> {
     override val descriptor = buildClassSerialDescriptor("Cat") {
         element<String>("catType")
     }
-  
+
     override fun serialize(encoder: Encoder, value: Cat) {
         encoder.encodeStructure(descriptor) {
-          encodeStringElement(descriptor, 0, value.catType)
+            encodeStringElement(descriptor, 0, value.catType)
         }
     }
 }
 
 object DogSerializer : SerializationStrategy<Dog> {
-  override val descriptor = buildClassSerialDescriptor("Dog") {
-    element<String>("dogType")
-  }
-
-  override fun serialize(encoder: Encoder, value: Dog) {
-    encoder.encodeStructure(descriptor) {
-      encodeStringElement(descriptor, 0, value.dogType)
+    override val descriptor = buildClassSerialDescriptor("Dog") {
+        element<String>("dogType")
     }
-  }
+
+    override fun serialize(encoder: Encoder, value: Dog) {
+        encoder.encodeStructure(descriptor) {
+            encodeStringElement(descriptor, 0, value.dogType)
+        }
+    }
 }
-```
-
-Using this module we can now serialize instances of `Cat` and `Dog`.
-
-```kotlin
+// Creates a Json format using the registered module
 val format = Json { serializersModule = module }
 
 fun main() {
+    // Serializes an instance of Cat
     println(format.encodeToString<Animal>(AnimalProvider.createCat()))
+    // {"type":"Cat","catType":"Tabby"}
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
-> You can get the full code [here](../../guide/example/example-poly-20.kt)
+<!--- > You can get the full code [here](../../guide/example/example-poly-20.kt) -->
 
+<!--- 
 ```text
 {"type":"Cat","catType":"Tabby"}
 ```
-
+-->
 
 <!--- TEST -->

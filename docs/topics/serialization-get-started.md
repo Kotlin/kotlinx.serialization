@@ -267,6 +267,7 @@ To deserialize an object from JSON in Kotlin:
         // Data(a=42, b="str")
     }
     ```
+    {kotlin-runnable="true"}
 
 ## What's next?
 
