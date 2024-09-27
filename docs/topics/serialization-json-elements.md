@@ -1,5 +1,5 @@
 <!--- TEST_NAME JsonTestElements -->
-[//]: # (title: Managing JSON elements)
+[//]: # (title: Manage JSON elements)
 
 Kotlin serialization provides APIs that allow more than just direct conversions between strings and JSON objects.
 For example, you might want to modify data before it can be parsed or work with unstructured data that doesn't fit neatly into the type-safe world of Kotlin serialization.

@@ -16,7 +16,7 @@
         <toc-element toc-title="Configure JSON serialization">
             <toc-element id="configure-json-serialization.md" toc-title="Overview"/>
             <toc-element id="serialization-json-configuration.md" toc-title="Customize JSON serialization"/>
-            <toc-element id="serialization-json-elements.md" toc-title="Managing JSON elements"/>
+            <toc-element id="serialization-json-elements.md" toc-title="Manage JSON elements"/>
             <toc-element id="serialization-transform-json.md" toc-title="JSON transformation"/>
         </toc-element>
         <toc-element id="serialization-polymorphism.md" toc-title="Serialize polymorphic classes"/>
