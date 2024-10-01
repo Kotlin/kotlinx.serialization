@@ -20,7 +20,10 @@
             <toc-element id="serialization-transform-json.md" toc-title="JSON transformation"/>
         </toc-element>
         <toc-element id="serialization-polymorphism.md" toc-title="Serialize polymorphic classes"/>
-        <toc-element id="create-custom-serializers.md" toc-title="Create custom serializers"/>
+        <toc-element toc-title="Custom serializers">
+            <toc-element id="create-custom-serializers.md" toc-title="Create custom serializers"/>
+            <toc-element id="third-party-classes.md" toc-title="Serialize third-party classes"/>
+        </toc-element>
         <toc-element id="alternative-serialization-formats.md" toc-title="Alternative serialization formats"/>
     </chunk>
 </product-profile>

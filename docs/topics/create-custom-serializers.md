@@ -113,6 +113,7 @@ fun main() {
 
 <!--- TEST -->
 
+
 ## Delegate serialization to another serializer
 
 To serialize a class as a different type, you can delegate the serialization logic to another serializer.
@@ -373,15 +374,22 @@ fun main() {
 
 <!--- TEST -->
 
-### Sequential decoding protocol (experimental)
+### Optimize deserialization with sequential decoding (experimental)
 
-The implementation of the `deserialize` function from the previous section works with any format. However,
-some formats either always store all the complex data in order, or only do so sometimes (JSON always stores
-collections in order). With these formats the complex protocol of calling `decodeElementIndex` in the loop is
-not needed, and a faster implementation can be used if the [CompositeDecoder.decodeSequentially] function returns `true`.
-The plugin-generated serializers are actually conceptually similar to the below code.
+For formats that store complex data in sequential order, like JSON, you can create a more optimized deserialization process by calling the [`decodeSequentially()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-composite-decoder/decode-sequentially.html) function.
+This function checks whether the data is stored sequentially, allowing you to skip the more complex logic of decoding individual elements out of order.
 
-<!--- INCLUDE
+If `decodeSequentially()` returns true, you can directly decode the elements in order, eliminating the need for `decodeElementIndex()` in a loop to determine the order of elements.
+If it returns `false`, you revert to the standard deserialization method, which handles unordered formats:
+
+```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.encoding.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.json.*
+
+
 object ColorAsObjectSerializer : KSerializer<Color> {
 
     override val descriptor: SerialDescriptor =
@@ -397,19 +405,20 @@ object ColorAsObjectSerializer : KSerializer<Color> {
             encodeIntElement(descriptor, 1, (value.rgb shr 8) and 0xff)
             encodeIntElement(descriptor, 2, value.rgb and 0xff)
         }
--->
 
-```kotlin
+//sampleStart
     override fun deserialize(decoder: Decoder): Color =
         decoder.decodeStructure(descriptor) {
             var r = -1
             var g = -1
-            var b = -1     
-            if (decodeSequentially()) { // sequential decoding protocol
+            var b = -1
+            // Decodes values directly in order if the format stores data sequentially
+            if (decodeSequentially()) {
                 r = decodeIntElement(descriptor, 0)           
                 g = decodeIntElement(descriptor, 1)  
                 b = decodeIntElement(descriptor, 2)
             } else while (true) {
+                // Decodes elements using a loop to handle formats where data may be unordered
                 when (val index = decodeElementIndex(descriptor)) {
                     0 -> r = decodeIntElement(descriptor, 0)
                     1 -> g = decodeIntElement(descriptor, 1)
@@ -421,257 +430,29 @@ object ColorAsObjectSerializer : KSerializer<Color> {
             require(r in 0..255 && g in 0..255 && b in 0..255)
             Color((r shl 16) or (g shl 8) or b)
         }
-```
-
-<!--- INCLUDE
-}        
+}
+//sampleEnd
 
 @Serializable(with = ColorAsObjectSerializer::class)
 data class Color(val rgb: Int)
 
 fun main() {
     val color = Color(0x00ff00)
-    val string = Json.encodeToString(color) 
+    val string = Json.encodeToString(color)
     println(string)
+    // {"r":0,"g":255,"b":0}
     require(Json.decodeFromString<Color>(string) == color)
-}  
--->
+}
+```
+{kotlin-runnable="true"}
 
-> You can get the full code [here](../../guide/example/example-serializer-13.kt).
+<!--- > You can get the full code [here](../../guide/example/example-serializer-13.kt). -->
 
 <!--- TEST
 {"r":0,"g":255,"b":0}
---> 
-
-## Serialize 3rd party classes
-
-Sometimes an application has to work with an external type that is not serializable.
-Let us use [java.util.Date] as an example. As before, we start by writing an implementation of [KSerializer]
-for the class. Our goal is to get a `Date` serialized as a long number of milliseconds following the
-approach from the [Primitive serializer](#primitive-serializer) section.
-
-> In the following sections any kind of `Date` serializer would work. For example, if we want `Date` to be serialized
-> as an object, we would use an approach from
-> the [Composite serializer via surrogate](#composite-serializer-via-surrogate) section.     
-> See also [Deriving external serializer for another Kotlin class (experimental)](#deriving-external-serializer-for-another-kotlin-class-experimental)
-> when you need to serialize a 3rd-party Kotlin class that could have been serializable, but is not.
-
-<!--- INCLUDE 
-import java.util.Date
-import java.text.SimpleDateFormat
 -->
 
-```kotlin
-object DateAsLongSerializer : KSerializer<Date> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Date", PrimitiveKind.LONG)
-    override fun serialize(encoder: Encoder, value: Date) = encoder.encodeLong(value.time)
-    override fun deserialize(decoder: Decoder): Date = Date(decoder.decodeLong())
-}
-```
-
-We cannot bind the `DateAsLongSerializer` serializer to the `Date` class with the [`@Serializable`][Serializable] annotation
-because we don't control the `Date` source code. There are several ways to work around that.
-
-### Passing a serializer manually
-
-All `encodeToXxx` and `decodeFromXxx` functions have an overload with the first serializer parameter.
-When a non-serializable class, like `Date`, is the top-level class being serialized, we can use those.
-
-```kotlin
-fun main() {                                              
-    val kotlin10ReleaseDate = SimpleDateFormat("yyyy-MM-ddX").parse("2016-02-15+00") 
-    println(Json.encodeToString(DateAsLongSerializer, kotlin10ReleaseDate))    
-}
-``` 
-
-> You can get the full code [here](../../guide/example/example-serializer-14.kt).
-
-```text
-1455494400000
-```     
-
-<!--- TEST -->
-
-### Specifying serializer on a property
-
-When a property of a non-serializable class, like `Date`, is serialized as part of a serializable class we must supply
-its serializer or the code will not compile. This is accomplished using the [`@Serializable`][Serializable] annotation on the property.
-
-<!--- INCLUDE 
-import java.util.Date
-import java.text.SimpleDateFormat
-  
-object DateAsLongSerializer : KSerializer<Date> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Date", PrimitiveKind.LONG)
-    override fun serialize(encoder: Encoder, value: Date) = encoder.encodeLong(value.time)
-    override fun deserialize(decoder: Decoder): Date = Date(decoder.decodeLong())
-}
--->
-
-```kotlin
-@Serializable          
-class ProgrammingLanguage(
-    val name: String,
-    @Serializable(with = DateAsLongSerializer::class)
-    val stableReleaseDate: Date
-)
-
-fun main() {
-    val data = ProgrammingLanguage("Kotlin", SimpleDateFormat("yyyy-MM-ddX").parse("2016-02-15+00"))
-    println(Json.encodeToString(data))
-}
-``` 
-
-> You can get the full code [here](../../guide/example/example-serializer-15.kt).
-
-The `stableReleaseDate` property is serialized with the serialization strategy that we specified for it:
-
-```text
-{"name":"Kotlin","stableReleaseDate":1455494400000}
-```    
-
-<!--- TEST -->
-
-### Specifying serializer for a particular type
-
-[`@Serializable`][Serializable] annotation can also be applied directly to the types.
-This is handy when a class that requires a custom serializer, such as `Date`, happens to be a generic type argument.
-The most common use case for that is when you have a list of dates:
-
-<!--- INCLUDE 
-import java.util.Date
-import java.text.SimpleDateFormat
-  
-object DateAsLongSerializer : KSerializer<Date> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Date", PrimitiveKind.LONG)
-    override fun serialize(encoder: Encoder, value: Date) = encoder.encodeLong(value.time)
-    override fun deserialize(decoder: Decoder): Date = Date(decoder.decodeLong())
-}
--->
-
-```kotlin
-@Serializable          
-class ProgrammingLanguage(
-    val name: String,
-    val releaseDates: List<@Serializable(DateAsLongSerializer::class) Date>
-)
-
-fun main() {
-    val df = SimpleDateFormat("yyyy-MM-ddX")
-    val data = ProgrammingLanguage("Kotlin", listOf(df.parse("2023-07-06+00"), df.parse("2023-04-25+00"), df.parse("2022-12-28+00")))
-    println(Json.encodeToString(data))
-}
-```
-
-> You can get the full code [here](../../guide/example/example-serializer-16.kt).
-
-```text
-{"name":"Kotlin","releaseDates":[1688601600000,1682380800000,1672185600000]}
-```   
-
-<!--- TEST -->
-
-### Specifying serializers for a file
-
-A serializer for a specific type, like `Date`, can be specified for a whole source code file with the file-level
-[UseSerializers] annotation at the beginning of the file.
-
-```kotlin
-@file:UseSerializers(DateAsLongSerializer::class)
-```      
-
-<!--- PREFIX -->
-
-<!--- INCLUDE
-import java.util.Date
-import java.text.SimpleDateFormat
-  
-object DateAsLongSerializer : KSerializer<Date> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Date", PrimitiveKind.LONG)
-    override fun serialize(encoder: Encoder, value: Date) = encoder.encodeLong(value.time)
-    override fun deserialize(decoder: Decoder): Date = Date(decoder.decodeLong())
-}
--->
-
-Now a `Date` property can be used in a serializable class without additional annotations.
-
-```kotlin
-@Serializable          
-class ProgrammingLanguage(val name: String, val stableReleaseDate: Date)
-
-fun main() {
-    val data = ProgrammingLanguage("Kotlin", SimpleDateFormat("yyyy-MM-ddX").parse("2016-02-15+00"))
-    println(Json.encodeToString(data))
-}
-```   
-> You can get the full code [here](../../guide/example/example-serializer-17.kt).
-
-```text
-{"name":"Kotlin","stableReleaseDate":1455494400000}
-```
-
-<!--- TEST --> 
-
-### Specifying serializer globally using typealias
-
-kotlinx.serialization tends to be the always-explicit framework when it comes to serialization strategies: normally,
-they should be explicitly mentioned in `@Serializable` annotation. Therefore, we do not provide any kind of global serializer
-configuration (except for [context serializer](#contextual-serialization) mentioned later).
-
-However, in projects with a large number of files and classes, it may be too cumbersome to specify `@file:UseSerializers`
-every time, especially for classes like `Date` or `Instant` that have a fixed strategy of serialization across the project.
-For such cases, it is possible to specify serializers using `typealias`es, as they preserve annotations, including serialization-related ones:
-<!--- INCLUDE
-import java.util.Date
-import java.util.TimeZone
-import java.text.SimpleDateFormat
-  
-object DateAsLongSerializer : KSerializer<Date> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("DateAsLong", PrimitiveKind.LONG)
-    override fun serialize(encoder: Encoder, value: Date) = encoder.encodeLong(value.time)
-    override fun deserialize(decoder: Decoder): Date = Date(decoder.decodeLong())
-}
-
-object DateAsSimpleTextSerializer: KSerializer<Date> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("DateAsSimpleText", PrimitiveKind.LONG)
-    private val format = SimpleDateFormat("yyyy-MM-dd").apply {
-        // Here we explicitly set time zone to UTC so output for this sample remains locale-independent.
-        // Depending on your needs, you may have to adjust or remove this line.
-        setTimeZone(TimeZone.getTimeZone("UTC"))
-    }
-    override fun serialize(encoder: Encoder, value: Date) = encoder.encodeString(format.format(value))
-    override fun deserialize(decoder: Decoder): Date = format.parse(decoder.decodeString())
-}
--->
-
-```kotlin
-typealias DateAsLong = @Serializable(DateAsLongSerializer::class) Date
-
-typealias DateAsText = @Serializable(DateAsSimpleTextSerializer::class) Date
-```
-
-Using these new different types, it is possible to serialize a Date differently without additional annotations:
-
-```kotlin
-@Serializable          
-class ProgrammingLanguage(val stableReleaseDate: DateAsText, val lastReleaseTimestamp: DateAsLong)
-
-fun main() {
-    val format = SimpleDateFormat("yyyy-MM-ddX")
-    val data = ProgrammingLanguage(format.parse("2016-02-15+00"), format.parse("2022-07-07+00"))
-    println(Json.encodeToString(data))
-}
-```
-
-> You can get the full code [here](../../guide/example/example-serializer-18.kt).
-
-```text
-{"stableReleaseDate":"2016-02-15","lastReleaseTimestamp":1657152000000}
-```
-
-<!--- TEST -->
-
-### Custom serializers for a generic type
+## Create a custom serializer for a generic type
 
 Let us take a look at the following example of the generic `Box<T>` class.
 It is marked with `@Serializable(with = BoxSerializer::class)` as we plan to have a custom serialization
@@ -680,7 +461,7 @@ strategy for it.
 ```kotlin       
 @Serializable(with = BoxSerializer::class)
 data class Box<T>(val contents: T) 
-```                      
+```
 
 An implementation of [KSerializer] for a regular type is written as an `object`, as we saw in this chapter's
 examples for the `Color` type. A generic class serializer is instantiated with serializers
@@ -718,11 +499,11 @@ The resulting JSON looks like the `Project` class was serialized directly.
 ```text
 {"name":"kotlinx.serialization"}
 Box(contents=Project(name=kotlinx.serialization))
-```     
+```
 
 <!--- TEST -->
 
-### Format-specific serializers
+## Format-specific serializers
 
 The above custom serializers worked in the same way for every format. However, there might be format-specific
 features that a serializer implementation would like to take advantage of.
