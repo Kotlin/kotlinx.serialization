@@ -51,6 +51,7 @@ import kotlinx.serialization.descriptors.*
  * Accepting this interface in your API methods, casting [Decoder] to [JsonDecoder] and invoking its
  * methods is considered stable.
  */
+@SubclassOptInRequired(SealedSerializationApi::class)
 public interface JsonDecoder : Decoder, CompositeDecoder {
     /**
      * An instance of the current [Json].
