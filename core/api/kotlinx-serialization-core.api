@@ -86,6 +86,9 @@ public final class kotlinx/serialization/SealedClassSerializer : kotlinx/seriali
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 }
 
+public abstract interface annotation class kotlinx/serialization/SealedSerializationApi : java/lang/annotation/Annotation {
+}
+
 public abstract interface class kotlinx/serialization/SerialFormat {
 	public abstract fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
 }

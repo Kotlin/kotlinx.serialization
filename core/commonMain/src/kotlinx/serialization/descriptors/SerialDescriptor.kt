@@ -142,6 +142,7 @@ import kotlinx.serialization.encoding.*
  * might be added to this interface when kotlinx.serialization adds support for new Kotlin features.
  * This interface is safe to use and construct via [buildClassSerialDescriptor], [PrimitiveSerialDescriptor], and `SerialDescriptor` factory function.
  */
+@SubclassOptInRequired(SealedSerializationApi::class)
 public interface SerialDescriptor {
     /**
      * Serial name of the descriptor that identifies a pair of the associated serializer and target class.

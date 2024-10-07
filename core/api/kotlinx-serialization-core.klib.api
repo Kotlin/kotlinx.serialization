@@ -61,6 +61,10 @@ open annotation class kotlinx.serialization/Required : kotlin/Annotation { // ko
     constructor <init>() // kotlinx.serialization/Required.<init>|<init>(){}[0]
 }
 
+open annotation class kotlinx.serialization/SealedSerializationApi : kotlin/Annotation { // kotlinx.serialization/SealedSerializationApi|null[0]
+    constructor <init>() // kotlinx.serialization/SealedSerializationApi.<init>|<init>(){}[0]
+}
+
 open annotation class kotlinx.serialization/SerialInfo : kotlin/Annotation { // kotlinx.serialization/SerialInfo|null[0]
     constructor <init>() // kotlinx.serialization/SerialInfo.<init>|<init>(){}[0]
 }
