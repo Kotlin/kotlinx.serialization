@@ -22,7 +22,6 @@ public fun <T> writeJson(json: Json, value: T, serializer: SerializationStrategy
     return result
 }
 
-@ExperimentalSerializationApi
 private sealed class AbstractJsonTreeEncoder(
     final override val json: Json,
     protected val nodeConsumer: (JsonElement) -> Unit
