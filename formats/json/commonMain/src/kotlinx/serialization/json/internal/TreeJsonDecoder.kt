@@ -203,7 +203,6 @@ private open class JsonTreeDecoder(
             { (currentElement(tag) as? JsonPrimitive)?.contentOrNull }
         )
 
-    @Suppress("INVISIBLE_MEMBER")
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         while (position < descriptor.elementsCount) {
             val name = descriptor.getTag(position++)

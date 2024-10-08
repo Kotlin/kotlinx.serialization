@@ -61,7 +61,6 @@ public fun Char.Companion.serializer(): KSerializer<Char> = CharSerializer
  * Returns serializer for [CharArray] with [descriptor][SerialDescriptor] of [StructureKind.LIST] kind.
  * Each element of the array is serialized one by one with [Char.Companion.serializer].
  */
-@Suppress("UNCHECKED_CAST")
 public fun CharArraySerializer(): KSerializer<CharArray> = CharArraySerializer
 
 /**

@@ -2,14 +2,11 @@
  * Copyright 2017-2022 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-@file:Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
-
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.*
-import kotlinx.serialization.json.internal.BATCH_SIZE
 import kotlinx.serialization.modules.*
 import kotlinx.serialization.test.*
 import org.junit.Test
@@ -19,6 +16,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class JsonJvmStreamsTest {
+    val BATCH_SIZE = 16 * 1024 // kotlinx.serialization.json.internal.BATCH_SIZE
     private val strLen = BATCH_SIZE * 2 + 42
 
     @Test
