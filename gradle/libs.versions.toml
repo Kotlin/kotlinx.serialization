@@ -1,7 +1,7 @@
 [versions]
 kotlin = "2.0.20"
 kover = "0.8.2"
-dokka = "1.9.20"
+dokka = "2.0.0-Beta"
 knit = "0.5.0"
 bcv = "0.16.2"
 animalsniffer = "1.7.1"
