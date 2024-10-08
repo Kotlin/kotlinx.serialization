@@ -4,6 +4,7 @@
 
 package sample
 
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
@@ -72,5 +73,32 @@ class AbstractBaseTest {
     @Test
     fun testPropertiesNotInConstructor() {
         assertStringFormAndRestored("""{"b":"val b","a":"val a","c":"val c"}""", NotInConstructorTest(), NotInConstructorTest.serializer())
+    }
+
+    @Test
+    fun testSimpleChild() {
+        val encodedChild = """{"a":"11","y":42}"""
+        val decodedChild = Json.decodeFromString<TypedSealedClass.Child>(encodedChild)
+        assertEquals("Child(11, 42)", decodedChild.toString())
+        assertEquals(encodedChild, Json.encodeToString(decodedChild))
+    }
+
+    @Test
+    fun testDoubleGeneric() {
+        val email = Email<Int>().apply {
+            value = "foo"
+            error = 1
+        }
+        val encodedEmail = Json.encodeToString(email)
+        assertEquals("""{"value":"foo","error":1}""", encodedEmail)
+        assertEquals("Email(foo, 1)", Json.decodeFromString<Email<Int>>(encodedEmail).toString())
+    }
+
+    @Test
+    fun test() {
+        val t = TestClass().also { it.contents = mapOf("a" to TestData("data")) }
+        val s = Json.encodeToString(t)
+        assertEquals("""{"contents":{"a":{"field":"data"}}}""", s)
+        assertEquals("data", Json.decodeFromString<TestClass>(s).contents?.get("a")?.field)
     }
 }
