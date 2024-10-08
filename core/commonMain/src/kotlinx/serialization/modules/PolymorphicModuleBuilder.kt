@@ -19,15 +19,38 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
     private val baseClass: KClass<Base>,
     private val baseSerializer: KSerializer<Base>? = null
 ) {
-    private val subclasses: MutableList<Pair<KClass<out Base>, KSerializer<out Base>>> = mutableListOf()
+    private val subclasses: MutableMap<KClass<out Base>, KSerializer<out Base>> = mutableMapOf()
     private var defaultSerializerProvider: ((Base) -> SerializationStrategy<Base>?)? = null
     private var defaultDeserializerProvider: ((String?) -> DeserializationStrategy<Base>?)? = null
+
+
+    /**
+     * Registers the child serializers for the sealed [subclass] [serializer] in the resulting module under the [base class][Base].
+     */
+    public inline fun <reified T : Base> subclassesOf(): Unit =
+        subclassesOf(serializer<T>())
+
+
+    /**
+     * Registers the subclasses of the given class as subclasses of the outer class. This currently requires `baseClass`
+     * to be sealed.
+     */
+    public fun <T: Base> subclassesOf(serializer: KSerializer<T>) {
+        require(serializer is SealedClassSerializer) {
+            "subClassesOf only supports automatic adding of subclasses of sealed types."
+        }
+        for ((subsubclass, subserializer) in serializer.class2Serializer.entries) {
+            @Suppress("UNCHECKED_CAST")
+            // We don't know the type here, but it matches if correct in the sealed serializer.
+            subclass(subsubclass as KClass<T>, subserializer as KSerializer<T>)
+        }
+    }
 
     /**
      * Registers a [subclass] [serializer] in the resulting module under the [base class][Base].
      */
     public fun <T : Base> subclass(subclass: KClass<T>, serializer: KSerializer<T>) {
-        subclasses.add(subclass to serializer)
+        subclasses[subclass] = serializer
     }
 
     /**
@@ -116,3 +139,9 @@ public inline fun <Base : Any, reified T : Base> PolymorphicModuleBuilder<Base>.
  */
 public inline fun <Base : Any, reified T : Base> PolymorphicModuleBuilder<Base>.subclass(clazz: KClass<T>): Unit =
     subclass(clazz, serializer())
+
+/**
+ * Registers the child serializers for the sealed class [T] in the resulting module under the [base class][Base].
+ */
+public inline fun <Base : Any, reified T : Base> PolymorphicModuleBuilder<Base>.subclassesOf(clazz: KClass<T>): Unit =
+    subclassesOf(clazz.serializer())
