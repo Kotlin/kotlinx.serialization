@@ -32,7 +32,7 @@ kotlin {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
             jvmTarget = JvmTarget.JVM_1_8
-            freeCompilerArgs.add("-Xjdk-release=1.8")
+            freeCompilerArgs.addAll("-Xjdk-release=1.8", "-Xjvm-default=all-compatibility")
         }
     }
     jvmToolchain(jdkToolchainVersion)
