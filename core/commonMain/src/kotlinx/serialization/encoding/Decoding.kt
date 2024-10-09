@@ -52,10 +52,16 @@ import kotlinx.serialization.modules.*
  * (`{` or `[`, depending on the descriptor kind), returning the [CompositeDecoder] that is aware of colon separator,
  * that should be read after each key-value pair, whilst [CompositeDecoder.endStructure] will parse a closing bracket.
  *
- * ### Exception guarantees.
- * For the regular exceptions, such as invalid input, missing control symbols or attributes and unknown symbols,
+ * ### Exception guarantees
+ *
+ * For the regular exceptions, such as invalid input, missing control symbols or attributes, and unknown symbols,
  * [SerializationException] can be thrown by any decoder methods. It is recommended to declare a format-specific
  * subclass of [SerializationException] and throw it.
+ *
+ * ### Exception safety
+ *
+ * In general, catching [SerializationException] from any of `decode*` methods is not allowed and produces unspecified behavior.
+ * After thrown exception, the current decoder is left in an arbitrary state, no longer suitable for further decoding.
  *
  * ### Format encapsulation
  *
@@ -78,11 +84,6 @@ import kotlinx.serialization.modules.*
  *    }
  * }
  * ```
- *
- * ### Exception safety
- *
- * In general, catching [SerializationException] from any of `decode*` methods is not allowed and produces unspecified behaviour.
- * After thrown exception, current decoder is left in an arbitrary state, no longer suitable for further decoding.
  *
  * This deserializer does not know anything about the underlying data and will work with any properly-implemented decoder.
  * JSON, for example, parses an opening bracket `{` during the `beginStructure` call, checks that the next key

@@ -247,7 +247,8 @@ import kotlinx.serialization.descriptors.*
 
 ```kotlin
 object ColorAsStringSerializer : KSerializer<Color> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Color", PrimitiveKind.STRING)
+    // Serial names of descriptors should be unique, this is why we advise including app package in the name.
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("my.app.Color", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: Color) {
         val string = value.rgb.toString(16).padStart(6, '0')
@@ -315,7 +316,7 @@ Deserialization is also straightforward because we implemented the `deserialize`
 
 <!--- INCLUDE 
 object ColorAsStringSerializer : KSerializer<Color> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Color", PrimitiveKind.STRING)
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("my.app.Color", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: Color) {
         val string = value.rgb.toString(16).padStart(6, '0')
@@ -349,7 +350,7 @@ It also works if we serialize or deserialize a different class with `Color` prop
 
 <!--- INCLUDE 
 object ColorAsStringSerializer : KSerializer<Color> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Color", PrimitiveKind.STRING)
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("my.app.Color", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: Color) {
         val string = value.rgb.toString(16).padStart(6, '0')
@@ -404,8 +405,9 @@ import kotlinx.serialization.builtins.IntArraySerializer
 
 class ColorIntArraySerializer : KSerializer<Color> {
     private val delegateSerializer = IntArraySerializer()
-    @OptIn(ExperimentalSerializationApi::class)
-    override val descriptor = SerialDescriptor("Color", delegateSerializer.descriptor)
+
+    // Serial names of descriptors should be unique, this is why we advise including app package in the name.
+    override val descriptor = SerialDescriptor("my.app.Color", delegateSerializer.descriptor)
 
     override fun serialize(encoder: Encoder, value: Color) {
         val data = intArrayOf(
@@ -487,7 +489,8 @@ generated [SerialDescriptor] for the surrogate because it should be indistinguis
 
 ```kotlin
 object ColorSerializer : KSerializer<Color> {
-    override val descriptor: SerialDescriptor = ColorSurrogate.serializer().descriptor
+    // Serial names of descriptors should be unique, so we cannot use ColorSurrogate.serializer().descriptor directly
+    override val descriptor: SerialDescriptor = SerialDescriptor("my.app.Color", ColorSurrogate.serializer().descriptor)
 
     override fun serialize(encoder: Encoder, value: Color) {
         val surrogate = ColorSurrogate((value.rgb shr 16) and 0xff, (value.rgb shr 8) and 0xff, value.rgb and 0xff)
@@ -542,7 +545,7 @@ for the corresponding fields by their type. The order of elements is important. 
 
 ```kotlin
     override val descriptor: SerialDescriptor =
-        buildClassSerialDescriptor("Color") {
+        buildClassSerialDescriptor("my.app.Color") {
             element<Int>("r")
             element<Int>("g")
             element<Int>("b")
@@ -633,7 +636,7 @@ The plugin-generated serializers are actually conceptually similar to the code b
 object ColorAsObjectSerializer : KSerializer<Color> {
 
     override val descriptor: SerialDescriptor =
-        buildClassSerialDescriptor("Color") {
+        buildClassSerialDescriptor("my.app.Color") {
             element<Int>("r")
             element<Int>("g")
             element<Int>("b")
@@ -712,7 +715,8 @@ import java.text.SimpleDateFormat
   
 ```kotlin
 object DateAsLongSerializer : KSerializer<Date> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Date", PrimitiveKind.LONG)
+    // Serial names of descriptors should be unique, so choose app-specific name in case some library also would declare a serializer for Date.
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("my.app.DateAsLong", PrimitiveKind.LONG)
     override fun serialize(encoder: Encoder, value: Date) = encoder.encodeLong(value.time)
     override fun deserialize(decoder: Decoder): Date = Date(decoder.decodeLong())
 }
@@ -757,7 +761,7 @@ import java.util.Date
 import java.text.SimpleDateFormat
   
 object DateAsLongSerializer : KSerializer<Date> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Date", PrimitiveKind.LONG)
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("my.app.DateAsLong", PrimitiveKind.LONG)
     override fun serialize(encoder: Encoder, value: Date) = encoder.encodeLong(value.time)
     override fun deserialize(decoder: Decoder): Date = Date(decoder.decodeLong())
 }
@@ -798,7 +802,7 @@ import java.util.Date
 import java.text.SimpleDateFormat
   
 object DateAsLongSerializer : KSerializer<Date> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Date", PrimitiveKind.LONG)
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("my.app.DateAsLong", PrimitiveKind.LONG)
     override fun serialize(encoder: Encoder, value: Date) = encoder.encodeLong(value.time)
     override fun deserialize(decoder: Decoder): Date = Date(decoder.decodeLong())
 }
@@ -842,7 +846,7 @@ import java.util.Date
 import java.text.SimpleDateFormat
   
 object DateAsLongSerializer : KSerializer<Date> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Date", PrimitiveKind.LONG)
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("my.app.DateAsLong", PrimitiveKind.LONG)
     override fun serialize(encoder: Encoder, value: Date) = encoder.encodeLong(value.time)
     override fun deserialize(decoder: Decoder): Date = Date(decoder.decodeLong())
 }
@@ -882,13 +886,13 @@ import java.util.TimeZone
 import java.text.SimpleDateFormat
   
 object DateAsLongSerializer : KSerializer<Date> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("DateAsLong", PrimitiveKind.LONG)
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("my.app.DateAsLong", PrimitiveKind.LONG)
     override fun serialize(encoder: Encoder, value: Date) = encoder.encodeLong(value.time)
     override fun deserialize(decoder: Decoder): Date = Date(decoder.decodeLong())
 }
 
 object DateAsSimpleTextSerializer: KSerializer<Date> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("DateAsSimpleText", PrimitiveKind.LONG)
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("my.app.DateAsSimpleText", PrimitiveKind.LONG)
     private val format = SimpleDateFormat("yyyy-MM-dd").apply {
         // Here we explicitly set time zone to UTC so output for this sample remains locale-independent.
         // Depending on your needs, you may have to adjust or remove this line.
@@ -946,7 +950,7 @@ serialization, delegating everything to the underlying serializer of its `data` 
 
 ```kotlin
 class BoxSerializer<T>(private val dataSerializer: KSerializer<T>) : KSerializer<Box<T>> {
-    override val descriptor: SerialDescriptor = dataSerializer.descriptor
+    override val descriptor: SerialDescriptor = SerialDescriptor("my.app.Box", dataSerializer.descriptor)
     override fun serialize(encoder: Encoder, value: Box<T>) = dataSerializer.serialize(encoder, value.contents)
     override fun deserialize(decoder: Decoder) = Box(dataSerializer.deserialize(decoder))
 }
@@ -1007,7 +1011,7 @@ An example of using two serializers at once:
 
 <!--- INCLUDE
 object ColorAsStringSerializer : KSerializer<Color> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Color", PrimitiveKind.STRING)
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("my.app.Color", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: Color) {
         val string = value.rgb.toString(16).padStart(6, '0')
@@ -1098,7 +1102,7 @@ import java.util.Date
 import java.text.SimpleDateFormat
   
 object DateAsLongSerializer : KSerializer<Date> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Date", PrimitiveKind.LONG)
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("my.app.DateAsLong", PrimitiveKind.LONG)
     override fun serialize(encoder: Encoder, value: Date) = encoder.encodeLong(value.time)
     override fun deserialize(decoder: Decoder): Date = Date(decoder.decodeLong())
 }

@@ -51,10 +51,16 @@ import kotlinx.serialization.modules.*
  * (`{` or `[`, depending on the descriptor kind), returning the [CompositeEncoder] that is aware of colon separator,
  * that should be appended between each key-value pair, whilst [CompositeEncoder.endStructure] will write a closing bracket.
  *
- * ### Exception guarantees.
+ * ### Exception guarantees
+ *
  * For the regular exceptions, such as invalid input, conflicting serial names,
  * [SerializationException] can be thrown by any encoder methods.
  * It is recommended to declare a format-specific subclass of [SerializationException] and throw it.
+ *
+ * ### Exception safety
+ *
+ * In general, catching [SerializationException] from any of `encode*` methods is not allowed and produces unspecified behaviour.
+ * After thrown exception, the current encoder is left in an arbitrary state, no longer suitable for further encoding.
  *
  * ### Format encapsulation
  *
@@ -82,11 +88,6 @@ import kotlinx.serialization.modules.*
  * XML would do roughly the same, but with different separators and structures, while ProtoBuf
  * machinery could be completely different.
  * In any case, all these parsing details are encapsulated by an encoder.
- *
- * ### Exception safety
- *
- * In general, catching [SerializationException] from any of `encode*` methods is not allowed and produces unspecified behaviour.
- * After thrown exception, current encoder is left in an arbitrary state, no longer suitable for further encoding.
  *
  * ### Encoder implementation.
  *
