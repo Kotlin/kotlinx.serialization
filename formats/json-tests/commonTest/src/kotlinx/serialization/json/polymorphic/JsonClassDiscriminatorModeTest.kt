@@ -99,7 +99,7 @@ class ClassDiscriminatorModeNoneTest :
                 subclass(Modify::class)
             }
         }
-        val j = Json { serializersModule = module; classDiscriminatorMode = ClassDiscriminatorMode.NONE }
+        val j = Json(default) { serializersModule = module; classDiscriminatorMode = ClassDiscriminatorMode.NONE }
         parametrizedTest { mode ->
             assertEquals("""{"cmd":"CREATE"}""", j.encodeToString(Command(Modify.CREATE), mode))
         }
@@ -115,7 +115,7 @@ class ClassDiscriminatorModeNoneTest :
                 subclass(SomeCommand::class)
             }
         }
-        val j = Json { serializersModule = module; classDiscriminatorMode = ClassDiscriminatorMode.NONE }
+        val j = Json(default) { serializersModule = module; classDiscriminatorMode = ClassDiscriminatorMode.NONE }
         parametrizedTest { mode ->
             assertEquals("""{"cmd":{"type":"foo"}}""", j.encodeToString(Command(SomeCommand("foo")), mode))
         }
