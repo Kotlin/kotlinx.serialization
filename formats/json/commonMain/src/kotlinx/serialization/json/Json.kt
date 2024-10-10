@@ -669,7 +669,7 @@ private class JsonImpl(configuration: JsonConfiguration, module: SerializersModu
 
     private fun validateConfiguration() {
         if (serializersModule == EmptySerializersModule()) return // Fast-path for in-place JSON allocations
-        val collector = PolymorphismValidator(configuration.useArrayPolymorphism, configuration.classDiscriminator)
+        val collector = JsonSerializersModuleValidator(configuration)
         serializersModule.dumpTo(collector)
     }
 }
