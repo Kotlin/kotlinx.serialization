@@ -37,9 +37,9 @@ Color(rgb: kotlin.Int)
 ## Create a custom primitive serializer
 
 If you need more control over how your data is encoded and decoded, you can create a custom serializer.
-This allows you to customize how your data is represented, such as converting an RGB integer value into a hexadecimal string.
+This allows you to customize how your data is represented, such as by converting an RGB integer value into a hexadecimal string.
 
-Custom serializers implement the [`KSerializer`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-k-serializer/) interface and
+Custom serializers implement the [`KSerializer`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-k-serializer/) interface,
 allowing you to control how your data is transformed between its Kotlin object form and its serialized form.
 
 To create a custom primitive serializer:
@@ -195,7 +195,7 @@ This allows you to enforce specific constraints, like ensuring that property val
 The surrogate class can also have a [custom `@SerialName`](serialization-customization-options.md#customize-serial-names) annotation,
 making it indistinguishable from the original class when formats rely on class names.
 
-Like with [delegated serialization]((#delegate-serialization-to-another-serializer)), surrogate classes also rely on reusing existing serialization logic.
+Just like [delegated serialization](#delegate-serialization-to-another-serializer), surrogate classes also rely on reusing existing serialization logic.
 However, instead of transforming or restructuring individual fields within the same class,
 you create a new surrogate class to represent the serialized form.
 
@@ -204,7 +204,7 @@ After defining the surrogate class, you can retrieve the plugin-generated serial
 The function reuses the automatically generated [`SerialDescriptor`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.descriptors/-serial-descriptor/) of
 the surrogate class to describe the structure of the serialized data while maintaining compatibility with the original class.
 
-To serialize with the surrogate class, delegate the serialization process to its serializer by using the `encodeSerializableValue()` and `decodeSerializableValue()` functions:
+To serialize with the surrogate class, delegate the serialization process to its serializer using the `encodeSerializableValue()` and `decodeSerializableValue()` functions:
 
 ```kotlin
 // Imports the necessary libraries
@@ -452,35 +452,40 @@ fun main() {
 {"r":0,"g":255,"b":0}
 -->
 
-## Create a custom serializer for a generic type
+## Create a custom serializer for generic types
 
-Let us take a look at the following example of the generic `Box<T>` class.
-It is marked with `@Serializable(with = BoxSerializer::class)` as we plan to have a custom serialization
-strategy for it.
+When creating a custom serializer for a generic class, you must provide the appropriate `KSerializer` for each generic parameter.
+This ensures that the correct serialization strategy is applied to each type used within the generic class.
 
-```kotlin       
-@Serializable(with = BoxSerializer::class)
-data class Box<T>(val contents: T) 
-```
+To define a custom serializer for a generic class:
 
-An implementation of [KSerializer] for a regular type is written as an `object`, as we saw in this chapter's
-examples for the `Color` type. A generic class serializer is instantiated with serializers
-for its generic parameters. We saw this in the [Plugin-generated generic serializer](#plugin-generated-generic-serializer) section.
-A custom serializer for a generic class must be a `class` with a constructor that accepts as many [KSerializer]
-parameters as the type has generic parameters. Let us write a `Box<T>` serializer that erases itself during
-serialization, delegating everything to the underlying serializer of its `data` property.
+1. Mark the class with `@Serializable(with = YourSerializer::class)`. 
+2. Create a custom serializer as a `class`, which accepts one or more `KSerializer` instances for its generic parameters. 
+3. Delegate the serialization logic to the provided `KSerializer` for each type parameter during serialization and deserialization.
+
+Let's look at an example using a generic `Box<T>` class:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.encoding.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.json.*
+
+//sampleStart
+// Marks the Box<T> class with @Serializable and specifies a custom serializer
+@Serializable(with = BoxSerializer::class)
+data class Box<T>(val contents: T)
+
+// Creates a custom serializer as a class for Box<T>
 class BoxSerializer<T>(private val dataSerializer: KSerializer<T>) : KSerializer<Box<T>> {
+    // Uses the descriptor from the provided KSerializer to define the structure of Box<T>
     override val descriptor: SerialDescriptor = dataSerializer.descriptor
+    // Delegates serialization and deserialization
     override fun serialize(encoder: Encoder, value: Box<T>) = dataSerializer.serialize(encoder, value.contents)
     override fun deserialize(decoder: Decoder) = Box(dataSerializer.deserialize(decoder))
 }
-```
 
-Now we can serialize and deserialize `Box<Project>`.
-
-```kotlin
 @Serializable
 data class Project(val name: String)
 
@@ -488,25 +493,146 @@ fun main() {
     val box = Box(Project("kotlinx.serialization"))
     val string = Json.encodeToString(box)
     println(string)
+    // {"name":"kotlinx.serialization"}
     println(Json.decodeFromString<Box<Project>>(string))
+    // Box(contents=Project(name=kotlinx.serialization))
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
-> You can get the full code [here](../../guide/example/example-serializer-19.kt).
+<!--- > You can get the full code [here](../../guide/example/example-serializer-19.kt). -->
 
-The resulting JSON looks like the `Project` class was serialized directly.
-
+<!---
 ```text
 {"name":"kotlinx.serialization"}
 Box(contents=Project(name=kotlinx.serialization))
 ```
+-->
 
 <!--- TEST -->
 
-## Format-specific serializers
+## Implement contextual serialization
 
-The above custom serializers worked in the same way for every format. However, there might be format-specific
-features that a serializer implementation would like to take advantage of.
+_Contextual serialization_ allows you to adjust the serialization strategy for specific types at runtime, based on the context in which they are used.
+Unlike static serialization,
+which is fully defined at compile-time, contextual serialization lets you modify how objects are serialized deep within an object tree.
+For example, you could serialize `java.util.Date` in JSON format either as an ISO 8601 String or as a Long, depending on the protocol version being used with contextual serialization.
+This approach is supported by the built-in [`ContextualSerializer`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-contextual-serializer/) class.
+
+To implement contextual serialization:
+
+1. Define a custom `KSerializer` for the type you want to serialize dynamically. This controls how the type is serialized and deserialized at runtime.
+2. Mark the property in your serializable class with the [`@Contextual`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-contextual/) annotation .
+
+    > The [`@Contextual`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-contextual/) annotation is a convenient shortcut for using the [`ContextualSerializer`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-contextual-serializer/) class, which enables contextual serialization.
+    > It is equivalent to using @Serializable(with = ContextualSerializer::class).
+    > Alternatively, you can also apply the [`@UseContextualSerialization`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-use-contextual-serialization/) annotation at the file level to apply contextual serialization across multiple properties in the same file, similar to [how @UseSerializers works]((third-party-classes.md#specify-serializers-for-a-file)).
+    >
+    {type="note"}
+
+3. Create a [`SerializersModule`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/-serializers-module/) using the [`SerializersModule {}`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/-serializers-module.html) builder function.
+Use the [`contextual()`]((https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/contextual.html)) function to apply the custom serializer for contextual serialization.
+
+    > Without the `SerializersModule`, a `SerializationException` is thrown during the serialization or deserialization of contextually annotated types.
+    >
+    {type="note"}
+
+4. Create a `Json` instance and pass the `SerializersModule` to the [`serializersModule`]((https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/serializers-module.html)) property. This ensures that the correct contextual serializer is used for serialization.
+
+    > For more information about configuring a Json instance, see the [JSON configuration](serialization-json-configuration.md) section.
+    >
+    {type="tip"}
+
+Let's look at an example:
+
+```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.encoding.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.json.*
+import java.util.Date
+import java.text.SimpleDateFormat
+
+//sampleStart
+// Defines a custom serializer for Date
+object DateAsLongSerializer : KSerializer<Date> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Date", PrimitiveKind.LONG)
+    override fun serialize(encoder: Encoder, value: Date) = encoder.encodeLong(value.time)
+    override fun deserialize(decoder: Decoder): Date = Date(decoder.decodeLong())
+}
+
+@Serializable
+class ProgrammingLanguage(
+    val name: String,
+    // Applies @Contextual to dynamically serialize the Date property
+    @Contextual
+    val stableReleaseDate: Date
+)
+
+// Defines the SerializersModule and registers DateAsLongSerializer using the contextual() function
+private val module = SerializersModule { 
+    contextual(DateAsLongSerializer)
+}
+
+// Creates an instance of Json with the custom SerializersModule
+val format = Json { serializersModule = module }
+
+fun main() {
+    val data = ProgrammingLanguage("Kotlin", SimpleDateFormat("yyyy-MM-ddX").parse("2016-02-15+00"))
+    println(format.encodeToString(data))
+    // {"name":"Kotlin","stableReleaseDate":1455494400000}
+}
+//sampleEnd
+```
+{kotlin-runnable="true"}
+
+<!--- > You can get the full code [here](../../guide/example/example-serializer-21.kt). -->
+
+<!---
+```text
+{"name":"Kotlin","stableReleaseDate":1455494400000}
+```
+-->
+
+<!--- TEST -->
+
+### Serialize generic classes contextually
+
+To serialize generic classes contextually, you can register a function in the `SerializersModule`
+that dynamically provides the appropriate serializer based on the generic type used at runtime.
+
+You cannot use a single serializer instance for a generic class because [different type arguments require different serializers](third-party-classes.md#specify-a-custom-serializer-for-generic-types).
+For example, the following approach would only work for `Box<Int>`, but not for other types like `Box<String>`:
+
+```kotlin
+val incorrectModule = SerializersModule {
+    // This only works for Box<Int>, but not for Box<String> or other types
+    contextual(BoxSerializer(Int.serializer()))
+}
+```
+
+Instead, you can use a function that provides the correct serializer for any type argument.
+The following example demonstrates how to register a function that dynamically supplies the appropriate serializer for generic types like `Box<T>`:
+
+```kotlin
+val correctModule = SerializersModule {
+    // args[0] dynamically provides the appropriate serializer for the type argument
+    // For example, Int.serializer() or String.serializer()
+    contextual(Box::class) { args -> BoxSerializer(args[0]) }
+}
+```
+
+<!--- CLEAR -->
+
+> If you have multiple `SerializersModule` instances, such as those handling both generic and non-generic classes,
+> you can combine them using the `plus` operator.
+> For more details on merging modules, see the [Merging library serializers modules](serialization-polymorphism.md#merge-multiple-serializermodule-instances) section.
+> 
+{type="tip"}
+
+## What's next
 
 * The [Json transformations](json.md#json-transformations) section of the [Json](json.md) chapter provides examples
   of serializers that utilize JSON-specific features.
@@ -514,302 +640,3 @@ features that a serializer implementation would like to take advantage of.
 * A format implementation can have a format-specific representation for a type as explained
   in the [Format-specific types](formats.md#format-specific-types) section of
   the [Alternative and custom formats (experimental)](formats.md) chapter.
-
-This chapter proceeds with a generic approach to tweaking the serialization strategy based on the context.
-
-## Contextual serialization
-
-All the previous approaches to specifying custom serialization strategies were _static_, that is
-fully defined at compile-time. The exception was the [Passing a serializer manually](#passing-a-serializer-manually)
-approach, but it worked only on a top-level object. You might need to change the serialization
-strategy for objects deep in the serialized object tree at run-time, with the strategy being selected in a context-dependent way.
-For example, you might want to represent `java.util.Date` in JSON format as an ISO 8601 string or as a long integer
-depending on a version of a protocol you are serializing data for. This is called _contextual_ serialization, and it
-is supported by a built-in [ContextualSerializer] class. Usually we don't have to use this serializer class explicitly&mdash;there
-is the [Contextual] annotation providing a shortcut to
-the `@Serializable(with = ContextualSerializer::class)` annotation,
-or the [UseContextualSerialization] annotation can be used at the file-level just like
-the [UseSerializers] annotation. Let's see an example utilizing the former.
-
-<!--- INCLUDE
-import java.util.Date
-import java.text.SimpleDateFormat
--->
-
-```kotlin
-@Serializable          
-class ProgrammingLanguage(
-    val name: String,
-    @Contextual 
-    val stableReleaseDate: Date
-)
-```
-
-<!--- INCLUDE
-
-fun main() {
-    val data = ProgrammingLanguage("Kotlin", SimpleDateFormat("yyyy-MM-ddX").parse("2016-02-15+00"))
-    println(Json.encodeToString(data))
-}
--->    
-
-To actually serialize this class we must provide the corresponding context when calling the `encodeToXxx`/`decodeFromXxx`
-functions. Without it we'll get a "Serializer for class 'Date' is not found" exception.
-
-> See [here](../../guide/example/example-serializer-20.kt) for an example that produces that exception.
-
-<!--- TEST LINES_START 
-Exception in thread "main" kotlinx.serialization.SerializationException: Serializer for class 'Date' is not found.
-Please ensure that class is marked as '@Serializable' and that the serialization compiler plugin is applied.
--->
-
-<!--- INCLUDE
-import kotlinx.serialization.modules.*
-import java.util.Date
-import java.text.SimpleDateFormat
-  
-object DateAsLongSerializer : KSerializer<Date> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Date", PrimitiveKind.LONG)
-    override fun serialize(encoder: Encoder, value: Date) = encoder.encodeLong(value.time)
-    override fun deserialize(decoder: Decoder): Date = Date(decoder.decodeLong())
-}
-
-@Serializable          
-class ProgrammingLanguage(
-    val name: String,
-    @Contextual 
-    val stableReleaseDate: Date
-)
--->
-
-### Serializers module
-
-To provide a context, we define a [SerializersModule] instance that describes which serializers shall be used
-at run-time to serialize which contextually-serializable classes. This is done using the
-[SerializersModule {}][SerializersModule()] builder function, which provides the [SerializersModuleBuilder] DSL to
-register serializers. In the below example we use the [contextual][_contextual] function with the serializer. The corresponding
-class this serializer is defined for is fetched automatically via the `reified` type parameter.
-
-```kotlin
-private val module = SerializersModule { 
-    contextual(DateAsLongSerializer)
-}
-```
-
-Next we create an instance of the [Json] format with this module using the
-[Json {}][Json()] builder function and the [serializersModule][JsonBuilder.serializersModule] property.
-
-> Details on custom JSON configurations can be found in
-> the [JSON configuration](json.md#json-configuration) section.
-
-```kotlin           
-val format = Json { serializersModule = module }
-```
-
-Now we can serialize our data with this `format`.
-
-```kotlin
-fun main() {
-    val data = ProgrammingLanguage("Kotlin", SimpleDateFormat("yyyy-MM-ddX").parse("2016-02-15+00"))
-    println(format.encodeToString(data))
-}
-```
-
-> You can get the full code [here](../../guide/example/example-serializer-21.kt).
-```text
-{"name":"Kotlin","stableReleaseDate":1455494400000}
-```
-
-<!--- TEST -->
-
-### Contextual serialization and generic classes
-
-In the previous section we saw that we can register serializer instance in the module for a class we want to serialize contextually.
-We also know that [serializers for generic classes have constructor parameters](#custom-serializers-for-a-generic-type) — type arguments serializers.
-It means that we can't use one serializer instance for a class if this class is generic:
-
-```kotlin
-val incorrectModule = SerializersModule {
-    // Can serialize only Box<Int>, but not Box<String> or others
-    contextual(BoxSerializer(Int.serializer()))
-}
-```
-
-For cases when one want to serialize contextually a generic class, it is possible to register provider in the module:
-
-```kotlin
-val correctModule = SerializersModule {
-    // args[0] contains Int.serializer() or String.serializer(), depending on the usage
-    contextual(Box::class) { args -> BoxSerializer(args[0]) } 
-}
-```
-
-<!--- CLEAR -->
-
-> Additional details on serialization modules are given in
-> the [Merging library serializers modules](polymorphism.md#merging-library-serializers-modules) section of
-> the [Polymorphism](polymorphism.md) chapter.
-
-## Deriving external serializer for another Kotlin class (experimental)
-
-If a 3rd-party class to be serialized is a Kotlin class with a properties-only primary constructor, a kind of
-class which could have been made `@Serializable`, then you can generate an _external_ serializer for it
-using the [Serializer] annotation on an object with the [`forClass`][Serializer.forClass] property.
-
-```kotlin         
-// NOT @Serializable
-class Project(val name: String, val language: String)
-                           
-@Serializer(forClass = Project::class)
-object ProjectSerializer
-```
-
-You must bind this serializer to a class using one of the approaches explained in this chapter. We'll
-follow the [Passing a serializer manually](#passing-a-serializer-manually) approach for this example.
-
-```kotlin 
-fun main() {
-    val data = Project("kotlinx.serialization", "Kotlin")
-    println(Json.encodeToString(ProjectSerializer, data))    
-}
-```          
-
-> You can get the full code [here](../../guide/example/example-serializer-22.kt).
-
-This gets all the `Project` properties serialized:
-
-```text
-{"name":"kotlinx.serialization","language":"Kotlin"}
-```     
-
-<!--- TEST -->
-
-### External serialization uses properties
-
-As we saw earlier, the regular `@Serializable` annotation creates a serializer so that
-[Backing fields are serialized](basic-serialization.md#backing-fields-are-serialized). _External_ serialization using
-`Serializer(forClass = ...)` has no access to backing fields and works differently.
-It serializes only _accessible_ properties that have setters or are part of the primary constructor.
-The following example shows this.
-
-```kotlin        
-// NOT @Serializable, will use external serializer
-class Project(
-    // val in a primary constructor -- serialized
-    val name: String
-) {
-    var stars: Int = 0 // property with getter & setter -- serialized
- 
-    val path: String // getter only -- not serialized
-        get() = "kotlin/$name"                                         
-
-    private var locked: Boolean = false // private, not accessible -- not serialized 
-}              
-
-@Serializer(forClass = Project::class)
-object ProjectSerializer
-
-fun main() {
-    val data = Project("kotlinx.serialization").apply { stars = 9000 }
-    println(Json.encodeToString(ProjectSerializer, data))
-}
-```             
-
-> You can get the full code [here](../../guide/example/example-serializer-23.kt).
-
-The output is shown below.
-
-```text
-{"name":"kotlinx.serialization","stars":9000}
-```     
-
-<!--- TEST -->
-
-
-### Base64
-
-To encode and decode Base64 formats, we will need to manually write a serializer. Here, we will use a default
-implementation of Kotlin's Base64 encoder. Note that some serializers use different RFCs for Base64 encoding by default.
-For example, Jackson uses a variant of [Base64 Mime](https://datatracker.ietf.org/doc/html/rfc2045). The same result in
-kotlinx.serialization can be achieved with Base64.Mime encoder.
-[Kotlin's documentation for Base64](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.io.encoding/-base64/) lists
-other available encoders.
-
-```kotlin
-import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.descriptors.*
-import kotlin.io.encoding.*
-
-@OptIn(ExperimentalEncodingApi::class)
-object ByteArrayAsBase64Serializer : KSerializer<ByteArray> {
-    private val base64 = Base64.Default
-
-    override val descriptor: SerialDescriptor
-        get() = PrimitiveSerialDescriptor(
-            "ByteArrayAsBase64Serializer",
-            PrimitiveKind.STRING
-        )
-
-    override fun serialize(encoder: Encoder, value: ByteArray) {
-        val base64Encoded = base64.encode(value)
-        encoder.encodeString(base64Encoded)
-    }
-
-    override fun deserialize(decoder: Decoder): ByteArray {
-        val base64Decoded = decoder.decodeString()
-        return base64.decode(base64Decoded)
-    }
-}
-```
-
-For more details on how to create your own custom serializer, you can
-see [custom serializers](serializers.md#custom-serializers).
-
-Then we can use it like this:
-
-```kotlin
-@Serializable
-data class Value(
-    @Serializable(with = ByteArrayAsBase64Serializer::class)
-    val base64Input: ByteArray
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        other as Value
-        return base64Input.contentEquals(other.base64Input)
-    }
-
-    override fun hashCode(): Int {
-        return base64Input.contentHashCode()
-    }
-}
-
-fun main() {
-    val string = "foo string"
-    val value = Value(string.toByteArray())
-    val encoded = Json.encodeToString(value)
-    println(encoded)
-    val decoded = Json.decodeFromString<Value>(encoded)
-    println(decoded.base64Input.decodeToString())
-}
-```
-
-> You can get the full code [here](../../guide/example/example-json-16.kt)
-
-```text
-{"base64Input":"Zm9vIHN0cmluZw=="}
-foo string
-```
-
-Notice the serializer we wrote is not dependent on `Json` format, therefore, it can be used in any format.
-
-For projects that use this serializer in many places, to avoid specifying the serializer every time, it is possible
-to [specify a serializer globally using typealias](serializers.md#specifying-serializer-globally-using-typealias).
-For example:
-````kotlin
-typealias Base64ByteArray = @Serializable(ByteArrayAsBase64Serializer::class) ByteArray
-````
-
-<!--- TEST -->

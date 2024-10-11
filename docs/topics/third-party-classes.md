@@ -264,3 +264,93 @@ fun main() {
 -->
 
 <!--- TEST -->
+
+## Create an external serializer for third-party Kotlin classes (experimental)
+
+When working with third-party Kotlin classes that have a properties-only primary constructor,
+you can create an external serializer to handle their serialization.
+This can be useful when you can't annotate the class with `@Serializable` because you don’t control its source code.
+
+To do this, use the `@Serializer` annotation with the [`forClass`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializer/for-class.html) property to specify the class it handles:
+
+```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
+// This class cannot be annotated with @Serializable
+class Project(val name: String, val language: String)
+
+// Defines an external serializer for the Project class
+@Serializer(forClass = Project::class)
+object ProjectSerializer
+
+fun main() {
+    val data = Project("kotlinx.serialization", "Kotlin")
+    // Serializes the Project object using the external serializer
+    println(Json.encodeToString(ProjectSerializer, data))
+    // {"name":"kotlinx.serialization","language":"Kotlin"}
+}
+//sampleEnd
+```
+{kotlin-runnable="true"}
+
+<!--- > You can get the full code [here](../../guide/example/thirdparty-6.kt). -->
+
+<!---
+```text
+{"name":"kotlinx.serialization","language":"Kotlin"}
+```
+-->
+
+<!--- TEST -->
+
+When using an external serializer with the `@Serializer` annotation, only accessible properties are serialized.
+This includes properties that are part of the primary constructor and those that have both getters and setters.
+However, properties with only getters or private properties without accessors (getters and setters) are not serialized:
+
+```kotlin        
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
+// This class cannot be annotated with @Serializable
+class Project(
+    // Part of the primary constructor -- serialized
+    val name: String
+) {
+    // Property with getter and setter -- serialized
+    var stars: Int = 0
+
+    // Getter only -- not serialized
+    val path: String
+        get() = "kotlin/$name"
+
+    // Private property -- not serialized
+    private var locked: Boolean = false
+}
+
+// Defines an external serializer for the Project class
+@Serializer(forClass = Project::class)
+object ProjectSerializer
+
+fun main() {
+    val data = Project("kotlinx.serialization").apply { stars = 9000 }
+    // Serializes only accessible properties (name, stars)
+    println(Json.encodeToString(ProjectSerializer, data))
+    // {"name":"kotlinx.serialization","stars":9000}
+}
+```
+{kotlin-runnable="true"}
+
+<!--- > You can get the full code [here](../../guide/example/thirdparty-7.kt). -->
+
+<!---
+```text
+{"name":"kotlinx.serialization","stars":9000}
+```
+-->
+
+<!--- TEST -->
