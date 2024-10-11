@@ -85,6 +85,7 @@ class ClassDiscriminatorModeNoneTest :
 
     interface CommandType
 
+    @Serializable // For Kotlin/JS
     enum class Modify : CommandType {
         CREATE, DELETE
     }
@@ -96,7 +97,7 @@ class ClassDiscriminatorModeNoneTest :
     fun testNoneModeAllowsPolymorphicEnums() {
         val module = SerializersModule {
             polymorphic(CommandType::class) {
-                subclass(Modify::class)
+                subclass(Modify::class, Modify.serializer())
             }
         }
         val j = Json(default) { serializersModule = module; classDiscriminatorMode = ClassDiscriminatorMode.NONE }
