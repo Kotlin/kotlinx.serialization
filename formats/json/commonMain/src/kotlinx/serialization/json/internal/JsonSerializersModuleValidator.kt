@@ -6,14 +6,18 @@ package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.reflect.*
 
 @OptIn(ExperimentalSerializationApi::class)
-internal class PolymorphismValidator(
-    private val useArrayPolymorphism: Boolean,
-    private val discriminator: String
+internal class JsonSerializersModuleValidator(
+    configuration: JsonConfiguration,
 ) : SerializersModuleCollector {
+
+    private val discriminator: String = configuration.classDiscriminator
+    private val useArrayPolymorphism: Boolean = configuration.useArrayPolymorphism
+    private val isDiscriminatorRequired = configuration.classDiscriminatorMode != ClassDiscriminatorMode.NONE
 
     override fun <T : Any> contextual(
         kClass: KClass<T>,
@@ -29,7 +33,7 @@ internal class PolymorphismValidator(
     ) {
         val descriptor = actualSerializer.descriptor
         checkKind(descriptor, actualClass)
-        if (!useArrayPolymorphism) {
+        if (!useArrayPolymorphism && isDiscriminatorRequired) {
             // Collisions with "type" can happen only for JSON polymorphism
             checkDiscriminatorCollisions(descriptor, actualClass)
         }
@@ -43,6 +47,7 @@ internal class PolymorphismValidator(
         }
 
         if (useArrayPolymorphism) return
+        if (!isDiscriminatorRequired) return
         /*
          * For this kind we can't intercept the JSON object {} in order to add "type: ...".
          * Except for maps that just can clash and accidentally overwrite the type.
