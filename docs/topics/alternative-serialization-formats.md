@@ -1,9 +1,12 @@
-[//]: # (title: Alternative and custom serialization formats)
+[//]: # (title: Alternative and custom serialization formats (experimental))
 
 <!--- TEST_NAME FormatsTest -->
 
-Unlike JSON, which is
-stable, these are currently experimental features of Kotlin Serialization.
+While JSON is the only stable format in Kotlin Serialization,
+experimental support is available for several alternative formats,
+including binary formats like CBOR and ProtoBuf, as well as custom formats.
+These experimental formats provide additional flexibility and efficiency for performance-critical applications,
+though they may be subject to change in future releases.
 
 ## CBOR (experimental)
 
@@ -471,7 +474,7 @@ for small signed integers. For example, it encodes the value of `-2` in one byte
 * The [`FIXED`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-integer-type/-f-i-x-e-d/) option uses fixed-width encoding (`fixedXX`), which always uses a fixed number of bytes.
 For example, it encodes the value of `3` as four bytes `03 00 00 00`.
 
-> `uintXX` and `sfixedXX` protocol buffer types are not supported.
+> `uintXX` and `sfixedXX` Protocol Buffer types are not supported.
 >
 {type="note"}
 
@@ -555,7 +558,7 @@ According to the ProtoBuf standard, packed fields are supported only for primiti
 As described in the [format specification](https://developers.google.com/protocol-buffers/docs/encoding#packed),
 the ProtoBuf parser automatically handles lists in either packed or repeated format, regardless of the annotation.
 
-### The oneof field (experimental)
+### The oneof field
 
 ProtoBuf serialization in Kotlin supports [oneof](https://protobuf.dev/programming-guides/proto2/#oneof) fields
 using Kotlin's [polymorphism](serialization-polymorphism.md) functionality.
@@ -666,7 +669,7 @@ However, it doesn't enforce exclusivity between `homeNumber` and `workNumber`.
 If both fields have values or are both `null`, the serialized output may not comply with the original schema,
 which could cause compatibility issues when parsed by other ProtoBuf tools.
 
-### Generate a ProtoBuf schema (experimental)
+### Generate a ProtoBuf schema
 
 Typically, working with ProtoBuf involves using a `.proto` file and a code generator to create code for serialization and deserialization.
 However, with Kotlin Serialization, you can use Kotlin classes annotated with `@Serializable` as the source for the schema, making `.proto` files optional.
@@ -788,6 +791,99 @@ owner.name = kotlin
 
 <!--- TEST -->
 
+## Encode and decode Base64 formats (experimental)
+
+[Base64](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.io.encoding/-base64/) encoding transforms binary data into a text-based format,
+which can be easily transmitted or stored in formats like JSON or XML.
+You can apply a custom Base64 serializer to any format that supports string-based encoding,
+allowing for flexibility in how binary data is handled across various formats.
+
+To encode and decode Base64 formats, create a serializer that controls how data is transformed into and from Base64:
+
+```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.descriptors.*
+import kotlin.io.encoding.*
+
+@OptIn(ExperimentalEncodingApi::class)
+// Custom serializer for converting ByteArray to Base64 format and back
+object ByteArrayAsBase64Serializer : KSerializer<ByteArray> {
+    private val base64 = Base64.Default
+
+    override val descriptor: SerialDescriptor
+        get() = PrimitiveSerialDescriptor(
+            "ByteArrayAsBase64Serializer",
+            PrimitiveKind.STRING
+        )
+
+    override fun serialize(encoder: Encoder, value: ByteArray) {
+        val base64Encoded = base64.encode(value)
+        encoder.encodeString(base64Encoded)
+    }
+
+    override fun deserialize(decoder: Decoder): ByteArray {
+        val base64Decoded = decoder.decodeString()
+        return base64.decode(base64Decoded)
+    }
+}
+
+@Serializable
+data class Value(
+    @Serializable(with = ByteArrayAsBase64Serializer::class)
+    val base64Input: ByteArray
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        other as Value
+        return base64Input.contentEquals(other.base64Input)
+    }
+
+    override fun hashCode(): Int {
+        return base64Input.contentHashCode()
+    }
+}
+
+fun main() {
+    val string = "foo string"
+    val value = Value(string.toByteArray())
+    
+    // Encodes the data class to a Base64 string
+    val encoded = Json.encodeToString(value)
+    println(encoded)
+    // {"base64Input":"Zm9vIHN0cmluZw=="}
+
+    // Decodes the Base64 string back to its original form
+    val decoded = Json.decodeFromString<Value>(encoded)
+    println(decoded.base64Input.decodeToString())
+    // foo string
+}
+```
+{kotlin-runnable="true"}
+
+<!--- > You can get the full code [here](../../guide/example/example-formats-11.kt) -->
+
+<!---
+```text
+{"base64Input":"Zm9vIHN0cmluZw=="}
+foo string
+```
+-->
+
+<!--- TEST -->
+
+> For projects frequently using a Base64 serializer, you can [apply it globally](third-party-classes.md#specify-custom-serializers-globally-using-typealias) using the `typealias` keyword:
+> 
+> ```kotlin
+> typealias Base64ByteArray = @Serializable(ByteArrayAsBase64Serializer::class) ByteArray
+> ```
+>
+{type="tip"}
+
 ## Create custom formats (experimental)
 
 To implement a custom format in Kotlin Serialization,
@@ -867,7 +963,7 @@ fun main() {
 This example demonstrates how to create a custom `ListEncoder` to transform a Kotlin object into a list of its individual values,
 maintaining the order they are defined in the class.
 
-<!--- > You can get the full code [here](../guide/example/example-formats-11.kt). -->
+<!--- > You can get the full code [here](../guide/example/example-formats-12.kt). -->
 
 <!---
 ```text
@@ -976,7 +1072,7 @@ In the example above, a custom `ListDecoder` is created by extending `AbstractDe
 The decoder reads values from a list, using the `decodeElementIndex()` function to track the current index and ensure values are deserialized in order.
 The `beginStructure()` function manages nested objects during deserialization.
 
-<!--- > You can get the full code [here](../guide/example/example-formats-12.kt). -->
+<!--- > You can get the full code [here](../guide/example/example-formats-13.kt). -->
 
 <!---
 ```text
@@ -1078,7 +1174,7 @@ fun main() {
 }
 ```
 
-<!--- > You can get a full runnable code example [here](../guide/example/example-formats-13.kt). -->
+<!--- > You can get a full runnable code example [here](../guide/example/example-formats-14.kt). -->
 
 <!--- TEST 
 [kotlinx.serialization, kotlin, 9000]
@@ -1189,7 +1285,7 @@ This example demonstrates adding collection support to the ListEncoder and ListD
 
 This setup enables precise encoding and decoding of collections in a custom format.
 
-<!--- > You can get the full code [here](../guide/example/example-formats-14.kt). -->
+<!--- > You can get the full code [here](../guide/example/example-formats-15.kt). -->
 
 <!---
 ```text
@@ -1304,7 +1400,7 @@ fun main() {
 }
 ```
 
-<!--- > You can get the full code [here](../guide/example/example-formats-15.kt). -->
+<!--- > You can get the full code [here](../guide/example/example-formats-16.kt). -->
 
 <!---
 ```text
@@ -1446,7 +1542,7 @@ fun main() {
 The result is a compact binary representation of the `Project` class that only includes the essential data.
 This makes it easy to customize for specific needs where small size and efficiency are important.
 
-<!--- > You can get the full code [here](../guide/example/example-formats-16.kt). -->
+<!--- > You can get the full code [here](../guide/example/example-formats-17.kt). -->
 
 <!---
 ```text
@@ -1460,16 +1556,14 @@ Project(name=kotlinx.serialization, language=Kotlin)
 ### Add support for format-specific types
 
 Custom binary formats may need to handle data types that are not part of the standard primitives in Kotlin Serialization.
-For example, a format may require a more efficient way to serialize byte arrays.
 You can achieve this by overriding the [`encodeSerializableValue(serializer, value)`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-encoder/encode-serializable-value.html) function in the encoder.
+This approach allows you to [define custom serialization](create-custom-serializers.md) logic for format-specific types,
+while maintaining efficient handling and flexibility for non-standard data representations.
 
 In the following example, a specialized approach is used for `ByteArray` types,
 utilizing Java's [`DataOutput`](https://docs.oracle.com/javase/8/docs/api/java/io/DataOutput.html) methods for efficient serialization.
-By referencing the `serializer.descriptor` property, the encoder can determine when a `ByteArray` is being serialized and apply the appropriate logic for more efficient processing:
-
-> This an important difference. This way our format implementation properly supports
-> [Custom serializers](create-custom-serializers.md) that a user might specify for a type that just happens
-> to be internally represented as a byte array, but need a different serial representation.
+By referencing the `serializer.descriptor` property, the encoder can determine when a `ByteArray` is
+serialized and apply the appropriate logic for more efficient processing:
 
 ```kotlin
 // Imports the necessary libraries
@@ -1487,15 +1581,18 @@ private val byteArraySerializer = serializer<ByteArray>()
 > 
 {type="note"}
 
-We add the corresponding code to the [Encoder] implementation of our
-[Efficient binary format](#efficient-binary-format). To make our `ByteArray` encoding even more efficient,
-we add a trivial implementation of `encodeCompactSize` function that uses only one byte to represent
-a size of up to 254 bytes.
+The following code builds upon the `ListEncoder` example from the [Create a compact binary format](#create-a-compact-binary-format) section.
+You can extend the encoder to support collections and implement a specialized path for handling `ByteArray` data.
+
+To handle collection sizes more efficiently, you can create a function that represents sizes up to 254 bytes with just one byte.
+
+To efficiently handle `ByteArray` data in the decoder, override the `decodeSerializableValue()` function:
 
 ```kotlin
 @ExperimentalSerializationApi
 class DataOutputEncoder(val output: DataOutput) : AbstractEncoder() {
     override val serializersModule: SerializersModule = EmptySerializersModule()
+    // Encodes the primitive types
     override fun encodeBoolean(value: Boolean) = output.writeByte(if (value) 1 else 0)
     override fun encodeByte(value: Byte) = output.writeByte(value.toInt())
     override fun encodeShort(value: Short) = output.writeShort(value.toInt())
@@ -1514,7 +1611,8 @@ class DataOutputEncoder(val output: DataOutput) : AbstractEncoder() {
 
     override fun encodeNull() = encodeBoolean(false)
     override fun encodeNotNullMark() = encodeBoolean(true)
-    
+
+    // Checks if the value is a ByteArray and uses a specific encoding path for it
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
         if (serializer.descriptor == byteArraySerializer.descriptor)
             encodeByteArray(value as ByteArray)
@@ -1522,11 +1620,13 @@ class DataOutputEncoder(val output: DataOutput) : AbstractEncoder() {
             super.encodeSerializableValue(serializer, value)
     }
 
+    // Encodes a ByteArray with a compact size representation
     private fun encodeByteArray(bytes: ByteArray) {
         encodeCompactSize(bytes.size)
         output.write(bytes)
     }
-    
+
+    // Uses one byte for sizes up to 254, otherwise writes the size as an integer
     private fun encodeCompactSize(value: Int) {
         if (value < 0xff) {
             output.writeByte(value)
@@ -1550,6 +1650,7 @@ inline fun <reified T> encodeTo(output: DataOutput, value: T) = encodeTo(output,
 class DataInputDecoder(val input: DataInput, var elementsCount: Int = 0) : AbstractDecoder() {
     private var elementIndex = 0
     override val serializersModule: SerializersModule = EmptySerializersModule()
+    // Decodes the primitive types
     override fun decodeBoolean(): Boolean = input.readByte().toInt() != 0
     override fun decodeByte(): Byte = input.readByte()
     override fun decodeShort(): Short = input.readShort()
@@ -1577,9 +1678,10 @@ class DataInputDecoder(val input: DataInput, var elementsCount: Int = 0) : Abstr
     override fun decodeNotNullMark(): Boolean = decodeBoolean()
 ```
 
-Similarly, override the `Decoder` implementation's [`decodeSerializableValue()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-decoder/decode-serializable-value.html) function  to handle the efficient reading of `ByteArray` data:
+Similarly, override the `Decoder` implementation's [`decodeSerializableValue()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-decoder/decode-serializable-value.html) function to handle the efficient reading of `ByteArray` data:
 
-```kotlin 
+```kotlin
+// Handles ByteArray decoding by checking if the descriptor matches ByteArray
     @Suppress("UNCHECKED_CAST")
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>, previousValue: T?): T =
         if (deserializer.descriptor == byteArraySerializer.descriptor)
@@ -1587,12 +1689,14 @@ Similarly, override the `Decoder` implementation's [`decodeSerializableValue()`]
         else
             super.decodeSerializableValue(deserializer, previousValue)
 
+    // Decodes ByteArray data
     private fun decodeByteArray(): ByteArray {
         val bytes = ByteArray(decodeCompactSize())
         input.readFully(bytes)
         return bytes
     }
 
+    // Decodes size efficiently using a compact format
     private fun decodeCompactSize(): Int {
         val byte = input.readByte().toInt() and 0xff
         if (byte < 0xff) return byte
@@ -1636,9 +1740,7 @@ fun main() {
 }
 ```
 
-As we can see, our custom byte array format is being used, with the compact encoding of its size in one byte.
-
-<!--- > You can get the full code [here](../guide/example/example-formats-17.kt). -->
+<!--- > You can get the full code [here](../guide/example/example-formats-18.kt). -->
 
 <!---
 ```text
@@ -1646,96 +1748,5 @@ As we can see, our custom byte array format is being used, with the compact enco
 Project(name=kotlinx.serialization, attachment=[10, 11, 12, 13])
 ```
 -->
-
-<!--- TEST -->
-
-### Base64
-
-To encode and decode Base64 formats, we will need to manually write a serializer. Here, we will use a default
-implementation of Kotlin's Base64 encoder. Note that some serializers use different RFCs for Base64 encoding by default.
-For example, Jackson uses a variant of [Base64 Mime](https://datatracker.ietf.org/doc/html/rfc2045). The same result in
-kotlinx.serialization can be achieved with Base64.Mime encoder.
-[Kotlin's documentation for Base64](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.io.encoding/-base64/) lists
-other available encoders.
-
-```kotlin
-import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.descriptors.*
-import kotlin.io.encoding.*
-
-@OptIn(ExperimentalEncodingApi::class)
-object ByteArrayAsBase64Serializer : KSerializer<ByteArray> {
-    private val base64 = Base64.Default
-
-    override val descriptor: SerialDescriptor
-        get() = PrimitiveSerialDescriptor(
-            "ByteArrayAsBase64Serializer",
-            PrimitiveKind.STRING
-        )
-
-    override fun serialize(encoder: Encoder, value: ByteArray) {
-        val base64Encoded = base64.encode(value)
-        encoder.encodeString(base64Encoded)
-    }
-
-    override fun deserialize(decoder: Decoder): ByteArray {
-        val base64Decoded = decoder.decodeString()
-        return base64.decode(base64Decoded)
-    }
-}
-```
-
-For more details on how to create your own custom serializer, you can
-see [custom serializers](serializers.md#custom-serializers).
-
-Then we can use it like this:
-
-```kotlin
-@Serializable
-data class Value(
-    @Serializable(with = ByteArrayAsBase64Serializer::class)
-    val base64Input: ByteArray
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        other as Value
-        return base64Input.contentEquals(other.base64Input)
-    }
-
-    override fun hashCode(): Int {
-        return base64Input.contentHashCode()
-    }
-}
-
-fun main() {
-    val string = "foo string"
-    val value = Value(string.toByteArray())
-    val encoded = Json.encodeToString(value)
-    println(encoded)
-    val decoded = Json.decodeFromString<Value>(encoded)
-    println(decoded.base64Input.decodeToString())
-}
-```
-
-<!--- > You can get the full code [here](../../guide/example/example-json-16.kt) -->
-
-<!---
-```text
-{"base64Input":"Zm9vIHN0cmluZw=="}
-foo string
-```
--->
-
-Notice the serializer we wrote is not dependent on `Json` format, therefore, it can be used in any format.
-
-For projects that use this serializer in many places, to avoid specifying the serializer every time, it is possible
-to [specify a serializer globally using typealias](serializers.md#specifying-serializer-globally-using-typealias).
-For example:
-
-````kotlin
-typealias Base64ByteArray = @Serializable(ByteArrayAsBase64Serializer::class) ByteArray
-````
 
 <!--- TEST -->

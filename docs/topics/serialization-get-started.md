@@ -135,20 +135,14 @@ commonMain {
 }
 ```
 
-## Serialize an object to JSON
+## Serialize objects to JSON
 
 Serialization is the process of converting an object into a format that can be easily stored or transmitted, such as JSON.
 In Kotlin, you can serialize objects to JSON using the `kotlinx.serialization` library.
 
-To make a class serializable, you need to use the [`@Serializable`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/) annotation.
+To make a class serializable, you need to mark it with the [`@Serializable`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/) annotation.
 This annotation indicates to the compiler to generate the necessary code for serializing and deserializing instances of the class.
 For more information, see [The @Serialization annotation](serialization.md#the-serializable-annotation) section.
-
-When marking a class with the `@Serializable` annotation, consider the following:
-
-* Only properties that store their values directly, known as backing fields are serialized. Properties that compute their values dynamically using custom getters are not serialized.
-* All parameters in the primary constructor must be properties of the object.
-* If data validation is needed before serialization, you can use the init block to validate the properties.
 
 Let's look at an example:
 
@@ -159,79 +153,54 @@ Let's look at an example:
     import kotlinx.serialization.json.*
     ```
 
-2. Make a class serializable by annotating it with `@Serializable`.
+2. Make a class serializable by annotating it with `@Serializable`:
 
     ```kotlin
     @Serializable
     data class Data(val a: Int, val b: String)
     ```
 
-   > The `@Serialization` annotation enables default serialization of all properties in the primary constructor.
-   > You can adjust this behavior using various techniques. These include serialization of backing fields, defining
-   > custom constructors, specifying optional properties, marking properties as required and more. 
-   > These techniques allow for precise control over which properties are serialized and how the serialization process is managed.
+   > The `@Serializable` annotation enables default serialization of all properties in the primary constructor.
+   > You can customize serialization behavior using various techniques like custom constructors, optional properties, and more.
    > For more information, see [Serialization customization options](serialization-customization-options.md).
    >
    {type="note"}
 
-3. Serialize an instance of this class by calling `Json.encodeToString()`.
+3. Serialize an instance of this class by calling the `Json.encodeToString()` function:
 
     ```kotlin
-    // Imports the necessary libraries
+    // Imports the necessary libraries for serialization and JSON handling
     import kotlinx.serialization.Serializable
     import kotlinx.serialization.json.Json
     import kotlinx.serialization.encodeToString
     
-    @Serializable
-    data class Data(val a: Int, val b: String)
-    
-    fun main() {
-       val json = Json.encodeToString(Data(42, "str"))
-    }
-    ```
-
-   As a result, you get a string containing the state of this object in the JSON format: `{"a": 42, "b": "str"}`
-
-   > You can serialize object collections, such as lists, in a single call:
-   >
-   > ```kotlin
-    > val dataList = listOf(Data(42, "str"), Data(12, "test"))
-    > val jsonList = Json.encodeToString(dataList)
-    > ```
-   >
-    {type="note"}
-
-4. You can also use the `.serializer()` function to retrieve and use the automatically generated serializer:
-
-   ```kotlin
-    // Imports the necessary libraries for serialization
-    import kotlinx.serialization.Serializable
-    import kotlinx.serialization.json.Json
-    import kotlinx.serialization.encodeToString
-    // Imports the KSerializer interface
-    import kotlinx.serialization.KSerializer
-   
     // Marks the Data class as serializable
     @Serializable
     data class Data(val a: Int, val b: String)
-   
+    
     fun main() {
-        // Retrieves the automatically generated serializer for the Data class
-        val serializer: KSerializer<Data> = Data.serializer()
-   
-        // Serializes an instance of Data using the retrieved serializer
-        val json = Json.encodeToString(serializer, Data(42, "str"))
+        // Serializes an instance of the Data class into a JSON string
+        val json = Json.encodeToString(Data(42, "str"))
         println(json)
         // {"a":42,"b":"str"}
     }
-   ```
-   The `.serializer()` function allows you to explicitly obtain the serializer instance created by the `kotlinx.serialization` library for your `@Serializable` class,
-   allowing you to interact with the serialization process directly.
-   For more information, see the [Create custom serializers](create-custom-serializers.md) page.
+    ```
+    {kotlin-runnable="true"}
 
-## Deserialize an object from JSON
+   As a result, you get a string containing the state of this object in the JSON format: `{"a": 42, "b": "str"}`
 
-Deserialization reconstructs an object from its serialized form.
+    > You can also serialize a collection of objects in a single call:
+    >
+    > ```kotlin
+    > val dataList = listOf(Data(42, "str"), Data(12, "test"))
+    > val jsonList = Json.encodeToString(dataList)
+    > ```
+    >
+    {type="note"}
+
+## Deserialize objects from JSON
+
+Deserialization converts a JSON string back into an object.
 
 To deserialize an object from JSON in Kotlin:
 
@@ -271,6 +240,6 @@ To deserialize an object from JSON in Kotlin:
 
 ## What's next?
 
-* Discover various techniques for adjusting serialization behavior in [Serialization customization options](serialization-customization-options.md).
-* Learn how to create custom serializers in [Create custom serializers](create-custom-serializers.md).
-* 
+* Learn how to serialize standard types, including built-in types like numbers and strings, in [Serialize built-in types](serialization-serialize-builtin-types.md).
+* Discover how to customize class serialization and adjust the default behavior of the `@Serializable` annotation in the [Serialize classes](serialization-customization-options.md) section.
+* Dive deeper into handling JSON data and configuring JSON serialization in the [JSON serialization overview](configure-json-serialization.md).

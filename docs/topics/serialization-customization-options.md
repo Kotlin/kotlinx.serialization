@@ -1,5 +1,5 @@
-<!--- TEST_NAME BasicSerializationTest -->
 [//]: # (title: Serialize classes)
+<!--- TEST_NAME BasicSerializationTest -->
 
 The [`@Serializable`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/) annotation in Kotlin enables the serialization of all properties in classes defined by the primary constructor.
 You can further customize this behavior to fit your specific needs.
@@ -399,7 +399,7 @@ fun main() {
 ### Validate data in primary constructor
 
 When you need to validate a constructor parameter before storing it in a property,
-replace the parameter with a property in the primary constructor and perform validation in an `init { ... }` block.
+replace the parameter with a property in the primary constructor and perform validation in an `init` block.
 This ensures the class is serializable and that invalid data cannot be deserialized:
 
 ```kotlin

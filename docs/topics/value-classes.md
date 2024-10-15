@@ -93,7 +93,7 @@ The output is following:
 ## Using value classes in your custom serializers
 
 Let's return to our `NamedColor` example and try to write a custom serializer for it. Normally, as shown
-in [Hand-written composite serializer](serializers.md#hand-written-composite-serializer), we would write the following code
+in [Hand-written composite serializer](create-custom-serializers.md#create-a-custom-composite-serializer), we would write the following code
 in `serialize` method:
 
 ```kotlin
@@ -122,7 +122,7 @@ override fun serialize(encoder: Encoder, value: NamedColor) {
 
 The same principle goes also with [CompositeDecoder]: it has [decodeInlineElement][CompositeDecoder.decodeInlineElement] function that returns [Decoder].
 
-If your class should be represented as a primitive (as shown in [Primitive serializer](serializers.md#primitive-serializer) section),
+If your class should be represented as a primitive (as shown in [Primitive serializer](create-custom-serializers.md#create-a-custom-primitive-serializer) section),
 and you cannot use [encodeStructure][Encoder.encodeStructure] function, there is a complementary function in [Encoder] called [encodeInline][Encoder.encodeInline].
 We will use it to show an example how one can represent a class as an unsigned integer.
 

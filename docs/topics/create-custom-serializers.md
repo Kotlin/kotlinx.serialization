@@ -517,7 +517,7 @@ Box(contents=Project(name=kotlinx.serialization))
 _Contextual serialization_ allows you to adjust the serialization strategy for specific types at runtime, based on the context in which they are used.
 Unlike static serialization,
 which is fully defined at compile-time, contextual serialization lets you modify how objects are serialized deep within an object tree.
-For example, you could serialize `java.util.Date` in JSON format either as an ISO 8601 String or as a Long, depending on the protocol version being used with contextual serialization.
+For example, you could serialize `java.util.Date` in JSON format either as an ISO 8601 `String` or as a `Long`, depending on the protocol version being used with contextual serialization.
 This approach is supported by the built-in [`ContextualSerializer`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-contextual-serializer/) class.
 
 To implement contextual serialization:
