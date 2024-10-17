@@ -240,7 +240,7 @@ To deserialize an object from JSON in Kotlin:
 
 Congratulations! You have successfully serialized an object to JSON and deserialized it back into an object in Kotlin!
 
-## What's next?
+## What's next
 
 * Learn how to serialize standard types, including built-in types like numbers and strings, in [Serialize built-in types](serialization-serialize-builtin-types.md).
 * Discover how to customize class serialization and adjust the default behavior of the `@Serializable` annotation in the [Serialize classes](serialization-customization-options.md) section.

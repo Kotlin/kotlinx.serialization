@@ -418,7 +418,7 @@ null
 
 <!--- TEST -->
 
-## What's next?
+## What's next
 
 * Discover how to [transform JSON during serialization and deserialization](serialization-transform-json.md) for more control over your data.
 * Learn how to [serialize classes](serialization-customization-options.md) and how to modify the default behavior of the `@Serializable` annotation.

@@ -779,7 +779,7 @@ Given these factors, it’s important to weigh the pros and cons before implemen
 
 <!--- TEST -->
 
-## What's next?
+## What's next
 
 * Explore [advanced JSON element handling](serialization-json-elements.md) to manipulate and work with JSON data before it is parsed or serialized.
 * Discover how to [transform JSON during serialization and deserialization](serialization-transform-json.md) for more control over your data.

@@ -57,7 +57,7 @@ val customJson = Json {
 }
 ```
 
-## What's next?
+## What's next
 
 * Learn how to [customize JSON serialization settings](serialization-json-configuration.md) to address different use cases.
 * Explore [advanced JSON element handling](serialization-json-elements.md) to manipulate and work with JSON data before it is parsed or serialized.
