@@ -4,6 +4,10 @@ package example.exampleJson03
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
 // Configures a Json instance to ignore unknown keys
 val format = Json { ignoreUnknownKeys = true }
 

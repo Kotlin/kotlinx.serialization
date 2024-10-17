@@ -1,6 +1,7 @@
-// This file was automatically generated from polymorphism.md by Knit tool. Do not edit.
+// This file was automatically generated from serialization-polymorphism.md by Knit tool. Do not edit.
 package example.examplePoly04
 
+// Imports the necessary libraries
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
@@ -13,6 +14,10 @@ sealed class Project {
 class OwnedProject(override val name: String, val owner: String) : Project()
 
 fun main() {
-    val data: Project = OwnedProject("kotlinx.coroutines", "kotlin")
-    println(Json.encodeToString(data)) // Serializing data of compile-time type Project
-}  
+    // The static type is OwnedProject
+    val data = OwnedProject("kotlinx.coroutines", "kotlin")
+    
+    // The `type` discriminator is not included because the static type is OwnedProject.
+    println(Json.encodeToString(data))
+    // {"name":"kotlinx.coroutines","owner":"kotlin"}
+}

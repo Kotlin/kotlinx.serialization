@@ -122,9 +122,9 @@ fun main() {
 -->
 
 > You can also specify a serializer like `LongAsStringSerializer` for all properties in a file.
-> For more information, see the [Specify serializers for a file](third-party-classes.md#specify-serializers-for-a-file) section for more details.
+> For more information, see the [Specify serializers for a file](third-party-classes.md#specify-serializers-for-a-file) section.
 > 
-{type="tip"}
+{style="tip"}
 
 <!--- TEST -->
 
@@ -166,7 +166,7 @@ fun main() {
 > On Kotlin/JS and Kotlin/Native, you must use the `@Serializable` annotation for an enum class if you want to use as a root object,
 > such as in `encodeToString<Status>(Status.SUPPORTED)`.
 > 
-{type="note"}
+{style="note"}
 
 <!--- TEST -->
 
@@ -174,7 +174,7 @@ fun main() {
 
 > For more information on customizing serial names, see the [Customize serial names](serialization-customization-options.md#customize-serial-names) section.
 > 
-{type="tip"}
+{style="tip"}
 
 To customize the serial names of enum entries, apply the `@SerialName` annotation to the entries and annotate the entire enum class with `@Serializable`:
 
@@ -359,7 +359,7 @@ In JSON, Kotlin maps are represented as objects. Since JSON object keys are alwa
 > JSON doesn't natively support complex or composite keys.
 > To work around this and use structured objects as map keys, see the [Encode structured map keys](serialization-json-configuration.md#encode-structured-map-keys) section.
 > 
-{type="note"}
+{style="note"}
 
 <!---
 ```text
@@ -522,3 +522,8 @@ fun main() {
 -->
 
 <!--- TEST -->
+
+## What's next
+
+* Dive into the [Serialize classes](serialization-customization-options.md) section to learn how to serialize classes and how to modify the default behavior of the `@Serializable` annotation.
+* To explore more complex JSON serialization scenarios, see [JSON serialization overview](configure-json-serialization.md).

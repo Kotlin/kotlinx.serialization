@@ -6,9 +6,9 @@ You can configure `Json` instances to handle specific JSON behaviors or use it a
 
 The key features of the `Json` class include:
 
-* Serialization of Kotlin objects to JSON strings using the `encodeToString()` function. 
-* Deserialization of JSON strings back into Kotlin objects with the `decodeFromString()` function. 
-* Working directly with `JsonElement` for more complex JSON structures using the `encodeToJsonElement()` and the `decodeFromJsonElement()` functions.
+* Serialization of Kotlin objects to JSON strings using the [`encodeToString()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/encode-to-string.html) function. 
+* Deserialization of JSON strings back into Kotlin objects with the [`decodeFromString()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/decode-from-string.html) function. 
+* Working directly with [`JsonElement`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-element/) for more complex JSON structures using the [`encodeToJsonElement()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/encode-to-json-element.html) and the [`decodeFromJsonElement()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/decode-from-json-element.html) functions.
 
 To use the `Json` class for JSON serialization and deserialization import the necessary libraries:
 
@@ -45,6 +45,7 @@ fun main() {
     // User(name=Alice, age=30)
 }
 ```
+{kotlin-runnable="true"}
 
 Additionally, you can [customize the `Json` instance](serialization-json-configuration.md) to address different use cases,
 such as ignoring unknown keys:

@@ -24,6 +24,11 @@ import kotlinx.serialization.json.*
 -->
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 fun main() {
     val element = Json.parseToJsonElement("""
         {"name":"kotlinx.serialization","language":"Kotlin"}
@@ -32,7 +37,9 @@ fun main() {
     println(element)
     // {"name":"kotlinx.serialization","language":"Kotlin"}
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 <!--- > You can get the full code [here](../../guide/example/example-json-elements-01.kt). -->
 
@@ -69,6 +76,11 @@ Similar functions are available for other types, such as `long`, `longOrNull`, `
 Here is an example of how you can use these functions when processing JSON data:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 fun main() {
     val element = Json.parseToJsonElement("""
         {
@@ -86,7 +98,9 @@ fun main() {
     println(sum)
     // 9042
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 <!--- > You can get the full code [here](../../guide/example/example-json-elements-02.kt). -->
 
@@ -107,6 +121,11 @@ These provide a DSL for defining the JSON structure, similar to Kotlin’s stand
 Here is an example demonstrating the key features:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 fun main() {
     val element = buildJsonObject {
         // Adds a simple key-value pair to the JsonObject
@@ -130,7 +149,9 @@ fun main() {
     println(element)
     // {"name":"kotlinx.serialization","owner":{"name":"kotlin"},"forks":[{"votes":42},{"votes":9000}]}
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 <!--- > You can get the full code [here](../../guide/example/example-json-elements-03.kt). -->
 
@@ -144,10 +165,15 @@ fun main() {
 
 ## Decode Json elements
 
-You can decode an instance of the `JsonElement` class into a serializable object using
+To decode an instance of the `JsonElement` class into a serializable object, use
 the [`Json.decodeFromJsonElement()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/decode-from-json-element.html) function:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 @Serializable
 data class Project(val name: String, val language: String)
 
@@ -162,7 +188,9 @@ fun main() {
     println(data)
     // Project(name=kotlinx.serialization, language=Kotlin)
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 <!--- > You can get the full code [here](../../guide/example/example-json-elements-04.kt). -->
 
@@ -178,7 +206,7 @@ Project(name=kotlinx.serialization, language=Kotlin)
 
 > The [`JsonUnquotedLiteral`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-unquoted-literal.html) functionality is [Experimental](components-stability.md#stability-levels-explained). To opt in, use the `@ExperimentalSerializationApi` annotation or the compiler option -opt-in=kotlinx.serialization.ExperimentalSerializationApi.
 >
-{type="warning"}
+{style="warning"}
 
 You can encode an arbitrary unquoted value with [`JsonUnquotedLiteral`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-unquoted-literal.html).
 
@@ -190,8 +218,12 @@ Kotlin/JVM [`BigDecimal`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/ja
 large numbers without loss of precision, but using `JsonPrimitive()` encodes the value as a string rather than as a number:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
 import java.math.BigDecimal
 
+//sampleStart
 val format = Json { prettyPrint = true }
 
 fun main() {
@@ -211,11 +243,13 @@ fun main() {
     // "pi_double": 3.141592653589793,
     // "pi_string": "3.141592653589793238462643383279"
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 <!--- > You can get the full code [here](../../guide/example/example-json-elements-05.kt). -->
 
-In the example above, even though `pi` was defined as a number with 30 decimal places, the resulting JSON does not reflect this.
+In the example above, even though `pi` is defined as a number with 30 decimal places, the resulting JSON doesn't reflect this.
 The `Double` value is truncated to 15 decimal places, and the `String` is wrapped in quotes, making it a string instead of a JSON number.
 
 <!---
@@ -232,8 +266,12 @@ The `Double` value is truncated to 15 decimal places, and the `String` is wrappe
 To avoid precision loss, you can encode an arbitrary unquoted value, such as the string value of `pi` in this example, using [`JsonUnquotedLiteral`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-unquoted-literal.html):
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
 import java.math.BigDecimal
 
+//sampleStart
 val format = Json { prettyPrint = true }
 
 fun main() {
@@ -259,7 +297,9 @@ fun main() {
     // "pi_double": 3.141592653589793,
     // "pi_string": "3.141592653589793238462643383279"
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 <!--- > You can get the full code [here](../../guide/example/example-json-elements-06.kt). -->
 
@@ -278,8 +318,12 @@ fun main() {
 To decode `pi` back to a `BigDecimal`, you can extract the string content of the `JsonPrimitive`:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
 import java.math.BigDecimal
 
+//sampleStart
 fun main() {
     val piObjectJson = """
           {
@@ -299,12 +343,14 @@ fun main() {
     println(pi)
     // 3.141592653589793238462643383279
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
-> This example uses a `JsonPrimitive` for simplicity. For a more reusable method of handling serialization, see
-> [Json Transformations](serialization-transform-json.md).)
+> This example uses a `JsonPrimitive` for simplicity. For more reusable methods of handling serialization, see
+> [Json Transformations](serialization-transform-json.md).
 >
-{type="note"}
+{style="note"}
 
 <!--- > You can get the full code [here](../../guide/example/example-json-elements-07.kt). -->
 
@@ -319,13 +365,20 @@ fun main() {
 Finally, to avoid creating an inconsistent state, encoding a string equal to `"null"` with `JsonUnquotedLiteral` results in an exception.
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 @OptIn(ExperimentalSerializationApi::class)
 fun main() {
     // Caution: creating null with JsonUnquotedLiteral causes an exception!
     JsonUnquotedLiteral("null")
     // Exception in thread "main" kotlinx.serialization.json.internal.JsonEncodingException
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 <!--- > You can get the full code [here](../../guide/example/example-json-elements-08.kt). -->
 
@@ -340,13 +393,20 @@ Exception in thread "main" kotlinx.serialization.json.internal.JsonEncodingExcep
 You can use [`JsonNull`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-null/) or `JsonPrimitive` to represent a proper JSON `null` value instead:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 fun main() {
     val possiblyNull = JsonNull
   
     println(possiblyNull)
     // null
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 <!--- > You can get the full code [here](../../guide/example/example-json-elements-09.kt). -->
 
@@ -357,3 +417,8 @@ null
 -->
 
 <!--- TEST -->
+
+## What's next?
+
+* Discover how to [transform JSON during serialization and deserialization](serialization-transform-json.md) for more control over your data.
+* Learn how to [serialize classes](serialization-customization-options.md) and how to modify the default behavior of the `@Serializable` annotation.

@@ -4,17 +4,24 @@ package example.exampleJson04
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+// Configures a Json instance to encode default values
+val format = Json { encodeDefaults = true }
+
 @Serializable
-// Maps both "name" and "title" JSON fields to the `name` property
-data class Project(@JsonNames("title") val name: String)
+class Project(
+    val name: String,
+    val language: String = "Kotlin",
+    val website: String? = null
+)
 
 fun main() {
-    val project = Json.decodeFromString<Project>("""{"name":"kotlinx.serialization"}""")
-    println(project)
-    // Project(name=kotlinx.serialization)
+    val data = Project("kotlinx.serialization")
 
-    val oldProject = Json.decodeFromString<Project>("""{"title":"kotlinx.coroutines"}""")
-    // Both `name` and `title` Json fields correspond to `name` property
-    println(oldProject)
-    // Project(name=kotlinx.coroutines)
+    // Encodes all the property values including the default ones
+    println(format.encodeToString(data))
+    // {"name":"kotlinx.serialization","language":"Kotlin","website":null}
 }

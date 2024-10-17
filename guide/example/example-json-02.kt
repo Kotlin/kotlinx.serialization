@@ -4,6 +4,10 @@ package example.exampleJson02
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
 val format = Json { isLenient = true }
 
 enum class Status { SUPPORTED }

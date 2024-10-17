@@ -4,33 +4,36 @@ package example.exampleJson11
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-// Configures a Json instance to use a custom class discriminator
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+// The @JsonClassDiscriminator annotation is inheritable, so all subclasses of Base will have the same discriminator
+@Serializable
+@JsonClassDiscriminator("message_type")
+sealed class Base
+
+// Class discriminator is inherited from Base
+@Serializable
+sealed class ErrorClass: Base()
+
+// Defines a class that combines a message and an optional error
+@Serializable
+data class Message(val message: Base, val error: ErrorClass?)
+
+@Serializable
+@SerialName("my.app.BaseMessage")
+data class BaseMessage(val message: String) : Base()
+
+@Serializable
+@SerialName("my.app.GenericError")
+data class GenericError(@SerialName("error_code") val errorCode: Int) : ErrorClass()
+
 val format = Json { classDiscriminator = "#class" }
 
-@Serializable
-sealed class Project {
-    abstract val name: String
-}
-
-// Specifies a custom serial name for the OwnedProject class
-@Serializable
-@SerialName("owned")
-class OwnedProject(override val name: String, val owner: String) : Project()
-
-// Specifies a custom serial name for the SimpleProject class
-@Serializable
-@SerialName("simple")
-class SimpleProject(override val name: String) : Project()
-
 fun main() {
-  val simpleProject: Project = SimpleProject("kotlinx.serialization")
-  val ownedProject: Project = OwnedProject("kotlinx.coroutines", "kotlin")
-
-  // Serializes SimpleProject with #class: "simple"
-  println(format.encodeToString(simpleProject))
-  // {"#class":"simple","name":"kotlinx.serialization"}
-
-  // Serializes OwnedProject with #class: "owned"
-  println(format.encodeToString(ownedProject))
-  // {"#class":"owned","name":"kotlinx.coroutines","owner":"kotlin"}
+    val data = Message(BaseMessage("not found"), GenericError(404))
+    // The discriminator from the Base class is used
+    println(format.encodeToString(data))
+    // {"message":{"message_type":"my.app.BaseMessage","message":"not found"},"error":{"message_type":"my.app.GenericError","error_code":404}}
 }

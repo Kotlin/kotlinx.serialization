@@ -78,7 +78,7 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-<!---  > You can get the full code [here](../../guide/example/example-poly-03.kt). -->
+<!---  > You can get the full code [here](../../guide/example/example-poly-02.kt). -->
 
 <!--- 
 ```text 
@@ -96,7 +96,7 @@ which provide the necessary compile-time guarantees for closed polymorphic seria
 
 > To handle polymorphism with `open` and `abstract` classes, you must use [open polymorphism with explicit configuration](#open-polymorphism-in-kotlin-serialization).
 >
-{type="note"}
+{style="note"}
 
 ### Serialize closed polymorphic classes
 
@@ -129,7 +129,7 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-<!--- > You can get the full code [here](../../guide/example/example-poly-04.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-poly-03.kt). -->
 
 <!---
 ```text 
@@ -172,7 +172,7 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-<!--- > You can get the full code [here](../../guide/example/example-poly-05.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-poly-04.kt). -->
 
 <!---
 ```text 
@@ -211,7 +211,7 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-<!--- > You can get the full code [here](../../guide/example/example-poly-06.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-poly-05.kt). -->
 
 <!---
 ```text 
@@ -254,7 +254,7 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-<!--- > You can get the full code [here](../../guide/example/example-poly-07.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-poly-06.kt). -->
 
 <!---
 ```text 
@@ -267,7 +267,7 @@ fun main() {
 > Additionally, you can configure JSON to use a different key name for the class discriminator.
 > For more information, see the [Specify class discriminator for polymorphism](serialization-json-configuration.md#specify-class-discriminator-for-polymorphism) section.
 > 
-{type="tip"}
+{style="tip"}
 
 #### Base class properties with backing fields
 
@@ -302,7 +302,7 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-<!--- > You can get the full code [here](../../guide/example/example-poly-08.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-poly-07.kt). -->
 
 <!---
 ```text 
@@ -343,11 +343,11 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-<!--- > You can get the full code [here](../../guide/example/example-poly-09.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-poly-08.kt). -->
 
 > The properties of objects are not serialized.
 >
-{type="note"}
+{style="note"}
 
 <!---
 ```text 
@@ -414,7 +414,7 @@ fun main() {
 
 > For more information about custom JSON configurations, see the [JSON configuration](serialization-json-configuration.md) section.
 >
-{type="tip"}
+{style="tip"}
 
 <!--- > You can get the full code [here](../../guide/example/example-poly-09.kt). -->
 
@@ -433,7 +433,7 @@ but allows the serialization of open polymorphic classes.
 > For JS and Native platforms, use an explicit serializer: `format.encodeToString(PolymorphicSerializer(Project::class), data)`
 > You can keep track of this issue [here](https://github.com/Kotlin/kotlinx.serialization/issues/1077).
 > 
-{type="note"}
+{style="note"}
 
 ### Serialize interfaces
 
@@ -487,7 +487,7 @@ fun main() {
 > For Kotlin/Native, you need to explicitly specify the serializer using
 > `format.encodeToString(PolymorphicSerializer(Project::class), data))` due to the platform's limited reflection capabilities.
 > 
-{type="note"}
+{style="note"}
 
 <!--- TEST LINES_START -->
 
@@ -586,7 +586,7 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-<!--- > You can get the full code [here](../../guide/example/example-poly-14.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-poly-12.kt). -->
 
 <!---
 ```text 
@@ -598,10 +598,12 @@ fun main() {
 
 If the subclass is not registered or the `PolymorphicSerializer` is not provided, an exception is thrown:
 
-```text
+```kotlin
 Exception in thread "main" kotlinx.serialization.SerializationException: Serializer for class 'Any' is not found.
 Please ensure that class is marked as '@Serializable' and that the serialization compiler plugin is applied.
 ```
+
+<!--- CLEAR -->
 
 ### Serialize non-serializable properties polymorphically
 
@@ -648,7 +650,7 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-<!--- > You can get the full code [here](../../guide/example/example-poly-15.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-poly-13.kt). -->
 
 <!--- TEST 
 {"project":{"type":"owned","name":"kotlinx.coroutines","owner":"kotlin"}}
@@ -657,7 +659,7 @@ fun main() {
 ### Register multiple superclasses
 
 When the same class is serialized as a value of properties with different compile-time types from its list of
-superclasses, you must register it in the [SerializersModule](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/-serializers-module/) for each of its superclasses separately.
+superclasses, you must register it in the [`SerializersModule`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/-serializers-module/) for each of its superclasses separately.
 To do so, you can use the [`subclass()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/subclass.html) function.
 
 To avoid repeating `subclass()` calls for each superclass, you can create a function that registers the subclasses and apply it to each superclass.
@@ -707,7 +709,7 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-<!--- > You can get the full code [here](../../guide/example/example-poly-16.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-poly-14.kt). -->
 
 <!--- TEST 
 {"project":{"type":"owned","name":"kotlinx.coroutines","owner":"kotlin"},"any":{"type":"owned","name":"kotlinx.coroutines","owner":"kotlin"}}
@@ -785,7 +787,7 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-<!--- > You can get the full code [here](../../guide/example/example-poly-16.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-poly-15.kt). -->
 
 <!---
 ```text 
@@ -867,13 +869,13 @@ fun main() {
 > }
 > ```
 >
-{type="note"}
+{style="note"}
 
 If you're building a library or shared module that defines an abstract class and its implementations,
 you can expose your `SerializersModule` to your clients.
 This allows them to combine your module with their own `SerializersModule` for seamless integration.
 
-<!--- > You can get the full code [here](../../guide/example/example-poly-17.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-poly-16.kt). -->
 
 <!---
 ```text
@@ -888,11 +890,11 @@ OkResponse(data=OwnedProject(name=kotlinx.serialization, owner=kotlin))
 
 When deserializing a subclass that's not registered, a `JsonDecodingException` exception is thrown. 
 To handle this more gracefully, you can register a default deserializer for unrecognized subclasses using the [`defaultDeserializer()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/-polymorphic-module-builder/default-deserializer.html) function
-in the [`PolymorphicModuleBuilder { ... }`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/-polymorphic-module-builder/) DSL.
+in the [`PolymorphicModuleBuilder`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/-polymorphic-module-builder/) DSL.
 This allows you to map unrecognized types to a specific deserialization strategy.
 
 In the following example, the `BasicProject` class is used to represent unknown subtypes.
-The example doesn't rely on the `type` field to differentiate subtypes and instead uses the [plugin-generated serializer]((serializers.md#plugin-generated-serializer)) for `BasicProject`:
+The example doesn't rely on the `type` field to differentiate subtypes and instead uses the [plugin-generated serializer](create-custom-serializers.md) for `BasicProject`:
 
 ```kotlin
 // Imports the necessary libraries
@@ -939,9 +941,9 @@ fun main() {
 
 Using a default serializer assumes that the structure of the "unknown" data is known in advance.
 In cases where the structure may vary, you need to create a custom serializer to handle more flexible or less-structured data.
-For more details on working with custom JSON structures, see the [Maintaining custom JSON attributes]((serialization-json-transform-json.md#maintain-custom-json-attributes)) section.
+For more details on working with custom JSON structures, see the [Maintain custom JSON attributes](serialization-json-transform-json.md#maintain-custom-json-attributes) section.
 
-<!--- > You can get the full code [here](../../guide/example/example-poly-19.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-poly-17.kt). -->
 
 <!---
 ```text
@@ -953,7 +955,7 @@ For more details on working with custom JSON structures, see the [Maintaining cu
 
 ### Default polymorphic type handler for serialization
 
-To dynamically choose a serializer for a polymorphic type based on the instance, use the [`polymorphicDefaultSerializer()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/-serializers-module-builder/polymorphic-default-serializer.html) function within the [`SerializersModule { ... }`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/-serializers-module-builder/) DSL.
+To dynamically choose a serializer for a polymorphic type based on the instance, use the [`polymorphicDefaultSerializer()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/-serializers-module-builder/polymorphic-default-serializer.html) function within the [`SerializersModule`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/-serializers-module-builder/) DSL.
 This function defines a strategy that takes an instance of the base class and provides a corresponding  [`SerializationStrategy`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serialization-strategy/).
 
 Let's look at an example where a `when` block is used to determine the appropriate serializer based on the instance, without needing to reference private implementation classes:
@@ -1040,7 +1042,7 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-<!--- > You can get the full code [here](../../guide/example/example-poly-20.kt) -->
+<!--- > You can get the full code [here](../../guide/example/example-poly-18.kt) -->
 
 <!--- 
 ```text

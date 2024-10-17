@@ -4,32 +4,24 @@ package example.exampleJson12
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-// The @JsonClassDiscriminator annotation is inheritable, so all subclasses of `Base` will have the same discriminator
-@Serializable
-@JsonClassDiscriminator("message_type")
-sealed class Base
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
 
-// Class discriminator is inherited from Base
-@Serializable
-sealed class ErrorClass: Base()
-
-// Defines a class that combines a message and an optional error
-@Serializable
-data class Message(val message: Base, val error: ErrorClass?)
+// Configures a Json instance to omit the class discriminator from the output
+val format = Json { classDiscriminatorMode = ClassDiscriminatorMode.NONE }
 
 @Serializable
-@SerialName("my.app.BaseMessage")
-data class BaseMessage(val message: String) : Base()
+sealed class Project {
+    abstract val name: String
+}
 
 @Serializable
-@SerialName("my.app.GenericError")
-data class GenericError(@SerialName("error_code") val errorCode: Int) : ErrorClass()
-
-val format = Json { classDiscriminator = "#class" }
+class OwnedProject(override val name: String, val owner: String) : Project()
 
 fun main() {
-    val data = Message(BaseMessage("not found"), GenericError(404))
-    // The discriminator from the `Base` class is used
+    val data: Project = OwnedProject("kotlinx.coroutines", "kotlin")
+    // Serializes without a discriminator
     println(format.encodeToString(data))
-    // {"message":{"message_type":"my.app.BaseMessage","message":"not found"},"error":{"message_type":"my.app.GenericError","error_code":404}}
+    // {"name":"kotlinx.coroutines","owner":"kotlin"}
 }

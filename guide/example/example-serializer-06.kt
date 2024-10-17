@@ -1,13 +1,61 @@
-// This file was automatically generated from serializers.md by Knit tool. Do not edit.
+// This file was automatically generated from create-custom-serializers.md by Knit tool. Do not edit.
 package example.exampleSerializer06
 
+// Imports the necessary libraries
 import kotlinx.serialization.*
+import kotlinx.serialization.encoding.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.json.*
 
-@Serializable            
-@SerialName("Color")
-class Color(val rgb: Int)
 
-fun main() {        
-    val stringToColorMapSerializer: KSerializer<Map<String, Color>> = serializer()
-    println(stringToColorMapSerializer.descriptor)
+object ColorAsObjectSerializer : KSerializer<Color> {
+
+    override val descriptor: SerialDescriptor =
+        buildClassSerialDescriptor("Color") {
+            element<Int>("r")
+            element<Int>("g")
+            element<Int>("b")
+        }
+
+    override fun serialize(encoder: Encoder, value: Color) =
+        encoder.encodeStructure(descriptor) {
+            encodeIntElement(descriptor, 0, (value.rgb shr 16) and 0xff)
+            encodeIntElement(descriptor, 1, (value.rgb shr 8) and 0xff)
+            encodeIntElement(descriptor, 2, value.rgb and 0xff)
+        }
+
+    override fun deserialize(decoder: Decoder): Color =
+        decoder.decodeStructure(descriptor) {
+            var r = -1
+            var g = -1
+            var b = -1
+            // Decodes values directly in order if the format stores data sequentially
+            if (decodeSequentially()) {
+                r = decodeIntElement(descriptor, 0)           
+                g = decodeIntElement(descriptor, 1)  
+                b = decodeIntElement(descriptor, 2)
+            } else while (true) {
+                // Decodes elements using a loop to handle formats where data may be unordered
+                when (val index = decodeElementIndex(descriptor)) {
+                    0 -> r = decodeIntElement(descriptor, 0)
+                    1 -> g = decodeIntElement(descriptor, 1)
+                    2 -> b = decodeIntElement(descriptor, 2)
+                    CompositeDecoder.DECODE_DONE -> break
+                    else -> error("Unexpected index: $index")
+                }
+            }
+            require(r in 0..255 && g in 0..255 && b in 0..255)
+            Color((r shl 16) or (g shl 8) or b)
+        }
+}
+
+@Serializable(with = ColorAsObjectSerializer::class)
+data class Color(val rgb: Int)
+
+fun main() {
+    val color = Color(0x00ff00)
+    val string = Json.encodeToString(color)
+    println(string)
+    // {"r":0,"g":255,"b":0}
+    require(Json.decodeFromString<Color>(string) == color)
 }

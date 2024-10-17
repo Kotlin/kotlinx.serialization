@@ -1,4 +1,4 @@
-// This file was automatically generated from builtin-classes.md by Knit tool. Do not edit.
+// This file was automatically generated from serialization-serialize-builtin-types.md by Knit tool. Do not edit.
 package example.test
 
 import org.junit.Test
@@ -8,14 +8,14 @@ class BuiltinClassesTest {
     @Test
     fun testExampleBuiltin01() {
         captureOutput("ExampleBuiltin01") { example.exampleBuiltin01.main() }.verifyOutputLines(
-            "{\"answer\":42,\"pi\":3.141592653589793}"
+            "{\"signature\":2067120338512882656}"
         )
     }
 
     @Test
     fun testExampleBuiltin02() {
         captureOutput("ExampleBuiltin02") { example.exampleBuiltin02.main() }.verifyOutputLines(
-            "{\"signature\":2067120338512882656}"
+            "{\"answer\":42,\"pi\":3.141592653589793}"
         )
     }
 
@@ -64,14 +64,14 @@ class BuiltinClassesTest {
     @Test
     fun testExampleBuiltin09() {
         captureOutput("ExampleBuiltin09") { example.exampleBuiltin09.main() }.verifyOutputLines(
-            "Data(a=[42, 42], b=[42])"
+            "{\"1\":{\"name\":\"kotlinx.serialization\"},\"2\":{\"name\":\"kotlinx.coroutines\"}}"
         )
     }
 
     @Test
     fun testExampleBuiltin10() {
         captureOutput("ExampleBuiltin10") { example.exampleBuiltin10.main() }.verifyOutputLines(
-            "{\"1\":{\"name\":\"kotlinx.serialization\"},\"2\":{\"name\":\"kotlinx.coroutines\"}}"
+            "Data(a=[42, 42], b=[42])"
         )
     }
 

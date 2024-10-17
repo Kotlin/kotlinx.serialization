@@ -1,21 +1,19 @@
-// This file was automatically generated from builtin-classes.md by Knit tool. Do not edit.
+// This file was automatically generated from serialization-serialize-builtin-types.md by Knit tool. Do not edit.
 package example.exampleBuiltin09
 
+// Imports the necessary libraries
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.*
 
 @Serializable
-data class Data(
-    val a: List<Int>,
-    val b: Set<Int>
-)
-     
+class Project(val name: String)
+
 fun main() {
-    val data = Json.decodeFromString<Data>("""
-        {
-            "a": [42, 42],
-            "b": [42, 42]
-        }
-    """)
-    println(data)
+    val map = mapOf(
+        1 to Project("kotlinx.serialization"),
+        2 to Project("kotlinx.coroutines")    
+    )
+    println(Json.encodeToString(map))
+    // {"1":{"name":"kotlinx.serialization"},"2":{"name":"kotlinx.coroutines"}}
 }

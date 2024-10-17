@@ -142,7 +142,7 @@ In Kotlin, you can serialize objects to JSON using the `kotlinx.serialization` l
 
 To make a class serializable, you need to mark it with the [`@Serializable`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/) annotation.
 This annotation indicates to the compiler to generate the necessary code for serializing and deserializing instances of the class.
-For more information, see [The @Serialization annotation](serialization.md#the-serializable-annotation) section.
+For more information, see [The @Serialization annotation](serialization-customization-options.md#the-serializable-annotation) section.
 
 Let's look at an example:
 
@@ -162,9 +162,9 @@ Let's look at an example:
 
    > The `@Serializable` annotation enables default serialization of all properties in the primary constructor.
    > You can customize serialization behavior using various techniques like custom constructors, optional properties, and more.
-   > For more information, see [Serialization customization options](serialization-customization-options.md).
+   > For more information, see [Serialize classes](serialization-customization-options.md).
    >
-   {type="note"}
+   {style="note"}
 
 3. Serialize an instance of this class by calling the `Json.encodeToString()` function:
 
@@ -187,7 +187,7 @@ Let's look at an example:
     ```
     {kotlin-runnable="true"}
 
-   As a result, you get a string containing the state of this object in the JSON format: `{"a": 42, "b": "str"}`
+   As a result, you get a string containing the state of this object in JSON format: `{"a": 42, "b": "str"}`
 
     > You can also serialize a collection of objects in a single call:
     >
@@ -196,7 +196,7 @@ Let's look at an example:
     > val jsonList = Json.encodeToString(dataList)
     > ```
     >
-    {type="note"}
+    {style="note"}
 
 ## Deserialize objects from JSON
 
@@ -237,6 +237,8 @@ To deserialize an object from JSON in Kotlin:
     }
     ```
     {kotlin-runnable="true"}
+
+Congratulations! You have successfully serialized an object to JSON and deserialized it back into an object in Kotlin!
 
 ## What's next?
 

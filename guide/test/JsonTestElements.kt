@@ -67,4 +67,11 @@ class JsonTestElements {
             "Exception in thread \"main\" kotlinx.serialization.json.internal.JsonEncodingException: Creating a literal unquoted value of 'null' is forbidden. If you want to create JSON null literal, use JsonNull object, otherwise, use JsonPrimitive"
         )
     }
+
+    @Test
+    fun testExampleJsonElements09() {
+        captureOutput("ExampleJsonElements09") { example.exampleJsonElements09.main() }.verifyOutputLines(
+            "null"
+        )
+    }
 }

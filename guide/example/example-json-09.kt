@@ -4,18 +4,22 @@ package example.exampleJson09
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-val format = Json { allowStructuredMapKeys = true }
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+// Configures a Json instance to allow special floating-point values
+val format = Json { allowSpecialFloatingPointValues = true }
 
 @Serializable
-data class Project(val name: String)
+class Data(
+    val value: Double
+)
 
 fun main() {
-    val map = mapOf(
-        Project("kotlinx.serialization") to "Serialization",
-        Project("kotlinx.coroutines") to "Coroutines"
-    )
-    // Serializes the map with structured keys as a JSON array:
-    // `[key1, value1, key2, value2,...]`.
-    println(format.encodeToString(map))
-    // [{"name":"kotlinx.serialization"},"Serialization",{"name":"kotlinx.coroutines"},"Coroutines"]
+    val data = Data(Double.NaN)
+    // This example produces the following non-standard JSON output, yet it is a widely used encoding for
+    // special values in JVM world:
+    println(format.encodeToString(data))
+    // {"value":NaN}
 }

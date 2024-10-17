@@ -21,7 +21,7 @@ println(jsonString)
 
 > Reusing custom `Json` instances improves performance by allowing them to cache class-specific information.
 > 
-{type="tip"}
+{style="tip"}
 
 The following sections cover the various configuration features supported by `Json`.
 
@@ -39,6 +39,7 @@ and line breaks for better readability, by setting the [`prettyPrint`](https://k
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
+//sampleStart
 // Creates a custom Json format
 val format = Json { prettyPrint = true }
 
@@ -51,7 +52,9 @@ fun main() {
     // Prints the pretty-printed JSON string
     println(format.encodeToString(data))
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 <!--- > You can get the full code [here](../../guide/example/example-json-01.kt). -->
 
@@ -84,6 +87,11 @@ To relax these restrictions, set the [`isLenient`](https://kotlinlang.org/api/ko
 This allows the parser to handle more freely formatted data:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 val format = Json { isLenient = true }
 
 enum class Status { SUPPORTED }
@@ -104,9 +112,11 @@ fun main() {
     println(data)
     // Project(name=kotlinx.serialization, status=SUPPORTED, votes=9000)
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
-<!--- >You can get the full code [here](../../guide/example/example-json-02.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-json-02.kt). -->
 
 <!---
 ```text
@@ -124,6 +134,11 @@ You can prevent these errors by setting the [`ignoreUnknownKeys`](https://kotlin
 to `true`, which ignores any unknown keys during deserialization:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 // Configures a Json instance to ignore unknown keys
 val format = Json { ignoreUnknownKeys = true }
 
@@ -138,7 +153,9 @@ fun main() {
     println(data)
     // Project(name=kotlinx.serialization)
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 <!--- > You can get the full code [here](../../guide/example/example-json-03.kt). -->
 
@@ -160,11 +177,16 @@ and how to coerce unexpected or missing data into valid values during deserializ
 
 By default, the JSON serializer does not encode default property values because they are automatically assigned to missing fields during decoding.
 This behavior is especially useful for nullable properties with null defaults, as it avoids writing unnecessary `null` values.
-For more details, see the [Manage serialization of default properties](serialization-customization-options.md#manage-serialization-of-default-properties-with-encodeddefault) section.
+For more details, see the [Manage serialization of default properties](serialization-customization-options.md#manage-the-serialization-of-default-properties-with-encodeddefault) section.
 
 You can change this default behavior by setting the [`encodeDefaults`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/encode-defaults.html) property to `true`:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 // Configures a Json instance to encode default values
 val format = Json { encodeDefaults = true }
 
@@ -182,9 +204,11 @@ fun main() {
     println(format.encodeToString(data))
     // {"name":"kotlinx.serialization","language":"Kotlin","website":null}
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
-<!--- > You can get the full code [here](../../guide/example/example-json-05.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-json-04.kt). -->
 
 <!---
 ```text
@@ -200,6 +224,11 @@ By default, all `null` values are encoded into JSON strings.
 To omit `null` values, set the [`explicitNulls`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/explicit-nulls.html) property to `false`:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 // Configures a Json instance to omit null values during serialization
 val format = Json { explicitNulls = false }
 
@@ -225,12 +254,14 @@ fun main() {
     println(format.decodeFromString<Project>(json))
     // Project(name=kotlinx.serialization, language=Kotlin, version=1.2.2, website=null, description=null)
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 Encoding and decoding can become asymmetrical when `explicitNulls` is set to `false`.
 In the example above, the `version` field is `null` before encoding but decodes to `1.2.2`.
 
-<!--- > You can get the full code [here](../../guide/example/example-json-06.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-json-05.kt). -->
 
 <!---
 ```text
@@ -242,7 +273,7 @@ Project(name=kotlinx.serialization, language=Kotlin, version=1.2.2, website=null
 > You can configure the decoder to handle certain invalid input values by treating them as missing fields using the [`coerceInputValues`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/coerce-input-values.html) property.
 > For more information, see the [Coerce input values](#coerce-input-values) section.
 >
-{type="tip"}
+{style="tip"}
 
 <!--- TEST -->
 
@@ -251,8 +282,8 @@ Project(name=kotlinx.serialization, language=Kotlin, version=1.2.2, website=null
 When working with JSON data from third parties, the format can evolve over time, leading to changes in field types.
 This can lead to exceptions during decoding when the actual values do not match the expected types.
 The default `Json` implementation is strict about input types, as demonstrated in
-the [@Serializable annotation](serialization-customization-options.md#the-serializable-annotation) section.
-You can relax this restriction using the [coerceInputValues](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/coerce-input-values.html) property.
+the [`@Serializable` annotation](serialization-customization-options.md#the-serializable-annotation) section.
+You can relax this restriction using the [`coerceInputValues`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/coerce-input-values.html) property.
 
 This property only affects decoding. It treats certain invalid input values as if the corresponding property were missing.
 The current supported invalid values are:
@@ -263,13 +294,18 @@ The current supported invalid values are:
 > This list may be expanded in the future, making `Json` instances with this property even more permissive
 > by replacing invalid values with defaults or `null`.
 >
-{type="note"}
+{style="note"}
 
 If value is missing, it is replaced with a default property value if it exists.
 For enums, if no default is defined and the [`explicitNulls`]((#omit-explicit-nulls)) property is set to `false`,
 the value is replaced with `null` if the property is nullable:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 val format = Json { coerceInputValues = true }
 
 @Serializable
@@ -284,9 +320,11 @@ fun main() {
     println(data)
     // Project(name=kotlinx.serialization, language=Kotlin)
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
-<!--- > You can get the full code [here](../../guide/example/example-json-07.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-json-06.kt). -->
 
 <!---
 ```text
@@ -299,6 +337,11 @@ Project(name=kotlinx.serialization, language=Kotlin)
 You can use the `coerceInputValues` property together with the `explicitNulls` property to handle invalid enum values:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 enum class Color { BLACK, WHITE }
 
 @Serializable
@@ -316,9 +359,11 @@ fun main() {
     println(brush)
     // Brush(foreground=BLACK, background=null)
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
-<!--- > You can get the full code [here](../../guide/example/example-json-08.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-json-07.kt). -->
 
 <!---
 ```text
@@ -334,6 +379,11 @@ The JSON format does not natively support maps with structured keys, as JSON key
 You can use the [`allowStructuredMapKeys`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/allow-structured-map-keys.html) property to serialize maps with user-defined class keys:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 val format = Json { allowStructuredMapKeys = true }
 
 @Serializable
@@ -345,13 +395,15 @@ fun main() {
         Project("kotlinx.coroutines") to "Coroutines"
     )
     // Serializes the map with structured keys as a JSON array:
-    // `[key1, value1, key2, value2,...]`.
+    // [key1, value1, key2, value2,...]
     println(format.encodeToString(map))
     // [{"name":"kotlinx.serialization"},"Serialization",{"name":"kotlinx.coroutines"},"Coroutines"]
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
-<!--- > You can get the full code [here](../../guide/example/example-json-09.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-json-08.kt). -->
 
 <!---
 ```text
@@ -364,11 +416,16 @@ fun main() {
 ## Encode special floating-point values
 
 By default, special floating-point values like [`Double.NaN`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-double/-na-n.html)
-and infinities are not supported in JSON because the JSON specification does not permit them.
-You can allow their encoding using the [allowSpecialFloatingPointValues](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/allow-special-floating-point-values.html)
+and infinities are not supported in JSON because the JSON specification doesn't allow them.
+You can allow their encoding using the [`allowSpecialFloatingPointValues`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/allow-special-floating-point-values.html)
 property:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 // Configures a Json instance to allow special floating-point values
 val format = Json { allowSpecialFloatingPointValues = true }
 
@@ -384,9 +441,11 @@ fun main() {
     println(format.encodeToString(data))
     // {"value":NaN}
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
-<!--- > You can get the full code [here](../../guide/example/example-json-10.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-json-09.kt). -->
 
 <!---
 ```text
@@ -404,6 +463,11 @@ In combination with an [explicitly specified serial name using the `@SerialName`
 this approach provides full control over the resulting JSON structure:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 // Configures a Json instance to use a custom class discriminator
 val format = Json { classDiscriminator = "#class" }
 
@@ -434,9 +498,11 @@ fun main() {
   println(format.encodeToString(ownedProject))
   // {"#class":"owned","name":"kotlinx.coroutines","owner":"kotlin"}
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
-<!--- > You can get the full code [here](../../guide/example/example-json-11.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-json-10.kt). -->
 
 <!---
 ```text
@@ -452,7 +518,12 @@ It allows you to define a custom discriminator directly on the base class, which
 This behavior is enabled by the [`@InheritableSerialInfo`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-inheritable-serial-info/) meta-annotation:
 
 ```kotlin
-// The @JsonClassDiscriminator annotation is inheritable, so all subclasses of `Base` will have the same discriminator
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
+// The @JsonClassDiscriminator annotation is inheritable, so all subclasses of Base will have the same discriminator
 @Serializable
 @JsonClassDiscriminator("message_type")
 sealed class Base
@@ -477,19 +548,21 @@ val format = Json { classDiscriminator = "#class" }
 
 fun main() {
     val data = Message(BaseMessage("not found"), GenericError(404))
-    // The discriminator from the `Base` class is used
+    // The discriminator from the Base class is used
     println(format.encodeToString(data))
     // {"message":{"message_type":"my.app.BaseMessage","message":"not found"},"error":{"message_type":"my.app.GenericError","error_code":404}}
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
-> It is not possible to specify different class discriminators explicitly within subclasses of a sealed base class.
+> It's not possible to specify different class discriminators explicitly within subclasses of a sealed base class.
 > Only hierarchies with distinct, non-overlapping subclasses can have different discriminators.
 > The discriminator specified in the `@JsonClassDiscriminator` annotation takes priority over any discriminator set in the `Json` configuration.
 > 
-{type="note"}
+{style="note"}
 
-<!--- > You can get the full code [here](../../guide/example/example-json-12.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-json-11.kt). -->
 
 <!---
 ```text
@@ -502,7 +575,7 @@ fun main() {
 ### Set class discriminator output mode
 
 You can use the [`JsonBuilder.classDiscriminatorMode`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/class-discriminator-mode.html) property to control how class discriminators are added to your JSON output.
-As described in the [Specify class discriminator for polymorphism](#specify-class-discriminator-for-polymorphism) section, the default behavior adds the discriminator only for polymorphic types, which is useful when working with [polymorphic class hierarchies](polymorphism.md#sealed-classes).
+As described in the [Specify class discriminator for polymorphism](#specify-class-discriminator-for-polymorphism) section, the default behavior adds the discriminator only for polymorphic types, which is useful when working with [polymorphic class hierarchies](serialization-polymorphism.md).
 Depending on your specific requirements, you can choose from the following [`ClassDiscriminatorMode`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-class-discriminator-mode/) options:
 
 * [`POLYMORPHIC`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-class-discriminator-mode/-p-o-l-y-m-o-r-p-h-i-c/): Adds the class discriminator only for polymorphic types. This is the default behavior.
@@ -513,6 +586,11 @@ Depending on your specific requirements, you can choose from the following [`Cla
 For example, setting the `ClassDiscriminatorMode` to `NONE` produces an output without a discriminator:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 // Configures a Json instance to omit the class discriminator from the output
 val format = Json { classDiscriminatorMode = ClassDiscriminatorMode.NONE }
 
@@ -530,13 +608,15 @@ fun main() {
     println(format.encodeToString(data))
     // {"name":"kotlinx.coroutines","owner":"kotlin"}
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 > Without the discriminator, `kotlinx.serialization` cannot deserialize this output back into the appropriate type.
 >
-{type="note"}
+{style="note"}
 
-<!--- > You can get the full code [here](../../guide/example/example-json-13.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-json-12.kt). -->
 
 <!---
 ```text
@@ -560,8 +640,13 @@ However, this approach prevents decoding data with the old name.
 To support multiple JSON names for a single Kotlin property, use the [`@JsonNames`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-names/) annotation:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 @Serializable
-// Maps both "name" and "title" JSON fields to the `name` property
+// Maps both name and title JSON fields to the name property
 data class Project(@JsonNames("title") val name: String)
 
 fun main() {
@@ -570,13 +655,15 @@ fun main() {
     // Project(name=kotlinx.serialization)
 
     val oldProject = Json.decodeFromString<Project>("""{"title":"kotlinx.coroutines"}""")
-    // Both `name` and `title` Json fields correspond to `name` property
+    // Both name and title Json fields correspond to name property
     println(oldProject)
     // Project(name=kotlinx.coroutines)
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
-<!--- > You can get the full code [here](../../guide/example/example-json-04.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-json-13.kt). -->
 
 <!---
 ```text
@@ -590,7 +677,7 @@ Project(name=kotlinx.coroutines)
 > If you are not using `@JsonNames` and want to optimize performance,
 > especially when skipping many unknown fields with `ignoreUnknownKeys`, you can set this property to `false`.
 >
-{type="note"}
+{style="note"}
 
 <!--- TEST -->
 
@@ -603,6 +690,11 @@ However, third-party JSONs might have enum values in lowercase or mixed case.
 To handle such cases, you can configure the `Json` instance to decode enum values in a case-insensitive way using the [`JsonBuilder.decodeEnumsCaseInsensitive`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/decode-enums-case-insensitive.html) property:
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 // Configures a Json instance to decode enum values in a case-insensitive way
 val format = Json { decodeEnumsCaseInsensitive = true }
 
@@ -616,12 +708,14 @@ fun main() {
     println(format.decodeFromString<CasesList>("""{"cases":["value_A", "alternative"]}""")) 
     // CasesList(cases=[VALUE_A, VALUE_B])
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 > This property affects both serial names and alternative names specified with the `@JsonNames` annotation,
 > ensuring that all values are successfully decoded. This property does not affect encoding.
 > 
-{type="note"}
+{style="note"}
 
 <!--- > You can get the full code [here](../../guide/example/example-json-14.kt). -->
 
@@ -641,6 +735,11 @@ For these scenarios, you can specify a global naming strategy using the [JsonBui
 `kotlinx.serialization` provides a built-in strategy, [JsonNamingStrategy.SnakeCase](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-naming-strategy/-builtins/-snake-case.html):
 
 ```kotlin
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
 @Serializable
 data class Project(val projectName: String, val projectOwner: String)
 
@@ -653,7 +752,9 @@ fun main() {
     println(format.encodeToString(project.copy(projectName = "kotlinx.serialization")))
     // {"project_name":"kotlinx.serialization","project_owner":"Kotlin"}
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 <!--- > You can get the full code [here](../../guide/example/example-json-15.kt). -->
 
@@ -663,7 +764,7 @@ fun main() {
 ```
 -->
 
-When using a global naming strategy like [JsonNamingStrategy](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-naming-strategy/), keep the following in mind:
+When using a global naming strategy like [`JsonNamingStrategy`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-naming-strategy/), keep the following in mind:
 
 * The naming strategy transformation applies to all properties, whether the serial name comes from the property name or is specified by the [`@SerialName`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serial-name/) annotation. 
 This means you cannot avoid the transformation by explicitly specifying a serial name.
@@ -677,3 +778,8 @@ This can make tasks like **Find Usages**, **Rename** in IDEs, or full-text searc
 Given these factors, it’s important to weigh the pros and cons before implementing global naming strategies in your application.
 
 <!--- TEST -->
+
+## What's next?
+
+* Explore [advanced JSON element handling](serialization-json-elements.md) to manipulate and work with JSON data before it is parsed or serialized.
+* Discover how to [transform JSON during serialization and deserialization](serialization-transform-json.md) for more control over your data.

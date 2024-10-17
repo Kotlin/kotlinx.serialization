@@ -1,15 +1,19 @@
-// This file was automatically generated from polymorphism.md by Knit tool. Do not edit.
+// This file was automatically generated from serialization-polymorphism.md by Knit tool. Do not edit.
 package example.examplePoly02
 
+// Imports the necessary libraries
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
 @Serializable
-open class Project(val name: String)
+abstract class Project {
+    abstract val name: String
+}
 
-class OwnedProject(name: String, val owner: String) : Project(name)
+class OwnedProject(override val name: String, val owner: String) : Project()
 
 fun main() {
-    val data = OwnedProject("kotlinx.coroutines", "kotlin")
+    val data: Project = OwnedProject("kotlinx.coroutines", "kotlin")
     println(Json.encodeToString(data))
-}  
+    // Exception in thread "main" kotlinx.serialization.SerializationException: Serializer for subclass 'OwnedProject' is not found in the polymorphic scope of 'Project'.
+}

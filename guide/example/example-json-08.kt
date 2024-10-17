@@ -4,20 +4,22 @@ package example.exampleJson08
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-enum class Color { BLACK, WHITE }
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+val format = Json { allowStructuredMapKeys = true }
 
 @Serializable
-data class Brush(val foreground: Color = Color.BLACK, val background: Color?)
-
-val json = Json { 
-  coerceInputValues = true
-  explicitNulls = false
-}
+data class Project(val name: String)
 
 fun main() {
-
-    // Decodes `foreground` to its default value and `background` to `null`
-    val brush = json.decodeFromString<Brush>("""{"foreground":"pink", "background":"purple"}""")
-    println(brush)
-    // Brush(foreground=BLACK, background=null)
+    val map = mapOf(
+        Project("kotlinx.serialization") to "Serialization",
+        Project("kotlinx.coroutines") to "Coroutines"
+    )
+    // Serializes the map with structured keys as a JSON array:
+    // [key1, value1, key2, value2,...]
+    println(format.encodeToString(map))
+    // [{"name":"kotlinx.serialization"},"Serialization",{"name":"kotlinx.coroutines"},"Coroutines"]
 }

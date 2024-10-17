@@ -1,6 +1,7 @@
 // This file was automatically generated from serialization-customization-options.md by Knit tool. Do not edit.
 package example.exampleClasses01
 
+// Imports the necessary libraries
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 

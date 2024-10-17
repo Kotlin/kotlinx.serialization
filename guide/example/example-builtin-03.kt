@@ -1,10 +1,11 @@
-// This file was automatically generated from builtin-classes.md by Knit tool. Do not edit.
+// This file was automatically generated from serialization-serialize-builtin-types.md by Knit tool. Do not edit.
 package example.exampleBuiltin03
 
+// Imports the necessary libraries
 import kotlinx.serialization.*
-import kotlinx.serialization.json.*
-
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.json.*
+import kotlin.math.*
 
 @Serializable
 class Data(
@@ -15,4 +16,5 @@ class Data(
 fun main() {
     val data = Data(0x1CAFE2FEED0BABE0)
     println(Json.encodeToString(data))
+    // {"signature":"2067120338512882656"}
 }

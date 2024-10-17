@@ -4,20 +4,32 @@ package example.exampleJson05
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-// Configures a Json instance to encode default values
-val format = Json { encodeDefaults = true }
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+// Configures a Json instance to omit null values during serialization
+val format = Json { explicitNulls = false }
 
 @Serializable
-class Project(
+data class Project(
     val name: String,
-    val language: String = "Kotlin",
-    val website: String? = null
+    val language: String,
+    val version: String? = "1.2.2",
+    val website: String?,
+    val description: String? = null
 )
 
 fun main() {
-    val data = Project("kotlinx.serialization")
+    val data = Project("kotlinx.serialization", "Kotlin", null, null, null)
+    val json = format.encodeToString(data)
 
-    // Encodes all the property values including the default ones
-    println(format.encodeToString(data))
-    // {"name":"kotlinx.serialization","language":"Kotlin","website":null}
+    // The version, website, and description fields are omitted from the output JSON
+    println(json)
+    // {"name":"kotlinx.serialization","language":"Kotlin"}
+
+    // Missing nullable fields without defaults are treated as null
+    // Fields with defaults are filled with their default values
+    println(format.decodeFromString<Project>(json))
+    // Project(name=kotlinx.serialization, language=Kotlin, version=1.2.2, website=null, description=null)
 }

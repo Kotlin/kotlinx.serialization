@@ -1,13 +1,14 @@
-// This file was automatically generated from serializers.md by Knit tool. Do not edit.
+// This file was automatically generated from create-custom-serializers.md by Knit tool. Do not edit.
 package example.exampleSerializer01
 
 import kotlinx.serialization.*
-import kotlinx.serialization.json.*
+import kotlinx.serialization.descriptors.*
 
 @Serializable
-class Color(val rgb: Int)
+data class Color(val rgb: Int)
 
 fun main() {
-    val green = Color(0x00ff00)
-    println(Json.encodeToString(green))
-}  
+    val colorSerializer: KSerializer<Color> = Color.serializer()
+    println(colorSerializer.descriptor)
+    // Color(rgb: kotlin.Int)
+}

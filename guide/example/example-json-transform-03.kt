@@ -1,6 +1,7 @@
 // This file was automatically generated from serialization-transform-json.md by Knit tool. Do not edit.
 package example.exampleJsonTransform03
 
+// Imports the necessary libraries
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.*
@@ -8,9 +9,10 @@ import kotlinx.serialization.json.*
 @Serializable
 class Project(val name: String, val language: String)
 
+// Custom serializer that omits the "language" property if it is equal to "Kotlin"
 object ProjectSerializer : JsonTransformingSerializer<Project>(Project.serializer()) {
     override fun transformSerialize(element: JsonElement): JsonElement =
-        // Filter out top-level key value pair with the key "language" and the value "Kotlin"
+        // Omits the "language" property if its value is "Kotlin"
         JsonObject(element.jsonObject.filterNot {
             (k, v) -> k == "language" && v.jsonPrimitive.content == "Kotlin"
         })
@@ -18,6 +20,9 @@ object ProjectSerializer : JsonTransformingSerializer<Project>(Project.serialize
 
 fun main() {
     val data = Project("kotlinx.serialization", "Kotlin")
-    println(Json.encodeToString(data)) // using plugin-generated serializer
+    // Uses the plugin-generated serializer
+    println(Json.encodeToString(data))
+    // {"name":"kotlinx.serialization","language":"Kotlin"}
     println(Json.encodeToString(ProjectSerializer, data)) // using custom serializer
+    // {"name":"kotlinx.serialization"}
 }

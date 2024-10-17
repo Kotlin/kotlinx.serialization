@@ -4,20 +4,21 @@ package example.exampleJson13
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-// Configures a Json instance to omit the class discriminator from the output
-val format = Json { classDiscriminatorMode = ClassDiscriminatorMode.NONE }
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
 
 @Serializable
-sealed class Project {
-    abstract val name: String
-}
-
-@Serializable
-class OwnedProject(override val name: String, val owner: String) : Project()
+// Maps both name and title JSON fields to the name property
+data class Project(@JsonNames("title") val name: String)
 
 fun main() {
-    val data: Project = OwnedProject("kotlinx.coroutines", "kotlin")
-    // Serializes without a discriminator
-    println(format.encodeToString(data))
-    // {"name":"kotlinx.coroutines","owner":"kotlin"}
+    val project = Json.decodeFromString<Project>("""{"name":"kotlinx.serialization"}""")
+    println(project)
+    // Project(name=kotlinx.serialization)
+
+    val oldProject = Json.decodeFromString<Project>("""{"title":"kotlinx.coroutines"}""")
+    // Both name and title Json fields correspond to name property
+    println(oldProject)
+    // Project(name=kotlinx.coroutines)
 }

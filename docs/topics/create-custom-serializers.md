@@ -3,7 +3,7 @@
 <!--- TEST_NAME SerializersTest -->
 
 Formats like JSON control how an object is encoded into bytes, but a serializer determines how the object’s properties are represented.
-Automatically generated serializers with the `@Serializable` annotation can handle most common use cases, making it easy to serialize Kotlin objects without additional configuration.
+The `@Serializable` annotation automatically generates a serializer, which can handle most common use cases, making it easy to serialize Kotlin objects without additional configuration.
 The Kotlin Serialization plugin automatically generates a `KSerializer` implementation for each class annotated with `@Serializable`,
 which you can retrieve using the `.serializer()` function:
 
@@ -168,16 +168,16 @@ fun main() {
 {kotlin-runnable="true"}
 
 This array representation may not be ideal for JSON, but it becomes highly efficient when used with a `ByteArray` and binary formats, where it can significantly reduce data size.
-For more information on how format can treat arrays, see the [Format specific types](formats.md#format-specific-types) section.
+For more information on how non-JSON serialization formats treat arrays, see [Alternative and custom serialization formats](alternative-serialization-formats.md).
 
 > When using delegated serialization, you cannot rely on the default class serializer’s `descriptor`.
 > Formats that depend on schemas may incorrectly assume you are encoding a primitive type, like `Int`,
 > and expect `encodeInt()` to be called instead of the [`encodeSerializableValue()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-encoder/encode-serializable-value.html) function.
 > Similarly, using a specific serializer’s `descriptor` directly can lead to confusion in formats that treat certain types specially, like arrays.
 >
-{type="note"}
+{style="note"}
 
-<!--- > You can get the full code [here](../../guide/example/example-serializer-3.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-serializer-03.kt). -->
 
 <!---
 ```text
@@ -255,7 +255,7 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-<!--- > You can get the full code [here](../../guide/example/example-serializer-4.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-serializer-04.kt). -->
 
 <!---
 ```text
@@ -280,7 +280,7 @@ The order of the elements is important and must match the order in which they ar
     > The term "element" refers to different parts of the serialized data depending on its [`SerialKind`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.descriptors/-serial-kind/).
     > For class descriptors, elements represent properties, while for enum descriptors, elements represent constants such as RED or GREEN in an enum class.
     >
-    {type="note"}
+    {style="note"}
 
 3. Implement the `serialize()` function using the [`encodeStructure()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/encode-structure.html) DSL.
 Inside the block, call the appropriate [`CompositeEncoder`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-composite-encoder/) functions like [`encodeIntElement()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-composite-encoder/encode-int-element.html) for each field, following the order defined in the descriptor.
@@ -293,7 +293,7 @@ This ensures that the class uses the custom composite serializer during serializ
     > If you only need to transform or restructure data without manually handling each element,
     > consider using [delegated serialization](#delegate-serialization-to-another-serializer) or [surrogate serialization](#serialize-with-a-surrogate-class) for a simpler approach.
     >
-    {type="tip"}
+    {style="tip"}
 
 Let's look at an example of how to serialize a class with multiple properties:
 
@@ -364,7 +364,7 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-<!--- > You can get the full code [here](../../guide/example/example-serializer-5.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-serializer-05.kt). -->
 
 <!---
 ```text
@@ -446,7 +446,7 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-<!--- > You can get the full code [here](../../guide/example/example-serializer-13.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-serializer-06.kt). -->
 
 <!--- TEST
 {"r":0,"g":255,"b":0}
@@ -501,7 +501,7 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-<!--- > You can get the full code [here](../../guide/example/example-serializer-19.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-serializer-07.kt). -->
 
 <!---
 ```text
@@ -527,22 +527,22 @@ To implement contextual serialization:
 
     > The [`@Contextual`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-contextual/) annotation is a convenient shortcut for using the [`ContextualSerializer`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-contextual-serializer/) class, which enables contextual serialization.
     > It is equivalent to using @Serializable(with = ContextualSerializer::class).
-    > Alternatively, you can also apply the [`@UseContextualSerialization`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-use-contextual-serialization/) annotation at the file level to apply contextual serialization across multiple properties in the same file, similar to [how @UseSerializers works]((third-party-classes.md#specify-serializers-for-a-file)).
+    > Alternatively, you can also apply the [`@UseContextualSerialization`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-use-contextual-serialization/) annotation at the file level to apply contextual serialization across multiple properties in the same file, similar to [how @UseSerializers works](third-party-classes.md#specify-serializers-for-a-file).
     >
-    {type="note"}
+    {style="note"}
 
 3. Create a [`SerializersModule`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/-serializers-module/) using the [`SerializersModule {}`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/-serializers-module.html) builder function.
 Use the [`contextual()`]((https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/contextual.html)) function to apply the custom serializer for contextual serialization.
 
     > Without the `SerializersModule`, a `SerializationException` is thrown during the serialization or deserialization of contextually annotated types.
     >
-    {type="note"}
+    {style="note"}
 
 4. Create a `Json` instance and pass the `SerializersModule` to the [`serializersModule`]((https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/serializers-module.html)) property. This ensures that the correct contextual serializer is used for serialization.
 
-    > For more information about configuring a Json instance, see the [JSON configuration](serialization-json-configuration.md) section.
+    > For more information about configuring a Json instance, see [JSON configuration](serialization-json-configuration.md).
     >
-    {type="tip"}
+    {style="tip"}
 
 Let's look at an example:
 
@@ -588,7 +588,7 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-<!--- > You can get the full code [here](../../guide/example/example-serializer-21.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-serializer-08.kt). -->
 
 <!---
 ```text
@@ -630,13 +630,10 @@ val correctModule = SerializersModule {
 > you can combine them using the `plus` operator.
 > For more details on merging modules, see the [Merging library serializers modules](serialization-polymorphism.md#merge-multiple-serializermodule-instances) section.
 > 
-{type="tip"}
+{style="tip"}
 
 ## What's next
 
-* The [Json transformations](json.md#json-transformations) section of the [Json](json.md) chapter provides examples
-  of serializers that utilize JSON-specific features.
-
-* A format implementation can have a format-specific representation for a type as explained
-  in the [Format-specific types](formats.md#format-specific-types) section of
-  the [Alternative and custom formats (experimental)](formats.md) chapter.
+* Learn how to [serialize third-party classes](third-party-classes.md) with custom serializers.
+* Discover how to [transform JSON during serialization and deserialization](serialization-transform-json.md) using JSON-specific features.
+* Learn about [alternative and custom serialization formats](alternative-serialization-formats.md) to implement format-specific representations for your data.

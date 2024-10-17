@@ -66,7 +66,7 @@ For more information, see [Serialize built-in types](serialization-serialize-bui
 > Not all types from the Kotlin standard library are serializable. In particular, [ranges](ranges.md) and the [`Regex`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.text/-regex/) class are not serializable at the moment.
 > Support for their serialization may be added in the future.
 >
-{type="note"}
+{style="note"}
 
 Additionally, classes annotated with `@Serializable` are fully supported for serialization, enabling the conversion of class instances to and from formats like JSON.
 For more information, see [Serialize classes](serialization-customization-options.md).

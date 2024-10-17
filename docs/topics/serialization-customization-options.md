@@ -3,8 +3,7 @@
 
 The [`@Serializable`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/) annotation in Kotlin enables the serialization of all properties in classes defined by the primary constructor.
 You can further customize this behavior to fit your specific needs.
-This section covers how to adjust serialization using various techniques to control which properties are serialized and
-how the serialization process is managed.
+This section covers various serialization techniques, enabling you to specify which properties are serialized and how the serialization process is managed.
 
 To get started, make sure you have the necessary libraries imported. 
 For setup instructions, see the [Get started with Kotlin serialization guide](serialization-get-started.md).
@@ -91,7 +90,7 @@ fun main() {
 
 <!--- TEST -->
 
-Additionally, the type safety of Kotlin is strongly enforced.
+Additionally, Kotlin's [null safety](null-safety.md) is strongly enforced.
 If a `null` value is encountered in a JSON object for a non-nullable Kotlin property,
 even if the property has a default value, an exception is raised:
 
@@ -126,11 +125,11 @@ Use 'coerceInputValues = true' in 'Json {}' builder to coerce nulls if property 
 
 <!--- TEST LINES_START -->
 
-> If you need to handle `null` values from third-party JSON, you can [coerce them to a default value](json.md#coercing-input-values).
+> If you need to handle `null` values from third-party JSON, you can [coerce them to a default value](serialization-json-configuration.md#coerce-input-values).
 >
-{type="tip"}
+{style="tip"}
 
-When an optional property is present in the input, the initializer for that property is not called.
+When an optional property is present in the input, the initializer for that property isn't called.
 In the following example, since the `language` property is specified in the input, the `Computing` string is not printed
 in the output:
 
@@ -172,9 +171,9 @@ Project(name=kotlinx.serialization, language=Java)
 <!--- TEST -->
 
 > This behavior is intended to improve performance.
-> Avoid relying on any side effects in the initializer, as they will be bypassed if the initializer is not called.
+> Avoid relying on initializer side effects, because they are bypassed if the initializer isn't called.
 >
-{type="note"}
+{style="note"}
 
 ### Serialization of class references
 
@@ -216,16 +215,16 @@ fun main() {
 
 <!--- TEST -->
 
-> If you need to reference non-serializable classes, you can mark them as [transient properties](#exclude-properties-with-the-transient-annotation), or
-> provide a [custom serializer](serializers.md) for them.
+> To reference non-serializable classes, mark them as [transient properties](#exclude-properties-with-the-transient-annotation), or
+> provide a [custom serializer](create-custom-serializers.md) for them.
 >
-{type="tip"}
+{style="tip"}
 
 ### Serialization of repeated object references
 
-Kotlin Serialization is designed for encoding and decoding of plain data. It does not support reconstruction
+Kotlin Serialization is designed to encode and decode plain data. It doesn't support reconstruction
 of arbitrary object graphs with repeated object references.
-For example, when serializing an object that references the same instance twice, it is simply encoded twice:
+For example, when serializing an object that references the same instance twice, it's simply encoded twice:
 
 ```kotlin
 // Imports the necessary libraries
@@ -261,13 +260,13 @@ fun main() {
 <!--- TEST -->
 
 > If you attempt to serialize a circular structure, it will result in stack overflow.
-> You can use the [Transient properties](#exclude-properties-with-the-transient-annotation) to exclude some references from serialization.
+> To exclude references from serialization, use [the @Transient annotation](#exclude-properties-with-the-transient-annotation).
 >
-{type="tip"}
+{style="tip"}
 
 ### Generic class serialization
 
-Generic classes in Kotlin provide type-polymorphic behavior, which is enforced by Kotlin Serialization at
+Generic classes in Kotlin support type-polymorphism, which is enforced by Kotlin Serialization at
 compile-time. For example, consider a generic serializable class `Box<T>`:
 
 ```kotlin
@@ -307,9 +306,8 @@ fun main() {
 
 <!--- TEST -->
 
-The type that is serialized to JSON depends on the actual compile-time type parameter specified for `Box`.
-
-If the generic type is not serializable, a compile-time error will occur, preventing the code from compiling.
+The type serialized to JSON depends on the compile-time type parameter specified for `Box`.
+If the generic type is not serializable, a compile-time error occurs.
 
 ## Customize serialization behavior
 
@@ -321,7 +319,7 @@ This section covers techniques for customizing property names, managing default 
 By default, the property names in the serialization output, such as JSON, match their names in the source code.
 These names, known as _serial names_, can be customized
 using the [`@SerialName`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serial-name/) annotation.
-For example, you can customize a property’s serial name to be shorter or more descriptive in the serialized output:
+You can use this annotation to customize a property’s serial name to be shorter or more descriptive in the serialized output:
 
 ```kotlin
 // Imports the necessary libraries
@@ -357,9 +355,13 @@ fun main() {
 
 The `@Serializable` annotation requires all parameters of the class's primary constructor to be properties.
 
-As a workaround, you can define a private primary constructor with the class's properties and create a
-secondary constructor to handle the path string.
-Serialization works with a private primary constructor and still serializes only the backing fields:
+If your class initialization involves more complex logic,
+such as processing a string into multiple parts,
+you can define a secondary constructor to handle this logic.
+
+The primary constructor can remain private and be responsible for assigning the necessary properties.
+
+In the following example, the secondary constructor processes a string by splitting it into two parts, which are then passed to the primary constructor for serialization:
 
 ```kotlin
 // Imports the necessary libraries
@@ -398,7 +400,7 @@ fun main() {
 
 ### Validate data in primary constructor
 
-When you need to validate a constructor parameter before storing it in a property,
+To validate a constructor parameter before storing it in a property,
 replace the parameter with a property in the primary constructor and perform validation in an `init` block.
 This ensures the class is serializable and that invalid data cannot be deserialized:
 
@@ -440,9 +442,9 @@ Exception in thread "main" java.lang.IllegalArgumentException: name cannot be em
 ### Set default values for optional properties
 
 In Kotlin, an object can only be deserialized when all its properties are present in the input.
-If a property is missing, deserialization fails.
+If a property is missing, the deserialization fails.
 
-To resolve this issue, you can add a default value to the property, which automatically makes it optional for
+To resolve this issue, you can add a default value to properties, which automatically makes them optional for
 serialization:
 
 ```kotlin
@@ -452,7 +454,7 @@ import kotlinx.serialization.json.*
 
 //sampleStart
 @Serializable
-// Sets a default value for the optional `language` property
+// Sets a default value for the optional language property
 data class Project(val name: String, val language: String = "Kotlin")
 
 fun main() {
@@ -478,7 +480,7 @@ Project(name=kotlinx.serialization, language=Kotlin)
 
 ### Make properties required with the @Required annotation
 
-A property with a default value can be made required in a serialized format with the [`@Required`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-required/) annotation.
+You can make properties required in a serialized format with the [`@Required`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-required/) annotation.
 This ensures that the property must be present in the input, even if it has a default value:
 
 ```kotlin
@@ -530,7 +532,7 @@ import kotlinx.serialization.json.Json
 
 //sampleStart
 @Serializable
-// Excludes the `language` property from serialization
+// Excludes the language property from serialization
 data class Project(val name: String, @Transient val language: String = "Kotlin")
 
 fun main() {
@@ -556,9 +558,9 @@ Use 'ignoreUnknownKeys = true' in 'Json {}' builder to ignore unknown keys.
 <!--- TEST LINES_START -->
 
 > You can avoid exceptions from unknown keys in JSON, including those marked with the @Transient annotation, with the [`ignoreUnknownKeys`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/ignore-unknown-keys.html) setting. 
-> For more information, see the [Ignoring Unknown Keys](json.md#ignoring-unknown-keys) section.
+> For more information, see the [Ignore unknown keys](serialization-json-configuration.md#ignore-unknown-keys) section.
 > 
-{type="tip"}
+{style="tip"}
 
 ### Manage the serialization of default properties with @EncodedDefault
 
@@ -594,14 +596,14 @@ fun main() {
 
 <!--- TEST -->
 
-> You can learn more about how this behavior can be configured in the JSON format in the [Encoding defaults](json.md#encoding-defaults) section.
+> You can learn more about configuring this JSON behavior in the [Encode default values](serialization-json-configuration.md#encode-default-values) section.
 > 
-{type="tip"}
+{style="tip"}
 
 To ensure that a property is always serialized, regardless of its value or format settings, use the [`@EncodeDefault`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-encode-default/) annotation.
 It's also possible to do the opposite by configuring the [`EncodeDefault.Mode`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-encode-default/-mode/) parameter.
 Let's look at an example, where the `language` property is included in the serialized output regardless of its value,
-while the `projects` property is not serialized when it is an empty list:
+while the `projects` property is not serialized when it's an empty list:
 
 ```kotlin
 // Imports the necessary libraries
@@ -612,26 +614,26 @@ import kotlinx.serialization.json.*
 @Serializable
 data class Project(
     val name: String,
-    // The 'language' property will always be included in the serialized output, even if it has the default value "Kotlin"
+    // The language property is always included in the serialized output, even if it has the default value "Kotlin"
     @EncodeDefault val language: String = "Kotlin"
 )
 
 @Serializable
 data class User(
     val name: String,
-    // The 'projects' property will never be included in the serialized output, even if it has a value
-    // Since the default value is an empty list, 'projects' will be omitted unless it contains elements
+    // The projects property is never included in the serialized output, even if it has a value
+    // Since the default value is an empty list, projects is omitted unless it contains elements
     @EncodeDefault(EncodeDefault.Mode.NEVER) val projects: List<Project> = emptyList()
 )
 
 fun main() {
     val userA = User("Alice", listOf(Project("kotlinx.serialization")))
     val userB = User("Bob")
-    // 'projects' is serialized because it contains a value, and 'language' is always serialized
+    // projects is serialized because it contains a value, and language is always serialized
     println(Json.encodeToString(userA))
     // {"name":"Alice","projects":[{"name":"kotlinx.serialization","language":"Kotlin"}]}
 
-    // 'projects' is omitted because it's an empty list and EncodeDefault.Mode is set to NEVER, so it's not serialized
+    // projects is omitted because it's an empty list and EncodeDefault.Mode is set to NEVER, so it's not serialized
     println(Json.encodeToString(userB))
     // {"name":"Bob"}
 }

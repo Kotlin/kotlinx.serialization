@@ -26,11 +26,13 @@ dependencies {
 }
 ```
 
+<!--- CLEAR -->
+
 </tab>
 
 <tab id="groovy" title="Groovy DSL">
 
-```text
+```groovy
 dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-cbor:%serializationVersion%'
 }
@@ -53,7 +55,6 @@ Let's look at an example where a `Project` object is serialized into a binary ar
 // Imports the necessary libraries
 import kotlinx.serialization.*
 import kotlinx.serialization.cbor.*
-
 
 fun ByteArray.toAsciiHexString() = joinToString("") {
     // // Converts bytes to ASCII characters if printable, otherwise shows their hexadecimal value
@@ -111,7 +112,7 @@ In [CBOR hex notation](http://cbor.me/), the output of the above example corresp
 > Unlike JSON, CBOR supports maps with non-trivial keys. However, some parsers, like `jackson-dataformat-cbor`, don't support this feature.
 > For JSON workaround, see the [Encode structured map keys](serialization-json-configuration.md#encode-structured-map-keys) section.
 > 
-{type="note"}
+{style="note"}
 
 ### Ignore unknown keys in CBOR
 
@@ -148,7 +149,7 @@ fun main() {
 > * 66: Length of the value "Kotlin" (6 characters).
 > * 4b6f746c696e: The value "Kotlin".
 > 
-{type="note"}
+{style="note"}
 
 <!--- > You can get the full code [here](../../guide/example/example-formats-02.kt). -->
 
@@ -259,7 +260,7 @@ the encoding and verification of these tags.
 
 > For more information on tagging in CBOR, see [RFC 8949 Tagging of Items](https://datatracker.ietf.org/doc/html/rfc8949#name-tagging-of-items).
 > 
-{type="tip"}
+{style="tip"}
 
 You can also tag entire classes using the [`@ObjectTags`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-object-tags/) annotation, which applies tags to all instances of the class.
 When serializing, `@ObjectTags` are always encoded directly before the data of the tagged object.
@@ -301,12 +302,12 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-protobuf:%serializationVersion%")
 }
 ```
-
+<!--- CLEAR -->
 </tab>
 
 <tab id="groovy-proto" title="Groovy DSL">
 
-```text
+```groovy
 dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-protobuf:%serializationVersion%'
 }
@@ -362,7 +363,7 @@ Project(name=kotlinx.serialization, language=Kotlin)
 
 In [ProtoBuf hex notation](https://protogen.marcgravell.com/decode), the output is equivalent to the following:
 
-```text
+```protobuf
 Field #1: 0A String Length = 21, Hex = 15, UTF8 = "kotlinx.serialization"
 Field #2: 12 String Length = 6, Hex = 06, UTF8 = "Kotlin"
 ```
@@ -413,7 +414,7 @@ In the output, the `name` property uses field number 1 (`0A`), as specified. The
 
 > For more information about Protobuf field numbers, see the [Official Protobuf Language Guide](https://protobuf.dev/programming-guides/proto2/#assigning).
 > 
-{type="tip"}
+{style="tip"}
 
 <!--- > You can get the full code [here](../guide/example/example-formats-05.kt). -->
 
@@ -476,7 +477,7 @@ For example, it encodes the value of `3` as four bytes `03 00 00 00`.
 
 > `uintXX` and `sfixedXX` Protocol Buffer types are not supported.
 >
-{type="note"}
+{style="note"}
 
 <!--- > You can get the full code [here](../guide/example/example-formats-06.kt). -->
 
@@ -649,7 +650,7 @@ The output shows how each oneof type is encoded:
 
 > Each `oneof` group must be tied to a single data class to prevent ID conflicts or runtime exceptions.
 > 
-{type="note"}
+{style="note"}
 
 You can also define a class without the `@ProtoOneOf` annotation if you plan to use it only for deserialization.
 
@@ -723,7 +724,7 @@ message SampleData {
 
 > Default values aren't represented in `.proto` files, so the schema includes a warning when they are present.
 > 
-{type="note"}
+{style="note"}
 
 ## Properties (experimental)
 
@@ -865,7 +866,7 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-<!--- > You can get the full code [here](../../guide/example/example-formats-11.kt) -->
+<!--- > You can get the full code [here](../../guide/example/example-formats-04.kt) -->
 
 <!---
 ```text
@@ -882,7 +883,7 @@ foo string
 > typealias Base64ByteArray = @Serializable(ByteArrayAsBase64Serializer::class) ByteArray
 > ```
 >
-{type="tip"}
+{style="tip"}
 
 ## Create custom formats (experimental)
 
@@ -909,7 +910,7 @@ To create a basic encoder:
 > Since encoders are usually used by other parts of an application,
 > it is recommended to propagate the `@ExperimentalSerializationApi` annotation rather than opting in only within specific functions.
 > 
-{type="note"}
+{style="note"}
 
 Here's an example that encodes data into a list:
 
@@ -1579,7 +1580,7 @@ private val byteArraySerializer = serializer<ByteArray>()
 
 > Alternatively, you can use the built-in [`ByteArraySerializer()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.builtins/-byte-array-serializer.html) function for similar functionality.
 > 
-{type="note"}
+{style="note"}
 
 The following code builds upon the `ListEncoder` example from the [Create a compact binary format](#create-a-compact-binary-format) section.
 You can extend the encoder to support collections and implement a specialized path for handling `ByteArray` data.

@@ -4,17 +4,24 @@ package example.exampleJson07
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-val format = Json { coerceInputValues = true }
+// Imports the necessary libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+enum class Color { BLACK, WHITE }
 
 @Serializable
-data class Project(val name: String, val language: String = "Kotlin")
+data class Brush(val foreground: Color = Color.BLACK, val background: Color?)
+
+val json = Json { 
+  coerceInputValues = true
+  explicitNulls = false
+}
 
 fun main() {
-    val data = format.decodeFromString<Project>("""
-        {"name":"kotlinx.serialization","language":null}
-    """)
 
-    // The invalid `null` value for `language` is coerced to its default value
-    println(data)
-    // Project(name=kotlinx.serialization, language=Kotlin)
+    // Decodes `foreground` to its default value and `background` to `null`
+    val brush = json.decodeFromString<Brush>("""{"foreground":"pink", "background":"purple"}""")
+    println(brush)
+    // Brush(foreground=BLACK, background=null)
 }

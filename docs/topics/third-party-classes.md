@@ -2,7 +2,7 @@
 
 <!--- TEST_NAME SerializersThirdParty -->
 
-Third-party types, such as [java.util.Date](https://docs.oracle.com/javase/8/docs/api/java/util/Date.html), cannot be directly annotated with [`@Serializable`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/) because you do not have control over their source code.
+Third-party types, such as [java.util.Date](https://docs.oracle.com/javase/8/docs/api/java/util/Date.html), cannot be directly annotated with [`@Serializable`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/) because their source code cannot be modified.
 To serialize these non-serializable classes, you can implement a custom [`KSerializer`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-k-serializer/), as described in the [Create a custom primitive serializer](create-custom-serializers.md#create-a-custom-primitive-serializer) section.
 
 In this section, you can explore several approaches to working around this limitation, using `java.util.Date` as an example.
@@ -40,7 +40,7 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-<!--- > You can get the full code [here](../../guide/example/example-thirdparty-1.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-thirdparty-01.kt). -->
 
 <!---
 ```text
@@ -88,7 +88,7 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-<!--- > You can get the full code [here](../../guide/example/example-thirdparty-2.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-thirdparty-02.kt). -->
 
 <!---
 ```text
@@ -136,7 +136,7 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-<!--- > You can get the full code [here](../../guide/example/example-thirdparty-3.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-thirdparty-03.kt). -->
 
 <!---
 ```text
@@ -189,7 +189,7 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-<!--- > You can get the full code [here](../../guide/example/example-thirdparty-4.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-thirdparty-04.kt). -->
 
 <!---
 ```text
@@ -202,7 +202,7 @@ fun main() {
 ## Specify custom serializers globally using typealias
 
 `kotlinx.serialization` requires explicit specification of serialization strategies, typically through the `@Serializable` annotation.
-There is no global serializer configuration, except for [contextual serialization](create-custom-serializers.md#contextual-serialization).
+There is no global serializer configuration, except for [contextual serialization](create-custom-serializers.md#implement-contextual-serialization).
 However, in larger projects, repeatedly specifying the same serializers, like `Date` across many files can become tedious
 when used across many files.
 
@@ -255,7 +255,7 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-<!--- > You can get the full code [here](../../guide/example/example-thirdparty-5.kt). -->
+<!--- > You can get the full code [here](../../guide/example/example-thirdparty-05.kt). -->
 
 <!---
 ```text

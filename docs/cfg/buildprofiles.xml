@@ -6,5 +6,5 @@
         <browser-edits-url>https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/</browser-edits-url>
         <allow-indexable-eaps>true</allow-indexable-eaps>
     </variables>
-    <build-profile product="ser"/>
+    <build-profile product="serialization"/>
 </buildprofiles>
