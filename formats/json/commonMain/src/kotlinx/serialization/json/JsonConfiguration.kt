@@ -81,6 +81,9 @@ public enum class ClassDiscriminatorMode {
      * This mode is generally intended to produce JSON for consumption by third-party libraries.
      * kotlinx.serialization is unable to deserialize [polymorphic classes][POLYMORPHIC] without class discriminators,
      * so it is impossible to deserialize JSON produced in this mode if a data model has polymorphic classes.
+     *
+     * Using this mode relaxes several configuration checks in [Json]. In particular, it is possible to serialize enums and primitives
+     * as polymorphic subclasses in this mode, since it is no longer required for them to have outer `{}` object to include class discriminator.
      */
     NONE,
 

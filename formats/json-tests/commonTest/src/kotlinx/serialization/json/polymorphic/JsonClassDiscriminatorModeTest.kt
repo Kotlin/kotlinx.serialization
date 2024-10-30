@@ -4,7 +4,9 @@
 
 package kotlinx.serialization.json.polymorphic
 
+import kotlinx.serialization.*
 import kotlinx.serialization.json.*
+import kotlinx.serialization.modules.*
 import kotlin.test.*
 
 class ClassDiscriminatorModeAllObjectsTest :
@@ -80,5 +82,44 @@ class ClassDiscriminatorModeNoneTest :
 
     @Test
     fun testNullable() = testNullable("""{"sb":null,"sc":null}""")
+
+    interface CommandType
+
+    @Serializable // For Kotlin/JS
+    enum class Modify : CommandType {
+        CREATE, DELETE
+    }
+
+    @Serializable
+    class Command(val cmd: CommandType)
+
+    @Test
+    fun testNoneModeAllowsPolymorphicEnums() {
+        val module = SerializersModule {
+            polymorphic(CommandType::class) {
+                subclass(Modify::class, Modify.serializer())
+            }
+        }
+        val j = Json(default) { serializersModule = module; classDiscriminatorMode = ClassDiscriminatorMode.NONE }
+        parametrizedTest { mode ->
+            assertEquals("""{"cmd":"CREATE"}""", j.encodeToString(Command(Modify.CREATE), mode))
+        }
+    }
+
+    @Serializable
+    class SomeCommand(val type: String) : CommandType
+
+    @Test
+    fun testNoneModeAllowsDiscriminatorClash() {
+        val module = SerializersModule {
+            polymorphic(CommandType::class) {
+                subclass(SomeCommand::class)
+            }
+        }
+        val j = Json(default) { serializersModule = module; classDiscriminatorMode = ClassDiscriminatorMode.NONE }
+        parametrizedTest { mode ->
+            assertEquals("""{"cmd":{"type":"foo"}}""", j.encodeToString(Command(SomeCommand("foo")), mode))
+        }
+    }
 }
 
