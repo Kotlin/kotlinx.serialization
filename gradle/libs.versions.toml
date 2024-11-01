@@ -13,7 +13,7 @@ guava = "31.1-jre"
 guava24 = "24.1.1-jre"
 jackson = "2.13.3"
 okio = "3.9.0"
-kotlinx-io="0.4.0"
+kotlinx-io = "0.4.0"
 gson = "2.8.5"
 moshi = "1.15.1"
 kotlintest = "2.0.7"
@@ -24,33 +24,33 @@ junit4 = "4.12"
 protoc = "3.17.3"
 
 [libraries]
-gradlePlugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin"}
-gradlePlugin-kover = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", version.ref = "kover"}
-gradlePlugin-dokka = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "dokka"}
-gradlePlugin-animalsniffer = { module = "ru.vyarus:gradle-animalsniffer-plugin", version.ref = "animalsniffer"}
-gradlePlugin-binaryCompatibilityValidator = { module = "org.jetbrains.kotlinx:binary-compatibility-validator", version.ref = "bcv"}
+gradlePlugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+gradlePlugin-kover = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", version.ref = "kover" }
+gradlePlugin-dokka = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "dokka" }
+gradlePlugin-animalsniffer = { module = "ru.vyarus:gradle-animalsniffer-plugin", version.ref = "animalsniffer" }
+gradlePlugin-binaryCompatibilityValidator = { module = "org.jetbrains.kotlinx:binary-compatibility-validator", version.ref = "bcv" }
 
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 
-dokka-pathsaver = { module = "org.jetbrains.kotlinx:dokka-pathsaver-plugin", version.ref = "knit"}
-knitTest = { module = "org.jetbrains.kotlinx:kotlinx-knit-test", version.ref = "knit"}
-jmhCore = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh-core"}
-guava = { module = "com.google.guava:guava", version.ref = "guava"}
-guava-24 = { module = "com.google.guava:guava", version.ref = "guava24"}
-jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jackson"}
-jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson"}
-jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson"}
-jackson-cbor = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-cbor", version.ref = "jackson"}
-okio = { module = "com.squareup.okio:okio", version.ref = "okio"}
-kotlinx-io = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinx-io"}
-gson = { module = "com.google.code.gson:gson", version.ref = "gson"}
-kotlintest = { module = "io.kotlintest:kotlintest", version.ref = "kotlintest"}
-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines"}
-cbor = { module = "com.upokecenter:cbor", version.ref = "cbor"}
-typesafe-config = { module = "com.typesafe:config", version.ref = "typesafe-config"}
-junit-junit4 = { module = "junit:junit", version.ref = "junit4"}
-protoc = { module = "com.google.protobuf:protoc", version.ref = "protoc"}
+dokka-pathsaver = { module = "org.jetbrains.kotlinx:dokka-pathsaver-plugin", version.ref = "knit" }
+knitTest = { module = "org.jetbrains.kotlinx:kotlinx-knit-test", version.ref = "knit" }
+jmhCore = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh-core" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+guava-24 = { module = "com.google.guava:guava", version.ref = "guava24" }
+jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jackson" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
+jackson-cbor = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-cbor", version.ref = "jackson" }
+okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
+kotlinx-io = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinx-io" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+kotlintest = { module = "io.kotlintest:kotlintest", version.ref = "kotlintest" }
+coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+cbor = { module = "com.upokecenter:cbor", version.ref = "cbor" }
+typesafe-config = { module = "com.typesafe:config", version.ref = "typesafe-config" }
+junit-junit4 = { module = "junit:junit", version.ref = "junit4" }
+protoc = { module = "com.google.protobuf:protoc", version.ref = "protoc" }
 protobuf-java = { module = "com.google.protobuf:protobuf-java", version.ref = "protoc" }
 moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "moshi" }
 moshi-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.ref = "moshi" }
