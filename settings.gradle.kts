@@ -104,10 +104,12 @@ fun overriddenKotlinVersion(): String? {
     if (kotlinRepoUrl?.isNotEmpty() == true) {
         return repoVersion ?: throw IllegalArgumentException("\"kotlin_version\" Gradle property should be defined")
     } else if (bootstrap != null) {
-        return bootstrapVersion ?: throw IllegalArgumentException("\"kotlin.version.snapshot\" Gradle property should be defined")
+        return bootstrapVersion
+            ?: throw IllegalArgumentException("\"kotlin.version.snapshot\" Gradle property should be defined")
     }
     if (buildSnapshotTrain?.isNotEmpty() == true) {
-        return trainVersion ?: throw IllegalArgumentException("\"kotlin_snapshot_version\" should be defined when building with snapshot compiler")
+        return trainVersion
+            ?: throw IllegalArgumentException("\"kotlin_snapshot_version\" should be defined when building with snapshot compiler")
     }
     return null
 }
