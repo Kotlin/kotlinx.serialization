@@ -25,6 +25,7 @@ import kotlinx.serialization.encoding.*
  * ```
  */
 @ExperimentalSerializationApi
+@SubclassOptInRequired(SealedSerializationApi::class)
 public interface CborEncoder : Encoder {
     /**
      * Exposes the current [Cbor] instance and all its configuration flags. Useful for low-level custom serializers.

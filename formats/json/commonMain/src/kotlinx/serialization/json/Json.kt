@@ -495,6 +495,13 @@ public class JsonBuilder internal constructor(json: Json) {
     /**
      * Name of the class descriptor property for polymorphic serialization.
      * `type` by default.
+     *
+     * Note that if your class has any serial names that are equal to [classDiscriminator]
+     * (e.g., `@Serializable class Foo(val type: String)`), an [IllegalArgumentException] will be thrown from `Json {}` builder.
+     * You can disable this check and class discriminator inclusion with [ClassDiscriminatorMode.NONE], but kotlinx.serialization will not be
+     * able to deserialize such data back.
+     *
+     * @see classDiscriminatorMode
      */
     public var classDiscriminator: String = json.configuration.classDiscriminator
 
@@ -504,6 +511,8 @@ public class JsonBuilder internal constructor(json: Json) {
      *
      * Other modes are generally intended to produce JSON for consumption by third-party libraries,
      * therefore, this setting does not affect the deserialization process.
+     *
+     * @see classDiscriminator
      */
     @ExperimentalSerializationApi
     public var classDiscriminatorMode: ClassDiscriminatorMode = json.configuration.classDiscriminatorMode
@@ -669,7 +678,7 @@ private class JsonImpl(configuration: JsonConfiguration, module: SerializersModu
 
     private fun validateConfiguration() {
         if (serializersModule == EmptySerializersModule()) return // Fast-path for in-place JSON allocations
-        val collector = PolymorphismValidator(configuration.useArrayPolymorphism, configuration.classDiscriminator)
+        val collector = JsonSerializersModuleValidator(configuration)
         serializersModule.dumpTo(collector)
     }
 }

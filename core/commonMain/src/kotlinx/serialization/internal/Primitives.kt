@@ -37,15 +37,15 @@ internal class PrimitiveSerialDescriptor(
         return false
     }
     override fun hashCode() = serialName.hashCode() + 31 * kind.hashCode()
-    private fun error(): Nothing = throw IllegalStateException("Primitive descriptor does not have elements")
+    private fun error(): Nothing = throw IllegalStateException("Primitive descriptor $serialName does not have elements")
 }
 
 internal fun PrimitiveDescriptorSafe(serialName: String, kind: PrimitiveKind): SerialDescriptor {
-    checkName(serialName)
+    checkNameIsNotAPrimitive(serialName)
     return PrimitiveSerialDescriptor(serialName, kind)
 }
 
-private fun checkName(serialName: String) {
+internal fun checkNameIsNotAPrimitive(serialName: String) {
     val values = BUILTIN_SERIALIZERS.values
     for (primitive in values) {
         val primitiveName = primitive.descriptor.serialName

@@ -32,7 +32,7 @@ kotlin {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
             jvmTarget = JvmTarget.JVM_1_8
-            freeCompilerArgs.add("-Xjdk-release=1.8")
+            freeCompilerArgs.addAll("-Xjdk-release=1.8", "-Xjvm-default=all-compatibility")
         }
     }
     jvmToolchain(jdkToolchainVersion)
@@ -68,7 +68,9 @@ kotlin {
             progressiveMode = true
 
             optIn("kotlin.ExperimentalMultiplatform")
+            optIn("kotlin.ExperimentalSubclassOptIn")
             optIn("kotlinx.serialization.InternalSerializationApi")
+            optIn("kotlinx.serialization.SealedSerializationApi")
         }
     }
 
@@ -112,6 +114,7 @@ kotlin {
     sourceSets.matching({ it.name.contains("Test") }).configureEach {
         languageSettings {
             optIn("kotlinx.serialization.InternalSerializationApi")
+            optIn("kotlinx.serialization.SealedSerializationApi")
             optIn("kotlinx.serialization.ExperimentalSerializationApi")
         }
     }

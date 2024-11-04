@@ -58,4 +58,21 @@ class WrappedSerialDescriptorTest {
     fun testWrappedComplexClass() {
         checkWrapped(ComplexType.serializer().descriptor, "WrappedComplexType")
     }
+
+    @Test
+    fun testWrappedPrimitive() {
+        checkWrapped(Int.serializer().descriptor, "MyInt")
+    }
+
+    @Test
+    fun testWrappedPrimitiveContract() {
+        assertFails { SerialDescriptor("   ", ComplexType.serializer().descriptor) }
+        assertFails {
+            SerialDescriptor(
+                SimpleType.serializer().descriptor.serialName,
+                SimpleType.serializer().descriptor
+            )
+        }
+        assertFails { SerialDescriptor("kotlin.Int", Int.serializer().descriptor) }
+    }
 }
