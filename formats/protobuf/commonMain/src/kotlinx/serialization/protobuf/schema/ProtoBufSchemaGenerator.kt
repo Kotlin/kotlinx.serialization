@@ -16,7 +16,8 @@ import kotlinx.serialization.protobuf.internal.*
  * An arbitrary Kotlin class represent much wider object domain than the ProtoBuf specification, thus schema generator
  * has the following list of restrictions:
  *
- *  * Serial name of the class and all its fields should be a valid Proto [identifier](https://developers.google.com/protocol-buffers/docs/reference/proto2-spec)
+ *  * Serial name of the class and all its fields should be a valid Proto [identifier](https://developers.google.com/protocol-buffers/docs/reference/proto2-spec).
+ *    If this is a problem for you, you many override serial names for ProtoBuf only by using the [ProtoName] annotation for specific fields or classes.
  *  * Nullable values are allowed only for Kotlin [nullable][SerialDescriptor.isNullable] types, but not [optional][SerialDescriptor.isElementOptional]
  *    in order to properly distinguish "default" and "absent" values.
  *  * The name of the type without the package directive uniquely identifies the proto message type and two or more fields with the same serial name
