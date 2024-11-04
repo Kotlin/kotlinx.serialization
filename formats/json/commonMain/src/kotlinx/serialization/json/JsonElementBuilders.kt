@@ -57,17 +57,17 @@ public inline fun buildJsonArray(builderAction: JsonArrayBuilder.() -> Unit): Js
 /**
  * DSL builder for a [JsonObject]. To create an instance of builder, use [buildJsonObject] build function.
  */
+// Source breaking change
 @JsonDslMarker
-public class JsonObjectBuilder @PublishedApi internal constructor() {
-
-    private val content: MutableMap<String, JsonElement> = linkedMapOf()
+public class JsonObjectBuilder @PublishedApi internal constructor(private val content: MutableMap<String, JsonElement> = linkedMapOf()) :
+    MutableMap<String, JsonElement> by content {
 
     /**
      * Add the given JSON [element] to a resulting JSON object using the given [key].
      *
      * Returns the previous value associated with [key], or `null` if the key was not present.
      */
-    public fun put(key: String, element: JsonElement): JsonElement? = content.put(key, element)
+//    public fun put(key: String, element: JsonElement): JsonElement? = content.put(key, element)
 
     @PublishedApi
     internal fun build(): JsonObject = JsonObject(content)
@@ -123,28 +123,25 @@ public fun JsonObjectBuilder.put(key: String, value: Nothing?): JsonElement? = p
  * DSL builder for a [JsonArray]. To create an instance of builder, use [buildJsonArray] build function.
  */
 @JsonDslMarker
-public class JsonArrayBuilder @PublishedApi internal constructor() {
-
-    private val content: MutableList<JsonElement> = mutableListOf()
-
-    /**
-     * Adds the given JSON [element] to a resulting JSON array.
-     *
-     * Always returns `true` similarly to [ArrayList] specification.
-     */
-    public fun add(element: JsonElement): Boolean {
-        content += element
-        return true
-    }
-
-    /**
-     * Adds the given JSON [elements] to a resulting JSON array.
-     *
-     * @return `true` if the list was changed as the result of the operation.
-     */
-    @ExperimentalSerializationApi
-    public fun addAll(elements: Collection<JsonElement>): Boolean =
-        content.addAll(elements)
+public class JsonArrayBuilder @PublishedApi internal constructor(private val content: MutableList<JsonElement> = mutableListOf()): MutableList<JsonElement> by content {
+//    /**
+//     * Adds the given JSON [element] to a resulting JSON array.
+//     *
+//     * Always returns `true` similarly to [ArrayList] specification.
+//     */
+//    public fun add(element: JsonElement): Boolean {
+//        content += element
+//        return true
+//    }
+//
+//    /**
+//     * Adds the given JSON [elements] to a resulting JSON array.
+//     *
+//     * @return `true` if the list was changed as the result of the operation.
+//     */
+//    @ExperimentalSerializationApi
+//    public fun addAll(elements: Collection<JsonElement>): Boolean =
+//        content.addAll(elements)
 
     @PublishedApi
     internal fun build(): JsonArray = JsonArray(content)

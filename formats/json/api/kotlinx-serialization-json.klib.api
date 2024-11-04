@@ -155,12 +155,39 @@ final class kotlinx.serialization.json/JsonArray : kotlin.collections/List<kotli
     final fun asJsReadonlyArrayView(): kotlin.js.collections/JsReadonlyArray<kotlinx.serialization.json/JsonElement> // kotlinx.serialization.json/JsonArray.asJsReadonlyArrayView|asJsReadonlyArrayView(){}[0]
 }
 
-final class kotlinx.serialization.json/JsonArrayBuilder { // kotlinx.serialization.json/JsonArrayBuilder|null[0]
-    constructor <init>() // kotlinx.serialization.json/JsonArrayBuilder.<init>|<init>(){}[0]
+final class kotlinx.serialization.json/JsonArrayBuilder : kotlin.collections/MutableList<kotlinx.serialization.json/JsonElement> { // kotlinx.serialization.json/JsonArrayBuilder|null[0]
+    constructor <init>(kotlin.collections/MutableList<kotlinx.serialization.json/JsonElement> = ...) // kotlinx.serialization.json/JsonArrayBuilder.<init>|<init>(kotlin.collections.MutableList<kotlinx.serialization.json.JsonElement>){}[0]
 
+    final val size // kotlinx.serialization.json/JsonArrayBuilder.size|{}size[0]
+        final fun <get-size>(): kotlin/Int // kotlinx.serialization.json/JsonArrayBuilder.size.<get-size>|<get-size>(){}[0]
+
+    final fun add(kotlin/Int, kotlinx.serialization.json/JsonElement) // kotlinx.serialization.json/JsonArrayBuilder.add|add(kotlin.Int;kotlinx.serialization.json.JsonElement){}[0]
     final fun add(kotlinx.serialization.json/JsonElement): kotlin/Boolean // kotlinx.serialization.json/JsonArrayBuilder.add|add(kotlinx.serialization.json.JsonElement){}[0]
     final fun addAll(kotlin.collections/Collection<kotlinx.serialization.json/JsonElement>): kotlin/Boolean // kotlinx.serialization.json/JsonArrayBuilder.addAll|addAll(kotlin.collections.Collection<kotlinx.serialization.json.JsonElement>){}[0]
+    final fun addAll(kotlin/Int, kotlin.collections/Collection<kotlinx.serialization.json/JsonElement>): kotlin/Boolean // kotlinx.serialization.json/JsonArrayBuilder.addAll|addAll(kotlin.Int;kotlin.collections.Collection<kotlinx.serialization.json.JsonElement>){}[0]
     final fun build(): kotlinx.serialization.json/JsonArray // kotlinx.serialization.json/JsonArrayBuilder.build|build(){}[0]
+    final fun clear() // kotlinx.serialization.json/JsonArrayBuilder.clear|clear(){}[0]
+    final fun contains(kotlinx.serialization.json/JsonElement): kotlin/Boolean // kotlinx.serialization.json/JsonArrayBuilder.contains|contains(kotlinx.serialization.json.JsonElement){}[0]
+    final fun containsAll(kotlin.collections/Collection<kotlinx.serialization.json/JsonElement>): kotlin/Boolean // kotlinx.serialization.json/JsonArrayBuilder.containsAll|containsAll(kotlin.collections.Collection<kotlinx.serialization.json.JsonElement>){}[0]
+    final fun get(kotlin/Int): kotlinx.serialization.json/JsonElement // kotlinx.serialization.json/JsonArrayBuilder.get|get(kotlin.Int){}[0]
+    final fun indexOf(kotlinx.serialization.json/JsonElement): kotlin/Int // kotlinx.serialization.json/JsonArrayBuilder.indexOf|indexOf(kotlinx.serialization.json.JsonElement){}[0]
+    final fun isEmpty(): kotlin/Boolean // kotlinx.serialization.json/JsonArrayBuilder.isEmpty|isEmpty(){}[0]
+    final fun iterator(): kotlin.collections/MutableIterator<kotlinx.serialization.json/JsonElement> // kotlinx.serialization.json/JsonArrayBuilder.iterator|iterator(){}[0]
+    final fun lastIndexOf(kotlinx.serialization.json/JsonElement): kotlin/Int // kotlinx.serialization.json/JsonArrayBuilder.lastIndexOf|lastIndexOf(kotlinx.serialization.json.JsonElement){}[0]
+    final fun listIterator(): kotlin.collections/MutableListIterator<kotlinx.serialization.json/JsonElement> // kotlinx.serialization.json/JsonArrayBuilder.listIterator|listIterator(){}[0]
+    final fun listIterator(kotlin/Int): kotlin.collections/MutableListIterator<kotlinx.serialization.json/JsonElement> // kotlinx.serialization.json/JsonArrayBuilder.listIterator|listIterator(kotlin.Int){}[0]
+    final fun remove(kotlinx.serialization.json/JsonElement): kotlin/Boolean // kotlinx.serialization.json/JsonArrayBuilder.remove|remove(kotlinx.serialization.json.JsonElement){}[0]
+    final fun removeAll(kotlin.collections/Collection<kotlinx.serialization.json/JsonElement>): kotlin/Boolean // kotlinx.serialization.json/JsonArrayBuilder.removeAll|removeAll(kotlin.collections.Collection<kotlinx.serialization.json.JsonElement>){}[0]
+    final fun removeAt(kotlin/Int): kotlinx.serialization.json/JsonElement // kotlinx.serialization.json/JsonArrayBuilder.removeAt|removeAt(kotlin.Int){}[0]
+    final fun retainAll(kotlin.collections/Collection<kotlinx.serialization.json/JsonElement>): kotlin/Boolean // kotlinx.serialization.json/JsonArrayBuilder.retainAll|retainAll(kotlin.collections.Collection<kotlinx.serialization.json.JsonElement>){}[0]
+    final fun set(kotlin/Int, kotlinx.serialization.json/JsonElement): kotlinx.serialization.json/JsonElement // kotlinx.serialization.json/JsonArrayBuilder.set|set(kotlin.Int;kotlinx.serialization.json.JsonElement){}[0]
+    final fun subList(kotlin/Int, kotlin/Int): kotlin.collections/MutableList<kotlinx.serialization.json/JsonElement> // kotlinx.serialization.json/JsonArrayBuilder.subList|subList(kotlin.Int;kotlin.Int){}[0]
+
+    // Targets: [js]
+    final fun asJsArrayView(): kotlin.js.collections/JsArray<kotlinx.serialization.json/JsonElement> // kotlinx.serialization.json/JsonArrayBuilder.asJsArrayView|asJsArrayView(){}[0]
+
+    // Targets: [js]
+    final fun asJsReadonlyArrayView(): kotlin.js.collections/JsReadonlyArray<kotlinx.serialization.json/JsonElement> // kotlinx.serialization.json/JsonArrayBuilder.asJsReadonlyArrayView|asJsReadonlyArrayView(){}[0]
 }
 
 final class kotlinx.serialization.json/JsonBuilder { // kotlinx.serialization.json/JsonBuilder|null[0]
@@ -289,11 +316,33 @@ final class kotlinx.serialization.json/JsonObject : kotlin.collections/Map<kotli
     final fun asJsReadonlyMapView(): kotlin.js.collections/JsReadonlyMap<kotlin/String, kotlinx.serialization.json/JsonElement> // kotlinx.serialization.json/JsonObject.asJsReadonlyMapView|asJsReadonlyMapView(){}[0]
 }
 
-final class kotlinx.serialization.json/JsonObjectBuilder { // kotlinx.serialization.json/JsonObjectBuilder|null[0]
-    constructor <init>() // kotlinx.serialization.json/JsonObjectBuilder.<init>|<init>(){}[0]
+final class kotlinx.serialization.json/JsonObjectBuilder : kotlin.collections/MutableMap<kotlin/String, kotlinx.serialization.json/JsonElement> { // kotlinx.serialization.json/JsonObjectBuilder|null[0]
+    constructor <init>(kotlin.collections/MutableMap<kotlin/String, kotlinx.serialization.json/JsonElement> = ...) // kotlinx.serialization.json/JsonObjectBuilder.<init>|<init>(kotlin.collections.MutableMap<kotlin.String,kotlinx.serialization.json.JsonElement>){}[0]
+
+    final val entries // kotlinx.serialization.json/JsonObjectBuilder.entries|{}entries[0]
+        final fun <get-entries>(): kotlin.collections/MutableSet<kotlin.collections/MutableMap.MutableEntry<kotlin/String, kotlinx.serialization.json/JsonElement>> // kotlinx.serialization.json/JsonObjectBuilder.entries.<get-entries>|<get-entries>(){}[0]
+    final val keys // kotlinx.serialization.json/JsonObjectBuilder.keys|{}keys[0]
+        final fun <get-keys>(): kotlin.collections/MutableSet<kotlin/String> // kotlinx.serialization.json/JsonObjectBuilder.keys.<get-keys>|<get-keys>(){}[0]
+    final val size // kotlinx.serialization.json/JsonObjectBuilder.size|{}size[0]
+        final fun <get-size>(): kotlin/Int // kotlinx.serialization.json/JsonObjectBuilder.size.<get-size>|<get-size>(){}[0]
+    final val values // kotlinx.serialization.json/JsonObjectBuilder.values|{}values[0]
+        final fun <get-values>(): kotlin.collections/MutableCollection<kotlinx.serialization.json/JsonElement> // kotlinx.serialization.json/JsonObjectBuilder.values.<get-values>|<get-values>(){}[0]
 
     final fun build(): kotlinx.serialization.json/JsonObject // kotlinx.serialization.json/JsonObjectBuilder.build|build(){}[0]
+    final fun clear() // kotlinx.serialization.json/JsonObjectBuilder.clear|clear(){}[0]
+    final fun containsKey(kotlin/String): kotlin/Boolean // kotlinx.serialization.json/JsonObjectBuilder.containsKey|containsKey(kotlin.String){}[0]
+    final fun containsValue(kotlinx.serialization.json/JsonElement): kotlin/Boolean // kotlinx.serialization.json/JsonObjectBuilder.containsValue|containsValue(kotlinx.serialization.json.JsonElement){}[0]
+    final fun get(kotlin/String): kotlinx.serialization.json/JsonElement? // kotlinx.serialization.json/JsonObjectBuilder.get|get(kotlin.String){}[0]
+    final fun isEmpty(): kotlin/Boolean // kotlinx.serialization.json/JsonObjectBuilder.isEmpty|isEmpty(){}[0]
     final fun put(kotlin/String, kotlinx.serialization.json/JsonElement): kotlinx.serialization.json/JsonElement? // kotlinx.serialization.json/JsonObjectBuilder.put|put(kotlin.String;kotlinx.serialization.json.JsonElement){}[0]
+    final fun putAll(kotlin.collections/Map<out kotlin/String, kotlinx.serialization.json/JsonElement>) // kotlinx.serialization.json/JsonObjectBuilder.putAll|putAll(kotlin.collections.Map<out|kotlin.String,kotlinx.serialization.json.JsonElement>){}[0]
+    final fun remove(kotlin/String): kotlinx.serialization.json/JsonElement? // kotlinx.serialization.json/JsonObjectBuilder.remove|remove(kotlin.String){}[0]
+
+    // Targets: [js]
+    final fun asJsMapView(): kotlin.js.collections/JsMap<kotlin/String, kotlinx.serialization.json/JsonElement> // kotlinx.serialization.json/JsonObjectBuilder.asJsMapView|asJsMapView(){}[0]
+
+    // Targets: [js]
+    final fun asJsReadonlyMapView(): kotlin.js.collections/JsReadonlyMap<kotlin/String, kotlinx.serialization.json/JsonElement> // kotlinx.serialization.json/JsonObjectBuilder.asJsReadonlyMapView|asJsReadonlyMapView(){}[0]
 }
 
 sealed class kotlinx.serialization.json/Json : kotlinx.serialization/StringFormat { // kotlinx.serialization.json/Json|null[0]

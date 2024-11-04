@@ -77,11 +77,45 @@ public final class kotlinx/serialization/json/JsonArray$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class kotlinx/serialization/json/JsonArrayBuilder {
+public final class kotlinx/serialization/json/JsonArrayBuilder : java/util/List, kotlin/jvm/internal/markers/KMutableList {
 	public fun <init> ()V
-	public final fun add (Lkotlinx/serialization/json/JsonElement;)Z
-	public final fun addAll (Ljava/util/Collection;)Z
+	public fun <init> (Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun add (ILjava/lang/Object;)V
+	public fun add (ILkotlinx/serialization/json/JsonElement;)V
+	public synthetic fun add (Ljava/lang/Object;)Z
+	public fun add (Lkotlinx/serialization/json/JsonElement;)Z
+	public fun addAll (ILjava/util/Collection;)Z
+	public fun addAll (Ljava/util/Collection;)Z
 	public final fun build ()Lkotlinx/serialization/json/JsonArray;
+	public fun clear ()V
+	public final fun contains (Ljava/lang/Object;)Z
+	public fun contains (Lkotlinx/serialization/json/JsonElement;)Z
+	public fun containsAll (Ljava/util/Collection;)Z
+	public synthetic fun get (I)Ljava/lang/Object;
+	public fun get (I)Lkotlinx/serialization/json/JsonElement;
+	public fun getSize ()I
+	public final fun indexOf (Ljava/lang/Object;)I
+	public fun indexOf (Lkotlinx/serialization/json/JsonElement;)I
+	public fun isEmpty ()Z
+	public fun iterator ()Ljava/util/Iterator;
+	public final fun lastIndexOf (Ljava/lang/Object;)I
+	public fun lastIndexOf (Lkotlinx/serialization/json/JsonElement;)I
+	public fun listIterator ()Ljava/util/ListIterator;
+	public fun listIterator (I)Ljava/util/ListIterator;
+	public synthetic fun remove (I)Ljava/lang/Object;
+	public final fun remove (I)Lkotlinx/serialization/json/JsonElement;
+	public final fun remove (Ljava/lang/Object;)Z
+	public fun remove (Lkotlinx/serialization/json/JsonElement;)Z
+	public fun removeAll (Ljava/util/Collection;)Z
+	public fun removeAt (I)Lkotlinx/serialization/json/JsonElement;
+	public fun retainAll (Ljava/util/Collection;)Z
+	public synthetic fun set (ILjava/lang/Object;)Ljava/lang/Object;
+	public fun set (ILkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
+	public final fun size ()I
+	public fun subList (II)Ljava/util/List;
+	public fun toArray ()[Ljava/lang/Object;
+	public fun toArray ([Ljava/lang/Object;)[Ljava/lang/Object;
 }
 
 public final class kotlinx/serialization/json/JsonArraySerializer : kotlinx/serialization/KSerializer {
@@ -352,10 +386,34 @@ public final class kotlinx/serialization/json/JsonObject$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class kotlinx/serialization/json/JsonObjectBuilder {
+public final class kotlinx/serialization/json/JsonObjectBuilder : java/util/Map, kotlin/jvm/internal/markers/KMutableMap {
 	public fun <init> ()V
+	public fun <init> (Ljava/util/Map;)V
+	public synthetic fun <init> (Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun build ()Lkotlinx/serialization/json/JsonObject;
-	public final fun put (Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
+	public fun clear ()V
+	public final fun containsKey (Ljava/lang/Object;)Z
+	public fun containsKey (Ljava/lang/String;)Z
+	public final fun containsValue (Ljava/lang/Object;)Z
+	public fun containsValue (Lkotlinx/serialization/json/JsonElement;)Z
+	public final fun entrySet ()Ljava/util/Set;
+	public final synthetic fun get (Ljava/lang/Object;)Ljava/lang/Object;
+	public final fun get (Ljava/lang/Object;)Lkotlinx/serialization/json/JsonElement;
+	public fun get (Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
+	public fun getEntries ()Ljava/util/Set;
+	public fun getKeys ()Ljava/util/Set;
+	public fun getSize ()I
+	public fun getValues ()Ljava/util/Collection;
+	public fun isEmpty ()Z
+	public final fun keySet ()Ljava/util/Set;
+	public synthetic fun put (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun put (Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
+	public fun putAll (Ljava/util/Map;)V
+	public final synthetic fun remove (Ljava/lang/Object;)Ljava/lang/Object;
+	public final fun remove (Ljava/lang/Object;)Lkotlinx/serialization/json/JsonElement;
+	public fun remove (Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
+	public final fun size ()I
+	public final fun values ()Ljava/util/Collection;
 }
 
 public final class kotlinx/serialization/json/JsonObjectSerializer : kotlinx/serialization/KSerializer {

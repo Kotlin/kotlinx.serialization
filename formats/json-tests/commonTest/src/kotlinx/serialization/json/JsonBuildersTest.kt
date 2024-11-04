@@ -26,7 +26,32 @@ class JsonBuildersTest {
             put("literal", "foo")
             put("null2", null)
         }
+        JsonObject(json.minus("b"))
+        json["foo"]?.jsonObject?.get("nested")?.jsonObject?.filterKeys { it == "x" }
+        buildJsonObject {
+            putJsonArray("x") {
+
+            }
+            this.putAll(json)
+        }
         assertEquals("""{"object":{"k":"v"},"array":[{"nestedLiteral":true}],"null":null,"primitive":42,"boolean":true,"literal":"foo","null2":null}""", json.toString())
+    }
+
+    class X {
+        var size = 11
+        fun doStuff(): JsonObject {
+            return buildJsonObject {
+                put("foo", "bar")
+                if (size > 10) put("additionalSize", size - 10)
+            }
+        }
+    }
+
+
+
+    @Test
+    fun x() {
+        println(X().doStuff().toString())
     }
 
     @Test

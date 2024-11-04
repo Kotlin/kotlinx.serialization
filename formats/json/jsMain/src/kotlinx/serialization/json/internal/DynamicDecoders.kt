@@ -60,7 +60,7 @@ private open class DynamicInput(
 
         return buildJsonObject {
             for (i in 0 until size) {
-                val key = keys[i]
+                val key = this@DynamicInput.keys[i]
                 val value = json.decodeDynamic(JsonElement.serializer(), value[key])
                 put(key.toString(), value)
             }
