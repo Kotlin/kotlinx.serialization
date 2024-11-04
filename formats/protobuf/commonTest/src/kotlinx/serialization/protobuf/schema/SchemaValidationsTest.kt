@@ -18,7 +18,15 @@ class SchemaValidationsTest {
     data class InvalidClassName(val i: Int)
 
     @Serializable
+    @SerialName("invalid serial name")
+    @ProtoName("ValidSerialName")
+    data class InvalidClassNameFixed(val i: Int)
+
+    @Serializable
     data class InvalidClassFieldName(@SerialName("invalid serial name") val i: Int)
+
+    @Serializable
+    data class InvalidClassFieldNameFixed(@ProtoName("okProtoName") @SerialName("invalid serial name") val i: Int)
 
     @Serializable
     data class FieldNumberDuplicates(@ProtoNumber(42) val i: Int, @ProtoNumber(42) val j: Int)
@@ -31,10 +39,24 @@ class SchemaValidationsTest {
     enum class InvalidEnumName { SINGLETON }
 
     @Serializable
+    @SerialName("invalid serial name")
+    @ProtoName("ValidEnumNameFixed")
+    enum class InvalidEnumNameFixed { SINGLETON }
+
+    @Serializable
     enum class InvalidEnumElementName {
         FIRST,
 
         @SerialName("invalid serial name")
+        SECOND
+    }
+
+    @Serializable
+    enum class InvalidEnumElementNameFixed {
+        FIRST,
+
+        @SerialName("invalid serial name")
+        @ProtoName("validSerialName")
         SECOND
     }
 
@@ -72,15 +94,33 @@ class SchemaValidationsTest {
     }
 
     @Test
+    fun testInvalidEnumElementSerialNameFixed() {
+        val descriptors = listOf(InvalidEnumElementNameFixed.serializer().descriptor)
+        println(ProtoBufSchemaGenerator.generateSchemaText(descriptors))
+    }
+
+    @Test
     fun testInvalidClassSerialName() {
         val descriptors = listOf(InvalidClassName.serializer().descriptor)
         assertFailsWith(IllegalArgumentException::class) { ProtoBufSchemaGenerator.generateSchemaText(descriptors) }
     }
 
     @Test
+    fun testInvalidClassSerialNameFixed() {
+        val descriptors = listOf(InvalidClassNameFixed.serializer().descriptor)
+        println(ProtoBufSchemaGenerator.generateSchemaText(descriptors))
+    }
+
+    @Test
     fun testInvalidClassFieldSerialName() {
         val descriptors = listOf(InvalidClassFieldName.serializer().descriptor)
         assertFailsWith(IllegalArgumentException::class) { ProtoBufSchemaGenerator.generateSchemaText(descriptors) }
+    }
+
+    @Test
+    fun testInvalidClassFieldSerialNameFixed() {
+        val descriptors = listOf(InvalidClassFieldNameFixed.serializer().descriptor)
+        println(ProtoBufSchemaGenerator.generateSchemaText(descriptors))
     }
 
     @Test
@@ -93,6 +133,12 @@ class SchemaValidationsTest {
     fun testInvalidEnumSerialName() {
         val descriptors = listOf(InvalidEnumName.serializer().descriptor)
         assertFailsWith(IllegalArgumentException::class) { ProtoBufSchemaGenerator.generateSchemaText(descriptors) }
+    }
+
+    @Test
+    fun testInvalidEnumSerialNameFixed() {
+        val descriptors = listOf(InvalidEnumNameFixed.serializer().descriptor)
+        println(ProtoBufSchemaGenerator.generateSchemaText(descriptors))
     }
 
     @Test
