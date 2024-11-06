@@ -415,7 +415,7 @@ Data(a=[42, 42], b=[42])
 ### Unit and singleton objects
 
 The Kotlin [`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/) type, along with other singleton objects, is serializable.
-A [singleton]((object-declarations.md)) is a class with only one instance, meaning its state is defined by the object itself, not by external properties.
+A [singleton](object-declarations.md) is a class with only one instance, meaning its state is defined by the object itself, not by external properties.
 In JSON, singleton objects are serialized as empty structures:
 
 ```kotlin

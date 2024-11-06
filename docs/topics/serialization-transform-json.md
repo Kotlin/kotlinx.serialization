@@ -189,7 +189,7 @@ fun main() {
 
 
 > When serializing an object directly, you need to explicitly pass the custom serializer to the `encodeToString()`
-> function to ensure that the custom serialization logic is applied. For more information, see the [Pass serializers manually](third-party-classes.html#pass-serializers-manually) section.
+> function to ensure that the custom serialization logic is applied. For more information, see the [Pass serializers manually](third-party-classes.md#pass-serializers-manually) section.
 > 
 {style="note"}
 

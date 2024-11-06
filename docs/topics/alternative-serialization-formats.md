@@ -363,7 +363,7 @@ Project(name=kotlinx.serialization, language=Kotlin)
 
 In [ProtoBuf hex notation](https://protogen.marcgravell.com/decode), the output is equivalent to the following:
 
-```protobuf
+```groovy
 Field #1: 0A String Length = 21, Hex = 15, UTF8 = "kotlinx.serialization"
 Field #2: 12 String Length = 6, Hex = 06, UTF8 = "Kotlin"
 ```
@@ -567,7 +567,7 @@ This feature enables a field to hold one of several possible types, but only one
 
 Consider this ProtoBuf message definition:
 
-```protobuf
+```groovy
 message Data {
     required string name = 1;
     oneof phone {
@@ -656,7 +656,7 @@ You can also define a class without the `@ProtoOneOf` annotation if you plan to 
 
 For example:
 
-```protobuf
+```groovy
 @Serializable  
 data class Data2(  
     @ProtoNumber(1) val name: String,  
@@ -1420,7 +1420,7 @@ providing flexibility to optimize performance and compatibility with other syste
 
 In the following example, a custom encoder and decoder are implemented using
 [`java.io.DataOutput`](https://docs.oracle.com/javase/8/docs/api/java/io/DataOutput.html) and [`java.io.DataInput`](https://docs.oracle.com/javase/8/docs/api/java/io/DataInput.html) interfaces.
-This approach enables detailed control over the serialization of each [primitive type](serialization.md#supported-formats).
+This approach enables detailed control over the serialization of each [primitive type](create-custom-serializers.md#create-a-custom-primitive-serializer).
 
 First, override the encode functions for each primitive type, such as `encodeInt()` for integers or `encodeString()` for strings.
 This allows you to write the binary data directly to the `DataOutput` stream:

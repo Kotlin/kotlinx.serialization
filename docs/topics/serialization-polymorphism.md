@@ -941,7 +941,7 @@ fun main() {
 
 Using a default serializer assumes that the structure of the "unknown" data is known in advance.
 In cases where the structure may vary, you need to create a custom serializer to handle more flexible or less-structured data.
-For more details on working with custom JSON structures, see the [Maintain custom JSON attributes](serialization-json-transform-json.md#maintain-custom-json-attributes) section.
+For more details on working with custom JSON structures, see the [Maintain custom JSON attributes](serialization-transform-json.md#maintain-custom-json-attributes) section.
 
 <!--- > You can get the full code [here](../../guide/example/example-poly-17.kt). -->
 

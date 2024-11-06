@@ -297,7 +297,7 @@ The current supported invalid values are:
 {style="note"}
 
 If value is missing, it is replaced with a default property value if it exists.
-For enums, if no default is defined and the [`explicitNulls`]((#omit-explicit-nulls)) property is set to `false`,
+For enums, if no default is defined and the [`explicitNulls`](#omit-explicit-nulls) property is set to `false`,
 the value is replaced with `null` if the property is nullable:
 
 ```kotlin

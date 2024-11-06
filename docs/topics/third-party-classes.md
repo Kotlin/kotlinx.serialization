@@ -206,7 +206,7 @@ There is no global serializer configuration, except for [contextual serializatio
 However, in larger projects, repeatedly specifying the same serializers, like `Date` across many files can become tedious
 when used across many files.
 
-In such cases, you can use [`typealias`](type-alias.md) to apply custom serializers globally for specific types,
+In such cases, you can use [`typealias`](type-aliases.md) to apply custom serializers globally for specific types,
 eliminating the need to annotate each occurrence:
 
 ```kotlin
