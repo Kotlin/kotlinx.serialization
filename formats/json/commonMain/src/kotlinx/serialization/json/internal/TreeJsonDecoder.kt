@@ -112,19 +112,24 @@ private sealed class AbstractJsonTreeDecoder(
         getPrimitiveValue(tag, "boolean", JsonPrimitive::booleanOrNull)
 
     override fun decodeTaggedByte(tag: String) = getPrimitiveValue(tag, "byte") {
-        val result = int
+        val result = parseLongImpl()
         if (result in Byte.MIN_VALUE..Byte.MAX_VALUE) result.toByte()
         else null
     }
 
     override fun decodeTaggedShort(tag: String) = getPrimitiveValue(tag, "short") {
-        val result = int
+        val result = parseLongImpl()
         if (result in Short.MIN_VALUE..Short.MAX_VALUE) result.toShort()
         else null
     }
 
-    override fun decodeTaggedInt(tag: String) = getPrimitiveValue(tag, "int") { int }
-    override fun decodeTaggedLong(tag: String) = getPrimitiveValue(tag, "long") { long }
+    override fun decodeTaggedInt(tag: String) = getPrimitiveValue(tag, "int") {
+        val result = parseLongImpl()
+        if (result in Int.MIN_VALUE..Int.MAX_VALUE) result.toInt()
+        else null
+    }
+
+    override fun decodeTaggedLong(tag: String) = getPrimitiveValue(tag, "long") { parseLongImpl() }
 
     override fun decodeTaggedFloat(tag: String): Float {
         val result = getPrimitiveValue(tag, "float") { float }

@@ -4,6 +4,7 @@
 
 package kotlinx.serialization.json.serializers
 
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 import kotlinx.serialization.test.*
 import kotlin.test.*
@@ -200,5 +201,18 @@ class JsonPrimitiveSerializerTest : JsonTestBase() {
         expectedActualULongs.forEach { (expected, actual) ->
             assertUnsignedNumberEncoding(expected, actual, JsonPrimitive(actual))
         }
+    }
+
+    @Serializable
+    class OuterLong(val a: Long)
+
+    @Test
+    fun testRejectingIncorrectNumbers() = parametrizedTest { mode ->
+        checkSerializationException({
+            default.decodeFromString(OuterLong.serializer(), """{"a":"12:34:45"}""", mode)
+        }, {
+            if (mode == JsonTestingMode.TREE) assertContains(it, "Failed to parse literal '\"12:34:45\"' as a long value at element: \$.a")
+            else assertContains(it, "Unexpected JSON token at offset 5: Expected closing quotation mark at path: \$.a")
+        })
     }
 }
