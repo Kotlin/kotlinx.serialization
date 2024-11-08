@@ -129,22 +129,6 @@ public sealed class Json(
         }
     }
 
-    /**
-     * Decodes and deserializes the given JSON [string] to the value of type [T] using deserializer
-     * retrieved from the reified type parameter.
-     * Example:
-     * ```
-     * @Serializable
-     * data class Project(val name: String, val language: String)
-     * //  Project(name=kotlinx.serialization, language=Kotlin)
-     * println(Json.decodeFromString<Project>("""{"name":"kotlinx.serialization","language":"Kotlin"}"""))
-     * ```
-     *
-     * @throws SerializationException in case of any decoding-specific error
-     * @throws IllegalArgumentException if the decoded input is not a valid instance of [T]
-     */
-    public inline fun <reified T> decodeFromString(@FormatLanguage("json", "", "") string: String): T =
-            decodeFromString(serializersModule.serializer(), string)
 
     /**
      * Deserializes the given JSON [string] into a value of type [T] using the given [deserializer].
@@ -194,6 +178,48 @@ public sealed class Json(
     public fun parseToJsonElement(@FormatLanguage("json", "", "") string: String): JsonElement {
         return decodeFromString(JsonElementSerializer, string)
     }
+
+    /**
+     * Following functions are copied from extensions on StringFormat
+     * to streamline experience for newcomers, since IDE does not star-import kotlinx.serialization.* automatically
+     */
+
+    /**
+     * Serializes the [value] of type [T] into an equivalent JSON using serializer
+     * retrieved from the reified type parameter.
+     *
+     * Example of usage:
+     * ```
+     * @Serializable
+     * class Project(val name: String, val language: String)
+     *
+     * val data = Project("kotlinx.serialization", "Kotlin")
+     *
+     * // Prints {"name":"kotlinx.serialization","language":"Kotlin"}
+     * println(Json.encodeToString(data))
+     * ```
+     *
+     * @throws [SerializationException] if the given value cannot be serialized to JSON.
+     */
+    public inline fun <reified T> encodeToString(value: T): String =
+        encodeToString(serializersModule.serializer(), value)
+
+    /**
+     * Decodes and deserializes the given JSON [string] to the value of type [T] using deserializer
+     * retrieved from the reified type parameter.
+     * Example:
+     * ```
+     * @Serializable
+     * data class Project(val name: String, val language: String)
+     * //  Project(name=kotlinx.serialization, language=Kotlin)
+     * println(Json.decodeFromString<Project>("""{"name":"kotlinx.serialization","language":"Kotlin"}"""))
+     * ```
+     *
+     * @throws SerializationException in case of any decoding-specific error
+     * @throws IllegalArgumentException if the decoded input is not a valid instance of [T]
+     */
+    public inline fun <reified T> decodeFromString(@FormatLanguage("json", "", "") string: String): T =
+        decodeFromString(serializersModule.serializer(), string)
 }
 
 /**
