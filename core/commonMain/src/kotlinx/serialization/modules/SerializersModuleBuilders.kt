@@ -192,39 +192,30 @@ public class SerializersModuleBuilder @PublishedApi internal constructor() : Ser
         concreteSerializer: KSerializer<Sub>,
         allowOverwrite: Boolean = false
     ) {
-        // Check for overwrite
         val name = concreteSerializer.descriptor.serialName
         val baseClassSerializers = polyBase2Serializers.getOrPut(baseClass, ::hashMapOf)
-        val previousSerializer = baseClassSerializers[concreteClass]
         val names = polyBase2NamedSerializers.getOrPut(baseClass, ::hashMapOf)
-        if (allowOverwrite) {
-            // Remove previous serializers from name mapping
-            if (previousSerializer != null) {
-                names.remove(previousSerializer.descriptor.serialName)
-            }
-            // Update mappings
-            baseClassSerializers[concreteClass] = concreteSerializer
-            names[name] = concreteSerializer
-            return
+
+        // Check KClass conflict
+        val previousSerializer = baseClassSerializers[concreteClass]
+        if (previousSerializer != null && previousSerializer != concreteSerializer) {
+            if (allowOverwrite) names.remove(previousSerializer.descriptor.serialName)
+            else throw SerializerAlreadyRegisteredException(baseClass, concreteClass)
         }
-        // Overwrite prohibited
-        if (previousSerializer != null) {
-            if (previousSerializer != concreteSerializer) {
-                throw SerializerAlreadyRegisteredException(baseClass, concreteClass)
-            } else {
-                // Cleanup name mapping
-                names.remove(previousSerializer.descriptor.serialName)
-            }
-        }
+
+        // Check SerialName conflict
         val previousByName = names[name]
-        if (previousByName != null) {
-            val conflictingClass = polyBase2Serializers[baseClass]!!.asSequence().find { it.value === previousByName }
-            throw IllegalArgumentException(
-                "Multiple polymorphic serializers for base class '$baseClass' " +
-                        "have the same serial name '$name': '$concreteClass' and '$conflictingClass'"
+        if (previousByName != null && previousByName != concreteSerializer) {
+            val previousClass = baseClassSerializers.asSequence().find { it.value === previousByName }?.key
+                ?: error("Name $name is registered in the module but no Kotlin class is associated with it.")
+
+            if (allowOverwrite) baseClassSerializers.remove(previousClass)
+            else throw IllegalArgumentException(
+                "Multiple polymorphic serializers in a scope of '$baseClass' " +
+                        "have the same serial name '$name': $concreteSerializer for '$concreteClass' and $previousByName for '$previousClass'"
             )
         }
-        // Overwrite if no conflicts
+
         baseClassSerializers[concreteClass] = concreteSerializer
         names[name] = concreteSerializer
     }

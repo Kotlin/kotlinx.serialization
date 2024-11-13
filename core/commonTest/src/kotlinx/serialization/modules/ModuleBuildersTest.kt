@@ -10,6 +10,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
+import kotlinx.serialization.test.assertFailsWithMessage
 import kotlin.reflect.*
 import kotlin.test.*
 
@@ -176,6 +177,10 @@ class ModuleBuildersTest {
     @SerialName("C")
     class C
 
+    @Serializable
+    @SerialName("C")
+    class C2
+
     @Serializer(forClass = C::class)
     object CSerializer : KSerializer<C> {
         override val descriptor: SerialDescriptor = buildSerialDescriptor("AnotherName", StructureKind.OBJECT)
@@ -204,6 +209,26 @@ class ModuleBuildersTest {
         assertEquals(C.serializer(), result.getPolymorphic(Any::class, C()))
         assertEquals(C.serializer(), result.getPolymorphic(Any::class, serializedClassName = "C"))
         assertNull(result.getPolymorphic(Any::class, serializedClassName = "AnotherName"))
+    }
+
+    @Test
+    fun testOverwriteWithDifferentClass() {
+        val c1 = SerializersModule {
+            polymorphic<Any>(Any::class) {
+                subclass(C::class)
+            }
+        }
+        val c2 = SerializersModule {
+            polymorphic<Any>(Any::class) {
+                subclass(C2::class)
+            }
+        }
+        assertFailsWithMessage<IllegalArgumentException>("Multiple polymorphic serializers in a scope of 'class kotlin.Any' have the same serial name 'C'") { c1 + c2 }
+        val module = c1 overwriteWith c2
+        // C should not be registered at all, C2 should be registered both under "C" and C2::class
+        assertEquals(C2.serializer(), module.getPolymorphic(Any::class, serializedClassName = "C"))
+        assertNull(module.getPolymorphic(Any::class, C()))
+        assertEquals(C2.serializer(), module.getPolymorphic(Any::class, C2()))
     }
 
     @Test
