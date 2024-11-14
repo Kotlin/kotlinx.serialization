@@ -10,7 +10,11 @@ import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
+import kotlinx.serialization.test.Platform
 import kotlinx.serialization.test.assertFailsWithMessage
+import kotlinx.serialization.test.currentPlatform
+import kotlinx.serialization.test.isJs
+import kotlinx.serialization.test.isJvm
 import kotlin.reflect.*
 import kotlin.test.*
 
@@ -223,7 +227,8 @@ class ModuleBuildersTest {
                 subclass(C2::class)
             }
         }
-        assertFailsWithMessage<IllegalArgumentException>("Multiple polymorphic serializers in a scope of 'class kotlin.Any' have the same serial name 'C'") { c1 + c2 }
+        val classNameMsg = if (currentPlatform == Platform.JS || currentPlatform == Platform.WASM) "class Any" else "class kotlin.Any"
+        assertFailsWithMessage<IllegalArgumentException>("Multiple polymorphic serializers in a scope of '$classNameMsg' have the same serial name 'C'") { c1 + c2 }
         val module = c1 overwriteWith c2
         // C should not be registered at all, C2 should be registered both under "C" and C2::class
         assertEquals(C2.serializer(), module.getPolymorphic(Any::class, serializedClassName = "C"))
