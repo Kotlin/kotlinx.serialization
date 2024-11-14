@@ -308,6 +308,7 @@ sealed class kotlinx.serialization.json/Json : kotlinx.serialization/StringForma
     final fun <#A1: kotlin/Any?> encodeToString(kotlinx.serialization/SerializationStrategy<#A1>, #A1): kotlin/String // kotlinx.serialization.json/Json.encodeToString|encodeToString(kotlinx.serialization.SerializationStrategy<0:0>;0:0){0§<kotlin.Any?>}[0]
     final fun parseToJsonElement(kotlin/String): kotlinx.serialization.json/JsonElement // kotlinx.serialization.json/Json.parseToJsonElement|parseToJsonElement(kotlin.String){}[0]
     final inline fun <#A1: reified kotlin/Any?> decodeFromString(kotlin/String): #A1 // kotlinx.serialization.json/Json.decodeFromString|decodeFromString(kotlin.String){0§<kotlin.Any?>}[0]
+    final inline fun <#A1: reified kotlin/Any?> encodeToString(#A1): kotlin/String // kotlinx.serialization.json/Json.encodeToString|encodeToString(0:0){0§<kotlin.Any?>}[0]
 
     final object Default : kotlinx.serialization.json/Json // kotlinx.serialization.json/Json.Default|null[0]
 }
