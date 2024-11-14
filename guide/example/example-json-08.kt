@@ -4,17 +4,14 @@ package example.exampleJson08
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-enum class Color { BLACK, WHITE }
+val format = Json { coerceInputValues = true }
 
 @Serializable
-data class Brush(val foreground: Color = Color.BLACK, val background: Color?)
-
-val json = Json { 
-  coerceInputValues = true
-  explicitNulls = false
-}
+data class Project(val name: String, val language: String = "Kotlin")
 
 fun main() {
-    val brush = json.decodeFromString<Brush>("""{"foreground":"pink", "background":"purple"}""")
-  println(brush)
+    val data = format.decodeFromString<Project>("""
+        {"name":"kotlinx.serialization","language":null}
+    """)
+    println(data)
 }
