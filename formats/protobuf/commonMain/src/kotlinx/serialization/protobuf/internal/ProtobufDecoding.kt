@@ -28,7 +28,8 @@ internal open class ProtobufDecoder(
     private var indexCache: IntArray? = null
     private var sparseIndexCache: MutableMap<Int, Int>? = null
 
-    // Index -> proto id for oneof element. An oneof element of certain index may refer to different proto id in runtime.
+    // Index -> proto id for oneof element or unknown fields.
+    // These kind of elements in certain index may refer to different proto id in runtime.
     private var index2IdMap: MutableMap<Int, Int>? = null
 
     private var unknownHolderIndex: Int = -1
@@ -57,7 +58,7 @@ internal open class ProtobufDecoder(
             val cache = IntArray(elements + 1) { -1 }
             for (i in 0 until elements) {
                 val protoId = extractProtoId(descriptor, i, false)
-                // If any element is marked as ProtoOneOf on Unknown field holder,
+                // If any element is marked as ProtoOneOf or Unknown field holder,
                 // the fast path is not applicable
                 // because num of id does not match the elements
                 if (protoId in 0..elements) {
@@ -74,7 +75,7 @@ internal open class ProtobufDecoder(
 
     private fun populateCacheMap(descriptor: SerialDescriptor, elements: Int) {
         val map = HashMap<Int, Int>(elements, 1f)
-        var oneOfCount = 0
+        var mapSize = 0
         for (i in 0 until elements) {
             val id = extractProtoId(descriptor, i, false)
             when (id) {
@@ -83,13 +84,13 @@ internal open class ProtobufDecoder(
                         .getAllOneOfSerializerOfField(serializersModule)
                         .map { it.extractParameters(0).protoId }
                         .forEach { map.putProtoId(it, i) }
-                    oneOfCount ++
+                    mapSize ++
                 }
                 ID_HOLDER_UNKNOWN_FIELDS -> {
                     require(unknownHolderIndex == -1) {
                         "Only one unknown fields holder is allowed in a message"
                     }
-                    oneOfCount ++
+                    mapSize ++
                     unknownHolderIndex = i
                 }
                 else -> {
@@ -97,8 +98,8 @@ internal open class ProtobufDecoder(
                 }
             }
         }
-        if (oneOfCount > 0) {
-            index2IdMap = HashMap(oneOfCount, 1f)
+        if (mapSize > 0) {
+            index2IdMap = HashMap(mapSize, 1f)
         }
         sparseIndexCache = map
     }
@@ -338,12 +339,13 @@ internal open class ProtobufDecoder(
                     val tag = descriptor.extractParameters(index)
                     if (tag.isOneOf || tag.isUnknown) {
                         /**
-                         * While decoding message with one-of field,
+                         * While decoding message with one-of field or unknown fields,
                          * the proto id read from wire data cannot be easily found
                          * in the properties of this type,
-                         * So the index of this one-of property and the id read from the wire
-                         * are saved in this map, then restored in [beginStructure]
-                         * and passed to [OneOfPolymorphicReader] to get the actual deserializer.
+                         * So the index of this property and the id read from the wire
+                         * are saved in this map, then
+                         * 1. restored in [beginStructure] and passed to [OneOfPolymorphicReader] to get the actual deserializer, or
+                         * 2. restored in [decodeUnknownFields] to get the right proto id for the unknown fields.
                          */
                         index2IdMap?.put(index, protoId)
                     }
