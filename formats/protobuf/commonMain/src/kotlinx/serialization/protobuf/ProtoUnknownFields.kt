@@ -28,6 +28,9 @@ public class ProtoMessage internal constructor(
     public fun asByteArray(): ByteArray = fields.fold(ByteArray(0)) { acc, protoField -> acc + protoField.asWireContent() }
 
     public constructor(vararg fields: ProtoField) : this(fields.toList())
+
+    public operator fun plus(other: ProtoMessage): ProtoMessage = merge(other)
+
     public fun merge(other: ProtoMessage): ProtoMessage {
         return ProtoMessage(fields + other.fields)
     }
@@ -47,6 +50,21 @@ public class ProtoMessage internal constructor(
         other as ProtoMessage
 
         return fields == other.fields
+    }
+}
+
+public fun ProtoMessage?.merge(other: ProtoMessage?): ProtoMessage {
+    return when {
+        this == null -> other ?: ProtoMessage.Empty
+        other == null -> this
+        else -> this + other
+    }
+}
+
+public fun ProtoMessage?.merge(vararg fields: ProtoField): ProtoMessage {
+    return when {
+        this == null -> ProtoMessage(fields.toList())
+        else -> this.merge(ProtoMessage(fields.toList()))
     }
 }
 

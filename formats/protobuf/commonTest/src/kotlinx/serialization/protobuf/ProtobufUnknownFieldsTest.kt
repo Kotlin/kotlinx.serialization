@@ -5,6 +5,8 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import kotlin.test.*
 
 class ProtobufUnknownFieldsTest {
@@ -47,6 +49,22 @@ class ProtobufUnknownFieldsTest {
     @Test
     fun testDecodeWithUnknownField() {
         val data = BuildData(42, "42", byteArrayOf(42, 42, 42), listOf(42, 42, 42), InnerData("42", 42, listOf("42", "42", "42")))
+
+        /**
+         * 1: 42
+         * 2: {"42"}
+         * 3: {"***"}
+         * 4: 42
+         * 4: 42
+         * 4: 42
+         * 5: {
+         *   1: {"42"}
+         *   2: 42
+         *   3: {"42"}
+         *   3: {"42"}
+         *   3: {"42"}
+         * }
+         */
         val encoded = "082a120234321a032a2a2a202a202a202a2a120a023432102a1a0234321a0234321a023432"
         val decoded = ProtoBuf.decodeFromHexString(DataWithUnknownFields.serializer(), encoded)
         assertEquals(data.a, decoded.a)
@@ -99,6 +117,23 @@ class ProtobufUnknownFieldsTest {
     @Test
     fun testUnknownFieldBeforeKnownField() {
         val data = BuildData(42, "42", byteArrayOf(42, 42, 42), listOf(42, 42, 42), InnerData("42", 42, listOf("42", "42", "42")))
+
+        /**
+         * 1: 42
+         * 2: {"42"}
+         * 3: {"***"}
+         * 4: 42
+         * 4: 42
+         * 4: 42
+         * 5: {
+         *   1: {"42"}
+         *   2: 42
+         *   3: {"42"}
+         *   3: {"42"}
+         *   3: {"42"}
+         * }
+         * }
+         */
         val hex = "082a120234321a032a2a2a202a202a202a2a120a023432102a1a0234321a0234321a023432"
         val decoded = ProtoBuf.decodeFromHexString(DataWithStaggeredFields.serializer(), hex)
         assertEquals(3, decoded.unknownFields.size)
@@ -106,7 +141,115 @@ class ProtobufUnknownFieldsTest {
         assertEquals(listOf(42, 42, 42), decoded.d)
 
         val encoded = ProtoBuf.encodeToHexString(DataWithStaggeredFields.serializer(), decoded)
+        /**
+         * fields are re-ordered but acceptable in protobuf wire data
+         *
+         * 2: {"42"}
+         * 1: 42
+         * 3: {"***"}
+         * 5: {
+         *   1: {"42"}
+         *   2: 42
+         *   3: {"42"}
+         *   3: {"42"}
+         *   3: {"42"}
+         * }
+         * 4: 42
+         * 4: 42
+         * 4: 42
+         */
+        assertEquals("12023432082a1a032a2a2a2a120a023432102a1a0234321a0234321a023432202a202a202a", encoded)
         val decodeOrigin = ProtoBuf.decodeFromHexString(BuildData.serializer(), encoded)
         assertEquals(data, decodeOrigin)
+    }
+
+    @Serializable
+    data class TotalKnownData(@ProtoUnknownFields val fields: ProtoMessage = ProtoMessage.Empty)
+
+    @Serializable
+    data class NestedUnknownData(val a: Int, @ProtoNumber(5) val inner: TotalKnownData, @ProtoUnknownFields val unknown: ProtoMessage)
+
+    @Test
+    fun testDecodeNestedUnknownData() {
+        /**
+         * 1: 42
+         * 2: {"42"}
+         * 3: {"***"}
+         * 4: 42
+         * 4: 42
+         * 4: 42
+         * 5: {
+         *   1: {"42"}
+         *   2: 42
+         *   3: {"42"}
+         *   3: {"42"}
+         *   3: {"42"}
+         * }
+         */
+        val hex = "082a120234321a032a2a2a202a202a202a2a120a023432102a1a0234321a0234321a023432"
+        val decoded = ProtoBuf.decodeFromHexString(NestedUnknownData.serializer(), hex)
+        assertEquals(5, decoded.unknown.size)
+    }
+
+    object CustomSerializer: KSerializer<DataWithUnknownFields> {
+        override val descriptor: SerialDescriptor
+            get() = buildClassSerialDescriptor("CustomData") {
+                element<Int>("a", annotations = listOf(ProtoNumber(1)))
+                element<ProtoMessage>("unknownFields", annotations = listOf(ProtoUnknownFields()))
+            }
+
+        override fun deserialize(decoder: Decoder): DataWithUnknownFields {
+            var a = 0
+            var unknownFields = ProtoMessage.Empty
+            decoder.decodeStructure(descriptor) {
+                loop@ while (true) {
+                    when (val index = decodeElementIndex(descriptor)) {
+                        CompositeDecoder.DECODE_DONE -> break@loop
+                        0 -> a = decodeIntElement(descriptor, index)
+                        1 -> unknownFields += decodeSerializableElement(descriptor, index, ProtoMessage.serializer())
+                        else -> error("Unexpected index: $index")
+                    }
+                }
+            }
+            return DataWithUnknownFields(a, unknownFields)
+        }
+
+        override fun serialize(encoder: Encoder, value: DataWithUnknownFields) {
+            encoder.encodeStructure(descriptor) {
+                encodeIntElement(descriptor, 0, value.a)
+                encodeSerializableElement(descriptor, 1, ProtoMessage.serializer(), value.unknownFields)
+            }
+        }
+    }
+
+    @Test
+    fun testCustomSerializer() {
+        val data = BuildData(42, "42", byteArrayOf(42, 42, 42), listOf(42, 42, 42), InnerData("42", 42, listOf("42", "42", "42")))
+
+        /**
+         * 1: 42
+         * 2: {"42"}
+         * 3: {"***"}
+         * 4: 42
+         * 4: 42
+         * 4: 42
+         * 5: {
+         *   1: {"42"}
+         *   2: 42
+         *   3: {"42"}
+         *   3: {"42"}
+         *   3: {"42"}
+         * }
+         */
+        val encoded = "082a120234321a032a2a2a202a202a202a2a120a023432102a1a0234321a0234321a023432"
+        val decoded = ProtoBuf.decodeFromHexString(CustomSerializer, encoded)
+
+        assertEquals(data.a, decoded.a)
+        assertEquals(6, decoded.unknownFields.size)
+
+        val encoded2 = ProtoBuf.encodeToHexString(CustomSerializer, decoded)
+        assertEquals(encoded, encoded2)
+        val data2 = ProtoBuf.decodeFromHexString(BuildData.serializer(), encoded2)
+        assertEquals(data, data2)
     }
 }
