@@ -9,33 +9,62 @@ import kotlinx.serialization.protobuf.internal.*
 import kotlinx.serialization.protobuf.internal.ProtoWireType
 
 /**
- * Mark a property as a holder for unknown fields in protobuf message.
+ * Mark a property with type [ProtoMessage] as a holder for unknown fields in protobuf message.
+ *
+ * All the contents with unregistered proto number will be stored in this field.
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
 @ExperimentalSerializationApi
 public annotation class ProtoUnknownFields
 
+/**
+ * Represents a protobuf message.
+ *
+ * Especially used as a holder of unknown proto fields in an arbitrary protobuf message.
+ */
 @Serializable(with = ProtoMessageSerializer::class)
 public class ProtoMessage internal constructor(
-    public val fields: List<ProtoField>
+    internal val fields: List<ProtoField>
 ) {
     public companion object {
+        /**
+         * An empty [ProtoMessage] instance.
+         *
+         * Useful as a default value for [ProtoUnknownFields] properties.
+         */
         public val Empty: ProtoMessage = ProtoMessage(emptyList())
     }
 
+    /**
+     * Number of fields holding in the message.
+     */
     public val size: Int get() = fields.size
-    public fun asByteArray(): ByteArray = fields.fold(ByteArray(0)) { acc, protoField -> acc + protoField.asWireContent() }
 
-    public constructor(vararg fields: ProtoField) : this(fields.toList())
+    /**
+     * Returns a byte array representing of the message.
+     */
+    public fun asByteArray(): ByteArray =
+        fields.fold(ByteArray(0)) { acc, protoField -> acc + protoField.asWireContent() }
 
+    internal constructor(vararg fields: ProtoField) : this(fields.toList())
+
+    /**
+     * Merges two [ProtoMessage] instances.
+     */
     public operator fun plus(other: ProtoMessage): ProtoMessage = merge(other)
 
+    /**
+     * Merges two [ProtoMessage] instances.
+     */
     public fun merge(other: ProtoMessage): ProtoMessage {
         return ProtoMessage(fields + other.fields)
     }
 
-    public fun merge(vararg field: ProtoField): ProtoMessage {
+    /**
+     * Convenience method to merge multiple [ProtoField] with this message.
+     */
+    internal fun merge(vararg field: ProtoField): ProtoMessage {
         return ProtoMessage(fields + field)
     }
 
@@ -53,6 +82,9 @@ public class ProtoMessage internal constructor(
     }
 }
 
+/**
+ * Convenience method to merge two nullable [ProtoMessage] instances.
+ */
 public fun ProtoMessage?.merge(other: ProtoMessage?): ProtoMessage {
     return when {
         this == null -> other ?: ProtoMessage.Empty
@@ -61,29 +93,35 @@ public fun ProtoMessage?.merge(other: ProtoMessage?): ProtoMessage {
     }
 }
 
-public fun ProtoMessage?.merge(vararg fields: ProtoField): ProtoMessage {
+/**
+ * Convenience method to merge multiple [ProtoField] with a nullable [ProtoMessage].
+ */
+internal fun ProtoMessage?.merge(vararg fields: ProtoField): ProtoMessage {
     return when {
         this == null -> ProtoMessage(fields.toList())
         else -> this.merge(ProtoMessage(fields.toList()))
     }
 }
 
+/**
+ * Represents a single field in a protobuf message.
+ */
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable(with = ProtoFieldSerializer::class)
 @KeepGeneratedSerializer
 @ConsistentCopyVisibility
-public data class ProtoField internal constructor(
+internal data class ProtoField internal constructor(
     internal val id: Int,
     internal val wireType: ProtoWireType,
     internal val data: ProtoContentHolder
 ) {
-    public companion object {
-        public val Empty: ProtoField = ProtoField(0, ProtoWireType.INVALID, ProtoContentHolder.ByteArrayContent(ByteArray(0)))
+    companion object {
+        val Empty: ProtoField = ProtoField(0, ProtoWireType.INVALID, ProtoContentHolder.ByteArrayContent(ByteArray(0)))
     }
 
-    public fun asWireContent(): ByteArray = byteArrayOf(((id shl 3) or wireType.typeId).toByte()) + data.byteArray
+    fun asWireContent(): ByteArray = byteArrayOf(((id shl 3) or wireType.typeId).toByte()) + data.byteArray
 
-    public val contentLength: Int
+    val contentLength: Int
         get() = asWireContent().size
 
     override fun equals(other: Any?): Boolean {
@@ -107,9 +145,19 @@ public data class ProtoField internal constructor(
     }
 }
 
+/**
+ * A data representation of a protobuf field in [ProtoField.data], without the field number and wire type.
+ */
 internal sealed interface ProtoContentHolder {
+
+    /**
+     * Returns a byte array representation of the content.
+     */
     val byteArray: ByteArray
 
+    /**
+     * Represents the content in raw byte array.
+     */
     data class ByteArrayContent(override val byteArray: ByteArray) : ProtoContentHolder {
         override fun equals(other: Any?): Boolean {
             return other is ProtoContentHolder && this.contentEquals(other)
@@ -120,6 +168,9 @@ internal sealed interface ProtoContentHolder {
         }
     }
 
+    /**
+     * Represents the content with a nested [ProtoMessage].
+     */
     data class MessageContent(val content: ProtoMessage) : ProtoContentHolder {
         override val byteArray: ByteArray
             get() = content.asByteArray()
@@ -134,15 +185,27 @@ internal sealed interface ProtoContentHolder {
     }
 }
 
+/**
+ * Creates a [ProtoContentHolder] instance with a byte array content.
+ */
 internal fun ProtoContentHolder(content: ByteArray): ProtoContentHolder = ProtoContentHolder.ByteArrayContent(content)
 
+/**
+ * Get the length in bytes of the content in the [ProtoContentHolder].
+ */
 internal val ProtoContentHolder.contentLength: Int
     get() = byteArray.size
 
+/**
+ * Checks if the content of two [ProtoContentHolder] instances are equal.
+ */
 internal fun ProtoContentHolder.contentEquals(other: ProtoContentHolder): Boolean {
     return byteArray.contentEquals(other.byteArray)
 }
 
+/**
+ * Calculates the hash code of the content in the [ProtoContentHolder].
+ */
 internal fun ProtoContentHolder.contentHashCode(): Int {
     return byteArray.contentHashCode()
 }
