@@ -65,6 +65,16 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
         }
     }
 
+    fun readRawElement(): ByteArray {
+        return when (currentType) {
+            ProtoWireType.VARINT -> byteArrayOf(readInt(ProtoIntegerType.DEFAULT).toByte())
+            ProtoWireType.i64 -> byteArrayOf(readLong(ProtoIntegerType.FIXED).toByte())
+            ProtoWireType.SIZE_DELIMITED -> readByteArray()
+            ProtoWireType.i32 -> byteArrayOf(readInt(ProtoIntegerType.FIXED).toByte())
+            else -> throw ProtobufDecodingException("Unsupported start group or end group wire type: $currentType")
+        }
+    }
+
     @Suppress("NOTHING_TO_INLINE")
     private inline fun assertWireType(expected: ProtoWireType) {
         if (currentType != expected) throw ProtobufDecodingException("Expected wire type $expected, but found $currentType")

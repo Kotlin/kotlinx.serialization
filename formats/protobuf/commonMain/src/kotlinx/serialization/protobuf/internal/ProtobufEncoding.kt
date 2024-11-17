@@ -142,8 +142,34 @@ internal open class ProtobufEncoder(
         serializer is MapLikeSerializer<*, *, *, *> -> {
             serializeMap(serializer as SerializationStrategy<T>, value)
         }
+        serializer == ProtoMessageSerializer -> {
+            serializeUnknownFields(serializer as ProtoMessageSerializer, value as ProtoMessage)
+        }
         serializer.descriptor == ByteArraySerializer().descriptor -> serializeByteArray(value as ByteArray)
         else -> serializer.serialize(this, value)
+    }
+
+    internal fun encodeRawElement(id: Int, wireType: ProtoWireType, data: ByteArray) {
+        when(wireType) {
+            ProtoWireType.INVALID -> {}
+            ProtoWireType.VARINT -> writer.writeInt(
+                value = data.first().toInt(),
+                tag = id,
+                format = ProtoIntegerType.DEFAULT
+            )
+
+            ProtoWireType.i64 -> writer.writeLong(
+                value = data.first().toLong(),
+                tag = id,
+                format = ProtoIntegerType.FIXED
+            )
+            ProtoWireType.SIZE_DELIMITED -> writer.writeBytes(data, id)
+            ProtoWireType.i32 -> writer.writeInt(
+                value = data.first().toInt(),
+                tag = id,
+                format = ProtoIntegerType.FIXED
+            )
+        }
     }
 
     private fun serializeByteArray(value: ByteArray) {
@@ -153,6 +179,13 @@ internal open class ProtobufEncoder(
         } else {
             writer.writeBytes(value, tag.protoId)
         }
+    }
+
+    private fun serializeUnknownFields(serializer: SerializationStrategy<ProtoMessage>, protoMessage: ProtoMessage) {
+        require(currentTagOrDefault != MISSING_TAG) {
+            "Cannot serialize directly from kotlinx.serialization.protobuf.ProtoMessage."
+        }
+        serializer.serialize(this, protoMessage)
     }
 
     @Suppress("UNCHECKED_CAST")
