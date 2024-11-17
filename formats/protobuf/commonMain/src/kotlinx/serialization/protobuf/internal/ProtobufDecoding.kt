@@ -381,9 +381,7 @@ internal open class ProtobufDecoder(
         }
         val serializer = ProtoFieldSerializer
         val restoredTag = index2IdMap?.get(unknownHolderIndex)?.let { currentTag.overrideId(it) } ?: currentTag
-        return serializer.deserialize(this, restoredTag).let {
-            previous?.merge(it) ?: ProtoMessage(it)
-        }
+        return previous.merge(serializer.deserialize(this, restoredTag))
     }
 
     internal fun decodeRawElement(): ByteArray {
