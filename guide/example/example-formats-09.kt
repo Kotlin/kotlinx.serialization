@@ -3,18 +3,28 @@ package example.exampleFormats09
 
 import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.*
-import kotlinx.serialization.protobuf.schema.ProtoBufSchemaGenerator
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class SampleData(
-    val amount: Long,
-    val description: String?,
-    val department: String = "QA"
+data class Data(
+    @ProtoNumber(1) val name: String,
+    @ProtoUnknownFields val unknownFields: ProtoMessage = ProtoMessage.Empty
+)
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class NewData(
+    @ProtoNumber(1) val name: String,
+    @ProtoNumber(2) val age: Int,
 )
 
 @OptIn(ExperimentalSerializationApi::class)
 fun main() {
-  val descriptors = listOf(SampleData.serializer().descriptor)
-  val schemas = ProtoBufSchemaGenerator.generateSchemaText(descriptors)
-  println(schemas)
+  val dataFromNewBinary = NewData("Tom", 25)
+  val hexString = ProtoBuf.encodeToHexString(dataFromNewBinary)
+  val dataInOldBinary = ProtoBuf.decodeFromHexString<Data>(hexString)
+  val hexOfOldData = ProtoBuf.encodeToHexString(dataInOldBinary)
+  println(hexOfOldData)
+  println(hexString)
+  assert(hexOfOldData == hexString)
 }
