@@ -12,6 +12,7 @@ import kotlin.test.*
 class ProtobufUnknownFieldsTest {
     @Serializable
     data class InnerData(val name: String, val b: Int, val c: List<String>)
+
     @Serializable
     data class BuildData(val a: Int, val b: String, val c: ByteArray, val d: List<Int>, val e: InnerData) {
         override fun equals(other: Any?): Boolean {
@@ -48,7 +49,13 @@ class ProtobufUnknownFieldsTest {
 
     @Test
     fun testDecodeWithUnknownField() {
-        val data = BuildData(42, "42", byteArrayOf(42, 42, 42), listOf(42, 42, 42), InnerData("42", 42, listOf("42", "42", "42")))
+        val data = BuildData(
+            42,
+            "42",
+            byteArrayOf(42, 42, 42),
+            listOf(42, 42, 42),
+            InnerData("42", 42, listOf("42", "42", "42"))
+        )
 
         /**
          * 1: 42
@@ -116,7 +123,13 @@ class ProtobufUnknownFieldsTest {
 
     @Test
     fun testUnknownFieldBeforeKnownField() {
-        val data = BuildData(42, "42", byteArrayOf(42, 42, 42), listOf(42, 42, 42), InnerData("42", 42, listOf("42", "42", "42")))
+        val data = BuildData(
+            42,
+            "42",
+            byteArrayOf(42, 42, 42),
+            listOf(42, 42, 42),
+            InnerData("42", 42, listOf("42", "42", "42"))
+        )
 
         /**
          * 1: 42
@@ -167,7 +180,11 @@ class ProtobufUnknownFieldsTest {
     data class TotalKnownData(@ProtoUnknownFields val fields: ProtoMessage = ProtoMessage.Empty)
 
     @Serializable
-    data class NestedUnknownData(val a: Int, @ProtoNumber(5) val inner: TotalKnownData, @ProtoUnknownFields val unknown: ProtoMessage)
+    data class NestedUnknownData(
+        val a: Int,
+        @ProtoNumber(5) val inner: TotalKnownData,
+        @ProtoUnknownFields val unknown: ProtoMessage
+    )
 
     @Test
     fun testDecodeNestedUnknownData() {
@@ -191,7 +208,7 @@ class ProtobufUnknownFieldsTest {
         assertEquals(5, decoded.unknown.size)
     }
 
-    object CustomSerializer: KSerializer<DataWithUnknownFields> {
+    object CustomSerializer : KSerializer<DataWithUnknownFields> {
         override val descriptor: SerialDescriptor
             get() = buildClassSerialDescriptor("CustomData") {
                 element<Int>("a", annotations = listOf(ProtoNumber(1)))
@@ -224,7 +241,13 @@ class ProtobufUnknownFieldsTest {
 
     @Test
     fun testCustomSerializer() {
-        val data = BuildData(42, "42", byteArrayOf(42, 42, 42), listOf(42, 42, 42), InnerData("42", 42, listOf("42", "42", "42")))
+        val data = BuildData(
+            42,
+            "42",
+            byteArrayOf(42, 42, 42),
+            listOf(42, 42, 42),
+            InnerData("42", 42, listOf("42", "42", "42"))
+        )
 
         /**
          * 1: 42
@@ -286,6 +309,7 @@ class ProtobufUnknownFieldsTest {
         @ProtoNumber(1) val a: Int,
         @ProtoUnknownFields val unknownFields: ProtoMessage? = null
     )
+
     @Test
     fun testDataWithNullableUnknownFields() {
         val encoded = "082a120234321a032a2a2a202a202a202a2a120a023432102a1a0234321a0234321a023432"
@@ -297,5 +321,42 @@ class ProtobufUnknownFieldsTest {
         val decoded2 = ProtoBuf.decodeFromHexString(DataWithNullableUnknownFields.serializer(), encoded2)
         assertEquals(42, decoded2.a)
         assertNull(decoded2.unknownFields)
+    }
+
+    @Serializable
+    data class ToBuildOneOf(val a: String? = null, val b: Long? = null, val c: InnerData? = null)
+
+    @Serializable
+    data class TestFewerOneOf(
+        @ProtoOneOf val oneOf: OneOf? = null,
+        @ProtoUnknownFields val unknownFields: ProtoMessage = ProtoMessage.Empty
+    )
+
+    @Serializable
+    sealed interface OneOf {
+        @Serializable
+        data class A(
+            @ProtoNumber(1) val a: String
+        ) : OneOf
+
+        @Serializable
+        data class B(
+            @ProtoNumber(2) val b: Long
+        ) : OneOf
+    }
+
+    @Test
+    fun testUnknownOneOfField() {
+        val present = ToBuildOneOf(a = "test")
+        val encoded = ProtoBuf.encodeToHexString(present)
+        val decoded = ProtoBuf.decodeFromHexString(TestFewerOneOf.serializer(), encoded)
+        assertEquals(OneOf.A("test"), decoded.oneOf)
+        assertEquals(0, decoded.unknownFields.size)
+
+        val absent = ToBuildOneOf(c = InnerData("test", 42, listOf("test")))
+        val encoded2 = ProtoBuf.encodeToHexString(absent)
+        val decoded2 = ProtoBuf.decodeFromHexString(TestFewerOneOf.serializer(), encoded2)
+        assertNull(decoded2.oneOf)
+        assertEquals(1, decoded2.unknownFields.size)
     }
 }
