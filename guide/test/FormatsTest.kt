@@ -72,10 +72,18 @@ class FormatsTest {
     @Test
     fun testExampleFormats09() {
         captureOutput("ExampleFormats09") { example.exampleFormats09.main() }.verifyOutputLines(
+            "0a03546f6d1019",
+            "0a03546f6d1019"
+        )
+    }
+
+    @Test
+    fun testExampleFormats10() {
+        captureOutput("ExampleFormats10") { example.exampleFormats10.main() }.verifyOutputLines(
             "syntax = \"proto2\";",
             "",
             "",
-            "// serial name 'example.exampleFormats09.SampleData'",
+            "// serial name 'example.exampleFormats10.SampleData'",
             "message SampleData {",
             "  required int64 amount = 1;",
             "  optional string description = 2;",
@@ -87,25 +95,17 @@ class FormatsTest {
     }
 
     @Test
-    fun testExampleFormats10() {
-        captureOutput("ExampleFormats10") { example.exampleFormats10.main() }.verifyOutputLines(
+    fun testExampleFormats11() {
+        captureOutput("ExampleFormats11") { example.exampleFormats11.main() }.verifyOutputLines(
             "name = kotlinx.serialization",
             "owner.name = kotlin"
         )
     }
 
     @Test
-    fun testExampleFormats11() {
-        captureOutput("ExampleFormats11") { example.exampleFormats11.main() }.verifyOutputLines(
-            "[kotlinx.serialization, kotlin, 9000]"
-        )
-    }
-
-    @Test
     fun testExampleFormats12() {
         captureOutput("ExampleFormats12") { example.exampleFormats12.main() }.verifyOutputLines(
-            "[kotlinx.serialization, kotlin, 9000]",
-            "Project(name=kotlinx.serialization, owner=User(name=kotlin), votes=9000)"
+            "[kotlinx.serialization, kotlin, 9000]"
         )
     }
 
@@ -120,30 +120,38 @@ class FormatsTest {
     @Test
     fun testExampleFormats14() {
         captureOutput("ExampleFormats14") { example.exampleFormats14.main() }.verifyOutputLines(
-            "[kotlinx.serialization, 2, kotlin, jetbrains, 9000]",
-            "Project(name=kotlinx.serialization, owners=[User(name=kotlin), User(name=jetbrains)], votes=9000)"
+            "[kotlinx.serialization, kotlin, 9000]",
+            "Project(name=kotlinx.serialization, owner=User(name=kotlin), votes=9000)"
         )
     }
 
     @Test
     fun testExampleFormats15() {
         captureOutput("ExampleFormats15") { example.exampleFormats15.main() }.verifyOutputLines(
-            "[kotlinx.serialization, !!, kotlin, NULL]",
-            "Project(name=kotlinx.serialization, owner=User(name=kotlin), votes=null)"
+            "[kotlinx.serialization, 2, kotlin, jetbrains, 9000]",
+            "Project(name=kotlinx.serialization, owners=[User(name=kotlin), User(name=jetbrains)], votes=9000)"
         )
     }
 
     @Test
     fun testExampleFormats16() {
         captureOutput("ExampleFormats16") { example.exampleFormats16.main() }.verifyOutputLines(
-            "{00}{15}kotlinx.serialization{00}{06}Kotlin",
-            "Project(name=kotlinx.serialization, language=Kotlin)"
+            "[kotlinx.serialization, !!, kotlin, NULL]",
+            "Project(name=kotlinx.serialization, owner=User(name=kotlin), votes=null)"
         )
     }
 
     @Test
     fun testExampleFormats17() {
         captureOutput("ExampleFormats17") { example.exampleFormats17.main() }.verifyOutputLines(
+            "{00}{15}kotlinx.serialization{00}{06}Kotlin",
+            "Project(name=kotlinx.serialization, language=Kotlin)"
+        )
+    }
+
+    @Test
+    fun testExampleFormats18() {
+        captureOutput("ExampleFormats18") { example.exampleFormats18.main() }.verifyOutputLines(
             "{00}{15}kotlinx.serialization{04}{0A}{0B}{0C}{0D}",
             "Project(name=kotlinx.serialization, attachment=[10, 11, 12, 13])"
         )

@@ -252,4 +252,50 @@ class ProtobufUnknownFieldsTest {
         val data2 = ProtoBuf.decodeFromHexString(BuildData.serializer(), encoded2)
         assertEquals(data, data2)
     }
+
+    @Serializable
+    data class DataWithWrongTypeUnknownFields(
+        val a: Int,
+        @ProtoUnknownFields val unknownFields: Map<Int, ByteArray>,
+    )
+
+    @Test
+    fun testCannotDecodeWrongTypeUnknownFields() {
+        assertFailsWith<IllegalArgumentException> {
+            ProtoBuf.decodeFromHexString(DataWithWrongTypeUnknownFields.serializer(), "")
+        }
+    }
+
+    @Serializable
+    data class DataWithMissingUnknownFields(
+        val a: Int,
+        val unknownFields: ProtoMessage = ProtoMessage.Empty
+    )
+
+    @Test
+    fun testCannotEncodeMissingAnnotationUnknownFields() {
+        val encoded = "082a120234321a032a2a2a202a202a202a2a120a023432102a1a0234321a0234321a023432"
+        val decoded = ProtoBuf.decodeFromHexString(DataWithMissingUnknownFields.serializer(), encoded)
+        assertFailsWith<IllegalArgumentException> {
+            ProtoBuf.encodeToHexString(DataWithMissingUnknownFields.serializer(), decoded)
+        }
+    }
+
+    @Serializable
+    data class DataWithNullableUnknownFields(
+        @ProtoNumber(1) val a: Int,
+        @ProtoUnknownFields val unknownFields: ProtoMessage? = null
+    )
+    @Test
+    fun testDataWithNullableUnknownFields() {
+        val encoded = "082a120234321a032a2a2a202a202a202a2a120a023432102a1a0234321a0234321a023432"
+        val decoded = ProtoBuf.decodeFromHexString(DataWithNullableUnknownFields.serializer(), encoded)
+        assertEquals(42, decoded.a)
+        assertEquals(6, decoded.unknownFields?.size)
+
+        val encoded2 = "082a"
+        val decoded2 = ProtoBuf.decodeFromHexString(DataWithNullableUnknownFields.serializer(), encoded2)
+        assertEquals(42, decoded2.a)
+        assertNull(decoded2.unknownFields)
+    }
 }

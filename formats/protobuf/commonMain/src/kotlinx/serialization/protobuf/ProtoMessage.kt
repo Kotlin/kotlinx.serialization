@@ -6,17 +6,6 @@ package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.internal.*
-import kotlinx.serialization.protobuf.internal.ProtoWireType
-
-/**
- * Mark a property with type [ProtoMessage] as a holder for unknown fields in protobuf message.
- *
- * All the contents with unregistered proto number will be stored in this field.
- */
-@SerialInfo
-@Target(AnnotationTarget.PROPERTY)
-@ExperimentalSerializationApi
-public annotation class ProtoUnknownFields
 
 /**
  * Represents a protobuf message.
@@ -106,9 +95,7 @@ internal fun ProtoMessage?.merge(vararg fields: ProtoField): ProtoMessage {
 /**
  * Represents a single field in a protobuf message.
  */
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable(with = ProtoFieldSerializer::class)
-@KeepGeneratedSerializer
 @ConsistentCopyVisibility
 internal data class ProtoField internal constructor(
     internal val id: Int,

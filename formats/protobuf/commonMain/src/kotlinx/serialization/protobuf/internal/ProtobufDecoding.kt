@@ -90,6 +90,9 @@ internal open class ProtobufDecoder(
                     require(unknownHolderIndex == -1) {
                         "Only one unknown fields holder is allowed in a message"
                     }
+                    require(descriptor.getElementDescriptor(i).nullable == ProtoMessageSerializer.descriptor.nullable) {
+                        "ProtoUnknownFields is only allowed on property with type kotlinx.serialization.protobuf.ProtoMessage, with its original serializer."
+                    }
                     mapSize ++
                     unknownHolderIndex = i
                 }

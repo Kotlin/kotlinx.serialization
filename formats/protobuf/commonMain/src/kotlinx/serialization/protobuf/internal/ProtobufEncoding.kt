@@ -185,6 +185,9 @@ internal open class ProtobufEncoder(
         require(currentTagOrDefault != MISSING_TAG) {
             "Cannot serialize directly from kotlinx.serialization.protobuf.ProtoMessage."
         }
+        require(currentTagOrDefault.isUnknown) {
+            "kotlinx.serialization.protobuf.ProtoMessage should be annotated with @ProtoUnknownFields."
+        }
         serializer.serialize(this, protoMessage)
     }
 
