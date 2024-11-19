@@ -3,6 +3,7 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
+import kotlinx.serialization.test.*
 import kotlin.test.*
 
 class JsonElementDecodingTest : JsonTestBase() {
@@ -106,5 +107,14 @@ class JsonElementDecodingTest : JsonTestBase() {
 
         assertJsonFormAndRestored(Wrapper.serializer(), Wrapper(value = JsonNull), """{"value":null}""", noExplicitNullsOrDefaultsJson)
         assertJsonFormAndRestored(Wrapper.serializer(), Wrapper(value = null), """{}""", noExplicitNullsOrDefaultsJson)
+    }
+
+    @Test
+    fun testLiteralIncorrectParsing() {
+        val str = """{"a": "3 digit then random string"}"""
+        val obj = Json.decodeFromString<JsonObject>(str)
+        assertFailsWithMessage<NumberFormatException>("Expected input to contain a single valid number") {
+            println(obj.getValue("a").jsonPrimitive.long)
+        }
     }
 }
