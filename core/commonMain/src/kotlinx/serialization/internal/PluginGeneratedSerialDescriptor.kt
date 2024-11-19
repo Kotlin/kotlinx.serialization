@@ -114,6 +114,7 @@ internal inline fun <reified SD : SerialDescriptor> SD.equalsImpl(
     if (!typeParamsAreEqual(other)) return false
     if (this.elementsCount != other.elementsCount) return false
     for (index in 0 until elementsCount) {
+        if (getElementName(index) != other.getElementName(index)) return false
         if (getElementDescriptor(index).serialName != other.getElementDescriptor(index).serialName) return false
         if (getElementDescriptor(index).kind != other.getElementDescriptor(index).kind) return false
     }
@@ -125,8 +126,10 @@ internal fun SerialDescriptor.hashCodeImpl(typeParams: Array<SerialDescriptor>):
     var result = serialName.hashCode()
     result = 31 * result + typeParams.contentHashCode()
     val elementDescriptors = elementDescriptors
+    val elemNamesHash = (0 until elementsCount).elementsHashCodeBy { getElementName(it) }
     val namesHash = elementDescriptors.elementsHashCodeBy { it.serialName }
     val kindHash = elementDescriptors.elementsHashCodeBy { it.kind }
+    result = 31 * result + elemNamesHash
     result = 31 * result + namesHash
     result = 31 * result + kindHash
     return result
