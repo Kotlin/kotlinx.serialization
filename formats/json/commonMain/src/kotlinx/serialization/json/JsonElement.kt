@@ -36,7 +36,7 @@ public sealed class JsonPrimitive : JsonElement() {
      * Indicates whether the primitive was explicitly constructed from [String] and
      * whether it should be serialized as one. E.g. `JsonPrimitive("42")` is represented
      * by a string, while `JsonPrimitive(42)` is not.
-     * These primitives will be serialized as `42` and `"42"` respectively.
+     * These primitives will be serialized as `"42"` and `42` respectively.
      */
     public abstract val isString: Boolean
 
