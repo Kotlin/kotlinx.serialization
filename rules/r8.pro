@@ -21,11 +21,5 @@
 
 -keepclassmembers @kotlinx.serialization.Serializable class ** {
     public static ** INSTANCE;
-}
-
--if @kotlinx.serialization.Serializable class ** {
-    public static ** INSTANCE;
-}
--keepclassmembers class <1> {
     kotlinx.serialization.KSerializer serializer(...);
 }
