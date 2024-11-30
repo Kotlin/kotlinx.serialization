@@ -184,6 +184,7 @@ abstract interface kotlinx.serialization.encoding/CompositeDecoder { // kotlinx.
     abstract fun endStructure(kotlinx.serialization.descriptors/SerialDescriptor) // kotlinx.serialization.encoding/CompositeDecoder.endStructure|endStructure(kotlinx.serialization.descriptors.SerialDescriptor){}[0]
     open fun decodeCollectionSize(kotlinx.serialization.descriptors/SerialDescriptor): kotlin/Int // kotlinx.serialization.encoding/CompositeDecoder.decodeCollectionSize|decodeCollectionSize(kotlinx.serialization.descriptors.SerialDescriptor){}[0]
     open fun decodeSequentially(): kotlin/Boolean // kotlinx.serialization.encoding/CompositeDecoder.decodeSequentially|decodeSequentially(){}[0]
+    open fun visitKey(kotlin/Any?) // kotlinx.serialization.encoding/CompositeDecoder.visitKey|visitKey(kotlin.Any?){}[0]
 
     final object Companion { // kotlinx.serialization.encoding/CompositeDecoder.Companion|null[0]
         final const val DECODE_DONE // kotlinx.serialization.encoding/CompositeDecoder.Companion.DECODE_DONE|{}DECODE_DONE[0]
@@ -733,6 +734,10 @@ final class kotlinx.serialization.modules/SerializersModuleBuilder : kotlinx.ser
     final fun <#A1: kotlin/Any> polymorphicDefaultSerializer(kotlin.reflect/KClass<#A1>, kotlin/Function1<#A1, kotlinx.serialization/SerializationStrategy<#A1>?>) // kotlinx.serialization.modules/SerializersModuleBuilder.polymorphicDefaultSerializer|polymorphicDefaultSerializer(kotlin.reflect.KClass<0:0>;kotlin.Function1<0:0,kotlinx.serialization.SerializationStrategy<0:0>?>){0§<kotlin.Any>}[0]
     final fun build(): kotlinx.serialization.modules/SerializersModule // kotlinx.serialization.modules/SerializersModuleBuilder.build|build(){}[0]
     final fun include(kotlinx.serialization.modules/SerializersModule) // kotlinx.serialization.modules/SerializersModuleBuilder.include|include(kotlinx.serialization.modules.SerializersModule){}[0]
+}
+
+final class kotlinx.serialization/DuplicateKeyException : kotlinx.serialization/SerializationException { // kotlinx.serialization/DuplicateKeyException|null[0]
+    constructor <init>(kotlin/Any?) // kotlinx.serialization/DuplicateKeyException.<init>|<init>(kotlin.Any?){}[0]
 }
 
 final class kotlinx.serialization/MissingFieldException : kotlinx.serialization/SerializationException { // kotlinx.serialization/MissingFieldException|null[0]
