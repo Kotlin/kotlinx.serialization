@@ -161,6 +161,7 @@ Once the project is set up, we can start serializing some classes.
   * <a name='oneof-field-experimental'></a>[Oneof field (experimental)](formats.md#oneof-field-experimental)
     * <a name='usage'></a>[Usage](formats.md#usage)
     * <a name='alternative'></a>[Alternative](formats.md#alternative)
+  * <a name='preserving-unknown-fields-experimental'></a>[Preserving unknown fields (experimental)](formats.md#preserving-unknown-fields-experimental)
   * <a name='protobuf-schema-generator-experimental'></a>[ProtoBuf schema generator (experimental)](formats.md#protobuf-schema-generator-experimental)
 * <a name='properties-experimental'></a>[Properties (experimental)](formats.md#properties-experimental)
 * <a name='custom-formats-experimental'></a>[Custom formats (experimental)](formats.md#custom-formats-experimental)

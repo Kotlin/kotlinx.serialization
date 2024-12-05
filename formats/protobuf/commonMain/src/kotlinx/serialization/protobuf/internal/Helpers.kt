@@ -37,16 +37,25 @@ internal enum class ProtoWireType(val typeId: Int) {
 }
 
 internal const val ID_HOLDER_ONE_OF = -2
+internal const val ID_HOLDER_UNKNOWN_FIELDS = -3
 
+private const val UNKNOWN_FIELD_MASK = 1L shl 37
 private const val ONEOFMASK = 1L shl 36
 private const val INTTYPEMASK = 3L shl 33
 private const val PACKEDMASK = 1L shl 32
 
 @Suppress("NOTHING_TO_INLINE")
-internal inline fun ProtoDesc(protoId: Int, type: ProtoIntegerType, packed: Boolean = false, oneOf: Boolean = false): ProtoDesc {
+internal inline fun ProtoDesc(
+    protoId: Int,
+    type: ProtoIntegerType,
+    packed: Boolean = false,
+    oneOf: Boolean = false,
+    unknown: Boolean = false,
+): ProtoDesc {
     val packedBits = if (packed) PACKEDMASK else 0L
     val oneOfBits = if (oneOf) ONEOFMASK else 0L
-    return packedBits or oneOfBits or type.signature or protoId.toLong()
+    val unknownBits = if (unknown) UNKNOWN_FIELD_MASK else 0L
+    return packedBits or oneOfBits or type.signature or protoId.toLong() or unknownBits
 }
 
 internal inline val ProtoDesc.protoId: Int get() = (this and Int.MAX_VALUE.toLong()).toInt()
@@ -72,6 +81,9 @@ internal val ProtoDesc.isPacked: Boolean
 internal val ProtoDesc.isOneOf: Boolean
     get() = (this and ONEOFMASK) != 0L
 
+internal val ProtoDesc.isUnknown: Boolean
+    get() = (this and UNKNOWN_FIELD_MASK) != 0L
+
 internal fun ProtoDesc.overrideId(protoId: Int): ProtoDesc {
     return this and (0xFFFFFFF00000000L) or protoId.toLong()
 }
@@ -82,6 +94,7 @@ internal fun SerialDescriptor.extractParameters(index: Int): ProtoDesc {
     var format: ProtoIntegerType = ProtoIntegerType.DEFAULT
     var protoPacked = false
     var isOneOf = false
+    var isUnknown = false
 
     for (i in annotations.indices) { // Allocation-friendly loop
         val annotation = annotations[i]
@@ -94,6 +107,8 @@ internal fun SerialDescriptor.extractParameters(index: Int): ProtoDesc {
             protoPacked = true
         } else if (annotation is ProtoOneOf) {
             isOneOf = true
+        } else if (annotation is ProtoUnknownFields) {
+            isUnknown = true
         }
     }
     if (isOneOf) {
@@ -102,7 +117,7 @@ internal fun SerialDescriptor.extractParameters(index: Int): ProtoDesc {
         // See [kotlinx.serialization.protobuf.internal.ProtobufDecoder.decodeElementIndex] for detail
         protoId = index + 1
     }
-    return ProtoDesc(protoId, format, protoPacked, isOneOf)
+    return ProtoDesc(protoId, format, protoPacked, isOneOf, isUnknown)
 }
 
 /**
@@ -117,6 +132,9 @@ internal fun extractProtoId(descriptor: SerialDescriptor, index: Int, zeroBasedD
         if (annotation is ProtoOneOf) {
             // Fast return for one of field
             return ID_HOLDER_ONE_OF
+        } else if (annotation is ProtoUnknownFields) {
+            // Fast return for unknown fields holder
+            return ID_HOLDER_UNKNOWN_FIELDS
         } else if (annotation is ProtoNumber) {
             result = annotation.number
             // 0 or negative numbers are acceptable for enums
