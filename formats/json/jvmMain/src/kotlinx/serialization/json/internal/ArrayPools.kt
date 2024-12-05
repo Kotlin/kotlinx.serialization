@@ -8,8 +8,8 @@ package kotlinx.serialization.json.internal
  * (unlikely) problems with memory consumptions.
  */
 private val MAX_CHARS_IN_POOL = runCatching {
-    System.getProperty("kotlinx.serialization.json.pool.size").toIntOrNull()
-}.getOrNull() ?: 2 * 1024 * 1024
+    System.getProperty("kotlinx.serialization.json.pool.size")?.toIntOrNull()
+}.getOrNull() ?: (2 * 1024 * 1024)
 
 internal open class CharArrayPoolBase {
     private val arrays = ArrayDeque<CharArray>()
