@@ -14,7 +14,7 @@ internal const val lenientHint = "Use 'isLenient = true' in 'Json {}' builder to
 internal const val coerceInputValuesHint = "Use 'coerceInputValues = true' in 'Json {}' builder to coerce nulls if property has a default value."
 internal const val specialFlowingValuesHint =
     "It is possible to deserialize them using 'JsonBuilder.allowSpecialFloatingPointValues = true'"
-internal const val ignoreUnknownKeysHint = "Use 'ignoreUnknownKeys = true' in 'Json {}' builder to ignore unknown keys."
+internal const val ignoreUnknownKeysHint = "Use 'ignoreUnknownKeys = true' in 'Json {}' builder or '@JsonIgnoreUnknownKeys' annotation to ignore unknown keys."
 internal const val allowStructuredMapKeysHint =
     "Use 'allowStructuredMapKeys = true' in 'Json {}' builder to convert such maps to [key1, value1, key2, value2,...] arrays."
 
@@ -301,7 +301,7 @@ internal abstract class AbstractJsonLexer {
     }
 
     open fun indexOf(char: Char, startPos: Int) = source.indexOf(char, startPos)
-    open fun substring(startPos: Int, endPos: Int) =  source.substring(startPos, endPos)
+    open fun substring(startPos: Int, endPos: Int) = source.substring(startPos, endPos)
 
     /*
      * This method is a copy of consumeString, but used for key of json objects, so there
@@ -576,7 +576,10 @@ internal abstract class AbstractJsonLexer {
         // but still would like an error to point to the beginning of the key, so we are backtracking it
         val processed = substring(0, currentPosition)
         val lastIndexOf = processed.lastIndexOf(key)
-        fail("Encountered an unknown key '$key'", lastIndexOf, ignoreUnknownKeysHint)
+        throw JsonDecodingException(
+            "Encountered an unknown key '$key' at offset $lastIndexOf at path: ${path.getPath()}\n$ignoreUnknownKeysHint\n" +
+                "JSON input: ${source.minify(lastIndexOf)}"
+        )
     }
 
     fun fail(message: String, position: Int = currentPosition, hint: String = ""): Nothing {

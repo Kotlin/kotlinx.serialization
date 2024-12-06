@@ -4,13 +4,15 @@ package example.exampleJson15
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-@Serializable
-data class Project(val projectName: String, val projectOwner: String)
+@OptIn(ExperimentalSerializationApi::class) // decodeEnumsCaseInsensitive is an experimental setting for now
+val format = Json { decodeEnumsCaseInsensitive = true }
 
-@OptIn(ExperimentalSerializationApi::class) // namingStrategy is an experimental setting for now
-val format = Json { namingStrategy = JsonNamingStrategy.SnakeCase }
+@OptIn(ExperimentalSerializationApi::class) // JsonNames is an experimental annotation for now
+enum class Cases { VALUE_A, @JsonNames("Alternative") VALUE_B }
+
+@Serializable
+data class CasesList(val cases: List<Cases>)
 
 fun main() {
-    val project = format.decodeFromString<Project>("""{"project_name":"kotlinx.coroutines", "project_owner":"Kotlin"}""")
-    println(format.encodeToString(project.copy(projectName = "kotlinx.serialization")))
+  println(format.decodeFromString<CasesList>("""{"cases":["value_A", "alternative"]}""")) 
 }

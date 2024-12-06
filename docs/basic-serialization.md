@@ -411,8 +411,8 @@ Attempts to explicitly specify its value in the serial format, even if the speci
 value is equal to the default one, produces the following exception.
 
 ```text
-Exception in thread "main" kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 42: Encountered an unknown key 'language' at path: $.name
-Use 'ignoreUnknownKeys = true' in 'Json {}' builder to ignore unknown keys.
+Exception in thread "main" kotlinx.serialization.json.internal.JsonDecodingException: Encountered an unknown key 'language' at offset 42 at path: $
+Use 'ignoreUnknownKeys = true' in 'Json {}' builder or '@JsonIgnoreUnknownKeys' annotation to ignore unknown keys.
 ```
 
 <!--- TEST LINES_START -->

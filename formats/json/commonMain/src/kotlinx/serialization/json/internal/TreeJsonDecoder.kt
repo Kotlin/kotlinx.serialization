@@ -8,7 +8,6 @@
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
-import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.internal.*
@@ -271,7 +270,7 @@ private open class JsonTreeDecoder(
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
-        if (configuration.ignoreUnknownKeys || descriptor.kind is PolymorphicKind) return
+        if (descriptor.ignoreUnknownKeys(json) || descriptor.kind is PolymorphicKind) return
         // Validate keys
         val strategy = descriptor.namingStrategy(json)
 
@@ -284,7 +283,12 @@ private open class JsonTreeDecoder(
 
         for (key in value.keys) {
             if (key !in names && key != polymorphicDiscriminator) {
-                throw UnknownKeyException(key, value.toString())
+                throw JsonDecodingException(
+                    -1,
+                    "Encountered an unknown key '$key' at element: ${renderTagStack()}\n" +
+                        "$ignoreUnknownKeysHint\n" +
+                        "JSON input: ${value.toString().minify()}"
+                )
             }
         }
     }

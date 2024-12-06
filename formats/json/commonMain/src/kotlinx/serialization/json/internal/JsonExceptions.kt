@@ -75,13 +75,6 @@ private fun unexpectedFpErrorMessage(value: Number, key: String, output: String)
             "Current output: ${output.minify()}"
 }
 
-internal fun UnknownKeyException(key: String, input: String) = JsonDecodingException(
-    -1,
-    "Encountered an unknown key '$key'.\n" +
-            "$ignoreUnknownKeysHint\n" +
-            "Current input: ${input.minify()}"
-)
-
 internal fun CharSequence.minify(offset: Int = -1): CharSequence {
     if (length < 200) return this
     if (offset == -1) {

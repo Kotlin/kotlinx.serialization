@@ -149,3 +149,6 @@ internal inline fun Json.tryCoerceValue(
     }
     return false
 }
+
+internal fun SerialDescriptor.ignoreUnknownKeys(json: Json): Boolean =
+    json.configuration.ignoreUnknownKeys || annotations.any { it is JsonIgnoreUnknownKeys }

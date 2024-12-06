@@ -4,31 +4,33 @@ package example.exampleJson29
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
+import kotlinx.serialization.builtins.*
+
 @Serializable
-sealed class Project {
+abstract class Project {
     abstract val name: String
 }
 
-@OptIn(ExperimentalSerializationApi::class)
-@KeepGeneratedSerializer
-@Serializable(with = BasicProjectSerializer::class)
-@SerialName("basic")
+@Serializable
 data class BasicProject(override val name: String): Project()
 
-object BasicProjectSerializer : JsonTransformingSerializer<BasicProject>(BasicProject.generatedSerializer()) {
-    override fun transformDeserialize(element: JsonElement): JsonElement {
-        val jsonObject = element.jsonObject
-        return if ("basic-name" in jsonObject) {
-            val nameElement = jsonObject["basic-name"] ?: throw IllegalStateException()
-            JsonObject(mapOf("name" to nameElement))
-        } else {
-            jsonObject
-        }
+
+@Serializable
+data class OwnedProject(override val name: String, val owner: String) : Project()
+
+object ProjectSerializer : JsonContentPolymorphicSerializer<Project>(Project::class) {
+    override fun selectDeserializer(element: JsonElement) = when {
+        "owner" in element.jsonObject -> OwnedProject.serializer()
+        else -> BasicProject.serializer()
     }
 }
 
-
 fun main() {
-    val project = Json.decodeFromString<Project>("""{"type":"basic","basic-name":"example"}""")
-    println(project)
+    val data = listOf(
+        OwnedProject("kotlinx.serialization", "kotlin"),
+        BasicProject("example")
+    )
+    val string = Json.encodeToString(ListSerializer(ProjectSerializer), data)
+    println(string)
+    println(Json.decodeFromString(ListSerializer(ProjectSerializer), string))
 }
