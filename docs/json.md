@@ -172,32 +172,32 @@ In that case, you can use [JsonIgnoreUnknownKeys] annotation on such classes whi
 turned off:
 
 ```kotlin
-@Serializable
-data class Outer(val a: Int, val inner: Inner)
-
 @OptIn(ExperimentalSerializationApi::class) // JsonIgnoreUnknownKeys is an experimental annotation for now
 @Serializable
 @JsonIgnoreUnknownKeys
+data class Outer(val a: Int, val inner: Inner)
+
+@Serializable
 data class Inner(val x: String)
 
 fun main() {
     // 1
-    println(Json.decodeFromString<Outer>("""{"a":1,"inner":{"x":"value","unknownKey":"unknownValue"}}"""))
+    println(Json.decodeFromString<Outer>("""{"a":1,"inner":{"x":"value"},"unknownKey":42}"""))
     println()
     // 2
-    println(Json.decodeFromString<Outer>("""{"a":1,"inner":{"x":"value"}, "b":2}"""))
+    println(Json.decodeFromString<Outer>("""{"a":1,"inner":{"x":"value","unknownKey":"unknownValue"}}"""))
 }
 ```
 
 > You can get the full code [here](../guide/example/example-json-04.kt).
 
-Line (1) decodes successfully despite "unknownKey" in `Inner`, because annotation is present on the class. 
-However, line (2) throws `SerializationException` because there is no "b" property in `Outer`:
+Line (1) decodes successfully despite "unknownKey" in `Outer`, because annotation is present on the class. 
+However, line (2) throws `SerializationException` because there is no "unknownKey" property in `Inner`:
 
 ```text
 Outer(a=1, inner=Inner(x=value))
 
-Exception in thread "main" kotlinx.serialization.json.internal.JsonDecodingException: Encountered an unknown key 'b' at offset 31 at path: $
+Exception in thread "main" kotlinx.serialization.json.internal.JsonDecodingException: Encountered an unknown key 'unknownKey' at offset 29 at path: $.inner
 Use 'ignoreUnknownKeys = true' in 'Json {}' builder or '@JsonIgnoreUnknownKeys' annotation to ignore unknown keys.
 ```
 

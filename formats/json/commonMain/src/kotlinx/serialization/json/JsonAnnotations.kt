@@ -80,7 +80,7 @@ public annotation class JsonClassDiscriminator(val discriminator: String)
  * Specifies whether encounters of unknown properties (i.e., properties not declared in the class) in the input JSON
  * should be ignored instead of throwing [SerializationException].
  *
- * With this annotation, it is possible to allow unknown properties for specific classes, while
+ * With this annotation, it is possible to allow unknown properties for annotated classes, while
  * general [Json.decodeFromString] would still reject them for everything else.
  * If you want [Json.decodeFromString] allow all unknown properties for all classes and inputs, consider using
  * [JsonBuilder.ignoreUnknownKeys].
@@ -88,17 +88,17 @@ public annotation class JsonClassDiscriminator(val discriminator: String)
  * Example:
  * ```
  * @Serializable
+ * @JsonIgnoreUnknownKeys
  * class Outer(val a: Int, val inner: Inner)
  *
  * @Serializable
- * @JsonIgnoreUnknownKeys
  * class Inner(val x: String)
  *
- * // Decodes successfully despite "unknownKey" in Inner
+ * // Throws SerializationException because there is no "unknownKey" property in Inner
  * Json.decodeFromString<Outer>("""{"a":1,"inner":{"x":"value","unknownKey":"unknownValue"}}""")
  *
- * // Throws SerializationException because there is no "b" property in Outer
- * Json.decodeFromString<Outer>("""{"a":1,"inner":{"x":"value"}, "b":2}""")
+ * // Decodes successfully despite "unknownKey" property in Outer
+ * Json.decodeFromString<Outer>("""{"a":1,"inner":{"x":"value"}, "unknownKey":42}""")
  * ```
  *
  * @see JsonBuilder.ignoreUnknownKeys

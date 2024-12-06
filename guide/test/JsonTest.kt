@@ -34,7 +34,7 @@ class JsonTest {
         captureOutput("ExampleJson04") { example.exampleJson04.main() }.verifyOutputLinesStart(
             "Outer(a=1, inner=Inner(x=value))",
             "",
-            "Exception in thread \"main\" kotlinx.serialization.json.internal.JsonDecodingException: Encountered an unknown key 'b' at offset 31 at path: $",
+            "Exception in thread \"main\" kotlinx.serialization.json.internal.JsonDecodingException: Encountered an unknown key 'unknownKey' at offset 29 at path: $.inner",
             "Use 'ignoreUnknownKeys = true' in 'Json {}' builder or '@JsonIgnoreUnknownKeys' annotation to ignore unknown keys."
         )
     }
