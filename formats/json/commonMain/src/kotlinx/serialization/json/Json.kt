@@ -437,6 +437,11 @@ public class JsonBuilder internal constructor(json: Json) {
      * // Fails with "Encountered an unknown key 'version'"
      * Json.decodeFromString<Project>("""{"name":"unknown", "version": 2.0}""")
      * ```
+     *
+     * In case you wish to allow unknown properties only for specific class(es),
+     * consider using [JsonIgnoreUnknownKeys] annotation instead of this configuration flag.
+     *
+     * @see JsonIgnoreUnknownKeys
      */
     public var ignoreUnknownKeys: Boolean = json.configuration.ignoreUnknownKeys
 

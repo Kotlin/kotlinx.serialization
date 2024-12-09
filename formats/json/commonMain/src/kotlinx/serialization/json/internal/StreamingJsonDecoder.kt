@@ -122,7 +122,7 @@ internal open class StreamingJsonDecoder(
         // If we're ignoring unknown keys, we have to skip all un-decoded elements,
         // e.g. for object serialization. It can be the case when the descriptor does
         // not have any elements and decodeElementIndex is not invoked at all
-        if (json.configuration.ignoreUnknownKeys && descriptor.elementsCount == 0) {
+        if (descriptor.elementsCount == 0 && descriptor.ignoreUnknownKeys(json)) {
             skipLeftoverElements(descriptor)
         }
         if (lexer.tryConsumeComma() && !json.configuration.allowTrailingComma) lexer.invalidTrailingComma("")
@@ -240,7 +240,7 @@ internal open class StreamingJsonDecoder(
             }
 
             if (isUnknown) { // slow-path for unknown keys handling
-                hasComma = handleUnknown(key)
+                hasComma = handleUnknown(descriptor, key)
             }
         }
         if (hasComma && !json.configuration.allowTrailingComma) lexer.invalidTrailingComma()
@@ -248,12 +248,13 @@ internal open class StreamingJsonDecoder(
         return elementMarker?.nextUnmarkedIndex() ?: CompositeDecoder.DECODE_DONE
     }
 
-    private fun handleUnknown(key: String): Boolean {
-        if (configuration.ignoreUnknownKeys || discriminatorHolder.trySkip(key)) {
+    private fun handleUnknown(descriptor: SerialDescriptor, key: String): Boolean {
+        if (descriptor.ignoreUnknownKeys(json) || discriminatorHolder.trySkip(key)) {
             lexer.skipElement(configuration.isLenient)
         } else {
-            // Here we cannot properly update json path indices
-            // as we do not have a proper SerialDescriptor in our hands
+            // Since path is updated on key decoding, it ends with the key that was successfully decoded last,
+            // and we need to remove it to correctly point to the outer structure.
+            lexer.path.popDescriptor()
             lexer.failOnUnknownKey(key)
         }
         return lexer.tryConsumeComma()

@@ -4,13 +4,18 @@ package example.exampleJson04
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-@OptIn(ExperimentalSerializationApi::class) // JsonNames is an experimental annotation for now
+@OptIn(ExperimentalSerializationApi::class) // JsonIgnoreUnknownKeys is an experimental annotation for now
 @Serializable
-data class Project(@JsonNames("title") val name: String)
+@JsonIgnoreUnknownKeys
+data class Outer(val a: Int, val inner: Inner)
+
+@Serializable
+data class Inner(val x: String)
 
 fun main() {
-  val project = Json.decodeFromString<Project>("""{"name":"kotlinx.serialization"}""")
-  println(project)
-  val oldProject = Json.decodeFromString<Project>("""{"title":"kotlinx.coroutines"}""")
-  println(oldProject)
+    // 1
+    println(Json.decodeFromString<Outer>("""{"a":1,"inner":{"x":"value"},"unknownKey":42}"""))
+    println()
+    // 2
+    println(Json.decodeFromString<Outer>("""{"a":1,"inner":{"x":"value","unknownKey":"unknownValue"}}"""))
 }

@@ -24,6 +24,10 @@ open annotation class kotlinx.serialization.json/JsonClassDiscriminator : kotlin
         final fun <get-discriminator>(): kotlin/String // kotlinx.serialization.json/JsonClassDiscriminator.discriminator.<get-discriminator>|<get-discriminator>(){}[0]
 }
 
+open annotation class kotlinx.serialization.json/JsonIgnoreUnknownKeys : kotlin/Annotation { // kotlinx.serialization.json/JsonIgnoreUnknownKeys|null[0]
+    constructor <init>() // kotlinx.serialization.json/JsonIgnoreUnknownKeys.<init>|<init>(){}[0]
+}
+
 open annotation class kotlinx.serialization.json/JsonNames : kotlin/Annotation { // kotlinx.serialization.json/JsonNames|null[0]
     constructor <init>(kotlin/Array<out kotlin/String>...) // kotlinx.serialization.json/JsonNames.<init>|<init>(kotlin.Array<out|kotlin.String>...){}[0]
 

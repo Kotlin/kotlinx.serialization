@@ -4,16 +4,13 @@ package example.exampleJson05
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-val format = Json { encodeDefaults = true }
-
+@OptIn(ExperimentalSerializationApi::class) // JsonNames is an experimental annotation for now
 @Serializable
-class Project(
-    val name: String,
-    val language: String = "Kotlin",
-    val website: String? = null
-)
+data class Project(@JsonNames("title") val name: String)
 
 fun main() {
-    val data = Project("kotlinx.serialization")
-    println(format.encodeToString(data))
+  val project = Json.decodeFromString<Project>("""{"name":"kotlinx.serialization"}""")
+  println(project)
+  val oldProject = Json.decodeFromString<Project>("""{"title":"kotlinx.coroutines"}""")
+  println(oldProject)
 }
