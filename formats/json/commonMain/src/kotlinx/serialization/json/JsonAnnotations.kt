@@ -81,7 +81,7 @@ public annotation class JsonClassDiscriminator(val discriminator: String)
  * should be ignored instead of throwing [SerializationException].
  *
  * With this annotation, it is possible to allow unknown properties for annotated classes, while
- * general [Json.decodeFromString] would still reject them for everything else.
+ * general decoding methods (such as [Json.decodeFromString] and others) would still reject them for everything else.
  * If you want [Json.decodeFromString] allow all unknown properties for all classes and inputs, consider using
  * [JsonBuilder.ignoreUnknownKeys].
  *
