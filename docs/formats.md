@@ -25,6 +25,7 @@ stable, these are currently experimental features of Kotlin Serialization.
   * [Oneof field (experimental)](#oneof-field-experimental)
     * [Usage](#usage)
     * [Alternative](#alternative)
+  * [Preserving unknown fields (experimental)](#preserving-unknown-fields-experimental)
   * [ProtoBuf schema generator (experimental)](#protobuf-schema-generator-experimental)
 * [Properties (experimental)](#properties-experimental)
 * [Custom formats (experimental)](#custom-formats-experimental)
@@ -483,7 +484,7 @@ Field #3: 1D Fixed32 Value = 3, Hex = 03-00-00-00
 
 ### Lists as repeated fields
 
-By default, kotlin lists and other collections are representend as repeated fields. 
+By default, kotlin lists and other collections are represented as repeated fields. 
 In the protocol buffers when the list is empty there are no elements in the 
 stream with the corresponding number. For Kotlin Serialization you must explicitly specify a default of `emptyList()`
 for any property of a collection or map type. Otherwise you will not be able deserialize an empty
@@ -642,6 +643,54 @@ is also compatible with the `message Data` given above, which means the same inp
 
 But please note that there are no exclusivity checks. This means that if an instance of `Data2` has both (or none) `homeNumber` and `workNumber` as non-null values and is serialized to protobuf, it no longer complies with the original schema. If you send such data to another parser, one of the fields may be omitted, leading to an unknown issue.
 
+### Preserving unknown fields (experimental)
+
+You may keep updating your schema by adding new fields, but you may not want to break compatibility with the old data.
+
+Kotlin Serialization `ProtoBuf` format supports preserving unknown fields, as described in the [Protocol Buffer-Unknown Fields](https://protobuf.dev/programming-guides/proto3/#unknowns).
+
+To keep the unknown fields, add a property in type `ProtoMessage` with default value `null` or `ProtoMessage.Empty`, and annotation `@ProtoUnknownFields` to your data class.
+
+<!--- INCLUDE
+import kotlinx.serialization.*
+import kotlinx.serialization.protobuf.*
+-->
+
+```kotlin
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class Data(
+    @ProtoNumber(1) val name: String,
+    @ProtoUnknownFields val unknownFields: ProtoMessage = ProtoMessage.Empty
+)
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class NewData(
+    @ProtoNumber(1) val name: String,
+    @ProtoNumber(2) val age: Int,
+)
+
+@OptIn(ExperimentalSerializationApi::class)
+fun main() {
+  val dataFromNewBinary = NewData("Tom", 25)
+  val hexString = ProtoBuf.encodeToHexString(dataFromNewBinary)
+  val dataInOldBinary = ProtoBuf.decodeFromHexString<Data>(hexString)
+  val hexOfOldData = ProtoBuf.encodeToHexString(dataInOldBinary)
+  println(hexOfOldData)
+  println(hexString)
+  assert(hexOfOldData == hexString)
+}
+```
+
+> You can get the full code [here](../guide/example/example-formats-09.kt).
+
+```text
+0a03546f6d1019
+0a03546f6d1019
+```
+
+<!--- TEST -->
 ### ProtoBuf schema generator (experimental)
 
 As mentioned above, when working with protocol buffers you usually use a ".proto" file and a code generator for your
@@ -676,7 +725,7 @@ fun main() {
   println(schemas)
 }
 ```
-> You can get the full code [here](../guide/example/example-formats-09.kt).
+> You can get the full code [here](../guide/example/example-formats-10.kt).
 
 Which would output as follows.
 
@@ -684,7 +733,7 @@ Which would output as follows.
 syntax = "proto2";
 
 
-// serial name 'example.exampleFormats09.SampleData'
+// serial name 'example.exampleFormats10.SampleData'
 message SampleData {
   required int64 amount = 1;
   optional string description = 2;
@@ -729,7 +778,7 @@ fun main() {
 }
 ```      
 
-> You can get the full code [here](../guide/example/example-formats-10.kt).
+> You can get the full code [here](../guide/example/example-formats-11.kt).
 
 The resulting map has dot-separated keys representing keys of the nested objects.
 
@@ -814,7 +863,7 @@ fun main() {
 }
 ```                                    
 
-> You can get the full code [here](../guide/example/example-formats-11.kt).
+> You can get the full code [here](../guide/example/example-formats-12.kt).
 
 As a result, we got all the primitive values in our object graph visited and put into a list
 in _serial_ order.
@@ -923,7 +972,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-formats-12.kt).
+> You can get the full code [here](../guide/example/example-formats-13.kt).
 
 Now we can convert a list of primitives back to an object tree.
 
@@ -1021,7 +1070,7 @@ fun main() {
 }
 -->
 
-> You can get the full code [here](../guide/example/example-formats-13.kt).
+> You can get the full code [here](../guide/example/example-formats-14.kt).
 
 <!--- TEST 
 [kotlinx.serialization, kotlin, 9000]
@@ -1135,7 +1184,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-formats-14.kt).
+> You can get the full code [here](../guide/example/example-formats-15.kt).
 
 We see the size of the list added to the result, letting the decoder know where to stop. 
 
@@ -1254,7 +1303,7 @@ fun main() {
 
 ```
 
-> You can get the full code [here](../guide/example/example-formats-15.kt).
+> You can get the full code [here](../guide/example/example-formats-16.kt).
 
 In the output we see how not-null`!!` and `NULL` marks are used.
 
@@ -1389,7 +1438,7 @@ fun main() {
 }
 ```
               
-> You can get the full code [here](../guide/example/example-formats-16.kt).
+> You can get the full code [here](../guide/example/example-formats-17.kt).
 
 As we can see, the result is a dense binary format that only contains the data that is being serialized. 
 It can be easily tweaked for any kind of domain-specific compact encoding.
@@ -1590,7 +1639,7 @@ fun main() {
 }
 ```
               
-> You can get the full code [here](../guide/example/example-formats-17.kt).
+> You can get the full code [here](../guide/example/example-formats-18.kt).
 
 As we can see, our custom byte array format is being used, with the compact encoding of its size in one byte. 
 
