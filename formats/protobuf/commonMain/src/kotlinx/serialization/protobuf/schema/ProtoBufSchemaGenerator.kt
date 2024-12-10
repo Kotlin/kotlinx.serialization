@@ -16,7 +16,8 @@ import kotlinx.serialization.protobuf.internal.*
  * An arbitrary Kotlin class represent much wider object domain than the ProtoBuf specification, thus schema generator
  * has the following list of restrictions:
  *
- *  * Serial name of the class and all its fields should be a valid Proto [identifier](https://developers.google.com/protocol-buffers/docs/reference/proto2-spec)
+ *  * Serial name of the class and all its fields should be a valid Proto [identifier](https://developers.google.com/protocol-buffers/docs/reference/proto2-spec).
+ *    If this is a problem for you, you many override serial names for ProtoBuf only by using the [ProtoName] annotation for specific fields or classes.
  *  * Nullable values are allowed only for Kotlin [nullable][SerialDescriptor.isNullable] types, but not [optional][SerialDescriptor.isElementOptional]
  *    in order to properly distinguish "default" and "absent" values.
  *  * The name of the type without the package directive uniquely identifies the proto message type and two or more fields with the same serial name
@@ -182,7 +183,7 @@ public object ProtoBufSchemaGenerator {
         getAnnotations: (Int) -> List<Annotation> = { parentType.descriptor.getElementAnnotations(it) },
         getChildType: (Int) -> TypeDefinition = { parentType.descriptor.getElementDescriptor(it).let(::TypeDefinition) },
         getChildNumber: (Int) -> Int = { parentType.descriptor.getElementAnnotations(it).filterIsInstance<ProtoNumber>().singleOrNull()?.number ?: (it + 1) },
-        getChildName: (Int) -> String = { parentType.descriptor.getElementName(it) },
+        getChildName: (Int) -> String = { parentType.descriptor.getElementNameProtobuf(it) },
         inOneOfStruct: Boolean = false,
     ) {
         val messageDescriptor = parentType.descriptor
@@ -216,7 +217,7 @@ public object ProtoBufSchemaGenerator {
                         getAnnotations = { desc.annotations },
                         getChildType = { desc.elementDescriptors.single().let(::TypeDefinition) },
                         getChildNumber = { desc.getElementAnnotations(0).filterIsInstance<ProtoNumber>().singleOrNull()?.number ?: (it + 1) },
-                        getChildName = { desc.getElementName(0) },
+                        getChildName = { desc.getElementNameProtobuf(0) },
                         inOneOfStruct = true,
                     )
                 }
@@ -392,13 +393,15 @@ public object ProtoBufSchemaGenerator {
         val usedNumbers: MutableSet<Int> = mutableSetOf()
         val duplicatedNumbers: MutableSet<Int> = mutableSetOf()
         enumDescriptor.elementDescriptors.forEachIndexed { index, element ->
-            val elementName = element.protobufEnumElementName
+            val annotations = enumDescriptor.getElementAnnotations(index)
+
+            val elementName = annotations.filterIsInstance<ProtoName>().singleOrNull()?.name
+                ?: element.serialName.substringAfterLast('.', element.serialName)
             elementName.checkIsValidIdentifier {
                 "The enum element name '$elementName' is invalid in the " +
-                        "protobuf schema. Serial name of the enum class '${enumDescriptor.serialName}'"
+                    "protobuf schema. Serial name of the enum class '${enumDescriptor.serialName}'"
             }
 
-            val annotations = enumDescriptor.getElementAnnotations(index)
             val number = annotations.filterIsInstance<ProtoNumber>().singleOrNull()?.number ?: index
             if (!usedNumbers.add(number)) {
                 duplicatedNumbers.add(number)
@@ -414,6 +417,13 @@ public object ProtoBufSchemaGenerator {
         }
 
         appendLine('}')
+    }
+
+    private fun SerialDescriptor.getElementNameProtobuf(index: Int): String {
+        getElementAnnotations(index).forEach {
+            if(it is ProtoName) return it.name
+        }
+        return getElementName(index)
     }
 
     private val SerialDescriptor.isOpenPolymorphic: Boolean
@@ -453,8 +463,16 @@ public object ProtoBufSchemaGenerator {
         get() = kind == PrimitiveKind.INT || kind == PrimitiveKind.LONG || kind == PrimitiveKind.BOOLEAN || kind == PrimitiveKind.STRING
 
 
+    @Suppress("RecursivePropertyAccessor")
     private val SerialDescriptor.messageOrEnumName: String
-        get() = (serialName.substringAfterLast('.', serialName)).removeSuffix("?")
+        get() {
+            // Try to get the original descriptor to retrieve the ProtoName
+            if (this is NotNullSerialDescriptor) return this.original.messageOrEnumName
+            if (nonNullOriginal != this) return nonNullOriginal.messageOrEnumName
+
+            annotations.forEach { if(it is ProtoName) return it.name }
+            return serialName.substringAfterLast('.', serialName).removeSuffix("?")
+        }
 
     private fun SerialDescriptor.isChildOneOfMessage(index: Int): Boolean =
         this.getElementDescriptor(index).isSealedPolymorphic && this.getElementAnnotations(index).any { it is ProtoOneOf }
@@ -466,9 +484,6 @@ public object ProtoBufSchemaGenerator {
             messageOrEnumName
         }
     }
-
-    private val SerialDescriptor.protobufEnumElementName: String
-        get() = serialName.substringAfterLast('.', serialName)
 
     private fun SerialDescriptor.scalarTypeName(annotations: List<Annotation> = emptyList()): String {
         val integerType = annotations.filterIsInstance<ProtoType>().firstOrNull()?.type ?: ProtoIntegerType.DEFAULT
@@ -548,7 +563,7 @@ public object ProtoBufSchemaGenerator {
     ): TypeDefinition {
         val messageDescriptor = messageType.descriptor
         val fieldDescriptor = messageDescriptor.getElementDescriptor(index)
-        val fieldName = messageDescriptor.getElementName(index)
+        val fieldName = messageDescriptor.getElementNameProtobuf(index)
         val messageName = messageDescriptor.messageOrEnumName
 
         val wrapperName = "${messageName}_${fieldName}"
@@ -573,7 +588,7 @@ public object ProtoBufSchemaGenerator {
         description: String
     ): TypeDefinition {
         val messageDescriptor = messageType.descriptor
-        val fieldName = messageDescriptor.getElementName(index)
+        val fieldName = messageDescriptor.getElementNameProtobuf(index)
         val messageName = messageDescriptor.messageOrEnumName
 
         val wrapperName = "${messageName}_${fieldName}"
