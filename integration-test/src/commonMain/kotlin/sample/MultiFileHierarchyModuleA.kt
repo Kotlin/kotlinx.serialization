@@ -28,3 +28,24 @@ abstract class NotInConstructorBase {
     val b = "val b"
     val a = "val a"
 }
+
+@Serializable
+open class GenericBox<E> {
+    var contents: Map<String, E>? = null
+}
+
+// From #1264
+@Serializable
+sealed class TypedSealedClass<T>(val a: T) {
+    @Serializable
+    class Child(val y: Int) : TypedSealedClass<String>("10") {
+        override fun toString(): String = "Child($a, $y)"
+    }
+}
+
+// From #KT-43910
+@Serializable
+open class ValidatableValue<T : Any, V: Any>(
+    var value: T? = null,
+    var error: V? = null,
+)
