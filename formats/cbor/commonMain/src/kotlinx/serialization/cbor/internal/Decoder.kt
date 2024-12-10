@@ -426,9 +426,11 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
             } else {
                 val header = curByte and 0b111_00000
                 val length = elementLength()
-                if (header == HEADER_ARRAY || header == HEADER_MAP) {
+                if (header == HEADER_TAG) {
+                    readNumber()
+                } else if (header == HEADER_ARRAY || header == HEADER_MAP) {
                     if (length > 0) lengthStack.add(length)
-                    processTags(tags)
+                    else prune(lengthStack) // empty map or array automatically completes
                 } else {
                     input.skip(length)
                     prune(lengthStack)
