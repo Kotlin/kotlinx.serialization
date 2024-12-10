@@ -31,7 +31,7 @@ dependencies {
 ```
 
 To use snapshot version of compiler (if you have built and installed it from sources), use flag `-Pbootstrap`.
-If you have built both Kotlin and Kotlin/Native compilers, set `KONAN_LOCAL_DIST` environment property to the path with Kotlin/Native distribution
+If you have built both Kotlin and Kotlin/Native compilers, set `kotlin.native.home` property in `gradle.properties` to the path with Kotlin/Native distribution
 (usually `kotlin-native/dist` folder inside Kotlin project).
 
 The `master` and `dev` branches of the library should be binary compatible with the latest released compiler plugin. In case you want to test some new features from other branches,
