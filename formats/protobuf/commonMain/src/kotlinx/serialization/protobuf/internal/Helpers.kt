@@ -22,8 +22,15 @@ internal enum class ProtoWireType(val typeId: Int) {
     ;
 
     companion object {
+        private val entryArray = Array(8) { typeId ->
+            ProtoWireType.entries.find { it.typeId == typeId } ?: INVALID
+        }
+
         fun from(typeId: Int): ProtoWireType {
-            return ProtoWireType.entries.find { it.typeId == typeId } ?: INVALID
+            if (typeId < 0 || typeId >= entryArray.size) {
+                return INVALID
+            }
+            return entryArray[typeId]
         }
     }
 
