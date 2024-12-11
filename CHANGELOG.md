@@ -1,3 +1,67 @@
+1.8.0-RC / 2024-13-10
+==================
+
+This is a release candidate for the next version. It is based on Kotlin 2.1.0 and includes a few new features, as well
+as bugfixes and improvements:
+
+## `@JsonIgnoreUnknownKeys` annotation
+
+Previously, only global setting `JsonBuilder.ignoreUnknownKeys` controlled whether Json parser would throw exception if
+input contained a property that was not declared in a `@Serializable` class.
+There were [a lot of complaints](https://github.com/Kotlin/kotlinx.serialization/issues/1420) that this setting is not
+flexible enough.
+To address them, we added new `@JsonIgnoreUnknownKeys` annotation that can be applied on a per-class basis.
+With this annotation, it is possible to allow unknown properties for annotated classes, while
+general decoding methods (such as `Json.decodeFromString` and others) would still reject them for everything else.
+See details in the corresponding [PR](https://github.com/Kotlin/kotlinx.serialization/pull/2874).
+
+## Stabilization of `SerialDescriptor` API and `@SealedSerializationApi` annotation
+
+`SerialDescriptor`, `SerialKind`, and related API has been around for a long time and has proven itself useful.
+The main reason `@ExperimentalSerializationApi` was on SerialDescriptor's properties is that we wanted to discourage
+people from subclassing it.
+Fortunately, Kotlin 2.1 provides a special mechanism for such a
+case — [SubclassOptInRequired](https://kotlinlang.org/docs/opt-in-requirements.html#opt-in-to-inherit-from-a-class-or-interface).
+New `kotlinx.serialization.SealedSerializationApi` annotation designates APIs
+as public for use, but closed for implementation — the case for SerialDescriptor, which is a non-sealed interface for
+technical reasons.
+Now you can use most of `SerialDescriptor` and its builders API without the need to opt-in into experimental
+serialization API.
+See the [PR](https://github.com/Kotlin/kotlinx.serialization/pull/2827) for more details.
+
+_Note_: All `SerialKind`s are stable API now, except `PolymorphicKind` — we may want to expand it in the future.
+
+## Generate Java 8's default method implementations in interfaces
+
+**TL;DR This change ensures better binary compatibility in the future for library. You should not experience any
+difference from it.**
+
+kotlinx.serialization library contains a lot of interfaces with default method implementations. Historically, Kotlin
+compiled a synthetic `DefaultImpls` class for them.
+[Starting from Kotlin 1.4](https://blog.jetbrains.com/kotlin/2020/07/kotlin-1-4-m3-generating-default-methods-in-interfaces/),
+it was possible to compile them using as Java 8's `default` methods to ensure
+that new methods can still be added to interfaces without the need for implementors to recompile.
+To preserve binary compatibility with existing clients, a special `all-compatbility` mode is supported in compiler
+to generate both `default` methods and synthetic `DefaultImpls` class.
+
+Now, kotlinx.serialization finally makes use of this `all-compatibility` mode,
+which potentially allows us to add new methods to interfaces such as `SerialDescriptor`, `Encoder`, `Decoder`, etc.,
+without breaking existing clients. This change is expected to have no effect on existing clients, and no action from
+your side is required.
+Note that Kotlin 2.2 plans to enable `all-compatibility`
+mode [by default](https://youtrack.jetbrains.com/issue/KTLC-269).
+
+## Other bugfixes and improvements
+
+* Correctly skip structures with Cbor.ignoreUnknownKeys setting (#2873)
+* Handle missing system property without NPE (#2867)
+* Fixed keeping INSTANCE field and serializer function for serializable objects in R8 full mode (#2865)
+* Correctly parse invalid numbers in JsonLiteral.long and other extensions (#2852)
+* Correctly handle serial name conflict for different classes in SerializersModule.overwriteWith (#2856)
+* Add inline reified version of encodeToString as a Json member to streamline the experience for newcomers. (#2853)
+* Do not check kind or discriminator collisions for subclasses' polymorphic serializers if Json.classDiscriminatorMode
+  is set to NONE (#2833)
+
 1.7.3 / 2024-09-19
 ==================
 
