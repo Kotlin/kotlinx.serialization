@@ -26,11 +26,13 @@ internal enum class ProtoWireType(val typeId: Int) {
             ProtoWireType.entries.find { it.typeId == typeId } ?: INVALID
         }
 
-        fun from(typeId: Int): ProtoWireType {
-            if (typeId < 0 || typeId >= entryArray.size) {
-                return INVALID
-            }
-            return entryArray[typeId]
+        /**
+         * Extracts three least significant bits from the [value] and
+         * returns [ProtoWireType] with corresponding type id, or [ProtoWireType.INVALID]
+         * if there are no such a type.
+         */
+        fun fromLeastSignificantBits(value: Int): ProtoWireType {
+            return entryArray[value and 0b111]
         }
     }
 
