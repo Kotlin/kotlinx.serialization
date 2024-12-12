@@ -49,7 +49,7 @@ internal fun AbstractJsonLexer.throwInvalidFloatingPointDecoded(result: Number):
 internal fun AbstractJsonLexer.invalidTrailingComma(entity: String = "object"): Nothing {
     fail("Trailing comma before the end of JSON $entity",
         position = currentPosition - 1,
-        hint = "Trailing commas are non-complaint JSON and not allowed by default. Use 'allowTrailingCommas = true' in 'Json {}' builder to support them."
+        hint = "Trailing commas are non-complaint JSON and not allowed by default. Use 'allowTrailingComma = true' in 'Json {}' builder to support them."
     )
 }
 
