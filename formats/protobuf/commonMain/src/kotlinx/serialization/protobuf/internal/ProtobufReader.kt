@@ -42,7 +42,7 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
             -1
         } else {
             currentId = header ushr 3
-            currentType = ProtoWireType.from(header and 0b111)
+            currentType = ProtoWireType.fromLeastSignificantBits(header)
             currentId
         }
     }
