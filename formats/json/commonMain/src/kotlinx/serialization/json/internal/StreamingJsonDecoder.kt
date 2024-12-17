@@ -110,11 +110,8 @@ internal open class StreamingJsonDecoder(
                 descriptor,
                 discriminatorHolder
             )
-            else -> if (mode == newMode && json.configuration.explicitNulls) {
-                this
-            } else {
-                StreamingJsonDecoder(json, newMode, lexer, descriptor, discriminatorHolder)
-            }
+
+            else -> StreamingJsonDecoder(json, newMode, lexer, descriptor, discriminatorHolder)
         }
     }
 
@@ -220,35 +217,47 @@ internal open class StreamingJsonDecoder(
     )
 
     private fun decodeObjectIndex(descriptor: SerialDescriptor): Int {
-        // hasComma checks are required to properly react on trailing commas
-        var hasComma = lexer.tryConsumeComma()
-        while (lexer.canConsumeValue()) { // TODO: consider merging comma consumption and this check
-            hasComma = false
+        while (true) {
+            if (currentIndex != -1) {
+                val next = lexer.peekNextToken()
+                if (next == TC_END_OBJ) {
+                    currentIndex = CompositeDecoder.DECODE_DONE
+                    return elementMarker?.nextUnmarkedIndex() ?: CompositeDecoder.DECODE_DONE
+                }
+
+                lexer.require(next == TC_COMMA) { "Expected comma after the key-value pair" }
+                val commaPosition = lexer.currentPosition
+                lexer.consumeNextToken()
+                lexer.require(
+                    configuration.allowTrailingComma || lexer.peekNextToken() != TC_END_OBJ,
+                    position = commaPosition
+                ) { "Trailing comma before the end of JSON object" }
+            }
+
+            if (!lexer.canConsumeValue()) break
+
             val key = decodeStringKey()
             lexer.consumeNextToken(COLON)
             val index = descriptor.getJsonNameIndex(json, key)
-            val isUnknown = if (index != UNKNOWN_NAME) {
-                if (configuration.coerceInputValues && coerceInputValue(descriptor, index)) {
-                    hasComma = lexer.tryConsumeComma()
-                    false // Known element, but coerced
-                } else {
-                    elementMarker?.mark(index)
-                    return index // Known element without coercing, return it
-                }
-            } else {
-                true // unknown element
+
+            if (index == UNKNOWN_NAME) {
+                handleUnknown(descriptor, key)
+                currentIndex = UNKNOWN_NAME
+                continue
             }
 
-            if (isUnknown) { // slow-path for unknown keys handling
-                hasComma = handleUnknown(descriptor, key)
+            if (configuration.coerceInputValues && coerceInputValue(descriptor, index)) {
+                continue
             }
+            elementMarker?.mark(index)
+            currentIndex = index
+            return index
         }
-        if (hasComma && !json.configuration.allowTrailingComma) lexer.invalidTrailingComma()
 
         return elementMarker?.nextUnmarkedIndex() ?: CompositeDecoder.DECODE_DONE
     }
 
-    private fun handleUnknown(descriptor: SerialDescriptor, key: String): Boolean {
+    private fun handleUnknown(descriptor: SerialDescriptor, key: String) {
         if (descriptor.ignoreUnknownKeys(json) || discriminatorHolder.trySkip(key)) {
             lexer.skipElement(configuration.isLenient)
         } else {
@@ -257,7 +266,6 @@ internal open class StreamingJsonDecoder(
             lexer.path.popDescriptor()
             lexer.failOnUnknownKey(key)
         }
-        return lexer.tryConsumeComma()
     }
 
     private fun decodeListIndex(): Int {
