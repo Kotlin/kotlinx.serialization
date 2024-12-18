@@ -18,18 +18,31 @@ class UuidTest : JsonTestBase() {
         assertJsonFormAndRestored(Uuid.serializer(), uuid, "\"$uuid\"")
     }
 
-    // TODO: write a test without @Contextual after 2.1.0 release
     @Serializable
-    data class Holder(@Contextual val uuid: Uuid)
+    data class Holder(val uuid: Uuid)
+
+    @Serializable
+    data class HolderContextual(@Contextual val uuid: Uuid)
 
     val json = Json { serializersModule = serializersModuleOf(Uuid.serializer()) }
 
     @Test
-    fun testNested() {
+    fun testCompiled() {
         val fixed = Uuid.parse("bc501c76-d806-4578-b45e-97a264e280f1")
         assertJsonFormAndRestored(
             Holder.serializer(),
             Holder(fixed),
+            """{"uuid":"bc501c76-d806-4578-b45e-97a264e280f1"}""",
+            Json
+        )
+    }
+
+    @Test
+    fun testContextual() {
+        val fixed = Uuid.parse("bc501c76-d806-4578-b45e-97a264e280f1")
+        assertJsonFormAndRestored(
+            HolderContextual.serializer(),
+            HolderContextual(fixed),
             """{"uuid":"bc501c76-d806-4578-b45e-97a264e280f1"}""",
             json
         )
