@@ -239,18 +239,18 @@ internal open class StreamingJsonDecoder(
             val key = decodeStringKey()
             lexer.consumeNextToken(COLON)
             val index = descriptor.getJsonNameIndex(json, key)
+            currentIndex = index
 
             if (index == UNKNOWN_NAME) {
                 handleUnknown(descriptor, key)
-                currentIndex = UNKNOWN_NAME
                 continue
             }
 
             if (configuration.coerceInputValues && coerceInputValue(descriptor, index)) {
                 continue
             }
+
             elementMarker?.mark(index)
-            currentIndex = index
             return index
         }
 
