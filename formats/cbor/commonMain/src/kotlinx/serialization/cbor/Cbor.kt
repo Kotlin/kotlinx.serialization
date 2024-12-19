@@ -27,7 +27,9 @@ public sealed class Cbor(
 ) : BinaryFormat {
 
     /**
-     * The default instance of [Cbor]. Neither writes nor verifies tags. Uses indefinite length encoding by default.
+     * The default instance of [Cbor]. Neither writes nor verifies tags,
+     * and does not forbid reading duplicate map keys.
+     * Uses indefinite length encoding by default.
      */
     public companion object Default :
         Cbor(
@@ -42,13 +44,15 @@ public sealed class Cbor(
                 verifyObjectTags = false,
                 useDefiniteLengthEncoding = false,
                 preferCborLabelsOverNames = false,
-                alwaysUseByteString = false
+                alwaysUseByteString = false,
+                forbidDuplicateKeys = false,
             ), EmptySerializersModule()
         ) {
 
         /**
          * Preconfigured instance of [Cbor] for COSE compliance. Encodes and verifies all tags, uses definite length
-         * encoding and prefers labels to serial names. **DOES NOT** sort CBOR map keys; declare them in canonical order
+         * encoding, prefers labels to serial names, and forbids reading duplicate map keys.
+         * **DOES NOT** sort CBOR map keys; declare them in canonical order
          * for full cbor compliance!
          */
         public val CoseCompliant: Cbor =
@@ -64,6 +68,7 @@ public sealed class Cbor(
                 useDefiniteLengthEncoding = true
                 preferCborLabelsOverNames = true
                 alwaysUseByteString = false
+                forbidDuplicateKeys = true
                 serializersModule = EmptySerializersModule()
             }
     }
@@ -119,7 +124,8 @@ public fun Cbor(from: Cbor = Cbor, builderAction: CborBuilder.() -> Unit): Cbor 
         builder.verifyObjectTags,
         builder.useDefiniteLengthEncoding,
         builder.preferCborLabelsOverNames,
-        builder.alwaysUseByteString),
+        builder.alwaysUseByteString,
+        builder.forbidDuplicateKeys),
         builder.serializersModule
     )
 }
@@ -242,6 +248,14 @@ public class CborBuilder internal constructor(cbor: Cbor) {
      * to annotate every `ByteArray` in a class hierarchy.
      */
     public var alwaysUseByteString: Boolean = cbor.configuration.alwaysUseByteString
+
+    /**
+     * Specifies whether it is an error to read a map with duplicate keys.
+     *
+     * If this is set to true, decoding a map with two keys that compare as equal
+     * will cause a [DuplicateKeyException] error to be thrown.
+     */
+    public var forbidDuplicateKeys: Boolean = cbor.configuration.forbidDuplicateKeys
 
     /**
      * Module with contextual and polymorphic serializers to be used in the resulting [Cbor] instance.
