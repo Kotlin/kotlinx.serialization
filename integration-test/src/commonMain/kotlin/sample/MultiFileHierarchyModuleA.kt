@@ -28,3 +28,15 @@ abstract class NotInConstructorBase {
     val b = "val b"
     val a = "val a"
 }
+
+@Serializable
+open class GenericBox<E> {
+    var contents: Map<String, E>? = null
+}
+
+// From #KT-43910
+@Serializable
+open class ValidatableValue<T : Any, V: Any>(
+    var value: T? = null,
+    var error: V? = null,
+)
