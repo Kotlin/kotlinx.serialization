@@ -6,7 +6,6 @@ package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
-import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.test.*
 import kotlin.test.*
 
@@ -79,11 +78,11 @@ class JsonParserTest : JsonTestBase() {
     fun testTrailingComma() {
         testTrailingComma("{\"id\":0,}")
         testTrailingComma("{\"id\":0  ,}")
-        testTrailingComma("{\"id\":0  , ,}")
+        testTrailingComma("{\"id\":0  , ,}", message = "Multiple consecutive commas are not allowed in JSON")
     }
 
-    private fun testTrailingComma(content: String) {
-        assertFailsWithSerialMessage("JsonDecodingException", "Trailing comma before the end of JSON object") {  Json.parseToJsonElement(content) }
+    private fun testTrailingComma(content: String, message: String = "Trailing comma before the end of JSON object") {
+        assertFailsWithSerialMessage("JsonDecodingException", message) { Json.parseToJsonElement(content) }
     }
 
     @Test

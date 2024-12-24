@@ -168,17 +168,6 @@ internal abstract class AbstractJsonLexer {
 
     abstract fun consumeNextToken(): Byte
 
-    fun tryConsumeComma(): Boolean {
-        val current = skipWhitespaces()
-        val source = source
-        if (current >= source.length || current == -1) return false
-        if (source[current] == ',') {
-            ++currentPosition
-            return true
-        }
-        return false
-    }
-
     protected fun isValidValueStart(c: Char): Boolean {
         return when (c) {
             '}', ']', ':', ',' -> false
@@ -757,6 +746,39 @@ internal abstract class AbstractJsonLexer {
             return action()
         } finally {
             currentPosition = snapshot
+        }
+    }
+
+    fun consumeCommaOrPeekEnd(
+        allowTrailing: Boolean,
+        expectedEnd: Char,
+        entity: String = "object",
+    ) {
+        val nextToken = peekNextToken()
+        if (nextToken == charToTokenClass(expectedEnd)) return
+        if (nextToken != TC_COMMA) {
+            path.popDescriptor()
+            fail("Expected end of the $entity or comma")
+        }
+        val commaPosition = currentPosition++ // consumes peeked comma
+        val peeked = peekNextToken()
+
+        if (peeked == charToTokenClass(expectedEnd) && !allowTrailing) {
+            path.popDescriptor()
+
+            fail(
+                "Trailing comma before the end of JSON $entity",
+                position = commaPosition,
+                hint = "Trailing commas are non-complaint JSON and not allowed by default. Use 'allowTrailingComma = true' in 'Json {}' builder to support them."
+            )
+        }
+        if (peeked == TC_COMMA) {
+            path.popDescriptor()
+            fail(
+                "Multiple consecutive commas are not allowed in JSON",
+                position = currentPosition,
+                hint = "Trailing commas are non-complaint JSON and not allowed by default. Use 'allowTrailingComma = true' in 'Json {}' builder to support them."
+            )
         }
     }
 }

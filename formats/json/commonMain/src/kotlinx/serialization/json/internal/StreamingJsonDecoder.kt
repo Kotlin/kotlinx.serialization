@@ -123,7 +123,6 @@ internal open class StreamingJsonDecoder(
         if (descriptor.elementsCount == 0 && descriptor.ignoreUnknownKeys(json)) {
             skipLeftoverElements(descriptor)
         }
-        if (lexer.tryConsumeComma() && !json.configuration.allowTrailingComma) lexer.invalidTrailingComma("")
         // First consume the object so we know it's correct
         lexer.consumeNextToken(mode.end)
         // Then cleanup the path
@@ -185,24 +184,21 @@ internal open class StreamingJsonDecoder(
     }
 
     private fun decodeMapIndex(): Int {
-        var hasComma = false
         val decodingKey = currentIndex % 2 != 0
         if (decodingKey) {
             if (currentIndex != -1) {
-                hasComma = lexer.tryConsumeComma()
+                lexer.consumeCommaOrPeekEnd(
+                    allowTrailing = json.configuration.allowTrailingComma,
+                    expectedEnd = mode.end
+                )
             }
         } else {
             lexer.consumeNextToken(COLON)
         }
 
         return if (lexer.canConsumeValue()) {
-            if (decodingKey) {
-                if (currentIndex == -1) lexer.require(!hasComma) { "Unexpected leading comma" }
-                else lexer.require(hasComma) { "Expected comma after the key-value pair" }
-            }
             ++currentIndex
         } else {
-            if (hasComma && !json.configuration.allowTrailingComma) lexer.invalidTrailingComma()
             CompositeDecoder.DECODE_DONE
         }
     }
@@ -220,19 +216,10 @@ internal open class StreamingJsonDecoder(
     private fun decodeObjectIndex(descriptor: SerialDescriptor): Int {
         while (true) {
             if (currentIndex != -1) {
-                val next = lexer.peekNextToken()
-                if (next == TC_END_OBJ) {
-                    currentIndex = CompositeDecoder.DECODE_DONE
-                    return elementMarker?.nextUnmarkedIndex() ?: CompositeDecoder.DECODE_DONE
-                }
-
-                lexer.require(next == TC_COMMA) { "Expected comma after the key-value pair" }
-                val commaPosition = lexer.currentPosition
-                lexer.consumeNextToken()
-                lexer.require(
-                    configuration.allowTrailingComma || lexer.peekNextToken() != TC_END_OBJ,
-                    position = commaPosition
-                ) { "Trailing comma before the end of JSON object" }
+                lexer.consumeCommaOrPeekEnd(
+                    allowTrailing = json.configuration.allowTrailingComma,
+                    expectedEnd = mode.end
+                )
             }
 
             if (!lexer.canConsumeValue()) break
@@ -270,13 +257,17 @@ internal open class StreamingJsonDecoder(
     }
 
     private fun decodeListIndex(): Int {
-        // Prohibit leading comma
-        val hasComma = lexer.tryConsumeComma()
+        if (currentIndex != -1) {
+            lexer.consumeCommaOrPeekEnd(
+                allowTrailing = json.configuration.allowTrailingComma,
+                expectedEnd = mode.end,
+                entity = "array"
+            )
+        }
+
         return if (lexer.canConsumeValue()) {
-            if (currentIndex != -1 && !hasComma) lexer.fail("Expected end of the array or comma")
             ++currentIndex
         } else {
-            if (hasComma && !json.configuration.allowTrailingComma) lexer.invalidTrailingComma("array")
             CompositeDecoder.DECODE_DONE
         }
     }

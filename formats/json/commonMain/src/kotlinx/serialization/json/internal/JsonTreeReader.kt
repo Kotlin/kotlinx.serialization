@@ -4,7 +4,7 @@
 
 package kotlinx.serialization.json.internal
 
-import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -24,53 +24,52 @@ internal class JsonTreeReader(
         readObjectImpl { callRecursive(Unit) }
 
     private inline fun readObjectImpl(reader: () -> JsonElement): JsonObject {
-        var lastToken = lexer.consumeNextToken(TC_BEGIN_OBJ)
+        lexer.consumeNextToken(TC_BEGIN_OBJ)
+        lexer.path.pushDescriptor(JsonObjectSerializer.descriptor)
+
         if (lexer.peekNextToken() == TC_COMMA) lexer.fail("Unexpected leading comma")
         val result = linkedMapOf<String, JsonElement>()
         while (lexer.canConsumeValue()) {
+            lexer.path.resetCurrentMapKey()
             // Read key and value
             val key = if (isLenient) lexer.consumeStringLenient() else lexer.consumeString()
             lexer.consumeNextToken(TC_COLON)
+
+            lexer.path.updateCurrentMapKey(key)
             val element = reader()
             result[key] = element
             // Verify the next token
-            lastToken = lexer.consumeNextToken()
-            when (lastToken) {
-                TC_COMMA -> Unit // no-op, can continue with `canConsumeValue` that verifies the token after comma
-                TC_END_OBJ -> break // `canConsumeValue` can return incorrect result, since it checks token _after_ TC_END_OBJ
-                else -> lexer.fail("Expected end of the object or comma")
-            }
+            lexer.consumeCommaOrPeekEnd(
+                allowTrailing = trailingCommaAllowed,
+                expectedEnd = '}',
+            )
         }
-        // Check for the correct ending
-        if (lastToken == TC_BEGIN_OBJ) { // Case of empty object
-            lexer.consumeNextToken(TC_END_OBJ)
-        } else if (lastToken == TC_COMMA) { // Trailing comma
-            if (!trailingCommaAllowed) lexer.invalidTrailingComma()
-            lexer.consumeNextToken(TC_END_OBJ)
-        } // else unexpected token?
+
+        lexer.consumeNextToken(TC_END_OBJ)
+        lexer.path.popDescriptor()
+
         return JsonObject(result)
     }
 
     private fun readArray(): JsonElement {
-        var lastToken = lexer.consumeNextToken()
+        lexer.consumeNextToken(TC_BEGIN_LIST)
+        lexer.path.pushDescriptor(JsonArraySerializer.descriptor)
         // Prohibit leading comma
         if (lexer.peekNextToken() == TC_COMMA) lexer.fail("Unexpected leading comma")
         val result = arrayListOf<JsonElement>()
         while (lexer.canConsumeValue()) {
+            lexer.path.updateDescriptorIndex(result.size)
             val element = read()
             result.add(element)
-            lastToken = lexer.consumeNextToken()
-            if (lastToken != TC_COMMA) {
-                lexer.require(lastToken == TC_END_LIST) { "Expected end of the array or comma" }
-            }
+            lexer.consumeCommaOrPeekEnd(
+                allowTrailing = trailingCommaAllowed,
+                expectedEnd = ']',
+                entity = "array"
+            )
         }
-        // Check for the correct ending
-        if (lastToken == TC_BEGIN_LIST) { // Case of empty object
-            lexer.consumeNextToken(TC_END_LIST)
-        } else if (lastToken == TC_COMMA) { // Trailing comma
-            if (!trailingCommaAllowed) lexer.invalidTrailingComma("array")
-            lexer.consumeNextToken(TC_END_LIST)
-        }
+        lexer.consumeNextToken(TC_END_LIST)
+        lexer.path.popDescriptor()
+
         return JsonArray(result)
     }
 
@@ -103,6 +102,7 @@ internal class JsonTreeReader(
                 --stackDepth
                 result
             }
+
             TC_BEGIN_LIST -> readArray()
             else -> lexer.fail("Cannot read Json element because of unexpected ${tokenDescription(token)}")
         }

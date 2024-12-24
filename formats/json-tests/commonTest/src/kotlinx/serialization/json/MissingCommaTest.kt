@@ -26,7 +26,7 @@ class MissingCommaTest : JsonTestBase() {
     @Test
     fun missingCommaBetweenFieldsAfterPrimitive() {
         val message =
-            "Unexpected JSON token at offset 8: Expected comma after the key-value pair at path: \$.i"
+            "Unexpected JSON token at offset 8: Expected end of the object or comma at path: \$"
         val json = """{"i":42 "c":{"i":"string"}}"""
 
         assertFailsWithSerialMessage("JsonDecodingException", message) {
@@ -37,7 +37,7 @@ class MissingCommaTest : JsonTestBase() {
     @Test
     fun missingCommaBetweenFieldsAfterObject() {
         val message =
-            "Unexpected JSON token at offset 19: Expected comma after the key-value pair at path: \$.c"
+            "Unexpected JSON token at offset 19: Expected end of the object or comma at path: \$"
         val json = """{"c":{"i":"string"}"i":42}"""
 
         assertFailsWithSerialMessage("JsonDecodingException", message) {
@@ -48,7 +48,7 @@ class MissingCommaTest : JsonTestBase() {
     @Test
     fun allowTrailingCommaDoesNotApplyToCommaBetweenFields() {
         val message =
-            "Unexpected JSON token at offset 8: Expected comma after the key-value pair at path: \$.i"
+            "Unexpected JSON token at offset 8: Expected end of the object or comma at path: \$"
         val json = """{"i":42 "c":{"i":"string"}}"""
 
         assertFailsWithSerialMessage("JsonDecodingException", message) {
@@ -59,7 +59,7 @@ class MissingCommaTest : JsonTestBase() {
     @Test
     fun lenientSerializeDoesNotAllowToSkipCommaBetweenFields() {
         val message =
-            "Unexpected JSON token at offset 8: Expected comma after the key-value pair at path: \$.i"
+            "Unexpected JSON token at offset 8: Expected end of the object or comma at path: \$"
         val json = """{"i":42 "c":{"i":"string"}}"""
 
         assertFailsWithSerialMessage("JsonDecodingException", message) {
@@ -69,7 +69,7 @@ class MissingCommaTest : JsonTestBase() {
 
     @Test
     fun missingCommaInDynamicMap() {
-        val m = "Unexpected JSON token at offset 9: Expected end of the object or comma at path: \$"
+        val m = "Unexpected JSON token at offset 8: Expected end of the object or comma at path: \$"
         val json = """{"i":42 "c":{"i":"string"}}"""
         assertFailsWithSerialMessage("JsonDecodingException", m) {
             default.parseToJsonElement(json)
@@ -78,7 +78,7 @@ class MissingCommaTest : JsonTestBase() {
 
     @Test
     fun missingCommaInArray() {
-        val m = "Unexpected JSON token at offset 3: Expected end of the array or comma at path: \$[0]"
+        val m = "Unexpected JSON token at offset 3: Expected end of the array or comma at path: \$"
         val json = """[1 2 3 4]"""
 
         assertFailsWithSerialMessage("JsonDecodingException", m) {
@@ -88,11 +88,21 @@ class MissingCommaTest : JsonTestBase() {
 
     @Test
     fun missingCommaInStringMap() {
-        val m = "Unexpected JSON token at offset 9: Expected comma after the key-value pair at path: \$['a']"
+        val m = "Unexpected JSON token at offset 9: Expected end of the object or comma at path: \$"
         val json = """{"a":"1" "b":"2"}"""
 
         assertFailsWithSerialMessage("JsonDecodingException", m) {
             default.decodeFromString<Map<String, String>>(json)
+        }
+    }
+
+    @Test
+    fun missingCommaInUnknownKeys() {
+        val m = "Unexpected JSON token at offset 17: Expected end of the object or comma at path: \$"
+        val json = """{"i":"1","b":"2" "c":"2"}"""
+
+        assertFailsWithSerialMessage("JsonDecodingException", m) {
+            lenient.decodeFromString<Child>(json)
         }
     }
 }
