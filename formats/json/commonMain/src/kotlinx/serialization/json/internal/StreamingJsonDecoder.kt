@@ -45,7 +45,8 @@ internal open class StreamingJsonDecoder(
     private var discriminatorHolder: DiscriminatorHolder? = discriminatorHolder
     private val configuration = json.configuration
 
-    private val elementMarker: JsonElementMarker? = if (configuration.explicitNulls) null else JsonElementMarker(descriptor)
+    private val elementMarker: JsonElementMarker? =
+        if (configuration.explicitNulls) null else JsonElementMarker(descriptor)
 
     override fun decodeJsonElement(): JsonElement = JsonTreeReader(json.configuration, lexer).read()
 
@@ -76,14 +77,14 @@ internal open class StreamingJsonDecoder(
 
             @Suppress("UNCHECKED_CAST")
             val actualSerializer = try {
-                    deserializer.findPolymorphicSerializer(this, type)
-                } catch (it: SerializationException) { // Wrap SerializationException into JsonDecodingException to preserve position, path, and input.
-                    // Split multiline message from private core function:
-                    // core/commonMain/src/kotlinx/serialization/internal/AbstractPolymorphicSerializer.kt:102
-                    val message = it.message!!.substringBefore('\n').removeSuffix(".")
-                    val hint = it.message!!.substringAfter('\n', missingDelimiterValue = "")
-                    lexer.fail(message, hint = hint)
-                } as DeserializationStrategy<T>
+                deserializer.findPolymorphicSerializer(this, type) as DeserializationStrategy<T>
+            } catch (it: SerializationException) { // Wrap SerializationException into JsonDecodingException to preserve position, path, and input.
+                // Split multiline message from private core function:
+                // core/commonMain/src/kotlinx/serialization/internal/AbstractPolymorphicSerializer.kt:102
+                val message = it.message!!.substringBefore('\n').removeSuffix(".")
+                val hint = it.message!!.substringAfter('\n', missingDelimiterValue = "")
+                lexer.fail(message, hint = hint)
+            }
 
             discriminatorHolder = DiscriminatorHolder(discriminator)
             return actualSerializer.deserialize(this)

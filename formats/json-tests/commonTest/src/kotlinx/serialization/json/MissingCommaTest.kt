@@ -9,7 +9,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.test.*
 import kotlin.test.*
 
-class MissingCommaTest: JsonTestBase() {
+class MissingCommaTest : JsonTestBase() {
     @Serializable
     class Holder(
         val i: Int,
@@ -68,7 +68,7 @@ class MissingCommaTest: JsonTestBase() {
     }
 
     @Test
-    fun missingCommaInDynamicMap(){
+    fun missingCommaInDynamicMap() {
         val m = "Unexpected JSON token at offset 9: Expected end of the object or comma at path: \$"
         val json = """{"i":42 "c":{"i":"string"}}"""
         assertFailsWithSerialMessage("JsonDecodingException", m) {
@@ -77,12 +77,22 @@ class MissingCommaTest: JsonTestBase() {
     }
 
     @Test
-    fun missingCommaInArray(){
+    fun missingCommaInArray() {
         val m = "Unexpected JSON token at offset 3: Expected end of the array or comma at path: \$[0]"
         val json = """[1 2 3 4]"""
 
         assertFailsWithSerialMessage("JsonDecodingException", m) {
             default.decodeFromString<List<Int>>(json)
+        }
+    }
+
+    @Test
+    fun missingCommaInStringMap() {
+        val m = "Unexpected JSON token at offset 9: Expected comma after the key-value pair at path: \$['a']"
+        val json = """{"a":"1" "b":"2"}"""
+
+        assertFailsWithSerialMessage("JsonDecodingException", m) {
+            default.decodeFromString<Map<String, String>>(json)
         }
     }
 }
