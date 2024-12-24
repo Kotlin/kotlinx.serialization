@@ -765,7 +765,6 @@ internal abstract class AbstractJsonLexer {
 
         if (peeked == charToTokenClass(expectedEnd) && !allowTrailing) {
             path.popDescriptor()
-
             fail(
                 "Trailing comma before the end of JSON $entity",
                 position = commaPosition,
@@ -774,11 +773,7 @@ internal abstract class AbstractJsonLexer {
         }
         if (peeked == TC_COMMA) {
             path.popDescriptor()
-            fail(
-                "Multiple consecutive commas are not allowed in JSON",
-                position = currentPosition,
-                hint = "Trailing commas are non-complaint JSON and not allowed by default. Use 'allowTrailingComma = true' in 'Json {}' builder to support them."
-            )
+            fail("Multiple consecutive commas are not allowed in JSON")
         }
     }
 }
