@@ -760,9 +760,10 @@ internal abstract class AbstractJsonLexer {
             path.popDescriptor()
             fail("Expected end of the $entity or comma")
         }
-        val commaPosition = currentPosition++ // consumes peeked comma
-        val peeked = peekNextToken()
+        val commaPosition = currentPosition
+        consumeNextToken() // consume comma
 
+        val peeked = peekNextToken()
         if (peeked == charToTokenClass(expectedEnd) && !allowTrailing) {
             path.popDescriptor()
             fail(
