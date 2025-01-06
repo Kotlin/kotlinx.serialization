@@ -1,4 +1,10 @@
-1.8.0-RC / 2024-13-10
+1.8.0 / 2025-01-06
+==================
+
+This release contains all of the changes from 1.8.0-RC. Kotlin 2.1.0 is used as a default, while upcoming 2.1.10 is also supported.
+Also added small bugfixes, including speedup of ProtoWireType.from (#2879).
+
+1.8.0-RC / 2024-12-10
 ==================
 
 This is a release candidate for the next version. It is based on Kotlin 2.1.0 and includes a few new features, as well
