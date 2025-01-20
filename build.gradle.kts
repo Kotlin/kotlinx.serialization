@@ -164,7 +164,12 @@ gradle.taskGraph.whenReady {
 
 // == projects lists and flags ==
 // getters are required because of variable lazy initialization in Gradle
-val unpublishedProjects get() = setOf("benchmark", "guide", "kotlinx-serialization-json-tests")
+val unpublishedProjects get() = setOf(
+    "benchmark",
+    "guide",
+    "kotlinx-serialization-json-tests",
+    "proto-test-model",
+)
 val excludedFromBomProjects get() = unpublishedProjects + "kotlinx-serialization-bom"
 val experimentalsEnabled get() = listOf(
     "-progressive",
