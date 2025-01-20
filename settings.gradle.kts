@@ -63,6 +63,8 @@ project(":kotlinx-serialization-json-tests").projectDir = file("./formats/json-t
 
 include(":kotlinx-serialization-protobuf")
 project(":kotlinx-serialization-protobuf").projectDir = file("./formats/protobuf")
+include(":kotlinx-serialization-protobuf:proto-test-model")
+project(":kotlinx-serialization-protobuf:proto-test-model").projectDir = file("./formats/protobuf/proto-test-model")
 
 include(":kotlinx-serialization-cbor")
 project(":kotlinx-serialization-cbor").projectDir = file("./formats/cbor")
