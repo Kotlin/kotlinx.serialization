@@ -111,7 +111,7 @@ abstract class <#A: kotlin/Any> kotlinx.serialization.json/JsonContentPolymorphi
     final fun serialize(kotlinx.serialization.encoding/Encoder, #A) // kotlinx.serialization.json/JsonContentPolymorphicSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;1:0){}[0]
 }
 
-abstract class <#A: kotlin/Any> kotlinx.serialization.json/JsonTransformingSerializer : kotlinx.serialization/KSerializer<#A> { // kotlinx.serialization.json/JsonTransformingSerializer|null[0]
+abstract class <#A: kotlin/Any?> kotlinx.serialization.json/JsonTransformingSerializer : kotlinx.serialization/KSerializer<#A> { // kotlinx.serialization.json/JsonTransformingSerializer|null[0]
     constructor <init>(kotlinx.serialization/KSerializer<#A>) // kotlinx.serialization.json/JsonTransformingSerializer.<init>|<init>(kotlinx.serialization.KSerializer<1:0>){}[0]
 
     open val descriptor // kotlinx.serialization.json/JsonTransformingSerializer.descriptor|{}descriptor[0]
