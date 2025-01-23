@@ -30,7 +30,7 @@ class ProtobufCollectionsTest {
 
     @Test
     fun testEncodeNullAsListElement() {
-        assertFailsWith(SerializationException::class) { ProtoBuf.encodeToByteArray(NullableListElement(listOf(null))) }
+        assertFailsWithMessage<SerializationException> ("'null' is not supported as the value of a list element in ProtoBuf") { ProtoBuf.encodeToByteArray(NullableListElement(listOf(null))) }
     }
 
     @Test
@@ -81,10 +81,10 @@ class ProtobufCollectionsTest {
 
     @Test
     fun testCollectionsInNullableMap() {
-        assertFailsWith(SerializationException::class) { ProtoBuf.encodeToByteArray(MapWithNullableNestedLists(mapOf(null to listOf(42))) ) }
-        assertFailsWith(SerializationException::class) { ProtoBuf.encodeToByteArray(MapWithNullableNestedLists(mapOf(listOf(42) to null)) ) }
-        assertFailsWith(SerializationException::class) { ProtoBuf.encodeToByteArray(MapWithNullableNestedMaps(mapOf(null to mapOf("key" to 42))) ) }
-        assertFailsWith(SerializationException::class) { ProtoBuf.encodeToByteArray(MapWithNullableNestedMaps(mapOf(mapOf("key" to 42) to null)) ) }
+        assertFailsWithMessage<SerializationException> ("'null' is not supported as the value of collection types in ProtoBuf") { ProtoBuf.encodeToByteArray(MapWithNullableNestedLists(mapOf(null to listOf(42))) ) }
+        assertFailsWithMessage<SerializationException> ("'null' is not supported as the value of collection types in ProtoBuf") { ProtoBuf.encodeToByteArray(MapWithNullableNestedLists(mapOf(listOf(42) to null)) ) }
+        assertFailsWithMessage<SerializationException> ("'null' is not supported as the value of collection types in ProtoBuf") { ProtoBuf.encodeToByteArray(MapWithNullableNestedMaps(mapOf(null to mapOf("key" to 42))) ) }
+        assertFailsWithMessage<SerializationException> ("'null' is not supported as the value of collection types in ProtoBuf") { ProtoBuf.encodeToByteArray(MapWithNullableNestedMaps(mapOf(mapOf("key" to 42) to null)) ) }
     }
 
     @Test
@@ -105,7 +105,9 @@ class ProtobufCollectionsTest {
 
     @Test
     fun testNestedListIsNull() {
-        assertFailsWith(SerializationException::class) { ProtoBuf.encodeToByteArray(ListWithNestedList(listOf(null))) }
+        assertFailsWithMessage<SerializationException>("'null' is not supported as the value of collection types in ProtoBuf") {
+            ProtoBuf.encodeToByteArray(ListWithNestedList(listOf(null)))
+        }
     }
 
     @Test
@@ -126,8 +128,8 @@ class ProtobufCollectionsTest {
 
     @Test
     fun testNestedListsAreNullInMap() {
-        assertFailsWith(SerializationException::class) { ProtoBuf.encodeToByteArray(MapWithNullableNestedLists(mapOf(null to emptyList()))) }
-        assertFailsWith(SerializationException::class) { ProtoBuf.encodeToByteArray(MapWithNullableNestedLists(mapOf(emptyList<Int>() to null))) }
-        assertFailsWith(SerializationException::class) { ProtoBuf.encodeToByteArray(MapWithNullableNestedLists(mapOf(null to null))) }
+        assertFailsWithMessage<SerializationException> ("'null' is not supported as the value of collection types in ProtoBuf") { ProtoBuf.encodeToByteArray(MapWithNullableNestedLists(mapOf(null to emptyList()))) }
+        assertFailsWithMessage<SerializationException> ("'null' is not supported as the value of collection types in ProtoBuf") { ProtoBuf.encodeToByteArray(MapWithNullableNestedLists(mapOf(emptyList<Int>() to null))) }
+        assertFailsWithMessage<SerializationException> ("'null' is not supported as the value of collection types in ProtoBuf") { ProtoBuf.encodeToByteArray(MapWithNullableNestedLists(mapOf(null to null))) }
     }
 }
