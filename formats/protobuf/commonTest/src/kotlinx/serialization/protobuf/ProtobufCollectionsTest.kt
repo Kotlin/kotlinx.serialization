@@ -17,22 +17,20 @@ class ProtobufCollectionsTest {
     data class MapWithNullableNestedLists(val m: Map<List<Int>?, List<Int>?>)
 
     @Serializable
+    data class MapWithNullableNestedMaps(val m: Map<Map<String, Int>?, Map<String, Int>?>)
+
+    @Serializable
     data class NullableListElement(val l: List<Int?>)
 
     @Serializable
     data class NullableMapKey(val m: Map<Int?, Int>)
 
     @Serializable
-    data class NullableMapValue(val m: Map<Int, Int?>)
+    data class NullableMap(val m: Map<Int?, Int?>)
 
     @Test
     fun testEncodeNullAsListElement() {
         assertFailsWith(SerializationException::class) { ProtoBuf.encodeToByteArray(NullableListElement(listOf(null))) }
-    }
-
-    @Test
-    fun testEncodeNullAsMapKey() {
-        assertFailsWith(SerializationException::class) { ProtoBuf.encodeToByteArray(NullableMapKey(mapOf(null to 42))) }
     }
 
     @Test
@@ -54,15 +52,46 @@ class ProtobufCollectionsTest {
     }
 
     @Test
-    fun testEncodeNullAsMapValue() {
-        assertFailsWith(SerializationException::class) { ProtoBuf.encodeToByteArray(NullableMapValue(mapOf(42 to null))) }
+    fun testNullMap() {
+        val keyNull = NullableMap(mapOf(null to 42))
+        val valueNull = NullableMap(mapOf(42 to null))
+        val bothNull = NullableMap(mapOf(null to null))
+
+        val encodedKeyNull = ProtoBuf.encodeToHexString(keyNull)
+        val encodedValueNull = ProtoBuf.encodeToHexString(valueNull)
+        val encodedBothNull = ProtoBuf.encodeToHexString(bothNull)
+        assertEquals(encodedKeyNull, "0a02102a")
+        assertEquals(encodedValueNull, "0a02082a")
+        assertEquals(encodedBothNull, "0a00")
+
+        val decodedKeyNull = ProtoBuf.decodeFromHexString<NullableMap>(encodedKeyNull)
+        val decodedValueNull = ProtoBuf.decodeFromHexString<NullableMap>(encodedValueNull)
+        val decodedBothNull = ProtoBuf.decodeFromHexString<NullableMap>(encodedBothNull)
+        assertEquals(decodedKeyNull, keyNull)
+        assertEquals(decodedValueNull, valueNull)
+        assertEquals(decodedBothNull, bothNull)
+    }
+
+    @Test
+    fun testRepeatNullKeyInMap() {
+        // there are two entries in message: (null to 42) and (null to 43), the last one is used
+        val decoded = ProtoBuf.decodeFromHexString<NullableMap>("0a04102a102b")
+        assertEquals(NullableMap(mapOf(null to 43)), decoded)
+    }
+
+    @Test
+    fun testCollectionsInNullableMap() {
+        assertFailsWith(SerializationException::class) { ProtoBuf.encodeToByteArray(MapWithNullableNestedLists(mapOf(null to listOf(42))) ) }
+        assertFailsWith(SerializationException::class) { ProtoBuf.encodeToByteArray(MapWithNullableNestedLists(mapOf(listOf(42) to null)) ) }
+        assertFailsWith(SerializationException::class) { ProtoBuf.encodeToByteArray(MapWithNullableNestedMaps(mapOf(null to mapOf("key" to 42))) ) }
+        assertFailsWith(SerializationException::class) { ProtoBuf.encodeToByteArray(MapWithNullableNestedMaps(mapOf(mapOf("key" to 42) to null)) ) }
     }
 
     @Test
     fun testEncodeMapWithNullableValue() {
-        val map = NullableMapValue(mapOf(42 to 43))
+        val map = NullableMap(mapOf(42 to 43))
         val bytes = ProtoBuf.encodeToByteArray(map)
-        val decoded = ProtoBuf.decodeFromByteArray<NullableMapValue>(bytes)
+        val decoded = ProtoBuf.decodeFromByteArray<NullableMap>(bytes)
         assertEquals(map, decoded)
     }
 

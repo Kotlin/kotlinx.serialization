@@ -73,7 +73,7 @@ class ProtobufTypeParameterTest {
                 fail()
             } catch (e: SerializationException) {
                 assertEquals(
-                    "'null' is not supported for collection types in ProtoBuf", e.message
+                    "'null' is not supported as the value of collection types in ProtoBuf", e.message
                 )
             }
         }
