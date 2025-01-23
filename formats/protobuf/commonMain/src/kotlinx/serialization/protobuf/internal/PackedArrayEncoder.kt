@@ -25,6 +25,12 @@ internal class PackedArrayEncoder(
         throw SerializationException("Packing only supports primitive number types")
     }
 
+    override fun endEncode(descriptor: SerialDescriptor) {
+        if (stream.size() > 0) {
+            super.endEncode(descriptor)
+        }
+    }
+
     override fun encodeTaggedString(tag: ProtoDesc, value: String) {
         throw SerializationException("Packing only supports primitive number types")
     }

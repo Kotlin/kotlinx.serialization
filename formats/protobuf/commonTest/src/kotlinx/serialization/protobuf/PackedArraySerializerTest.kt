@@ -51,6 +51,12 @@ class PackedArraySerializerTest {
         val s: List<String>
     )
 
+    @Serializable
+    data class PackedIntCarrier(
+        @ProtoPacked
+        val i: List<Int>
+    )
+
     /**
      * Test that when packing is specified the array is encoded as packed
      */
@@ -130,6 +136,32 @@ class PackedArraySerializerTest {
         val decoded = ProtoBuf.decodeFromHexString<List<Int>>(input)
 
         assertEquals(listData, decoded)
+    }
+
+    /**
+     * Test that empty packed repeated field is not presented in a message.
+     */
+    @Test
+    fun testEncodeEmptyPackedList() {
+        val obj = PackedIntCarrier(emptyList())
+        val encoded = ProtoBuf.encodeToHexString(obj)
+        assertEquals("", encoded)
+    }
+
+    /**
+     * Test that absence of packed field and explicit presence with a length 0 are decoded an empty list.
+     */
+    @Test
+    fun testDecodeEmptyPackedList() {
+        val explicitlyEmpty = "0a00"
+
+        val obj = PackedIntCarrier(emptyList())
+
+        val decodedExplicitEmpty = ProtoBuf.decodeFromHexString<PackedIntCarrier>(explicitlyEmpty)
+        val decodedAbsentField = ProtoBuf.decodeFromHexString<PackedIntCarrier>("")
+
+        assertEquals(obj, decodedExplicitEmpty)
+        assertEquals(obj, decodedAbsentField)
     }
 
 }
