@@ -17,7 +17,8 @@ protobuf {
     }
 }
 
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(jdkToolchainVersion))
+// Toolchain version should be the same as JDK release in source-sets-convention
+java.toolchain.languageVersion.set(JavaLanguageVersion.of(8))
 
 tasks.clean {
     delete(protobuf.protobuf.generatedFilesBaseDir)
