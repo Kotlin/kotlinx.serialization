@@ -14,6 +14,7 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
         ACCEPTABLE,
         OPTIONAL,
         COLLECTION,
+        LIST_ELEMENT,
         NOT_NULL
     }
     private var nullableMode: NullableMode = NullableMode.NOT_NULL
@@ -37,7 +38,8 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
         if (nullableMode != NullableMode.ACCEPTABLE) {
             val message = when (nullableMode) {
                 NullableMode.OPTIONAL -> "'null' is not supported for optional properties in ProtoBuf"
-                NullableMode.COLLECTION -> "'null' is not supported for collection types in ProtoBuf"
+                NullableMode.COLLECTION -> "'null' is not supported as the value of collection types in ProtoBuf"
+                NullableMode.LIST_ELEMENT -> "'null' is not supported as the value of a list element in ProtoBuf"
                 NullableMode.NOT_NULL -> "'null' is not allowed for not-null properties"
                 else -> "'null' is not supported in ProtoBuf";
             }
@@ -137,12 +139,12 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
                 NullableMode.OPTIONAL
             else {
                 val elementDescriptor = descriptor.getElementDescriptor(index)
-                if (elementDescriptor.kind.isMapOrList())
-                    NullableMode.COLLECTION
-                else if (!descriptor.kind.isMapOrList() && elementDescriptor.isNullable) // or: `serializer.descriptor`
-                    NullableMode.ACCEPTABLE
-                else
-                    NullableMode.NOT_NULL
+                when {
+                    !elementDescriptor.isNullable -> NullableMode.NOT_NULL
+                    elementDescriptor.kind.isMapOrList() -> NullableMode.COLLECTION
+                    descriptor.kind == StructureKind.LIST -> NullableMode.LIST_ELEMENT
+                    else -> NullableMode.ACCEPTABLE
+                }
             }
 
         pushTag(descriptor.getTag(index))
@@ -157,10 +159,15 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
     ) {
         nullableMode = if (descriptor.isElementOptional(index))
             NullableMode.OPTIONAL
-        else if (descriptor.getElementDescriptor(index).kind.isMapOrList())
-            NullableMode.COLLECTION
-        else
-            NullableMode.ACCEPTABLE
+        else  {
+            // we don't check nullability of element because this function called always for nullable `value`
+            val elementDescriptor = descriptor.getElementDescriptor(index)
+            when {
+                elementDescriptor.kind.isMapOrList() -> NullableMode.COLLECTION
+                descriptor.kind == StructureKind.LIST -> NullableMode.LIST_ELEMENT
+                else -> NullableMode.ACCEPTABLE
+            }
+        }
 
         pushTag(descriptor.getTag(index))
         encodeNullableSerializableValue(serializer, value)
