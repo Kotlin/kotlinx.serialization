@@ -98,4 +98,29 @@ class JsonTransformingSerializerTest : JsonTestBase() {
         assertEquals(correctExample, json.decodeFromString(DocExample.serializer(), """{"data":["str1"]}""", streaming))
         assertEquals(correctExample, json.decodeFromString(DocExample.serializer(), """{"data":"str1"}""", streaming))
     }
+
+    // Wraps/unwraps {"data":null} to just `null`, because StringData.data is not nullable
+    object NullableStringDataSerializer : JsonTransformingSerializer<StringData?>(StringData.serializer().nullable) {
+        override fun transformDeserialize(element: JsonElement): JsonElement {
+            val data = element.jsonObject["data"]?.jsonPrimitive
+            if (data?.contentOrNull.isNullOrBlank()) return JsonNull
+            return element
+        }
+
+        override fun transformSerialize(element: JsonElement): JsonElement {
+            return if (element is JsonNull) JsonObject(mapOf("data" to JsonNull))
+            else element
+        }
+    }
+
+    @Serializable
+    data class NullableStringDataHolder(@Serializable(NullableStringDataSerializer::class) val stringData: StringData?)
+
+    @Test
+    fun testNullableTransformingSerializer() {
+        val normalInput = """{"stringData":{"data":"str1"}}"""
+        val nullInput = """{"stringData":{"data":null}}"""
+        assertJsonFormAndRestored(NullableStringDataHolder.serializer(), NullableStringDataHolder(StringData("str1")), normalInput)
+        assertJsonFormAndRestored(NullableStringDataHolder.serializer(), NullableStringDataHolder(null), nullInput)
+    }
 }
