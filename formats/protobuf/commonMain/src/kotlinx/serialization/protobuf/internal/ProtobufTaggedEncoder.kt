@@ -35,16 +35,14 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
     protected open fun encodeTaggedInline(tag: ProtoDesc, inlineDescriptor: SerialDescriptor): Encoder = this.apply { pushTag(tag) }
 
     public final override fun encodeNull() {
-        if (nullableMode != NullableMode.ACCEPTABLE) {
-            val message = when (nullableMode) {
-                NullableMode.OPTIONAL -> "'null' is not supported for optional properties in ProtoBuf"
-                NullableMode.COLLECTION -> "'null' is not supported as the value of collection types in ProtoBuf"
-                NullableMode.LIST_ELEMENT -> "'null' is not supported as the value of a list element in ProtoBuf"
-                NullableMode.NOT_NULL -> "'null' is not allowed for not-null properties"
-                else -> "'null' is not supported in ProtoBuf";
-            }
-            throw SerializationException(message)
+        val message = when (nullableMode) {
+            NullableMode.ACCEPTABLE -> return
+            NullableMode.OPTIONAL -> "'null' is not supported for optional properties in ProtoBuf"
+            NullableMode.COLLECTION -> "'null' is not supported as the value of collection types in ProtoBuf"
+            NullableMode.LIST_ELEMENT -> "'null' is not supported as the value of a list element in ProtoBuf"
+            NullableMode.NOT_NULL -> "'null' is not allowed for not-null properties"
         }
+        throw SerializationException(message)
     }
 
     public final override fun encodeBoolean(value: Boolean) {

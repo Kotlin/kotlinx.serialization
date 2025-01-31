@@ -20,7 +20,7 @@ public fun <T> readJson(json: Json, element: JsonElement, deserializer: Deserial
     val input = when (element) {
         is JsonObject -> JsonTreeDecoder(json, element)
         is JsonArray -> JsonTreeListDecoder(json, element)
-        is JsonLiteral, JsonNull -> JsonPrimitiveDecoder(json, element as JsonPrimitive)
+        is JsonLiteral, is JsonNull -> JsonPrimitiveDecoder(json, element as JsonPrimitive)
     }
     return input.decodeSerializableValue(deserializer)
 }
