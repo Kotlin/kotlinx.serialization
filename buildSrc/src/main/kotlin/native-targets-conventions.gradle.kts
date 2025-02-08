@@ -45,6 +45,7 @@ kotlin {
         androidNativeX64()
 
         // Deprecated, but not removed
+        @Suppress("DEPRECATION")
         linuxArm32Hfp()
     }
 
