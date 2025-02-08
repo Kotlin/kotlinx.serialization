@@ -37,8 +37,11 @@ publishing {
         forEach { pub ->
             pub as DefaultMavenPublication
             pub.unsetModuleDescriptorGenerator()
-            tasks.matching { it.name == "generateMetadataFileFor${pub.name.capitalize()}Publication" }.all {
-                onlyIf { false }
+
+            tasks.configureEach {
+                if (name == "generateMetadataFileFor${pub.name.capitalizeCompat()}Publication") {
+                    onlyIf { false }
+                }
             }
         }
     }
