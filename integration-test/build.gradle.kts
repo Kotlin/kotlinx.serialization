@@ -4,6 +4,8 @@
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
 import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
+import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 val serialization_version = property("mainLibVersion") as String
 
@@ -33,16 +35,16 @@ kotlin {
     // Switching module kind for JS is required to run tests
     js {
         nodejs {}
-        compilations.matching { it.name == "main" || it.name == "test" }.configureEach {
-            kotlinOptions {
-                sourceMap = true
-                moduleKind = "umd"
-            }
+        compilerOptions {
+            sourceMap = true
+            moduleKind = JsModuleKind.MODULE_UMD
         }
     }
+    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         nodejs()
     }
+    @OptIn(ExperimentalWasmDsl::class)
     wasmWasi {
         nodejs()
     }
@@ -127,14 +129,16 @@ kotlin {
 
     targets.all {
         compilations.all {
-            kotlinOptions {
-                freeCompilerArgs += "-Xexpect-actual-classes"
+            compileTaskProvider.configure {
+                compilerOptions.freeCompilerArgs.add("-Xexpect-actual-classes")
             }
         }
-        compilations["main"].kotlinOptions {
-            allWarningsAsErrors = true
-            // Suppress 'K2 kapt is an experimental feature' warning:
-            freeCompilerArgs += "-Xsuppress-version-warnings"
+        compilations["main"].compileTaskProvider.configure {
+            compilerOptions {
+                allWarningsAsErrors = true
+                // Suppress 'K2 kapt is an experimental feature' warning:
+                freeCompilerArgs.add("-Xsuppress-version-warnings")
+            }
         }
     }
 

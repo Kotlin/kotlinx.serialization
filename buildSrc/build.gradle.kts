@@ -37,6 +37,12 @@ repositories {
     mavenLocal()
 }
 
+kotlin {
+    compilerOptions {
+        allWarningsAsErrors = true
+    }
+}
+
 dependencies {
     implementation(libs.gradlePlugin.kotlin)
     implementation(libs.gradlePlugin.kover)
