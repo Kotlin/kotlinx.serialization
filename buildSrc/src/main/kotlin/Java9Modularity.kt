@@ -36,7 +36,7 @@ object Java9Modularity {
         val ideaActive = System.getProperty("idea.active") == "true"
         if (disableJPMS || ideaActive) return
         val kotlin = extensions.findByType<KotlinProjectExtension>() ?: return
-        val jvmTargets = kotlin.targets.filter { it is KotlinJvmTarget || it is KotlinWithJavaTarget<*, *> }
+        @Suppress("DEPRECATION", "DEPRECATION_ERROR") val jvmTargets = kotlin.targets.filter { it is KotlinJvmTarget || it is KotlinWithJavaTarget<*, *> }
         if (jvmTargets.isEmpty()) {
             logger.warn("No Kotlin JVM targets found, can't configure compilation of module-info!")
         }
@@ -50,6 +50,7 @@ object Java9Modularity {
             }
 
             target.compilations.forEach { compilation ->
+                @Suppress("DEPRECATION", "DEPRECATION_ERROR")
                 val compileKotlinTask = compilation.compileKotlinTask as KotlinCompile
                 val defaultSourceSet = compilation.defaultSourceSet
 
