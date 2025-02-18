@@ -36,13 +36,13 @@ kotlin {
 
     // Tier 3
     mingwX64()
+    watchosDeviceArm64()
     // https://github.com/square/okio/issues/1242#issuecomment-1759357336
     if (doesNotDependOnOkio(project)) {
         androidNativeArm32()
         androidNativeArm64()
         androidNativeX86()
         androidNativeX64()
-        watchosDeviceArm64()
 
         // Deprecated, but not removed
         linuxArm32Hfp()
