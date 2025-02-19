@@ -37,7 +37,7 @@ kotlin {
  Require-Kotlin-Version is used to determine whether runtime library with new features can work with old compilers.
  In ideal case, its value should always be 1.4, but some refactorings (e.g. adding a method to the Encoder interface)
  may unexpectedly break old compilers, so it is left out as a safety net. Compiler plugins, starting from 1.4 are instructed
- to reject runtime if runtime's Require-Kotlin-Version is greater then the current compiler.
+ to reject runtime if runtime's Require-Kotlin-Version is greater than the current compiler.
  */
 tasks.withType<Jar>().named(kotlin.jvm().artifactsTaskName) {
 
