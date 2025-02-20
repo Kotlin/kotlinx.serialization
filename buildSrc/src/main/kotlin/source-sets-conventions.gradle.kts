@@ -21,6 +21,7 @@ kotlin {
     explicitApi()
 
     jvm {
+        @Suppress("DEPRECATION") // Migrate on Kotlin 2.1.20 update
         withJava()
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
