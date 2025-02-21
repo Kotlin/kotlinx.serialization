@@ -2,17 +2,10 @@
  * Copyright 2017-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-@file:OptIn(ExperimentalWasmDsl::class)
-
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.*
 import org.jetbrains.kotlin.gradle.dsl.*
-import org.jetbrains.kotlin.gradle.plugin.mpp.*
-import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
-import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
-import org.jetbrains.kotlin.gradle.targets.native.tasks.*
 import org.jetbrains.kotlin.gradle.tasks.*
-import org.jetbrains.kotlin.gradle.testing.*
 
 plugins {
     kotlin("multiplatform")
@@ -28,6 +21,7 @@ kotlin {
     explicitApi()
 
     jvm {
+        @Suppress("DEPRECATION") // Migrate on Kotlin 2.1.20 update
         withJava()
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
@@ -53,10 +47,12 @@ kotlin {
         }
     }
 
+    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         nodejs()
     }
 
+    @OptIn(ExperimentalWasmDsl::class)
     wasmWasi {
         nodejs()
     }
