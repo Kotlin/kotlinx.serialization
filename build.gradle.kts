@@ -4,6 +4,7 @@
 
 import kotlinx.validation.*
 import org.jetbrains.dokka.gradle.*
+import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion
 
 plugins {
     base
@@ -157,10 +158,8 @@ tasks.withType<org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstall
     args.add("--ignore-engines")
 }
 
-// == compiler version setup ==
-gradle.taskGraph.whenReady {
-    println("Using Kotlin compiler version: ${org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION}")
-}
+// == KGP version setup ==
+logger.warn("Project is using Kotlin Gradle plugin version: ${project.getKotlinPluginVersion()}")
 
 // == projects lists and flags ==
 // getters are required because of variable lazy initialization in Gradle

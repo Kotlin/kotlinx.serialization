@@ -3,7 +3,7 @@
  */
 
 import org.jetbrains.dokka.gradle.*
-import java.net.URL
+import java.net.URI
 
 /*
  * Copyright 2017-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
@@ -71,7 +71,7 @@ tasks.withType<DokkaTaskPartial>().named("dokkaHtmlPartial") {
             sourceLink {
                 localDirectory.set(rootDir)
 
-                remoteUrl.set(URL("https://github.com/Kotlin/kotlinx.serialization/tree/master"))
+                remoteUrl.set(URI("https://github.com/Kotlin/kotlinx.serialization/tree/master").toURL())
                 remoteLineSuffix.set("#L")
             }
         }

@@ -5,11 +5,9 @@
 @file:OptIn(ExperimentalWasmDsl::class)
 
 import org.gradle.kotlin.dsl.*
-import org.jetbrains.kotlin.gradle.plugin.mpp.*
-import org.jetbrains.kotlin.gradle.targets.js.dsl.*
-import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
-import org.jetbrains.kotlin.gradle.targets.native.tasks.*
-import org.jetbrains.kotlin.gradle.testing.*
+import org.jetbrains.kotlin.gradle.*
+import org.jetbrains.kotlin.gradle.dsl.*
+import org.jetbrains.kotlin.gradle.tasks.*
 
 plugins {
     kotlin("multiplatform")
@@ -25,23 +23,21 @@ tasks.withType<JavaCompile>().configureEach {
     options.release = 8
 }
 
-// Unfortunately there is no compatible version of okio for Wasm WASI target, so we need to skip to configure WASI for json-okio and json-tests.
-// json-tests uses okio with incorporate with other formatter tests so it is hard and not worth to separate it for two projects for WASI.
-// So we disable WASI target in it and we hope, that WASI version of compiler and serialization plugin are identical to the WasmJS target so WASI target is being covered.
-val isOkIoOrFormatTests = (name == "kotlinx-serialization-json-okio" || name == "kotlinx-serialization-json-tests")
+internal fun Project.versionCatalog(): VersionCatalog = versionCatalogs.named("libs")
 
 kotlin {
     explicitApi()
 
     jvm {
+        @Suppress("DEPRECATION") // Migrate on Kotlin 2.1.20 update
         withJava()
-        compilations.configureEach {
-            kotlinOptions {
-                jvmTarget = "1.8"
-                freeCompilerArgs += "-Xjdk-release=1.8"
-            }
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_1_8
+            freeCompilerArgs.addAll("-Xjdk-release=1.8", "-Xjvm-default=all-compatibility")
         }
     }
+    jvmToolchain(jdkToolchainVersion)
 
     js {
         nodejs {
@@ -51,71 +47,57 @@ kotlin {
                 }
             }
         }
-        compilations.matching { it.name == "main" || it.name == "test" }.configureEach {
-            kotlinOptions {
-                sourceMap = true
-                moduleKind = "umd"
-            }
+
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+            sourceMap = true
+            moduleKind = JsModuleKind.MODULE_UMD
         }
     }
 
+    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         nodejs()
     }
 
-    if (!isOkIoOrFormatTests) {
-        wasmWasi {
-            nodejs()
-        }
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmWasi {
+        nodejs()
     }
 
     sourceSets.all {
         kotlin.srcDirs("$name/src")
         resources.srcDirs("$name/resources")
-        languageSettings {
-            progressiveMode = true
+    }
 
-            optIn("kotlin.ExperimentalMultiplatform")
-            optIn("kotlin.ExperimentalStdlibApi")
-            optIn("kotlinx.serialization.InternalSerializationApi")
+    compilerOptions {
+        // These configuration replaces 'languageSettings' config on line 67
+        progressiveMode.set(true)
+        optIn.addAll(
+            listOf(
+                "kotlin.ExperimentalMultiplatform",
+                "kotlin.ExperimentalSubclassOptIn",
+                "kotlinx.serialization.InternalSerializationApi",
+                "kotlinx.serialization.SealedSerializationApi",
+            )
+        )
+        if (overriddenLanguageVersion != null) {
+            languageVersion = KotlinVersion.fromVersion(overriddenLanguageVersion!!)
+            freeCompilerArgs.add("-Xsuppress-version-warnings")
         }
+        freeCompilerArgs.add("-Xexpect-actual-classes")
     }
 
     sourceSets {
         commonMain {
             dependencies {
-                api("org.jetbrains.kotlin:kotlin-stdlib-common")
+                api(versionCatalog().findLibrary("kotlin.stdlib").get())
             }
         }
 
         commonTest {
             dependencies {
-                api("org.jetbrains.kotlin:kotlin-test-common")
-                api("org.jetbrains.kotlin:kotlin-test-annotations-common")
-            }
-        }
-
-        jvmMain {
-            dependencies {
-                api("org.jetbrains.kotlin:kotlin-stdlib")
-            }
-        }
-
-        jvmTest {
-            dependencies {
-                api("org.jetbrains.kotlin:kotlin-test-junit")
-            }
-        }
-
-        jsMain {
-            dependencies {
-                api("org.jetbrains.kotlin:kotlin-stdlib-js")
-            }
-        }
-
-        jsTest {
-            dependencies {
-                api("org.jetbrains.kotlin:kotlin-test-js")
+                api(versionCatalog().findLibrary("kotlin.test").get())
             }
         }
 
@@ -128,53 +110,34 @@ kotlin {
 
         named("wasmJsMain") {
             dependsOn(named("wasmMain").get())
-            dependencies {
-                api("org.jetbrains.kotlin:kotlin-stdlib-wasm-js")
-            }
         }
 
         named("wasmJsTest") {
             dependsOn(named("wasmTest").get())
-            dependencies {
-                api("org.jetbrains.kotlin:kotlin-test-wasm-js")
-            }
         }
 
-        if (!isOkIoOrFormatTests) {
-            named("wasmWasiMain") {
-                dependsOn(named("wasmMain").get())
-                dependencies {
-                    api("org.jetbrains.kotlin:kotlin-stdlib-wasm-wasi")
-                }
-            }
+        named("wasmWasiMain") {
+            dependsOn(named("wasmMain").get())
+        }
 
-            named("wasmWasiTest") {
-                dependsOn(named("wasmTest").get())
-                dependencies {
-                    api("org.jetbrains.kotlin:kotlin-test-wasm-wasi")
-                }
-            }
+        named("wasmWasiTest") {
+            dependsOn(named("wasmTest").get())
         }
     }
 
     sourceSets.matching({ it.name.contains("Test") }).configureEach {
         languageSettings {
             optIn("kotlinx.serialization.InternalSerializationApi")
+            optIn("kotlinx.serialization.SealedSerializationApi")
             optIn("kotlinx.serialization.ExperimentalSerializationApi")
         }
     }
+}
 
-    targets.all {
-        compilations.all {
-            kotlinOptions {
-                if (overriddenLanguageVersion != null) {
-                    languageVersion = overriddenLanguageVersion
-                    freeCompilerArgs += "-Xsuppress-version-warnings"
-                }
-                freeCompilerArgs += "-Xexpect-actual-classes"
-            }
-        }
-        compilations["main"].kotlinOptions {
+tasks.withType(KotlinCompilationTask::class).configureEach {
+    compilerOptions {
+        val isMainTaskName = name.startsWith("compileKotlin")
+        if (isMainTaskName) {
             allWarningsAsErrors = true
         }
     }
