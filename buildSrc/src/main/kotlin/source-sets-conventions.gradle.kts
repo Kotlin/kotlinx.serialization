@@ -2,14 +2,18 @@
  * Copyright 2017-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-@file:OptIn(ExperimentalWasmDsl::class)
-
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
 import org.jetbrains.kotlin.gradle.targets.js.dsl.*
-import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
 import org.jetbrains.kotlin.gradle.targets.native.tasks.*
 import org.jetbrains.kotlin.gradle.testing.*
+import org.jetbrains.kotlin.gradle.*
+import org.jetbrains.kotlin.gradle.dsl.*
+import org.jetbrains.kotlin.gradle.plugin.mpp.*
+import org.jetbrains.kotlin.gradle.targets.native.tasks.*
+import org.jetbrains.kotlin.gradle.tasks.*
+import org.jetbrains.kotlin.gradle.testing.*
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     kotlin("multiplatform")
@@ -34,11 +38,14 @@ kotlin {
     explicitApi()
 
     jvm {
+        @Suppress("DEPRECATION") // Migrate on Kotlin 2.1.20 update
         withJava()
         compilations.configureEach {
-            kotlinOptions {
-                jvmTarget = "1.8"
-                freeCompilerArgs += "-Xjdk-release=1.8"
+            compileTaskProvider.configure {
+                compilerOptions {
+                    jvmTarget = JvmTarget.JVM_1_8
+                    freeCompilerArgs.add("-Xjdk-release=1.8")
+                }
             }
         }
     }
@@ -52,18 +59,22 @@ kotlin {
             }
         }
         compilations.matching { it.name == "main" || it.name == "test" }.configureEach {
-            kotlinOptions {
-                sourceMap = true
-                moduleKind = "umd"
+            compileTaskProvider.configure {
+                compilerOptions {
+                    sourceMap = true
+                    moduleName = "umd"
+                }
             }
         }
     }
 
+    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         nodejs()
     }
 
     if (!isOkIoOrFormatTests) {
+        @OptIn(ExperimentalWasmDsl::class)
         wasmWasi {
             nodejs()
         }
@@ -166,16 +177,18 @@ kotlin {
 
     targets.all {
         compilations.all {
-            kotlinOptions {
-                if (overriddenLanguageVersion != null) {
-                    languageVersion = overriddenLanguageVersion
-                    freeCompilerArgs += "-Xsuppress-version-warnings"
+            compileTaskProvider.configure {
+                compilerOptions {
+                    if (overriddenLanguageVersion != null) {
+                        languageVersion = KotlinVersion.fromVersion(overriddenLanguageVersion!!)
+                        freeCompilerArgs.add("-Xsuppress-version-warnings")
+                    }
+                    freeCompilerArgs.add("-Xexpect-actual-classes")
                 }
-                freeCompilerArgs += "-Xexpect-actual-classes"
             }
         }
-        compilations["main"].kotlinOptions {
-            allWarningsAsErrors = true
+        compilations["main"].compileTaskProvider.configure {
+            compilerOptions.allWarningsAsErrors = true
         }
     }
 }

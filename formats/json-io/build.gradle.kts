@@ -37,7 +37,7 @@ tasks.named<DokkaTaskPartial>("dokkaHtmlPartial") {
     dokkaSourceSets {
         configureEach {
             externalDocumentationLink {
-                url.set(URL("https://kotlin.github.io/kotlinx-io/"))
+                url.set(URI("https://kotlin.github.io/kotlinx-io/").toURL())
             }
         }
     }

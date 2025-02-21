@@ -16,7 +16,6 @@ import org.jetbrains.kotlin.gradle.*
 import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
-import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.*
 import org.jetbrains.kotlin.gradle.targets.jvm.*
 import org.jetbrains.kotlin.gradle.tasks.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -27,6 +26,13 @@ import kotlin.reflect.*
 import kotlin.reflect.full.*
 
 object Java9Modularity {
+    private val KotlinProjectExtension.targets: Iterable<KotlinTarget>
+        get() = when (this) {
+            is KotlinSingleTargetExtension<*> -> listOf(this.target)
+            is KotlinMultiplatformExtension -> targets
+            else -> error("Unexpected 'kotlin' extension $this")
+        }
+
 
     @JvmStatic
     @JvmOverloads
@@ -49,7 +55,8 @@ object Java9Modularity {
             }
 
             target.compilations.forEach { compilation ->
-                val compileKotlinTask = compilation.compileKotlinTask as KotlinCompile
+                @Suppress("UNCHECKED_CAST")
+                val compileKotlinTask = compilation.compileTaskProvider as TaskProvider<KotlinCompile>
                 val defaultSourceSet = compilation.defaultSourceSet
 
                 // derive the names of the source set and compile module task
@@ -57,8 +64,10 @@ object Java9Modularity {
 
                 kotlin.sourceSets.create(sourceSetName) {
                     val sourceFile = this.kotlin.find { it.name == "module-info.java" }
-                    val targetDirectory = compileKotlinTask.destinationDirectory.map {
-                        it.dir("../${it.asFile.name}Module")
+                    val targetDirectory = compileKotlinTask.flatMap { task ->
+                        task.destinationDirectory.map {
+                            it.dir("../${it.asFile.name}Module")
+                        }
                     }
 
                     // only configure the compilation if necessary
@@ -109,37 +118,38 @@ object Java9Modularity {
      * but it currently won't compile to a module-info.class file.
      */
     private fun Project.registerVerifyModuleTask(
-        compileTask: KotlinCompile,
+        compileTask: TaskProvider<KotlinCompile>,
         sourceFile: File
     ): TaskProvider<out KotlinJvmCompile> {
         apply<KotlinApiPlugin>()
-        val verifyModuleTaskName = "verify${compileTask.name.removePrefix("compile").capitalize()}Module"
+        val verifyModuleTaskName = "verify${compileTask.name.removePrefix("compile").capitalizeCompat()}Module"
         // work-around for https://youtrack.jetbrains.com/issue/KT-60542
         val kotlinApiPlugin = plugins.getPlugin(KotlinApiPlugin::class)
         val verifyModuleTask = kotlinApiPlugin.registerKotlinJvmCompileTask(
             verifyModuleTaskName,
-            compileTask.compilerOptions.moduleName.get()
+            compilerOptions = compileTask.get().compilerOptions,
+            explicitApiMode = provider { ExplicitApiMode.Disabled }
         )
         verifyModuleTask {
             group = VERIFICATION_GROUP
             description = "Verify Kotlin sources for JPMS problems"
-            libraries.from(compileTask.libraries)
-            source(compileTask.sources)
-            source(compileTask.javaSources)
+            libraries.from(compileTask.map { it.libraries })
+            source(compileTask.map { it.sources })
+            source(compileTask.map { it.javaSources })
             // part of work-around for https://youtrack.jetbrains.com/issue/KT-60541
-            @Suppress("INVISIBLE_MEMBER")
-            source(compileTask.scriptSources)
+            source(compileTask.map {
+                @Suppress("INVISIBLE_MEMBER")
+                it.scriptSources
+            })
             source(sourceFile)
             destinationDirectory.set(temporaryDir)
-            multiPlatformEnabled.set(compileTask.multiPlatformEnabled)
+            multiPlatformEnabled.set(compileTask.get().multiPlatformEnabled)
             compilerOptions {
                 jvmTarget.set(JvmTarget.JVM_9)
-                // To support LV override when set in aggregate builds
-                languageVersion.set(compileTask.compilerOptions.languageVersion)
                 freeCompilerArgs.addAll(
                     listOf("-Xjdk-release=9",  "-Xsuppress-version-warnings", "-Xexpect-actual-classes")
                 )
-                optIn.addAll(compileTask.kotlinOptions.options.optIn)
+                optIn.addAll(compileTask.flatMap { compilerOptions.optIn })
             }
             // work-around for https://youtrack.jetbrains.com/issue/KT-60583
             inputs.files(
@@ -160,7 +170,7 @@ object Java9Modularity {
                     .declaredMemberProperties
                     .find { it.name == "ownModuleName" }
                     ?.get(this) as? Property<String>
-                ownModuleNameProp?.set(compileTask.kotlinOptions.moduleName)
+                ownModuleNameProp?.set(compileTask.flatMap { it.compilerOptions.moduleName})
             }
 
             val taskKotlinLanguageVersion = compilerOptions.languageVersion.orElse(KotlinVersion.DEFAULT)
@@ -168,10 +178,13 @@ object Java9Modularity {
             if (taskKotlinLanguageVersion.get() < KotlinVersion.KOTLIN_2_0) {
                 // part of work-around for https://youtrack.jetbrains.com/issue/KT-60541
                 @Suppress("INVISIBLE_MEMBER")
-                commonSourceSet.from(compileTask.commonSourceSet)
+                commonSourceSet.from(compileTask.map {
+                    @Suppress("INVISIBLE_MEMBER")
+                    it.commonSourceSet
+                })
             } else {
-                multiplatformStructure.refinesEdges.set(compileTask.multiplatformStructure.refinesEdges)
-                multiplatformStructure.fragments.set(compileTask.multiplatformStructure.fragments)
+                multiplatformStructure.refinesEdges.set(compileTask.flatMap { it.multiplatformStructure.refinesEdges })
+                multiplatformStructure.fragments.set(compileTask.flatMap { it.multiplatformStructure.fragments })
             }
             // part of work-around for https://youtrack.jetbrains.com/issue/KT-60541
             // and work-around for https://youtrack.jetbrains.com/issue/KT-60582
@@ -181,7 +194,7 @@ object Java9Modularity {
     }
 
     private fun Project.registerCompileModuleTask(
-        compileTask: KotlinCompile,
+        compileTask: TaskProvider<KotlinCompile>,
         sourceFile: File,
         targetDirectory: Provider<out Directory>
     ) = tasks.register("${compileTask.name}Module", JavaCompile::class) {
@@ -201,10 +214,12 @@ object Java9Modularity {
 
         options.compilerArgumentProviders.add(object : CommandLineArgumentProvider {
             @get:CompileClasspath
-            val compileClasspath = compileTask.libraries
+            val compileClasspath = objects.fileCollection().from(
+                compileTask.map { it.libraries }
+            )
 
             @get:CompileClasspath
-            val compiledClasses = compileTask.destinationDirectory
+            val compiledClasses = compileTask.flatMap { it.destinationDirectory }
 
             @get:Input
             val moduleName = sourceFile
