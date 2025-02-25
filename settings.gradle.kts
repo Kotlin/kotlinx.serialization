@@ -26,6 +26,7 @@ pluginManagement {
 
         // kotlin-dev with space redirector
         maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
+        maven("https://redirector.kotlinlang.org/maven/dev")
 
         maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev")
         // For Dokka that depends on kotlinx-html
