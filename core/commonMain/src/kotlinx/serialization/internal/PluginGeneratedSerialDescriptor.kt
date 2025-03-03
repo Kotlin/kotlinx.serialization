@@ -96,11 +96,7 @@ internal open class PluginGeneratedSerialDescriptor(
 
     override fun hashCode(): Int = _hashCode
 
-    override fun toString(): String {
-        return (0 until elementsCount).joinToString(", ", "$serialName(", ")") { i ->
-            getElementName(i) + ": " + getElementDescriptor(i).serialName
-        }
-    }
+    override fun toString(): String = toStringImpl()
 }
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -130,4 +126,8 @@ internal fun SerialDescriptor.hashCodeImpl(typeParams: Array<SerialDescriptor>):
     result = 31 * result + namesHash
     result = 31 * result + kindHash
     return result
+}
+
+internal fun SerialDescriptor.toStringImpl(): String = (0 until elementsCount).joinToString(", ", "$serialName(", ")") { i ->
+    getElementName(i) + ": " + getElementDescriptor(i).serialName
 }

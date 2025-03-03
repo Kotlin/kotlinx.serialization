@@ -121,7 +121,25 @@ public fun SerialDescriptor(serialName: String, original: SerialDescriptor): Ser
     return WrappedSerialDescriptor(serialName, original)
 }
 
-internal class WrappedSerialDescriptor(override val serialName: String, original: SerialDescriptor) : SerialDescriptor by original
+internal class WrappedSerialDescriptor(override val serialName: String, private val original: SerialDescriptor) :
+    SerialDescriptor by original {
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is WrappedSerialDescriptor) return false
+
+        return serialName == other.serialName && original == other.original
+    }
+
+    override fun hashCode(): Int {
+        var result = serialName.hashCode()
+        result = 31 * result + original.hashCode()
+        return result
+    }
+
+    override fun toString(): String = toStringImpl()
+
+}
 
 /**
  * An unsafe alternative to [buildClassSerialDescriptor] that supports an arbitrary [SerialKind].
@@ -370,10 +388,5 @@ internal class SerialDescriptorImpl(
 
     override fun hashCode(): Int = _hashCode
 
-    override fun toString(): String {
-        return (0 until elementsCount).joinToString(", ", prefix = "$serialName(", postfix = ")") {
-            getElementName(it) + ": " + getElementDescriptor(it).serialName
-        }
-    }
+    override fun toString(): String = toStringImpl()
 }
-
