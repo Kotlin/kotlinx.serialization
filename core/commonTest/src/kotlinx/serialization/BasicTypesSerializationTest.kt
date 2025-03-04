@@ -10,9 +10,10 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.encoding.CompositeDecoder.Companion.UNKNOWN_NAME
 import kotlinx.serialization.modules.*
-import kotlinx.serialization.test.*
 import kotlin.test.*
 import kotlin.time.Duration
+import kotlin.time.Instant
+import kotlin.time.ExperimentalTime
 
 /*
  * Test ensures that type that aggregate all basic (primitive/collection/maps/arrays)
@@ -191,6 +192,27 @@ class BasicTypesSerializationTest {
         val inp = KeyValueInput(Parser(StringReader("\"$durationString\"")))
         val other = inp.decodeSerializableValue(Duration.serializer())
         assertEquals(Duration.parseIsoString(durationString), other)
+    }
+
+    @OptIn(ExperimentalTime::class)
+    @Test
+    fun testEncodeInstant() {
+        val sb = StringBuilder()
+        val out = KeyValueOutput(sb)
+
+        val instant = Instant.parse("2020-12-09T09:16:56.000124Z")
+        out.encodeSerializableValue(Instant.serializer(), instant)
+
+        assertEquals("\"${instant}\"", sb.toString())
+    }
+
+    @OptIn(ExperimentalTime::class)
+    @Test
+    fun testDecodeInstant() {
+        val instantString = "2020-12-09T09:16:56.000124Z"
+        val inp = KeyValueInput(Parser(StringReader("\"$instantString\"")))
+        val other = inp.decodeSerializableValue(Instant.serializer())
+        assertEquals(Instant.parse(instantString), other)
     }
 
     @Test

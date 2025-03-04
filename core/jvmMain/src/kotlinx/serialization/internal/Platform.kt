@@ -201,6 +201,9 @@ internal actual fun initBuiltins(): Map<KClass<*>, KSerializer<*>> = buildMap {
     }
     @OptIn(ExperimentalUuidApi::class)
     loadSafe { put(Uuid::class, Uuid.serializer()) }
+
+    @OptIn(ExperimentalTime::class)
+    loadSafe { put(Instant::class, Instant.serializer()) }
 }
 
 // Reference classes in [block] ignoring any exceptions related to class loading
