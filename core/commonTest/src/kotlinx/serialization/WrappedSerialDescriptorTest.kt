@@ -75,4 +75,14 @@ class WrappedSerialDescriptorTest {
         }
         assertFails { SerialDescriptor("kotlin.Int", Int.serializer().descriptor) }
     }
+
+    @Test
+    fun testWrappedEqHc() {
+        val a = SerialDescriptor("SimpleTypeWrapper", SimpleType.serializer().descriptor)
+        val b = SerialDescriptor("SimpleTypeWrapper", SimpleType.serializer().descriptor)
+        assertEquals(a, b)
+        assertEquals(a.hashCode(), b.hashCode())
+        assertNotEquals(a, SimpleType.serializer().descriptor)
+        assertEquals(a.toString(), "SimpleTypeWrapper(int: kotlin.Int, float: kotlin.Float)")
+    }
 }
