@@ -89,6 +89,9 @@ import kotlinx.serialization.*
  * basis. The [alwaysUseByteString] configuration switch allows for globally preferring **major type 2** without needing
  * to annotate every `ByteArray` in a class hierarchy.
  *
+ * @param forbidDuplicateKeys Specifies whether it is an error to read a map with duplicate keys.
+ * If this is set to true, decoding a map with two keys that compare as equal
+ * will cause a [DuplicateKeyException] error to be thrown.
  */
 @ExperimentalSerializationApi
 public class CborConfiguration internal constructor(
@@ -103,12 +106,14 @@ public class CborConfiguration internal constructor(
     public val useDefiniteLengthEncoding: Boolean,
     public val preferCborLabelsOverNames: Boolean,
     public val alwaysUseByteString: Boolean,
+    public val forbidDuplicateKeys: Boolean,
 ) {
     override fun toString(): String {
         return "CborConfiguration(encodeDefaults=$encodeDefaults, ignoreUnknownKeys=$ignoreUnknownKeys, " +
             "encodeKeyTags=$encodeKeyTags, encodeValueTags=$encodeValueTags, encodeObjectTags=$encodeObjectTags, " +
             "verifyKeyTags=$verifyKeyTags, verifyValueTags=$verifyValueTags, verifyObjectTags=$verifyObjectTags, " +
             "useDefiniteLengthEncoding=$useDefiniteLengthEncoding, " +
-            "preferCborLabelsOverNames=$preferCborLabelsOverNames, alwaysUseByteString=$alwaysUseByteString)"
+            "preferCborLabelsOverNames=$preferCborLabelsOverNames, alwaysUseByteString=$alwaysUseByteString, " +
+            "forbidDuplicateKeys=$forbidDuplicateKeys)"
     }
 }
