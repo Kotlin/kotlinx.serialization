@@ -54,6 +54,11 @@ private fun validateIfSealed(
     classDiscriminator: String
 ) {
     if (serializer !is SealedClassSerializer<*>) return
+
+    if (actualSerializer.descriptor.run { isInline && getElementDescriptor(0).kind is PrimitiveKind }) {
+        error("Value class that contains primitive kind cannot be serialized polymorphically with 'type' parameter. You can use 'JsonBuilder.useArrayPolymorphism' instead")
+    }
+
     @Suppress("DEPRECATION_ERROR")
     if (classDiscriminator in actualSerializer.descriptor.jsonCachedSerialNames()) {
         val baseName = serializer.descriptor.serialName
