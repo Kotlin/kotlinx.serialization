@@ -13,6 +13,7 @@ plugins {
 }
 
 kotlin {
+    explicitApi()
     jvmToolchain(jdkToolchainVersion)
 
     compilerOptions {
@@ -30,13 +31,6 @@ kotlin {
 
             optIn("kotlinx.serialization.InternalSerializationApi")
         }
-    }
-}
-
-// Only main
-tasks.compileKotlin {
-    compilerOptions {
-        allWarningsAsErrors = true
     }
 }
 

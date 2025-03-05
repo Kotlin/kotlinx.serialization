@@ -29,7 +29,7 @@ import kotlinx.serialization.hocon.*
  * ```
  */
 @ExperimentalSerializationApi
-object ConfigMemorySizeSerializer : KSerializer<ConfigMemorySize> {
+public object ConfigMemorySizeSerializer : KSerializer<ConfigMemorySize> {
 
     // For powers of two.
     private val memoryUnitFormats = listOf("byte", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB")

@@ -33,7 +33,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
  * ```
  */
 @ExperimentalSerializationApi
-sealed interface HoconDecoder {
+public sealed interface HoconDecoder {
 
     /**
      * Decodes the value at the current path from the input.
@@ -43,5 +43,5 @@ sealed interface HoconDecoder {
      * @param extractValueAtPath lambda for extracting value, where conf - original config object, path - current path expression being decoded.
      * @return result of lambda execution
      */
-    fun <E> decodeConfigValue(extractValueAtPath: (conf: Config, path: String) -> E): E
+    public fun <E> decodeConfigValue(extractValueAtPath: (conf: Config, path: String) -> E): E
 }

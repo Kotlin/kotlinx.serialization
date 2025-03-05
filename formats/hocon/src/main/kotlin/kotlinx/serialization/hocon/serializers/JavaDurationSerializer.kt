@@ -36,7 +36,7 @@ import kotlinx.serialization.hocon.internal.*
  */
 @ExperimentalSerializationApi
 @SuppressAnimalSniffer
-object JavaDurationSerializer : KSerializer<JDuration> {
+public object JavaDurationSerializer : KSerializer<JDuration> {
 
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("hocon.java.time.Duration", PrimitiveKind.STRING)

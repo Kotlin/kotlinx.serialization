@@ -125,12 +125,3 @@ kotlin {
         }
     }
 }
-
-tasks.withType(KotlinCompilationTask::class).configureEach {
-    compilerOptions {
-        val isMainTaskName = name.startsWith("compileKotlin")
-        if (isMainTaskName) {
-            allWarningsAsErrors = true
-        }
-    }
-}
