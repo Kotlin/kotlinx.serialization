@@ -9,9 +9,10 @@ import kotlinx.serialization.json.*
 import kotlinx.serialization.builtins.*
 import kotlin.time.*
 import kotlin.test.*
+import kotlin.reflect.typeOf
 
 @OptIn(ExperimentalTime::class)
-class InstantSerializationTest {
+class InstantSerializationTest: JsonTestBase() {
     private fun iso8601Serialization(serializer: KSerializer<Instant>) {
         for ((instant, json) in listOf(
             Pair(Instant.fromEpochSeconds(1607505416, 124000),
@@ -23,8 +24,7 @@ class InstantSerializationTest {
             Pair(Instant.fromEpochSeconds(987654321, 0),
                 "\"2001-04-19T04:25:21Z\""),
         )) {
-            assertEquals(json, Json.encodeToString(serializer, instant))
-            assertEquals(instant, Json.decodeFromString(serializer, json))
+            assertJsonFormAndRestored(serializer, instant, json)
         }
     }
 
@@ -39,8 +39,7 @@ class InstantSerializationTest {
             Pair(Instant.fromEpochSeconds(987654321, 0),
                 "{\"epochSeconds\":987654321}"),
         )) {
-            assertEquals(json, Json.encodeToString(serializer, instant))
-            assertEquals(instant, Json.decodeFromString(serializer, json))
+            assertJsonFormAndRestored(serializer, instant, json)
         }
         // check that having a `"nanosecondsOfSecond": 0` field doesn't break deserialization
         assertEquals(Instant.fromEpochSeconds(987654321, 0),
@@ -64,6 +63,8 @@ class InstantSerializationTest {
     @Test
     fun testDefaultSerializers() {
         // should be the same as the ISO 8601
-        iso8601Serialization(Json.serializersModule.serializer())
+        @Suppress("UNCHECKED_CAST")
+        iso8601Serialization(serializer(typeOf<Instant>()) as KSerializer<Instant>)
+        // iso8601Serialization(serializer())  TODO: uncomment when the compiler adds KT-75759
     }
 }
