@@ -10,6 +10,11 @@ import kotlinx.serialization.encoding.*
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
+/**
+ * Serializer that encodes and decodes [Instant] as its second and nanosecond components of the Unix time.
+ *
+ * JSON example: `{"epochSeconds":1607505416,"nanosecondsOfSecond":124000}`.
+ */
 @ExperimentalTime
 public object InstantComponentSerializer : KSerializer<Instant> {
 
