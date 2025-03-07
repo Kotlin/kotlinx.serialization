@@ -247,15 +247,20 @@ public fun UShort.Companion.serializer(): KSerializer<UShort> = UShortSerializer
 
 /**
  * Returns serializer for [Duration].
- * It is serialized as a string that represents a duration in the ISO-8601-2 format.
+ * It is serialized as a string that represents a duration in the format used by [Duration.toIsoString],
+ * that is, the ISO-8601-2 format.
  *
- * The result of serialization is similar to calling [Duration.toIsoString], for deserialization is [Duration.parseIsoString].
+ * For deserialization, [Duration.parseIsoString] is used.
+ *
+ * @see Duration.toIsoString
+ * @see Duration.parseIsoString
  */
 public fun Duration.Companion.serializer(): KSerializer<Duration> = DurationSerializer
 
 /**
  * Returns serializer for [Instant].
- * It is serialized as a string that represents an instant in the format described in ISO-8601-1:2019, 5.4.2.1b).
+ * It is serialized as a string that represents an instant in the format used by [Instant.toString]
+ * and described in ISO-8601-1:2019, 5.4.2.1b).
  *
  * Deserialization is case-insensitive.
  * More details can be found in the documentation of [Instant.toString] and [Instant.parse] functions.
