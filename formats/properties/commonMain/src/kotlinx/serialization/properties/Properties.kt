@@ -26,7 +26,7 @@ import kotlinx.serialization.modules.*
  * @Serializable
  * class DataHolder(val data: Data, val property2: String)
  *
- * val map = Properties.store(DataHolder(Data("value1"), "value2"))
+ * val map = Properties.encodeToMap(DataHolder(Data("value1"), "value2"))
  * // map contents will be the following:
  * // property2 = value2
  * // data.property1 = value1
