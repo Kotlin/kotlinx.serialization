@@ -149,7 +149,7 @@ object Java9Modularity {
                 freeCompilerArgs.addAll(
                     listOf("-Xjdk-release=9",  "-Xsuppress-version-warnings", "-Xexpect-actual-classes")
                 )
-                optIn.addAll(compileTask.flatMap { compilerOptions.optIn })
+                optIn.addAll(compileTask.flatMap { it.compilerOptions.optIn })
             }
             // work-around for https://youtrack.jetbrains.com/issue/KT-60583
             inputs.files(
