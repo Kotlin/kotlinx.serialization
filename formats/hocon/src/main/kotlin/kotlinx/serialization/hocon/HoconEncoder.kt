@@ -32,12 +32,12 @@ import kotlinx.serialization.ExperimentalSerializationApi
  * ```
  */
 @ExperimentalSerializationApi
-sealed interface HoconEncoder {
+public sealed interface HoconEncoder {
 
     /**
      * Appends the given [ConfigValue] element to the current output.
      *
      * @param value to insert
      */
-    fun encodeConfigValue(value: ConfigValue)
+    public fun encodeConfigValue(value: ConfigValue)
 }
