@@ -1,13 +1,14 @@
 // This file was automatically generated from formats.md by Knit tool. Do not edit.
-package example.exampleFormats17
+package example.exampleFormats18
 
 import kotlinx.serialization.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.*
-import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
+import kotlinx.serialization.encoding.*
 import java.io.*
 
+private val byteArraySerializer = serializer<ByteArray>()
 @ExperimentalSerializationApi
 class DataOutputEncoder(val output: DataOutput) : AbstractEncoder() {
     override val serializersModule: SerializersModule = EmptySerializersModule()
@@ -29,6 +30,27 @@ class DataOutputEncoder(val output: DataOutput) : AbstractEncoder() {
 
     override fun encodeNull() = encodeBoolean(false)
     override fun encodeNotNullMark() = encodeBoolean(true)
+
+    override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
+        if (serializer.descriptor == byteArraySerializer.descriptor)
+            encodeByteArray(value as ByteArray)
+        else
+            super.encodeSerializableValue(serializer, value)
+    }
+
+    private fun encodeByteArray(bytes: ByteArray) {
+        encodeCompactSize(bytes.size)
+        output.write(bytes)
+    }
+    
+    private fun encodeCompactSize(value: Int) {
+        if (value < 0xff) {
+            output.writeByte(value)
+        } else {
+            output.writeByte(0xff)
+            output.writeInt(value)
+        }
+    }            
 }
 
 @ExperimentalSerializationApi
@@ -69,6 +91,25 @@ class DataInputDecoder(val input: DataInput, var elementsCount: Int = 0) : Abstr
         decodeInt().also { elementsCount = it }
 
     override fun decodeNotNullMark(): Boolean = decodeBoolean()
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>, previousValue: T?): T =
+        if (deserializer.descriptor == byteArraySerializer.descriptor)
+            decodeByteArray() as T
+        else
+            super.decodeSerializableValue(deserializer, previousValue)
+
+    private fun decodeByteArray(): ByteArray {
+        val bytes = ByteArray(decodeCompactSize())
+        input.readFully(bytes)
+        return bytes
+    }
+
+    private fun decodeCompactSize(): Int {
+        val byte = input.readByte().toInt() and 0xff
+        if (byte < 0xff) return byte
+        return input.readInt()
+    }
 }
 
 @ExperimentalSerializationApi
@@ -86,11 +127,11 @@ fun ByteArray.toAsciiHexString() = joinToString("") {
 }
 
 @Serializable
-data class Project(val name: String, val language: String)
+data class Project(val name: String, val attachment: ByteArray)
 
 @OptIn(ExperimentalSerializationApi::class)
 fun main() {
-    val data = Project("kotlinx.serialization", "Kotlin")
+    val data = Project("kotlinx.serialization", byteArrayOf(0x0A, 0x0B, 0x0C, 0x0D))
     val output = ByteArrayOutputStream()
     encodeTo(DataOutputStream(output), data)
     val bytes = output.toByteArray()
