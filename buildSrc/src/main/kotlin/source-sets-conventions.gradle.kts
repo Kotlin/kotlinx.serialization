@@ -175,18 +175,16 @@ kotlin {
         }
     }
 
-    targets.all {
-        compilations.all {
-            compileTaskProvider.configure {
-                compilerOptions {
-                    if (overriddenLanguageVersion != null) {
-                        languageVersion = KotlinVersion.fromVersion(overriddenLanguageVersion!!)
-                        freeCompilerArgs.add("-Xsuppress-version-warnings")
-                    }
-                    freeCompilerArgs.add("-Xexpect-actual-classes")
-                }
-            }
+    compilerOptions {
+        if (overriddenLanguageVersion != null) {
+            languageVersion = KotlinVersion.fromVersion(overriddenLanguageVersion!!)
+            freeCompilerArgs.add("-Xsuppress-version-warnings")
         }
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+
+
+    targets.all {
         compilations["main"].compileTaskProvider.configure {
             compilerOptions.allWarningsAsErrors = true
         }
