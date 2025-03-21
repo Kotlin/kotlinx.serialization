@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 /*
@@ -14,10 +15,10 @@ kotlin {
 }
 
 tasks.withType<KotlinCompile>().configureEach {
-    kotlinOptions {
+    compilerOptions {
         if (overriddenLanguageVersion != null) {
-            languageVersion = overriddenLanguageVersion
-            freeCompilerArgs += "-Xsuppress-version-warnings"
+            languageVersion = KotlinVersion.fromVersion(overriddenLanguageVersion!!)
+            freeCompilerArgs.add("-Xsuppress-version-warnings")
         }
     }
 }

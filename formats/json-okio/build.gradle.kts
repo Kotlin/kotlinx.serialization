@@ -38,7 +38,7 @@ tasks.named<DokkaTaskPartial>("dokkaHtmlPartial") {
     dokkaSourceSets {
         configureEach {
             externalDocumentationLink {
-                url.set(URL("https://square.github.io/okio/3.x/okio/"))
+                url.set(URI("https://square.github.io/okio/3.x/okio/").toURL())
                 packageListUrl.set(
                     file("dokka/okio.package.list").toURI().toURL()
                 )

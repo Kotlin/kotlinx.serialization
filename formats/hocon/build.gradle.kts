@@ -25,10 +25,10 @@ tasks.withType<KotlinCompile>().configureEach {
 }
 
 tasks.withType<KotlinCompile>().configureEach {
-    kotlinOptions {
+    compilerOptions {
         if (overriddenLanguageVersion != null) {
-            languageVersion = overriddenLanguageVersion
-            freeCompilerArgs += "-Xsuppress-version-warnings"
+            languageVersion = KotlinVersion.fromVersion(overriddenLanguageVersion!!)
+            freeCompilerArgs.add("-Xsuppress-version-warnings")
         }
     }
 }
