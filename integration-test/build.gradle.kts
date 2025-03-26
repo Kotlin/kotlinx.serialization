@@ -48,9 +48,7 @@ kotlin {
     wasmWasi {
         nodejs()
     }
-    jvm {
-        withJava()
-    }
+    jvm()
     macosX64()
     macosArm64()
     linuxX64()

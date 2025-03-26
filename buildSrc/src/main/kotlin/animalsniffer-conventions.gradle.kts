@@ -28,7 +28,10 @@ plugins.withId("org.jetbrains.kotlin.multiplatform") {
 
 afterEvaluate { // Can be applied only when the project is evaluated
     extensions.configure<AnimalSnifferExtension> {
-        sourceSets = listOf(this@afterEvaluate.sourceSets["main"])
+        sourceSets = listOfNotNull(
+            this@afterEvaluate.sourceSets.findByName("jvmMain"),
+            this@afterEvaluate.sourceSets.findByName("main")
+        )
 
         val annotationValue = when(name) {
             "kotlinx-serialization-core" -> "kotlinx.serialization.internal.SuppressAnimalSniffer"
