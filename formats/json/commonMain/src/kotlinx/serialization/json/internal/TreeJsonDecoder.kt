@@ -197,31 +197,35 @@ private open class JsonTreeDecoder(
 ) : AbstractJsonTreeDecoder(json, value, polymorphicDiscriminator) {
     private var position = 0
     private var forceNull: Boolean = false
-    /*
-     * Checks whether JSON has `null` value for non-null property or unknown enum value for enum property
-     */
-    private fun coerceInputValue(descriptor: SerialDescriptor, index: Int, tag: String): Boolean =
-        json.tryCoerceValue(
-            descriptor, index,
-            { currentElement(tag) is JsonNull },
-            { (currentElement(tag) as? JsonPrimitive)?.contentOrNull }
-        )
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         while (position < descriptor.elementsCount) {
             val name = descriptor.getTag(position++)
             val index = position - 1
             forceNull = false
-            if ((name in value || absenceIsNull(descriptor, index))
-                && (!configuration.coerceInputValues || !coerceInputValue(descriptor, index, name))
-            ) {
+
+            if (name in value || setForceNull(descriptor, index)) {
+                // if forceNull is true, then decodeNotNullMark returns false and `null` is automatically inserted
+                // by Decoder.decodeIfNullable
+                if (!configuration.coerceInputValues) return index
+
+                if (json.tryCoerceValue(
+                        descriptor, index,
+                        { currentElementOrNull(name) is JsonNull },
+                        { (currentElementOrNull(name) as? JsonPrimitive)?.contentOrNull },
+                        { // an unknown enum value should be coerced to null via decodeNotNullMark if explicitNulls=false :
+                            if (setForceNull(descriptor, index)) return index
+                        }
+                    )
+                ) continue // do not read coerced value
+
                 return index
             }
         }
         return CompositeDecoder.DECODE_DONE
     }
 
-    private fun absenceIsNull(descriptor: SerialDescriptor, index: Int): Boolean {
+    private fun setForceNull(descriptor: SerialDescriptor, index: Int): Boolean {
         forceNull = !json.configuration.explicitNulls
                 && !descriptor.isElementOptional(index) && descriptor.getElementDescriptor(index).isNullable
         return forceNull
@@ -256,6 +260,8 @@ private open class JsonTreeDecoder(
     }
 
     override fun currentElement(tag: String): JsonElement = value.getValue(tag)
+
+    fun currentElementOrNull(tag: String): JsonElement? = value[tag]
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
         // polyDiscriminator needs to be preserved so the check for unknown keys

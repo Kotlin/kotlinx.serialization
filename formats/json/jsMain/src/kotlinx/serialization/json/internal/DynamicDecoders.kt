@@ -85,7 +85,22 @@ private open class DynamicInput(
             val name = descriptor.getTag(currentPosition++)
             val index = currentPosition - 1
             forceNull = false
-            if ((hasName(name) || absenceIsNull(descriptor, index)) && (!json.configuration.coerceInputValues || !coerceInputValue(descriptor, index, name))) {
+
+            if (hasName(name) || setForceNull(descriptor, index)) {
+                // if forceNull is true, then decodeNotNullMark returns false and `null` is automatically inserted
+                // by Decoder.decodeIfNullable
+                if (!json.configuration.coerceInputValues) return index
+
+                if (json.tryCoerceValue(
+                        descriptor, index,
+                        { getByTag(name) == null },
+                        { getByTag(name) as? String },
+                        { // an unknown enum value should be coerced to null via decodeNotNullMark if explicitNulls=false :
+                            if (setForceNull(descriptor, index)) return index
+                        }
+                    )
+                ) continue // do not read coerced value
+
                 return index
             }
         }
@@ -94,7 +109,7 @@ private open class DynamicInput(
 
     private fun hasName(name: String) = value[name] !== undefined
 
-    private fun absenceIsNull(descriptor: SerialDescriptor, index: Int): Boolean {
+    private fun setForceNull(descriptor: SerialDescriptor, index: Int): Boolean {
         forceNull = !json.configuration.explicitNulls
                 && !descriptor.isElementOptional(index) && descriptor.getElementDescriptor(index).isNullable
         return forceNull

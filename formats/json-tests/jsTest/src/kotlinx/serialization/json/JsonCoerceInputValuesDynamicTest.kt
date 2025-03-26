@@ -13,9 +13,9 @@ class JsonCoerceInputValuesDynamicTest {
         isLenient = true
     }
 
-    private fun <T> doTest(inputs: List<dynamic>, expected: T, serializer: KSerializer<T>) {
+    private fun <T> doTest(inputs: List<dynamic>, expected: T, serializer: KSerializer<T>, jsonImpl: Json = json) {
         for (input in inputs) {
-            assertEquals(expected, json.decodeFromDynamic(serializer, input), "Failed on input: $input")
+            assertEquals(expected, jsonImpl.decodeFromDynamic(serializer, input), "Failed on input: $input")
         }
     }
 
@@ -47,6 +47,20 @@ class JsonCoerceInputValuesDynamicTest {
                 js("""{"e":{"x":"definitely not a valid enum value"}}""")
             )
         }
+    }
+
+    @Test
+    fun testUseNullWithImplicitNulls() {
+        val withImplicitNulls = Json(json) { explicitNulls = false }
+        doTest(
+            listOf(
+                js("""{}"""),
+                js("""{"enum":"incorrect"}"""),
+            ),
+            JsonCoerceInputValuesTest.NullableEnumHolder(null),
+            JsonCoerceInputValuesTest.NullableEnumHolder.serializer(),
+            withImplicitNulls
+        )
     }
 
     @Test
