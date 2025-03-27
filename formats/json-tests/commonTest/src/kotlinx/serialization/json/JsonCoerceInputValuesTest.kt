@@ -155,8 +155,8 @@ class JsonCoerceInputValuesTest : JsonTestBase() {
     fun testNullableEnumWithoutDefault() {
         val j = Json(json) { explicitNulls = false }
         parametrizedTest { mode ->
-            assertEquals(NullableEnumHolder(null), j.decodeFromString("{}"))
-            assertEquals(NullableEnumHolder(null), j.decodeFromString("""{"enum":"incorrect"}"""))
+            assertEquals(NullableEnumHolder(null), j.decodeFromString("{}", mode))
+            assertEquals(NullableEnumHolder(null), j.decodeFromString("""{"enum":"incorrect"}""", mode))
         }
     }
 
@@ -164,8 +164,8 @@ class JsonCoerceInputValuesTest : JsonTestBase() {
     fun testNullableEnumWithoutDefaultDoesNotCoerceExplicitly() {
         val j = Json(json) { explicitNulls = true }
         parametrizedTest { mode ->
-            assertFailsWith<SerializationException> { j.decodeFromString<NullableEnumHolder>("{}") }
-            assertFailsWith<SerializationException> { j.decodeFromString<NullableEnumHolder>("""{"enum":"incorrect"}""") }
+            assertFailsWith<SerializationException> { j.decodeFromString<NullableEnumHolder>("{}", mode) }
+            assertFailsWith<SerializationException> { j.decodeFromString<NullableEnumHolder>("""{"enum":"incorrect"}""", mode) }
         }
     }
 
@@ -173,9 +173,9 @@ class JsonCoerceInputValuesTest : JsonTestBase() {
     fun testNullableEnumWithDefault() {
         val j = Json(json) { explicitNulls = false }
         parametrizedTest { mode ->
-            assertEquals(NullableEnumWithDefault(), j.decodeFromString("{}"))
-            assertEquals(NullableEnumWithDefault(), j.decodeFromString("""{"e":"incorrect"}"""))
-            assertEquals(NullableEnumWithDefault(null), j.decodeFromString("""{"e":null}"""))
+            assertEquals(NullableEnumWithDefault(), j.decodeFromString("{}", mode))
+            assertEquals(NullableEnumWithDefault(), j.decodeFromString("""{"e":"incorrect"}""", mode))
+            assertEquals(NullableEnumWithDefault(null), j.decodeFromString("""{"e":null}""", mode))
         }
     }
 }
