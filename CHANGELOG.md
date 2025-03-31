@@ -1,3 +1,21 @@
+1.8.1 / 2025-03-31
+==================
+
+This release updates Kotlin version to 2.1.20, while also providing several important improvements
+and bugfixes.
+
+## Improvements
+  * Implemented encoding null in key and value of a map in Protobuf (#2910)
+  * Make type argument in JsonTransformingSerializer nullable (#2911)
+  * Use SPDX identifier in POMs (#2936) (thanks to [Leon Linhart](https://github.com/TheMrMilchmann))
+  * Add watchosDeviceArm64 to Okio integration module (#2920) (thanks to [Daniel Santiago](https://github.com/danysantiago))
+  * Update kotlinx-io version to 0.6.0 (#2933) (thanks to [Piotr Krzemiński](https://github.com/krzema12))
+
+## Bugfixes
+  * Fix incorrect enum coercion during deserialization from JsonElement (#2962)
+  * Supply proper equals(), hashCode(), and toString() for SerialDescriptor() wrapper (#2942)
+  * Do not encode empty packed collections in protobuf (#2907)
+
 1.8.0 / 2025-01-06
 ==================
 
