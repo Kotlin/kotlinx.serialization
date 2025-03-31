@@ -88,5 +88,10 @@ This would be indicated by a compiler error specific to a particular feature.
 * New core library versions may or may not require Kotlin compiler plugin update,
 depending on a particular release.
 We'll try to avoid these situations; however, in case of some unexpected issues, it may be necessary.
-So it is possible to have a situation where upgrading serialization runtime from `1.x` to `1.y` requires an update of Kotlin version from `1.4.0` to `1.4.x`.
+So it is possible to have a situation where upgrading serialization runtime from `1.x` to `1.y` requires an update of Kotlin version from `1.4.0` to `1.x.y`.
 The compiler can detect such problems and will inform you if its version is incompatible with a current version of core library.
+
+Note that according to [general rules for Kotlin binaries](https://kotlinlang.org/docs/kotlin-evolution-principles.html#compatibility-options),
+library is mostly forwards compatible with the next language release, but not later ones. 
+It means that if kotlinx.serialization `1.x` was compiled with Kotlin `2.Y`, it is compatible with Kotlin `2.(Y + 1)`, but not
+`2.(Y + 2)`.
