@@ -15,7 +15,7 @@ class CborParserTest {
 
     private fun withParser(input: String, block: CborParser.() -> Unit) {
         val bytes = HexConverter.parseHexBinary(input.uppercase())
-        CborParser(ByteArrayInput(bytes), false).block()
+        CborParser(ByteArrayInput(bytes), Cbor.configuration).block()
     }
 
     @Test
