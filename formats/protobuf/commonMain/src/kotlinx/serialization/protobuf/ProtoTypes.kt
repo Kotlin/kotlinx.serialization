@@ -64,3 +64,13 @@ public annotation class ProtoPacked
 @Target(AnnotationTarget.PROPERTY)
 @ExperimentalSerializationApi
 public annotation class ProtoOneOf
+
+/**
+ * Mark a property with type [ProtoMessage] as a holder for unknown fields in protobuf message.
+ *
+ * All the contents with unregistered proto number will be stored in this field.
+ */
+@SerialInfo
+@Target(AnnotationTarget.PROPERTY)
+@ExperimentalSerializationApi
+public annotation class ProtoUnknownFields
