@@ -4,11 +4,15 @@
 
 import org.jetbrains.kotlin.gradle.tasks.*
 
+val kotlin_additional_cli_options = providers.gradleProperty("kotlin_additional_cli_options")
+    .map { it.split(" ") }
+    .orNull
+
 val globalCompilerArgs
     get() = listOf(
         "-P", "plugin:org.jetbrains.kotlinx.serialization:disableIntrinsic=false",
         "-Xreport-all-warnings",
-        "-Xrender-internal-diagnostic-names",
+        "-Xrender-internal-diagnostic-names"
     )
 
 val kotlin_Werror_override: String? by project
@@ -17,6 +21,10 @@ tasks.withType(KotlinCompilationTask::class).configureEach {
     compilerOptions {
         // Unconditional compiler options
         freeCompilerArgs.addAll(globalCompilerArgs)
+
+        if (kotlin_additional_cli_options != null) {
+            freeCompilerArgs.addAll(kotlin_additional_cli_options)
+        }
 
         val isMainTaskName = name.startsWith("compileKotlin")
         if (isMainTaskName) {
@@ -28,6 +36,7 @@ tasks.withType(KotlinCompilationTask::class).configureEach {
             }
 
             allWarningsAsErrors = werrorEnabled
+            logger.info("allWarningsAsErrors=$werrorEnabled")
 
             // Add extra compiler options when -Werror is disabled
             if (!werrorEnabled) {
@@ -36,6 +45,8 @@ tasks.withType(KotlinCompilationTask::class).configureEach {
                     "-Xuse-fir-experimental-checkers"
                 )
             }
+
+            logger.info("Added kotlin compiler flags $freeCompilerArgs")
         }
     }
 }
