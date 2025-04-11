@@ -46,7 +46,7 @@ tasks.withType(KotlinCompilationTask::class).configureEach {
                 )
             }
 
-            logger.info("Added kotlin compiler flags $freeCompilerArgs")
+            logger.info("Added kotlin compiler flags ${freeCompilerArgs.map { it }}")
         }
     }
 }
