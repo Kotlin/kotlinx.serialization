@@ -23,7 +23,6 @@ repositories {
     mavenCentral()
     maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev")
     // kotlin-dev with space redirector
-    maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
     maven("https://packages.jetbrains.team/maven/p/kt/dev")
     // For Dokka that depends on kotlinx-html
     maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven")
@@ -60,7 +59,7 @@ allprojects {
     }
     repositories {
         mavenCentral()
-        maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
+        maven("https://packages.jetbrains.team/maven/p/kt/dev")
         maven("https://redirector.kotlinlang.org/maven/dev")
     }
 }
