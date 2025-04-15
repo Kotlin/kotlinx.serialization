@@ -38,25 +38,87 @@ class EfficientBinaryFormat(
         return deserializer.deserialize(decoder)
     }
 
-    class Encoder(override val serializersModule: SerializersModule): AbstractEncoder() {
-        val byteBuffer = ByteWritingBuffer()
-        override fun encodeBoolean(value: Boolean) = byteBuffer.writeByte(if (value) 1 else 0)
-        override fun encodeByte(value: Byte) = byteBuffer.writeByte(value)
-        override fun encodeShort(value: Short) = byteBuffer.writeShort(value)
-        override fun encodeInt(value: Int) = byteBuffer.writeInt(value)
-        override fun encodeLong(value: Long) = byteBuffer.writeLong(value)
-        override fun encodeFloat(value: Float) = byteBuffer.writeFloat(value)
-        override fun encodeDouble(value: Double) = byteBuffer.writeDouble(value)
-        override fun encodeChar(value: Char) = byteBuffer.writeChar(value)
-        override fun encodeString(value: String) = byteBuffer.writeString(value)
-        override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) = byteBuffer.writeInt(index)
+    class Encoder(
+        override val serializersModule: SerializersModule,
+        internal val byteBuffer: ByteWritingBuffer = ByteWritingBuffer(),
+        elementsCount: Int = -1
+    ): AbstractEncoder() {
+        var lastWrittenIndex = -1
+        var currentIndex = -1
+        val notInStruct = elementsCount < 0
+
+        val pending : Array<(() -> Unit)?> = when {
+            elementsCount <=0 -> emptyArray()
+            else -> arrayOfNulls(elementsCount)
+        }
+
+        override fun encodeBoolean(value: Boolean) = writeOrSuspend { byteBuffer.writeByte(if (value) 1 else 0) }
+        override fun encodeByte(value: Byte) = writeOrSuspend { byteBuffer.writeByte(value) }
+        override fun encodeShort(value: Short) = writeOrSuspend { byteBuffer.writeShort(value) }
+        override fun encodeInt(value: Int) = writeOrSuspend { byteBuffer.writeInt(value) }
+        override fun encodeLong(value: Long) = writeOrSuspend { byteBuffer.writeLong(value) }
+        override fun encodeFloat(value: Float) = writeOrSuspend { byteBuffer.writeFloat(value) }
+        override fun encodeDouble(value: Double) = writeOrSuspend { byteBuffer.writeDouble(value) }
+        override fun encodeChar(value: Char) = writeOrSuspend { byteBuffer.writeChar(value) }
+        override fun encodeString(value: String) = writeOrSuspend { byteBuffer.writeString(value) }
+        override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) = writeOrSuspend {
+            byteBuffer.writeInt(index)
+        }
+
+        @ExperimentalSerializationApi
+        override fun <T : Any> encodeNullableSerializableValue(
+            serializer: SerializationStrategy<T>,
+            value: T?
+        ) {
+            writeOrSuspend {
+                super.encodeNullableSerializableValue(serializer, value)
+            }
+        }
+
+        override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
+            writeOrSuspend {
+                super.encodeSerializableValue(serializer, value)
+            }
+        }
+
+        @Suppress("NOTHING_TO_INLINE")
+        private inline fun writeOrSuspend(noinline action: () -> Unit) {
+            val c = currentIndex
+            currentIndex = -1
+            when {
+                notInStruct || c<0 -> action()
+                lastWrittenIndex < -1 -> pending[c] = action
+                lastWrittenIndex + 1 == c -> {
+                    ++lastWrittenIndex
+                    action()
+                }
+                c < pending.size -> pending[c] = action
+                else -> error("Unexpected index")
+            }
+        }
+
+        override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
+            currentIndex = index
+            return true
+        }
 
         @ExperimentalSerializationApi
         override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = true
 
+        override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
+            return Encoder(serializersModule, byteBuffer, descriptor.elementsCount)
+        }
+
         override fun beginCollection(descriptor: SerialDescriptor, collectionSize: Int): CompositeEncoder {
             encodeInt(collectionSize)
-            return this
+            return Encoder(serializersModule, byteBuffer, -1)
+        }
+
+        override fun endStructure(descriptor: SerialDescriptor) {
+            currentIndex = -2 // mark negative to ensure writing
+            for (i in 0 until pending.size) {
+                pending[i]?.invoke()
+            }
         }
 
         override fun encodeNull() = encodeBoolean(false)
