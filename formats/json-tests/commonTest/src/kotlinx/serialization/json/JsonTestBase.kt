@@ -138,6 +138,8 @@ abstract class JsonTestBase {
             add(runCatching { test(JsonTestingMode.TREE) })
             add(runCatching { test(JsonTestingMode.OKIO_STREAMS) })
             add(runCatching { test(JsonTestingMode.KXIO_STREAMS) })
+            add(runCatching { test(JsonTestingMode.EFFICIENT_BINARY) }
+                .recover { e -> if ("Json format" in (e.message ?: "")) Unit else throw e })
 
             if (isJvm()) {
                 add(runCatching { test(JsonTestingMode.JAVA_STREAMS) })
