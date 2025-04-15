@@ -6,6 +6,7 @@ package kotlinx.serialization.json
 
 import kotlinx.io.*
 import kotlinx.serialization.*
+import kotlinx.serialization.efficientBinaryFormat.EfficientBinaryFormat
 import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.json.io.*
 import kotlinx.serialization.json.okio.decodeFromBufferedSource
@@ -25,7 +26,8 @@ enum class JsonTestingMode {
     TREE,
     OKIO_STREAMS,
     JAVA_STREAMS,
-    KXIO_STREAMS;
+    KXIO_STREAMS,
+    EFFICIENT_BINARY;
 
     companion object {
         fun value(i: Int) = values()[i]
@@ -41,6 +43,7 @@ abstract class JsonTestBase {
         return encodeToString(serializer, value, jsonTestingMode)
     }
 
+    @OptIn(ExperimentalStdlibApi::class)
     internal fun <T> Json.encodeToString(
         serializer: SerializationStrategy<T>,
         value: T,
@@ -67,6 +70,18 @@ abstract class JsonTestBase {
                 encodeToSink(serializer, value, buffer)
                 buffer.readString()
             }
+            JsonTestingMode.EFFICIENT_BINARY -> {
+                val ebf = EfficientBinaryFormat()
+                val bytes = runCatching { ebf.encodeToByteArray(serializer, value) }.getOrElse { e->
+                    null//throw e
+                }
+                if (bytes != null && serializer is KSerializer<*>) {
+                    val decoded = ebf.decodeFromByteArray((serializer as KSerializer<T>), bytes)
+                    encodeToString(serializer, decoded)
+                } else {
+                    encodeToString(serializer, value)
+                }
+            }
         }
 
     internal inline fun <reified T : Any> Json.decodeFromString(source: String, jsonTestingMode: JsonTestingMode): T {
@@ -74,6 +89,7 @@ abstract class JsonTestBase {
         return decodeFromString(deserializer, source, jsonTestingMode)
     }
 
+    @OptIn(ExperimentalStdlibApi::class)
     internal fun <T> Json.decodeFromString(
         deserializer: DeserializationStrategy<T>,
         source: String,
@@ -100,6 +116,20 @@ abstract class JsonTestBase {
                 buffer.writeString(source)
                 decodeFromSource(deserializer, buffer)
             }
+            JsonTestingMode.EFFICIENT_BINARY -> {
+                when (deserializer){
+                    is KSerializer<*> -> {
+                        val s = deserializer as KSerializer<T>
+                        val value = decodeFromString(deserializer, source)
+                        runCatching {
+                            val ebf = EfficientBinaryFormat()
+                            val binaryValue = EfficientBinaryFormat().encodeToByteArray(s, value)
+                            ebf.decodeFromByteArray(s, binaryValue)
+                        }.getOrElse { value }
+                    }
+                    else -> decodeFromString(deserializer, source)
+                }
+            }
         }
 
     protected open fun parametrizedTest(test: (JsonTestingMode) -> Unit) {
@@ -108,6 +138,8 @@ abstract class JsonTestBase {
             add(runCatching { test(JsonTestingMode.TREE) })
             add(runCatching { test(JsonTestingMode.OKIO_STREAMS) })
             add(runCatching { test(JsonTestingMode.KXIO_STREAMS) })
+            add(runCatching { test(JsonTestingMode.EFFICIENT_BINARY) }
+                .recover { e -> if ("Json format" in (e.message ?: "")) Unit else throw e })
 
             if (isJvm()) {
                 add(runCatching { test(JsonTestingMode.JAVA_STREAMS) })
@@ -129,12 +161,70 @@ abstract class JsonTestBase {
         }
     }
 
+    /** A test runner that effectively handles the json tests to also test serialization to
+     * "efficient" binary. This mainly checks serializer implementations.
+     */
+    private inner class EfficientBinary(
+        val json: Json,
+        val ebf: EfficientBinaryFormat = EfficientBinaryFormat(),
+    ) : StringFormat {
+        override val serializersModule: SerializersModule = ebf.serializersModule
+
+        private var bytes: ByteArray? = null
+        private var jsonStr: String? = null
+
+        @OptIn(ExperimentalStdlibApi::class)
+        override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
+            bytes = runCatching { ebf.encodeToByteArray(serializer, value) }
+                .onFailure { if ("Json format" !in it.message!!) {
+                    json.encodeToString(serializer, value) // trigger throwing the json exception if the exception is there
+                    throw it
+                } }
+                .getOrNull()
+            return json.encodeToString(serializer, value).also {
+                if (bytes != null) jsonStr = it
+            }
+        }
+
+        @OptIn(ExperimentalStdlibApi::class)
+        override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T {
+            /*
+             * to retain compatibility with json we support different cases. If
+             * the string has been encoded already use that. Instead, if the
+             * deserializer is also a serializer (the default) then use that to
+             * get the value from json and encode that to bytes which are then
+             * decoded. In this case capture and ignore cases that require a
+             * json encoder.
+             *
+             * Finally fall back to json decoding (nothing can be done)
+             */
+
+            var bytes = this@EfficientBinary.bytes
+            if (string == jsonStr && bytes != null) {
+                return ebf.decodeFromByteArray(deserializer, bytes)
+            } else if (deserializer is SerializationStrategy<*>) {
+                val value = json.decodeFromString(deserializer, string)
+                //
+                @Suppress("UNCHECKED_CAST")
+                runCatching { ebf.encodeToByteArray(deserializer as SerializationStrategy<T>, value) }.onSuccess { r ->
+                    bytes = r
+                    jsonStr = string
+                    return ebf.decodeFromByteArray(deserializer, bytes)
+                }.onFailure { e ->
+                    if ("Json format" !in e.message!!) throw e
+                }
+            }
+            return json.decodeFromString(deserializer, string)
+        }
+    }
+
     protected fun parametrizedTest(json: Json, test: StringFormat.() -> Unit) {
         val streamingResult = runCatching { SwitchableJson(json, JsonTestingMode.STREAMING).test() }
         val treeResult = runCatching { SwitchableJson(json, JsonTestingMode.TREE).test() }
         val okioResult = runCatching { SwitchableJson(json, JsonTestingMode.OKIO_STREAMS).test() }
         val kxioResult = runCatching { SwitchableJson(json, JsonTestingMode.KXIO_STREAMS).test() }
-        processResults(listOf(streamingResult, treeResult, okioResult, kxioResult))
+        val efficientBinaryResult = runCatching { EfficientBinary(json).test() }
+        processResults(listOf(streamingResult, treeResult, okioResult, kxioResult, efficientBinaryResult))
     }
 
     protected fun processResults(results: List<Result<*>>) {

@@ -41,7 +41,7 @@ class JsonCustomSerializersTest : JsonTestBase() {
             override fun serialize(encoder: Encoder, value: C) {
                 val elemOutput = encoder.beginStructure(descriptor)
                 elemOutput.encodeIntElement(descriptor, 1, value.b)
-                if (value.a != 31) elemOutput.encodeIntElement(descriptor, 0, value.a)
+                if (value.a != 31 || elemOutput.shouldEncodeElementDefault(descriptor, 0)) elemOutput.encodeIntElement(descriptor, 0, value.a)
                 elemOutput.endStructure(descriptor)
             }
         }
@@ -57,7 +57,9 @@ class JsonCustomSerializersTest : JsonTestBase() {
             override fun serialize(encoder: Encoder, value: CList2) {
                 val elemOutput = encoder.beginStructure(descriptor)
                 elemOutput.encodeSerializableElement(descriptor, 1, ListSerializer(C), value.c)
-                if (value.d != 5) elemOutput.encodeIntElement(descriptor, 0, value.d)
+                if (value.d != 5 || elemOutput.shouldEncodeElementDefault(descriptor, 0)) {
+                    elemOutput.encodeIntElement(descriptor, 0, value.d)
+                }
                 elemOutput.endStructure(descriptor)
             }
         }
@@ -69,7 +71,9 @@ class JsonCustomSerializersTest : JsonTestBase() {
         companion object : KSerializer<CList3> {
             override fun serialize(encoder: Encoder, value: CList3) {
                 val elemOutput = encoder.beginStructure(descriptor)
-                if (value.e.isNotEmpty()) elemOutput.encodeSerializableElement(descriptor, 0, ListSerializer(C), value.e)
+                if (value.e.isNotEmpty() || elemOutput.shouldEncodeElementDefault(descriptor, 0)) {
+                    elemOutput.encodeSerializableElement(descriptor, 0, ListSerializer(C), value.e)
+                }
                 elemOutput.encodeIntElement(descriptor, 1, value.f)
                 elemOutput.endStructure(descriptor)
             }
@@ -83,7 +87,9 @@ class JsonCustomSerializersTest : JsonTestBase() {
             override fun serialize(encoder: Encoder, value: CList4) {
                 val elemOutput = encoder.beginStructure(descriptor)
                 elemOutput.encodeIntElement(descriptor, 1, value.h)
-                if (value.g.isNotEmpty()) elemOutput.encodeSerializableElement(descriptor, 0, ListSerializer(C), value.g)
+                if (value.g.isNotEmpty() || elemOutput.shouldEncodeElementDefault(descriptor, 0)) {
+                    elemOutput.encodeSerializableElement(descriptor, 0, ListSerializer(C), value.g)
+                }
                 elemOutput.endStructure(descriptor)
             }
         }
@@ -96,10 +102,12 @@ class JsonCustomSerializersTest : JsonTestBase() {
             override fun serialize(encoder: Encoder, value: CList5) {
                 val elemOutput = encoder.beginStructure(descriptor)
                 elemOutput.encodeIntElement(descriptor, 1, value.h)
-                if (value.g.isNotEmpty()) elemOutput.encodeSerializableElement(
-                    descriptor, 0, ListSerializer(Int.serializer()),
-                    value.g
-                )
+                if (value.g.isNotEmpty()  || elemOutput.shouldEncodeElementDefault(descriptor, 0)) {
+                    elemOutput.encodeSerializableElement(
+                        descriptor, 0, ListSerializer(Int.serializer()),
+                        value.g
+                    )
+                }
                 elemOutput.endStructure(descriptor)
             }
         }
