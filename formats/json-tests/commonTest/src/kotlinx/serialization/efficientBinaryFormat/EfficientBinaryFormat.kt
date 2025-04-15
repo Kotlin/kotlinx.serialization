@@ -11,6 +11,7 @@ import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.AbstractDecoder
 import kotlinx.serialization.encoding.AbstractEncoder
+import kotlinx.serialization.encoding.ChunkedDecoder
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.CompositeEncoder
 import kotlinx.serialization.modules.EmptySerializersModule
@@ -63,7 +64,7 @@ class EfficientBinaryFormat(
 
     }
 
-    class Decoder(override val serializersModule: SerializersModule, private val reader: ByteReadingBuffer) : AbstractDecoder() {
+    class Decoder(override val serializersModule: SerializersModule, private val reader: ByteReadingBuffer) : AbstractDecoder(), ChunkedDecoder {
 
         constructor(serializersModule: SerializersModule, bytes: ByteArray) : this(
             serializersModule,
@@ -90,6 +91,11 @@ class EfficientBinaryFormat(
         override fun decodeChar(): Char = reader.readChar()
 
         override fun decodeString(): String = reader.readString()
+
+        @ExperimentalSerializationApi
+        override fun decodeStringChunked(consumeChunk: (String) -> Unit) {
+            reader.readString(consumeChunk)
+        }
 
         override fun decodeEnum(enumDescriptor: SerialDescriptor): Int = reader.readInt()
 

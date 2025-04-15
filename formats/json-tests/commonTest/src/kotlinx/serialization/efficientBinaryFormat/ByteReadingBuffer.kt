@@ -65,4 +65,16 @@ class ByteReadingBuffer(val buffer: ByteArray) {
         return chars.concatToString()
     }
 
+    fun readString(consumeChunk: (String) -> Unit) {
+        val len = readInt()
+        var remaining = len
+        while (remaining > 1024) {
+            remaining -= 1024
+            val chunk = CharArray(1024) { readChar() }
+            consumeChunk(chunk.concatToString())
+        }
+        val chars = CharArray(remaining) { readChar() }
+        consumeChunk(chars.concatToString())
+    }
+
 }
