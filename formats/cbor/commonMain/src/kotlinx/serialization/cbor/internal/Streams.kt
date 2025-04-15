@@ -62,29 +62,6 @@ internal class ByteArrayOutput {
         array.copyInto(newArray, startIndex = 0, endIndex = this.position)
         return newArray
     }
-    
-    /**
-     * Calculates the next power-of-two capacity based on the required minimum size.
-     *
-     * This function ensures the returned value is at least as large as `minCapacity`,
-     * and is always a power of two, unless `minCapacity` is less than or equal to zero,
-     * in which case it returns 0. If the calculated power of two exceeds `Integer.MAX_VALUE`,
-     * it returns `Integer.MAX_VALUE`.
-     *
-     * It's useful for resizing arrays with exponential growth.
-     *
-     * @param minCapacity The minimum required capacity.
-     * @return A capacity value that is a power of two and ≥ minCapacity, or 0 if `minCapacity` is ≤ 0.
-     */
-    fun nextPowerOfTwoCapacity(minCapacity: Int): Int {
-        if (minCapacity <= 0) return 0
-
-        val highestOneBit = minCapacity.takeHighestOneBit()
-        val maxHighestOneBit = Integer.MAX_VALUE.takeHighestOneBit()
-
-        // Check if shifting would exceed the maximum allowed value
-        return if (highestOneBit < maxHighestOneBit) highestOneBit shl 1 else Integer.MAX_VALUE
-    }
 
     fun copyFrom(src: ByteArrayOutput) {
         write(src.array, count = src.position)
@@ -114,5 +91,30 @@ internal class ByteArrayOutput {
     fun write(byteValue: Int) {
         ensureCapacity(1)
         array[position++] = byteValue.toByte()
+    }
+    
+    companion object {
+        /**
+         * Calculates the next power-of-two capacity based on the required minimum size.
+         *
+         * This function ensures the returned value is at least as large as `minCapacity`,
+         * and is always a power of two, unless `minCapacity` is less than or equal to zero,
+         * in which case it returns 0. If the calculated power of two exceeds `Integer.MAX_VALUE`,
+         * it returns `Integer.MAX_VALUE`.
+         *
+         * It's useful for resizing arrays with exponential growth.
+         *
+         * @param minCapacity The minimum required capacity.
+         * @return A capacity value that is a power of two and ≥ minCapacity, or 0 if `minCapacity` is ≤ 0.
+         */
+        fun nextPowerOfTwoCapacity(minCapacity: Int): Int {
+            if (minCapacity <= 0) return 0
+
+            val highestOneBit = minCapacity.takeHighestOneBit()
+            val maxHighestOneBit = Integer.MAX_VALUE.takeHighestOneBit()
+
+            // Check if shifting would exceed the maximum allowed value
+            return if (highestOneBit < maxHighestOneBit) highestOneBit shl 1 else Integer.MAX_VALUE
+        }
     }
 }
