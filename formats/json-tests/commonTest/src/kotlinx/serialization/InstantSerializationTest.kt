@@ -26,6 +26,14 @@ class InstantSerializationTest: JsonTestBase() {
         )) {
             assertJsonFormAndRestored(serializer, instant, json)
         }
+        for ((instant, json) in listOf(
+            Pair(Instant.fromEpochSeconds(987654321, 123456789),
+                "\"2001-04-19T07:55:21.123456789+03:30\""),
+            Pair(Instant.fromEpochSeconds(987654321, 123456789),
+                "\"2001-04-19T00:55:21.123456789-03:30\""),
+        )) {
+            assertRestoredFromJsonForm(serializer, json, instant)
+        }
     }
 
     private fun componentSerialization(serializer: KSerializer<Instant>) {

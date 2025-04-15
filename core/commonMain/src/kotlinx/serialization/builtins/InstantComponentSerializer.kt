@@ -27,23 +27,28 @@ public object InstantComponentSerializer : KSerializer<Instant> {
     @OptIn(ExperimentalSerializationApi::class)
     override fun deserialize(decoder: Decoder): Instant =
         decoder.decodeStructure(descriptor) {
-            var epochSeconds: Long? = null
+            var epochSecondsNotSeen = true
+            var epochSeconds: Long = 0
             var nanosecondsOfSecond = 0
             while (true) {
                 when (val index = decodeElementIndex(descriptor)) {
-                    0 -> epochSeconds = decodeLongElement(descriptor, 0)
+                    0 -> {
+                        epochSecondsNotSeen = false
+                        epochSeconds = decodeLongElement(descriptor, 0)
+                    }
                     1 -> nanosecondsOfSecond = decodeIntElement(descriptor, 1)
                     CompositeDecoder.DECODE_DONE -> break
                     else -> throw SerializationException("Unexpected index: $index")
                 }
             }
-            if (epochSeconds == null) throw MissingFieldException(
+            if (epochSecondsNotSeen) throw MissingFieldException(
                 missingField = "epochSeconds",
                 serialName = descriptor.serialName
             )
             Instant.fromEpochSeconds(epochSeconds, nanosecondsOfSecond)
         }
 
+    @OptIn(ExperimentalSerializationApi::class)
     override fun serialize(encoder: Encoder, value: Instant) {
         encoder.encodeStructure(descriptor) {
             encodeLongElement(descriptor, 0, value.epochSeconds)
