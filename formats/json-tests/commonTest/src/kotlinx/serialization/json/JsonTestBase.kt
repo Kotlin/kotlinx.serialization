@@ -26,7 +26,8 @@ enum class JsonTestingMode {
     TREE,
     OKIO_STREAMS,
     JAVA_STREAMS,
-    KXIO_STREAMS;
+    KXIO_STREAMS,
+    EFFICIENT_BINARY;
 
     companion object {
         fun value(i: Int) = values()[i]
@@ -42,6 +43,7 @@ abstract class JsonTestBase {
         return encodeToString(serializer, value, jsonTestingMode)
     }
 
+    @OptIn(ExperimentalStdlibApi::class)
     internal fun <T> Json.encodeToString(
         serializer: SerializationStrategy<T>,
         value: T,
@@ -68,6 +70,18 @@ abstract class JsonTestBase {
                 encodeToSink(serializer, value, buffer)
                 buffer.readString()
             }
+            JsonTestingMode.EFFICIENT_BINARY -> {
+                val ebf = EfficientBinaryFormat()
+                val bytes = runCatching { ebf.encodeToByteArray(serializer, value) }.getOrElse { e->
+                    null//throw e
+                }
+                if (bytes != null && serializer is KSerializer<*>) {
+                    val decoded = ebf.decodeFromByteArray((serializer as KSerializer<T>), bytes)
+                    encodeToString(serializer, decoded)
+                } else {
+                    encodeToString(serializer, value)
+                }
+            }
         }
 
     internal inline fun <reified T : Any> Json.decodeFromString(source: String, jsonTestingMode: JsonTestingMode): T {
@@ -75,6 +89,7 @@ abstract class JsonTestBase {
         return decodeFromString(deserializer, source, jsonTestingMode)
     }
 
+    @OptIn(ExperimentalStdlibApi::class)
     internal fun <T> Json.decodeFromString(
         deserializer: DeserializationStrategy<T>,
         source: String,
@@ -100,6 +115,20 @@ abstract class JsonTestBase {
                 val buffer = KotlinxIoBuffer()
                 buffer.writeString(source)
                 decodeFromSource(deserializer, buffer)
+            }
+            JsonTestingMode.EFFICIENT_BINARY -> {
+                when (deserializer){
+                    is KSerializer<*> -> {
+                        val s = deserializer as KSerializer<T>
+                        val value = decodeFromString(deserializer, source)
+                        runCatching {
+                            val ebf = EfficientBinaryFormat()
+                            val binaryValue = EfficientBinaryFormat().encodeToByteArray(s, value)
+                            ebf.decodeFromByteArray(s, binaryValue)
+                        }.getOrElse { value }
+                    }
+                    else -> decodeFromString(deserializer, source)
+                }
             }
         }
 
@@ -145,7 +174,10 @@ abstract class JsonTestBase {
         @OptIn(ExperimentalStdlibApi::class)
         override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
             bytes = runCatching { ebf.encodeToByteArray(serializer, value) }
-                .onFailure { if ("Json format" !in it.message!!) throw it }
+                .onFailure { if ("Json format" !in it.message!!) {
+                    json.encodeToString(serializer, value) // trigger throwing the json exception if the exception is there
+                    throw it
+                } }
                 .getOrNull()
             return json.encodeToString(serializer, value).also {
                 if (bytes != null) jsonStr = it

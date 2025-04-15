@@ -131,7 +131,7 @@ class JsonErrorMessagesTest : JsonTestBase() {
             // it can be some kind of path `{"foo:bar:baz":"my:resource:locator:{123}"}` or even URI used as a string key/value.
             // So if the closing quote is missing, there's really no way to correctly tell where the key or value is supposed to end.
             // Although we may try to unify these messages for consistency.
-            if (mode in setOf(JsonTestingMode.STREAMING, JsonTestingMode.TREE))
+            if (mode in setOf(JsonTestingMode.STREAMING, JsonTestingMode.TREE, JsonTestingMode.EFFICIENT_BINARY))
                 assertContains(
                     message,
                     "Unexpected JSON token at offset 7: Expected quotation mark '\"', but had ':' instead at path: \$"
@@ -145,7 +145,7 @@ class JsonErrorMessagesTest : JsonTestBase() {
         checkSerializationException({
             default.decodeFromString(serString, input2, mode)
         }, { message ->
-            if (mode in setOf(JsonTestingMode.STREAMING, JsonTestingMode.TREE))
+            if (mode in setOf(JsonTestingMode.STREAMING, JsonTestingMode.TREE, JsonTestingMode.EFFICIENT_BINARY))
                 assertContains(
                     message,
                     "Unexpected JSON token at offset 13: Expected quotation mark '\"', but had '}' instead at path: \$"
