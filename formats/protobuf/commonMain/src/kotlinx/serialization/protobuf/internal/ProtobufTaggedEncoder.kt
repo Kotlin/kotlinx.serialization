@@ -36,6 +36,7 @@ internal abstract class ProtobufTaggedEncoder : ProtobufTaggedBase(), Encoder, C
 
     public final override fun encodeNull() {
         if (nullableMode != NullableMode.ACCEPTABLE) {
+            @Suppress("REDUNDANT_ELSE_IN_WHEN")
             val message = when (nullableMode) {
                 NullableMode.OPTIONAL -> "'null' is not supported for optional properties in ProtoBuf"
                 NullableMode.COLLECTION -> "'null' is not supported as the value of collection types in ProtoBuf"
