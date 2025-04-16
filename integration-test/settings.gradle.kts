@@ -17,7 +17,7 @@ pluginManagement {
     repositories {
         mavenCentral()
         maven("https://plugins.gradle.org/m2/")
-        maven("https://packages.jetbrains.team/maven/p/kt/dev")
+        maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
         maven("https://redirector.kotlinlang.org/maven/dev")
         mavenLocal()
     }
