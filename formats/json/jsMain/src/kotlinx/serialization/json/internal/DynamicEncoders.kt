@@ -235,10 +235,10 @@ private class DynamicObjectEncoder(
 
     @OptIn(ExperimentalSerializationApi::class)
     fun selectMode(desc: SerialDescriptor) = when (desc.kind) {
-        StructureKind.CLASS, StructureKind.OBJECT, SerialKind.CONTEXTUAL -> WriteMode.OBJ
-        StructureKind.LIST, is PolymorphicKind -> WriteMode.LIST
-        StructureKind.MAP -> WriteMode.MAP
-        is PrimitiveKind, SerialKind.ENUM -> {
+        is StructureKind.CLASS, is StructureKind.OBJECT, is SerialKind.CONTEXTUAL -> WriteMode.OBJ
+        is StructureKind.LIST, is PolymorphicKind -> WriteMode.LIST
+        is StructureKind.MAP -> WriteMode.MAP
+        is PrimitiveKind, is SerialKind.ENUM -> {
             // the two cases are handled in DynamicObjectSerializer. But compiler does not know
             error("DynamicObjectSerializer does not support serialization of singular primitive values or enum types.")
         }
