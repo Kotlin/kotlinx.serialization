@@ -482,22 +482,22 @@ public object ProtoBufSchemaGenerator {
         }
 
         return when (kind as PrimitiveKind) {
-            PrimitiveKind.BOOLEAN -> "bool"
-            PrimitiveKind.BYTE, PrimitiveKind.CHAR, PrimitiveKind.SHORT, PrimitiveKind.INT ->
+            is PrimitiveKind.BOOLEAN -> "bool"
+            is PrimitiveKind.BYTE, is PrimitiveKind.CHAR, is PrimitiveKind.SHORT, is PrimitiveKind.INT ->
                 when (integerType) {
                     ProtoIntegerType.DEFAULT -> "int32"
                     ProtoIntegerType.SIGNED -> "sint32"
                     ProtoIntegerType.FIXED -> "fixed32"
                 }
-            PrimitiveKind.LONG ->
+            is PrimitiveKind.LONG ->
                 when (integerType) {
                     ProtoIntegerType.DEFAULT -> "int64"
                     ProtoIntegerType.SIGNED -> "sint64"
                     ProtoIntegerType.FIXED -> "fixed64"
                 }
-            PrimitiveKind.FLOAT -> "float"
-            PrimitiveKind.DOUBLE -> "double"
-            PrimitiveKind.STRING -> "string"
+            is PrimitiveKind.FLOAT -> "float"
+            is PrimitiveKind.DOUBLE -> "double"
+            is PrimitiveKind.STRING -> "string"
         }
     }
 
