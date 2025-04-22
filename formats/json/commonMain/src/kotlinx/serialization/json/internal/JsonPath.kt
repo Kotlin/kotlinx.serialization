@@ -134,7 +134,9 @@ internal class JsonPath {
     private fun resize() {
         val newSize = currentDepth * 2
         currentObjectPath = currentObjectPath.copyOf(newSize)
-        indicies = indicies.copyOf(newSize)
+        val newIndices = IntArray(newSize) { -1 }
+        indicies.copyInto(newIndices)
+        indicies = newIndices
     }
 
     override fun toString(): String = getPath()
