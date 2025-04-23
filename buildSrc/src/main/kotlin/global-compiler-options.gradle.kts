@@ -3,6 +3,11 @@
  */
 
 import org.jetbrains.kotlin.gradle.tasks.*
+import kotlin.collections.joinToString
+
+val kotlin_additional_cli_options = providers.gradleProperty("kotlin_additional_cli_options")
+    .map { it.split(" ") }
+    .orNull
 
 val globalCompilerArgs
     get() = listOf(
@@ -18,6 +23,10 @@ tasks.withType(KotlinCompilationTask::class).configureEach {
         // Unconditional compiler options
         freeCompilerArgs.addAll(globalCompilerArgs)
 
+        if (kotlin_additional_cli_options != null) {
+            freeCompilerArgs.addAll(kotlin_additional_cli_options)
+        }
+
         val isMainTaskName = name.startsWith("compileKotlin")
         if (isMainTaskName) {
             val werrorEnabled = when (kotlin_Werror_override?.lowercase()) {
@@ -28,7 +37,6 @@ tasks.withType(KotlinCompilationTask::class).configureEach {
             }
 
             allWarningsAsErrors = werrorEnabled
-
             // Add extra compiler options when -Werror is disabled
             if (!werrorEnabled) {
                 freeCompilerArgs.addAll(
@@ -45,4 +53,11 @@ tasks.withType<Kotlin2JsCompile>().configureEach {
 }
 tasks.withType<KotlinNativeCompile>().configureEach {
     compilerOptions { freeCompilerArgs.add("-Xpartial-linkage-loglevel=ERROR") }
+}
+
+tasks.withType<KotlinCompilationTask<*>>().configureEach {
+    doFirst {
+        logger.info("Added Kotlin compiler flags: ${compilerOptions.freeCompilerArgs.get().joinToString(", ")}")
+        logger.info("allWarningsAsErrors=${compilerOptions.allWarningsAsErrors.get()}")
+    }
 }
