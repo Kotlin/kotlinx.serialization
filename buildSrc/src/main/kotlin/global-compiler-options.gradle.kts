@@ -7,9 +7,7 @@ import kotlin.collections.joinToString
 
 val kotlinAdditionalCliOptions = providers.gradleProperty("kotlin_additional_cli_options")
     .orNull?.let { options ->
-        val cleanedOptions = options.removeSurrounding("\"").removeSurrounding("'").split(" ")
-        println("Kotlin additional CLI options: $cleanedOptions")
-        if (cleanedOptions.isNotEmpty()) cleanedOptions else null
+        options.removeSurrounding("\"").split(" ").filter { it.isNotBlank() }
     }
 
 
@@ -27,18 +25,8 @@ tasks.withType(KotlinCompilationTask::class).configureEach {
         // Unconditional compiler options
         freeCompilerArgs.addAll(globalCompilerArgs)
 
-
-        if (kotlinAdditionalCliOptions != null) {
-            println("Here adding")
-            kotlinAdditionalCliOptions.forEach { option ->
-                if (!option.isEmpty()) {
-                    freeCompilerArgs.add(option)
-                    println ("freeCompilerArg added: ${option}")
-                }
-            }
-        }
-
-        println("Here3 $kotlinAdditionalCliOptions")
+        println("$kotlinAdditionalCliOptions")
+        kotlinAdditionalCliOptions?.forEach { option -> freeCompilerArgs.add(option) }
 
         val isMainTaskName = name.startsWith("compileKotlin")
         if (isMainTaskName) {
