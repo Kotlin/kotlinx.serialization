@@ -5,9 +5,10 @@
 import org.jetbrains.kotlin.gradle.tasks.*
 import kotlin.collections.joinToString
 
-val kotlin_additional_cli_options = providers.gradleProperty("kotlin_additional_cli_options")
-    .map { it.split(" ") }
-    .orNull
+val kotlinAdditionalCliOptions = providers.gradleProperty("kotlin_additional_cli_options")
+    .orNull?.let { options ->
+        options.removeSurrounding("\"").split(" ").filter { it.isNotBlank() }
+    }
 
 val globalCompilerArgs
     get() = listOf(
@@ -22,10 +23,7 @@ tasks.withType(KotlinCompilationTask::class).configureEach {
     compilerOptions {
         // Unconditional compiler options
         freeCompilerArgs.addAll(globalCompilerArgs)
-
-        if (kotlin_additional_cli_options != null) {
-            freeCompilerArgs.addAll(kotlin_additional_cli_options)
-        }
+        kotlinAdditionalCliOptions?.forEach { option -> freeCompilerArgs.add(option) }
 
         val isMainTaskName = name.startsWith("compileKotlin")
         if (isMainTaskName) {
