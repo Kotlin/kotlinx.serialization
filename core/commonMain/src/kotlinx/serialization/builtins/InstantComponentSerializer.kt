@@ -52,7 +52,7 @@ public object InstantComponentSerializer : KSerializer<Instant> {
     override fun serialize(encoder: Encoder, value: Instant) {
         encoder.encodeStructure(descriptor) {
             encodeLongElement(descriptor, 0, value.epochSeconds)
-            if (value.nanosecondsOfSecond != 0) {
+            if (value.nanosecondsOfSecond != 0 || shouldEncodeElementDefault(descriptor, 1)) {
                 encodeIntElement(descriptor, 1, value.nanosecondsOfSecond)
             }
         }

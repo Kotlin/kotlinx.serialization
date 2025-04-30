@@ -45,14 +45,21 @@ class InstantSerializationTest: JsonTestBase() {
             Pair(Instant.fromEpochSeconds(987654321, 123456789),
                 "{\"epochSeconds\":987654321,\"nanosecondsOfSecond\":123456789}"),
             Pair(Instant.fromEpochSeconds(987654321, 0),
-                "{\"epochSeconds\":987654321}"),
+                "{\"epochSeconds\":987654321,\"nanosecondsOfSecond\":0}"),
         )) {
             assertJsonFormAndRestored(serializer, instant, json)
         }
-        // check that having a `"nanosecondsOfSecond": 0` field doesn't break deserialization
+        // by default, `nanosecondsOfSecond` is optional
+        assertJsonFormAndRestored(serializer, Instant.fromEpochSeconds(987654321, 0),
+            "{\"epochSeconds\":987654321}", Json { })
+        // having a `"nanosecondsOfSecond": 0` field doesn't break deserialization
         assertEquals(Instant.fromEpochSeconds(987654321, 0),
             Json.decodeFromString(serializer,
                 "{\"epochSeconds\":987654321,\"nanosecondsOfSecond\":0}"))
+        // as does not having a `"nanosecondsOfSecond"` field if `encodeDefaults` is true
+        assertEquals(Instant.fromEpochSeconds(987654321, 0),
+            default.decodeFromString(serializer,
+                "{\"epochSeconds\":987654321}"))
         // "epochSeconds" should always be present
         assertFailsWith<SerializationException> { Json.decodeFromString(serializer, "{}") }
         assertFailsWith<SerializationException> { Json.decodeFromString(serializer, "{\"nanosecondsOfSecond\":3}") }
