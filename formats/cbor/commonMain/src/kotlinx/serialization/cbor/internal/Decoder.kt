@@ -151,7 +151,7 @@ internal open class CborReader(override val cbor: Cbor, protected val parser: Cb
     }
 }
 
-internal class CborParser(private val input: ByteArrayInput, private val verifyObjectTags: Boolean) {
+internal class CborParser(private val input: ByteArrayInput, private val configuration: CborConfiguration) {
     private var curByte: Int = -1
 
     init {
@@ -170,13 +170,13 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
         readByte()
     }
 
-    fun isNull() = (curByte == NULL || curByte == EMPTY_MAP)
+    fun isNull() = (curByte == NULL || curByte == EMPTY_MAP && !configuration.treatNullComplexObjectsAsNull)
 
     fun nextNull(tags: ULongArray? = null): Nothing? {
         processTags(tags)
         if (curByte == NULL) {
             skipByte(NULL)
-        } else if (curByte == EMPTY_MAP) {
+        } else if (curByte == EMPTY_MAP && !configuration.treatNullComplexObjectsAsNull) {
             skipByte(EMPTY_MAP)
         }
         return null
@@ -258,7 +258,7 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
             collectedTags += readTag
             // value tags and object tags are intermingled (keyTags are always separate)
             // so this check only holds if we verify both
-            if (verifyObjectTags) {
+            if (configuration.verifyObjectTags) {
                 tags?.let {
                     if (index++ >= it.size) throw CborDecodingException("More tags found than the ${it.size} tags specified")
                 }
@@ -268,7 +268,7 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
         return (if (collectedTags.isEmpty()) null else collectedTags.toULongArray()).also { collected ->
             //We only want to compare if tags are actually set, otherwise, we don't care
             tags?.let {
-                if (verifyObjectTags) { //again, this check only works if we verify value tags and object tags
+                if (configuration.verifyObjectTags) { //again, this check only works if we verify value tags and object tags
                     verifyTagsAndThrow(it, collected)
                 } else {
                     // If we don't care for object tags, the best we can do is assure that the collected tags start with
