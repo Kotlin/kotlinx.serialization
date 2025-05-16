@@ -78,12 +78,13 @@ apiValidation {
 
 knit {
     siteRoot = "https://kotlinlang.org/api/kotlinx.serialization"
-    moduleDocs = "build/dokka/htmlMultiModule"
+    moduleDocs = "build/dokka-module/html/module"
+    dokkaMultiModuleRoot = "build/dokka/html/"
 }
 
 // Build API docs for all modules with dokka before running Knit
 tasks.named("knitPrepare") {
-    dependsOn("dokka")
+    dependsOn("dokkaGenerate")
 }
 
 
@@ -135,17 +136,14 @@ subprojects {
     }
 }
 
-// Knit relies on Dokka task and it's pretty convenient
-tasks.register("dokka") {
-    dependsOn("dokkaHtmlMultiModule")
-}
-
-tasks.withType<DokkaMultiModuleTask>().named("dokkaHtmlMultiModule") {
-    pluginsMapConfiguration.put("org.jetbrains.dokka.base.DokkaBase", """{ "templatesDir": "${projectDir.toString().replace("\\", "/")}/dokka-templates" }""")
-}
-
+// apply conventions to root module and setup dependencies for aggregation
+apply(plugin = "dokka-conventions")
 dependencies {
-    dokkaPlugin(libs.dokka.pathsaver)
+    subprojects.forEach {
+        if (it.name in documentedSubprojects) {
+            dokka(it)
+        }
+    }
 }
 
 // == NPM setup ==
@@ -159,19 +157,23 @@ logger.warn("Project is using Kotlin Gradle plugin version: ${project.getKotlinP
 
 // == projects lists and flags ==
 // getters are required because of variable lazy initialization in Gradle
-val unpublishedProjects get() = setOf(
-    "benchmark",
-    "guide",
-    "kotlinx-serialization-json-tests",
-    "proto-test-model",
-)
+val unpublishedProjects
+    get() = setOf(
+        "benchmark",
+        "guide",
+        "kotlinx-serialization-json-tests",
+        "proto-test-model",
+    )
 val excludedFromBomProjects get() = unpublishedProjects + "kotlinx-serialization-bom"
 
-val documentedSubprojects get() = setOf("kotlinx-serialization-core",
-    "kotlinx-serialization-json",
-    "kotlinx-serialization-json-okio",
-    "kotlinx-serialization-json-io",
-    "kotlinx-serialization-cbor",
-    "kotlinx-serialization-properties",
-    "kotlinx-serialization-hocon",
-    "kotlinx-serialization-protobuf")
+val documentedSubprojects
+    get() = setOf(
+        "kotlinx-serialization-core",
+        "kotlinx-serialization-json",
+        "kotlinx-serialization-json-okio",
+        "kotlinx-serialization-json-io",
+        "kotlinx-serialization-cbor",
+        "kotlinx-serialization-properties",
+        "kotlinx-serialization-hocon",
+        "kotlinx-serialization-protobuf"
+    )
