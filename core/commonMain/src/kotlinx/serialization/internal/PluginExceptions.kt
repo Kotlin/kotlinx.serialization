@@ -7,7 +7,7 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 
 @OptIn(ExperimentalSerializationApi::class)
 @InternalSerializationApi
-public fun throwMissingFieldException(seen: Int, goldenMask: Int, descriptor: SerialDescriptor) {
+public fun throwMissingFieldException(seen: Int, goldenMask: Int, descriptor: SerialDescriptor): Nothing {
     val missingFields = mutableListOf<String>()
 
     var missingFieldsBits = goldenMask and seen.inv()
@@ -22,7 +22,7 @@ public fun throwMissingFieldException(seen: Int, goldenMask: Int, descriptor: Se
 
 @OptIn(ExperimentalSerializationApi::class)
 @InternalSerializationApi
-public fun throwArrayMissingFieldException(seenArray: IntArray, goldenMaskArray: IntArray, descriptor: SerialDescriptor) {
+public fun throwArrayMissingFieldException(seenArray: IntArray, goldenMaskArray: IntArray, descriptor: SerialDescriptor): Nothing {
     val missingFields = mutableListOf<String>()
 
     for (maskSlot in goldenMaskArray.indices) {
