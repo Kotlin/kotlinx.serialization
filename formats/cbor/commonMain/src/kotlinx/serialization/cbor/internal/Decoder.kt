@@ -208,8 +208,17 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
             skipByte(unboundedHeader)
             return -1
         }
-        if ((curByte and 0b111_00000) != boundedHeaderMask)
+        if ((curByte and 0b111_00000) != boundedHeaderMask) {
+            if (boundedHeaderMask == HEADER_ARRAY && (curByte and 0b111_00000) == HEADER_BYTE_STRING) {
+                throw CborDecodingException(
+                    "Expected a start of array, " +
+                        "but found ${printByte(curByte)}, which corresponds to the start of a byte string. " +
+                        "Make sure you correctly set 'alwaysUseByteString' setting " +
+                        "and/or 'kotlinx.serialization.cbor.ByteString' annotation."
+                )
+            }
             throw CborDecodingException("start of $collectionType", curByte)
+        }
         val size = readNumber().toInt()
         readByte()
         return size
@@ -221,8 +230,17 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
 
     fun nextByteString(tags: ULongArray? = null): ByteArray {
         processTags(tags)
-        if ((curByte and 0b111_00000) != HEADER_BYTE_STRING)
+        if ((curByte and 0b111_00000) != HEADER_BYTE_STRING) {
+            if (curByte and 0b111_00000 == HEADER_ARRAY) {
+                throw CborDecodingException(
+                    "Expected a start of a byte string, " +
+                        "but found ${printByte(curByte)}, which corresponds to the start of an array. " +
+                        "Make sure you correctly set 'alwaysUseByteString' setting " +
+                        "and/or 'kotlinx.serialization.cbor.ByteString' annotation."
+                )
+            }
             throw CborDecodingException("start of byte string", curByte)
+        }
         val arr = readBytes()
         readByte()
         return arr

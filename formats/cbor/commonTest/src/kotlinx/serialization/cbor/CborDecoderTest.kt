@@ -374,4 +374,24 @@ class CborDecoderTest {
         )
     }
 
+    @Test
+    fun testMismatchedByteStringRepresentationError() {
+        @Serializable class BytesHolder(@ByteString val bytes: ByteArray)
+        @Serializable class ArrayHolder(val bytes: ByteArray)
+
+        assertFailsWithMessage<CborDecodingException>("Expected a start of array, but found 40, " +
+            "which corresponds to the start of a byte string. " +
+            "Make sure you correctly set 'alwaysUseByteString' setting " +
+            "and/or 'kotlinx.serialization.cbor.ByteString' annotation.") {
+            Cbor.decodeFromHexString<ArrayHolder>(Cbor.encodeToHexString(BytesHolder(ByteArray(0))))
+        }
+
+        assertFailsWithMessage<CborDecodingException>("Expected a start of a byte string, but found 9F, " +
+            "which corresponds to the start of an array. " +
+            "Make sure you correctly set 'alwaysUseByteString' setting " +
+            "and/or 'kotlinx.serialization.cbor.ByteString' annotation.") {
+            Cbor.decodeFromHexString<BytesHolder>(Cbor.encodeToHexString(ArrayHolder(ByteArray(0))))
+        }
+    }
+
 }
