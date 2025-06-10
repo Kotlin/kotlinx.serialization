@@ -251,6 +251,12 @@ public val JsonElement.jsonNull: JsonNull
     get() = this as? JsonNull ?: error("JsonNull")
 
 /**
+ * Returns true if current element is [JsonNull]
+ */
+public val JsonElement?.isJsonNull: Boolean
+    get() = (this as? JsonNull) != null
+
+/**
  * Returns content of the current element as int
  * @throws NumberFormatException if current element is not a valid representation of number
  */
@@ -351,8 +357,8 @@ internal fun JsonPrimitive.parseLongImpl(): Long = StringJsonLexer(content).cons
 /**
  * Convenience methods to get typed elements from [JsonObject]
  */
-public inline fun <reified T> JsonObject.bean(): T = Json.decodeFromString<T>(this.toString())
-public inline fun <reified T> JsonObject.getBeanOrNull(key: String): T? = this[key]?.jsonObject?.bean<T>()
+public inline fun <reified T> JsonElement.bean(): T = Json.decodeFromString<T>(this.toString())
+public inline fun <reified T> JsonObject.getBeanOrNull(key: String): T? = this[key]?.bean<T>()
 public fun JsonObject.getJsonObject(key: String): JsonObject? = this[key]?.jsonObject
 public fun JsonObject.getJsonArray(key: String): JsonArray? = this[key]?.jsonArray
 public fun JsonObject.getJsonPrimitive(key: String): JsonPrimitive? = this[key]?.jsonPrimitive
