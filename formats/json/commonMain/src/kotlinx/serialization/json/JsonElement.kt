@@ -347,3 +347,23 @@ internal fun unexpectedJson(key: String, expected: String): Nothing =
 
 // Use this function to avoid re-wrapping exception into NumberFormatException
 internal fun JsonPrimitive.parseLongImpl(): Long = StringJsonLexer(content).consumeNumericLiteralFully()
+
+/**
+ * Convenience methods to get typed elements from [JsonObject]
+ */
+public fun JsonObject.getJsonObject(key: String): JsonObject? = this[key]?.jsonObject
+public fun JsonObject.getJsonArray(key: String): JsonArray? = this[key]?.jsonArray
+public fun JsonObject.getJsonPrimitive(key: String): JsonPrimitive? = this[key]?.jsonPrimitive
+public fun JsonObject.getJsonNull(key: String): JsonNull? = this[key]?.jsonNull
+public fun JsonObject.getIntOrNull(key: String): Int? = this[key]?.jsonPrimitive?.intOrNull
+public fun JsonObject.getLongOrNull(key: String): Long? = this[key]?.jsonPrimitive?.longOrNull
+public fun JsonObject.getBooleanOrNull(key: String): Boolean? = this[key]?.jsonPrimitive?.booleanOrNull
+public fun JsonObject.getDoubleOrNull(key: String): Double? = this[key]?.jsonPrimitive?.doubleOrNull
+public fun JsonObject.getFloatOrNull(key: String): Float? = this[key]?.jsonPrimitive?.floatOrNull
+public fun JsonObject.getStringOrNull(key: String): String? = this[key]?.jsonPrimitive?.contentOrNull
+public fun JsonObject.getIntOrElse(key: String, default: Int): Int = getIntOrNull(key) ?: default
+public fun JsonObject.getLongOrElse(key: String, default: Long): Long = getLongOrNull(key) ?: default
+public fun JsonObject.getBooleanOrElse(key: String, default: Boolean): Boolean = getBooleanOrNull(key) ?: default
+public fun JsonObject.getDoubleOrElse(key: String, default: Double): Double = getDoubleOrNull(key) ?: default
+public fun JsonObject.getFloatOrElse(key: String, default: Float): Float = getFloatOrNull(key) ?: default
+public fun JsonObject.getStringOrElse(key: String, default: String): String = getStringOrNull(key) ?: default
