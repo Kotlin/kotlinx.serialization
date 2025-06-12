@@ -357,7 +357,7 @@ internal fun JsonPrimitive.parseLongImpl(): Long = StringJsonLexer(content).cons
 /**
  * Convenience methods to get typed elements from [JsonObject]
  */
-public inline fun <reified T> JsonObject.getBeanOrNull(key: String): T? = this[key]?.jsonObject?.let { Json.decodeFromString<T>(it.toString()) }
+public inline fun <reified T> JsonObject.getBeanOrNull(key: String): T? = this[key]?.takeIf { it is JsonObject || it is JsonArray }?.let { Json.decodeFromString<T>(it.toString()) }
 public fun JsonObject.getJsonObject(key: String): JsonObject? = this[key]?.jsonObject
 public fun JsonObject.getJsonArray(key: String): JsonArray? = this[key]?.jsonArray
 public fun JsonObject.getJsonPrimitive(key: String): JsonPrimitive? = this[key]?.jsonPrimitive
