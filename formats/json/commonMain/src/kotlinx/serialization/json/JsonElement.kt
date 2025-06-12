@@ -251,12 +251,6 @@ public val JsonElement.jsonNull: JsonNull
     get() = this as? JsonNull ?: error("JsonNull")
 
 /**
- * Returns true if current element is [JsonNull]
- */
-public val JsonElement?.isJsonNull: Boolean
-    get() = (this as? JsonNull) != null
-
-/**
  * Returns content of the current element as int
  * @throws NumberFormatException if current element is not a valid representation of number
  */
