@@ -357,18 +357,17 @@ internal fun JsonPrimitive.parseLongImpl(): Long = StringJsonLexer(content).cons
 /**
  * Convenience methods to get typed elements from [JsonObject]
  */
-public inline fun <reified T> JsonElement.bean(): T = Json.decodeFromString<T>(this.toString())
-public inline fun <reified T> JsonObject.getBeanOrNull(key: String): T? = this[key]?.bean<T>()
+public inline fun <reified T> JsonObject.getBeanOrNull(key: String): T? = this[key]?.jsonObject?.let { Json.decodeFromString<T>(it.toString()) }
 public fun JsonObject.getJsonObject(key: String): JsonObject? = this[key]?.jsonObject
 public fun JsonObject.getJsonArray(key: String): JsonArray? = this[key]?.jsonArray
 public fun JsonObject.getJsonPrimitive(key: String): JsonPrimitive? = this[key]?.jsonPrimitive
 public fun JsonObject.getJsonNull(key: String): JsonNull? = this[key]?.jsonNull
-public fun JsonObject.getIntOrNull(key: String): Int? = this[key]?.jsonPrimitive?.intOrNull
-public fun JsonObject.getLongOrNull(key: String): Long? = this[key]?.jsonPrimitive?.longOrNull
-public fun JsonObject.getBooleanOrNull(key: String): Boolean? = this[key]?.jsonPrimitive?.booleanOrNull
-public fun JsonObject.getDoubleOrNull(key: String): Double? = this[key]?.jsonPrimitive?.doubleOrNull
-public fun JsonObject.getFloatOrNull(key: String): Float? = this[key]?.jsonPrimitive?.floatOrNull
-public fun JsonObject.getStringOrNull(key: String): String? = this[key]?.jsonPrimitive?.contentOrNull
+public fun JsonObject.getIntOrNull(key: String): Int? = this[key]?.jsonPrimitive?.takeIf { !it.isString }?.intOrNull
+public fun JsonObject.getLongOrNull(key: String): Long? = this[key]?.jsonPrimitive?.takeIf { !it.isString }?.longOrNull
+public fun JsonObject.getBooleanOrNull(key: String): Boolean? = this[key]?.jsonPrimitive?.takeIf { !it.isString }?.booleanOrNull
+public fun JsonObject.getDoubleOrNull(key: String): Double? = this[key]?.jsonPrimitive?.takeIf { !it.isString }?.doubleOrNull
+public fun JsonObject.getFloatOrNull(key: String): Float? = this[key]?.jsonPrimitive?.takeIf { !it.isString }?.floatOrNull
+public fun JsonObject.getStringOrNull(key: String): String? = this[key]?.jsonPrimitive?.takeIf { it.isString }?.contentOrNull
 public fun JsonObject.getIntOrElse(key: String, default: Int): Int = getIntOrNull(key) ?: default
 public fun JsonObject.getLongOrElse(key: String, default: Long): Long = getLongOrNull(key) ?: default
 public fun JsonObject.getBooleanOrElse(key: String, default: Boolean): Boolean = getBooleanOrNull(key) ?: default
