@@ -179,9 +179,6 @@ public sealed class Json(
         return decodeFromString(JsonElementSerializer, string)
     }
 
-    public fun parseToJsonObject(@FormatLanguage("json", "", "") string: String): JsonObject = parseToJsonElement(string).jsonObject
-    public fun parseToJsonArray(@FormatLanguage("json", "", "") string: String): JsonArray = parseToJsonElement(string).jsonArray
-
     /**
      * Following functions are copied from extensions on StringFormat
      * to streamline experience for newcomers, since IDE does not star-import kotlinx.serialization.* automatically
