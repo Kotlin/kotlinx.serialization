@@ -230,11 +230,23 @@ public val JsonElement.jsonPrimitive: JsonPrimitive
     get() = this as? JsonPrimitive ?: error("JsonPrimitive")
 
 /**
+ * Returns content of the current element as JsonPrimitive or `null` if the current element is not a valid representation of JsonPrimitive
+ */
+public val JsonElement.jsonPrimitiveOrNull: JsonPrimitive?
+    get() = this as? JsonPrimitive
+
+/**
  * Convenience method to get current element as [JsonObject]
  * @throws IllegalArgumentException if current element is not a [JsonObject]
  */
 public val JsonElement.jsonObject: JsonObject
     get() = this as? JsonObject ?: error("JsonObject")
+
+/**
+ * Returns content of the current element as JsonObject or `null` if the current element is not a valid representation of JsonObject
+ */
+public val JsonElement.jsonObjectOrNull: JsonObject?
+    get() = this as? JsonObject
 
 /**
  * Convenience method to get current element as [JsonArray]
@@ -244,11 +256,23 @@ public val JsonElement.jsonArray: JsonArray
     get() = this as? JsonArray ?: error("JsonArray")
 
 /**
+ * Returns content of the current element as JsonArray or `null` if the current element is not a valid representation of JsonArray
+ */
+public val JsonElement.JsonArrayOrNull: JsonArray?
+    get() = this as? JsonArray
+
+/**
  * Convenience method to get current element as [JsonNull]
  * @throws IllegalArgumentException if current element is not a [JsonNull]
  */
 public val JsonElement.jsonNull: JsonNull
     get() = this as? JsonNull ?: error("JsonNull")
+
+/**
+ * Returns content of the current element as JsonNull or `null` if the current element is not a valid representation of JsonNull
+ */
+public val JsonElement.jsonNullOrNull: JsonNull?
+    get() = this as? JsonNull
 
 /**
  * Returns content of the current element as int
@@ -349,22 +373,64 @@ internal fun unexpectedJson(key: String, expected: String): Nothing =
 internal fun JsonPrimitive.parseLongImpl(): Long = StringJsonLexer(content).consumeNumericLiteralFully()
 
 /**
- * Convenience methods to get typed elements from [JsonObject]
+ * Returns the JsonObject value associated with the given [key] in this [JsonObject],
+ * or null if the key is missing, the value is a string, or cannot be parsed as a JsonObject.
  */
-public inline fun <reified T> JsonObject.getBeanOrNull(key: String): T? = this[key]?.takeIf { it is JsonObject || it is JsonArray }?.let { Json.decodeFromString<T>(it.toString()) }
-public fun JsonObject.getJsonObject(key: String): JsonObject? = this[key]?.jsonObject
-public fun JsonObject.getJsonArray(key: String): JsonArray? = this[key]?.jsonArray
-public fun JsonObject.getJsonPrimitive(key: String): JsonPrimitive? = this[key]?.jsonPrimitive
-public fun JsonObject.isJsonNull(key: String): Boolean = this[key] is JsonNull
-public fun JsonObject.getIntOrNull(key: String): Int? = this[key]?.jsonPrimitive?.takeIf { !it.isString }?.intOrNull
-public fun JsonObject.getLongOrNull(key: String): Long? = this[key]?.jsonPrimitive?.takeIf { !it.isString }?.longOrNull
-public fun JsonObject.getBooleanOrNull(key: String): Boolean? = this[key]?.jsonPrimitive?.takeIf { !it.isString }?.booleanOrNull
-public fun JsonObject.getDoubleOrNull(key: String): Double? = this[key]?.jsonPrimitive?.takeIf { !it.isString }?.doubleOrNull
-public fun JsonObject.getFloatOrNull(key: String): Float? = this[key]?.jsonPrimitive?.takeIf { !it.isString }?.floatOrNull
-public fun JsonObject.getStringOrNull(key: String): String? = this[key]?.jsonPrimitive?.takeIf { it.isString }?.contentOrNull
-public fun JsonObject.getIntOrElse(key: String, default: Int): Int = getIntOrNull(key) ?: default
-public fun JsonObject.getLongOrElse(key: String, default: Long): Long = getLongOrNull(key) ?: default
-public fun JsonObject.getBooleanOrElse(key: String, default: Boolean): Boolean = getBooleanOrNull(key) ?: default
-public fun JsonObject.getDoubleOrElse(key: String, default: Double): Double = getDoubleOrNull(key) ?: default
-public fun JsonObject.getFloatOrElse(key: String, default: Float): Float = getFloatOrNull(key) ?: default
-public fun JsonObject.getStringOrElse(key: String, default: String): String = getStringOrNull(key) ?: default
+public fun JsonObject.getJsonObjectOrNull(key: String): JsonObject? =
+    this[key]?.jsonObjectOrNull
+
+/**
+ * Returns the JsonArray value associated with the given [key] in this [JsonObject],
+ * or null if the key is missing, the value is a string, or cannot be parsed as a JsonArray.
+ */
+public fun JsonObject.getJsonArrayOrNull(key: String): JsonArray? =
+    this[key]?.JsonArrayOrNull
+
+/**
+ * Returns the JsonPrimitive value associated with the given [key] in this [JsonObject],
+ * or null if the key is missing, the value is a string, or cannot be parsed as a JsonPrimitive.
+ */
+public fun JsonObject.getJsonPrimitiveOrNull(key: String): JsonPrimitive? =
+    this[key]?.jsonPrimitiveOrNull
+
+/**
+ * Returns the int value associated with the given [key] in this [JsonObject],
+ * or null if the key is missing, the value is a string, or cannot be parsed as a int.
+ */
+public fun JsonObject.getIntOrNull(key: String): Int? =
+    this[key]?.jsonPrimitive?.takeIf { !it.isString }?.intOrNull
+
+/**
+ * Returns the long value associated with the given [key] in this [JsonObject],
+ * or null if the key is missing, the value is a string, or cannot be parsed as a long.
+ */
+public fun JsonObject.getLongOrNull(key: String): Long? =
+    this[key]?.jsonPrimitive?.takeIf { !it.isString }?.longOrNull
+
+/**
+ * Returns the boolean value associated with the given [key] in this [JsonObject],
+ * or null if the key is missing, the value is a string, or cannot be parsed as a boolean.
+ */
+public fun JsonObject.getBooleanOrNull(key: String): Boolean? =
+    this[key]?.jsonPrimitive?.takeIf { !it.isString }?.booleanOrNull
+
+/**
+ * Returns the double value associated with the given [key] in this [JsonObject],
+ * or null if the key is missing, the value is a string, or cannot be parsed as a double.
+ */
+public fun JsonObject.getDoubleOrNull(key: String): Double? =
+    this[key]?.jsonPrimitive?.takeIf { !it.isString }?.doubleOrNull
+
+/**
+ * Returns the float value associated with the given [key] in this [JsonObject],
+ * or null if the key is missing, the value is a string, or cannot be parsed as a float.
+ */
+public fun JsonObject.getFloatOrNull(key: String): Float? =
+    this[key]?.jsonPrimitive?.takeIf { !it.isString }?.floatOrNull
+
+/**
+ * Returns the string content associated with the given [key] in this [JsonObject],
+ * or null if the key is missing or the value is not a JSON string.
+ */
+public fun JsonObject.getStringOrNull(key: String): String? =
+    this[key]?.jsonPrimitive?.takeIf { it.isString }?.contentOrNull
