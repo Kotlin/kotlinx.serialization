@@ -92,7 +92,11 @@ val testRepositoryDir = project.layout.buildDirectory.dir("testRepository")
 
 publishing {
     repositories {
-        addSonatypeRepository()
+        if (getSensitiveProperty("libs.publication_repository") == "central") {
+            addIntermediateCentralRepository()
+        } else {
+            addSonatypeRepository()
+        }
 
         /**
          * Maven repository in build directory to check published artifacts.
@@ -238,6 +242,16 @@ fun RepositoryHandler.addSonatypeRepository() {
         credentials {
             username = getSensitiveProperty("libs.sonatype.user")
             password = getSensitiveProperty("libs.sonatype.password")
+        }
+    }
+}
+
+fun RepositoryHandler.addIntermediateCentralRepository() {
+    maven {
+        url = URI(getSensitiveProperty("libs.repo.url")!!)
+        credentials {
+            username = getSensitiveProperty("libs.repo.user")
+            password = getSensitiveProperty("libs.repo.password")
         }
     }
 }
