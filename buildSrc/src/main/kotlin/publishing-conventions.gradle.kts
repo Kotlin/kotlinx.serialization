@@ -92,7 +92,7 @@ val testRepositoryDir = project.layout.buildDirectory.dir("testRepository")
 
 publishing {
     repositories {
-        addSonatypeRepository()
+        addPublishingRepository()
 
         /**
          * Maven repository in build directory to check published artifacts.
@@ -232,12 +232,14 @@ fun MavenPublication.signPublicationIfKeyPresent() {
     }
 }
 
-fun RepositoryHandler.addSonatypeRepository() {
+// Artifacts are published to an intermediate repo (libs.repo.url) first,
+// and then deployed to the central portal.
+fun RepositoryHandler.addPublishingRepository() {
     maven {
-        url = mavenRepositoryUri()
+        url = uri(acquireProperty("libs.repo.url") ?: error("libs.repo.url is not set"))
         credentials {
-            username = getSensitiveProperty("libs.sonatype.user")
-            password = getSensitiveProperty("libs.sonatype.password")
+            username = getSensitiveProperty("libs.repo.user")
+            password = getSensitiveProperty("libs.repo.password")
         }
     }
 }
