@@ -60,7 +60,7 @@ public inline fun <reified T> SerializersModule.serializer(): KSerializer<T> {
  *
  * This overload works with full type information, including type arguments and nullability,
  * and is a recommended way to retrieve a serializer.
- * For example, `serializerOrNull(typeOf<List<String?>>)` returns [KSerializer] that is able
+ * For example, `serializer(typeOf<List<String?>>())` returns [KSerializer] that is able
  * to serialize and deserialize a list of nullable strings — i.e. `ListSerializer(String.serializer().nullable)`.
  *
  * Variance of [type]'s type arguments is not used by the serialization and is not taken into account.
@@ -91,7 +91,7 @@ public fun serializer(type: KType): KSerializer<Any?> = EmptySerializersModule()
  * Caching on JVM platform is disabled for this function, so it may work slower than an overload with [KType].
  *
  * **Pitfall**: the returned serializer may return incorrect results or throw a [ClassCastException] if it receives
- * a value that's not a valid instance of the [KType], even though the type allows passing such a value.
+ * a value that's not a valid instance of the [KClass], even though the type allows passing such a value.
  * Consider using the `serializer()` overload accepting a type argument (for example, `serializer<List<String>>()`),
  * which returns the serializer with the correct type.
  *
@@ -112,7 +112,7 @@ public fun serializer(
  *
  * This overload works with full type information, including type arguments and nullability,
  * and is a recommended way to retrieve a serializer.
- * For example, `serializerOrNull<typeOf<List<String?>>>()` returns [KSerializer] that is able
+ * For example, `serializerOrNull(typeOf<List<String?>>())` returns [KSerializer] that is able
  * to serialize and deserialize a list of nullable strings — i.e. `ListSerializer(String.serializer().nullable)`.
  *
  * Variance of [type]'s arguments is not used by the serialization and is not taken into account.
@@ -133,7 +133,7 @@ public fun serializerOrNull(type: KType): KSerializer<Any?>? = EmptySerializersM
  *
  * This overload works with full type information, including type arguments and nullability,
  * and is a recommended way to retrieve a serializer.
- * For example, `serializer(typeOf<List<String?>>)` returns [KSerializer] that is able
+ * For example, `serializer(typeOf<List<String?>>())` returns [KSerializer] that is able
  * to serialize and deserialize a list of nullable strings — i.e. `ListSerializer(String.serializer().nullable)`.
  *
  * Variance of [type]'s arguments is not used by the serialization and is not taken into account.
@@ -193,7 +193,7 @@ public fun SerializersModule.serializer(
  *
  * This overload works with full type information, including type arguments and nullability,
  * and is a recommended way to retrieve a serializer.
- * For example, `serializerOrNull<typeOf<List<String?>>>()` returns [KSerializer] that is able
+ * For example, `serializerOrNull(typeOf<List<String?>>())` returns [KSerializer] that is able
  * to serialize and deserialize a list of nullable strings — i.e. `ListSerializer(String.serializer().nullable)`.
  *
  * Variance of [type]'s arguments is not used by the serialization and is not taken into account.
