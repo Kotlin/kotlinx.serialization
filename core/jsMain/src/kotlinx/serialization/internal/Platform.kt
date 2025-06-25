@@ -26,7 +26,7 @@ internal actual fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>
         else this.js.asDynamic().Companion?.serializer()
         ) as? KSerializer<T>
 
-internal actual fun <T: Any> KClass<T>.isInterface(): Boolean = isInterface
+internal actual fun <T: Any> KClass<T>.isInterface(): Boolean = isInterfaceHack
 
 internal actual fun <T> createCache(factory: (KClass<*>) -> KSerializer<T>?): SerializerCache<T> {
     return object: SerializerCache<T> {
@@ -73,8 +73,10 @@ internal actual fun isReferenceArray(rootClass: KClass<Any>): Boolean = rootClas
  * WARNING: may be broken in arbitrary time in the future without notice
  *
  * Should be eventually replaced with compiler intrinsics
+ *
+ * TODO: Remove this when KT-78581 lands into a release
  */
-private val KClass<*>.isInterface: Boolean
+private val KClass<*>.isInterfaceHack: Boolean
     get(): Boolean {
         // .js throws an exception for Nothing
         if (this === Nothing::class) return false
