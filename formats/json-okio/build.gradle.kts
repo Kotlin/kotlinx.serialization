@@ -37,6 +37,6 @@ project.configureJava9ModuleInfo()
 dokka.dokkaSourceSets.configureEach {
     externalDocumentationLinks.register("okio") {
         url("https://square.github.io/okio/3.x/okio")
-        packageListUrl("https://square.github.io/okio/3.x/okio/okio/package-list")
+        packageListUrl = file("dokka/okio.package-list").toURI()
     }
 }

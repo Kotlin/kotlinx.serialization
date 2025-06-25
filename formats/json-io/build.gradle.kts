@@ -36,5 +36,6 @@ project.configureJava9ModuleInfo()
 dokka.dokkaSourceSets.configureEach {
     externalDocumentationLinks.register("kotlinx-io") {
         url("https://kotlinlang.org/api/kotlinx-io/")
+        packageListUrl = file("dokka/kotlinx-io.package-list").toURI()
     }
 }
