@@ -5,7 +5,6 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.json.*
-import kotlinx.serialization.test.*
 import kotlin.test.*
 
 class JsonPathTest : JsonTestBase() {
@@ -36,8 +35,7 @@ class JsonPathTest : JsonTestBase() {
     fun testUnknownKeyIsProperlyReported() {
         expectPath("$.i") { Json.decodeFromString<Outer>("""{"a":42, "i":{"foo":42}""") }
         expectPath("$") { Json.decodeFromString<Outer>("""{"x":{}, "a": 42}""") }
-        // The only place we have misattribution in
-        // Json.decodeFromString<Outer>("""{"a":42, "x":{}}""")
+        expectPath("$") { Json.decodeFromString<Outer>("""{"a":42, "x":{}}""") }
     }
 
     @Test
@@ -117,17 +115,14 @@ class JsonPathTest : JsonTestBase() {
         class DoubleNesting(val f: Sealed, val f2: Sealed) : Sealed()
     }
 
-    // TODO use non-array polymorphism when https://github.com/Kotlin/kotlinx.serialization/issues/1839 is fixed
     @Test
-    fun testHugeNestingToCheckResize() = jvmOnly {
+    fun testHugeNestingToCheckResize() {
         val json = Json { useArrayPolymorphism = true }
         var outer = Sealed.Nesting(Sealed.Box("value"))
         repeat(100) {
             outer = Sealed.Nesting(outer)
         }
         val str = json.encodeToString(Sealed.serializer(), outer)
-        // throw-away data
-        json.decodeFromString(Sealed.serializer(), str)
 
         val malformed = str.replace("\"value\"", "42")
         val expectedPath = "$" + ".value.f".repeat(101) + ".value.s"
@@ -135,8 +130,8 @@ class JsonPathTest : JsonTestBase() {
     }
 
     @Test
-    fun testDoubleNesting() = jvmOnly {
-        val json = Json { useArrayPolymorphism = true }
+    fun testDoubleNestingNoArrayPoly() {
+        val json = Json { useArrayPolymorphism = false }
         var outer1 = Sealed.Nesting(Sealed.Box("correct"))
         repeat(64) {
             outer1 = Sealed.Nesting(outer1)
@@ -148,11 +143,9 @@ class JsonPathTest : JsonTestBase() {
         }
 
         val str = json.encodeToString(Sealed.serializer(), Sealed.DoubleNesting(outer1, outer2))
-        // throw-away data
-        json.decodeFromString(Sealed.serializer(), str)
 
         val malformed = str.replace("\"incorrect\"", "42")
-        val expectedPath = "$.value.f2" + ".value.f".repeat(34) + ".value.s"
+        val expectedPath = "$.f2" + ".f".repeat(34) + ".s"
         expectPath(expectedPath) { json.decodeFromString(Sealed.serializer(), malformed) }
     }
 
