@@ -56,6 +56,9 @@ class InstantSerializationTest: JsonTestBase() {
         assertEquals(Instant.fromEpochSeconds(987654321, 0),
             Json.decodeFromString(serializer,
                 "{\"epochSeconds\":987654321,\"nanosecondsOfSecond\":0}"))
+        // with `default`, `nanosecondsOfSecond` is non-optional
+        assertJsonFormAndRestored(serializer, Instant.fromEpochSeconds(987654321, 0),
+            "{\"epochSeconds\":987654321,\"nanosecondsOfSecond\":0}")
         // as does not having a `"nanosecondsOfSecond"` field if `encodeDefaults` is true
         assertEquals(Instant.fromEpochSeconds(987654321, 0),
             default.decodeFromString(serializer,
