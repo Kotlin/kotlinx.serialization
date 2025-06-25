@@ -75,7 +75,8 @@ private fun <T> arrayOfAnyNulls(size: Int): Array<T> = arrayOfNulls<Any>(size) a
 
 internal actual fun isReferenceArray(rootClass: KClass<Any>): Boolean = rootClass == Array::class
 
-@OptIn(ExperimentalUnsignedTypes::class, ExperimentalUuidApi::class, ExperimentalSerializationApi::class)
+@OptIn(ExperimentalUnsignedTypes::class, ExperimentalUuidApi::class, ExperimentalSerializationApi::class,
+    ExperimentalTime::class)
 internal actual fun initBuiltins(): Map<KClass<*>, KSerializer<*>> = mapOf(
     String::class to String.serializer(),
     Char::class to Char.serializer(),
@@ -105,5 +106,6 @@ internal actual fun initBuiltins(): Map<KClass<*>, KSerializer<*>> = mapOf(
     Unit::class to Unit.serializer(),
     Nothing::class to NothingSerializer(),
     Duration::class to Duration.serializer(),
+    Instant::class to Instant.serializer(),
     Uuid::class to Uuid.serializer()
 )

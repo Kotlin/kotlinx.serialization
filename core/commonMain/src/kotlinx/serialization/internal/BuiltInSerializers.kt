@@ -10,6 +10,8 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlin.time.Duration
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 import kotlin.uuid.*
 
 
@@ -36,6 +38,20 @@ internal object NothingSerializer : KSerializer<Nothing> {
 
     override fun deserialize(decoder: Decoder): Nothing {
         throw SerializationException("'kotlin.Nothing' does not have instances")
+    }
+}
+
+@PublishedApi
+@ExperimentalTime
+internal object InstantSerializer : KSerializer<Instant> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlin.time.Instant", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: Instant) {
+        encoder.encodeString(value.toString())
+    }
+
+    override fun deserialize(decoder: Decoder): Instant {
+        return Instant.parse(decoder.decodeString())
     }
 }
 
