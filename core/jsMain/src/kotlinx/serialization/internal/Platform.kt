@@ -74,7 +74,7 @@ internal actual fun isReferenceArray(rootClass: KClass<Any>): Boolean = rootClas
  *
  * Should be eventually replaced with compiler intrinsics
  *
- * TODO: Remove this when KT-78581 lands into a release
+ * TODO: Remove this when KT-78581 lands into a 2.2.20 release
  */
 private val KClass<*>.isInterfaceHack: Boolean
     get(): Boolean {
