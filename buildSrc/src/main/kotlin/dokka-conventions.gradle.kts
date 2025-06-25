@@ -19,6 +19,7 @@ dokka {
     dokkaSourceSets.configureEach {
         includes.from(rootDir.resolve("dokka/moduledoc.md").path)
         reportUndocumented = true
+        skipDeprecated = true
 
         perPackageOption {
             matchingRegex = ".*\\.internal(\\..*)?"
