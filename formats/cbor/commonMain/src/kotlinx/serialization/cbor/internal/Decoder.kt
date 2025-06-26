@@ -15,6 +15,10 @@ import kotlinx.serialization.modules.*
 internal open class CborReader(override val cbor: Cbor, protected val parser: CborParser) : AbstractDecoder(),
     CborDecoder {
 
+    override fun decodeCborElement(): CborElement {
+        return CborTreeReader(cbor.configuration, parser).read()
+    }
+
     protected var size = -1
         private set
     protected var finiteMode = false
@@ -366,6 +370,19 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
         val res = readNumber()
         readByte()
         return res
+    }
+
+    /**
+     * Reads a number from the input and returns it along with a flag indicating whether it is encoded as a
+     * negative integer (major type 1).
+     */
+    fun nextNumberWithSign(tags: ULongArray? = null): Pair<Long, Boolean> {
+        processTags(tags)
+        val headerByte = peekCurByteOrFail()
+        val isNegative = (headerByte and MAJOR_TYPE_MASK) == HEADER_NEGATIVE.toInt()
+        val value = readNumber()
+        readByte()
+        return value to isNegative
     }
 
     // Reads a value encoded using rules for the major type 0 (a.k.a. unsigned integers)
