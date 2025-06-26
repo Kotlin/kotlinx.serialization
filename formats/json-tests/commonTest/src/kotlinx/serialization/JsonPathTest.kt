@@ -156,6 +156,27 @@ class JsonPathTest : JsonTestBase() {
         expectPath(expectedPath) { json.decodeFromString(Sealed.serializer(), malformed) }
     }
 
+    @Serializable
+    data class SimpleNested(val n: SimpleNested? = null, val t: DataObject? = null)
+
+    @Serializable
+    data object DataObject
+
+    @Test
+    fun testMalformedDataObjectInDeeplyNestedStructure() {
+        var outer = SimpleNested(t = DataObject)
+        repeat(20) {
+            outer = SimpleNested(n = outer)
+        }
+        val str = Json.encodeToString(SimpleNested.serializer(), outer)
+        // throw-away data
+        Json.decodeFromString(SimpleNested.serializer(), str)
+
+        val malformed = str.replace("{}", "42")
+        val expectedPath = "$" + ".n".repeat(20) + ".t\n"
+        expectPath(expectedPath) { Json.decodeFromString(SimpleNested.serializer(), malformed) }
+    }
+
     private inline fun expectPath(path: String, block: () -> Unit) {
         val message = runCatching { block() }
             .exceptionOrNull()!!.message!!
