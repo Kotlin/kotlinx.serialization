@@ -28,6 +28,10 @@ internal sealed class CborWriter(
     override val cbor: Cbor,
     protected val output: ByteArrayOutput,
 ) : AbstractEncoder(), CborEncoder {
+
+    override fun encodeByteArray(byteArray: ByteArray) {
+        getDestination().encodeByteString(byteArray)
+    }
     protected var isClass = false
 
     protected var encodeByteArrayAsByteString = false
@@ -329,4 +333,3 @@ private fun composeNegative(value: Long): ByteArray {
     data[0] = data[0] or HEADER_NEGATIVE
     return data
 }
-

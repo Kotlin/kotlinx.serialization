@@ -15,6 +15,10 @@ import kotlinx.serialization.modules.*
 internal open class CborReader(override val cbor: Cbor, protected val parser: CborParser) : AbstractDecoder(),
     CborDecoder {
 
+    override fun decodeCborElement(): CborElement {
+        return CborTreeReader(cbor.configuration, parser).read()
+    }
+
     protected var size = -1
         private set
     protected var finiteMode = false
@@ -313,7 +317,23 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
         return res
     }
 
+    /**
+     * Reads a number from the input and returns it along with a flag indicating whether it's signed.
+     * @return A pair of (number, isSigned) where isSigned is true if the number is signed, false otherwise.
+     */
+    fun nextNumberWithSign(tags: ULongArray? = null): Pair<Long, Boolean> {
+        processTags(tags)
+        val (value, isSigned) = readNumberWithSign()
+        readByte()
+        return value to isSigned
+    }
+
     private fun readNumber(): Long {
+        val (value, _) = readNumberWithSign()
+        return value
+    }
+
+    private fun readNumberWithSign(): Pair<Long, Boolean> {
         val value = curByte and 0b000_11111
         val negative = (curByte and 0b111_00000) == HEADER_NEGATIVE.toInt()
         val bytesToRead = when (value) {
@@ -324,12 +344,18 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
             else -> 0
         }
         if (bytesToRead == 0) {
-            return if (negative) -(value + 1).toLong()
-            else value.toLong()
+            return if (negative) {
+                Pair(-(value + 1).toLong(), true)
+            } else {
+                Pair(value.toLong(), false)
+            }
         }
         val res = input.readExact(bytesToRead)
-        return if (negative) -(res + 1)
-        else res
+        return if (negative) {
+            Pair(-(res + 1), true)
+        } else {
+            Pair(res, false)
+        }
     }
 
     private fun ByteArrayInput.readExact(bytes: Int): Long {
