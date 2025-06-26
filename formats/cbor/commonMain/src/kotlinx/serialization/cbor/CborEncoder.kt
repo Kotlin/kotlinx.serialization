@@ -31,4 +31,9 @@ public interface CborEncoder : Encoder {
      * Exposes the current [Cbor] instance and all its configuration flags. Useful for low-level custom serializers.
      */
     public val cbor: Cbor
+
+    /**
+     * Encodes the specified [byteArray] as a CBOR byte string.
+     */
+    public fun encodeByteArray(byteArray: ByteArray)
 }
