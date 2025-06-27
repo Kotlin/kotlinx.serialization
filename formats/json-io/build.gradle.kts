@@ -33,12 +33,9 @@ kotlin {
 
 project.configureJava9ModuleInfo()
 
-tasks.named<DokkaTaskPartial>("dokkaHtmlPartial") {
-    dokkaSourceSets {
-        configureEach {
-            externalDocumentationLink {
-                url.set(URI("https://kotlin.github.io/kotlinx-io/").toURL())
-            }
-        }
+dokka.dokkaSourceSets.configureEach {
+    externalDocumentationLinks.register("kotlinx-io") {
+        url("https://kotlinlang.org/api/kotlinx-io/")
+        packageListUrl = file("dokka/kotlinx-io.package-list").toURI()
     }
 }

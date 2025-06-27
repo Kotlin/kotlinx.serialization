@@ -52,11 +52,4 @@ kotlin {
     }
 }
 
-// This task should be disabled because of no need to build and publish intermediate JsWasm sourceset
-tasks.whenTaskAdded {
-    if (name == "compileJsWasmMainKotlinMetadata") {
-        enabled = false
-    }
-}
-
 configureJava9ModuleInfo()
