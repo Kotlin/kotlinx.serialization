@@ -363,6 +363,7 @@ public final class kotlinx/serialization/json/JsonObjectBuilder {
 	public fun <init> ()V
 	public final fun build ()Lkotlinx/serialization/json/JsonObject;
 	public final fun put (Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
+	public final fun remove (Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
 }
 
 public final class kotlinx/serialization/json/JsonObjectSerializer : kotlinx/serialization/KSerializer {
