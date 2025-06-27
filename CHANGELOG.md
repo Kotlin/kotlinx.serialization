@@ -1,3 +1,22 @@
+1.9.0 / 2025-06-27
+==================
+
+This release updates Kotlin version to 2.2.0, includes several bugfixes and provides serializers for kotlin.time.Instant.
+
+## Add kotlin.time.Instant serializers
+
+Instant class was moved from kotlinx-datetime library to Kotlin standard library. 
+As a result, kotlinx-datetime 0.7.0 no longer has serializers for the Instant class.
+To use new kotlin.time.Instant class in your @Serializable classes,
+you can use this 1.9.0 kotlinx-serialization version (Kotlin 2.2 is required).
+You can choose between default `InstantSerializer` which uses its string representation,
+or specify `InstantComponentSerializer` that represents instant as its components.
+See details in the [PR](https://github.com/Kotlin/kotlinx.serialization/pull/2945).
+
+## Other bugfixes
+  * Fix resize in JsonPath (#2995)
+  * Fixed proguard rules for obfuscation to work correctly (#2983)
+
 1.8.1 / 2025-03-31
 ==================
 
