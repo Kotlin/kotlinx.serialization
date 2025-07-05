@@ -32,6 +32,7 @@ internal sealed class CborWriter(
     override fun encodeByteArray(byteArray: ByteArray) {
         getDestination().encodeByteString(byteArray)
     }
+
     protected var isClass = false
 
     protected var encodeByteArrayAsByteString = false
@@ -148,7 +149,7 @@ internal sealed class CborWriter(
         return true
     }
 
-    internal fun encodeTag(tag: ULong)=  getDestination().encodeTag(tag)
+    internal fun encodeTag(tag: ULong) = getDestination().encodeTag(tag)
 }
 
 
