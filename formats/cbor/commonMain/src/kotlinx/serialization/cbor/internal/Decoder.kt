@@ -15,6 +15,10 @@ import kotlinx.serialization.modules.*
 internal open class CborReader(override val cbor: Cbor, protected val parser: CborParser) : AbstractDecoder(),
     CborDecoder {
 
+    override fun decodeCborElement(): CborElement {
+        return CborTreeReader(cbor.configuration, parser).read()
+    }
+
     protected var size = -1
         private set
     protected var finiteMode = false
@@ -152,13 +156,13 @@ internal open class CborReader(override val cbor: Cbor, protected val parser: Cb
 }
 
 internal class CborParser(private val input: ByteArrayInput, private val verifyObjectTags: Boolean) {
-    private var curByte: Int = -1
+    internal var curByte: Int = -1
 
     init {
         readByte()
     }
 
-    private fun readByte(): Int {
+    internal fun readByte(): Int {
         curByte = input.read()
         return curByte
     }
@@ -171,6 +175,31 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
     }
 
     fun isNull() = (curByte == NULL || curByte == EMPTY_MAP)
+
+    // Add this method to CborParser class
+    private fun readUnsignedValueFromAdditionalInfo(additionalInfo: Int): Long {
+        return when (additionalInfo) {
+            in 0..23 -> additionalInfo.toLong()
+            24 -> {
+                val nextByte = readByte()
+                if (nextByte == -1) throw CborDecodingException("Unexpected EOF")
+                nextByte.toLong() and 0xFF
+            }
+            25 -> input.readExact(2)
+            26 -> input.readExact(4)
+            27 -> input.readExact(8)
+            else -> throw CborDecodingException("Invalid additional info: $additionalInfo")
+        }
+    }
+
+    fun nextTag(): ULong {
+        if ((curByte shr 5) != 6) {
+            throw CborDecodingException("Expected tag (major type 6), got major type ${curByte shr 5}")
+        }
+        
+        val additionalInfo = curByte and 0x1F
+        return readUnsignedValueFromAdditionalInfo(additionalInfo).toULong().also { skipByte(curByte) }
+    }
 
     fun nextNull(tags: ULongArray? = null): Nothing? {
         processTags(tags)
@@ -306,6 +335,7 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
         }
     }
 
+
     fun nextNumber(tags: ULongArray? = null): Long {
         processTags(tags)
         val res = readNumber()
@@ -314,22 +344,11 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
     }
 
     private fun readNumber(): Long {
-        val value = curByte and 0b000_11111
+        val additionalInfo = curByte and 0b000_11111
         val negative = (curByte and 0b111_00000) == HEADER_NEGATIVE.toInt()
-        val bytesToRead = when (value) {
-            24 -> 1
-            25 -> 2
-            26 -> 4
-            27 -> 8
-            else -> 0
-        }
-        if (bytesToRead == 0) {
-            return if (negative) -(value + 1).toLong()
-            else value.toLong()
-        }
-        val res = input.readExact(bytesToRead)
-        return if (negative) -(res + 1)
-        else res
+        
+        val value = readUnsignedValueFromAdditionalInfo(additionalInfo)
+        return if (negative) -(value + 1) else value
     }
 
     private fun ByteArrayInput.readExact(bytes: Int): Long {

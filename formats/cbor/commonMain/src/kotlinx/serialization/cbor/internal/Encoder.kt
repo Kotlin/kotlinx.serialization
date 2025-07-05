@@ -28,13 +28,18 @@ internal sealed class CborWriter(
     override val cbor: Cbor,
     protected val output: ByteArrayOutput,
 ) : AbstractEncoder(), CborEncoder {
+
+    override fun encodeByteArray(byteArray: ByteArray) {
+        getDestination().encodeByteString(byteArray)
+    }
+
     protected var isClass = false
 
     protected var encodeByteArrayAsByteString = false
 
     class Data(val bytes: ByteArrayOutput, var elementCount: Int)
 
-    protected abstract fun getDestination(): ByteArrayOutput
+    internal abstract fun getDestination(): ByteArrayOutput
 
     override val serializersModule: SerializersModule
         get() = cbor.serializersModule
@@ -143,6 +148,8 @@ internal sealed class CborWriter(
         incrementChildren() // needed for definite len encoding, NOOP for indefinite length encoding
         return true
     }
+
+    internal fun encodeTag(tag: ULong) = getDestination().encodeTag(tag)
 }
 
 
@@ -234,7 +241,7 @@ private fun ByteArrayOutput.startMap(size: ULong) {
     composePositiveInline(size, HEADER_MAP)
 }
 
-private fun ByteArrayOutput.encodeTag(tag: ULong) {
+internal fun ByteArrayOutput.encodeTag(tag: ULong) {
     composePositiveInline(tag, HEADER_TAG)
 }
 
@@ -329,4 +336,3 @@ private fun composeNegative(value: Long): ByteArray {
     data[0] = data[0] or HEADER_NEGATIVE
     return data
 }
-
