@@ -19,66 +19,60 @@ internal class CborTreeReader(
      * Reads the next CBOR element from the parser.
      */
     fun read(): CborElement {
-        if (parser.isNull()) {
-            parser.nextNull()
-            return CborNull
-        }
-
-        // Try to read different types of CBOR elements
-        try {
-            return CborBoolean(parser.nextBoolean())
-        } catch (e: CborDecodingException) {
-            // Not a boolean, continue
-        }
-
-        try {
-            return readArray()
-        } catch (e: CborDecodingException) {
-            // Not an array, continue
-        }
-
-        try {
-            return readMap()
-        } catch (e: CborDecodingException) {
-            // Not a map, continue
-        }
-
-        try {
-            return CborByteString(parser.nextByteString())
-        } catch (e: CborDecodingException) {
-            // Not a byte string, continue
-        }
-
-        try {
-            return CborString(parser.nextString())
-        } catch (e: CborDecodingException) {
-            // Not a string, continue
-        }
-
-        try {
-            return CborNumber.Signed(parser.nextFloat())
-        } catch (e: CborDecodingException) {
-            // Not a float, continue
-        }
-
-        try {
-            return CborNumber.Signed(parser.nextDouble())
-        } catch (e: CborDecodingException) {
-            // Not a double, continue
-        }
-
-        try {
-            val (value, isSigned) = parser.nextNumberWithSign()
-            return if (isSigned) {
-                CborNumber.Signed(value)
-            } else {
-                CborNumber.Unsigned(value.toULong())
+        when (parser.curByte shr 5) { // Get major type from the first 3 bits
+            0 -> { // Major type 0: unsigned integer
+                val value = parser.nextNumber()
+                return CborPositiveInt(value.toULong())
             }
-        } catch (e: CborDecodingException) {
-            // Not a number, continue
-        }
 
-        throw CborDecodingException("Unable to decode CBOR element")
+            1 -> { // Major type 1: negative integer
+                val value = parser.nextNumber()
+                return CborNegativeInt(value)
+            }
+
+            2 -> { // Major type 2: byte string
+                return CborByteString(parser.nextByteString())
+            }
+
+            3 -> { // Major type 3: text string
+                return CborString(parser.nextString())
+            }
+
+            4 -> { // Major type 4: array
+                return readArray()
+            }
+
+            5 -> { // Major type 5: map
+                return readMap()
+            }
+
+            7 -> { // Major type 7: simple/float/break
+                when (parser.curByte) {
+                    0xF4 -> {
+                        parser.readByte() // Advance parser position
+                        return CborBoolean(false)
+                    }
+                    0xF5 -> {
+                        parser.readByte() // Advance parser position
+                        return CborBoolean(true)
+                    }
+                    0xF6, 0xF7 -> {
+                        parser.nextNull()
+                        return CborNull
+                    }
+                    NEXT_HALF, NEXT_FLOAT, NEXT_DOUBLE -> return CborDouble(parser.nextDouble()) // Half/Float32/Float64
+                    else -> throw CborDecodingException(
+                        "Invalid simple value or float type: ${
+                            parser.curByte.toString(
+                                16
+                            )
+                        }"
+                    )
+                }
+            }
+
+            else -> throw CborDecodingException("Invalid CBOR major type: ${parser.curByte shr 5}")
+        }
     }
 
     private fun readArray(): CborList {
