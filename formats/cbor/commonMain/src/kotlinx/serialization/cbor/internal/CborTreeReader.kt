@@ -12,6 +12,9 @@ import kotlinx.serialization.cbor.*
  * [CborTreeReader] reads CBOR data from [parser] and constructs a [CborElement] tree.
  */
 internal class CborTreeReader(
+    //no config values make sense here, because we have no "schema".
+    //we cannot validate tags, or disregard nulls, can we?!
+    //still, this needs to go here, in case it evolves to a point where we need to respect certain config values
     private val configuration: CborConfiguration,
     private val parser: CborParser
 ) {
@@ -55,10 +58,12 @@ internal class CborTreeReader(
                         parser.readByte() // Advance parser position
                         CborBoolean(false, tags)
                     }
+
                     0xF5 -> {
                         parser.readByte() // Advance parser position
                         CborBoolean(true, tags)
                     }
+
                     0xF6, 0xF7 -> {
                         parser.nextNull()
                         CborNull(tags)
@@ -66,11 +71,7 @@ internal class CborTreeReader(
                     // Half/Float32/Float64
                     NEXT_HALF, NEXT_FLOAT, NEXT_DOUBLE -> CborDouble(parser.nextDouble(), tags)
                     else -> throw CborDecodingException(
-                        "Invalid simple value or float type: ${
-                            parser.curByte.toString(
-                                16
-                            )
-                        }"
+                        "Invalid simple value or float type: ${parser.curByte.toString(16)}"
                     )
                 }
             }
