@@ -19,48 +19,52 @@ internal class CborTreeReader(
      * Reads the next CBOR element from the parser.
      */
     fun read(): CborElement {
-        when (parser.curByte shr 5) { // Get major type from the first 3 bits
+        // Read any tags before the actual value
+        val tags = readTags()
+
+        val result = when (parser.curByte shr 5) { // Get major type from the first 3 bits
             0 -> { // Major type 0: unsigned integer
                 val value = parser.nextNumber()
-                return CborPositiveInt(value.toULong())
+                CborPositiveInt(value.toULong(), tags)
             }
 
             1 -> { // Major type 1: negative integer
                 val value = parser.nextNumber()
-                return CborNegativeInt(value)
+                CborNegativeInt(value, tags)
             }
 
             2 -> { // Major type 2: byte string
-                return CborByteString(parser.nextByteString())
+                CborByteString(parser.nextByteString(), tags)
             }
 
             3 -> { // Major type 3: text string
-                return CborString(parser.nextString())
+                CborString(parser.nextString(), tags)
             }
 
             4 -> { // Major type 4: array
-                return readArray()
+                readArray(tags)
             }
 
             5 -> { // Major type 5: map
-                return readMap()
+                readMap(tags)
             }
 
             7 -> { // Major type 7: simple/float/break
                 when (parser.curByte) {
                     0xF4 -> {
                         parser.readByte() // Advance parser position
-                        return CborBoolean(false)
+                        CborBoolean(false, tags)
                     }
                     0xF5 -> {
                         parser.readByte() // Advance parser position
-                        return CborBoolean(true)
+                        CborBoolean(true, tags)
                     }
                     0xF6, 0xF7 -> {
                         parser.nextNull()
-                        return CborNull
+                        CborNull(tags)
                     }
-                    NEXT_HALF, NEXT_FLOAT, NEXT_DOUBLE -> return CborDouble(parser.nextDouble()) // Half/Float32/Float64
+                    // Half/Float32/Float64
+                    NEXT_HALF, NEXT_FLOAT, NEXT_DOUBLE -> CborDouble(parser.nextDouble(), tags)
                     else -> throw CborDecodingException(
                         "Invalid simple value or float type: ${
                             parser.curByte.toString(
@@ -73,9 +77,28 @@ internal class CborTreeReader(
 
             else -> throw CborDecodingException("Invalid CBOR major type: ${parser.curByte shr 5}")
         }
+        return result
     }
 
-    private fun readArray(): CborList {
+    /**
+     * Reads any tags preceding the current value.
+     * @return An array of tags, possibly empty
+     */
+    @OptIn(ExperimentalUnsignedTypes::class)
+    private fun readTags(): ULongArray {
+        val tags = mutableListOf<ULong>()
+
+        // Read tags (major type 6) until we encounter a non-tag
+        while ((parser.curByte shr 5) == 6) { // Major type 6: tag
+            val tag = parser.nextTag()
+            tags.add(tag)
+        }
+
+        return tags.toULongArray()
+    }
+
+
+    private fun readArray(tags: ULongArray): CborList {
         val size = parser.startArray()
         val elements = mutableListOf<CborElement>()
 
@@ -92,10 +115,10 @@ internal class CborTreeReader(
             parser.end()
         }
 
-        return CborList(elements)
+        return CborList(elements, tags)
     }
 
-    private fun readMap(): CborMap {
+    private fun readMap(tags: ULongArray): CborMap {
         val size = parser.startMap()
         val elements = mutableMapOf<CborElement, CborElement>()
 
@@ -116,6 +139,6 @@ internal class CborTreeReader(
             parser.end()
         }
 
-        return CborMap(elements)
+        return CborMap(elements, tags)
     }
 }

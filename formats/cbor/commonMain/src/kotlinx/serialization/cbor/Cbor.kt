@@ -34,12 +34,12 @@ public sealed class Cbor(
             CborConfiguration(
                 encodeDefaults = false,
                 ignoreUnknownKeys = false,
-                encodeKeyTags = false,
-                encodeValueTags = false,
-                encodeObjectTags = false,
-                verifyKeyTags = false,
-                verifyValueTags = false,
-                verifyObjectTags = false,
+                encodeKeyTags = true,
+                encodeValueTags = true,
+                encodeObjectTags = true,
+                verifyKeyTags = true,
+                verifyValueTags = true,
+                verifyObjectTags = true,
                 useDefiniteLengthEncoding = false,
                 preferCborLabelsOverNames = false,
                 alwaysUseByteString = false
