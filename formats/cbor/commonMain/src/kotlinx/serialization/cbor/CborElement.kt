@@ -28,136 +28,66 @@ public sealed class CborElement
  */
 @Serializable(with = CborPrimitiveSerializer::class)
 public sealed class CborPrimitive : CborElement() {
-    /**
-     * Content of given element as string. For [CborNull], this method returns a "null" string.
-     * [CborPrimitive.contentOrNull] should be used for [CborNull] to get a `null`.
-     */
-    public abstract val content: String
 
-    public override fun toString(): String = content
 }
 
 /**
- * Sealed class representing CBOR number value.
- * Can be either [Signed] or [Unsigned].
+ * Class representing signed CBOR integer (major type 1).
  */
-@Serializable(with = CborNumberSerializer::class)
-public sealed class CborNumber : CborPrimitive() {
-    /**
-     * Returns the value as a [Byte].
-     */
-    public abstract val byte: Byte
-
-    /**
-     * Returns the value as a [Short].
-     */
-    public abstract val short: Short
-
-    /**
-     * Returns the value as an [Int].
-     */
-    public abstract val int: Int
-
-    /**
-     * Returns the value as a [Long].
-     */
-    public abstract val long: Long
-
-    /**
-     * Returns the value as a [Float].
-     */
-    public abstract val float: Float
-
-    /**
-     * Returns the value as a [Double].
-     */
-    public abstract val double: Double
-
-    /**
-     * Class representing a signed CBOR number value.
-     */
-    public class Signed(@Contextual private val value: Number) : CborNumber() {
-        override val content: String get() = value.toString()
-        override val byte: Byte get() = value.toByte()
-        override val short: Short get() = value.toShort()
-        override val int: Int get() = value.toInt()
-        override val long: Long get() = value.toLong()
-        override val float: Float get() = value.toFloat()
-        override val double: Double get() = value.toDouble()
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (other == null) return false
-
-            when (other) {
-                is Signed -> {
-                    // Compare as double to handle different numeric types
-                    return when {
-                        // For integers, compare as long to avoid precision loss
-                        value is Byte || value is Short || value is Int || value is Long ||
-                        other.value is Byte || other.value is Short || other.value is Int || other.value is Long -> {
-                            value.toLong() == other.value.toLong()
-                        }
-                        // For floating point, compare as double
-                        else -> {
-                            value.toDouble() == other.value.toDouble()
-                        }
-                    }
-                }
-                is Unsigned -> {
-                    // Only compare if both are non-negative integers
-                    if (value is Byte || value is Short || value is Int || value is Long) {
-                        val longValue = value.toLong()
-                        return longValue >= 0 && longValue.toULong() == other.long.toULong()
-                    }
-                    return false
-                }
-                else -> return false
-            }
-        }
-
-        override fun hashCode(): Int = value.hashCode()
+@Serializable(with = CborIntSerializer::class)
+public class CborNegativeInt(public val value: Long) : CborPrimitive() {
+    init {
+        require(value < 0) { "Number must be negative: $value" }
     }
 
-    /**
-     * Class representing an unsigned CBOR number value.
-     */
-    public class Unsigned(private val value: ULong) : CborNumber() {
-        override val content: String get() = value.toString()
-        override val byte: Byte get() = value.toByte()
-        override val short: Short get() = value.toShort()
-        override val int: Int get() = value.toInt()
-        override val long: Long get() = value.toLong()
-        override val float: Float get() = value.toFloat()
-        override val double: Double get() = value.toDouble()
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (other == null) return false
-
-            when (other) {
-                is Unsigned -> {
-                    return value == other.long.toULong()
-                }
-                is Signed -> {
-                    // Only compare if the signed value is non-negative
-                    val otherLong = other.long
-                    return otherLong >= 0 && value == otherLong.toULong()
-                }
-                else -> return false
-            }
-        }
-
-        override fun hashCode(): Int = value.hashCode()
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        other as CborNegativeInt
+        return value == other.value
     }
+
+    override fun hashCode(): Int = value.hashCode()
 }
+
+/**
+ * Class representing unsigned CBOR integer (major type 0).
+ */
+@Serializable(with = CborUIntSerializer::class)
+public class CborPositiveInt(public val value: ULong) : CborPrimitive() {
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        other as CborPositiveInt
+        return value == other.value
+    }
+
+    override fun hashCode(): Int = value.hashCode()
+}
+
+/**
+ * Class representing CBOR floating point value (major type 7).
+ */
+@Serializable(with = CborDoubleSerializer::class)
+public class CborDouble(public val value: Double) : CborPrimitive() {
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+        other as CborDouble
+        return value == other.value
+    }
+
+    override fun hashCode(): Int = value.hashCode()
+}
+
 
 /**
  * Class representing CBOR string value.
  */
 @Serializable(with = CborStringSerializer::class)
-public class CborString(private val value: String) : CborPrimitive() {
-    override val content: String get() = value
+public class CborString(public val value: String) : CborPrimitive() {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -174,7 +104,6 @@ public class CborString(private val value: String) : CborPrimitive() {
  */
 @Serializable(with = CborBooleanSerializer::class)
 public class CborBoolean(private val value: Boolean) : CborPrimitive() {
-    override val content: String get() = value.toString()
 
     /**
      * Returns the boolean value.
@@ -196,7 +125,6 @@ public class CborBoolean(private val value: Boolean) : CborPrimitive() {
  */
 @Serializable(with = CborByteStringSerializer::class)
 public class CborByteString(private val value: ByteArray) : CborPrimitive() {
-    override val content: String get() = value.contentToString()
 
     /**
      * Returns the byte array value.
@@ -218,7 +146,6 @@ public class CborByteString(private val value: ByteArray) : CborPrimitive() {
  */
 @Serializable(with = CborNullSerializer::class)
 public object CborNull : CborPrimitive() {
-    override val content: String = "null"
 }
 
 /**
@@ -237,6 +164,7 @@ public class CborMap(
         other as CborMap
         return content == other.content
     }
+
     public override fun hashCode(): Int = content.hashCode()
     public override fun toString(): String {
         return content.entries.joinToString(
@@ -262,6 +190,7 @@ public class CborList(private val content: List<CborElement>) : CborElement(), L
         other as CborList
         return content == other.content
     }
+
     public override fun hashCode(): Int = content.hashCode()
     public override fun toString(): String = content.joinToString(prefix = "[", postfix = "]", separator = ", ")
 }
@@ -295,11 +224,25 @@ public val CborElement.cborNull: CborNull
     get() = this as? CborNull ?: error("CborNull")
 
 /**
- * Convenience method to get current element as [CborNumber]
- * @throws IllegalArgumentException if current element is not a [CborNumber]
+ * Convenience method to get current element as [CborNegativeInt]
+ * @throws IllegalArgumentException if current element is not a [CborNegativeInt]
  */
-public val CborElement.cborNumber: CborNumber
-    get() = this as? CborNumber ?: error("CborNumber")
+public val CborElement.cborNegativeInt: CborNegativeInt
+    get() = this as? CborNegativeInt ?: error("CborNegativeInt")
+
+/**
+ * Convenience method to get current element as [CborPositiveInt]
+ * @throws IllegalArgumentException if current element is not a [CborPositiveInt]
+ */
+public val CborElement.cborPositiveInt: CborPositiveInt
+    get() = this as? CborPositiveInt ?: error("CborPositiveInt")
+
+/**
+ * Convenience method to get current element as [CborDouble]
+ * @throws IllegalArgumentException if current element is not a [CborDouble]
+ */
+public val CborElement.cborDouble: CborDouble
+    get() = this as? CborDouble ?: error("CborDouble")
 
 /**
  * Convenience method to get current element as [CborString]
@@ -321,11 +264,6 @@ public val CborElement.cborBoolean: CborBoolean
  */
 public val CborElement.cborByteString: CborByteString
     get() = this as? CborByteString ?: error("CborByteString")
-
-/**
- * Content of the given element as string or `null` if current element is [CborNull]
- */
-public val CborPrimitive.contentOrNull: String? get() = if (this is CborNull) null else content
 
 /**
  * Creates a [CborMap] from the given map entries.

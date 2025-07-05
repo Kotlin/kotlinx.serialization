@@ -29,11 +29,11 @@ class CborElementTest {
 
     @Test
     fun testCborNumber() {
-        val numberElement = CborNumber.Signed(42)
+        val numberElement = CborPositiveInt(42u)
         val numberBytes = cbor.encodeToByteArray(numberElement)
         val decodedNumber = cbor.decodeFromByteArray<CborElement>(numberBytes)
         assertEquals(numberElement, decodedNumber)
-        assertEquals(42, (decodedNumber as CborNumber).int)
+        assertEquals(42u, (decodedNumber as CborPositiveInt).value)
     }
 
     @Test
@@ -42,7 +42,7 @@ class CborElementTest {
         val stringBytes = cbor.encodeToByteArray(stringElement)
         val decodedString = cbor.decodeFromByteArray<CborElement>(stringBytes)
         assertEquals(stringElement, decodedString)
-        assertEquals("Hello, CBOR!", (decodedString as CborString).content)
+        assertEquals("Hello, CBOR!", (decodedString as CborString).value)
     }
 
     @Test
@@ -68,7 +68,7 @@ class CborElementTest {
     fun testCborList() {
         val listElement = CborList(
             listOf(
-                CborNumber.Signed(1),
+                CborPositiveInt(1u),
                 CborString("two"),
                 CborBoolean(true),
                 CborNull
@@ -79,29 +79,28 @@ class CborElementTest {
 
         // Verify the type and size
         assertTrue(decodedList is CborList)
-        val decodedCborList = decodedList as CborList
-        assertEquals(4, decodedCborList.size)
+        assertEquals(4, decodedList.size)
 
         // Verify individual elements
-        assertTrue(decodedCborList[0] is CborNumber)
-        assertEquals(1, (decodedCborList[0] as CborNumber).int)
+        assertTrue(decodedList[0] is CborPositiveInt)
+        assertEquals(1u, (decodedList[0] as CborPositiveInt).value)
 
-        assertTrue(decodedCborList[1] is CborString)
-        assertEquals("two", (decodedCborList[1] as CborString).content)
+        assertTrue(decodedList[1] is CborString)
+        assertEquals("two", (decodedList[1] as CborString).value)
 
-        assertTrue(decodedCborList[2] is CborBoolean)
-        assertEquals(true, (decodedCborList[2] as CborBoolean).boolean)
+        assertTrue(decodedList[2] is CborBoolean)
+        assertEquals(true, (decodedList[2] as CborBoolean).boolean)
 
-        assertTrue(decodedCborList[3] is CborNull)
+        assertTrue(decodedList[3] is CborNull)
     }
 
     @Test
     fun testCborMap() {
         val mapElement = CborMap(
             mapOf(
-                CborString("key1") to CborNumber.Signed(42),
+                CborString("key1") to CborPositiveInt(42u),
                 CborString("key2") to CborString("value"),
-                CborNumber.Signed(3) to CborBoolean(true),
+                CborPositiveInt(3u) to CborBoolean(true),
                 CborNull to CborNull
             )
         )
@@ -110,27 +109,26 @@ class CborElementTest {
 
         // Verify the type and size
         assertTrue(decodedMap is CborMap)
-        val decodedCborMap = decodedMap as CborMap
-        assertEquals(4, decodedCborMap.size)
+        assertEquals(4, decodedMap.size)
 
         // Verify individual entries
-        assertTrue(decodedCborMap.containsKey(CborString("key1")))
-        val value1 = decodedCborMap[CborString("key1")]
-        assertTrue(value1 is CborNumber)
-        assertEquals(42, (value1 as CborNumber).int)
+        assertTrue(decodedMap.containsKey(CborString("key1")))
+        val value1 = decodedMap[CborString("key1")]
+        assertTrue(value1 is CborPositiveInt)
+        assertEquals(42u, (value1 as CborPositiveInt).value)
 
-        assertTrue(decodedCborMap.containsKey(CborString("key2")))
-        val value2 = decodedCborMap[CborString("key2")]
+        assertTrue(decodedMap.containsKey(CborString("key2")))
+        val value2 = decodedMap[CborString("key2")]
         assertTrue(value2 is CborString)
-        assertEquals("value", (value2 as CborString).content)
+        assertEquals("value", (value2 as CborString).value)
 
-        assertTrue(decodedCborMap.containsKey(CborNumber.Signed(3)))
-        val value3 = decodedCborMap[CborNumber.Signed(3)]
+        assertTrue(decodedMap.containsKey(CborPositiveInt(3u)))
+        val value3 = decodedMap[CborPositiveInt(3u)]
         assertTrue(value3 is CborBoolean)
         assertEquals(true, (value3 as CborBoolean).boolean)
 
-        assertTrue(decodedCborMap.containsKey(CborNull))
-        val value4 = decodedCborMap[CborNull]
+        assertTrue(decodedMap.containsKey(CborNull))
+        val value4 = decodedMap[CborNull]
         assertTrue(value4 is CborNull)
     }
 
@@ -141,7 +139,7 @@ class CborElementTest {
             mapOf(
                 CborString("primitives") to CborList(
                     listOf(
-                        CborNumber.Signed(123),
+                        CborPositiveInt(123u),
                         CborString("text"),
                         CborBoolean(false),
                         CborByteString(byteArrayOf(10, 20, 30)),
@@ -152,8 +150,8 @@ class CborElementTest {
                     mapOf(
                         CborString("inner") to CborList(
                             listOf(
-                                CborNumber.Signed(1),
-                                CborNumber.Signed(2)
+                                CborPositiveInt(1u),
+                                CborPositiveInt(2u)
                             )
                         ),
                         CborString("empty") to CborList(emptyList())
@@ -167,57 +165,53 @@ class CborElementTest {
 
         // Verify the type
         assertTrue(decodedComplex is CborMap)
-        val map = decodedComplex as CborMap
 
         // Verify the primitives list
-        assertTrue(map.containsKey(CborString("primitives")))
-        val primitivesValue = map[CborString("primitives")]
+        assertTrue(decodedComplex.containsKey(CborString("primitives")))
+        val primitivesValue = decodedComplex[CborString("primitives")]
         assertTrue(primitivesValue is CborList)
-        val primitives = primitivesValue as CborList
 
-        assertEquals(5, primitives.size)
+        assertEquals(5, primitivesValue.size)
 
-        assertTrue(primitives[0] is CborNumber)
-        assertEquals(123, (primitives[0] as CborNumber).int)
+        assertTrue(primitivesValue[0] is CborPositiveInt)
+        assertEquals(123u, (primitivesValue[0] as CborPositiveInt).value)
 
-        assertTrue(primitives[1] is CborString)
-        assertEquals("text", (primitives[1] as CborString).content)
+        assertTrue(primitivesValue[1] is CborString)
+        assertEquals("text", (primitivesValue[1] as CborString).value)
 
-        assertTrue(primitives[2] is CborBoolean)
-        assertEquals(false, (primitives[2] as CborBoolean).boolean)
+        assertTrue(primitivesValue[2] is CborBoolean)
+        assertEquals(false, (primitivesValue[2] as CborBoolean).boolean)
 
-        assertTrue(primitives[3] is CborByteString)
-        assertTrue((primitives[3] as CborByteString).bytes.contentEquals(byteArrayOf(10, 20, 30)))
+        assertTrue(primitivesValue[3] is CborByteString)
+        assertTrue((primitivesValue[3] as CborByteString).bytes.contentEquals(byteArrayOf(10, 20, 30)))
 
-        assertTrue(primitives[4] is CborNull)
+        assertTrue(primitivesValue[4] is CborNull)
 
         // Verify the nested map
-        assertTrue(map.containsKey(CborString("nested")))
-        val nestedValue = map[CborString("nested")]
+        assertTrue(decodedComplex.containsKey(CborString("nested")))
+        val nestedValue = decodedComplex[CborString("nested")]
         assertTrue(nestedValue is CborMap)
-        val nested = nestedValue as CborMap
 
-        assertEquals(2, nested.size)
+        assertEquals(2, nestedValue.size)
 
         // Verify the inner list
-        assertTrue(nested.containsKey(CborString("inner")))
-        val innerValue = nested[CborString("inner")]
+        assertTrue(nestedValue.containsKey(CborString("inner")))
+        val innerValue = nestedValue[CborString("inner")]
         assertTrue(innerValue is CborList)
-        val inner = innerValue as CborList
 
-        assertEquals(2, inner.size)
+        assertEquals(2, innerValue.size)
 
-        assertTrue(inner[0] is CborNumber)
-        assertEquals(1, (inner[0] as CborNumber).int)
+        assertTrue(innerValue[0] is CborPositiveInt)
+        assertEquals(1u, (innerValue[0] as CborPositiveInt).value)
 
-        assertTrue(inner[1] is CborNumber)
-        assertEquals(2, (inner[1] as CborNumber).int)
+        assertTrue(innerValue[1] is CborPositiveInt)
+        assertEquals(2u, (innerValue[1] as CborPositiveInt).value)
 
         // Verify the empty list
-        assertTrue(nested.containsKey(CborString("empty")))
-        val emptyValue = nested[CborString("empty")]
+        assertTrue(nestedValue.containsKey(CborString("empty")))
+        val emptyValue = nestedValue[CborString("empty")]
         assertTrue(emptyValue is CborList)
-        val empty = emptyValue as CborList
+        val empty = emptyValue
 
         assertEquals(0, empty.size)
     }
@@ -225,8 +219,8 @@ class CborElementTest {
     @Test
     fun testDecodeIntegers() {
         // Test data from CborParserTest.testParseIntegers
-        val element = decodeHexToCborElement("0C")  as CborNumber
-        assertEquals(12, element.int)
+        val element = decodeHexToCborElement("0C")  as CborPositiveInt
+        assertEquals(12u, element.value)
 
     }
 
@@ -235,23 +229,23 @@ class CborElementTest {
         // Test data from CborParserTest.testParseStrings
         val element = decodeHexToCborElement("6568656C6C6F")
         assertTrue(element is CborString)
-        assertEquals("hello", element.content)
+        assertEquals("hello", element.value)
 
         val longStringElement = decodeHexToCborElement("7828737472696E672074686174206973206C6F6E676572207468616E2032332063686172616374657273")
         assertTrue(longStringElement is CborString)
-        assertEquals("string that is longer than 23 characters", longStringElement.content)
+        assertEquals("string that is longer than 23 characters", longStringElement.value)
     }
 
     @Test
     fun testDecodeFloatingPoint() {
         // Test data from CborParserTest.testParseDoubles
         val doubleElement = decodeHexToCborElement("fb7e37e43c8800759c")
-        assertTrue(doubleElement is CborNumber)
-        assertEquals(1e+300, doubleElement.double)
+        assertTrue(doubleElement is CborDouble)
+        assertEquals(1e+300, doubleElement.value)
 
         val floatElement = decodeHexToCborElement("fa47c35000")
-        assertTrue(floatElement is CborNumber)
-        assertEquals(100000.0f, floatElement.float)
+        assertTrue(floatElement is CborDouble)
+        assertEquals(100000.0f, floatElement.value.toFloat())
     }
 
     @Test
@@ -271,9 +265,9 @@ class CborElementTest {
         assertTrue(element is CborList)
         val list = element as CborList
         assertEquals(3, list.size)
-        assertEquals(1, (list[0] as CborNumber).int)
-        assertEquals(255, (list[1] as CborNumber).int)
-        assertEquals(65536, (list[2] as CborNumber).int)
+        assertEquals(1u, list[0].cborPositiveInt.value)
+        assertEquals(255u, list[1].cborPositiveInt.value)
+        assertEquals(65536u, list[2].cborPositiveInt.value)
     }
 
     @Test
@@ -312,9 +306,9 @@ class CborElementTest {
         // Check the nested map
         val nestedMap = map[CborString("d")] as CborMap
         assertEquals(3, nestedMap.size)
-        assertEquals(CborNumber.Signed(1), nestedMap[CborString("1")])
-        assertEquals(CborNumber.Signed(2), nestedMap[CborString("2")])
-        assertEquals(CborNumber.Signed(3), nestedMap[CborString("3")])
+        assertEquals(CborPositiveInt(1u), nestedMap[CborString("1")])
+        assertEquals(CborPositiveInt(2u), nestedMap[CborString("2")])
+        assertEquals(CborPositiveInt(3u), nestedMap[CborString("3")])
     }
 
     @Test
@@ -326,8 +320,8 @@ class CborElementTest {
         assertEquals(4, map.size)
 
         // The tags are not preserved in the CborElement structure, but the values should be correct
-        assertEquals(CborNumber.Signed(Long.MAX_VALUE), map[CborString("a")])
-        assertEquals(CborNumber.Signed(-1), map[CborString("b")])
+        assertEquals(CborNegativeInt(Long.MAX_VALUE), map[CborString("a")])
+        assertEquals(CborNegativeInt(-1), map[CborString("b")])
 
         val byteString = map[CborString("c")] as CborByteString
         val expectedBytes = HexConverter.parseHexBinary("cafe")
