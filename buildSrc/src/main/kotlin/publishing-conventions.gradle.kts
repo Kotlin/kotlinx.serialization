@@ -92,7 +92,7 @@ val testRepositoryDir = project.layout.buildDirectory.dir("testRepository")
 
 publishing {
     repositories {
-        addPublishingRepository()
+        addPublishingRepositoryIfPresent()
 
         /**
          * Maven repository in build directory to check published artifacts.
@@ -234,23 +234,16 @@ fun MavenPublication.signPublicationIfKeyPresent() {
 
 // Artifacts are published to an intermediate repo (libs.repo.url) first,
 // and then deployed to the central portal.
-fun RepositoryHandler.addPublishingRepository() {
-    maven {
-        url = uri(acquireProperty("libs.repo.url") ?: error("libs.repo.url is not set"))
-        credentials {
-            username = getSensitiveProperty("libs.repo.user")
-            password = getSensitiveProperty("libs.repo.password")
+fun RepositoryHandler.addPublishingRepositoryIfPresent() {
+    val repositoryUrl = getSensitiveProperty("libs.repo.url")
+    if (!repositoryUrl.isNullOrBlank()) {
+        maven {
+            url = uri(repositoryUrl)
+            credentials {
+                username = getSensitiveProperty("libs.repo.user")
+                password = getSensitiveProperty("libs.repo.password")
+            }
         }
-    }
-}
-
-fun mavenRepositoryUri(): URI {
-    // TODO -SNAPSHOT detection can be made here as well
-    val repositoryId: String? = System.getenv("libs.repository.id")
-    return if (repositoryId == null) {
-        URI("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
-    } else {
-        URI("https://oss.sonatype.org/service/local/staging/deployByRepositoryId/$repositoryId")
     }
 }
 
