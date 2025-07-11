@@ -1,15 +1,13 @@
-# Keep `Companion` object fields of serializable classes.
+# Keep `Companion` object field of serializable classes.
 # This avoids serializer lookup through `getDeclaredClasses` as done for named companion objects.
--if @kotlinx.serialization.Serializable class **
--keepclassmembers class <1> {
-    static <1>$* Companion;
-}
+ -keepclassmembers @kotlinx.serialization.Serializable class ** {
+    static ** Companion;
+ }
 
 # Keep names for named companion object from obfuscation
 # Names of a class and of a field are important in lookup of named companion in runtime
--keepnames @kotlinx.serialization.internal.NamedCompanion class *
 -if @kotlinx.serialization.internal.NamedCompanion class *
--keepclassmembernames class * {
+-keepclassmembers class * {
     static <1> *;
 }
 
@@ -36,7 +34,6 @@
 # Don't print notes about potential mistakes or omissions in the configuration for kotlinx-serialization classes
 # See also https://github.com/Kotlin/kotlinx.serialization/issues/1900
 -dontnote kotlinx.serialization.**
-
 # Serialization core uses `java.lang.ClassValue` for caching inside these specified classes.
 # If there is no `java.lang.ClassValue` (for example, in Android), then R8/ProGuard will print a warning.
 # However, since in this case they will not be used, we can disable these warnings
