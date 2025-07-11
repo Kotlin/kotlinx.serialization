@@ -82,6 +82,9 @@ project(":benchmark").projectDir = file("./benchmark")
 include(":guide")
 project(":guide").projectDir = file("./guide")
 
+include(":proguard-rules")
+project(":proguard-rules").projectDir = file("./rules")
+
 
 dependencyResolutionManagement {
     versionCatalogs {
