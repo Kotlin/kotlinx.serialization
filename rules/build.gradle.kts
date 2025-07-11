@@ -97,8 +97,8 @@ val extractBaseJarTask = tasks.register<Task>("extractBaseJar") {
     doLast {
         val javaLauncher = javaToolchains.launcherFor {
             languageVersion.set(JavaLanguageVersion.of(jdkToolchainVersion))
-        }
-        val javaHomeDir = javaLauncher.get().metadata.installationPath.asFile
+        }.get()
+        val javaHomeDir = javaLauncher.metadata.installationPath.asFile
         val baseJmod = javaHomeDir.resolve("jmods").resolve("java.base.jmod")
 
         val extractDir = temporaryDir.resolve("java-base")
@@ -106,8 +106,16 @@ val extractBaseJarTask = tasks.register<Task>("extractBaseJar") {
         extractDir.deleteRecursively()
         extractDir.mkdirs()
         // unpack jmod file
+        val jdkBinDir = javaHomeDir.resolve("bin")
+
+        val jmodFile = if (System.getProperty("os.name").startsWith("Windows")) {
+            jdkBinDir.resolve("jmod.exe")
+        } else {
+            jdkBinDir.resolve("jmod")
+        }
+
         exec {
-            commandLine("jmod", "extract", baseJmod.absolutePath, "--dir", extractDir.absolutePath)
+            commandLine(jmodFile.absolutePath, "extract", baseJmod.absolutePath, "--dir", extractDir.absolutePath)
         }
         // pack class-files into jar
         exec {
