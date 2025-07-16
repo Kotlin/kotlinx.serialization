@@ -103,7 +103,7 @@ internal sealed class CborWriter(
 
 
     override fun encodeNull() {
-        if (isClass) getDestination().encodeEmptyMap()
+        if (isClass && !cbor.configuration.treatNullComplexObjectsAsNull) getDestination().encodeEmptyMap()
         else getDestination().encodeNull()
     }
 
