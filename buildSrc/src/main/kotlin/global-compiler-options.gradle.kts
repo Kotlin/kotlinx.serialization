@@ -33,15 +33,7 @@ tasks.withType(KotlinCompilationTask::class).configureEach {
                 null -> true // Werror is enabled by default
                 else -> throw GradleException("Invalid kotlin_Werror_override value. Use 'enable' or 'disable'")
             }
-
             allWarningsAsErrors = werrorEnabled
-            // Add extra compiler options when -Werror is disabled
-            if (!werrorEnabled) {
-                freeCompilerArgs.addAll(
-                    "-Wextra",
-                    "-Xuse-fir-experimental-checkers"
-                )
-            }
         }
     }
 }
