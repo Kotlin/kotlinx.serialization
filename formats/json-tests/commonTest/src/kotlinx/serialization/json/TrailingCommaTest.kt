@@ -125,4 +125,45 @@ class TrailingCommaTest : JsonTestBase() {
             "wl":{"l":[1, 2, 3,],},}"""
         assertEquals(Mixed(multipleFields, withMap, withList), tj.decodeFromString(input, mode))
     }
+
+    @Test
+    fun testCommaReportedPosition() = parametrizedTest { mode ->
+        val sd = """{"a":"1",    }"""
+
+        checkSerializationException({
+            default.decodeFromString<Map<String, String>>(sd, mode)
+        }, { message ->
+            assertContains(
+                message,
+                """Unexpected JSON token at offset 8: Trailing comma before the end of JSON object"""
+            )
+        })
+    }
+
+    @Test
+    fun testMultipleTrailingCommasAreNotAllowedEvenWhenTrailingIsEnabled() = parametrizedTest { mode ->
+        val sd = """{"a":"1",,}"""
+        checkSerializationException({
+            tj.decodeFromString<Map<String, String>>(sd, mode)
+        }, { message ->
+            assertContains(
+                message,
+                """Unexpected JSON token at offset 9: Multiple consecutive commas are not allowed in JSON"""
+            )
+        })
+    }
+
+    @Test
+    fun testMultipleTrailingCommasError() = parametrizedTest { mode ->
+        val sd = """{"a":"1",,,}"""
+
+        checkSerializationException({
+            default.decodeFromString<Map<String, String>>(sd, mode)
+        }, { message ->
+            assertContains(
+                message,
+                """Unexpected JSON token at offset 9: Multiple consecutive commas are not allowed in JSON"""
+            )
+        })
+    }
 }
