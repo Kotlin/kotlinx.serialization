@@ -6,21 +6,13 @@ Together, they are essential to most applications that exchange data with third 
 
 Some data serialization formats, such as [JSON](https://www.json.org/json-en.html) and [Protocol Buffers](https://protobuf.dev/) are particularly common.
 Being language-neutral and platform-neutral, these formats enable data exchange between systems written in any modern language.
+Kotlin provides this functionality through the [`kotlinx.serialization` libraries](#kotlin-serialization-libraries),
+which support multiple platforms and data formats.
 
-To convert an object tree to a string or to a sequence of bytes, it must go through two mutually intertwined processes: 
+If you're new to serialization in Kotlin, we recommend starting with the [Get Started with Serialization](serialization-get-started.md) tutorial.
+It provides a step-by-step guide to help you set up and use Kotlin serialization in your project.
 
-1. Serialization: Objects are transformed into a sequence of their primitive values.
-This universal process varies depending on the object and is managed by a serializer.
-2. Encoding: The primitive sequence is converted into the desired output format, controlled by an encoder.
-
-![Serialization flow](serialization.svg){width=700}
-
-The reverse process involves parsing the input format, decoding the primitive values, and then deserializing the resulting
-stream into objects.
-
-If you're new to serialization in Kotlin, we recommend starting with the [Get Started with Serialization](serialization-get-started.md) guide.
-This section provides a step-by-step guide to help you set up and use Kotlin serialization in your projects.
-By following these steps, you can quickly get up to speed with the basics before diving into more complex topics.
+<a href="serialization-get-started.md"><img src="get-started-serialization.svg" width="700" alt="Get started with serialization" style="block"/></a>
 
 ## Kotlin serialization libraries
 
@@ -73,6 +65,8 @@ For more information, see [Serialize classes](serialization-customization-option
 
 ## What's next
 
-* Learn the basics of Kotlin serialization in the [Get started with serialization guide](serialization-get-started.md).
+* Learn the basics of Kotlin serialization in the [Get started with serialization tutorial](serialization-get-started.md).
+* See how the `kotlinx.serialization` library processes [primitives, collections, and other built-in types](serialization-builtin-types.md)
 * To explore more complex JSON serialization scenarios, see [JSON serialization overview](configure-json-serialization.md).
 * Dive into the [Serialize classes](serialization-customization-options.md) section to learn how to serialize classes and how to modify the default behavior of the `@Serializable` annotation.
+* Learn how to define and customize your own serializers in [Create custom serializers](serialization-custom-serializers.md).
