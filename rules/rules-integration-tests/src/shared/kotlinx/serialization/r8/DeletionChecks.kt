@@ -11,113 +11,76 @@ fun getR8Checker(): R8Checker {
     val usageFile = File(System.getProperty("r8.output.usage"))
     val mapFile = File(System.getProperty("r8.output.map"))
 
-    return R8CheckerImpl(parseR8Output(mapFile, usageFile))
+    return R8Checker(parseR8Output(mapFile, usageFile))
 }
 
-interface R8Checker {
+class R8Checker(private val classes: Map<String, ClassEntry>) {
     /**
      * Find R8 information about class by its binary name.
      */
-    fun findClass(binaryName: String): ClassChecker
+    fun findClass(binaryName: String): ClassChecker {
+        return classes[binaryName]?.let { ClassChecker(it) }
+            ?: throw IllegalArgumentException("Class with binary name '$binaryName' not found")
+    }
 
     /**
      * Find R8 information about class by given [clazz].
      */
-    fun findClass(clazz: KClass<*>): ClassChecker
+    fun findClass(clazz: KClass<*>): ClassChecker {
+        val obfuscatedName = clazz.java.name
+        val found = classes.values.singleOrNull { it.obfuscatedName == obfuscatedName } ?: throw IllegalArgumentException("Class with obfuscated name '$obfuscatedName' not found")
+        return ClassChecker(found)
+    }
 }
 
-interface ClassChecker : R8Result {
-    val originalName: String
+class ClassChecker(private val clazz: ClassEntry) : R8Result(clazz.originalName != clazz.obfuscatedName, clazz.removed) {
+    val originalName: String = clazz.originalName
 
     /**
      * Find R8 information about a field by its name.
      *
      * If there is no field with name [name], [IllegalArgumentException] will be thrown.
      */
-    fun findField(name: String): R8Result
+    fun findField(name: String): R8Result {
+        return clazz.fields[name]
+            ?.let { R8Result(it.name != it.obfuscatedName, it.removed) }
+            ?: throw IllegalArgumentException("Field with name '$name' not found in class '${clazz.originalName}'")
+    }
 
     /**
      * Find R8 information about a method by its name.
      * If there are several methods with name [name], [IllegalArgumentException] will be thrown.
      * If there is no method with name [name], [IllegalArgumentException] will be thrown.
      */
-    fun findMethod(name: String): R8Result
-
-    /**
-     * Find R8 information about a method by its name and descriptor.
-     * If there is no method with given [name] and [descriptor], [IllegalArgumentException] will be thrown.
-     */
-    fun findMethod(name: String, descriptor: String): R8Result
-}
-
-interface R8Result {
-    val isObfuscated: Boolean
-    val isShrunk: Boolean
-}
-
-
-
-private class R8CheckerImpl(private val classes: Map<String, ClassEntry>) : R8Checker {
-    override fun findClass(binaryName: String): ClassChecker {
-        return classes[binaryName]?.let { ClassCheckerImpl(it) }
-            ?: throw IllegalArgumentException("Class with binary name '$binaryName' not found")
-    }
-
-    override fun findClass(clazz: KClass<*>): ClassChecker {
-        val obfuscatedName = clazz.java.name
-        val found = classes.values.singleOrNull { it.obfuscatedName == obfuscatedName } ?: throw IllegalArgumentException("Class with obfuscated name '$obfuscatedName' not found")
-        return ClassCheckerImpl(found)
-    }
-}
-
-private class ClassCheckerImpl(private val clazz: ClassEntry) : ClassChecker {
-    override val isObfuscated: Boolean = clazz.originalName != clazz.obfuscatedName
-
-    override val isShrunk: Boolean = clazz.removed
-
-    override val originalName: String = clazz.originalName
-
-    override fun findField(name: String): R8Result {
-        return clazz.fields[name]
-            ?.let { R8ResultImpl(it.name != it.obfuscatedName, it.removed) }
-            ?: throw IllegalArgumentException("Field with name '$name' not found in class '${clazz.originalName}'")
-    }
-
-    override fun findMethod(name: String): R8Result {
-        val methods = clazz.methods.filter { it.name == name }
+    fun findMethod(name: String): R8Result {
+        val methods = clazz.methods.values.filter { it.name == name }
         if (methods.isEmpty()) {
             throw IllegalArgumentException("Method with name '$name' not found in class '${clazz.originalName}'")
         } else if (methods.size > 1) {
             throw IllegalArgumentException("Several methods with name '$name' found in class '${clazz.originalName}'")
         } else {
-            return methods.single().let { R8ResultImpl(it.name != it.obfuscatedName, it.removed) }
+            return methods.single().let { R8Result(it.name != it.obfuscatedName, it.removed) }
         }
-    }
-
-    override fun findMethod(name: String, descriptor: String): R8Result {
-        return clazz.methods.singleOrNull { it.name == name && it.descriptor == descriptor }
-            ?.let { R8ResultImpl(it.name != it.obfuscatedName, it.removed) }
-            ?: throw IllegalArgumentException("Method '$name$descriptor' not found")
     }
 }
 
 
-private data class ClassEntry(
+data class ClassEntry(
     val originalName: String,
     val obfuscatedName: String,
     var removed: Boolean = false,
     val fields: MutableMap<String, FieldEntry> = mutableMapOf(),
-    val methods: MutableList<MethodEntry> = mutableListOf()
+    val methods: MutableMap<String, MethodEntry> = mutableMapOf()
 )
 
-private data class FieldEntry(
+data class FieldEntry(
     val name: String,
     val type: String,
     val obfuscatedName: String,
     var removed: Boolean = false
 )
 
-private data class MethodEntry(
+data class MethodEntry(
     val name: String,
     val returnType: String,
     val descriptor: String,
@@ -126,10 +89,10 @@ private data class MethodEntry(
 )
 
 
-private class R8ResultImpl(
-    override val isObfuscated: Boolean,
-    override val isShrunk: Boolean
-) : R8Result
+open class R8Result(
+    val isObfuscated: Boolean,
+    val isShrunk: Boolean
+)
 
 private fun parseR8Output(mappingFile: File, usageFile: File): Map<String, ClassEntry> {
     val classMap = mutableMapOf<String, ClassEntry>()
@@ -156,19 +119,18 @@ private fun parseR8Output(mappingFile: File, usageFile: File): Map<String, Class
 
             val (num, returnType, name, desc, _, obfuscated) = it.destructured
             if (num.isNotEmpty()) {
-                val existed = current.methods.singleOrNull { clazz -> clazz.name == name && clazz.descriptor == desc }
+                val signature = name + desc
+                val existed = current.methods[signature]
                 if (existed == null) {
-                    current.methods += MethodEntry(name, returnType, desc, obfuscated)
+                    current.methods[signature] = MethodEntry(name, returnType, desc, obfuscated)
                 } else {
                     if (existed.obfuscatedName != obfuscated) {
                         if (obfuscated == name) {
-                            current.methods.remove(existed)
-                            current.methods += existed.copy(obfuscatedName = obfuscated)
+                            current.methods.remove(signature)
+                            current.methods[signature] = existed.copy(obfuscatedName = obfuscated)
                         }
                     }
                 }
-            } else {
-                current.fields.put(name, FieldEntry(name, returnType, obfuscated))
             }
             return@forEachLine
         }
@@ -211,7 +173,9 @@ private fun parseR8Output(mappingFile: File, usageFile: File): Map<String, Class
                 // Skip modifiers like static, public, final
                 val parts = memberLine.substringBefore("(").split(" ")
                 val returnType = parts.dropWhile { it in listOf("static", "public", "private", "protected", "final", "abstract", "synthetic") }.first()
-                current.methods += MethodEntry(
+                val signature = methodName + desc
+
+                current.methods[signature] = MethodEntry(
                     name = methodName,
                     returnType = returnType,
                     descriptor = desc,

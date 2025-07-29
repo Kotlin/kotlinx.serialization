@@ -63,22 +63,31 @@ class SerializersLookupNamedCompanionTest {
     @Test
     fun test() {
         assertSame<KSerializer<*>>(Plain.serializer(), serializer(typeOf<Plain>()))
-        assertSame<KSerializer<*>>(PlainSerializer, serializer(typeOf<PlainWithCustom>()))
 
-        assertEquals(
-            Parametrized.serializer(Int.serializer()).descriptor.toString(),
-            serializer(typeOf<Parametrized<Int>>()).descriptor.toString()
-        )
+        shouldFail<SerializationException>(beforeKotlin = "1.9.20", onJs = false, onNative = false, onWasm = false) {
+            assertSame<KSerializer<*>>(PlainSerializer, serializer(typeOf<PlainWithCustom>()))
+        }
 
-        assertEquals(
-            ParametrizedWithCustom.serializer(Int.serializer()).descriptor.toString(),
-            serializer(typeOf<ParametrizedWithCustom<Int>>()).descriptor.toString()
-        )
+        shouldFail<SerializationException>(beforeKotlin = "1.9.20", onJs = false, onNative = false, onWasm = false) {
+            assertEquals(
+                Parametrized.serializer(Int.serializer()).descriptor.toString(),
+                serializer(typeOf<Parametrized<Int>>()).descriptor.toString()
+            )
+        }
 
-        assertEquals(
-            SealedInterface.serializer().descriptor.toString(),
-            serializer(typeOf<SealedInterface>()).descriptor.toString()
-        )
+        shouldFail<SerializationException>(beforeKotlin = "1.9.20", onJs = false, onNative = false, onWasm = false) {
+            assertEquals(
+                ParametrizedWithCustom.serializer(Int.serializer()).descriptor.toString(),
+                serializer(typeOf<ParametrizedWithCustom<Int>>()).descriptor.toString()
+            )
+        }
+
+        shouldFail<SerializationException>(beforeKotlin = "1.9.20", onJs = false, onNative = false, onWasm = false) {
+            assertEquals(
+                SealedInterface.serializer().descriptor.toString(),
+                serializer(typeOf<SealedInterface>()).descriptor.toString()
+            )
+        }
     }
 
 

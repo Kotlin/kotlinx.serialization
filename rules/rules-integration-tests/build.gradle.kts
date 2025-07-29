@@ -28,54 +28,61 @@ kotlin {
     jvmToolchain(jdkToolchainVersion)
 }
 
-sourceSets {
-    // create the source set for storing sources and using dependency configuration
-    val common by creating
+val sharedSourceSet = sourceSets.create("shared") {
+    kotlin.srcDirs("src/shared")
+}
 
-    val test by getting {
-        kotlin.srcDirs(common.kotlin.srcDirs)
-    }
+val r8FullModeSourceSet = sourceSets.create("testR8FullMode") {
+    kotlin.srcDirs(sharedSourceSet.kotlin.srcDirs)
+}
 
-    // extra source set is created for shrinking and obfuscating in compatibility mode
-    val testCompatible by creating {
-        kotlin.srcDirs(common.kotlin.srcDirs)
-    }
+val proguardCompatibleSourceSet = sourceSets.create("testProguardCompatible") {
+    kotlin.srcDirs(sharedSourceSet.kotlin.srcDirs)
+}
+
+val sharedImplementation = configurations.getByName("sharedImplementation")
+
+dependencies {
+    sharedImplementation(project(":kotlinx-serialization-core"))
+    sharedImplementation("org.jetbrains.kotlin:kotlin-test")
+    sharedImplementation("org.jetbrains.kotlin:kotlin-test-junit")
+    sharedImplementation(libs.junit.junit4)
+    sharedImplementation(kotlin("test-junit"))
 }
 
 // extend commonImplementation by all test compilation tasks
-configurations.testImplementation {
-    extendsFrom(configurations.getByName("commonImplementation"))
+val testR8FullModeImplementation by configurations.getting {
+    extendsFrom(sharedImplementation)
 }
-val testCompatibleImplementation by configurations.getting {
-    extendsFrom(configurations.getByName("commonImplementation"))
-}
-
-dependencies {
-    "commonImplementation"(project(":kotlinx-serialization-core"))
-    "commonImplementation"("org.jetbrains.kotlin:kotlin-test")
-    "commonImplementation"("org.jetbrains.kotlin:kotlin-test-junit")
-    "commonImplementation"(libs.junit.junit4)
-    "commonImplementation"(kotlin("test-junit"))
+val testProguardCompatibleImplementation by configurations.getting {
+    extendsFrom(sharedImplementation)
 }
 
-tasks.compileTestKotlin {
-    configureCompilation(true)
+tasks.withType<KotlinCompile>().named("compileTestR8FullModeKotlin") {
+    configureCompilation(r8FullMode = true)
 }
 
-tasks.withType<KotlinCompile>().named("compileTestCompatibleKotlin") {
-    configureCompilation(false)
+tasks.withType<KotlinCompile>().named("compileTestProguardCompatibleKotlin") {
+    configureCompilation(r8FullMode = false)
 }
 
-tasks.test {
-    configureTest(true)
+val testR8FullMode = tasks.register("testR8FullMode", Test::class) {
+    group = "verification"
+    testClassesDirs = r8FullModeSourceSet.output.classesDirs
+    classpath = r8FullModeSourceSet.runtimeClasspath
+    configureTest(r8FullMode = true)
 }
-val testCompatibleTask = tasks.register("testCompatible", Test::class) {
-    dependsOn("compileTestCompatibleKotlin")
-    configureTest(false)
+
+val testProguardCompatible = tasks.register("testProguardCompatible", Test::class) {
+    group = "verification"
+    testClassesDirs = proguardCompatibleSourceSet.output.classesDirs
+    classpath = proguardCompatibleSourceSet.runtimeClasspath
+    configureTest(r8FullMode = false)
 }
 
 tasks.check {
-    dependsOn(testCompatibleTask)
+    dependsOn(testR8FullMode)
+    dependsOn(testProguardCompatible)
 }
 
 //
@@ -100,6 +107,9 @@ val extractBaseJarTask = tasks.register<Task>("extractBaseJar") {
         }.get()
         val javaHomeDir = javaLauncher.metadata.installationPath.asFile
         val baseJmod = javaHomeDir.resolve("jmods").resolve("java.base.jmod")
+        if (!baseJmod.exists()) {
+            throw GradleException("Cannot find file with base java module, make sure that specified jdk_toolchain_version is 9 or higher")
+        }
 
         val extractDir = temporaryDir.resolve("java-base")
 
@@ -133,7 +143,7 @@ val extractBaseJarTask = tasks.register<Task>("extractBaseJar") {
 }
 
 // Serialization ProGuard/R8 rules
-val ruleFiles = setOf(projectDir.resolve("common.pro"), projectDir.resolve("r8.pro"))
+val ruleFiles = setOf(projectDir.resolve("../common.pro"), projectDir.resolve("../r8.pro"))
 
 /**
  * Configure replacing original class-files with classes processed by R8
@@ -145,7 +155,7 @@ fun KotlinCompile.configureCompilation(r8FullMode: Boolean) {
     val usageFile = layout.buildDirectory.file("r8/$mode/usage.txt")
 
     dependsOn(extractBaseJarTask)
-
+    inputs.files(baseJar)
     inputs.files(ruleFiles)
 
     outputs.file(mapFile)
@@ -158,7 +168,7 @@ fun KotlinCompile.configureCompilation(r8FullMode: Boolean) {
         val intermediateDir = temporaryDir.resolve("original")
 
         val dependencies = configurations.runtimeClasspath.get().files
-        dependencies += configurations.testRuntimeClasspath.get().files
+        dependencies += configurations.getByName("sharedRuntimeClasspath").files
 
         val kotlinOutput = this@configureCompilation.destinationDirectory.get().asFile
 

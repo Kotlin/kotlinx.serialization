@@ -59,7 +59,7 @@ allprojects {
 
 // == BCV setup ==
 apiValidation {
-    ignoredProjects.addAll(listOf("benchmark", "guide", "kotlinx-serialization", "kotlinx-serialization-json-tests", "proguard-rules"))
+    ignoredProjects.addAll(listOf("benchmark", "guide", "kotlinx-serialization", "kotlinx-serialization-json-tests", "proguard-rules-test"))
     @OptIn(ExperimentalBCVApi::class)
     klib {
         enabled = true
@@ -155,7 +155,7 @@ val unpublishedProjects
         "guide",
         "kotlinx-serialization-json-tests",
         "proto-test-model",
-        "proguard-rules",
+        "proguard-rules-test",
     )
 val excludedFromBomProjects get() = unpublishedProjects + "kotlinx-serialization-bom"
 

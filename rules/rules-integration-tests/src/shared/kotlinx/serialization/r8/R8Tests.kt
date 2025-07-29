@@ -12,6 +12,11 @@ import kotlin.test.*
 class R8Tests {
     val checker: R8Checker = getR8Checker()
 
+    private fun prepareTests() {
+        // save method via calling it in kept class
+        ObfuscatedClass("World").used()
+    }
+
     /**
      * Test classes renames and deleted as long as methods.
      */
@@ -20,7 +25,6 @@ class R8Tests {
         val unusedClass = checker.findClass("kotlinx.serialization.r8.UnusedClass")
         assertTrue(unusedClass.isShrunk)
 
-        ObfuscatedClass("World").used()
         val obfuscated = checker.findClass(ObfuscatedClass::class)
         assertTrue(obfuscated.isObfuscated)
 
@@ -72,8 +76,6 @@ class R8Tests {
     fun testDescriptorField() {
         assertTrue(AccessSerializer.serializer()::class.java.declaredFields.any { it.name == "descriptor" })
     }
-
-
 
     private inline fun <reified T> assertSerializerWithCompanion() {
         val companionName = "Companion"
