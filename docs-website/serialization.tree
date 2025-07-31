@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE instance-profile SYSTEM "https://resources.jetbrains.com/writerside/1.0/product-profile.dtd">
+<instance-profile id="serialization" name="Serialization" start-page="serialization.md">
+    <snippet id="serialization">
+        <toc-element topic="serialization.md" toc-title="Introduction"/>
+        <toc-element toc-title="Get started">
+            <toc-element topic="serialization-get-started.md"/>
+            <toc-element topic="serialization-serialize-builtin-types.md"/>
+            <toc-element topic="serialization-customization-options.md"/>
+        </toc-element>
+        <toc-element toc-title="Configure JSON serialization">
+            <toc-element topic="configure-json-serialization.md" toc-title="Overview"/>
+            <toc-element topic="serialization-json-configuration.md"/>
+            <toc-element topic="serialization-json-elements.md"/>
+            <toc-element topic="serialization-transform-json.md" toc-title="JSON transformation"/>
+        </toc-element>
+        <toc-element topic="serialization-polymorphism.md"/>
+        <toc-element toc-title="Custom serializers">
+            <toc-element topic="create-custom-serializers.md"/>
+            <toc-element topic="third-party-classes.md"/>
+        </toc-element>
+        <toc-element topic="alternative-serialization-formats.md" toc-title="Alternative serialization formats"/>
+    </snippet>
+</instance-profile>
