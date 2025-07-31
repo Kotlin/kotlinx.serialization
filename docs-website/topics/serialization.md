@@ -10,7 +10,7 @@ Kotlin provides this functionality through the [`kotlinx.serialization` librarie
 which support multiple platforms and data formats.
 
 If you're new to serialization in Kotlin, we recommend starting with the [Get Started with Serialization](serialization-get-started.md) tutorial.
-It provides a step-by-step guide to help you set up and use Kotlin serialization in your project.
+It walks you through adding the Kotlin serialization library to your project and shows you how to serialize and deserialize your first class.
 
 <a href="serialization-get-started.md"><img src="get-started-serialization.svg" width="700" alt="Get started with serialization" style="block"/></a>
 
