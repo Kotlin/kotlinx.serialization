@@ -29,9 +29,10 @@ internal sealed class CborWriter(
     protected val output: ByteArrayOutput,
 ) : AbstractEncoder(), CborEncoder {
 
-    override fun encodeByteArray(byteArray: ByteArray) {
+    internal fun encodeByteString(byteArray: ByteArray) {
         getDestination().encodeByteString(byteArray)
     }
+
 
     protected var isClass = false
 

@@ -198,7 +198,7 @@ public object CborByteStringSerializer : KSerializer<CborByteString> {
     override fun serialize(encoder: Encoder, value: CborByteString) {
         val cborEncoder = encoder.asCborEncoder()
             cborEncoder.encodeTags(value)
-        cborEncoder.encodeByteArray(value.bytes)
+        cborEncoder.encodeByteString(value.bytes)
     }
 
     override fun deserialize(decoder: Decoder): CborByteString {
