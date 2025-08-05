@@ -95,17 +95,25 @@ public sealed class Cbor(
         return result
     }
 
+    public fun <T> decodeFromCbor(deserializer: DeserializationStrategy<T>, element: CborElement): T {
+        val reader = StructuredCborReader(this, StructuredCborParser(element, configuration.verifyObjectTags))
+        return reader.decodeSerializableValue(deserializer)
+    }
 
-    public fun  <T> encodeToCbor(serializer: SerializationStrategy<T>, value: T): CborElement {
+    public fun <T> encodeToCbor(serializer: SerializationStrategy<T>, value: T): CborElement {
         val writer = StructuredCborWriter(this)
         writer.encodeSerializableValue(serializer, value)
-      return  writer.finalize()
+        return writer.finalize()
     }
 }
 
 @ExperimentalSerializationApi
 public inline fun <reified T> Cbor.encodeToCbor(value: T): CborElement =
     encodeToCbor(serializersModule.serializer(), value)
+
+@ExperimentalSerializationApi
+public inline fun <reified T> Cbor.decodeFromCbor(element: CborElement): T =
+    decodeFromCbor(serializersModule.serializer(), element)
 
 @OptIn(ExperimentalSerializationApi::class)
 private class CborImpl(
@@ -125,18 +133,20 @@ private class CborImpl(
 public fun Cbor(from: Cbor = Cbor, builderAction: CborBuilder.() -> Unit): Cbor {
     val builder = CborBuilder(from)
     builder.builderAction()
-    return CborImpl(CborConfiguration(
-        builder.encodeDefaults,
-        builder.ignoreUnknownKeys,
-        builder.encodeKeyTags,
-        builder.encodeValueTags,
-        builder.encodeObjectTags,
-        builder.verifyKeyTags,
-        builder.verifyValueTags,
-        builder.verifyObjectTags,
-        builder.useDefiniteLengthEncoding,
-        builder.preferCborLabelsOverNames,
-        builder.alwaysUseByteString),
+    return CborImpl(
+        CborConfiguration(
+            builder.encodeDefaults,
+            builder.ignoreUnknownKeys,
+            builder.encodeKeyTags,
+            builder.encodeValueTags,
+            builder.encodeObjectTags,
+            builder.verifyKeyTags,
+            builder.verifyValueTags,
+            builder.verifyObjectTags,
+            builder.useDefiniteLengthEncoding,
+            builder.preferCborLabelsOverNames,
+            builder.alwaysUseByteString
+        ),
         builder.serializersModule
     )
 }

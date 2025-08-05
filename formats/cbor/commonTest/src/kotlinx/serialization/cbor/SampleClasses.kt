@@ -73,6 +73,8 @@ data class NullableByteString(
     @ByteString val byteString: ByteArray?
 ) {
     override fun equals(other: Any?): Boolean {
+        return toString() == other.toString()
+        /*
         if (this === other) return true
         if (other == null || this::class != other::class) return false
 
@@ -83,7 +85,7 @@ data class NullableByteString(
             if (!byteString.contentEquals(other.byteString)) return false
         } else if (other.byteString != null) return false
 
-        return true
+        return true*/
     }
 
     override fun hashCode(): Int {

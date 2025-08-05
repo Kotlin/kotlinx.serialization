@@ -15,9 +15,7 @@ import kotlinx.serialization.modules.*
 internal open class CborReader(override val cbor: Cbor, protected val parser: CborParser) : AbstractDecoder(),
     CborDecoder {
 
-    override fun decodeCborElement(): CborElement {
-        return CborTreeReader(cbor.configuration, parser).read()
-    }
+    override fun decodeCborElement(): CborElement = CborTreeReader(cbor.configuration, parser).read()
 
     protected var size = -1
         private set
@@ -185,6 +183,7 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
                 if (nextByte == -1) throw CborDecodingException("Unexpected EOF")
                 nextByte.toLong() and 0xFF
             }
+
             25 -> input.readExact(2)
             26 -> input.readExact(4)
             27 -> input.readExact(8)
@@ -196,7 +195,7 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
         if ((curByte shr 5) != 6) {
             throw CborDecodingException("Expected tag (major type 6), got major type ${curByte shr 5}")
         }
-        
+
         val additionalInfo = curByte and 0x1F
         return readUnsignedValueFromAdditionalInfo(additionalInfo).toULong().also { skipByte(curByte) }
     }
@@ -346,7 +345,7 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
     private fun readNumber(): Long {
         val additionalInfo = curByte and 0b000_11111
         val negative = (curByte and 0b111_00000) == HEADER_NEGATIVE.toInt()
-        
+
         val value = readUnsignedValueFromAdditionalInfo(additionalInfo)
         return if (negative) -(value + 1) else value
     }
@@ -550,11 +549,350 @@ private fun Iterable<ByteArray>.flatten(): ByteArray {
     return output
 }
 
+internal open class StructuredCborReader(override val cbor: Cbor, protected val parser: StructuredCborParser) : AbstractDecoder(),
+    CborDecoder {
+
+    override fun decodeCborElement(): CborElement = parser.element
+
+    protected var size = -1
+        private set
+    protected var finiteMode = false
+        private set
+    private var readProperties: Int = 0
+
+    protected var decodeByteArrayAsByteString = false
+    protected var tags: ULongArray? = null
+
+    protected fun setSize(size: Int) {
+        if (size >= 0) {
+            finiteMode = true
+            this.size = size
+        }
+    }
+
+    override val serializersModule: SerializersModule
+        get() = cbor.serializersModule
+
+    protected open fun skipBeginToken(objectTags: ULongArray?) = setSize(parser.startMap(objectTags))
+
+    @OptIn(ExperimentalSerializationApi::class)
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
+        val re = if (descriptor.hasArrayTag()) {
+            StructuredCborListReader(cbor, parser)
+        } else when (descriptor.kind) {
+            StructureKind.LIST, is PolymorphicKind -> StructuredCborListReader(cbor, parser)
+            StructureKind.MAP -> StructuredCborMapReader(cbor, parser)
+            else -> StructuredCborReader(cbor, parser)
+        }
+        val objectTags = if (cbor.configuration.verifyObjectTags) descriptor.getObjectTags() else null
+        re.skipBeginToken(tags?.let { if (objectTags == null) it else ulongArrayOf(*it, *objectTags) } ?: objectTags)
+        return re
+    }
+
+    override fun endStructure(descriptor: SerialDescriptor) {
+        if (!finiteMode) parser.end()
+    }
+
+    override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+        val index = if (cbor.configuration.ignoreUnknownKeys) {
+            val knownIndex: Int
+            while (true) {
+                if (isDone()) return CompositeDecoder.DECODE_DONE
+                val (elemName, tags) = decodeElementNameWithTagsLenient(descriptor)
+                readProperties++
+
+                val index = elemName?.let { descriptor.getElementIndex(it) } ?: CompositeDecoder.UNKNOWN_NAME
+                if (index == CompositeDecoder.UNKNOWN_NAME) {
+                    parser.skipElement(tags)
+                } else {
+                    verifyKeyTags(descriptor, index, tags)
+                    knownIndex = index
+                    break
+                }
+            }
+            knownIndex
+        } else {
+            if (isDone()) return CompositeDecoder.DECODE_DONE
+            val (elemName, tags) = decodeElementNameWithTags(descriptor)
+            readProperties++
+            descriptor.getElementIndexOrThrow(elemName).also { index ->
+                verifyKeyTags(descriptor, index, tags)
+            }
+        }
+
+        decodeByteArrayAsByteString = descriptor.isByteString(index)
+        tags = if (cbor.configuration.verifyValueTags) descriptor.getValueTags(index) else null
+        return index
+    }
+
+
+    private fun decodeElementNameWithTags(descriptor: SerialDescriptor): Pair<String, ULongArray?> {
+        var (elemName, cborLabel, tags) = parser.nextTaggedStringOrNumber()
+        if (elemName == null && cborLabel != null) {
+            elemName = descriptor.getElementNameForCborLabel(cborLabel)
+                ?: throw CborDecodingException("CborLabel unknown: $cborLabel for $descriptor")
+        }
+        if (elemName == null) {
+            throw CborDecodingException("Expected (tagged) string or number, got nothing for $descriptor")
+        }
+        return elemName to tags
+    }
+
+    private fun decodeElementNameWithTagsLenient(descriptor: SerialDescriptor): Pair<String?, ULongArray?> {
+        var (elemName, cborLabel, tags) = parser.nextTaggedStringOrNumber()
+        if (elemName == null && cborLabel != null) {
+            elemName = descriptor.getElementNameForCborLabel(cborLabel)
+        }
+        return elemName to tags
+    }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
+        return if ((decodeByteArrayAsByteString || cbor.configuration.alwaysUseByteString)
+            && deserializer.descriptor == ByteArraySerializer().descriptor
+        ) {
+            @Suppress("UNCHECKED_CAST")
+            parser.nextByteString(tags) as T
+        } else {
+            decodeByteArrayAsByteString = decodeByteArrayAsByteString || deserializer.descriptor.isInlineByteString()
+            super<AbstractDecoder>.decodeSerializableValue(deserializer)
+        }
+    }
+
+    override fun decodeString() = parser.nextString(tags)
+
+    override fun decodeNotNullMark(): Boolean = !parser.isNull()
+
+    override fun decodeDouble() = parser.nextDouble(tags)
+    override fun decodeFloat() = parser.nextFloat(tags)
+
+    override fun decodeBoolean() = parser.nextBoolean(tags)
+
+    override fun decodeByte() = parser.nextNumber(tags).toByte()
+    override fun decodeShort() = parser.nextNumber(tags).toShort()
+    override fun decodeChar() = parser.nextNumber(tags).toInt().toChar()
+    override fun decodeInt() = parser.nextNumber(tags).toInt()
+    override fun decodeLong() = parser.nextNumber(tags)
+
+    override fun decodeNull() = parser.nextNull(tags)
+
+    override fun decodeEnum(enumDescriptor: SerialDescriptor): Int =
+        enumDescriptor.getElementIndexOrThrow(parser.nextString(tags))
+
+    private fun isDone(): Boolean = !finiteMode && parser.isEnd() || (finiteMode && readProperties >= size)
+
+    private fun verifyKeyTags(descriptor: SerialDescriptor, index: Int, tags: ULongArray?) {
+        if (cbor.configuration.verifyKeyTags) {
+            descriptor.getKeyTags(index)?.let { keyTags ->
+                parser.verifyTagsAndThrow(keyTags, tags)
+            }
+        }
+    }
+}
+
+private class StructuredCborMapReader(cbor: Cbor, parser: StructuredCborParser) : StructuredCborListReader(cbor, parser) {
+    override fun skipBeginToken(objectTags: ULongArray?) =
+        setSize(parser.startMap(tags?.let { if (objectTags == null) it else ulongArrayOf(*it, *objectTags) }
+            ?: objectTags))
+}
+
+private open class StructuredCborListReader(cbor: Cbor, parser: StructuredCborParser) : StructuredCborReader(cbor, parser) {
+    private var ind = 0
+
+    override fun skipBeginToken(objectTags: ULongArray?) =
+        setSize(parser.startArray(tags?.let { if (objectTags == null) it else ulongArrayOf(*it, *objectTags) }
+            ?: objectTags))
+
+    override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+        return if (!finiteMode && parser.isEnd() || (finiteMode && ind >= size)) CompositeDecoder.DECODE_DONE else
+            ind++.also {
+                decodeByteArrayAsByteString = descriptor.isByteString(it)
+            }
+    }
+}
+
+internal class StructuredCborParser(val element: CborElement, private val verifyObjectTags: Boolean) {
+    private var currentElement: CborElement = element
+    private var mapIterator: Iterator<Map.Entry<CborElement, CborElement>>? = null
+    private var listIterator: Iterator<CborElement>? = null
+    private var currentMapEntry: Map.Entry<CborElement, CborElement>? = null
+    private var currentListElement: CborElement? = null
+    private var collectedTags: ULongArray? = null
+    
+    fun isNull() = currentElement is CborNull
+    
+    fun isEnd() = when {
+        mapIterator != null -> !mapIterator!!.hasNext()
+        listIterator != null -> !listIterator!!.hasNext()
+        else -> false
+    }
+    
+    fun end() {
+        // Reset iterators when ending a structure
+        mapIterator = null
+        listIterator = null
+        currentMapEntry = null
+        currentListElement = null
+    }
+    
+    fun startArray(tags: ULongArray? = null): Int {
+        processTags(tags)
+        if (currentElement !is CborList) {
+            throw CborDecodingException("Expected array, got ${currentElement::class.simpleName}")
+        }
+        
+        val list = currentElement as CborList
+        listIterator = list.iterator()
+        return list.size
+    }
+    
+    fun startMap(tags: ULongArray? = null): Int {
+        processTags(tags)
+        if (currentElement !is CborMap) {
+            throw CborDecodingException("Expected map, got ${currentElement::class.simpleName}")
+        }
+        
+        val map = currentElement as CborMap
+        mapIterator = map.entries.iterator()
+        return map.size
+    }
+    
+    fun nextNull(tags: ULongArray? = null): Nothing? {
+        processTags(tags)
+        if (currentElement !is CborNull) {
+            throw CborDecodingException("Expected null, got ${currentElement::class.simpleName}")
+        }
+        return null
+    }
+    
+    fun nextBoolean(tags: ULongArray? = null): Boolean {
+        processTags(tags)
+        if (currentElement !is CborBoolean) {
+            throw CborDecodingException("Expected boolean, got ${currentElement::class.simpleName}")
+        }
+        return (currentElement as CborBoolean).value
+    }
+    
+    fun nextNumber(tags: ULongArray? = null): Long {
+        processTags(tags)
+        return when (currentElement) {
+            is CborPositiveInt -> (currentElement as CborPositiveInt).value.toLong()
+            is CborNegativeInt -> (currentElement as CborNegativeInt).value
+            else -> throw CborDecodingException("Expected number, got ${currentElement::class.simpleName}")
+        }
+    }
+    
+    fun nextString(tags: ULongArray? = null): String {
+        processTags(tags)
+        
+        // Special handling for polymorphic serialization
+        // If we have a CborList with a string as first element, return that string
+        if (currentElement is CborList && (currentElement as CborList).isNotEmpty() && (currentElement as CborList)[0] is CborString) {
+            val stringElement = (currentElement as CborList)[0] as CborString
+            // Move to the next element (the map) for subsequent operations
+            currentElement = (currentElement as CborList)[1]
+            return stringElement.value
+        }
+        
+        if (currentElement !is CborString) {
+            throw CborDecodingException("Expected string, got ${currentElement::class.simpleName}")
+        }
+        return (currentElement as CborString).value
+    }
+    
+    fun nextByteString(tags: ULongArray? = null): ByteArray {
+        processTags(tags)
+        if (currentElement !is CborByteString) {
+            throw CborDecodingException("Expected byte string, got ${currentElement::class.simpleName}")
+        }
+        return (currentElement as CborByteString).value
+    }
+    
+    fun nextDouble(tags: ULongArray? = null): Double {
+        processTags(tags)
+        return when (currentElement) {
+            is CborDouble -> (currentElement as CborDouble).value
+            is CborPositiveInt -> (currentElement as CborPositiveInt).value.toDouble()
+            is CborNegativeInt -> (currentElement as CborNegativeInt).value.toDouble()
+            else -> throw CborDecodingException("Expected double, got ${currentElement::class.simpleName}")
+        }
+    }
+    
+    fun nextFloat(tags: ULongArray? = null): Float {
+        return nextDouble(tags).toFloat()
+    }
+    
+    fun nextTaggedStringOrNumber(): Triple<String?, Long?, ULongArray?> {
+        val tags = processTags(null)
+        
+        return when (val key = currentMapEntry?.key) {
+            is CborString -> Triple(key.value, null, tags)
+            is CborPositiveInt -> Triple(null, key.value.toLong(), tags)
+            is CborNegativeInt -> Triple(null, key.value, tags)
+            else -> throw CborDecodingException("Expected string or number key, got ${key?.let { it::class.simpleName } ?: "null"}")
+        }
+    }
+    
+    private fun processTags(tags: ULongArray?): ULongArray? {
+        val elementTags = currentElement.tags
+        
+        // If we're in a list, advance to the next element
+        if (listIterator != null && currentListElement == null && listIterator!!.hasNext()) {
+            currentListElement = listIterator!!.next()
+            currentElement = currentListElement!!
+        }
+        
+        // If we're in a map, advance to the next entry if we're not processing a value
+        if (mapIterator != null && currentMapEntry == null && mapIterator!!.hasNext()) {
+            currentMapEntry = mapIterator!!.next()
+            // We're now positioned at the key
+            currentElement = currentMapEntry!!.key
+        }
+        
+        // After processing a key in a map, move to the value for the next operation
+        if (mapIterator != null && currentMapEntry != null && currentElement == currentMapEntry!!.key) {
+            // We've processed the key, now move to the value
+            currentElement = currentMapEntry!!.value
+        }
+        
+        // Store collected tags for verification
+        collectedTags = if (elementTags.isEmpty()) null else elementTags
+        
+        // Verify tags if needed
+        if (verifyObjectTags) {
+            tags?.let {
+                verifyTagsAndThrow(it, collectedTags)
+            }
+        }
+        
+        return collectedTags
+    }
+    
+    fun verifyTagsAndThrow(expected: ULongArray, actual: ULongArray?) {
+        if (!expected.contentEquals(actual)) {
+            throw CborDecodingException(
+                "CBOR tags ${actual?.contentToString()} do not match expected tags ${expected.contentToString()}"
+            )
+        }
+    }
+    
+    fun skipElement(tags: ULongArray?) {
+        // Process tags but don't do anything with the element
+        processTags(tags)
+        
+        // If we're in a map and have processed a key, move to the value
+        if (mapIterator != null && currentMapEntry != null) {
+            currentElement = currentMapEntry!!.value
+            currentMapEntry = null
+        }
+    }
+}
+
 
 private class CborMapReader(cbor: Cbor, decoder: CborParser) : CborListReader(cbor, decoder) {
     override fun skipBeginToken(objectTags: ULongArray?) =
         setSize(parser.startMap(tags?.let { if (objectTags == null) it else ulongArrayOf(*it, *objectTags) }
-            ?: objectTags) * 2)
+            ?: objectTags))
 }
 
 private open class CborListReader(cbor: Cbor, decoder: CborParser) : CborReader(cbor, decoder) {
@@ -571,7 +909,6 @@ private open class CborListReader(cbor: Cbor, decoder: CborParser) : CborReader(
             }
     }
 }
-
 
 private val normalizeBaseBits = SINGLE_PRECISION_NORMALIZE_BASE.toBits()
 
