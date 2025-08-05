@@ -94,7 +94,18 @@ public sealed class Cbor(
         }
         return result
     }
+
+
+    public fun  <T> encodeToCbor(serializer: SerializationStrategy<T>, value: T): CborElement {
+        val writer = StructuredCborWriter(this)
+        writer.encodeSerializableValue(serializer, value)
+      return  writer.finalize()
+    }
 }
+
+@ExperimentalSerializationApi
+public inline fun <reified T> Cbor.encodeToCbor(value: T): CborElement =
+    encodeToCbor(serializersModule.serializer(), value)
 
 @OptIn(ExperimentalSerializationApi::class)
 private class CborImpl(

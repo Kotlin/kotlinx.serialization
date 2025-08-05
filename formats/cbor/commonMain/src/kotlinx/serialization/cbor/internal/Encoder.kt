@@ -26,10 +26,9 @@ private fun Stack.peek() = last()
 // Split implementation to optimize base case
 internal sealed class CborWriter(
     override val cbor: Cbor,
-    protected val output: ByteArrayOutput,
 ) : AbstractEncoder(), CborEncoder {
 
-    internal fun encodeByteString(byteArray: ByteArray) {
+    internal open fun encodeByteString(byteArray: ByteArray) {
         getDestination().encodeByteString(byteArray)
     }
 
@@ -155,8 +154,8 @@ internal sealed class CborWriter(
 
 
 // optimized indefinite length encoder
-internal class IndefiniteLengthCborWriter(cbor: Cbor, output: ByteArrayOutput) : CborWriter(
-    cbor, output
+internal class IndefiniteLengthCborWriter(cbor: Cbor, private val output: ByteArrayOutput) : CborWriter(
+    cbor
 ) {
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
@@ -187,8 +186,162 @@ internal class IndefiniteLengthCborWriter(cbor: Cbor, output: ByteArrayOutput) :
 
 }
 
+// optimized indefinite length encoder
+internal class StructuredCborWriter(cbor: Cbor) : CborWriter(
+    cbor
+) {
+
+    sealed class CborContainer(tags: ULongArray, elements: MutableList<CborElement>)  {
+        var elements = elements
+            private set
+
+        var tags = tags
+            internal set
+
+
+        fun add(element: CborElement) = elements.add(element)
+        class Map(tags: ULongArray, elements: MutableList<CborElement> = mutableListOf()) :
+            CborContainer(tags, elements) {
+        }
+
+        class List(tags: ULongArray, elements: MutableList<CborElement> = mutableListOf()) :
+            CborContainer(tags, elements) {
+        }
+
+        class Primitive(tags: ULongArray) : CborContainer(tags, elements = mutableListOf()) {
+
+        }
+
+        fun finalize() = when (this) {
+            is List -> CborList(content = elements, tags = tags)
+            is Map -> CborMap(
+                content = if (elements.isNotEmpty()) IntRange(0, elements.size / 2 - 1).associate {
+                    elements[it * 2] to elements[it * 2 + 1]
+                } else mapOf(),
+                tags = tags
+            )
+
+            is Primitive -> elements.first().also { it.tags = tags }
+
+        }
+    }
+
+    private val stack = ArrayDeque<CborContainer>()
+    private var currentElement: CborContainer? = null
+
+    fun finalize() =currentElement!!.finalize()
+
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
+        val tags = descriptor.getObjectTags() ?: ulongArrayOf()
+        val element = if (descriptor.hasArrayTag()) {
+            CborContainer.List(tags)
+        } else {
+            when (descriptor.kind) {
+                StructureKind.LIST, is PolymorphicKind -> CborContainer.List(tags)
+                is StructureKind.MAP -> CborContainer.Map(tags)
+                else -> CborContainer.Map(tags)
+            }
+        }
+        currentElement?.let { stack.add(it) }
+        currentElement = element
+        return this
+    }
+
+    override fun endStructure(descriptor: SerialDescriptor) {
+        val finalized = currentElement!!.finalize()
+        if (stack.isNotEmpty()) {
+            currentElement = stack.removeLast()
+            currentElement!!.add(finalized)
+        }
+    }
+
+    override fun getDestination() = TODO()
+
+
+    override fun incrementChildren() {/*NOOP*/
+    }
+
+
+    override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
+        //TODO check if cborelement and be done
+        val name = descriptor.getElementName(index)
+        if (!descriptor.hasArrayTag()) {
+            val keyTags = descriptor.getKeyTags(index)
+
+            if ((descriptor.kind !is StructureKind.LIST) && (descriptor.kind !is StructureKind.MAP) && (descriptor.kind !is PolymorphicKind)) {
+                //indices are put into the name field. we don't want to write those, as it would result in double writes
+                val cborLabel = descriptor.getCborLabel(index)
+                if (cbor.configuration.preferCborLabelsOverNames && cborLabel != null) {
+                    currentElement!!.add(
+                        CborInt(cborLabel, keyTags ?: ulongArrayOf())
+                    )
+                } else {
+                    currentElement!!.add(CborString(name, keyTags ?: ulongArrayOf()))
+                }
+            }
+        }
+
+        if (cbor.configuration.encodeValueTags) {
+            descriptor.getValueTags(index)?.let { valueTags ->
+                currentElement!!.tags += valueTags
+            }
+        }
+        return true
+    }
+
+
+    override fun encodeBoolean(value: Boolean) {
+        currentElement!!.add(CborBoolean(value))
+    }
+
+    override fun encodeByte(value: Byte) {
+        currentElement!!.add(CborInt(value.toLong()))
+    }
+
+    override fun encodeChar(value: Char) {
+        currentElement!!.add(CborInt(value.code.toLong()))
+    }
+
+    override fun encodeDouble(value: Double) {
+        currentElement!!.add(CborDouble(value))
+    }
+
+    override fun encodeFloat(value: Float) {
+        currentElement!!.add(CborDouble(value.toDouble()))
+    }
+
+    override fun encodeInt(value: Int) {
+        currentElement!!.add(CborInt(value.toLong()))
+    }
+
+    override fun encodeLong(value: Long) {
+        currentElement!!.add(CborInt(value))
+    }
+
+    override fun encodeShort(value: Short) {
+        currentElement!!.add(CborInt(value.toLong()))
+    }
+
+    override fun encodeString(value: String) {
+        currentElement!!.add(CborString(value))
+    }
+
+    override fun encodeByteString(byteArray: ByteArray) {
+        currentElement!!.add(CborByteString(byteArray))
+    }
+
+    override fun encodeNull() {
+        currentElement!!.add(CborNull())
+    }
+
+    override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) {
+        currentElement!!.add(CborString(enumDescriptor.getElementName(index)))
+    }
+
+}
+
 //optimized definite length encoder
-internal class DefiniteLengthCborWriter(cbor: Cbor, output: ByteArrayOutput) : CborWriter(cbor, output) {
+internal class DefiniteLengthCborWriter(cbor: Cbor, output: ByteArrayOutput) : CborWriter(cbor) {
 
     private val structureStack = Stack(Data(output, -1))
     override fun getDestination(): ByteArrayOutput =

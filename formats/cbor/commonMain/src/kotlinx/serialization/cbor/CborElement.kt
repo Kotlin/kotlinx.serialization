@@ -28,8 +28,19 @@ public sealed class CborElement(
      * See [RFC 8949 3.4. Tagging of Items](https://datatracker.ietf.org/doc/html/rfc8949#name-tagging-of-items).
      */
     @OptIn(ExperimentalUnsignedTypes::class)
-    public val tags: ULongArray = ulongArrayOf()
-)
+    tags: ULongArray = ulongArrayOf()
+
+) {
+    /**
+     * CBOR tags associated with this element.
+     * Tags are optional semantic tagging of other major types (major type 6).
+     * See [RFC 8949 3.4. Tagging of Items](https://datatracker.ietf.org/doc/html/rfc8949#name-tagging-of-items).
+     */
+    @OptIn(ExperimentalUnsignedTypes::class)
+    public var tags: ULongArray = tags
+        internal set
+
+}
 
 /**
  * Class representing CBOR primitive value.
@@ -72,6 +83,11 @@ public class CborPositiveInt(
 
     override fun hashCode(): Int = value.hashCode() * 31 + tags.contentHashCode()
 }
+
+public fun CborInt(
+    value: Long,
+    tags: ULongArray = ulongArrayOf()
+): CborPrimitive = if (value >= 0) CborPositiveInt(value.toULong(), tags) else CborNegativeInt(value, tags)
 
 /**
  * Class representing CBOR floating point value (major type 7).
@@ -147,7 +163,7 @@ public class CborByteString(
  * Class representing CBOR `null` value
  */
 @Serializable(with = CborNullSerializer::class)
-public class CborNull(tags: ULongArray=ulongArrayOf()) : CborPrimitive(tags) {
+public class CborNull(tags: ULongArray = ulongArrayOf()) : CborPrimitive(tags) {
     // Note: CborNull is an object, so it cannot have constructor parameters for tags
     // If tags are needed for null values, this would need to be changed to a class
     override fun equals(other: Any?): Boolean {
@@ -172,12 +188,12 @@ public class CborMap(
     private val content: Map<CborElement, CborElement>,
     tags: ULongArray = ulongArrayOf()
 ) : CborElement(tags), Map<CborElement, CborElement> by content {
-    
+
     public override fun equals(other: Any?): Boolean =
         other is CborMap && other.content == content && other.tags.contentEquals(tags)
 
     public override fun hashCode(): Int = content.hashCode() * 31 + tags.contentHashCode()
-    
+
     public override fun toString(): String = content.toString()
 }
 
@@ -192,11 +208,11 @@ public class CborList(
     private val content: List<CborElement>,
     tags: ULongArray = ulongArrayOf()
 ) : CborElement(tags), List<CborElement> by content {
-    
+
     public override fun equals(other: Any?): Boolean =
         other is CborList && other.content == content && other.tags.contentEquals(tags)
 
     public override fun hashCode(): Int = content.hashCode() * 31 + tags.contentHashCode()
-    
+
     public override fun toString(): String = content.toString()
 }
