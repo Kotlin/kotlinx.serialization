@@ -32,7 +32,6 @@ internal sealed class CborWriter(
         getDestination().encodeByteString(byteArray)
     }
 
-
     protected var isClass = false
 
     protected var encodeByteArrayAsByteString = false
@@ -199,17 +198,18 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(
             internal set
 
 
-        fun add(element: CborElement) = elements.add(element)
+        open fun add(element: CborElement) = elements.add(element)
         class Map(tags: ULongArray, elements: MutableList<CborElement> = mutableListOf()) :
-            CborContainer(tags, elements) {
-        }
+            CborContainer(tags, elements)
 
         class List(tags: ULongArray, elements: MutableList<CborElement> = mutableListOf()) :
-            CborContainer(tags, elements) {
-        }
+            CborContainer(tags, elements)
 
         class Primitive(tags: ULongArray) : CborContainer(tags, elements = mutableListOf()) {
-
+            override fun add(element: CborElement): Boolean {
+                require(elements.isEmpty()) {"Implementation error. Please report a bug."}
+                return elements.add(element)
+            }
         }
 
         fun finalize() = when (this) {
@@ -221,7 +221,7 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(
                 tags = tags
             )
 
-            is Primitive -> elements.first().also { it.tags = tags }
+            is Primitive -> elements.first().also { it.tags += tags }
 
         }
     }
@@ -232,6 +232,7 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(
     fun finalize() = currentElement!!.finalize()
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
+        //TODO check if cborelement and be done
         val tags = descriptor.getObjectTags() ?: ulongArrayOf()
         val element = if (descriptor.hasArrayTag()) {
             CborContainer.List(tags)
