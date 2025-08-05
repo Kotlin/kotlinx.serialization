@@ -571,6 +571,9 @@ class CborTaggedTest {
         assertEquals(referenceHexString, cbor.encodeToHexString(ClassAsTagged.serializer(), reference))
         assertEquals(reference, cbor.decodeFromHexString(ClassAsTagged.serializer(), referenceHexString))
 
+        val struct = Cbor.CoseCompliant.encodeToCbor(reference)
+        assertEquals(Cbor.decodeFromByteArray<CborElement>(referenceHexString.hexToByteArray()), struct)
+
         assertEquals(
             reference,
             Cbor { verifyObjectTags = false }.decodeFromHexString(ClassAsTagged.serializer(), referenceHexString)
