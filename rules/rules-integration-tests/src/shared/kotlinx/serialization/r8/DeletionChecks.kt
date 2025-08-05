@@ -125,6 +125,7 @@ private fun parseR8Output(mappingFile: File, usageFile: File): Map<String, Class
                     current.methods[signature] = MethodEntry(name, returnType, desc, obfuscated)
                 } else {
                     if (existed.obfuscatedName != obfuscated) {
+                        // If the method saved its original name in one of the obfuscations, we use the original, otherwise we use either of obfuscated
                         if (obfuscated == name) {
                             current.methods.remove(signature)
                             current.methods[signature] = existed.copy(obfuscatedName = obfuscated)
