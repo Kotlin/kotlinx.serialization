@@ -51,7 +51,7 @@ internal sealed class CborWriter(
         if ((encodeByteArrayAsByteString || cbor.configuration.alwaysUseByteString)
             && serializer.descriptor == ByteArraySerializer().descriptor
         ) {
-            getDestination().encodeByteString(value as ByteArray)
+            encodeByteString(value as ByteArray)
         } else {
             encodeByteArrayAsByteString = encodeByteArrayAsByteString || serializer.descriptor.isInlineByteString()
             super<AbstractEncoder>.encodeSerializableValue(serializer, value)
@@ -191,7 +191,7 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(
     cbor
 ) {
 
-    sealed class CborContainer(tags: ULongArray, elements: MutableList<CborElement>)  {
+    sealed class CborContainer(tags: ULongArray, elements: MutableList<CborElement>) {
         var elements = elements
             private set
 
@@ -229,7 +229,7 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(
     private val stack = ArrayDeque<CborContainer>()
     private var currentElement: CborContainer? = null
 
-    fun finalize() =currentElement!!.finalize()
+    fun finalize() = currentElement!!.finalize()
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
         val tags = descriptor.getObjectTags() ?: ulongArrayOf()
@@ -255,7 +255,7 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(
         }
     }
 
-    override fun getDestination() = TODO()
+    override fun getDestination() = throw IllegalStateException("There is not byteArrayOutput")
 
 
     override fun incrementChildren() {/*NOOP*/
@@ -263,6 +263,9 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(
 
 
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
+        //we don't care for special encoding of an empty class, so we don't set this flag here
+        // isClass = descriptor.getElementDescriptor(index).kind == StructureKind.CLASS
+        encodeByteArrayAsByteString = descriptor.isByteString(index)
         //TODO check if cborelement and be done
         val name = descriptor.getElementName(index)
         if (!descriptor.hasArrayTag()) {
@@ -273,7 +276,7 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(
                 val cborLabel = descriptor.getCborLabel(index)
                 if (cbor.configuration.preferCborLabelsOverNames && cborLabel != null) {
                     currentElement!!.add(
-                        CborInt(cborLabel, keyTags ?: ulongArrayOf())
+                        CborInt.invoke(value = cborLabel, tags = keyTags ?: ulongArrayOf())
                     )
                 } else {
                     currentElement!!.add(CborString(name, keyTags ?: ulongArrayOf()))

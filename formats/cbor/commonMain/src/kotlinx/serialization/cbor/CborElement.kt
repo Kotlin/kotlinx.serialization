@@ -40,6 +40,19 @@ public sealed class CborElement(
     public var tags: ULongArray = tags
         internal set
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CborElement) return false
+
+        if (!tags.contentEquals(other.tags)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return tags.contentHashCode()
+    }
+
 }
 
 /**
@@ -47,26 +60,63 @@ public sealed class CborElement(
  * CBOR primitives include numbers, strings, booleans, byte arrays and special null value [CborNull].
  */
 @Serializable(with = CborPrimitiveSerializer::class)
-public sealed class CborPrimitive(
+public sealed class CborPrimitive<T : Any>(
+    public val value: T,
     tags: ULongArray = ulongArrayOf()
-) : CborElement(tags)
+) : CborElement(tags) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CborPrimitive<*>) return false
+        if (!super.equals(other)) return false
+
+        if (value != other.value) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + value.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "CborPrimitive(" +
+            "kind=${value::class.simpleName}, " +
+            "tags=${tags.joinToString()}, " +
+            "value=$value" +
+            ")"
+    }
+}
+
+public sealed class CborInt<T : Any>(
+    tags: ULongArray = ulongArrayOf(),
+    value: T,
+) : CborPrimitive<T>(value, tags) {
+    public companion object {
+        public operator fun invoke(
+            value: Long,
+            tags: ULongArray = ulongArrayOf()
+        ): CborInt<*> = if (value >= 0) CborPositiveInt(value.toULong(), tags) else CborNegativeInt(value, tags)
+
+        public operator fun invoke(
+            value: ULong,
+            tags: ULongArray = ulongArrayOf()
+        ): CborInt<ULong> = CborPositiveInt(value, tags)
+    }
+}
 
 /**
  * Class representing signed CBOR integer (major type 1).
  */
 @Serializable(with = CborIntSerializer::class)
 public class CborNegativeInt(
-    public val value: Long,
+    value: Long,
     tags: ULongArray = ulongArrayOf()
-) : CborPrimitive(tags) {
+) : CborInt<Long>(tags, value) {
     init {
         require(value < 0) { "Number must be negative: $value" }
     }
-
-    override fun equals(other: Any?): Boolean =
-        other is CborNegativeInt && other.value == value && other.tags.contentEquals(tags)
-
-    override fun hashCode(): Int = value.hashCode() * 31 + tags.contentHashCode()
 }
 
 /**
@@ -74,108 +124,72 @@ public class CborNegativeInt(
  */
 @Serializable(with = CborUIntSerializer::class)
 public class CborPositiveInt(
-    public val value: ULong,
+    value: ULong,
     tags: ULongArray = ulongArrayOf()
-) : CborPrimitive(tags) {
-
-    override fun equals(other: Any?): Boolean =
-        other is CborPositiveInt && other.value == value && other.tags.contentEquals(tags)
-
-    override fun hashCode(): Int = value.hashCode() * 31 + tags.contentHashCode()
-}
-
-public fun CborInt(
-    value: Long,
-    tags: ULongArray = ulongArrayOf()
-): CborPrimitive = if (value >= 0) CborPositiveInt(value.toULong(), tags) else CborNegativeInt(value, tags)
+) : CborInt<ULong>(tags, value)
 
 /**
  * Class representing CBOR floating point value (major type 7).
  */
 @Serializable(with = CborDoubleSerializer::class)
 public class CborDouble(
-    public val value: Double,
+    value: Double,
     tags: ULongArray = ulongArrayOf()
-) : CborPrimitive(tags) {
-
-    override fun equals(other: Any?): Boolean =
-        other is CborDouble && other.value == value && other.tags.contentEquals(tags)
-
-    override fun hashCode(): Int = value.hashCode() * 31 + tags.contentHashCode()
-}
+) : CborPrimitive<Double>(value, tags)
 
 /**
  * Class representing CBOR string value.
  */
 @Serializable(with = CborStringSerializer::class)
 public class CborString(
-    public val value: String,
+    value: String,
     tags: ULongArray = ulongArrayOf()
-) : CborPrimitive(tags) {
-
-    override fun equals(other: Any?): Boolean =
-        other is CborString && other.value == value && other.tags.contentEquals(tags)
-
-    override fun hashCode(): Int = value.hashCode() * 31 + tags.contentHashCode()
-}
+) : CborPrimitive<String>(value, tags)
 
 /**
  * Class representing CBOR boolean value.
  */
 @Serializable(with = CborBooleanSerializer::class)
 public class CborBoolean(
-    private val value: Boolean,
+    value: Boolean,
     tags: ULongArray = ulongArrayOf()
-) : CborPrimitive(tags) {
-
-    /**
-     * Returns the boolean value.
-     */
-    public val boolean: Boolean get() = value
-
-    override fun equals(other: Any?): Boolean =
-        other is CborBoolean && other.value == value && other.tags.contentEquals(tags)
-
-    override fun hashCode(): Int = value.hashCode() * 31 + tags.contentHashCode()
-}
+) : CborPrimitive<Boolean>(value, tags)
 
 /**
  * Class representing CBOR byte string value.
  */
 @Serializable(with = CborByteStringSerializer::class)
 public class CborByteString(
-    private val value: ByteArray,
+    value: ByteArray,
     tags: ULongArray = ulongArrayOf()
-) : CborPrimitive(tags) {
+) : CborPrimitive<ByteArray>(value, tags) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CborByteString) return false
+        if (!super.equals(other)) return false
+        return value.contentEquals(other.value)
+    }
+    override fun toString(): String {
+        return "CborPrimitive(" +
+            "kind=${value::class.simpleName}, " +
+            "tags=${tags.joinToString()}, " +
+            "value=h'${value.toHexString()}" +
+            ")"
+    }
 
-    /**
-     * Returns the byte array value.
-     */
-    public val bytes: ByteArray get() = value.copyOf()
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + (value.contentHashCode())
+        return result
+    }
 
-    override fun equals(other: Any?): Boolean =
-        other is CborByteString && other.value.contentEquals(value) && other.tags.contentEquals(tags)
-
-    override fun hashCode(): Int = value.contentHashCode() * 31 + tags.contentHashCode()
 }
 
 /**
  * Class representing CBOR `null` value
  */
 @Serializable(with = CborNullSerializer::class)
-public class CborNull(tags: ULongArray = ulongArrayOf()) : CborPrimitive(tags) {
-    // Note: CborNull is an object, so it cannot have constructor parameters for tags
-    // If tags are needed for null values, this would need to be changed to a class
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is CborNull) return false
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return this::class.hashCode()
-    }
-}
+public class CborNull(tags: ULongArray = ulongArrayOf()) : CborPrimitive<Unit>(Unit, tags)
 
 /**
  * Class representing CBOR map, consisting of key-value pairs, where both key and value are arbitrary [CborElement]
@@ -193,8 +207,13 @@ public class CborMap(
         other is CborMap && other.content == content && other.tags.contentEquals(tags)
 
     public override fun hashCode(): Int = content.hashCode() * 31 + tags.contentHashCode()
+    override fun toString(): String {
+        return "CborMap(" +
+            "tags=${tags.joinToString()}, " +
+            "content=$content" +
+            ")"
+    }
 
-    public override fun toString(): String = content.toString()
 }
 
 /**
@@ -213,6 +232,11 @@ public class CborList(
         other is CborList && other.content == content && other.tags.contentEquals(tags)
 
     public override fun hashCode(): Int = content.hashCode() * 31 + tags.contentHashCode()
+    override fun toString(): String {
+        return "CborList(" +
+            "tags=${tags.joinToString()}, " +
+            "content=$content" +
+            ")"
+    }
 
-    public override fun toString(): String = content.toString()
 }
