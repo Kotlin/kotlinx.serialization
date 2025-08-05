@@ -51,7 +51,7 @@ class CborElementTest {
         val booleanBytes = cbor.encodeToByteArray(booleanElement)
         val decodedBoolean = cbor.decodeFromByteArray<CborElement>(booleanBytes)
         assertEquals(booleanElement, decodedBoolean)
-        assertEquals(true, (decodedBoolean as CborBoolean).boolean)
+        assertEquals(true, (decodedBoolean as CborBoolean).value)
     }
 
     @Test
@@ -61,7 +61,7 @@ class CborElementTest {
         val byteStringBytes = cbor.encodeToByteArray(byteStringElement)
         val decodedByteString = cbor.decodeFromByteArray<CborElement>(byteStringBytes)
         assertEquals(byteStringElement, decodedByteString)
-        assertTrue((decodedByteString as CborByteString).bytes.contentEquals(byteArray))
+        assertTrue((decodedByteString as CborByteString).value.contentEquals(byteArray))
     }
 
     @Test
@@ -89,7 +89,7 @@ class CborElementTest {
         assertEquals("two", (decodedList[1] as CborString).value)
 
         assertTrue(decodedList[2] is CborBoolean)
-        assertEquals(true, (decodedList[2] as CborBoolean).boolean)
+        assertEquals(true, (decodedList[2] as CborBoolean).value)
 
         assertTrue(decodedList[3] is CborNull)
     }
@@ -125,7 +125,7 @@ class CborElementTest {
         assertTrue(decodedMap.containsKey(CborPositiveInt(3u)))
         val value3 = decodedMap[CborPositiveInt(3u)]
         assertTrue(value3 is CborBoolean)
-        assertEquals(true, (value3 as CborBoolean).boolean)
+        assertEquals(true, (value3 as CborBoolean).value)
 
         assertTrue(decodedMap.containsKey(CborNull()))
         val value4 = decodedMap[CborNull()]
@@ -180,10 +180,10 @@ class CborElementTest {
         assertEquals("text", (primitivesValue[1] as CborString).value)
 
         assertTrue(primitivesValue[2] is CborBoolean)
-        assertEquals(false, (primitivesValue[2] as CborBoolean).boolean)
+        assertEquals(false, (primitivesValue[2] as CborBoolean).value)
 
         assertTrue(primitivesValue[3] is CborByteString)
-        assertTrue((primitivesValue[3] as CborByteString).bytes.contentEquals(byteArrayOf(10, 20, 30)))
+        assertTrue((primitivesValue[3] as CborByteString).value.contentEquals(byteArrayOf(10, 20, 30)))
 
         assertTrue(primitivesValue[4] is CborNull)
 
@@ -256,7 +256,7 @@ class CborElementTest {
         assertTrue(element is CborByteString)
         val byteString = element as CborByteString
         val expectedBytes = HexConverter.parseHexBinary("aabbccddeeff99")
-        assertTrue(byteString.bytes.contentEquals(expectedBytes))
+        assertTrue(byteString.value.contentEquals(expectedBytes))
     }
 
     @Test
@@ -294,7 +294,7 @@ class CborElementTest {
         // Check the byte string
         val byteString = map[CborString("a")] as CborByteString
         val expectedBytes = HexConverter.parseHexBinary("cafe010203")
-        assertTrue(byteString.bytes.contentEquals(expectedBytes))
+        assertTrue(byteString.value.contentEquals(expectedBytes))
 
         // Check the text string
         assertEquals(CborString("Hello world"), map[CborString("b")])
