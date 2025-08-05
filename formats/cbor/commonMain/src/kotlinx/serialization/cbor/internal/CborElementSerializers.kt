@@ -189,7 +189,7 @@ public object CborBooleanSerializer : KSerializer<CborBoolean> {
 
 /**
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [CborByteString].
- * It can only be used by with [Cbor] format an its input ([CborDecoder] and [CborEncoder]).
+ * It can only be used by with [Cbor] format and its input ([CborDecoder] and [CborEncoder]).
  */
 public object CborByteStringSerializer : KSerializer<CborByteString> {
     override val descriptor: SerialDescriptor =
@@ -211,7 +211,7 @@ public object CborByteStringSerializer : KSerializer<CborByteString> {
 
 /**
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [CborMap].
- * It can only be used by with [Cbor] format an its input ([CborDecoder] and [CborEncoder]).
+ * It can only be used by with [Cbor] format and its input ([CborDecoder] and [CborEncoder]).
  */
 public object CborMapSerializer : KSerializer<CborMap> {
     private object CborMapDescriptor :
