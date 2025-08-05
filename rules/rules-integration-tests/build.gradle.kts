@@ -50,7 +50,7 @@ dependencies {
     sharedImplementation(kotlin("test-junit"))
 }
 
-// extend commonImplementation by all test compilation tasks
+// extend sharedImplementation by all test compilation tasks
 val testR8FullModeImplementation by configurations.getting {
     extendsFrom(sharedImplementation)
 }
