@@ -166,9 +166,16 @@ public class CborByteString(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is CborByteString) return false
-        if (!super.equals(other)) return false
+        if (!tags.contentEquals(other.tags)) return false
         return value.contentEquals(other.value)
     }
+
+    override fun hashCode(): Int {
+        var result = tags.contentHashCode()
+        result = 31 * result + (value.contentHashCode())
+        return result
+    }
+
     override fun toString(): String {
         return "CborPrimitive(" +
             "kind=${value::class.simpleName}, " +
@@ -176,13 +183,6 @@ public class CborByteString(
             "value=h'${value.toHexString()}" +
             ")"
     }
-
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + (value.contentHashCode())
-        return result
-    }
-
 }
 
 /**
@@ -207,6 +207,7 @@ public class CborMap(
         other is CborMap && other.content == content && other.tags.contentEquals(tags)
 
     public override fun hashCode(): Int = content.hashCode() * 31 + tags.contentHashCode()
+
     override fun toString(): String {
         return "CborMap(" +
             "tags=${tags.joinToString()}, " +
@@ -232,6 +233,7 @@ public class CborList(
         other is CborList && other.content == content && other.tags.contentEquals(tags)
 
     public override fun hashCode(): Int = content.hashCode() * 31 + tags.contentHashCode()
+
     override fun toString(): String {
         return "CborList(" +
             "tags=${tags.joinToString()}, " +

@@ -51,10 +51,14 @@ class CbrWriterTest {
             HexConverter.parseHexBinary("cafe"),
             HexConverter.parseHexBinary("cafe")
         )
+        val encoded =
+            "a9637374726d48656c6c6f2c20776f726c64216169182a686e756c6c61626c65f6646c6973748261616162636d6170a201f502f465696e6e6572a16161636c6f6c6a696e6e6572734c69737481a16161636b656b6a62797465537472696e6742cafe6962797465417272617982383521"
         assertEquals(
-            "a9637374726d48656c6c6f2c20776f726c64216169182a686e756c6c61626c65f6646c6973748261616162636d6170a201f502f465696e6e6572a16161636c6f6c6a696e6e6572734c69737481a16161636b656b6a62797465537472696e6742cafe6962797465417272617982383521",
+            encoded,
             Cbor { useDefiniteLengthEncoding = true }.encodeToHexString(TypesUmbrella.serializer(), test)
         )
+        val struct = Cbor.encodeToCbor(test)
+        assertEquals(Cbor.decodeFromByteArray<CborElement>(encoded.hexToByteArray()), struct)
     }
 
     @Test
@@ -67,10 +71,14 @@ class CbrWriterTest {
             true,
             'a'
         )
+        val encoded =
+            "bf63696e741a00018894646c6f6e671b7fffffffffffffff65666c6f6174fa4228000066646f75626c65fb4271fb0c5a2b700067626f6f6c65616ef564636861721861ff"
         assertEquals(
-            "bf63696e741a00018894646c6f6e671b7fffffffffffffff65666c6f6174fa4228000066646f75626c65fb4271fb0c5a2b700067626f6f6c65616ef564636861721861ff",
+            encoded,
             Cbor.encodeToHexString(NumberTypesUmbrella.serializer(), test)
         )
+        val struct = Cbor.encodeToCbor(test)
+        assertEquals(Cbor.decodeFromByteArray<CborElement>(encoded.hexToByteArray()), struct)
     }
 
     @Test
