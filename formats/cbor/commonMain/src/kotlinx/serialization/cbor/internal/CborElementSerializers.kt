@@ -103,7 +103,7 @@ internal object CborNullSerializer : KSerializer<CborNull> {
     }
 }
 
-public object CborIntSerializer : KSerializer<CborNegativeInt> {
+internal object CborIntSerializer : KSerializer<CborNegativeInt> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlinx.serialization.cbor.CborInt", PrimitiveKind.LONG)
 
     override fun serialize(encoder: Encoder, value: CborNegativeInt) {
@@ -117,7 +117,7 @@ public object CborIntSerializer : KSerializer<CborNegativeInt> {
     }
 }
 
-public object CborUIntSerializer : KSerializer<CborPositiveInt> {
+internal object CborUIntSerializer : KSerializer<CborPositiveInt> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("CborUInt", PrimitiveKind.LONG)
 
     override fun serialize(encoder: Encoder, value: CborPositiveInt) {
@@ -131,7 +131,7 @@ public object CborUIntSerializer : KSerializer<CborPositiveInt> {
     }
 }
 
-public object CborDoubleSerializer : KSerializer<CborDouble> {
+internal object CborDoubleSerializer : KSerializer<CborDouble> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlinx.serialization.cbor.CborDouble", PrimitiveKind.DOUBLE)
 
     override fun serialize(encoder: Encoder, value: CborDouble) {
@@ -149,7 +149,7 @@ public object CborDoubleSerializer : KSerializer<CborDouble> {
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [CborString].
  * It can only be used by with [Cbor] format an its input ([CborDecoder] and [CborEncoder]).
  */
-public object CborStringSerializer : KSerializer<CborString> {
+internal object CborStringSerializer : KSerializer<CborString> {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("kotlinx.serialization.cbor.CborString", PrimitiveKind.STRING)
 
@@ -170,7 +170,7 @@ public object CborStringSerializer : KSerializer<CborString> {
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [CborBoolean].
  * It can only be used by with [Cbor] format an its input ([CborDecoder] and [CborEncoder]).
  */
-public object CborBooleanSerializer : KSerializer<CborBoolean> {
+internal object CborBooleanSerializer : KSerializer<CborBoolean> {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("kotlinx.serialization.cbor.CborBoolean", PrimitiveKind.BOOLEAN)
 
@@ -191,7 +191,7 @@ public object CborBooleanSerializer : KSerializer<CborBoolean> {
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [CborByteString].
  * It can only be used by with [Cbor] format and its input ([CborDecoder] and [CborEncoder]).
  */
-public object CborByteStringSerializer : KSerializer<CborByteString> {
+internal object CborByteStringSerializer : KSerializer<CborByteString> {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("kotlinx.serialization.cbor.CborByteString", PrimitiveKind.STRING)
 
@@ -213,7 +213,7 @@ public object CborByteStringSerializer : KSerializer<CborByteString> {
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [CborMap].
  * It can only be used by with [Cbor] format and its input ([CborDecoder] and [CborEncoder]).
  */
-public object CborMapSerializer : KSerializer<CborMap> {
+internal object CborMapSerializer : KSerializer<CborMap> {
     private object CborMapDescriptor :
         SerialDescriptor by MapSerializer(CborElementSerializer, CborElementSerializer).descriptor {
         @ExperimentalSerializationApi
@@ -238,7 +238,7 @@ public object CborMapSerializer : KSerializer<CborMap> {
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [CborList].
  * It can only be used by with [Cbor] format an its input ([CborDecoder] and [CborEncoder]).
  */
-public object CborListSerializer : KSerializer<CborList> {
+internal object CborListSerializer : KSerializer<CborList> {
     private object CborListDescriptor : SerialDescriptor by ListSerializer(CborElementSerializer).descriptor {
         @ExperimentalSerializationApi
         override val serialName: String = "kotlinx.serialization.cbor.CborList"
