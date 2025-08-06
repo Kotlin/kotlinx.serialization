@@ -77,12 +77,20 @@ private fun <T: Any> Class<T>.findInNamedCompanion(vararg args: KSerializer<Any?
     }
 }
 
-private fun <T: Any> Class<T>.findNamedCompanionByAnnotation(): Any? {
-    val companionClass = declaredClasses.firstOrNull { clazz ->
-        clazz.getAnnotation(NamedCompanion::class.java) != null
+private fun <T : Any> Class<T>.findNamedCompanionByAnnotation(): Any? {
+    // search static field with type marked by kotlinx.serialization.internal.NamedCompanion - it's the companion
+    // declaredClasses are erased after R8 even if `-keepattributes InnerClasses, EnclosingMethod` is specified, so we use declaredFields
+    val field = declaredFields.firstOrNull { field ->
+        Modifier.isStatic(field.modifiers) && field.type.getAnnotation(NamedCompanion::class.java) != null
     } ?: return null
 
-    return companionOrNull(companionClass.simpleName)
+    // short version of companionOrNull()
+    return try {
+        field.isAccessible = true
+        field.get(null)
+    } catch (e: Throwable) {
+        null
+    }
 }
 
 private fun <T: Any> Class<T>.isNotAnnotated(): Boolean {

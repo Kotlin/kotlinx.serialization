@@ -77,6 +77,9 @@ project(":benchmark").projectDir = file("./benchmark")
 include(":guide")
 project(":guide").projectDir = file("./guide")
 
+include(":proguard-rules-test")
+project(":proguard-rules-test").projectDir = file("./rules/rules-integration-tests")
+
 
 dependencyResolutionManagement {
     versionCatalogs {
