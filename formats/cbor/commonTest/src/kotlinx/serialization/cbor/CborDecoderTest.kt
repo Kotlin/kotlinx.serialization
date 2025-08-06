@@ -47,6 +47,7 @@ class CborDecoderTest {
         )
 
         val struct = Cbor.decodeFromHexString<CborElement>(hex)
+        assertEquals(Cbor.encodeToCbor(test), struct)
         assertEquals(test, Cbor.decodeFromCbor(TypesUmbrella.serializer(), struct))
 
 
