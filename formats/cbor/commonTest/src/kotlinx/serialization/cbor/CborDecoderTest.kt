@@ -96,7 +96,7 @@ class CborDecoderTest {
             )
         )
 
-        val structNull = Cbor.decodeFromHexString<CborElement>(hex)
+        val structNull = Cbor.decodeFromHexString<CborElement>(hexNull)
         assertEquals(expectedNull, Cbor.decodeFromCbor(NullableByteString.serializer(), structNull))
     }
 
