@@ -10,7 +10,7 @@ import kotlinx.serialization.*
 /**
  * Common interface for CBOR parsers that can read CBOR data from different sources.
  */
-internal interface CborParserInterface {
+internal sealed interface CborParserInterface {
     // Basic state checks
     fun isNull(): Boolean
     fun isEnd(): Boolean
@@ -40,8 +40,4 @@ internal interface CborParserInterface {
     
     // Additional methods needed for CborTreeReader
     fun nextTag(): ULong
-    fun readByte(): Int
-    
-    // Properties needed for CborTreeReader
-    val curByte: Int
 }

@@ -16,7 +16,7 @@ internal class CborTreeReader(
     //we cannot validate tags, or disregard nulls, can we?!
     //still, this needs to go here, in case it evolves to a point where we need to respect certain config values
     private val configuration: CborConfiguration,
-    private val parser: CborParserInterface
+    private val parser: CborParser
 ) {
     /**
      * Reads the next CBOR element from the parser.

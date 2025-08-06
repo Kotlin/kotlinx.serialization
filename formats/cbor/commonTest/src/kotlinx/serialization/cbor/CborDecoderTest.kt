@@ -24,7 +24,6 @@ class CborDecoderTest {
     }
 
     @Test
-    @Ignore
     fun testDecodeComplicatedObject() {
         val test = TypesUmbrella(
             "Hello, world!",
@@ -356,6 +355,7 @@ class CborDecoderTest {
                 hex
             )
         )
+        val ref = ignoreUnknownKeys.encodeToCbor(expected)
         val struct = Cbor.decodeFromHexString<CborElement>(hex)
         assertEquals(expected, ignoreUnknownKeys.decodeFromCbor(SealedBox.serializer(), struct))
 
