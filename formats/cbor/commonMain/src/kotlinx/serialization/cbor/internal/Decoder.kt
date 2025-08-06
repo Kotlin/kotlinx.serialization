@@ -16,9 +16,9 @@ internal open class CborReader(override val cbor: Cbor, protected val parser: Cb
     CborDecoder {
 
     override fun decodeCborElement(): CborElement =
-        when(parser) {
-            is CborParser ->  CborTreeReader(cbor.configuration, parser).read()
-            is StructuredCborParser ->  parser.element
+        when (parser) {
+            is CborParser -> CborTreeReader(cbor.configuration, parser).read()
+            is StructuredCborParser -> parser.element
         }
 
 
@@ -58,7 +58,7 @@ internal open class CborReader(override val cbor: Cbor, protected val parser: Cb
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
-        if (!finiteMode) parser.end()
+        if (!finiteMode || parser is StructuredCborParser) parser.end()
     }
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
@@ -158,7 +158,8 @@ internal open class CborReader(override val cbor: Cbor, protected val parser: Cb
     }
 }
 
-internal class CborParser(private val input: ByteArrayInput, private val verifyObjectTags: Boolean) : CborParserInterface {
+internal class CborParser(private val input: ByteArrayInput, private val verifyObjectTags: Boolean) :
+    CborParserInterface {
     var curByte: Int = -1
 
     init {
@@ -196,7 +197,7 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
         }
     }
 
-    override fun nextTag(): ULong {
+    fun nextTag(): ULong {
         if ((curByte shr 5) != 6) {
             throw CborDecodingException("Expected tag (major type 6), got major type ${curByte shr 5}")
         }
@@ -554,157 +555,148 @@ private fun Iterable<ByteArray>.flatten(): ByteArray {
     return output
 }
 
-private typealias ElementHolder = Pair<MutableList<ULong>, CborElement>
-private val ElementHolder.tags: MutableList<ULong> get() = first
-private val ElementHolder.element: CborElement get() = second
-internal class StructuredCborParser(val element: CborElement, private val verifyObjectTags: Boolean) : CborParserInterface {
-    
 
-    internal var current: ElementHolder = element.tags.toMutableList() to element
-    private var listIterator: Iterator<CborElement>? = null
+internal class StructuredCborParser(internal val element: CborElement, private val verifyObjectTags: Boolean) :
+    CborParserInterface {
 
-    // Implementation of methods needed for CborTreeReader
-    override fun nextTag(): ULong {
-        if (current.tags.isEmpty()) {
-            throw CborDecodingException("Expected tag, but no tags found on current element")
-        }
-        return current.tags.removeFirst()
+
+    internal var currentElement = element
+    private var listIterator: ListIterator<CborElement>? = null
+    private var isMap = false
+    private val isMapStack = ArrayDeque<Boolean>()
+    private val layerStack = ArrayDeque<ListIterator<CborElement>?>()
+
+    override fun isNull(): Boolean {
+        return if (isMap) {
+            val isNull = listIterator!!.next() is CborNull
+            listIterator!!.previous()
+            isNull
+        } else currentElement is CborNull
     }
-    
-    override fun isNull() : Boolean {
-        //TODO this is a bit wonky! if we are inside a map, we want to skip over the key, and check the value,
-        // so the below call is not what it should be!
-        processTags(null)
-        return current.element is CborNull
-    }
-    
+
     override fun isEnd() = when {
         listIterator != null -> !listIterator!!.hasNext()
         else -> false
     }
-    
+
     override fun end() {
         // Reset iterators when ending a structure
-        listIterator = null
+        isMap = isMapStack.removeLast()
+        listIterator = layerStack.removeLast()
     }
 
     override fun startArray(tags: ULongArray?): Int {
         processTags(tags)
-        if (current.element !is CborList) {
-            throw CborDecodingException("Expected array, got ${current.element::class.simpleName}")
+        if (currentElement !is CborList) {
+            throw CborDecodingException("Expected array, got ${currentElement::class.simpleName}")
         }
-        
-        val list = current.element as CborList
-        listIterator = list.iterator()
+        isMapStack+=isMap
+        layerStack+=listIterator
+        isMap = false
+        val list = currentElement as CborList
+        listIterator = list.listIterator()
         return list.size
     }
-    
+
     override fun startMap(tags: ULongArray?): Int {
         processTags(tags)
-        if (current.element !is CborMap) {
-            throw CborDecodingException("Expected map, got ${current.element::class.simpleName}")
+        if (currentElement !is CborMap) {
+            throw CborDecodingException("Expected map, got ${currentElement::class.simpleName}")
         }
-        
-        val map = current.element as CborMap
+        layerStack+=listIterator
+        isMapStack+=isMap
+        isMap = true
+
+        val map = currentElement as CborMap
         //zip key, value, key, value, ... pairs to mirror byte-layout of CBOR map
-        listIterator = map.entries.flatMap { listOf(it.key, it.value) }.iterator()
+        listIterator = map.entries.flatMap { listOf(it.key, it.value) }.listIterator()
         return map.size //cbor map size is the size of the map, not the doubled size of the flattened pairs
     }
-    
+
     override fun nextNull(tags: ULongArray?): Nothing? {
         processTags(tags)
-        if (current.element !is CborNull) {
-            throw CborDecodingException("Expected null, got ${current.element::class.simpleName}")
+        if (currentElement !is CborNull) {
+            throw CborDecodingException("Expected null, got ${currentElement::class.simpleName}")
         }
         return null
     }
-    
+
     override fun nextBoolean(tags: ULongArray?): Boolean {
         processTags(tags)
-        if (current.element !is CborBoolean) {
-            throw CborDecodingException("Expected boolean, got ${current.element::class.simpleName}")
+        if (currentElement !is CborBoolean) {
+            throw CborDecodingException("Expected boolean, got ${currentElement::class.simpleName}")
         }
-        return (current.element as CborBoolean).value
+        return (currentElement as CborBoolean).value
     }
-    
+
     override fun nextNumber(tags: ULongArray?): Long {
         processTags(tags)
-        return when (current.element) {
-            is CborPositiveInt -> (current.element as CborPositiveInt).value.toLong()
-            is CborNegativeInt -> (current.element as CborNegativeInt).value
-            else -> throw CborDecodingException("Expected number, got ${current.element::class.simpleName}")
+        return when (currentElement) {
+            is CborPositiveInt -> (currentElement as CborPositiveInt).value.toLong()
+            is CborNegativeInt -> (currentElement as CborNegativeInt).value
+            else -> throw CborDecodingException("Expected number, got ${currentElement::class.simpleName}")
         }
     }
-    
+
     override fun nextString(tags: ULongArray?): String {
         processTags(tags)
-        
-        // Special handling for polymorphic serialization
-        // If we have a CborList with a string as first element, return that string
-        if (current.element is CborList && (current.element as CborList).isNotEmpty() && (current.element as CborList)[0] is CborString) {
-            val stringElement = (current.element as CborList)[0] as CborString
-            // Move to the next element (the map) for subsequent operations
-            current = (current.element as CborList)[1].tags.toMutableList() to (current.element as CborList)[1]
-            return stringElement.value
+        if (currentElement !is CborString) {
+            throw CborDecodingException("Expected string, got ${currentElement::class.simpleName}")
         }
-        
-        if (current.element !is CborString) {
-            throw CborDecodingException("Expected string, got ${current.element::class.simpleName}")
-        }
-        return (current.element as CborString).value
+        return (currentElement as CborString).value
     }
-    
+
     override fun nextByteString(tags: ULongArray?): ByteArray {
         processTags(tags)
-        if (current.element !is CborByteString) {
-            throw CborDecodingException("Expected byte string, got ${current.element::class.simpleName}")
+        if (currentElement !is CborByteString) {
+            throw CborDecodingException("Expected byte string, got ${currentElement::class.simpleName}")
         }
-        return (current.element as CborByteString).value
+        return (currentElement as CborByteString).value
     }
-    
+
     override fun nextDouble(tags: ULongArray?): Double {
         processTags(tags)
-        return when (current.element) {
-            is CborDouble -> (current.element as CborDouble).value
-            else -> throw CborDecodingException("Expected double, got ${current.element::class.simpleName}")
+        return when (currentElement) {
+            is CborDouble -> (currentElement as CborDouble).value
+            else -> throw CborDecodingException("Expected double, got ${currentElement::class.simpleName}")
         }
     }
-    
+
     override fun nextFloat(tags: ULongArray?): Float {
         return nextDouble(tags).toFloat()
     }
-    
+
     override fun nextTaggedStringOrNumber(): Triple<String?, Long?, ULongArray?> {
         val tags = processTags(null)
-        
-        return when (val key = current.element) {
+
+        return when (val key = currentElement) {
             is CborString -> Triple(key.value, null, tags)
             is CborPositiveInt -> Triple(null, key.value.toLong(), tags)
             is CborNegativeInt -> Triple(null, key.value, tags)
             else -> throw CborDecodingException("Expected string or number key, got ${key?.let { it::class.simpleName } ?: "null"}")
         }
     }
-    
+
     private fun processTags(tags: ULongArray?): ULongArray? {
 
         // If we're in a list, advance to the next element
         if (listIterator != null && listIterator!!.hasNext()) {
-            listIterator!!.next().let { current = it.tags.toMutableList() to it }
+          currentElement=  listIterator!!.next()
         }
-        
+
         // Store collected tags for verification
-        val collectedTags = if (current.tags.isEmpty()) null else current.tags.toULongArray()
-        
+        val collectedTags = if (currentElement.tags.isEmpty()) null else currentElement.tags
+
         // Verify tags if needed
         if (verifyObjectTags) {
             tags?.let {
                 verifyTagsAndThrow(it, collectedTags)
             }
         }
-        
+
         return collectedTags
     }
-    
+
     override fun verifyTagsAndThrow(expected: ULongArray, actual: ULongArray?) {
         if (!expected.contentEquals(actual)) {
             throw CborDecodingException(
@@ -712,7 +704,7 @@ internal class StructuredCborParser(val element: CborElement, private val verify
             )
         }
     }
-    
+
     override fun skipElement(tags: ULongArray?) {
         // Process tags but don't do anything with the element
         processTags(tags)

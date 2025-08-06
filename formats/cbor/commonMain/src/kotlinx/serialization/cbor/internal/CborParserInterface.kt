@@ -37,7 +37,4 @@ internal sealed interface CborParserInterface {
     
     // Tag verification
     fun verifyTagsAndThrow(expected: ULongArray, actual: ULongArray?)
-    
-    // Additional methods needed for CborTreeReader
-    fun nextTag(): ULong
 }
