@@ -96,7 +96,7 @@ public sealed class Cbor(
     }
 
     public fun <T> decodeFromCbor(deserializer: DeserializationStrategy<T>, element: CborElement): T {
-        val reader = StructuredCborReader(this, StructuredCborParser(element, configuration.verifyObjectTags))
+        val reader = CborReader(this, StructuredCborParser(element, configuration.verifyObjectTags))
         return reader.decodeSerializableValue(deserializer)
     }
 
