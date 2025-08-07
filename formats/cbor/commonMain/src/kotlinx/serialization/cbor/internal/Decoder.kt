@@ -554,111 +554,136 @@ private fun Iterable<ByteArray>.flatten(): ByteArray {
     return output
 }
 
+/**
+ * Iterator that keeps a reference to the current element and allows peeking at the next element.
+ * Works for single elements (where current is directly set to the element) and for collections (where current
+ * will be first set after `startMap` or `startArray`
+ */
+private class PeekingIterator<T : Any>(private val iter: ListIterator<T>) : Iterator<T> by iter {
 
+    lateinit var current: T
+        private set
+
+    override fun next(): T = iter.next().also { current = it }
+
+    fun peek() = if (hasNext()) {
+        val next = iter.next()
+        iter.previous()
+        next
+    } else null
+
+    companion object {
+        operator fun invoke(single: CborElement): PeekingIterator<CborElement> =
+            PeekingIterator(listOf(single).listIterator()).also { it.next() }
+    }
+}
+/** Maps are a bit special for nullability checks, so we need to check whether we're in a map or not*/
+private typealias CborLayer = Pair<Boolean, PeekingIterator<CborElement>>
+
+private val CborLayer.isMap get() = first
+
+/** current element reference inside a layer. If the layer is a primitive then the current element is the layer itself*/
+private val CborLayer.currentElement get() = second.current
+private fun CborLayer.peek() = second.peek()
+private fun CborLayer.hasNext() = second.hasNext()
+private fun CborLayer.nextElement() = second.next()
+
+/**
+ * CBOR parser that operates on [CborElement] instead of bytes. Closely mirrors the baheviour of [CborParser], so the
+ * [CborDecoder] can remain largely unchanged.
+ */
 internal class StructuredCborParser(internal val element: CborElement, private val verifyObjectTags: Boolean) :
     CborParserInterface {
 
+    private var layer: CborLayer = false to PeekingIterator(element)
 
-    internal var currentElement = element
-    private var listIterator: ListIterator<CborElement>? = null
-    private var isMap = false
-    private val isMapStack = ArrayDeque<Boolean>()
-    private val layerStack = ArrayDeque<ListIterator<CborElement>?>()
 
-    override fun isNull(): Boolean {
-        return if (isMap) {
-            val isNull = listIterator!!.next() is CborNull
-            listIterator!!.previous()
-            isNull
-        } else currentElement is CborNull
-    }
+    private val layerStack = ArrayDeque<CborLayer>()
 
-    override fun isEnd() = when {
-        listIterator != null -> !listIterator!!.hasNext()
-        else -> false
-    }
+    // map needs special treatment because keys and values are laid out as a list alternating between key and value to
+    // mirror the byte-layout of a cbor map.
+    override fun isNull() = if (layer.isMap) layer.peek() is CborNull else layer.currentElement is CborNull
+
+    override fun isEnd() = !layer.hasNext()
 
     override fun end() {
         // Reset iterators when ending a structure
-        isMap = isMapStack.removeLast()
-        listIterator = layerStack.removeLast()
+        layer = layerStack.removeLast()
     }
-
 
     override fun startArray(tags: ULongArray?): Int {
         processTags(tags)
-        if (currentElement !is CborList) {
-            throw CborDecodingException("Expected array, got ${currentElement::class.simpleName}")
+        if (layer.currentElement !is CborList) {
+            throw CborDecodingException("Expected array, got ${layer.currentElement::class.simpleName}")
         }
-        isMapStack += isMap
-        layerStack += listIterator
-        isMap = false
-        val list = currentElement as CborList
-        listIterator = list.listIterator()
-        return -1 //just let the iterator run out of elements
+        layerStack += layer
+        val list = layer.currentElement as CborList
+        layer = false to PeekingIterator(list.listIterator())
+        return list.size //we could just return -1 and let the current layer run out of elements to never run into inconsistencies
+        // if we do keep it like this, any inconsistencies serve as a canary for implementation bugs
     }
 
     override fun startMap(tags: ULongArray?): Int {
         processTags(tags)
-        if (currentElement !is CborMap) {
-            throw CborDecodingException("Expected map, got ${currentElement::class.simpleName}")
+        if (layer.currentElement !is CborMap) {
+            throw CborDecodingException("Expected map, got ${layer.currentElement::class.simpleName}")
         }
-        layerStack += listIterator
-        isMapStack += isMap
-        isMap = true
+        layerStack += layer
 
-        val map = currentElement as CborMap
-        //zip key, value, key, value, ... pairs to mirror byte-layout of CBOR map
-        listIterator = map.entries.flatMap { listOf(it.key, it.value) }.listIterator()
-        return -1// just let the iterator run out of elements
+        val map = layer.currentElement as CborMap
+        // zip key, value, key, value, ... pairs to mirror byte-layout of CBOR map, so decoding this here works the same
+        // as decoding from bytes
+        layer = true to PeekingIterator(map.entries.flatMap { listOf(it.key, it.value) }.listIterator())
+        return map.size//we could just return -1 and let the current layer run out of elements to never run into inconsistencies
+        // if we do keep it like this, any inconsistencies serve as a canary for implementation bugs
     }
 
     override fun nextNull(tags: ULongArray?): Nothing? {
         processTags(tags)
-        if (currentElement !is CborNull) {
-            throw CborDecodingException("Expected null, got ${currentElement::class.simpleName}")
+        if (layer.currentElement !is CborNull) {
+            throw CborDecodingException("Expected null, got ${layer.currentElement::class.simpleName}")
         }
         return null
     }
 
     override fun nextBoolean(tags: ULongArray?): Boolean {
         processTags(tags)
-        if (currentElement !is CborBoolean) {
-            throw CborDecodingException("Expected boolean, got ${currentElement::class.simpleName}")
+        if (layer.currentElement !is CborBoolean) {
+            throw CborDecodingException("Expected boolean, got ${layer.currentElement::class.simpleName}")
         }
-        return (currentElement as CborBoolean).value
+        return (layer.currentElement as CborBoolean).value
     }
 
     override fun nextNumber(tags: ULongArray?): Long {
         processTags(tags)
-        return when (currentElement) {
-            is CborPositiveInt -> (currentElement as CborPositiveInt).value.toLong()
-            is CborNegativeInt -> (currentElement as CborNegativeInt).value
-            else -> throw CborDecodingException("Expected number, got ${currentElement::class.simpleName}")
+        return when (layer.currentElement) {
+            is CborPositiveInt -> (layer.currentElement as CborPositiveInt).value.toLong()
+            is CborNegativeInt -> (layer.currentElement as CborNegativeInt).value
+            else -> throw CborDecodingException("Expected number, got ${layer.currentElement::class.simpleName}")
         }
     }
 
     override fun nextString(tags: ULongArray?): String {
         processTags(tags)
-        if (currentElement !is CborString) {
-            throw CborDecodingException("Expected string, got ${currentElement::class.simpleName}")
+        if (layer.currentElement !is CborString) {
+            throw CborDecodingException("Expected string, got ${layer.currentElement::class.simpleName}")
         }
-        return (currentElement as CborString).value
+        return (layer.currentElement as CborString).value
     }
 
     override fun nextByteString(tags: ULongArray?): ByteArray {
         processTags(tags)
-        if (currentElement !is CborByteString) {
-            throw CborDecodingException("Expected byte string, got ${currentElement::class.simpleName}")
+        if (layer.currentElement !is CborByteString) {
+            throw CborDecodingException("Expected byte string, got ${layer.currentElement::class.simpleName}")
         }
-        return (currentElement as CborByteString).value
+        return (layer.currentElement as CborByteString).value
     }
 
     override fun nextDouble(tags: ULongArray?): Double {
         processTags(tags)
-        return when (currentElement) {
-            is CborDouble -> (currentElement as CborDouble).value
-            else -> throw CborDecodingException("Expected double, got ${currentElement::class.simpleName}")
+        return when (layer.currentElement) {
+            is CborDouble -> (layer.currentElement as CborDouble).value
+            else -> throw CborDecodingException("Expected double, got ${layer.currentElement::class.simpleName}")
         }
     }
 
@@ -669,7 +694,7 @@ internal class StructuredCborParser(internal val element: CborElement, private v
     override fun nextTaggedStringOrNumber(): Triple<String?, Long?, ULongArray?> {
         val tags = processTags(null)
 
-        return when (val key = currentElement) {
+        return when (val key = layer.currentElement) {
             is CborString -> Triple(key.value, null, tags)
             is CborPositiveInt -> Triple(null, key.value.toLong(), tags)
             is CborNegativeInt -> Triple(null, key.value, tags)
@@ -677,15 +702,19 @@ internal class StructuredCborParser(internal val element: CborElement, private v
         }
     }
 
+    /**
+     * Verify the current element's object tags and advance to the next element if inside a list/map.
+     * The reason this method mixes two behaviours is that decoding a primitive is invoked on a single element.
+     * `decodeElementIndex`, etc. is invoked on an iterable and there are key tags and value tags
+     */
     private fun processTags(tags: ULongArray?): ULongArray? {
 
-        // If we're in a list, advance to the next element
-        if (listIterator != null && listIterator!!.hasNext()) {
-            currentElement = listIterator!!.next()
-        }
+        // If we're in a list/map, advance to the next element
+        if (layer.hasNext()) layer.nextElement()
+        // if we're at a primitive, we only process tags
 
         // Store collected tags for verification
-        val collectedTags = if (currentElement.tags.isEmpty()) null else currentElement.tags
+        val collectedTags = if (layer.currentElement.tags.isEmpty()) null else layer.currentElement.tags
 
         // Verify tags if needed
         if (verifyObjectTags) {
@@ -707,7 +736,6 @@ internal class StructuredCborParser(internal val element: CborElement, private v
 
     override fun skipElement(tags: ULongArray?) {
         // Process tags but don't do anything with the element
-        //TODO check for maps
         processTags(tags)
     }
 }
