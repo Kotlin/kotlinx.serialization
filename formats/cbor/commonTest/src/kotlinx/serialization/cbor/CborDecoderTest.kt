@@ -54,7 +54,11 @@ class CborDecoderTest {
         assertEquals(Cbor.encodeToCbor(test), struct)
         assertEquals(test, Cbor.decodeFromCbor(TypesUmbrella.serializer(), struct))
 
+
+        assertEquals(hex, Cbor.encodeToHexString(TypesUmbrella.serializer(), test))
+
         assertEquals(hex, Cbor.encodeToHexString(CborElement.serializer(), struct))
+
 
 
         // with maps, lists & strings of definite length
