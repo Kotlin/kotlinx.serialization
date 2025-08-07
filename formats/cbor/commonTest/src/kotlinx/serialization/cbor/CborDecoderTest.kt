@@ -356,7 +356,6 @@ class CborDecoderTest {
                 hex
             )
         )
-        val ref = ignoreUnknownKeys.encodeToCbor(expected)
         val struct = Cbor.decodeFromHexString<CborElement>(hex)
         assertEquals(expected, ignoreUnknownKeys.decodeFromCbor(SealedBox.serializer(), struct))
 
