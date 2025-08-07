@@ -585,17 +585,18 @@ internal class StructuredCborParser(internal val element: CborElement, private v
         listIterator = layerStack.removeLast()
     }
 
+
     override fun startArray(tags: ULongArray?): Int {
         processTags(tags)
         if (currentElement !is CborList) {
             throw CborDecodingException("Expected array, got ${currentElement::class.simpleName}")
         }
-        isMapStack+=isMap
-        layerStack+=listIterator
+        isMapStack += isMap
+        layerStack += listIterator
         isMap = false
         val list = currentElement as CborList
         listIterator = list.listIterator()
-        return list.size
+        return -1 //just let the iterator run out of elements
     }
 
     override fun startMap(tags: ULongArray?): Int {
@@ -603,14 +604,14 @@ internal class StructuredCborParser(internal val element: CborElement, private v
         if (currentElement !is CborMap) {
             throw CborDecodingException("Expected map, got ${currentElement::class.simpleName}")
         }
-        layerStack+=listIterator
-        isMapStack+=isMap
+        layerStack += listIterator
+        isMapStack += isMap
         isMap = true
 
         val map = currentElement as CborMap
         //zip key, value, key, value, ... pairs to mirror byte-layout of CBOR map
         listIterator = map.entries.flatMap { listOf(it.key, it.value) }.listIterator()
-        return map.size //cbor map size is the size of the map, not the doubled size of the flattened pairs
+        return -1// just let the iterator run out of elements
     }
 
     override fun nextNull(tags: ULongArray?): Nothing? {
@@ -681,7 +682,7 @@ internal class StructuredCborParser(internal val element: CborElement, private v
 
         // If we're in a list, advance to the next element
         if (listIterator != null && listIterator!!.hasNext()) {
-          currentElement=  listIterator!!.next()
+            currentElement = listIterator!!.next()
         }
 
         // Store collected tags for verification
@@ -707,6 +708,7 @@ internal class StructuredCborParser(internal val element: CborElement, private v
 
     override fun skipElement(tags: ULongArray?) {
         // Process tags but don't do anything with the element
+        //TODO check for maps
         processTags(tags)
     }
 }

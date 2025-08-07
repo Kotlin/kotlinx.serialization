@@ -33,6 +33,7 @@ internal sealed interface CborParserInterface {
     fun nextTaggedStringOrNumber(): Triple<String?, Long?, ULongArray?>
     
     // Skip operations
+    //used only to skip unknown elements
     fun skipElement(tags: ULongArray?)
     
     // Tag verification
