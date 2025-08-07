@@ -180,7 +180,6 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
 
     override fun isNull() = (curByte == NULL || curByte == EMPTY_MAP || curByte == -1)
 
-    // Add this method to CborParser class
     private fun readUnsignedValueFromAdditionalInfo(additionalInfo: Int): Long {
         return when (additionalInfo) {
             in 0..23 -> additionalInfo.toLong()
@@ -197,7 +196,7 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
         }
     }
 
-    fun nextTag(): ULong {
+    internal fun nextTag(): ULong {
         if ((curByte shr 5) != 6) {
             throw CborDecodingException("Expected tag (major type 6), got major type ${curByte shr 5}")
         }
@@ -717,7 +716,7 @@ internal class StructuredCborParser(internal val element: CborElement, private v
 private class CborMapReader(cbor: Cbor, decoder: CborParserInterface) : CborListReader(cbor, decoder) {
     override fun skipBeginToken(objectTags: ULongArray?) =
         setSize(parser.startMap(tags?.let { if (objectTags == null) it else ulongArrayOf(*it, *objectTags) }
-            ?: objectTags))
+            ?: objectTags) * 2)
 }
 
 private open class CborListReader(cbor: Cbor, decoder: CborParserInterface) : CborReader(cbor, decoder) {
