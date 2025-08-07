@@ -18,9 +18,13 @@ class CborDecoderTest {
     @Test
     fun testDecodeSimpleObject() {
         val hex = "bf616163737472ff"
-        assertEquals(Simple("str"), Cbor.decodeFromHexString(Simple.serializer(), hex))
+        val reference = Simple("str")
+        assertEquals(reference, Cbor.decodeFromHexString(Simple.serializer(), hex))
+
         val struct = Cbor.decodeFromHexString<CborElement>(hex)
-        assertEquals(Simple("str"), Cbor.decodeFromCbor(Simple.serializer(), struct))
+        assertEquals(reference, Cbor.decodeFromCbor(Simple.serializer(), struct))
+
+        assertEquals(hex, Cbor.encodeToHexString(CborElement.serializer(), struct))
     }
 
     @Test
@@ -50,14 +54,23 @@ class CborDecoderTest {
         assertEquals(Cbor.encodeToCbor(test), struct)
         assertEquals(test, Cbor.decodeFromCbor(TypesUmbrella.serializer(), struct))
 
+        assertEquals(hex, Cbor.encodeToHexString(CborElement.serializer(), struct))
+
 
         // with maps, lists & strings of definite length
+        val hexDef =
+            "a9646c6973748261616162686e756c6c61626c65f6636d6170a202f401f56169182a6a696e6e6572734c69737481a16161636b656b637374726d48656c6c6f2c20776f726c642165696e6e6572a16161636c6f6c6a62797465537472696e6742cafe6962797465417272617982383521"
         assertEquals(
             test, Cbor.decodeFromHexString(
                 TypesUmbrella.serializer(),
-                "a9646c6973748261616162686e756c6c61626c65f6636d6170a202f401f56169182a6a696e6e6572734c69737481a16161636b656b637374726d48656c6c6f2c20776f726c642165696e6e6572a16161636c6f6c6a62797465537472696e6742cafe6962797465417272617982383521"
+                hexDef
             )
         )
+
+        val structDef = Cbor.decodeFromHexString<CborElement>(hexDef)
+        assertEquals(Cbor.encodeToCbor(test), structDef)
+        assertEquals(test, Cbor.decodeFromCbor(TypesUmbrella.serializer(), structDef))
+
     }
 
     @Test
