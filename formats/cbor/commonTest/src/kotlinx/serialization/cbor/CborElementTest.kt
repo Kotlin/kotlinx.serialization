@@ -5,19 +5,12 @@
 package kotlinx.serialization.cbor
 
 import kotlinx.serialization.*
+import kotlinx.serialization.cbor.internal.*
 import kotlin.test.*
 
 class CborElementTest {
 
     private val cbor = Cbor {}
-
-    /**
-     * Helper method to decode a hex string to a CborElement
-     */
-    private fun decodeHexToCborElement(hexString: String): CborElement {
-        val bytes = HexConverter.parseHexBinary(hexString.uppercase())
-        return cbor.decodeFromByteArray(bytes)
-    }
 
     @Test
     fun testCborNull() {
@@ -217,22 +210,21 @@ class CborElementTest {
     }
 
     @Test
-    fun testDecodeIntegers() {
+    fun testDecodePositiveInt() {
         // Test data from CborParserTest.testParseIntegers
-        val element = decodeHexToCborElement("0C") as CborPositiveInt
+        val element = cbor.decodeFromHexString<CborElement>("0C") as CborPositiveInt
         assertEquals(12u, element.value)
-
     }
 
     @Test
     fun testDecodeStrings() {
         // Test data from CborParserTest.testParseStrings
-        val element = decodeHexToCborElement("6568656C6C6F")
+        val element = cbor.decodeFromHexString<CborElement>("6568656C6C6F")
         assertTrue(element is CborString)
         assertEquals("hello", element.value)
 
         val longStringElement =
-            decodeHexToCborElement("7828737472696E672074686174206973206C6F6E676572207468616E2032332063686172616374657273")
+            cbor.decodeFromHexString<CborElement>("7828737472696E672074686174206973206C6F6E676572207468616E2032332063686172616374657273")
         assertTrue(longStringElement is CborString)
         assertEquals("string that is longer than 23 characters", longStringElement.value)
     }
@@ -240,11 +232,11 @@ class CborElementTest {
     @Test
     fun testDecodeFloatingPoint() {
         // Test data from CborParserTest.testParseDoubles
-        val doubleElement = decodeHexToCborElement("fb7e37e43c8800759c")
+        val doubleElement = cbor.decodeFromHexString<CborElement>("fb7e37e43c8800759c")
         assertTrue(doubleElement is CborDouble)
         assertEquals(1e+300, doubleElement.value)
 
-        val floatElement = decodeHexToCborElement("fa47c35000")
+        val floatElement = cbor.decodeFromHexString<CborElement>("fa47c35000")
         assertTrue(floatElement is CborDouble)
         assertEquals(100000.0f, floatElement.value.toFloat())
     }
@@ -252,7 +244,7 @@ class CborElementTest {
     @Test
     fun testDecodeByteString() {
         // Test data from CborParserTest.testRfc7049IndefiniteByteStringExample
-        val element = decodeHexToCborElement("5F44aabbccdd43eeff99FF")
+        val element = cbor.decodeFromHexString<CborElement>("5F44aabbccdd43eeff99FF")
         assertTrue(element is CborByteString)
         val byteString = element as CborByteString
         val expectedBytes = HexConverter.parseHexBinary("aabbccddeeff99")
@@ -262,7 +254,7 @@ class CborElementTest {
     @Test
     fun testDecodeArray() {
         // Test data from CborParserTest.testSkipCollections
-        val element = decodeHexToCborElement("830118ff1a00010000")
+        val element = cbor.decodeFromHexString<CborElement>("830118ff1a00010000")
         assertTrue(element is CborList)
         val list = element as CborList
         assertEquals(3, list.size)
@@ -274,7 +266,7 @@ class CborElementTest {
     @Test
     fun testDecodeMap() {
         // Test data from CborParserTest.testSkipCollections
-        val element = decodeHexToCborElement("a26178676b6f746c696e7861796d73657269616c697a6174696f6e")
+        val element = cbor.decodeFromHexString<CborElement>("a26178676b6f746c696e7861796d73657269616c697a6174696f6e")
         assertTrue(element is CborMap)
         val map = element as CborMap
         assertEquals(2, map.size)
@@ -286,7 +278,7 @@ class CborElementTest {
     fun testDecodeComplexStructure() {
         // Test data from CborParserTest.testSkipIndefiniteLength
         val element =
-            decodeHexToCborElement("a461615f42cafe43010203ff61627f6648656c6c6f2065776f726c64ff61639f676b6f746c696e786d73657269616c697a6174696f6eff6164bf613101613202613303ff")
+            cbor.decodeFromHexString<CborElement>("a461615f42cafe43010203ff61627f6648656c6c6f2065776f726c64ff61639f676b6f746c696e786d73657269616c697a6174696f6eff6164bf613101613202613303ff")
         assertTrue(element is CborMap)
         val map = element as CborMap
         assertEquals(4, map.size)
@@ -313,8 +305,6 @@ class CborElementTest {
         assertEquals(CborPositiveInt(3u), nestedMap[CborString("3")])
     }
 
-    // Test removed due to incompatibility with the new tag implementation
-
     @OptIn(ExperimentalStdlibApi::class)
     @Test
     fun testTagsRoundTrip() {
@@ -329,11 +319,314 @@ class CborElementTest {
         // Verify the value and tags
         assertTrue(decodedElement is CborString)
         assertEquals("Hello, tagged world!", decodedElement.value)
-        assertNotNull(decodedElement.tags)
         assertEquals(1, decodedElement.tags.size)
         assertEquals(42u, decodedElement.tags.first())
     }
 
+    @Test
+    fun testGenericAndCborSpecificMixed() {
+        Triple(
+            Cbor {
+                encodeValueTags = true
+                encodeKeyTags = true
+                verifyKeyTags = true
+                verifyObjectTags = true
+                verifyValueTags = true
+            },
+            MixedBag(
+                str = "A string, is a string, is a string",
+                bStr = CborByteString(byteArrayOf()),
+                cborElement = CborBoolean(false),
+                cborPositiveInt = CborPositiveInt(1u),
+                cborInt = CborInt(-1),
+                tagged = 26
+            ),
+            "bf6373747278224120737472696e672c206973206120737472696e672c206973206120737472696e676462537472406b63626f72456c656d656e74f46f63626f72506f736974697665496e74016763626f72496e7420d82a66746167676564d90921181aff"
+        )
+            .let { (cbor, obj, hex) ->
+                val struct = cbor.encodeToCbor(obj)
+                assertEquals(hex, cbor.encodeToHexString(obj))
+                assertEquals(hex, cbor.encodeToHexString(struct))
+                assertEquals(struct, cbor.decodeFromHexString<CborElement>(hex))
+                assertEquals(obj, cbor.decodeFromCbor(struct))
+                assertEquals(obj, cbor.decodeFromHexString(hex))
+            }
 
+        Triple(
+            Cbor {
+                encodeValueTags = true
+                encodeKeyTags = true
+                verifyKeyTags = true
+                verifyObjectTags = true
+                verifyValueTags = true
+            },
+            MixedBag(
+                str = "A string, is a string, is a string",
+                bStr = null,
+                cborElement = CborBoolean(false),
+                cborPositiveInt = CborPositiveInt(1u),
+                cborInt = CborInt(-1),
+                tagged = 26
+            ),
+            "bf6373747278224120737472696e672c206973206120737472696e672c206973206120737472696e676462537472f66b63626f72456c656d656e74f46f63626f72506f736974697665496e74016763626f72496e7420d82a66746167676564d90921181aff"
+        )
+            .let { (cbor, obj, hex) ->
+                val struct = cbor.encodeToCbor(obj)
+                assertEquals(hex, cbor.encodeToHexString(obj))
+                assertEquals(hex, cbor.encodeToHexString(struct))
+                assertEquals(struct, cbor.decodeFromHexString<CborElement>(hex))
+                assertEquals(obj, cbor.decodeFromCbor(struct))
+                assertEquals(obj, cbor.decodeFromHexString(hex))
+            }
+
+
+        Triple(
+            Cbor {
+                encodeValueTags = true
+                encodeKeyTags = true
+                verifyKeyTags = true
+                verifyObjectTags = true
+                verifyValueTags = true
+            },
+            MixedBag(
+                str = "A string, is a string, is a string",
+                bStr = null,
+                cborElement = CborMap(mapOf(CborByteString(byteArrayOf(1, 3, 3, 7)) to CborNull())),
+                cborPositiveInt = CborPositiveInt(1u),
+                cborInt = CborInt(-1),
+                tagged = 26
+            ),
+            "bf6373747278224120737472696e672c206973206120737472696e672c206973206120737472696e676462537472f66b63626f72456c656d656e74bf4401030307f6ff6f63626f72506f736974697665496e74016763626f72496e7420d82a66746167676564d90921181aff"
+        )
+            .let { (cbor, obj, hex) ->
+                val struct = cbor.encodeToCbor(obj)
+                assertEquals(hex, cbor.encodeToHexString(obj))
+                assertEquals(hex, cbor.encodeToHexString(struct))
+                assertEquals(struct, cbor.decodeFromHexString<CborElement>(hex))
+                assertEquals(obj, cbor.decodeFromCbor(struct))
+                assertEquals(obj, cbor.decodeFromHexString(hex))
+            }
+
+
+
+        Triple(
+            Cbor {
+                encodeValueTags = true
+                encodeKeyTags = true
+                verifyKeyTags = true
+                verifyObjectTags = true
+                verifyValueTags = true
+            },
+            MixedBag(
+                str = "A string, is a string, is a string",
+                bStr = null,
+                cborElement = CborNull(),
+                cborPositiveInt = CborPositiveInt(1u),
+                cborInt = CborInt(-1),
+                tagged = 26
+            ),
+            "bf6373747278224120737472696e672c206973206120737472696e672c206973206120737472696e676462537472f66b63626f72456c656d656e74f66f63626f72506f736974697665496e74016763626f72496e7420d82a66746167676564d90921181aff"
+        )
+            .let { (cbor, obj, hex) ->
+                val struct = cbor.encodeToCbor(obj)
+                assertEquals(hex, cbor.encodeToHexString(obj))
+                assertEquals(hex, cbor.encodeToHexString(struct))
+                assertEquals(struct, cbor.decodeFromHexString<CborElement>(hex))
+                //we have an ambiguity here (null vs. CborNull), so we cannot compare for equality with the object
+                //assertEquals(obj, cbor.decodeFromCbor(struct))
+                //assertEquals(obj, cbor.decodeFromHexString(hex))
+            }
+
+        Triple(
+            Cbor {
+                encodeValueTags = true
+                encodeKeyTags = true
+                verifyKeyTags = true
+                verifyObjectTags = true
+                verifyValueTags = true
+            },
+            MixedBag(
+                str = "A string, is a string, is a string",
+                bStr = CborByteString(byteArrayOf(), 1u, 3u),
+                cborElement = CborBoolean(false),
+                cborPositiveInt = CborPositiveInt(1u),
+                cborInt = CborInt(-1),
+                tagged = 26
+            ),
+            "bf6373747278224120737472696e672c206973206120737472696e672c206973206120737472696e676462537472c1c3406b63626f72456c656d656e74f46f63626f72506f736974697665496e74016763626f72496e7420d82a66746167676564d90921181aff"
+        )
+            .let { (cbor, obj, hex) ->
+                val struct = cbor.encodeToCbor(obj)
+                assertEquals(hex, cbor.encodeToHexString(obj))
+                assertEquals(hex, cbor.encodeToHexString(struct))
+                assertEquals(struct, cbor.decodeFromHexString<CborElement>(hex))
+                assertEquals(obj, cbor.decodeFromCbor(struct))
+                assertEquals(obj, cbor.decodeFromHexString(hex))
+            }
+
+        Triple(
+            Cbor {
+                encodeValueTags = false
+                encodeKeyTags = true
+                verifyKeyTags = true
+                verifyObjectTags = true
+                verifyValueTags = false
+            },
+            MixedBag(
+                str = "A string, is a string, is a string",
+                bStr = CborByteString(byteArrayOf(), 1u, 3u),
+                cborElement = CborBoolean(false),
+                cborPositiveInt = CborPositiveInt(1u),
+                cborInt = CborInt(-1),
+                tagged = 26
+            ),
+            "bf6373747278224120737472696e672c206973206120737472696e672c206973206120737472696e676462537472c1c3406b63626f72456c656d656e74f46f63626f72506f736974697665496e74016763626f72496e7420d82a66746167676564181aff"
+        )
+            .let { (cbor, obj, hex) ->
+                val struct = cbor.encodeToCbor(obj)
+                assertEquals(hex, cbor.encodeToHexString(obj))
+                assertEquals(hex, cbor.encodeToHexString(struct))
+                assertEquals(struct, cbor.decodeFromHexString<CborElement>(hex))
+                assertEquals(obj, cbor.decodeFromCbor(struct))
+                assertEquals(obj, cbor.decodeFromHexString(hex))
+            }
+
+        Triple(
+            Cbor {
+                encodeValueTags = true
+                encodeKeyTags = true
+                verifyKeyTags = true
+                verifyObjectTags = true
+                verifyValueTags = true
+            },
+            MixedTag(
+                cborElement = CborBoolean(false),
+            ),
+            "bfd82a6b63626f72456c656d656e74d90921f4ff"
+        )
+            .let { (cbor, obj, hex) ->
+                val struct = cbor.encodeToCbor(obj)
+                assertEquals(hex, cbor.encodeToHexString(obj))
+                assertEquals(hex, cbor.encodeToHexString(struct))
+                assertEquals(struct, cbor.decodeFromHexString<CborElement>(hex))
+                // this is ambiguous. the cborBoolean has a tag attached in the struct, coming from the valueTag (as intended),
+                // so now the resulting object won't have a tag but the cborElement property will have a tag attached
+                // hence, the following two will have:
+                //      Expected :MixedTag(cborElement=CborPrimitive(kind=Boolean, tags=, value=false))
+                //      Actual   :MixedTag(cborElement=CborPrimitive(kind=Boolean, tags=2337, value=false))
+                assertNotEquals(obj, cbor.decodeFromCbor(struct))
+                assertNotEquals(obj, cbor.decodeFromHexString(hex))
+            }
+        Triple(
+            Cbor {
+                encodeValueTags = true
+                encodeKeyTags = true
+                verifyKeyTags = true
+                verifyObjectTags = true
+                verifyValueTags = true
+            },
+            MixedTag(
+                cborElement = CborBoolean(false, 90u),
+            ),
+            //valueTags first, then CborElement tags
+            "bfd82a6b63626f72456c656d656e74d90921d85af4ff"
+        )
+            .let { (cbor, obj, hex) ->
+                val struct = cbor.encodeToCbor(obj)
+                assertEquals(hex, cbor.encodeToHexString(obj))
+                assertEquals(hex, cbor.encodeToHexString(struct))
+                assertEquals(struct, cbor.decodeFromHexString<CborElement>(hex))
+                // this is ambiguous. the cborBoolean has a tag attached in the struct, coming from the valueTag (as intended),
+                // so now the resulting object won't have a tag but the cborElement property will have a tag attached
+                // hence, the following two will have:
+                //      Expected :MixedTag(cborElement=CborPrimitive(kind=Boolean, tags=90, value=false))
+                //      Actual   :MixedTag(cborElement=CborPrimitive(kind=Boolean, tags=2337, 90, value=false))
+                //of course, the value tag verification will also fail hard
+                assertFailsWith(
+                    CborDecodingException::class,
+                    "CBOR tags [2337, 90] do not match expected tags [2337]"
+                ) {
+                    assertNotEquals(obj, cbor.decodeFromCbor(struct))
+                }
+                assertFailsWith(
+                    CborDecodingException::class,
+                    "CBOR tags [2337, 90] do not match expected tags [2337]"
+                ) {
+                    assertNotEquals(obj, cbor.decodeFromHexString(hex))
+                }
+            }
+
+        Triple(
+            Cbor {
+                encodeValueTags = true
+                encodeKeyTags = true
+                verifyKeyTags = true
+                verifyObjectTags = true
+                verifyValueTags = false
+            },
+            MixedTag(
+                cborElement = CborBoolean(false, 90u),
+            ),
+            //valueTags first, then CborElement tags
+            "bfd82a6b63626f72456c656d656e74d90921d85af4ff"
+        )
+            .let { (cbor, obj, hex) ->
+                val struct = cbor.encodeToCbor(obj)
+                assertEquals(hex, cbor.encodeToHexString(obj))
+                assertEquals(hex, cbor.encodeToHexString(struct))
+                assertEquals(struct, cbor.decodeFromHexString<CborElement>(hex))
+                // this is ambiguous. the cborBoolean has a tag attached in the struct, coming from the valueTag (as intended),
+                // so now the resulting object won't have a tag but the cborElement property will have a tag attached
+                // hence, the following two will have:
+                //      Expected :MixedTag(cborElement=CborPrimitive(kind=Boolean, tags=90, value=false))
+                //      Actual   :MixedTag(cborElement=CborPrimitive(kind=Boolean, tags=2337, 90, value=false))
+                assertNotEquals(obj, cbor.decodeFromCbor(struct))
+                assertNotEquals(obj, cbor.decodeFromHexString(hex))
+            }
+
+
+        Triple(
+            Cbor {
+                encodeValueTags = false
+                encodeKeyTags = true
+                verifyKeyTags = true
+                verifyObjectTags = true
+                verifyValueTags = false
+            },
+            MixedTag(
+                cborElement = CborBoolean(false, 90u),
+            ),
+            "bfd82a6b63626f72456c656d656e74d85af4ff"
+        )
+            .let { (cbor, obj, hex) ->
+                val struct = cbor.encodeToCbor(obj)
+                assertEquals(hex, cbor.encodeToHexString(obj))
+                assertEquals(hex, cbor.encodeToHexString(struct))
+                assertEquals(struct, cbor.decodeFromHexString<CborElement>(hex))
+                //no value tags means everything's fine again
+                assertEquals(obj, cbor.decodeFromCbor(struct))
+                assertEquals(obj, cbor.decodeFromHexString(hex))
+            }
+    }
 
 }
+
+@Serializable
+data class MixedBag(
+    val str: String,
+    val bStr: CborByteString?,
+    val cborElement: CborElement?,
+    val cborPositiveInt: CborPrimitive<*>,
+    val cborInt: CborInt<*>,
+    @KeyTags(42u)
+    @ValueTags(2337u)
+    val tagged: Int
+)
+
+
+@Serializable
+data class MixedTag(
+    @KeyTags(42u)
+    @ValueTags(2337u)
+    val cborElement: CborElement?,
+)

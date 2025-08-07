@@ -6,6 +6,7 @@
 package kotlinx.serialization.cbor.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.cbor.CborList
 
 /**
  * Common interface for CBOR parsers that can read CBOR data from different sources.
@@ -38,4 +39,6 @@ internal sealed interface CborParserInterface {
     
     // Tag verification
     fun verifyTagsAndThrow(expected: ULongArray, actual: ULongArray?)
+
+    fun processTags(tags: ULongArray?): ULongArray?
 }

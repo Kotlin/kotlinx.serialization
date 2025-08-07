@@ -18,12 +18,20 @@ class CborPolymorphismTest {
 
     @Test
     fun testSealedWithOneSubclass() {
+        val original = A.B("bbb")
+        val hexResultToCheck =
+            "9f78336b6f746c696e782e73657269616c697a6174696f6e2e63626f722e43626f72506f6c796d6f72706869736d546573742e412e42bf616263626262ffff"
         assertSerializedToBinaryAndRestored(
-            A.B("bbb"),
+            original,
             A.serializer(),
             cbor,
-            hexResultToCheck = "9f78336b6f746c696e782e73657269616c697a6174696f6e2e63626f722e43626f72506f6c796d6f72706869736d546573742e412e42bf616263626262ffff"
+            hexResultToCheck = hexResultToCheck
         )
+
+        val struct = cbor.encodeToCbor(A.serializer(), original)
+        assertEquals(struct, cbor.decodeFromHexString(CborElement.serializer(), hexResultToCheck))
+        assertEquals(hexResultToCheck, cbor.encodeToHexString(struct))
+        assertEquals(original, cbor.decodeFromCbor(A.serializer(), struct))
     }
 
     @Test
@@ -35,6 +43,9 @@ class CborPolymorphismTest {
             )
         )
         assertSerializedToBinaryAndRestored(obj, SealedBox.serializer(), cbor)
+
+        val struct = cbor.encodeToCbor(SealedBox.serializer(), obj)
+        assertEquals(obj, cbor.decodeFromCbor(SealedBox.serializer(), struct))
     }
 
     @Test
@@ -46,5 +57,9 @@ class CborPolymorphismTest {
             )
         )
         assertSerializedToBinaryAndRestored(obj, PolyBox.serializer(), cbor)
+
+
+        val struct = cbor.encodeToCbor(PolyBox.serializer(), obj)
+        assertEquals(obj, cbor.decodeFromCbor(PolyBox.serializer(), struct))
     }
 }

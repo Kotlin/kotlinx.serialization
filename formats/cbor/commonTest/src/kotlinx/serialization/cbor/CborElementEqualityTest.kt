@@ -13,7 +13,7 @@ class CborElementEqualityTest {
         val int1 = CborPositiveInt(42u)
         val int2 = CborPositiveInt(42u)
         val int3 = CborPositiveInt(43u)
-        val int4 = CborPositiveInt(42u, ulongArrayOf(1u))
+        val int4 = CborPositiveInt(42u, 1u)
 
         // Same values should be equal
         assertEquals(int1, int2)
@@ -38,7 +38,7 @@ class CborElementEqualityTest {
         val int1 = CborNegativeInt(-42)
         val int2 = CborNegativeInt(-42)
         val int3 = CborNegativeInt(-43)
-        val int4 = CborNegativeInt(-42, ulongArrayOf(1u))
+        val int4 = CborNegativeInt(-42, 1u)
 
         assertEquals(int1, int2)
         assertEquals(int1.hashCode(), int2.hashCode())
@@ -54,7 +54,7 @@ class CborElementEqualityTest {
         val double1 = CborDouble(3.14)
         val double2 = CborDouble(3.14)
         val double3 = CborDouble(2.71)
-        val double4 = CborDouble(3.14, ulongArrayOf(1u))
+        val double4 = CborDouble(3.14, 1u)
 
         assertEquals(double1, double2)
         assertEquals(double1.hashCode(), double2.hashCode())
@@ -70,7 +70,7 @@ class CborElementEqualityTest {
         val string1 = CborString("hello")
         val string2 = CborString("hello")
         val string3 = CborString("world")
-        val string4 = CborString("hello", ulongArrayOf(1u))
+        val string4 = CborString("hello", 1u)
 
         assertEquals(string1, string2)
         assertEquals(string1.hashCode(), string2.hashCode())
@@ -86,7 +86,7 @@ class CborElementEqualityTest {
         val bool1 = CborBoolean(true)
         val bool2 = CborBoolean(true)
         val bool3 = CborBoolean(false)
-        val bool4 = CborBoolean(true, ulongArrayOf(1u))
+        val bool4 = CborBoolean(true, 1u)
 
         assertEquals(bool1, bool2)
         assertEquals(bool1.hashCode(), bool2.hashCode())
@@ -106,7 +106,7 @@ class CborElementEqualityTest {
         val byteString1 = CborByteString(bytes1)
         val byteString2 = CborByteString(bytes2)
         val byteString3 = CborByteString(bytes3)
-        val byteString4 = CborByteString(bytes1, ulongArrayOf(1u))
+        val byteString4 = CborByteString(bytes1, 1u)
 
         assertEquals(byteString1, byteString2)
         assertEquals(byteString1.hashCode(), byteString2.hashCode())
@@ -121,7 +121,7 @@ class CborElementEqualityTest {
     fun testCborNullEquality() {
         val null1 = CborNull()
         val null2 = CborNull()
-        val null3 = CborNull(ulongArrayOf(1u))
+        val null3 = CborNull(1u)
 
         assertEquals(null1, null2)
         assertEquals(null1.hashCode(), null2.hashCode())
@@ -136,7 +136,7 @@ class CborElementEqualityTest {
         val list1 = CborList(listOf(CborPositiveInt(1u), CborString("test")))
         val list2 = CborList(listOf(CborPositiveInt(1u), CborString("test")))
         val list3 = CborList(listOf(CborPositiveInt(2u), CborString("test")))
-        val list4 = CborList(listOf(CborPositiveInt(1u), CborString("test")), ulongArrayOf(1u))
+        val list4 = CborList(listOf(CborPositiveInt(1u), CborString("test")), 1u)
         val list5 = CborList(listOf(CborPositiveInt(1u)))
 
         assertEquals(list1, list2)
@@ -151,25 +151,35 @@ class CborElementEqualityTest {
 
     @Test
     fun testCborMapEquality() {
-        val map1 = CborMap(mapOf(
-            CborString("key1") to CborPositiveInt(1u),
-            CborString("key2") to CborString("value")
-        ))
-        val map2 = CborMap(mapOf(
-            CborString("key1") to CborPositiveInt(1u),
-            CborString("key2") to CborString("value")
-        ))
-        val map3 = CborMap(mapOf(
-            CborString("key1") to CborPositiveInt(2u),
-            CborString("key2") to CborString("value")
-        ))
-        val map4 = CborMap(mapOf(
-            CborString("key1") to CborPositiveInt(1u),
-            CborString("key2") to CborString("value")
-        ), ulongArrayOf(1u))
-        val map5 = CborMap(mapOf(
-            CborString("key1") to CborPositiveInt(1u)
-        ))
+        val map1 = CborMap(
+            mapOf(
+                CborString("key1") to CborPositiveInt(1u),
+                CborString("key2") to CborString("value")
+            )
+        )
+        val map2 = CborMap(
+            mapOf(
+                CborString("key1") to CborPositiveInt(1u),
+                CborString("key2") to CborString("value")
+            )
+        )
+        val map3 = CborMap(
+            mapOf(
+                CborString("key1") to CborPositiveInt(2u),
+                CborString("key2") to CborString("value")
+            )
+        )
+        val map4 = CborMap(
+            mapOf(
+                CborString("key1") to CborPositiveInt(1u),
+                CborString("key2") to CborString("value")
+            ), 1u
+        )
+        val map5 = CborMap(
+            mapOf(
+                CborString("key1") to CborPositiveInt(1u)
+            )
+        )
 
         assertEquals(map1, map2)
         assertEquals(map1.hashCode(), map2.hashCode())
@@ -187,9 +197,9 @@ class CborElementEqualityTest {
         val tags2 = ulongArrayOf(1u, 2u, 3u)
         val tags3 = ulongArrayOf(1u, 2u, 4u)
 
-        val string1 = CborString("test", tags1)
-        val string2 = CborString("test", tags2)
-        val string3 = CborString("test", tags3)
+        val string1 = CborString("test", tags = tags1)
+        val string2 = CborString("test", tags = tags2)
+        val string3 = CborString("test", tags = tags3)
 
         assertEquals(string1, string2)
         assertEquals(string1.hashCode(), string2.hashCode())
@@ -213,24 +223,36 @@ class CborElementEqualityTest {
 
     @Test
     fun testNestedStructureEquality() {
-        val nested1 = CborMap(mapOf(
-            CborString("list") to CborList(listOf(
-                CborPositiveInt(1u),
-                CborMap(mapOf(CborString("inner") to CborNull()))
-            ))
-        ))
-        val nested2 = CborMap(mapOf(
-            CborString("list") to CborList(listOf(
-                CborPositiveInt(1u),
-                CborMap(mapOf(CborString("inner") to CborNull()))
-            ))
-        ))
-        val nested3 = CborMap(mapOf(
-            CborString("list") to CborList(listOf(
-                CborPositiveInt(2u),
-                CborMap(mapOf(CborString("inner") to CborNull()))
-            ))
-        ))
+        val nested1 = CborMap(
+            mapOf(
+                CborString("list") to CborList(
+                    listOf(
+                        CborPositiveInt(1u),
+                        CborMap(mapOf(CborString("inner") to CborNull()))
+                    )
+                )
+            )
+        )
+        val nested2 = CborMap(
+            mapOf(
+                CborString("list") to CborList(
+                    listOf(
+                        CborPositiveInt(1u),
+                        CborMap(mapOf(CborString("inner") to CborNull()))
+                    )
+                )
+            )
+        )
+        val nested3 = CborMap(
+            mapOf(
+                CborString("list") to CborList(
+                    listOf(
+                        CborPositiveInt(2u),
+                        CborMap(mapOf(CborString("inner") to CborNull()))
+                    )
+                )
+            )
+        )
 
         assertEquals(nested1, nested2)
         assertEquals(nested1.hashCode(), nested2.hashCode())
@@ -268,7 +290,13 @@ class CborElementEqualityTest {
             CborByteString(byteArrayOf(1, 2, 3)) to CborByteString(byteArrayOf(1, 2, 3)),
             CborNull() to CborNull(),
             CborList(listOf(CborPositiveInt(1u))) to CborList(listOf(CborPositiveInt(1u))),
-            CborMap(mapOf(CborString("key") to CborPositiveInt(1u))) to CborMap(mapOf(CborString("key") to CborPositiveInt(1u)))
+            CborMap(mapOf(CborString("key") to CborPositiveInt(1u))) to CborMap(
+                mapOf(
+                    CborString("key") to CborPositiveInt(
+                        1u
+                    )
+                )
+            )
         )
 
         pairs.forEach { (a, b) ->
