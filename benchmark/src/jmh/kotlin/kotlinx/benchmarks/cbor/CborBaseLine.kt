@@ -52,11 +52,25 @@ open class CborBaseline {
             }
 
         val baseBytes = cbor.encodeToByteArray(KTestOuterMessage.serializer(), baseMessage)
+        val baseStruct = cbor.encodeToCbor(KTestOuterMessage.serializer(), baseMessage)
 
         @Benchmark
         fun toBytes() = cbor.encodeToByteArray(KTestOuterMessage.serializer(), baseMessage)
 
         @Benchmark
         fun fromBytes() = cbor.decodeFromByteArray(KTestOuterMessage.serializer(), baseBytes)
+
+
+        @Benchmark
+        fun structToBytes() = cbor.encodeToByteArray(CborElement.serializer(), baseStruct)
+
+        @Benchmark
+        fun structFromBytes() = cbor.decodeFromByteArray(CborElement.serializer(), baseBytes)
+
+        @Benchmark
+        fun fromStruct() = cbor.decodeFromCbor(KTestOuterMessage.serializer(), baseStruct)
+
+        @Benchmark
+        fun toStruct() = cbor.encodeToCbor(KTestOuterMessage.serializer(), baseMessage)
 
     }

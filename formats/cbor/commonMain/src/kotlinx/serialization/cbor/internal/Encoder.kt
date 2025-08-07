@@ -186,13 +186,14 @@ internal class IndefiniteLengthCborWriter(cbor: Cbor, private val output: ByteAr
 }
 
 // optimized indefinite length encoder
-internal class StructuredCborWriter(cbor: Cbor) : CborWriter(
-    cbor
-) {
+internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
 
-    sealed class CborContainer(tags: ULongArray, elements: MutableList<CborElement>) {
-        var elements = elements
-            private set
+    /**
+     * Tags and values are "written", i.e. recorded/prepared for encoding separately. Hence, we need a helper that allows
+     * for setting tags and values independently, and then merging them into the final [CborElement] at the end.
+     */
+    internal sealed class CborContainer(tags: ULongArray, elements: MutableList<CborElement>) {
+        protected val elements = elements
 
         var tags = tags
             internal set
@@ -207,7 +208,7 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(
 
         class Primitive(tags: ULongArray) : CborContainer(tags, elements = mutableListOf()) {
             override fun add(element: CborElement): Boolean {
-                require(elements.isEmpty()) {"Implementation error. Please report a bug."}
+                require(elements.isEmpty()) { "Implementation error. Please report a bug." }
                 return elements.add(element)
             }
         }
@@ -225,6 +226,11 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(
 
         }
     }
+
+    private operator fun CborContainer?.plusAssign(element: CborElement) {
+        this!!.add(element)
+    }
+
 
     private val stack = ArrayDeque<CborContainer>()
     private var currentElement: CborContainer? = null
@@ -252,14 +258,14 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(
         val finalized = currentElement!!.finalize()
         if (stack.isNotEmpty()) {
             currentElement = stack.removeLast()
-            currentElement!!.add(finalized)
+            currentElement += finalized
         }
     }
 
     override fun getDestination() = throw IllegalStateException("There is not byteArrayOutput")
 
-
-    override fun incrementChildren() {/*NOOP*/
+    override fun incrementChildren() {
+        /*NOOP*/
     }
 
 
@@ -276,11 +282,9 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(
                 //indices are put into the name field. we don't want to write those, as it would result in double writes
                 val cborLabel = descriptor.getCborLabel(index)
                 if (cbor.configuration.preferCborLabelsOverNames && cborLabel != null) {
-                    currentElement!!.add(
-                        CborInt.invoke(value = cborLabel, tags = keyTags ?: ulongArrayOf())
-                    )
+                    currentElement += CborInt(value = cborLabel, tags = keyTags ?: ulongArrayOf())
                 } else {
-                    currentElement!!.add(CborString(name, keyTags ?: ulongArrayOf()))
+                    currentElement += CborString(name, keyTags ?: ulongArrayOf())
                 }
             }
         }
@@ -295,51 +299,51 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(
 
 
     override fun encodeBoolean(value: Boolean) {
-        currentElement!!.add(CborBoolean(value))
+        currentElement += CborBoolean(value)
     }
 
     override fun encodeByte(value: Byte) {
-        currentElement!!.add(CborInt(value.toLong()))
+        currentElement += CborInt(value.toLong())
     }
 
     override fun encodeChar(value: Char) {
-        currentElement!!.add(CborInt(value.code.toLong()))
+        currentElement += CborInt(value.code.toLong())
     }
 
     override fun encodeDouble(value: Double) {
-        currentElement!!.add(CborDouble(value))
+        currentElement += CborDouble(value)
     }
 
     override fun encodeFloat(value: Float) {
-        currentElement!!.add(CborDouble(value.toDouble()))
+        currentElement += CborDouble(value.toDouble())
     }
 
     override fun encodeInt(value: Int) {
-        currentElement!!.add(CborInt(value.toLong()))
+        currentElement += CborInt(value.toLong())
     }
 
     override fun encodeLong(value: Long) {
-        currentElement!!.add(CborInt(value))
+        currentElement += CborInt(value)
     }
 
     override fun encodeShort(value: Short) {
-        currentElement!!.add(CborInt(value.toLong()))
+        currentElement += CborInt(value.toLong())
     }
 
     override fun encodeString(value: String) {
-        currentElement!!.add(CborString(value))
+        currentElement += CborString(value)
     }
 
     override fun encodeByteString(byteArray: ByteArray) {
-        currentElement!!.add(CborByteString(byteArray))
+        currentElement += CborByteString(byteArray)
     }
 
     override fun encodeNull() {
-        currentElement!!.add(CborNull())
+        currentElement += CborNull()
     }
 
     override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) {
-        currentElement!!.add(CborString(enumDescriptor.getElementName(index)))
+        currentElement += CborString(enumDescriptor.getElementName(index))
     }
 
 }
