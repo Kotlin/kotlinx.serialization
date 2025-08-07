@@ -36,7 +36,7 @@ public interface CborDecoder : Decoder {
      * Decodes the next element in the current input as [CborElement].
      * The type of the decoded element depends on the current state of the input and, when received
      * by [serializer][KSerializer] in its [KSerializer.serialize] method, the type of the token directly matches
-     * the [kind][SerialDescriptor.kind].
+     * the [kind][kotlinx.serialization.descriptors.SerialDescriptor.kind].
      *
      * This method is allowed to invoke only as the part of the whole deserialization process of the class,
      * calling this method after invoking [beginStructure] or any `decode*` method will lead to unspecified behaviour.
