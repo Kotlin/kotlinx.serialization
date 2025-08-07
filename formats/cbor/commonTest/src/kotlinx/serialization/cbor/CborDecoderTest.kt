@@ -40,9 +40,10 @@ class CborDecoderTest {
             HexConverter.parseHexBinary("cafe"),
             HexConverter.parseHexBinary("cafe")
         )
-        // with maps, lists & strings of indefinite length
+        // with maps, lists & strings of indefinite length (note: this test vector did not correspond to proper encoding before, but decoded fine)
+        // this collapsing bytes wrapped in a bytes string into a byte string could be an indicator of a buggy (as in: too lenient) decoder.
         val hex =
-            "bf637374726d48656c6c6f2c20776f726c64216169182a686e756c6c61626c65f6646c6973749f61616162ff636d6170bf01f502f4ff65696e6e6572bf6161636c6f6cff6a696e6e6572734c6973749fbf6161636b656bffff6a62797465537472696e675f42cafeff696279746541727261799f383521ffff"
+            "bf637374726d48656c6c6f2c20776f726c64216169182a686e756c6c61626c65f6646c6973749f61616162ff636d6170bf01f502f4ff65696e6e6572bf6161636c6f6cff6a696e6e6572734c6973749fbf6161636b656bffff6a62797465537472696e6742cafe696279746541727261799f383521ffff"
         assertEquals(
             test, Cbor.decodeFromHexString(
                 TypesUmbrella.serializer(),
@@ -54,9 +55,7 @@ class CborDecoderTest {
         assertEquals(Cbor.encodeToCbor(test), struct)
         assertEquals(test, Cbor.decodeFromCbor(TypesUmbrella.serializer(), struct))
 
-
         assertEquals(hex, Cbor.encodeToHexString(TypesUmbrella.serializer(), test))
-
         assertEquals(hex, Cbor.encodeToHexString(CborElement.serializer(), struct))
 
 
