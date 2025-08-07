@@ -11,11 +11,13 @@ import kotlinx.serialization.cbor.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 
+internal interface CborSerializer
+
 /**
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [CborElement].
  * It can only be used by with [Cbor] format and its input ([CborDecoder] and [CborEncoder]).
  */
-internal object CborElementSerializer : KSerializer<CborElement> {
+internal object CborElementSerializer : KSerializer<CborElement>, CborSerializer {
     override val descriptor: SerialDescriptor =
         buildSerialDescriptor("kotlinx.serialization.cbor.CborElement", PolymorphicKind.SEALED) {
             // Resolve cyclic dependency in descriptors by late binding
@@ -27,8 +29,8 @@ internal object CborElementSerializer : KSerializer<CborElement> {
             element("CborMap", defer { CborMapSerializer.descriptor })
             element("CborList", defer { CborListSerializer.descriptor })
             element("CborDouble", defer { CborDoubleSerializer.descriptor })
-            element("CborInt", defer { CborIntSerializer.descriptor })
-            element("CborUInt", defer { CborUIntSerializer.descriptor })
+            element("CborInt", defer { CborNegativeIntSerializer.descriptor })
+            element("CborUInt", defer { CborPositiveIntSerializer.descriptor })
         }
 
     override fun serialize(encoder: Encoder, value: CborElement) {
@@ -52,23 +54,19 @@ internal object CborElementSerializer : KSerializer<CborElement> {
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [CborPrimitive].
  * It can only be used by with [Cbor] format an its input ([CborDecoder] and [CborEncoder]).
  */
-internal object CborPrimitiveSerializer : KSerializer<CborPrimitive<*>> {
+internal object CborPrimitiveSerializer : KSerializer<CborPrimitive<*>>, CborSerializer {
     override val descriptor: SerialDescriptor =
-        buildSerialDescriptor("kotlinx.serialization.cbor.CborPrimitive", PrimitiveKind.STRING)
+        buildSerialDescriptor("kotlinx.serialization.cbor.CborPrimitive", PolymorphicKind.SEALED)
 
     override fun serialize(encoder: Encoder, value: CborPrimitive<*>) {
-        val cborEncoder = encoder.asCborEncoder()
-
-        cborEncoder.encodeTags(value)
-
         when (value) {
             is CborNull -> encoder.encodeSerializableValue(CborNullSerializer, value)
             is CborString -> encoder.encodeSerializableValue(CborStringSerializer, value)
             is CborBoolean -> encoder.encodeSerializableValue(CborBooleanSerializer, value)
             is CborByteString -> encoder.encodeSerializableValue(CborByteStringSerializer, value)
             is CborDouble -> encoder.encodeSerializableValue(CborDoubleSerializer, value)
-            is CborNegativeInt -> encoder.encodeSerializableValue(CborIntSerializer, value)
-            is CborPositiveInt -> encoder.encodeSerializableValue(CborUIntSerializer, value)
+            is CborNegativeInt -> encoder.encodeSerializableValue(CborNegativeIntSerializer, value)
+            is CborPositiveInt -> encoder.encodeSerializableValue(CborPositiveIntSerializer, value)
         }
     }
 
@@ -83,13 +81,14 @@ internal object CborPrimitiveSerializer : KSerializer<CborPrimitive<*>> {
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [CborNull].
  * It can only be used by with [Cbor] format an its input ([CborDecoder] and [CborEncoder]).
  */
-internal object CborNullSerializer : KSerializer<CborNull> {
+internal object CborNullSerializer : KSerializer<CborNull>, CborSerializer {
 
     override val descriptor: SerialDescriptor =
         buildSerialDescriptor("kotlinx.serialization.cbor.CborNull", SerialKind.ENUM)
 
     override fun serialize(encoder: Encoder, value: CborNull) {
-        encoder.asCborEncoder().encodeTags(value)
+        val cborEncoder = encoder.asCborEncoder()
+        cborEncoder.encodeTags(value)
         encoder.encodeNull()
     }
 
@@ -98,16 +97,38 @@ internal object CborNullSerializer : KSerializer<CborNull> {
         if (decoder.decodeNotNullMark()) {
             throw CborDecodingException("Expected 'null' literal")
         }
+
         decoder.decodeNull()
         return CborNull()
     }
 }
 
-internal object CborIntSerializer : KSerializer<CborNegativeInt> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlinx.serialization.cbor.CborInt", PrimitiveKind.LONG)
+
+internal object CborIntSerializer : KSerializer<CborInt<*>>, CborSerializer {
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor("kotlinx.serialization.cbor.CborInt", PrimitiveKind.LONG)
+
+    override fun serialize(encoder: Encoder, value: CborInt<*>) {
+        when (value) {
+            is CborNegativeInt -> encoder.encodeSerializableValue(CborNegativeIntSerializer, value)
+            is CborPositiveInt -> encoder.encodeSerializableValue(CborPositiveIntSerializer, value)
+        }
+    }
+
+    override fun deserialize(decoder: Decoder): CborInt<*> {
+        val result = decoder.asCborDecoder().decodeCborElement()
+        if (result !is CborInt<*>) throw CborDecodingException("Unexpected CBOR element, expected CborInt, had ${result::class}")
+        return result
+    }
+}
+
+internal object CborNegativeIntSerializer : KSerializer<CborNegativeInt>, CborSerializer {
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor("kotlinx.serialization.cbor.CborNegativeInt", PrimitiveKind.LONG)
 
     override fun serialize(encoder: Encoder, value: CborNegativeInt) {
-        encoder.asCborEncoder().encodeTags(value)
+        val cborEncoder = encoder.asCborEncoder()
+        cborEncoder.encodeTags(value)
         encoder.encodeLong(value.value)
     }
 
@@ -117,12 +138,14 @@ internal object CborIntSerializer : KSerializer<CborNegativeInt> {
     }
 }
 
-internal object CborUIntSerializer : KSerializer<CborPositiveInt> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("CborUInt", PrimitiveKind.LONG)
+internal object CborPositiveIntSerializer : KSerializer<CborPositiveInt>, CborSerializer {
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor("kotlinx.serialization.cbor.CborPositiveInt", PrimitiveKind.LONG)
 
     override fun serialize(encoder: Encoder, value: CborPositiveInt) {
-        encoder.asCborEncoder().encodeTags(value)
-        encoder.encodeInline(descriptor).encodeSerializableValue(ULong.serializer(), value.value)
+        val cborEncoder = encoder.asCborEncoder()
+        cborEncoder.encodeTags(value)
+        encoder.encodeInline(descriptor).encodeSerializableValue(ULong.serializer(), value.value as ULong)
     }
 
     override fun deserialize(decoder: Decoder): CborPositiveInt {
@@ -131,11 +154,13 @@ internal object CborUIntSerializer : KSerializer<CborPositiveInt> {
     }
 }
 
-internal object CborDoubleSerializer : KSerializer<CborDouble> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlinx.serialization.cbor.CborDouble", PrimitiveKind.DOUBLE)
+internal object CborDoubleSerializer : KSerializer<CborDouble>, CborSerializer {
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor("kotlinx.serialization.cbor.CborDouble", PrimitiveKind.DOUBLE)
 
     override fun serialize(encoder: Encoder, value: CborDouble) {
-        encoder.asCborEncoder().encodeTags(value)
+        val cborEncoder = encoder.asCborEncoder()
+        cborEncoder.encodeTags(value)
         encoder.encodeDouble(value.value)
     }
 
@@ -149,12 +174,13 @@ internal object CborDoubleSerializer : KSerializer<CborDouble> {
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [CborString].
  * It can only be used by with [Cbor] format an its input ([CborDecoder] and [CborEncoder]).
  */
-internal object CborStringSerializer : KSerializer<CborString> {
+internal object CborStringSerializer : KSerializer<CborString>, CborSerializer {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("kotlinx.serialization.cbor.CborString", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: CborString) {
-        encoder.asCborEncoder().encodeTags(value)
+        val cborEncoder = encoder.asCborEncoder()
+        cborEncoder.encodeTags(value)
         encoder.encodeString(value.value)
     }
 
@@ -170,12 +196,13 @@ internal object CborStringSerializer : KSerializer<CborString> {
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [CborBoolean].
  * It can only be used by with [Cbor] format an its input ([CborDecoder] and [CborEncoder]).
  */
-internal object CborBooleanSerializer : KSerializer<CborBoolean> {
+internal object CborBooleanSerializer : KSerializer<CborBoolean>, CborSerializer {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("kotlinx.serialization.cbor.CborBoolean", PrimitiveKind.BOOLEAN)
 
     override fun serialize(encoder: Encoder, value: CborBoolean) {
-        encoder.asCborEncoder().encodeTags(value)
+        val cborEncoder = encoder.asCborEncoder()
+        cborEncoder.encodeTags(value)
         encoder.encodeBoolean(value.value)
     }
 
@@ -191,13 +218,13 @@ internal object CborBooleanSerializer : KSerializer<CborBoolean> {
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [CborByteString].
  * It can only be used by with [Cbor] format and its input ([CborDecoder] and [CborEncoder]).
  */
-internal object CborByteStringSerializer : KSerializer<CborByteString> {
+internal object CborByteStringSerializer : KSerializer<CborByteString>, CborSerializer {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("kotlinx.serialization.cbor.CborByteString", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: CborByteString) {
         val cborEncoder = encoder.asCborEncoder()
-            cborEncoder.encodeTags(value)
+        cborEncoder.encodeTags(value)
         cborEncoder.encodeByteString(value.value)
     }
 
@@ -213,7 +240,7 @@ internal object CborByteStringSerializer : KSerializer<CborByteString> {
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [CborMap].
  * It can only be used by with [Cbor] format and its input ([CborDecoder] and [CborEncoder]).
  */
-internal object CborMapSerializer : KSerializer<CborMap> {
+internal object CborMapSerializer : KSerializer<CborMap>, CborSerializer {
     private object CborMapDescriptor :
         SerialDescriptor by MapSerializer(CborElementSerializer, CborElementSerializer).descriptor {
         @ExperimentalSerializationApi
@@ -238,7 +265,7 @@ internal object CborMapSerializer : KSerializer<CborMap> {
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [CborList].
  * It can only be used by with [Cbor] format an its input ([CborDecoder] and [CborEncoder]).
  */
-internal object CborListSerializer : KSerializer<CborList> {
+internal object CborListSerializer : KSerializer<CborList>, CborSerializer {
     private object CborListDescriptor : SerialDescriptor by ListSerializer(CborElementSerializer).descriptor {
         @ExperimentalSerializationApi
         override val serialName: String = "kotlinx.serialization.cbor.CborList"
@@ -296,9 +323,7 @@ private fun defer(deferred: () -> SerialDescriptor): SerialDescriptor = object :
 
 private fun CborWriter.encodeTags(value: CborElement) { // Encode tags if present
     if (value.tags.isNotEmpty()) {
-        for (tag in value.tags) {
-            encodeTag(tag)
-        }
+       encodeTags(value.tags)
     }
 
 }

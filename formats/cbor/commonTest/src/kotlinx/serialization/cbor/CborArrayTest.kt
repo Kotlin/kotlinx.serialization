@@ -116,6 +116,8 @@ class CborArrayTest {
         assertEquals(reference, cbor.decodeFromHexString(DoubleTaggedClassWithArray.serializer(), referenceHexString))
 
         val struct = cbor.encodeToCbor(DoubleTaggedClassWithArray.serializer(), reference)
+        val structFromHex = cbor.decodeFromHexString(CborElement.serializer(), referenceHexString)
+        assertEquals(structFromHex, struct)
         assertEquals(reference, cbor.decodeFromCbor(DoubleTaggedClassWithArray.serializer(), struct))
         assertEquals(referenceHexString, cbor.encodeToHexString(CborElement.serializer(), struct))
     }

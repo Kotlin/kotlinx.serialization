@@ -89,6 +89,7 @@ public sealed class CborPrimitive<T : Any>(
     }
 }
 
+@Serializable(with = CborIntSerializer::class)
 public sealed class CborInt<T : Any>(
     tags: ULongArray = ulongArrayOf(),
     value: T,
@@ -96,23 +97,24 @@ public sealed class CborInt<T : Any>(
     public companion object {
         public operator fun invoke(
             value: Long,
-            tags: ULongArray = ulongArrayOf()
-        ): CborInt<*> = if (value >= 0) CborPositiveInt(value.toULong(), tags) else CborNegativeInt(value, tags)
+            vararg tags: ULong
+        ): CborInt<*> =
+            if (value >= 0) CborPositiveInt(value.toULong(), tags = tags) else CborNegativeInt(value, tags = tags)
 
         public operator fun invoke(
             value: ULong,
-            tags: ULongArray = ulongArrayOf()
-        ): CborInt<ULong> = CborPositiveInt(value, tags)
+            vararg tags: ULong
+        ): CborInt<ULong> = CborPositiveInt(value, tags = tags)
     }
 }
 
 /**
  * Class representing signed CBOR integer (major type 1).
  */
-@Serializable(with = CborIntSerializer::class)
+@Serializable(with = CborNegativeIntSerializer::class)
 public class CborNegativeInt(
     value: Long,
-    tags: ULongArray = ulongArrayOf()
+    vararg tags: ULong
 ) : CborInt<Long>(tags, value) {
     init {
         require(value < 0) { "Number must be negative: $value" }
@@ -122,10 +124,10 @@ public class CborNegativeInt(
 /**
  * Class representing unsigned CBOR integer (major type 0).
  */
-@Serializable(with = CborUIntSerializer::class)
+@Serializable(with = CborPositiveIntSerializer::class)
 public class CborPositiveInt(
     value: ULong,
-    tags: ULongArray = ulongArrayOf()
+    vararg tags: ULong
 ) : CborInt<ULong>(tags, value)
 
 /**
@@ -134,7 +136,7 @@ public class CborPositiveInt(
 @Serializable(with = CborDoubleSerializer::class)
 public class CborDouble(
     value: Double,
-    tags: ULongArray = ulongArrayOf()
+    vararg tags: ULong
 ) : CborPrimitive<Double>(value, tags)
 
 /**
@@ -143,7 +145,7 @@ public class CborDouble(
 @Serializable(with = CborStringSerializer::class)
 public class CborString(
     value: String,
-    tags: ULongArray = ulongArrayOf()
+    vararg tags: ULong
 ) : CborPrimitive<String>(value, tags)
 
 /**
@@ -152,7 +154,7 @@ public class CborString(
 @Serializable(with = CborBooleanSerializer::class)
 public class CborBoolean(
     value: Boolean,
-    tags: ULongArray = ulongArrayOf()
+    vararg tags: ULong
 ) : CborPrimitive<Boolean>(value, tags)
 
 /**
@@ -161,7 +163,7 @@ public class CborBoolean(
 @Serializable(with = CborByteStringSerializer::class)
 public class CborByteString(
     value: ByteArray,
-    tags: ULongArray = ulongArrayOf()
+    vararg tags: ULong
 ) : CborPrimitive<ByteArray>(value, tags) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -189,7 +191,7 @@ public class CborByteString(
  * Class representing CBOR `null` value
  */
 @Serializable(with = CborNullSerializer::class)
-public class CborNull(tags: ULongArray = ulongArrayOf()) : CborPrimitive<Unit>(Unit, tags)
+public class CborNull(vararg tags: ULong) : CborPrimitive<Unit>(Unit, tags)
 
 /**
  * Class representing CBOR map, consisting of key-value pairs, where both key and value are arbitrary [CborElement]
@@ -200,7 +202,7 @@ public class CborNull(tags: ULongArray = ulongArrayOf()) : CborPrimitive<Unit>(U
 @Serializable(with = CborMapSerializer::class)
 public class CborMap(
     private val content: Map<CborElement, CborElement>,
-    tags: ULongArray = ulongArrayOf()
+    vararg tags: ULong
 ) : CborElement(tags), Map<CborElement, CborElement> by content {
 
     public override fun equals(other: Any?): Boolean =
@@ -226,7 +228,7 @@ public class CborMap(
 @Serializable(with = CborListSerializer::class)
 public class CborList(
     private val content: List<CborElement>,
-    tags: ULongArray = ulongArrayOf()
+    vararg tags: ULong
 ) : CborElement(tags), List<CborElement> by content {
 
     public override fun equals(other: Any?): Boolean =

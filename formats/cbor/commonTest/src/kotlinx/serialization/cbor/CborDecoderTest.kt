@@ -130,18 +130,39 @@ class CborDecoderTest {
     @Test
     fun testIgnoreUnknownKeysFailsWhenCborDataIsMissingKeysThatArePresentInKotlinClass() {
         // with maps & lists of indefinite length
+        val hex =
+            "bf637374726d48656c6c6f2c20776f726c64216169182a686e756c6c61626c65f6646c6973749f61616162ff636d6170bf01f502f4ff65696e6e6572bf6161636c6f6cff6a696e6e6572734c6973749fbf6161636b656bffffff"
+
         assertFailsWithMessage<SerializationException>("Field 'a' is required") {
             ignoreUnknownKeys.decodeFromHexString(
                 Simple.serializer(),
-                "bf637374726d48656c6c6f2c20776f726c64216169182a686e756c6c61626c65f6646c6973749f61616162ff636d6170bf01f502f4ff65696e6e6572bf6161636c6f6cff6a696e6e6572734c6973749fbf6161636b656bffffff"
+                hex
+            )
+        }
+
+        val struct = Cbor.decodeFromHexString<CborElement>(hex)
+        assertFailsWithMessage<SerializationException>("Field 'a' is required") {
+            ignoreUnknownKeys.decodeFromCbor(
+                Simple.serializer(),
+                struct
             )
         }
 
         // with maps & lists of definite length
+        val hexDef =
+            "a7646c6973748261616162686e756c6c61626c65f6636d6170a202f401f56169182a6a696e6e6572734c69737481a16161636b656b637374726d48656c6c6f2c20776f726c642165696e6e6572a16161636c6f6c"
         assertFailsWithMessage<SerializationException>("Field 'a' is required") {
             ignoreUnknownKeys.decodeFromHexString(
                 Simple.serializer(),
-                "a7646c6973748261616162686e756c6c61626c65f6636d6170a202f401f56169182a6a696e6e6572734c69737481a16161636b656b637374726d48656c6c6f2c20776f726c642165696e6e6572a16161636c6f6c"
+                hexDef
+            )
+        }
+
+        val structDef = Cbor.decodeFromHexString<CborElement>(hexDef)
+        assertFailsWithMessage<SerializationException>("Field 'a' is required") {
+            ignoreUnknownKeys.decodeFromCbor(
+                Simple.serializer(),
+                structDef
             )
         }
     }
@@ -160,11 +181,17 @@ class CborDecoderTest {
          *       69676E6F7265 # "ignore"
          * (missing value associated with "ignore" key)
          */
-        assertFailsWithMessage<CborDecodingException>("Unexpected end of encoded CBOR document") {
+        val hex = "a36373747266737472696e676169006669676e6f7265"
+        assertFailsWithMessage<CborDecodingException>("Unexpected EOF while skipping element") {
             ignoreUnknownKeys.decodeFromHexString(
                 TypesUmbrella.serializer(),
-                "a36373747266737472696e676169006669676e6f7265"
+                hex
             )
+        }
+
+
+        assertFailsWithMessage<CborDecodingException>("Unexpected EOF") {
+            Cbor.decodeFromHexString<CborElement>(hex)
         }
 
         /* A3                 # map(3)
@@ -180,11 +207,16 @@ class CborDecoderTest {
          *    A2              # map(2)
          * (missing map contents associated with "ignore" key)
          */
-        assertFailsWithMessage<CborDecodingException>("Unexpected end of encoded CBOR document") {
+        val hex2 = "a36373747266737472696e676169006669676e6f7265a2"
+        assertFailsWithMessage<CborDecodingException>("Unexpected EOF while skipping element") {
             ignoreUnknownKeys.decodeFromHexString(
                 TypesUmbrella.serializer(),
-                "a36373747266737472696e676169006669676e6f7265a2"
+                hex2
             )
+        }
+
+        assertFailsWithMessage<CborDecodingException>("Unexpected EOF") {
+            Cbor.decodeFromHexString<CborElement>(hex2)
         }
     }
 
@@ -199,11 +231,16 @@ class CborDecoderTest {
          *       69676E6F7265 # "ignore"
          *    FF              # primitive(*)
          */
+        val hex = "a36373747266737472696e676669676e6f7265ff"
         assertFailsWithMessage<CborDecodingException>("Expected next data item, but found FF") {
             ignoreUnknownKeys.decodeFromHexString(
                 TypesUmbrella.serializer(),
-                "a36373747266737472696e676669676e6f7265ff"
+                hex
             )
+        }
+
+        assertFailsWithMessage<CborDecodingException>("Invalid simple value or float type: FF") {
+            Cbor.decodeFromHexString<CborElement>(hex)
         }
     }
 
