@@ -69,7 +69,7 @@ internal class CborTreeReader(
                         CborNull(tags = tags)
                     }
                     // Half/Float32/Float64
-                    NEXT_HALF, NEXT_FLOAT, NEXT_DOUBLE -> CborDouble(parser.nextDouble(), tags = tags)
+                    NEXT_HALF, NEXT_FLOAT, NEXT_DOUBLE -> CborFloat(parser.nextDouble(), tags = tags)
                     else -> throw CborDecodingException(
                         "Invalid simple value or float type: ${parser.curByte.toString(16).uppercase()}"
                     )

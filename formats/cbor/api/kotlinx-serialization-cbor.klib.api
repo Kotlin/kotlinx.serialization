@@ -140,11 +140,11 @@ final class kotlinx.serialization.cbor/CborConfiguration { // kotlinx.serializat
     final fun toString(): kotlin/String // kotlinx.serialization.cbor/CborConfiguration.toString|toString(){}[0]
 }
 
-final class kotlinx.serialization.cbor/CborDouble : kotlinx.serialization.cbor/CborPrimitive<kotlin/Double> { // kotlinx.serialization.cbor/CborDouble|null[0]
-    constructor <init>(kotlin/Double, kotlin/ULongArray...) // kotlinx.serialization.cbor/CborDouble.<init>|<init>(kotlin.Double;kotlin.ULongArray...){}[0]
+final class kotlinx.serialization.cbor/CborFloat : kotlinx.serialization.cbor/CborPrimitive<kotlin/Double> { // kotlinx.serialization.cbor/CborFloat|null[0]
+    constructor <init>(kotlin/Double, kotlin/ULongArray...) // kotlinx.serialization.cbor/CborFloat.<init>|<init>(kotlin.Double;kotlin.ULongArray...){}[0]
 
-    final object Companion { // kotlinx.serialization.cbor/CborDouble.Companion|null[0]
-        final fun serializer(): kotlinx.serialization/KSerializer<kotlinx.serialization.cbor/CborDouble> // kotlinx.serialization.cbor/CborDouble.Companion.serializer|serializer(){}[0]
+    final object Companion { // kotlinx.serialization.cbor/CborFloat.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<kotlinx.serialization.cbor/CborFloat> // kotlinx.serialization.cbor/CborFloat.Companion.serializer|serializer(){}[0]
     }
 }
 

@@ -233,11 +233,11 @@ class CborElementTest {
     fun testDecodeFloatingPoint() {
         // Test data from CborParserTest.testParseDoubles
         val doubleElement = cbor.decodeFromHexString<CborElement>("fb7e37e43c8800759c")
-        assertTrue(doubleElement is CborDouble)
+        assertTrue(doubleElement is CborFloat)
         assertEquals(1e+300, doubleElement.value)
 
         val floatElement = cbor.decodeFromHexString<CborElement>("fa47c35000")
-        assertTrue(floatElement is CborDouble)
+        assertTrue(floatElement is CborFloat)
         assertEquals(100000.0f, floatElement.value.toFloat())
     }
 

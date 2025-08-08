@@ -693,7 +693,7 @@ internal class StructuredCborParser(internal val element: CborElement, private v
     override fun nextDouble(tags: ULongArray?): Double {
         processTags(tags)
         return when (layer.current) {
-            is CborDouble -> (layer.current as CborDouble).value
+            is CborFloat -> (layer.current as CborFloat).value
             else -> throw CborDecodingException("Expected double, got ${layer.current::class.simpleName}")
         }
     }

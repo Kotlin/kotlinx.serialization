@@ -331,11 +331,11 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
     }
 
     override fun encodeDouble(value: Double) {
-        currentElement += CborDouble(value, tags = nextValueTags)
+        currentElement += CborFloat(value, tags = nextValueTags)
     }
 
     override fun encodeFloat(value: Float) {
-        currentElement += CborDouble(value.toDouble(), tags = nextValueTags)
+        currentElement += CborFloat(value.toDouble(), tags = nextValueTags)
     }
 
     override fun encodeInt(value: Int) {

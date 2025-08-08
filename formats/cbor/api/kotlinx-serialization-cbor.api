@@ -100,15 +100,6 @@ public final class kotlinx/serialization/cbor/CborDecoder$DefaultImpls {
 	public static fun decodeSerializableValue (Lkotlinx/serialization/cbor/CborDecoder;Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
 }
 
-public final class kotlinx/serialization/cbor/CborDouble : kotlinx/serialization/cbor/CborPrimitive {
-	public static final field Companion Lkotlinx/serialization/cbor/CborDouble$Companion;
-	public synthetic fun <init> (D[JLkotlin/jvm/internal/DefaultConstructorMarker;)V
-}
-
-public final class kotlinx/serialization/cbor/CborDouble$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
 public abstract class kotlinx/serialization/cbor/CborElement {
 	public static final field Companion Lkotlinx/serialization/cbor/CborElement$Companion;
 	public synthetic fun <init> ([JILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -131,6 +122,15 @@ public final class kotlinx/serialization/cbor/CborEncoder$DefaultImpls {
 	public static fun encodeNotNullMark (Lkotlinx/serialization/cbor/CborEncoder;)V
 	public static fun encodeNullableSerializableValue (Lkotlinx/serialization/cbor/CborEncoder;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
 	public static fun encodeSerializableValue (Lkotlinx/serialization/cbor/CborEncoder;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
+}
+
+public final class kotlinx/serialization/cbor/CborFloat : kotlinx/serialization/cbor/CborPrimitive {
+	public static final field Companion Lkotlinx/serialization/cbor/CborFloat$Companion;
+	public synthetic fun <init> (D[JLkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class kotlinx/serialization/cbor/CborFloat$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
 public abstract class kotlinx/serialization/cbor/CborInt : kotlinx/serialization/cbor/CborPrimitive {
