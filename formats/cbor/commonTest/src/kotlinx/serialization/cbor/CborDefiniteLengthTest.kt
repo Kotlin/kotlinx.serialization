@@ -31,7 +31,7 @@ class CborDefiniteLengthTest {
             Cbor { useDefiniteLengthEncoding = true }.run {
                 encodeToHexString(
                     CborElement.serializer(),
-                    encodeToCbor(TypesUmbrella.serializer(), test)
+                    encodeToCborElement(TypesUmbrella.serializer(), test)
                 )
             }
         )

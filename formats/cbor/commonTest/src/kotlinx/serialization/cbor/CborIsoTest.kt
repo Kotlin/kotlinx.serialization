@@ -28,8 +28,8 @@ class CborIsoTest {
         assertEquals(reference, cbor.decodeFromHexString(DataClass.serializer(), referenceHexString))
         assertEquals(referenceHexString, cbor.encodeToHexString(DataClass.serializer(), reference))
 
-        val struct = cbor.encodeToCbor(DataClass.serializer(), reference)
-        assertEquals(reference, cbor.decodeFromCbor(DataClass.serializer(), struct))
+        val struct = cbor.encodeToCborElement(DataClass.serializer(), reference)
+        assertEquals(reference, cbor.decodeFromCborElement(DataClass.serializer(), struct))
         assertEquals(referenceHexString, cbor.encodeToHexString(CborElement.serializer(), struct))
     }
 

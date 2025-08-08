@@ -1,7 +1,6 @@
 package kotlinx.serialization.cbor
 
 import kotlinx.serialization.*
-import kotlinx.serialization.cbor.CborIsoTest.DataClass
 import kotlin.test.*
 
 
@@ -20,8 +19,8 @@ class CborArrayTest {
         assertEquals(referenceHexString, cbor.encodeToHexString(ClassAs1Array.serializer(), reference))
         assertEquals(reference, cbor.decodeFromHexString(ClassAs1Array.serializer(), referenceHexString))
 
-        val struct = cbor.encodeToCbor(ClassAs1Array.serializer(), reference)
-        assertEquals(reference, cbor.decodeFromCbor(ClassAs1Array.serializer(), struct))
+        val struct = cbor.encodeToCborElement(ClassAs1Array.serializer(), reference)
+        assertEquals(reference, cbor.decodeFromCborElement(ClassAs1Array.serializer(), struct))
         assertEquals(referenceHexString, cbor.encodeToHexString(CborElement.serializer(), struct))
     }
 
@@ -41,8 +40,8 @@ class CborArrayTest {
         assertEquals(referenceHexString, cbor.encodeToHexString(ClassAs2Array.serializer(), reference))
         assertEquals(reference, cbor.decodeFromHexString(ClassAs2Array.serializer(), referenceHexString))
 
-        val struct = cbor.encodeToCbor(ClassAs2Array.serializer(), reference)
-        assertEquals(reference, cbor.decodeFromCbor(ClassAs2Array.serializer(), struct))
+        val struct = cbor.encodeToCborElement(ClassAs2Array.serializer(), reference)
+        assertEquals(reference, cbor.decodeFromCborElement(ClassAs2Array.serializer(), struct))
         assertEquals(referenceHexString, cbor.encodeToHexString(CborElement.serializer(), struct))
     }
 
@@ -64,8 +63,8 @@ class CborArrayTest {
         assertEquals(referenceHexString, cbor.encodeToHexString(ClassAs4ArrayNullable.serializer(), reference))
         assertEquals(reference, cbor.decodeFromHexString(ClassAs4ArrayNullable.serializer(), referenceHexString))
 
-        val struct = cbor.encodeToCbor(ClassAs4ArrayNullable.serializer(), reference)
-        assertEquals(reference, cbor.decodeFromCbor(ClassAs4ArrayNullable.serializer(), struct))
+        val struct = cbor.encodeToCborElement(ClassAs4ArrayNullable.serializer(), reference)
+        assertEquals(reference, cbor.decodeFromCborElement(ClassAs4ArrayNullable.serializer(), struct))
         assertEquals(referenceHexString, cbor.encodeToHexString(CborElement.serializer(), struct))
     }
 
@@ -89,8 +88,8 @@ class CborArrayTest {
         assertEquals(reference, cbor.decodeFromHexString(ClassWithArray.serializer(), referenceHexString))
 
 
-        val struct = cbor.encodeToCbor(ClassWithArray.serializer(), reference)
-        assertEquals(reference, cbor.decodeFromCbor(ClassWithArray.serializer(), struct))
+        val struct = cbor.encodeToCborElement(ClassWithArray.serializer(), reference)
+        assertEquals(reference, cbor.decodeFromCborElement(ClassWithArray.serializer(), struct))
         assertEquals(referenceHexString, cbor.encodeToHexString(CborElement.serializer(), struct))
     }
 
@@ -115,10 +114,10 @@ class CborArrayTest {
         assertEquals(referenceHexString, cbor.encodeToHexString(DoubleTaggedClassWithArray.serializer(), reference))
         assertEquals(reference, cbor.decodeFromHexString(DoubleTaggedClassWithArray.serializer(), referenceHexString))
 
-        val struct = cbor.encodeToCbor(DoubleTaggedClassWithArray.serializer(), reference)
+        val struct = cbor.encodeToCborElement(DoubleTaggedClassWithArray.serializer(), reference)
         val structFromHex = cbor.decodeFromHexString(CborElement.serializer(), referenceHexString)
         assertEquals(structFromHex, struct)
-        assertEquals(reference, cbor.decodeFromCbor(DoubleTaggedClassWithArray.serializer(), struct))
+        assertEquals(reference, cbor.decodeFromCborElement(DoubleTaggedClassWithArray.serializer(), struct))
         assertEquals(referenceHexString, cbor.encodeToHexString(CborElement.serializer(), struct))
     }
 

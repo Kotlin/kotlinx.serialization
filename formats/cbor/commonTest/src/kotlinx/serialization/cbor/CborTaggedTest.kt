@@ -234,9 +234,9 @@ class CborTaggedTest {
         }
         assertEquals(referenceHexString, cbor.encodeToHexString(DataWithTags.serializer(), reference))
         val structFromHex = cbor.decodeFromHexString(CborElement.serializer(), referenceHexString)
-        val struct = cbor.encodeToCbor(DataWithTags.serializer(), reference)
+        val struct = cbor.encodeToCborElement(DataWithTags.serializer(), reference)
         assertEquals(struct, structFromHex)
-        assertEquals(reference, cbor.decodeFromCbor(DataWithTags.serializer(), struct))
+        assertEquals(reference, cbor.decodeFromCborElement(DataWithTags.serializer(), struct))
         assertEquals(referenceHexString, cbor.encodeToHexString(CborElement.serializer(), struct))
 
         val cborDef = Cbor {
@@ -250,17 +250,17 @@ class CborTaggedTest {
         }
         assertEquals(referenceHexStringDefLen, cborDef.encodeToHexString(DataWithTags.serializer(), reference))
         val structDefFromHex = cborDef.decodeFromHexString(CborElement.serializer(), referenceHexStringDefLen)
-        val structDef = cborDef.encodeToCbor(DataWithTags.serializer(), reference)
+        val structDef = cborDef.encodeToCborElement(DataWithTags.serializer(), reference)
         assertEquals(structDef, structDefFromHex)
-        assertEquals(reference, cborDef.decodeFromCbor(DataWithTags.serializer(), structDef))
+        assertEquals(reference, cborDef.decodeFromCborElement(DataWithTags.serializer(), structDef))
         assertEquals(referenceHexStringDefLen, cborDef.encodeToHexString(CborElement.serializer(), structDef))
 
 
         assertEquals(reference, Cbor.CoseCompliant.decodeFromHexString(DataWithTags.serializer(), referenceHexString))
         val structCoseFromHex = Cbor.CoseCompliant.decodeFromHexString(CborElement.serializer(), referenceHexString)
-        val structCose = Cbor.CoseCompliant.encodeToCbor(DataWithTags.serializer(), reference)
+        val structCose = Cbor.CoseCompliant.encodeToCborElement(DataWithTags.serializer(), reference)
         assertEquals(structCose, structCoseFromHex)
-        assertEquals(reference, Cbor.CoseCompliant.decodeFromCbor(DataWithTags.serializer(), structCose))
+        assertEquals(reference, Cbor.CoseCompliant.decodeFromCborElement(DataWithTags.serializer(), structCose))
 
         assertEquals(
             reference,
@@ -268,9 +268,9 @@ class CborTaggedTest {
         )
         val structCoseFromHexDef =
             Cbor.CoseCompliant.decodeFromHexString(CborElement.serializer(), referenceHexStringDefLen)
-        val structCoseDef = Cbor.CoseCompliant.encodeToCbor(DataWithTags.serializer(), reference)
+        val structCoseDef = Cbor.CoseCompliant.encodeToCborElement(DataWithTags.serializer(), reference)
         assertEquals(structCoseDef, structCoseFromHexDef)
-        assertEquals(reference, Cbor.CoseCompliant.decodeFromCbor(DataWithTags.serializer(), structCoseDef))
+        assertEquals(reference, Cbor.CoseCompliant.decodeFromCborElement(DataWithTags.serializer(), structCoseDef))
 
     }
 
@@ -286,9 +286,9 @@ class CborTaggedTest {
         }
         assertEquals(noKeyTags, cborNoKeyTags.encodeToHexString(DataWithTags.serializer(), reference))
         (cborNoKeyTags to noKeyTags).let { (cbor, hex) ->
-            val struct = cbor.encodeToCbor(DataWithTags.serializer(), reference)
+            val struct = cbor.encodeToCborElement(DataWithTags.serializer(), reference)
             assertEquals(struct, cbor.decodeFromHexString(CborElement.serializer(), hex))
-            assertEquals(reference, cbor.decodeFromCbor(DataWithTags.serializer(), struct))
+            assertEquals(reference, cbor.decodeFromCborElement(DataWithTags.serializer(), struct))
         }
 
         val cborNoKeyTagsDefLen = Cbor {
@@ -302,11 +302,11 @@ class CborTaggedTest {
         }
         assertEquals(noKeyTagsDefLen, cborNoKeyTagsDefLen.encodeToHexString(DataWithTags.serializer(), reference))
         (cborNoKeyTagsDefLen to noKeyTagsDefLen).let { (cbor, hex) ->
-            val struct = cbor.encodeToCbor(DataWithTags.serializer(), reference)
+            val struct = cbor.encodeToCborElement(DataWithTags.serializer(), reference)
             assertEquals(struct, cbor.decodeFromHexString(CborElement.serializer(), hex))
             // this must fail, because encoding/decoding is not symmetric with the current config (the struct does not have the tags, but the hex string does)
             assertFailsWith(CborDecodingException::class) {
-                assertEquals(reference, cbor.decodeFromCbor(DataWithTags.serializer(), struct))
+                assertEquals(reference, cbor.decodeFromCborElement(DataWithTags.serializer(), struct))
             }
         }
 
@@ -320,26 +320,26 @@ class CborTaggedTest {
         }
         assertEquals(reference, cborEncodingKeyTags.decodeFromHexString(noKeyTags))
         (cborEncodingKeyTags to noKeyTags).let { (cbor, hex) ->
-            val struct = cbor.encodeToCbor(DataWithTags.serializer(), reference)
+            val struct = cbor.encodeToCborElement(DataWithTags.serializer(), reference)
             // this must not be equal, because the scruct has the tags, but the hex string doesn't
             assertNotEquals(struct, cbor.decodeFromHexString(CborElement.serializer(), hex))
-            assertEquals(reference, cbor.decodeFromCbor(DataWithTags.serializer(), struct))
+            assertEquals(reference, cbor.decodeFromCborElement(DataWithTags.serializer(), struct))
         }
 
         assertEquals(reference, cborEncodingKeyTags.decodeFromHexString(noKeyTagsDefLen))
         (cborEncodingKeyTags to noKeyTagsDefLen).let { (cbor, hex) ->
-            val struct = cbor.encodeToCbor(DataWithTags.serializer(), reference)
+            val struct = cbor.encodeToCborElement(DataWithTags.serializer(), reference)
             // this must not be equals, because the scruct has the tags, but the hex string doesn't (as above)
             assertNotEquals(struct, cbor.decodeFromHexString(CborElement.serializer(), hex))
-            assertEquals(reference, cbor.decodeFromCbor(DataWithTags.serializer(), struct))
+            assertEquals(reference, cbor.decodeFromCborElement(DataWithTags.serializer(), struct))
         }
 
 
         assertEquals(reference, cborEncodingKeyTags.decodeFromHexString(referenceHexString))
         (cborNoKeyTags to noKeyTags).let { (cbor, hex) ->
-            val struct = cbor.encodeToCbor(DataWithTags.serializer(), reference)
+            val struct = cbor.encodeToCborElement(DataWithTags.serializer(), reference)
             assertEquals(struct, cbor.decodeFromHexString(CborElement.serializer(), hex))
-            assertEquals(reference, cbor.decodeFromCbor(DataWithTags.serializer(), struct))
+            assertEquals(reference, cbor.decodeFromCborElement(DataWithTags.serializer(), struct))
         }
 
         assertFailsWith(CborDecodingException::class) {
@@ -368,11 +368,11 @@ class CborTaggedTest {
         }
         assertEquals(noValueTags, cborNoValueTags.encodeToHexString(DataWithTags.serializer(), reference))
         (cborNoValueTags to noValueTags).let { (cbor, hex) ->
-            val struct = cbor.encodeToCbor(DataWithTags.serializer(), reference)
+            val struct = cbor.encodeToCborElement(DataWithTags.serializer(), reference)
             assertEquals(struct, cbor.decodeFromHexString(CborElement.serializer(), hex))
             // no value tags are written to the struct, so this will fail
             assertFailsWith(CborDecodingException::class) {
-                assertEquals(reference, cbor.decodeFromCbor(DataWithTags.serializer(), struct))
+                assertEquals(reference, cbor.decodeFromCborElement(DataWithTags.serializer(), struct))
             }
         }
 
@@ -387,18 +387,18 @@ class CborTaggedTest {
         }
         assertEquals(reference, cborEncodingValueTags.decodeFromHexString(noValueTags))
         (cborEncodingValueTags to noValueTags).let { (cbor, hex) ->
-            val struct = cbor.encodeToCbor(DataWithTags.serializer(), reference)
+            val struct = cbor.encodeToCborElement(DataWithTags.serializer(), reference)
             //hex is missing the tags, struct has them from the serializer
             assertNotEquals(struct, cbor.decodeFromHexString(CborElement.serializer(), hex))
-            assertEquals(reference, cbor.decodeFromCbor(DataWithTags.serializer(), struct))
+            assertEquals(reference, cbor.decodeFromCborElement(DataWithTags.serializer(), struct))
         }
 
 
         assertEquals(reference, cborEncodingValueTags.decodeFromHexString(referenceHexString))
         (cborEncodingValueTags to referenceHexString).let { (cbor, hex) ->
-            val struct = cbor.encodeToCbor(DataWithTags.serializer(), reference)
+            val struct = cbor.encodeToCborElement(DataWithTags.serializer(), reference)
             assertEquals(struct, cbor.decodeFromHexString(CborElement.serializer(), hex))
-            assertEquals(reference, cbor.decodeFromCbor(DataWithTags.serializer(), struct))
+            assertEquals(reference, cbor.decodeFromCborElement(DataWithTags.serializer(), struct))
         }
 
         assertFailsWith(CborDecodingException::class) {
@@ -438,11 +438,11 @@ class CborTaggedTest {
         }
         assertEquals(noTags, cborNoTags.encodeToHexString(DataWithTags.serializer(), reference))
         (cborNoTags to noTags).let { (cbor, hex) ->
-            val struct = cbor.encodeToCbor(DataWithTags.serializer(), reference)
+            val struct = cbor.encodeToCborElement(DataWithTags.serializer(), reference)
             assertEquals(struct, cbor.decodeFromHexString(CborElement.serializer(), hex))
             //struct is missing the tags
             assertFailsWith(CborDecodingException::class) {
-                assertEquals(reference, cbor.decodeFromCbor(DataWithTags.serializer(), struct))
+                assertEquals(reference, cbor.decodeFromCborElement(DataWithTags.serializer(), struct))
             }
         }
 
@@ -457,11 +457,11 @@ class CborTaggedTest {
         }
         assertEquals(noTagsDefLen, cborNoTagsDefLen.encodeToHexString(DataWithTags.serializer(), reference))
         (cborNoTagsDefLen to noTagsDefLen).let { (cbor, hex) ->
-            val struct = cbor.encodeToCbor(DataWithTags.serializer(), reference)
+            val struct = cbor.encodeToCborElement(DataWithTags.serializer(), reference)
             assertEquals(struct, cbor.decodeFromHexString(CborElement.serializer(), hex))
             //struct is missing the tags
             assertFailsWith(CborDecodingException::class) {
-                assertEquals(reference, cbor.decodeFromCbor(DataWithTags.serializer(), struct))
+                assertEquals(reference, cbor.decodeFromCborElement(DataWithTags.serializer(), struct))
             }
         }
 
@@ -475,18 +475,18 @@ class CborTaggedTest {
         }
         assertEquals(reference, cborEncodingAllVerifyingObjectTags.decodeFromHexString(noTags))
         (cborEncodingAllVerifyingObjectTags to noTags).let { (cbor, hex) ->
-            val struct = cbor.encodeToCbor(DataWithTags.serializer(), reference)
+            val struct = cbor.encodeToCborElement(DataWithTags.serializer(), reference)
             //hex has not tags but the current config encodes them into the struct
             assertNotEquals(struct, cbor.decodeFromHexString(CborElement.serializer(), hex))
-            assertEquals(reference, cbor.decodeFromCbor(DataWithTags.serializer(), struct))
+            assertEquals(reference, cbor.decodeFromCborElement(DataWithTags.serializer(), struct))
         }
 
         assertEquals(reference, cborEncodingAllVerifyingObjectTags.decodeFromHexString(noTagsDefLen))
         (cborEncodingAllVerifyingObjectTags to noTagsDefLen).let { (cbor, hex) ->
-            val struct = cbor.encodeToCbor(DataWithTags.serializer(), reference)
+            val struct = cbor.encodeToCborElement(DataWithTags.serializer(), reference)
             //hex has not tags but the current config encodes them into the struct
             assertNotEquals(struct, cbor.decodeFromHexString(CborElement.serializer(), hex))
-            assertEquals(reference, cbor.decodeFromCbor(DataWithTags.serializer(), struct))
+            assertEquals(reference, cbor.decodeFromCborElement(DataWithTags.serializer(), struct))
         }
 
 
@@ -501,41 +501,41 @@ class CborTaggedTest {
         }
         assertEquals(reference, cborEncodingAllDefLen.decodeFromHexString(noTags))
         (cborEncodingAllDefLen to noTags).let { (cbor, hex) ->
-            val struct = cbor.encodeToCbor(DataWithTags.serializer(), reference)
+            val struct = cbor.encodeToCborElement(DataWithTags.serializer(), reference)
             //hex has not tags but the current config encodes them into the struct
             assertNotEquals(struct, cbor.decodeFromHexString(CborElement.serializer(), hex))
-            assertEquals(reference, cbor.decodeFromCbor(DataWithTags.serializer(), struct))
+            assertEquals(reference, cbor.decodeFromCborElement(DataWithTags.serializer(), struct))
         }
 
         assertEquals(reference, cborEncodingAllDefLen.decodeFromHexString(noTagsDefLen))
         (cborEncodingAllDefLen to noTagsDefLen).let { (cbor, hex) ->
-            val struct = cbor.encodeToCbor(DataWithTags.serializer(), reference)
+            val struct = cbor.encodeToCborElement(DataWithTags.serializer(), reference)
             //hex has not tags but the current config encodes them into the struct
             assertNotEquals(struct, cbor.decodeFromHexString(CborElement.serializer(), hex))
-            assertEquals(reference, cbor.decodeFromCbor(DataWithTags.serializer(), struct))
+            assertEquals(reference, cbor.decodeFromCborElement(DataWithTags.serializer(), struct))
         }
 
         assertEquals(reference, cborEncodingAllVerifyingObjectTags.decodeFromHexString(noKeyTags))
         (cborEncodingAllVerifyingObjectTags to noKeyTags).let { (cbor, hex) ->
-            val struct = cbor.encodeToCbor(DataWithTags.serializer(), reference)
+            val struct = cbor.encodeToCborElement(DataWithTags.serializer(), reference)
             //hex has not tags but the current config encodes them into the struct
             assertNotEquals(struct, cbor.decodeFromHexString(CborElement.serializer(), hex))
-            assertEquals(reference, cbor.decodeFromCbor(DataWithTags.serializer(), struct))
+            assertEquals(reference, cbor.decodeFromCborElement(DataWithTags.serializer(), struct))
         }
 
         assertEquals(reference, cborEncodingAllVerifyingObjectTags.decodeFromHexString(noValueTags))
         (cborEncodingAllVerifyingObjectTags to noValueTags).let { (cbor, hex) ->
-            val struct = cbor.encodeToCbor(DataWithTags.serializer(), reference)
+            val struct = cbor.encodeToCborElement(DataWithTags.serializer(), reference)
             //hex has not tags but the current config encodes them into the struct
             assertNotEquals(struct, cbor.decodeFromHexString(CborElement.serializer(), hex))
-            assertEquals(reference, cbor.decodeFromCbor(DataWithTags.serializer(), struct))
+            assertEquals(reference, cbor.decodeFromCborElement(DataWithTags.serializer(), struct))
         }
 
         assertEquals(reference, cborEncodingAllVerifyingObjectTags.decodeFromHexString(referenceHexString))
         (cborEncodingAllVerifyingObjectTags to referenceHexString).let { (cbor, hex) ->
-            val struct = cbor.encodeToCbor(DataWithTags.serializer(), reference)
+            val struct = cbor.encodeToCborElement(DataWithTags.serializer(), reference)
             assertEquals(struct, cbor.decodeFromHexString(CborElement.serializer(), hex))
-            assertEquals(reference, cbor.decodeFromCbor(DataWithTags.serializer(), struct))
+            assertEquals(reference, cbor.decodeFromCborElement(DataWithTags.serializer(), struct))
         }
 
         assertFailsWith(CborDecodingException::class) {
@@ -594,7 +594,7 @@ class CborTaggedTest {
                     CborDecodingException::class,
                     message = "CBOR tags [55] do not match declared tags [56]"
                 ) {
-                    cbor.decodeFromCbor(
+                    cbor.decodeFromCborElement(
                         DataWithTags.serializer(), cbor.decodeFromHexString(
                             CborElement.serializer(),
                             wrongTag55ForPropertyC
@@ -623,7 +623,7 @@ class CborTaggedTest {
                 verifyKeyTags = false
             }).forEach { cbor ->
             assertEquals(reference, cbor.decodeFromHexString(wrongTag55ForPropertyC))
-            assertEquals(reference, cbor.decodeFromCbor(cbor.decodeFromHexString(wrongTag55ForPropertyC)))
+            assertEquals(reference, cbor.decodeFromCborElement(cbor.decodeFromHexString(wrongTag55ForPropertyC)))
         }
     }
 
@@ -656,10 +656,10 @@ class CborTaggedTest {
         assertEquals(reference, cbor.decodeFromHexString(ClassAsTagged.serializer(), referenceHexString))
 
         (cbor to referenceHexString).let { (cbor, hexString) ->
-            val struct = cbor.encodeToCbor(reference)
+            val struct = cbor.encodeToCborElement(reference)
             assertEquals(hexString, cbor.encodeToHexString(CborElement.serializer(), struct))
             assertEquals(cbor.decodeFromHexString<CborElement>(hexString), struct)
-            assertEquals(reference, cbor.decodeFromCbor(ClassAsTagged.serializer(), struct))
+            assertEquals(reference, cbor.decodeFromCborElement(ClassAsTagged.serializer(), struct))
         }
 
 
@@ -669,12 +669,12 @@ class CborTaggedTest {
             cborNoVerifyObjTags.decodeFromHexString(ClassAsTagged.serializer(), referenceHexString)
         )
         (cborNoVerifyObjTags to referenceHexString).let { (cbor, hexString) ->
-            val struct = cbor.encodeToCbor(reference)
+            val struct = cbor.encodeToCborElement(reference)
             // NEQ: the ref string has object tags, but here we don't encode them
             assertNotEquals(hexString, cbor.encodeToHexString(CborElement.serializer(), struct))
             // NEW, the hex string has the tags, so they are decoded, but the struct, created without object tags does not
             assertNotEquals(cbor.decodeFromHexString<CborElement>(hexString), struct)
-            assertEquals(reference, cbor.decodeFromCbor(ClassAsTagged.serializer(), struct))
+            assertEquals(reference, cbor.decodeFromCborElement(ClassAsTagged.serializer(), struct))
         }
 
         val cborNoEncodeObjTags = Cbor { encodeObjectTags = false }
@@ -683,10 +683,10 @@ class CborTaggedTest {
             cborNoEncodeObjTags.encodeToHexString(ClassAsTagged.serializer(), reference)
         )
         (cborNoEncodeObjTags to untaggedHexString).let { (cbor, hexString) ->
-            val struct = cbor.encodeToCbor(reference)
+            val struct = cbor.encodeToCborElement(reference)
             assertEquals(hexString, cbor.encodeToHexString(CborElement.serializer(), struct))
             assertEquals(cbor.decodeFromHexString<CborElement>(hexString), struct)
-            assertEquals(reference, cbor.decodeFromCbor(ClassAsTagged.serializer(), struct))
+            assertEquals(reference, cbor.decodeFromCborElement(ClassAsTagged.serializer(), struct))
         }
 
 
@@ -695,10 +695,10 @@ class CborTaggedTest {
             cborNoVerifyObjTags.decodeFromHexString(ClassAsTagged.serializer(), untaggedHexString)
         )
         (cborNoVerifyObjTags to untaggedHexString).let { (cbor, hexString) ->
-            val struct = cbor.encodeToCbor(reference)
+            val struct = cbor.encodeToCborElement(reference)
             assertEquals(hexString, cbor.encodeToHexString(CborElement.serializer(), struct))
             assertEquals(cbor.decodeFromHexString<CborElement>(hexString), struct)
-            assertEquals(reference, cbor.decodeFromCbor(ClassAsTagged.serializer(), struct))
+            assertEquals(reference, cbor.decodeFromCborElement(ClassAsTagged.serializer(), struct))
         }
 
         assertContains(
@@ -708,7 +708,7 @@ class CborTaggedTest {
         )
         assertContains(
             assertFailsWith(CborDecodingException::class) {
-                cbor.decodeFromCbor(
+                cbor.decodeFromCborElement(
                     ClassAsTagged.serializer(),
                     cbor.decodeFromHexString(CborElement.serializer(), untaggedHexString)
                 )
@@ -727,7 +727,7 @@ class CborTaggedTest {
         assertEquals("81d90539a163616c6713", Cbor.CoseCompliant.encodeToHexString(listOfObjectTagged))
         assertEquals(
             "81d90539a163616c6713",
-            Cbor.CoseCompliant.encodeToHexString(Cbor.CoseCompliant.encodeToCbor(listOfObjectTagged))
+            Cbor.CoseCompliant.encodeToHexString(Cbor.CoseCompliant.encodeToCborElement(listOfObjectTagged))
         )
 
 
@@ -801,9 +801,9 @@ class CborTaggedTest {
         assertEquals(referenceHexString, cbor.encodeToHexString(NestedTagged.serializer(), reference))
         assertEquals(reference, cbor.decodeFromHexString(NestedTagged.serializer(), referenceHexString))
         (cbor to referenceHexString).let { (cbor, hex) ->
-            val struct = cbor.encodeToCbor(reference)
+            val struct = cbor.encodeToCborElement(reference)
             assertEquals(struct, cbor.decodeFromHexString<CborElement>(hex))
-            assertEquals(reference, cbor.decodeFromCbor(struct))
+            assertEquals(reference, cbor.decodeFromCborElement(struct))
         }
 
 
@@ -819,7 +819,7 @@ class CborTaggedTest {
                 CborDecodingException::class,
                 message = "CBOR tags [19, 20] do not match expected tags [19]"
             ) {
-                cbor.decodeFromCbor(
+                cbor.decodeFromCborElement(
                     NestedTagged.serializer(),
                     cbor.decodeFromHexString(CborElement.serializer(), referenceHexStringWithBogusTag)
                 )
@@ -835,7 +835,7 @@ class CborTaggedTest {
         assertEquals(
             "CBOR tags null do not match expected tags [19]",
             assertFailsWith(CborDecodingException::class, message = "CBOR tags null do not match expected tags [19]") {
-                cbor.decodeFromCbor(
+                cbor.decodeFromCborElement(
                     NestedTagged.serializer(),
                     cbor.decodeFromHexString(CborElement.serializer(), referenceHexStringWithMissingTag)
                 )
@@ -856,9 +856,9 @@ class CborTaggedTest {
             cborNoVerifying.decodeFromHexString(NestedTagged.serializer(), referenceHexString)
         )
         (cborNoVerifying to referenceHexString).let { (cbor, hex) ->
-            val struct = cbor.encodeToCbor(reference)
+            val struct = cbor.encodeToCborElement(reference)
             assertEquals(struct, cbor.decodeFromHexString<CborElement>(hex))
-            assertEquals(reference, cbor.decodeFromCbor(struct))
+            assertEquals(reference, cbor.decodeFromCborElement(struct))
         }
 
         assertEquals(
@@ -866,10 +866,10 @@ class CborTaggedTest {
             cborNoVerifying.decodeFromHexString(NestedTagged.serializer(), superfluousTagged)
         )
         (cborNoVerifying to superfluousTagged).let { (cbor, hex) ->
-            val struct = cbor.encodeToCbor(reference)
+            val struct = cbor.encodeToCborElement(reference)
             //there are more tags in the string
             assertNotEquals(struct, cbor.decodeFromHexString<CborElement>(hex))
-            assertEquals(reference, cbor.decodeFromCbor(struct))
+            assertEquals(reference, cbor.decodeFromCborElement(struct))
         }
 
         val cborNoEncode = Cbor {
@@ -885,9 +885,9 @@ class CborTaggedTest {
             cborNoEncode.encodeToHexString(NestedTagged.serializer(), reference)
         )
         (cborNoEncode to untaggedHexString).let { (cbor, hex) ->
-            val struct = cbor.encodeToCbor(reference)
+            val struct = cbor.encodeToCborElement(reference)
             assertEquals(struct, cbor.decodeFromHexString<CborElement>(hex))
-            assertEquals(reference, cbor.decodeFromCbor(struct))
+            assertEquals(reference, cbor.decodeFromCborElement(struct))
         }
 
 
@@ -896,10 +896,10 @@ class CborTaggedTest {
             cborNoVerifying.decodeFromHexString(NestedTagged.serializer(), untaggedHexString)
         )
         (cborNoVerifying to untaggedHexString).let { (cbor, hex) ->
-            val struct = cbor.encodeToCbor(reference)
+            val struct = cbor.encodeToCborElement(reference)
             //NEQ: decoding from an untagged string means no tags coming in while encoding path above creates those tags
             assertNotEquals(struct, cbor.decodeFromHexString<CborElement>(hex))
-            assertEquals(reference, cbor.decodeFromCbor(struct))
+            assertEquals(reference, cbor.decodeFromCborElement(struct))
         }
 
         assertContains(
@@ -910,7 +910,7 @@ class CborTaggedTest {
 
         assertContains(
             assertFailsWith(CborDecodingException::class) {
-                cbor.decodeFromCbor(
+                cbor.decodeFromCborElement(
                     NestedTagged.serializer(),
                     cbor.decodeFromHexString(CborElement.serializer(), untaggedHexString)
                 )

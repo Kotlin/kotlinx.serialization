@@ -344,11 +344,11 @@ class CborElementTest {
             "bf6373747278224120737472696e672c206973206120737472696e672c206973206120737472696e676462537472406b63626f72456c656d656e74f46f63626f72506f736974697665496e74016763626f72496e7420d82a66746167676564d90921181aff"
         )
             .let { (cbor, obj, hex) ->
-                val struct = cbor.encodeToCbor(obj)
+                val struct = cbor.encodeToCborElement(obj)
                 assertEquals(hex, cbor.encodeToHexString(obj))
                 assertEquals(hex, cbor.encodeToHexString(struct))
                 assertEquals(struct, cbor.decodeFromHexString<CborElement>(hex))
-                assertEquals(obj, cbor.decodeFromCbor(struct))
+                assertEquals(obj, cbor.decodeFromCborElement(struct))
                 assertEquals(obj, cbor.decodeFromHexString(hex))
             }
 
@@ -371,11 +371,11 @@ class CborElementTest {
             "bf6373747278224120737472696e672c206973206120737472696e672c206973206120737472696e676462537472f66b63626f72456c656d656e74f46f63626f72506f736974697665496e74016763626f72496e7420d82a66746167676564d90921181aff"
         )
             .let { (cbor, obj, hex) ->
-                val struct = cbor.encodeToCbor(obj)
+                val struct = cbor.encodeToCborElement(obj)
                 assertEquals(hex, cbor.encodeToHexString(obj))
                 assertEquals(hex, cbor.encodeToHexString(struct))
                 assertEquals(struct, cbor.decodeFromHexString<CborElement>(hex))
-                assertEquals(obj, cbor.decodeFromCbor(struct))
+                assertEquals(obj, cbor.decodeFromCborElement(struct))
                 assertEquals(obj, cbor.decodeFromHexString(hex))
             }
 
@@ -399,11 +399,11 @@ class CborElementTest {
             "bf6373747278224120737472696e672c206973206120737472696e672c206973206120737472696e676462537472f66b63626f72456c656d656e74bf4401030307f6ff6f63626f72506f736974697665496e74016763626f72496e7420d82a66746167676564d90921181aff"
         )
             .let { (cbor, obj, hex) ->
-                val struct = cbor.encodeToCbor(obj)
+                val struct = cbor.encodeToCborElement(obj)
                 assertEquals(hex, cbor.encodeToHexString(obj))
                 assertEquals(hex, cbor.encodeToHexString(struct))
                 assertEquals(struct, cbor.decodeFromHexString<CborElement>(hex))
-                assertEquals(obj, cbor.decodeFromCbor(struct))
+                assertEquals(obj, cbor.decodeFromCborElement(struct))
                 assertEquals(obj, cbor.decodeFromHexString(hex))
             }
 
@@ -428,7 +428,7 @@ class CborElementTest {
             "bf6373747278224120737472696e672c206973206120737472696e672c206973206120737472696e676462537472f66b63626f72456c656d656e74f66f63626f72506f736974697665496e74016763626f72496e7420d82a66746167676564d90921181aff"
         )
             .let { (cbor, obj, hex) ->
-                val struct = cbor.encodeToCbor(obj)
+                val struct = cbor.encodeToCborElement(obj)
                 assertEquals(hex, cbor.encodeToHexString(obj))
                 assertEquals(hex, cbor.encodeToHexString(struct))
                 assertEquals(struct, cbor.decodeFromHexString<CborElement>(hex))
@@ -456,11 +456,11 @@ class CborElementTest {
             "bf6373747278224120737472696e672c206973206120737472696e672c206973206120737472696e676462537472c1c3406b63626f72456c656d656e74f46f63626f72506f736974697665496e74016763626f72496e7420d82a66746167676564d90921181aff"
         )
             .let { (cbor, obj, hex) ->
-                val struct = cbor.encodeToCbor(obj)
+                val struct = cbor.encodeToCborElement(obj)
                 assertEquals(hex, cbor.encodeToHexString(obj))
                 assertEquals(hex, cbor.encodeToHexString(struct))
                 assertEquals(struct, cbor.decodeFromHexString<CborElement>(hex))
-                assertEquals(obj, cbor.decodeFromCbor(struct))
+                assertEquals(obj, cbor.decodeFromCborElement(struct))
                 assertEquals(obj, cbor.decodeFromHexString(hex))
             }
 
@@ -483,11 +483,11 @@ class CborElementTest {
             "bf6373747278224120737472696e672c206973206120737472696e672c206973206120737472696e676462537472c1c3406b63626f72456c656d656e74f46f63626f72506f736974697665496e74016763626f72496e7420d82a66746167676564181aff"
         )
             .let { (cbor, obj, hex) ->
-                val struct = cbor.encodeToCbor(obj)
+                val struct = cbor.encodeToCborElement(obj)
                 assertEquals(hex, cbor.encodeToHexString(obj))
                 assertEquals(hex, cbor.encodeToHexString(struct))
                 assertEquals(struct, cbor.decodeFromHexString<CborElement>(hex))
-                assertEquals(obj, cbor.decodeFromCbor(struct))
+                assertEquals(obj, cbor.decodeFromCborElement(struct))
                 assertEquals(obj, cbor.decodeFromHexString(hex))
             }
 
@@ -505,7 +505,7 @@ class CborElementTest {
             "bfd82a6b63626f72456c656d656e74d90921f4ff"
         )
             .let { (cbor, obj, hex) ->
-                val struct = cbor.encodeToCbor(obj)
+                val struct = cbor.encodeToCborElement(obj)
                 assertEquals(hex, cbor.encodeToHexString(obj))
                 assertEquals(hex, cbor.encodeToHexString(struct))
                 assertEquals(struct, cbor.decodeFromHexString<CborElement>(hex))
@@ -514,7 +514,7 @@ class CborElementTest {
                 // hence, the following two will have:
                 //      Expected :MixedTag(cborElement=CborPrimitive(kind=Boolean, tags=, value=false))
                 //      Actual   :MixedTag(cborElement=CborPrimitive(kind=Boolean, tags=2337, value=false))
-                assertNotEquals(obj, cbor.decodeFromCbor(struct))
+                assertNotEquals(obj, cbor.decodeFromCborElement(struct))
                 assertNotEquals(obj, cbor.decodeFromHexString(hex))
             }
         Triple(
@@ -532,7 +532,7 @@ class CborElementTest {
             "bfd82a6b63626f72456c656d656e74d90921d85af4ff"
         )
             .let { (cbor, obj, hex) ->
-                val struct = cbor.encodeToCbor(obj)
+                val struct = cbor.encodeToCborElement(obj)
                 assertEquals(hex, cbor.encodeToHexString(obj))
                 assertEquals(hex, cbor.encodeToHexString(struct))
                 assertEquals(struct, cbor.decodeFromHexString<CborElement>(hex))
@@ -546,7 +546,7 @@ class CborElementTest {
                     CborDecodingException::class,
                     "CBOR tags [2337, 90] do not match expected tags [2337]"
                 ) {
-                    assertNotEquals(obj, cbor.decodeFromCbor(struct))
+                    assertNotEquals(obj, cbor.decodeFromCborElement(struct))
                 }
                 assertFailsWith(
                     CborDecodingException::class,
@@ -571,7 +571,7 @@ class CborElementTest {
             "bfd82a6b63626f72456c656d656e74d90921d85af4ff"
         )
             .let { (cbor, obj, hex) ->
-                val struct = cbor.encodeToCbor(obj)
+                val struct = cbor.encodeToCborElement(obj)
                 assertEquals(hex, cbor.encodeToHexString(obj))
                 assertEquals(hex, cbor.encodeToHexString(struct))
                 assertEquals(struct, cbor.decodeFromHexString<CborElement>(hex))
@@ -580,7 +580,7 @@ class CborElementTest {
                 // hence, the following two will have:
                 //      Expected :MixedTag(cborElement=CborPrimitive(kind=Boolean, tags=90, value=false))
                 //      Actual   :MixedTag(cborElement=CborPrimitive(kind=Boolean, tags=2337, 90, value=false))
-                assertNotEquals(obj, cbor.decodeFromCbor(struct))
+                assertNotEquals(obj, cbor.decodeFromCborElement(struct))
                 assertNotEquals(obj, cbor.decodeFromHexString(hex))
             }
 
@@ -599,12 +599,12 @@ class CborElementTest {
             "bfd82a6b63626f72456c656d656e74d85af4ff"
         )
             .let { (cbor, obj, hex) ->
-                val struct = cbor.encodeToCbor(obj)
+                val struct = cbor.encodeToCborElement(obj)
                 assertEquals(hex, cbor.encodeToHexString(obj))
                 assertEquals(hex, cbor.encodeToHexString(struct))
                 assertEquals(struct, cbor.decodeFromHexString<CborElement>(hex))
                 //no value tags means everything's fine again
-                assertEquals(obj, cbor.decodeFromCbor(struct))
+                assertEquals(obj, cbor.decodeFromCborElement(struct))
                 assertEquals(obj, cbor.decodeFromHexString(hex))
             }
     }
