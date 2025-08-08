@@ -29,6 +29,13 @@ class FormatsTest {
     }
 
     @Test
+    fun testExampleFormats03() {
+        captureOutput("ExampleFormats03") { example.exampleFormats03.main() }.verifyOutputLines(
+            "CborMap(tags=[], content={CborString(tags=[], value=bytes)=CborByteString(tags=[], value=h'666f6f)})"
+        )
+    }
+
+    @Test
     fun testExampleFormats04() {
         captureOutput("ExampleFormats04") { example.exampleFormats04.main() }.verifyOutputLines(
             "{0A}{15}kotlinx.serialization{12}{06}Kotlin",

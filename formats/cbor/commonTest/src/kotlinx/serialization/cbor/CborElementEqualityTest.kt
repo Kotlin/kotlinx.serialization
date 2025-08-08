@@ -51,10 +51,10 @@ class CborElementEqualityTest {
 
     @Test
     fun testCborDoubleEquality() {
-        val double1 = CborDouble(3.14)
-        val double2 = CborDouble(3.14)
-        val double3 = CborDouble(2.71)
-        val double4 = CborDouble(3.14, 1u)
+        val double1 = CborFloat(3.14)
+        val double2 = CborFloat(3.14)
+        val double3 = CborFloat(2.71)
+        val double4 = CborFloat(3.14, 1u)
 
         assertEquals(double1, double2)
         assertEquals(double1.hashCode(), double2.hashCode())
@@ -264,7 +264,7 @@ class CborElementEqualityTest {
         val elements = listOf(
             CborPositiveInt(42u),
             CborNegativeInt(-42),
-            CborDouble(3.14),
+            CborFloat(3.14),
             CborString("test"),
             CborBoolean(true),
             CborByteString(byteArrayOf(1, 2, 3)),
@@ -284,7 +284,7 @@ class CborElementEqualityTest {
         val pairs = listOf(
             CborPositiveInt(42u) to CborPositiveInt(42u),
             CborNegativeInt(-42) to CborNegativeInt(-42),
-            CborDouble(3.14) to CborDouble(3.14),
+            CborFloat(3.14) to CborFloat(3.14),
             CborString("test") to CborString("test"),
             CborBoolean(true) to CborBoolean(true),
             CborByteString(byteArrayOf(1, 2, 3)) to CborByteString(byteArrayOf(1, 2, 3)),

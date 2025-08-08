@@ -81,9 +81,8 @@ public sealed class CborPrimitive<T : Any>(
     }
 
     override fun toString(): String {
-        return "CborPrimitive(" +
-            "kind=${value::class.simpleName}, " +
-            "tags=${tags.joinToString()}, " +
+        return "${this::class.simpleName}(" +
+            "tags=${tags.joinToString(prefix = "[", postfix = "]")}, " +
             "value=$value" +
             ")"
     }
@@ -150,8 +149,8 @@ public class CborPositiveInt(
 /**
  * Class representing CBOR floating point value (major type 7).
  */
-@Serializable(with = CborDoubleSerializer::class)
-public class CborDouble(
+@Serializable(with = CborFloatSerializer::class)
+public class CborFloat(
     value: Double,
     vararg tags: ULong
 ) : CborPrimitive<Double>(value, tags)
@@ -196,9 +195,8 @@ public class CborByteString(
     }
 
     override fun toString(): String {
-        return "CborPrimitive(" +
-            "kind=${value::class.simpleName}, " +
-            "tags=${tags.joinToString()}, " +
+        return "CborByteString(" +
+            "tags=${tags.joinToString(prefix = "[", postfix = "]")}, " +
             "value=h'${value.toHexString()}" +
             ")"
     }
@@ -229,7 +227,7 @@ public class CborMap(
 
     override fun toString(): String {
         return "CborMap(" +
-            "tags=${tags.joinToString()}, " +
+            "tags=${tags.joinToString(prefix = "[", postfix = "]")}, " +
             "content=$content" +
             ")"
     }
@@ -255,7 +253,7 @@ public class CborList(
 
     override fun toString(): String {
         return "CborList(" +
-            "tags=${tags.joinToString()}, " +
+            "tags=${tags.joinToString(prefix = "[", postfix = "]")}, " +
             "content=$content" +
             ")"
     }

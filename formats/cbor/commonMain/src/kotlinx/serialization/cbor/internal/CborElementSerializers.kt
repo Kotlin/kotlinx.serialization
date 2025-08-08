@@ -28,7 +28,7 @@ internal object CborElementSerializer : KSerializer<CborElement>, CborSerializer
             element("CborByteString", defer { CborByteStringSerializer.descriptor })
             element("CborMap", defer { CborMapSerializer.descriptor })
             element("CborList", defer { CborListSerializer.descriptor })
-            element("CborDouble", defer { CborDoubleSerializer.descriptor })
+            element("CborDouble", defer { CborFloatSerializer.descriptor })
             element("CborInt", defer { CborNegativeIntSerializer.descriptor })
             element("CborUInt", defer { CborPositiveIntSerializer.descriptor })
         }
@@ -64,7 +64,7 @@ internal object CborPrimitiveSerializer : KSerializer<CborPrimitive<*>>, CborSer
             is CborString -> encoder.encodeSerializableValue(CborStringSerializer, value)
             is CborBoolean -> encoder.encodeSerializableValue(CborBooleanSerializer, value)
             is CborByteString -> encoder.encodeSerializableValue(CborByteStringSerializer, value)
-            is CborDouble -> encoder.encodeSerializableValue(CborDoubleSerializer, value)
+            is CborFloat -> encoder.encodeSerializableValue(CborFloatSerializer, value)
             is CborNegativeInt -> encoder.encodeSerializableValue(CborNegativeIntSerializer, value)
             is CborPositiveInt -> encoder.encodeSerializableValue(CborPositiveIntSerializer, value)
         }
@@ -154,19 +154,19 @@ internal object CborPositiveIntSerializer : KSerializer<CborPositiveInt>, CborSe
     }
 }
 
-internal object CborDoubleSerializer : KSerializer<CborDouble>, CborSerializer {
+internal object CborFloatSerializer : KSerializer<CborFloat>, CborSerializer {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("kotlinx.serialization.cbor.CborDouble", PrimitiveKind.DOUBLE)
 
-    override fun serialize(encoder: Encoder, value: CborDouble) {
+    override fun serialize(encoder: Encoder, value: CborFloat) {
         val cborEncoder = encoder.asCborEncoder()
         cborEncoder.encodeTags(value)
         encoder.encodeDouble(value.value)
     }
 
-    override fun deserialize(decoder: Decoder): CborDouble {
+    override fun deserialize(decoder: Decoder): CborFloat {
         decoder.asCborDecoder()
-        return CborDouble(decoder.decodeDouble())
+        return CborFloat(decoder.decodeDouble())
     }
 }
 
