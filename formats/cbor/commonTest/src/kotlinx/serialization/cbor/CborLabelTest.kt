@@ -36,8 +36,8 @@ class CborLabelTest {
         assertEquals(referenceHexLabelString, cbor.encodeToHexString(ClassWithCborLabel.serializer(), reference))
         assertEquals(reference, cbor.decodeFromHexString(ClassWithCborLabel.serializer(), referenceHexLabelString))
 
-        val struct = cbor.encodeToCbor(ClassWithCborLabel.serializer(), reference)
-        assertEquals(reference, cbor.decodeFromCbor(ClassWithCborLabel.serializer(), struct))
+        val struct = cbor.encodeToCborElement(ClassWithCborLabel.serializer(), reference)
+        assertEquals(reference, cbor.decodeFromCborElement(ClassWithCborLabel.serializer(), struct))
         assertEquals(referenceHexLabelString, cbor.encodeToHexString(CborElement.serializer(), struct))
     }
 
@@ -50,8 +50,8 @@ class CborLabelTest {
         assertEquals(reference, cbor.decodeFromHexString(ClassWithCborLabel.serializer(), referenceHexNameString))
 
 
-        val struct = cbor.encodeToCbor(ClassWithCborLabel.serializer(), reference)
-        assertEquals(reference, cbor.decodeFromCbor(ClassWithCborLabel.serializer(), struct))
+        val struct = cbor.encodeToCborElement(ClassWithCborLabel.serializer(), reference)
+        assertEquals(reference, cbor.decodeFromCborElement(ClassWithCborLabel.serializer(), struct))
         assertEquals(referenceHexNameString, cbor.encodeToHexString(CborElement.serializer(), struct))
     }
 
@@ -74,8 +74,8 @@ class CborLabelTest {
         assertEquals(referenceHexLabelWithTagString, cbor.encodeToHexString(ClassWithCborLabelAndTag.serializer(), referenceWithTag))
         assertEquals(referenceWithTag, cbor.decodeFromHexString(ClassWithCborLabelAndTag.serializer(), referenceHexLabelWithTagString))
 
-        val struct = cbor.encodeToCbor(ClassWithCborLabelAndTag.serializer(), referenceWithTag)
-        assertEquals(referenceWithTag, cbor.decodeFromCbor(ClassWithCborLabelAndTag.serializer(), struct))
+        val struct = cbor.encodeToCborElement(ClassWithCborLabelAndTag.serializer(), referenceWithTag)
+        assertEquals(referenceWithTag, cbor.decodeFromCborElement(ClassWithCborLabelAndTag.serializer(), struct))
         assertEquals(referenceHexLabelWithTagString, cbor.encodeToHexString(CborElement.serializer(), struct))
     }
 
@@ -104,7 +104,7 @@ class CborLabelTest {
 
         //we cannot deserialize from the struct since it does not match the class structure
         assertFailsWith(CborDecodingException::class) {
-            cbor.decodeFromCbor(ClassWithCborLabelAndTag.serializer(), struct)
+            cbor.decodeFromCborElement(ClassWithCborLabelAndTag.serializer(), struct)
         }
     }
 
@@ -131,7 +131,7 @@ class CborLabelTest {
         assertEquals(referenceWithTag, cbor.decodeFromHexString(ClassWithCborLabelAndTag.serializer(), referenceHexLabelWithTagString))
 
         //no unknown props
-        val struct = cbor.encodeToCbor(ClassWithCborLabelAndTag.serializer(), referenceWithTag)
+        val struct = cbor.encodeToCborElement(ClassWithCborLabelAndTag.serializer(), referenceWithTag)
 
         //with unknown props
         val structFromString = cbor.decodeFromHexString(CborElement.serializer(), referenceHexLabelWithTagString)
@@ -139,7 +139,7 @@ class CborLabelTest {
         assertNotEquals(struct, structFromString)
         assertNotEquals(referenceHexLabelWithTagString, cbor.encodeToHexString(CborElement.serializer(), struct))
 
-        assertEquals(referenceWithTag, cbor.decodeFromCbor(ClassWithCborLabelAndTag.serializer(), struct))
+        assertEquals(referenceWithTag, cbor.decodeFromCborElement(ClassWithCborLabelAndTag.serializer(), struct))
         assertEquals(referenceHexLabelWithTagString, cbor.encodeToHexString(CborElement.serializer(), structFromString))
     }
 
@@ -163,8 +163,8 @@ class CborLabelTest {
 
         assertEquals(referenceWithoutLabel, cbor.decodeFromHexString(ClassWithoutCborLabel.serializer(), referenceHexStringWithoutLabel))
 
-        val struct = cbor.encodeToCbor(ClassWithoutCborLabel.serializer(), referenceWithoutLabel)
-        assertEquals(referenceWithoutLabel, cbor.decodeFromCbor(ClassWithoutCborLabel.serializer(), struct))
+        val struct = cbor.encodeToCborElement(ClassWithoutCborLabel.serializer(), referenceWithoutLabel)
+        assertEquals(referenceWithoutLabel, cbor.decodeFromCborElement(ClassWithoutCborLabel.serializer(), struct))
         assertEquals(referenceHexStringWithoutLabel, cbor.encodeToHexString(CborElement.serializer(), struct))
 
     }

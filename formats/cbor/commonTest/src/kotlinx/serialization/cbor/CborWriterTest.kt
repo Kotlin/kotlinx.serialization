@@ -5,7 +5,6 @@
 package kotlinx.serialization.cbor
 
 import kotlinx.serialization.*
-import kotlinx.serialization.cbor.CborSkipTagAndEmptyTest.DataClass
 import kotlin.test.*
 
 
@@ -34,7 +33,7 @@ class CbrWriterTest {
             encoded,
             Cbor.encodeToHexString(TypesUmbrella.serializer(), test)
         )
-        val struct = Cbor.encodeToCbor(test)
+        val struct = Cbor.encodeToCborElement(test)
         assertEquals(Cbor.decodeFromByteArray<CborElement>(encoded.hexToByteArray()), struct)
     }
 
@@ -57,7 +56,7 @@ class CbrWriterTest {
             encoded,
             Cbor { useDefiniteLengthEncoding = true }.encodeToHexString(TypesUmbrella.serializer(), test)
         )
-        val struct = Cbor.encodeToCbor(test)
+        val struct = Cbor.encodeToCborElement(test)
         assertEquals(Cbor.decodeFromByteArray<CborElement>(encoded.hexToByteArray()), struct)
     }
 
@@ -77,7 +76,7 @@ class CbrWriterTest {
             encoded,
             Cbor.encodeToHexString(NumberTypesUmbrella.serializer(), test)
         )
-        val struct = Cbor.encodeToCbor(test)
+        val struct = Cbor.encodeToCborElement(test)
         assertEquals(Cbor.decodeFromByteArray<CborElement>(encoded.hexToByteArray()), struct)
     }
 

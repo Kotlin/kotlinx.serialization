@@ -28,10 +28,10 @@ class CborPolymorphismTest {
             hexResultToCheck = hexResultToCheck
         )
 
-        val struct = cbor.encodeToCbor(A.serializer(), original)
+        val struct = cbor.encodeToCborElement(A.serializer(), original)
         assertEquals(struct, cbor.decodeFromHexString(CborElement.serializer(), hexResultToCheck))
         assertEquals(hexResultToCheck, cbor.encodeToHexString(struct))
-        assertEquals(original, cbor.decodeFromCbor(A.serializer(), struct))
+        assertEquals(original, cbor.decodeFromCborElement(A.serializer(), struct))
     }
 
     @Test
@@ -44,8 +44,8 @@ class CborPolymorphismTest {
         )
         assertSerializedToBinaryAndRestored(obj, SealedBox.serializer(), cbor)
 
-        val struct = cbor.encodeToCbor(SealedBox.serializer(), obj)
-        assertEquals(obj, cbor.decodeFromCbor(SealedBox.serializer(), struct))
+        val struct = cbor.encodeToCborElement(SealedBox.serializer(), obj)
+        assertEquals(obj, cbor.decodeFromCborElement(SealedBox.serializer(), struct))
     }
 
     @Test
@@ -59,7 +59,7 @@ class CborPolymorphismTest {
         assertSerializedToBinaryAndRestored(obj, PolyBox.serializer(), cbor)
 
 
-        val struct = cbor.encodeToCbor(PolyBox.serializer(), obj)
-        assertEquals(obj, cbor.decodeFromCbor(PolyBox.serializer(), struct))
+        val struct = cbor.encodeToCborElement(PolyBox.serializer(), obj)
+        assertEquals(obj, cbor.decodeFromCborElement(PolyBox.serializer(), struct))
     }
 }

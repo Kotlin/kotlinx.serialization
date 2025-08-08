@@ -22,7 +22,7 @@ class CborDecoderTest {
         assertEquals(reference, Cbor.decodeFromHexString(Simple.serializer(), hex))
 
         val struct = Cbor.decodeFromHexString<CborElement>(hex)
-        assertEquals(reference, Cbor.decodeFromCbor(Simple.serializer(), struct))
+        assertEquals(reference, Cbor.decodeFromCborElement(Simple.serializer(), struct))
 
         assertEquals(hex, Cbor.encodeToHexString(CborElement.serializer(), struct))
     }
@@ -52,8 +52,8 @@ class CborDecoderTest {
         )
 
         val struct = Cbor.decodeFromHexString<CborElement>(hex)
-        assertEquals(Cbor.encodeToCbor(test), struct)
-        assertEquals(test, Cbor.decodeFromCbor(TypesUmbrella.serializer(), struct))
+        assertEquals(Cbor.encodeToCborElement(test), struct)
+        assertEquals(test, Cbor.decodeFromCborElement(TypesUmbrella.serializer(), struct))
 
         assertEquals(hex, Cbor.encodeToHexString(TypesUmbrella.serializer(), test))
         assertEquals(hex, Cbor.encodeToHexString(CborElement.serializer(), struct))
@@ -71,8 +71,8 @@ class CborDecoderTest {
         )
 
         val structDef = Cbor.decodeFromHexString<CborElement>(hexDef)
-        assertEquals(Cbor.encodeToCbor(test), structDef)
-        assertEquals(test, Cbor.decodeFromCbor(TypesUmbrella.serializer(), structDef))
+        assertEquals(Cbor.encodeToCborElement(test), structDef)
+        assertEquals(test, Cbor.decodeFromCborElement(TypesUmbrella.serializer(), structDef))
 
     }
 
@@ -95,7 +95,7 @@ class CborDecoderTest {
         )
 
         val struct = Cbor.decodeFromHexString<CborElement>(hex)
-        assertEquals(expected, Cbor.decodeFromCbor(NullableByteString.serializer(), struct))
+        assertEquals(expected, Cbor.decodeFromCborElement(NullableByteString.serializer(), struct))
 
         /* A1                         # map(1)
          *    6A                      # text(10)
@@ -113,14 +113,14 @@ class CborDecoderTest {
         )
 
         val structNull = Cbor.decodeFromHexString<CborElement>(hexNull)
-        assertEquals(expectedNull, Cbor.decodeFromCbor(NullableByteString.serializer(), structNull))
+        assertEquals(expectedNull, Cbor.decodeFromCborElement(NullableByteString.serializer(), structNull))
     }
 
     @Test
     fun testNullables() {
         assertEquals(NullableByteStringDefaultNull(), Cbor.decodeFromHexString<NullableByteStringDefaultNull>("a0"))
         val struct = Cbor.decodeFromHexString<CborElement>("a0")
-        assertEquals(NullableByteStringDefaultNull(), Cbor.decodeFromCbor(NullableByteStringDefaultNull.serializer(), struct))
+        assertEquals(NullableByteStringDefaultNull(), Cbor.decodeFromCborElement(NullableByteStringDefaultNull.serializer(), struct))
     }
 
     /**
@@ -142,7 +142,7 @@ class CborDecoderTest {
 
         val struct = Cbor.decodeFromHexString<CborElement>(hex)
         assertFailsWithMessage<SerializationException>("Field 'a' is required") {
-            ignoreUnknownKeys.decodeFromCbor(
+            ignoreUnknownKeys.decodeFromCborElement(
                 Simple.serializer(),
                 struct
             )
@@ -160,7 +160,7 @@ class CborDecoderTest {
 
         val structDef = Cbor.decodeFromHexString<CborElement>(hexDef)
         assertFailsWithMessage<SerializationException>("Field 'a' is required") {
-            ignoreUnknownKeys.decodeFromCbor(
+            ignoreUnknownKeys.decodeFromCborElement(
                 Simple.serializer(),
                 structDef
             )
@@ -269,7 +269,7 @@ class CborDecoderTest {
             )
         )
         val struct = Cbor.decodeFromHexString<CborElement>(hex)
-        assertEquals(expected, ignoreUnknownKeys.decodeFromCbor(Simple.serializer(), struct))
+        assertEquals(expected, ignoreUnknownKeys.decodeFromCborElement(Simple.serializer(), struct))
 
     }
 
@@ -313,7 +313,7 @@ class CborDecoderTest {
         )
 
         val struct = Cbor.decodeFromHexString<CborElement>(hex)
-        assertEquals(expected, ignoreUnknownKeys.decodeFromCbor(Simple.serializer(), struct))
+        assertEquals(expected, ignoreUnknownKeys.decodeFromCborElement(Simple.serializer(), struct))
     }
 
     /**
@@ -410,7 +410,7 @@ class CborDecoderTest {
             )
         )
         val struct = Cbor.decodeFromHexString<CborElement>(hex)
-        assertEquals(expected, ignoreUnknownKeys.decodeFromCbor(SealedBox.serializer(), struct))
+        assertEquals(expected, ignoreUnknownKeys.decodeFromCborElement(SealedBox.serializer(), struct))
 
     }
 
@@ -423,7 +423,7 @@ class CborDecoderTest {
             actual = Cbor.decodeFromHexString(hex)
         )
         val struct = Cbor.decodeFromHexString<CborElement>(hex)
-        assertEquals(expected, Cbor.decodeFromCbor(TypeWithCustomByteString.serializer(), struct))
+        assertEquals(expected, Cbor.decodeFromCborElement(TypeWithCustomByteString.serializer(), struct))
 
     }
 
@@ -436,7 +436,7 @@ class CborDecoderTest {
             actual = Cbor.decodeFromHexString(hex)
         )
         val struct = Cbor.decodeFromHexString<CborElement>(hex)
-        assertEquals(expected, Cbor.decodeFromCbor(TypeWithNullableCustomByteString.serializer(), struct))
+        assertEquals(expected, Cbor.decodeFromCborElement(TypeWithNullableCustomByteString.serializer(), struct))
 
     }
 
@@ -449,7 +449,7 @@ class CborDecoderTest {
             actual = Cbor.decodeFromHexString(hex)
         )
         val struct = Cbor.decodeFromHexString<CborElement>(hex)
-        assertEquals(expected, Cbor.decodeFromCbor(TypeWithNullableCustomByteString.serializer(), struct))
+        assertEquals(expected, Cbor.decodeFromCborElement(TypeWithNullableCustomByteString.serializer(), struct))
 
     }
 
@@ -462,7 +462,7 @@ class CborDecoderTest {
             actual = Cbor.decodeFromHexString<ValueClassWithByteString>(hex).x
         )
         val struct = Cbor.decodeFromHexString<CborElement>(hex)
-        assertContentEquals(expected, Cbor.decodeFromCbor(ValueClassWithByteString.serializer(), struct).x)
+        assertContentEquals(expected, Cbor.decodeFromCborElement(ValueClassWithByteString.serializer(), struct).x)
 
     }
 
@@ -475,7 +475,7 @@ class CborDecoderTest {
             actual = Cbor.decodeFromHexString(hex)
         )
         val struct = Cbor.decodeFromHexString<CborElement>(hex)
-        assertEquals(expected, Cbor.decodeFromCbor(ValueClassWithCustomByteString.serializer(), struct))
+        assertEquals(expected, Cbor.decodeFromCborElement(ValueClassWithCustomByteString.serializer(), struct))
 
     }
 
@@ -492,7 +492,7 @@ class CborDecoderTest {
             actual = Cbor.decodeFromHexString<ValueClassWithUnlabeledByteString>(hex).x.x
         )
         val struct = Cbor.decodeFromHexString<CborElement>(hex)
-        assertContentEquals(expected, Cbor.decodeFromCbor(ValueClassWithUnlabeledByteString.serializer(), struct).x.x)
+        assertContentEquals(expected, Cbor.decodeFromCborElement(ValueClassWithUnlabeledByteString.serializer(), struct).x.x)
 
     }
 

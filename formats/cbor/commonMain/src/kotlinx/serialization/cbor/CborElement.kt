@@ -16,7 +16,7 @@ import kotlinx.serialization.cbor.internal.*
  *
  * [CborElement.toString] properly prints CBOR tree as a human-readable representation.
  * Whole hierarchy is serializable, but only when used with [Cbor] as [CborElement] is purely CBOR-specific structure
- * which has a meaningful schemaless semantics only for CBOR.
+ * which has meaningful schemaless semantics only for CBOR.
  *
  * The whole hierarchy is [serializable][Serializable] only by [Cbor] format.
  */
@@ -38,7 +38,7 @@ public sealed class CborElement(
      */
     @OptIn(ExperimentalUnsignedTypes::class)
     public var tags: ULongArray = tags
-        internal set
+        internal set //need this to collect
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -89,18 +89,35 @@ public sealed class CborPrimitive<T : Any>(
     }
 }
 
+/**
+ * Class representing either:
+ * * signed CBOR integer (major type 1)
+ * * unsigned CBOR integer (major type 0)
+ *
+ * depending on whether a positive or a negative number was passed.
+ */
 @Serializable(with = CborIntSerializer::class)
 public sealed class CborInt<T : Any>(
     tags: ULongArray = ulongArrayOf(),
     value: T,
 ) : CborPrimitive<T>(value, tags) {
     public companion object {
+        /**
+         * Creates:
+         * * signed CBOR integer (major type 1)
+         * * unsigned CBOR integer (major type 0)
+         *
+         * depending on whether a positive or a negative number was passed.
+         */
         public operator fun invoke(
             value: Long,
             vararg tags: ULong
         ): CborInt<*> =
             if (value >= 0) CborPositiveInt(value.toULong(), tags = tags) else CborNegativeInt(value, tags = tags)
 
+        /**
+         * Creates an unsigned CBOR integer (major type 0).
+         */
         public operator fun invoke(
             value: ULong,
             vararg tags: ULong
