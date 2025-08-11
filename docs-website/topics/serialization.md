@@ -52,13 +52,8 @@ You can find out more about experimental serialization formats in [Alternative a
 
 ## Supported serialization types
 
-Kotlin serialization supports a variety of built-in types, including all primitive types and composite types from the Kotlin standard library like the `List` type.
+Kotlin serialization supports a variety of built-in types, including all primitive types and most composite types from the Kotlin standard library like the `List` type.
 For more information, see [Serialize built-in types](serialization-serialize-builtin-types.md).
-
-> Not all types from the Kotlin standard library are serializable. In particular, [ranges](ranges.md) and the [`Regex`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.text/-regex/) class are not serializable at the moment.
-> Support for their serialization may be added in the future.
->
-{style="note"}
 
 Additionally, classes annotated with `@Serializable` are fully supported for serialization, enabling the conversion of class instances to and from formats like JSON.
 For more information, see [Serialize classes](serialization-customization-options.md).
@@ -66,7 +61,8 @@ For more information, see [Serialize classes](serialization-customization-option
 ## What's next
 
 * Learn the basics of Kotlin serialization in the [Get started with serialization tutorial](serialization-get-started.md).
-* See how the `kotlinx.serialization` library processes [primitives, collections, and other built-in types](serialization-builtin-types.md)
+* See how the `kotlinx.serialization` library processes [primitives, collections, and other built-in types](serialization-serialize-builtin-types.md)
 * To explore more complex JSON serialization scenarios, see [JSON serialization overview](configure-json-serialization.md).
 * Dive into the [Serialize classes](serialization-customization-options.md) section to learn how to serialize classes and how to modify the default behavior of the `@Serializable` annotation.
 * Learn how to define and customize your own serializers in [Create custom serializers](serialization-custom-serializers.md).
+* See how to serialize different types through a shared base type in [Serialize polymorphic classes](serialization-polymorphism.md).
