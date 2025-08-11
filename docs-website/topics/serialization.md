@@ -27,7 +27,7 @@ For example:
 * `org.jetbrains.kotlinx:kotlinx-serialization-json` provides JSON serialization for Kotlin projects.
 * `org.jetbrains.kotlinx:kotlinx-serialization-cbor` provides CBOR serialization.
 
-Platform-specific dependencies are automatically managed, so you don’t need to add them manually.
+Platform-specific dependencies are automatically managed, so you don't need to add them manually.
 Use the same dependencies for JVM, JavaScript, Native, and multiplatform projects.
 
 The `kotlinx.serialization` libraries follow their own versioning structure, independent of Kotlin.
