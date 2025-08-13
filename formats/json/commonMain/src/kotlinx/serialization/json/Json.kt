@@ -658,6 +658,8 @@ public class JsonBuilder internal constructor(json: Json) {
      */
     public var useArrayPolymorphism: Boolean = json.configuration.useArrayPolymorphism
 
+    public var allowPrimitiveCoercion: Boolean = json.configuration.allowPrimitiveCoercion
+
     /**
      * Module with contextual and polymorphic serializers to be used in the resulting [Json] instance.
      *
@@ -695,7 +697,8 @@ public class JsonBuilder internal constructor(json: Json) {
             allowStructuredMapKeys, prettyPrint, explicitNulls, prettyPrintIndent,
             coerceInputValues, useArrayPolymorphism,
             classDiscriminator, allowSpecialFloatingPointValues, useAlternativeNames,
-            namingStrategy, decodeEnumsCaseInsensitive, allowTrailingComma, allowComments, classDiscriminatorMode
+            namingStrategy, decodeEnumsCaseInsensitive, allowTrailingComma, allowComments, classDiscriminatorMode,
+            allowPrimitiveCoercion
         )
     }
 }
