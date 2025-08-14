@@ -61,8 +61,6 @@ internal actual fun <T> createParametrizedCache(factory: (KClass<Any>, List<KTyp
     }
 }
 
-internal actual fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KClass<T>): Array<E> = toTypedArray()
-
 internal actual fun isReferenceArray(rootClass: KClass<Any>): Boolean = rootClass == Array::class
 
 @OptIn(ExperimentalUnsignedTypes::class, ExperimentalUuidApi::class, ExperimentalSerializationApi::class,
