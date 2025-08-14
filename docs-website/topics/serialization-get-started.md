@@ -57,8 +57,8 @@ Add the serialization plugin and library to your `pom.xml` file:
 
     ```xml
     <properties>
-    <kotlin.version>%kotlinVersion%</kotlin.version>
-    <serialization.version>%serializationVersion%</serialization.version>
+        <kotlin.version>%kotlinVersion%</kotlin.version>
+        <serialization.version>%serializationVersion%</serialization.version>
     </properties>
    ```
 
@@ -123,7 +123,6 @@ commonMain {
 
 ## Serialize objects to JSON
 
-Serialization is the process of converting an object into a format that can be easily stored or transmitted, such as JSON.
 In Kotlin, you can serialize objects to JSON using the `kotlinx.serialization` library.
 
 To make a class serializable, you need to mark it with the [`@Serializable`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/) annotation.
@@ -132,7 +131,7 @@ For more information, see [The @Serialization annotation](serialization-customiz
 
 Let's look at an example:
 
-1. Import the necessary serialization libraries:
+1. Import declarations from the necessary serialization libraries:
 
     ```kotlin
     import kotlinx.serialization.*
@@ -146,8 +145,8 @@ Let's look at an example:
     data class Data(val a: Int, val b: String)
     ```
 
-   > The `@Serializable` annotation enables default serialization of all properties in the primary constructor.
-   > You can customize serialization behavior with custom constructors, optional properties, and more.
+   > The `@Serializable` annotation enables default serialization of all properties with backing fields.
+   > You can customize serialization behavior with property-level annotations, optional properties, and more.
    > 
    > For more information, see [Serialize classes](serialization-customization-options.md).
    >
@@ -156,7 +155,7 @@ Let's look at an example:
 3. Use the [`Json.encodeToString()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/encode-to-string.html) function to serialize an instance of this class:
 
     ```kotlin
-    // Imports the necessary libraries for serialization and JSON handling
+    // Imports declarations from the serialization and JSON handling libraries
     import kotlinx.serialization.*
     import kotlinx.serialization.json.*
 
@@ -190,7 +189,7 @@ Deserialization converts a JSON string back into an object.
 
 To deserialize an object from JSON in Kotlin:
 
-1. Import the necessary serialization libraries:
+1. Import declarations from the necessary serialization libraries:
 
     ```kotlin
     import kotlinx.serialization.*
@@ -207,7 +206,7 @@ To deserialize an object from JSON in Kotlin:
 3. Use the [`Json.decodeFromString()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/decode-from-string.html) function to deserialize an object from JSON:
 
     ```kotlin
-    // Imports the necessary libraries for serialization and JSON handling
+    // Imports declarations from the serialization and JSON handling libraries
     import kotlinx.serialization.*
     import kotlinx.serialization.json.*
 
@@ -227,6 +226,7 @@ To deserialize an object from JSON in Kotlin:
 Congratulations! You have successfully serialized an object to JSON and deserialized it back into an object in Kotlin!
 
 ## What's next
+
 * Learn how to serialize standard types, including built-in types like numbers and strings, in [Serialize built-in types](serialization-serialize-builtin-types.md).
 * Discover how to customize class serialization and adjust the default behavior of the `@Serializable` annotation in the [Serialize classes](serialization-customization-options.md) section.
 * Dive deeper into handling JSON data and configuring JSON serialization in the [JSON serialization overview](configure-json-serialization.md).
