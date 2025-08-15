@@ -24,8 +24,12 @@ internal const val BREAK = 0xff
 
 internal const val ADDITIONAL_INFORMATION_INDEFINITE_LENGTH = 0x1f
 
+internal const val MAJOR_TYPE_MASK: Int = 0b111_00000
+internal const val ADDITIONAL_INFO_MASK: Int = 0b000_11111
+
 internal const val HEADER_BYTE_STRING: Int = 0b010_00000
 internal const val HEADER_STRING: Int = 0b011_00000
+internal const val HEADER_POSITIVE: Byte = 0b000_00000
 internal const val HEADER_NEGATIVE: Byte = 0b001_00000
 internal const val HEADER_ARRAY: Int = 0b100_00000
 internal const val HEADER_MAP: Int = 0b101_00000

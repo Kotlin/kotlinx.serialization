@@ -86,7 +86,13 @@ public sealed class Cbor(
     override fun <T> decodeFromByteArray(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T {
         val stream = ByteArrayInput(bytes)
         val reader = CborReader(this, CborParser(stream, configuration.verifyObjectTags))
-        return reader.decodeSerializableValue(deserializer)
+        val result = reader.decodeSerializableValue(deserializer)
+        if (stream.availableBytes > 0) {
+            throw CborDecodingException(
+                "Input contains ${stream.availableBytes} unprocessed bytes left after decoding a value."
+            )
+        }
+        return result
     }
 }
 

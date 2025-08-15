@@ -129,10 +129,18 @@ internal open class CborReader(override val cbor: Cbor, protected val parser: Cb
 
     override fun decodeBoolean() = parser.nextBoolean(tags)
 
-    override fun decodeByte() = parser.nextNumber(tags).toByte()
-    override fun decodeShort() = parser.nextNumber(tags).toShort()
-    override fun decodeChar() = parser.nextNumber(tags).toInt().toChar()
-    override fun decodeInt() = parser.nextNumber(tags).toInt()
+    override fun decodeByte() = parser.nextNumberWithinRange(
+        tags, Byte.MIN_VALUE.toLong(), Byte.MAX_VALUE.toLong(), "Byte"
+    ).toByte()
+    override fun decodeShort() = parser.nextNumberWithinRange(
+        tags, Short.MIN_VALUE.toLong(), Short.MAX_VALUE.toLong(), "Short"
+    ).toShort()
+    override fun decodeChar() = parser.nextNumberWithinRange(
+        tags, Char.MIN_VALUE.code.toLong(), Char.MAX_VALUE.code.toLong(), "Char"
+    ).toInt().toChar()
+    override fun decodeInt() = parser.nextNumberWithinRange(
+        tags, Int.MIN_VALUE.toLong(), Int.MAX_VALUE.toLong(), "Int"
+    ).toInt()
     override fun decodeLong() = parser.nextNumber(tags)
 
     override fun decodeNull() = parser.nextNull(tags)
@@ -152,7 +160,12 @@ internal open class CborReader(override val cbor: Cbor, protected val parser: Cb
 }
 
 internal class CborParser(private val input: ByteArrayInput, private val verifyObjectTags: Boolean) {
-    private var curByte: Int = -1
+    private var curByteOrEof: Int = -1
+
+    private fun peekCurByteOrFail(): Int {
+        if (curByteOrEof == -1) throw CborDecodingException("Unexpected end of encoded CBOR document")
+        return curByteOrEof
+    }
 
     init {
         readByte()
@@ -160,35 +173,38 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
 
     @IgnorableReturnValue
     private fun readByte(): Int {
-        curByte = input.read()
-        return curByte
+        curByteOrEof = input.read()
+        return curByteOrEof
     }
 
-    fun isEof() = curByte == -1
+    fun isEof() = curByteOrEof == -1
 
     private fun skipByte(expected: Int) {
-        if (curByte != expected) throw CborDecodingException("byte ${printByte(expected)}", curByte)
+        val byte = peekCurByteOrFail()
+        if (byte != expected) throw CborDecodingException("byte ${printByte(expected)}", byte)
         readByte()
     }
 
-    fun isNull() = (curByte == NULL || curByte == EMPTY_MAP)
+    fun isNull() = with(peekCurByteOrFail()) { this == NULL || this == EMPTY_MAP }
 
     fun nextNull(tags: ULongArray? = null): Nothing? {
         processTags(tags)
-        if (curByte == NULL) {
-            skipByte(NULL)
-        } else if (curByte == EMPTY_MAP) {
-            skipByte(EMPTY_MAP)
+        if (isNull()) {
+            /* val _ = */ readByte()
+            return null
         }
-        return null
+        throw CborDecodingException(
+            "null value (${NULL.toHexString()}) or empty map (${EMPTY_MAP.toHexString()})",
+            peekCurByteOrFail()
+        )
     }
 
     fun nextBoolean(tags: ULongArray? = null): Boolean {
         processTags(tags)
-        val ans = when (curByte) {
+        val ans = when (val byte = peekCurByteOrFail()) {
             TRUE -> true
             FALSE -> false
-            else -> throw CborDecodingException("boolean value", curByte)
+            else -> throw CborDecodingException("boolean value", byte)
         }
         readByte()
         return ans
@@ -205,42 +221,47 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
         collectionType: String
     ): Int {
         processTags(tags)
-        if (curByte == unboundedHeader) {
+        val header = peekCurByteOrFail()
+        if (header == unboundedHeader) {
             skipByte(unboundedHeader)
             return -1
         }
-        if ((curByte and 0b111_00000) != boundedHeaderMask) {
-            if (boundedHeaderMask == HEADER_ARRAY && (curByte and 0b111_00000) == HEADER_BYTE_STRING) {
+        if ((header and MAJOR_TYPE_MASK) != boundedHeaderMask) {
+            if (boundedHeaderMask == HEADER_ARRAY && (header and MAJOR_TYPE_MASK) == HEADER_BYTE_STRING) {
                 throw CborDecodingException(
                     "Expected a start of array, " +
-                        "but found ${printByte(curByte)}, which corresponds to the start of a byte string. " +
+                        "but found ${printByte(header)}, which corresponds to the start of a byte string. " +
                         "Make sure you correctly set 'alwaysUseByteString' setting " +
                         "and/or 'kotlinx.serialization.cbor.ByteString' annotation."
                 )
             }
-            throw CborDecodingException("start of $collectionType", curByte)
+            throw CborDecodingException("start of $collectionType", header)
         }
-        val size = readNumber().toInt()
+        val majorType = header and MAJOR_TYPE_MASK
+        val sizeLimit = if (majorType == HEADER_MAP) Int.MAX_VALUE / 2 else Int.MAX_VALUE
+        val size = readUnsignedIntegerIgnoringMajorType { "$collectionType length" }
+            .asSizedElementLength(majorType, sizeLimit)
         readByte()
         return size
     }
 
-    fun isEnd() = curByte == BREAK
+    fun isEnd() = peekCurByteOrFail() == BREAK
 
     fun end() = skipByte(BREAK)
 
     fun nextByteString(tags: ULongArray? = null): ByteArray {
         processTags(tags)
-        if ((curByte and 0b111_00000) != HEADER_BYTE_STRING) {
-            if (curByte and 0b111_00000 == HEADER_ARRAY) {
+        val header = peekCurByteOrFail()
+        if ((header and MAJOR_TYPE_MASK) != HEADER_BYTE_STRING) {
+            if (header and MAJOR_TYPE_MASK == HEADER_ARRAY) {
                 throw CborDecodingException(
                     "Expected a start of a byte string, " +
-                        "but found ${printByte(curByte)}, which corresponds to the start of an array. " +
+                        "but found ${printByte(header)}, which corresponds to the start of an array. " +
                         "Make sure you correctly set 'alwaysUseByteString' setting " +
                         "and/or 'kotlinx.serialization.cbor.ByteString' annotation."
                 )
             }
-            throw CborDecodingException("start of byte string", curByte)
+            throw CborDecodingException("start of byte string", header)
         }
         val arr = readBytes()
         readByte()
@@ -252,29 +273,34 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
     //used for reading the tag names and names of tagged keys (of maps, and serialized classes)
     private fun nextTaggedString(tags: ULongArray?): Pair<String, ULongArray?> {
         val collectedTags = processTags(tags)
-        if ((curByte and 0b111_00000) != HEADER_STRING)
-            throw CborDecodingException("start of string", curByte)
+        val headerByte = peekCurByteOrFail()
+        if ((headerByte and MAJOR_TYPE_MASK) != HEADER_STRING)
+            throw CborDecodingException("start of string", headerByte)
         val arr = readBytes()
         val ans = arr.decodeToString()
         readByte()
         return ans to collectedTags
     }
 
-    private fun readBytes(): ByteArray =
-        if (curByte and 0b000_11111 == ADDITIONAL_INFORMATION_INDEFINITE_LENGTH) {
+    private fun readBytes(): ByteArray {
+        val headerByte = peekCurByteOrFail()
+        return if (headerByte and ADDITIONAL_INFO_MASK == ADDITIONAL_INFORMATION_INDEFINITE_LENGTH) {
+            val majorType = headerByte and MAJOR_TYPE_MASK
             readByte()
-            readIndefiniteLengthBytes()
+            readIndefiniteLengthStringChunks(majorType)
         } else {
-            val strLen = readNumber().toInt()
+            val majorType = headerByte and MAJOR_TYPE_MASK
+            val strLen = readUnsignedIntegerIgnoringMajorType { "length" }.asSizedElementLength(majorType)
             input.readExactNBytes(strLen)
         }
+    }
 
     @IgnorableReturnValue
     private fun processTags(tags: ULongArray?): ULongArray? {
         var index = 0
         val collectedTags = mutableListOf<ULong>()
-        while ((curByte and 0b111_00000) == HEADER_TAG) {
-            val readTag = readNumber().toULong() // This is the tag number
+        while ((peekCurByteOrFail() and MAJOR_TYPE_MASK) == HEADER_TAG) {
+            val readTag = readUnsignedIntegerIgnoringMajorType { "tag" }.toULong() // This is the tag number
             collectedTags += readTag
             // value tags and object tags are intermingled (keyTags are always separate)
             // so this check only holds if we verify both
@@ -314,16 +340,25 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
      */
     fun nextTaggedStringOrNumber(): Triple<String?, Long?, ULongArray?> {
         val collectedTags = processTags(null)
-        if ((curByte and 0b111_00000) == HEADER_STRING) {
+        val majorType = peekCurByteOrFail()
+        if ((majorType and MAJOR_TYPE_MASK) == HEADER_STRING) {
             val arr = readBytes()
             val ans = arr.decodeToString()
             readByte()
             return Triple(ans, null, collectedTags)
         } else {
-            val res = readNumber()
+            val res = readUnsignedIntegerIgnoringMajorType { majorType.majorTypeName }
             readByte()
             return Triple(null, res, collectedTags)
         }
+    }
+
+    internal fun nextNumberWithinRange(tags: ULongArray?, from: Long, to: Long, type: String): Long {
+        val number = nextNumber(tags)
+        if (number !in from..to) {
+            throw CborDecodingException("Decoded number $number is not within the range for type $type ([$from..$to])")
+        }
+        return number
     }
 
     fun nextNumber(tags: ULongArray? = null): Long {
@@ -333,23 +368,34 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
         return res
     }
 
-    private fun readNumber(): Long {
-        val value = curByte and 0b000_11111
-        val negative = (curByte and 0b111_00000) == HEADER_NEGATIVE.toInt()
-        val bytesToRead = when (value) {
+    // Reads a value encoded using rules for the major type 0 (a.k.a. unsigned integers)
+    private inline fun readUnsignedIntegerIgnoringMajorType(valueDescriptionForError: () -> String): Long {
+        val additionalInfo = peekCurByteOrFail() and ADDITIONAL_INFO_MASK
+
+        if (additionalInfo <= 23) return additionalInfo.toLong()
+        val bytesToRead = when (additionalInfo) {
             24 -> 1
             25 -> 2
             26 -> 4
             27 -> 8
-            else -> 0
+            else /* > 27 */ -> throw CborDecodingException(
+                "Unexpected value encoding when reading ${valueDescriptionForError()}. " +
+                    "Expected addition info value < 28, got $additionalInfo " +
+                    "(decoded from ${printByte(peekCurByteOrFail())})"
+            )
         }
-        if (bytesToRead == 0) {
-            return if (negative) -(value + 1).toLong()
-            else value.toLong()
+        return input.readExact(bytesToRead)
+    }
+
+    private fun readNumber(): Long {
+        val headerByte = peekCurByteOrFail()
+        val majorType = headerByte and MAJOR_TYPE_MASK
+        if (majorType != HEADER_NEGATIVE.toInt() && majorType != HEADER_POSITIVE.toInt()) {
+            throw CborDecodingException("an unsigned or negative integer", headerByte)
         }
-        val res = input.readExact(bytesToRead)
-        return if (negative) -(res + 1)
-        else res
+        val negative = majorType == HEADER_NEGATIVE.toInt()
+        val unsignedValue = readUnsignedIntegerIgnoringMajorType { majorType.majorTypeName }
+        return if (negative) -(unsignedValue + 1) else unsignedValue
     }
 
     private fun ByteArrayInput.readExact(bytes: Int): Long {
@@ -361,10 +407,14 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
         return result
     }
 
-    private fun ByteArrayInput.readExactNBytes(bytesCount: Int): ByteArray {
+    private fun ByteArrayInput.ensureEnoughBytes(bytesCount: Int) {
         if (bytesCount > availableBytes) {
-            error("Unexpected EOF, available $availableBytes bytes, requested: $bytesCount")
+            throw CborDecodingException("Unexpected EOF, available $availableBytes bytes, requested: $bytesCount")
         }
+    }
+
+    private fun ByteArrayInput.readExactNBytes(bytesCount: Int): ByteArray {
+        ensureEnoughBytes(bytesCount)
         val array = ByteArray(bytesCount)
         val _ = read(array, 0, bytesCount)
         return array
@@ -372,10 +422,10 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
 
     fun nextFloat(tags: ULongArray? = null): Float {
         processTags(tags)
-        val res = when (curByte) {
+        val res = when (val headerByte = peekCurByteOrFail()) {
             NEXT_FLOAT -> Float.fromBits(readInt())
             NEXT_HALF -> floatFromHalfBits(readShort())
-            else -> throw CborDecodingException("float header", curByte)
+            else -> throw CborDecodingException("float header", headerByte)
         }
         readByte()
         return res
@@ -383,19 +433,20 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
 
     fun nextDouble(tags: ULongArray? = null): Double {
         processTags(tags)
-        val res = when (curByte) {
+        val res = when (val headerByte = peekCurByteOrFail()) {
             NEXT_DOUBLE -> Double.fromBits(readLong())
             NEXT_FLOAT -> Float.fromBits(readInt()).toDouble()
             NEXT_HALF -> floatFromHalfBits(readShort()).toDouble()
-            else -> throw CborDecodingException("double header", curByte)
+            else -> throw CborDecodingException("double header", headerByte)
         }
         readByte()
         return res
     }
 
     private fun readLong(): Long {
+        input.ensureEnoughBytes(Long.SIZE_BYTES)
         var result = 0L
-        for (i in 0..7) {
+        repeat(Long.SIZE_BYTES) {
             val byte = input.read()
             result = (result shl 8) or byte.toLong()
         }
@@ -403,14 +454,16 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
     }
 
     private fun readShort(): Short {
+        input.ensureEnoughBytes(Short.SIZE_BYTES)
         val highByte = input.read()
         val lowByte = input.read()
         return (highByte shl 8 or lowByte).toShort()
     }
 
     private fun readInt(): Int {
+        input.ensureEnoughBytes(Int.SIZE_BYTES)
         var result = 0
-        for (i in 0..3) {
+        repeat(Int.SIZE_BYTES) {
             val byte = input.read()
             result = (result shl 8) or byte
         }
@@ -435,19 +488,17 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
         processTags(tags)
 
         do {
-            if (isEof()) throw CborDecodingException("Unexpected EOF while skipping element")
-
             if (isIndefinite()) {
                 lengthStack.add(LENGTH_STACK_INDEFINITE)
             } else if (isEnd()) {
                 if (lengthStack.removeLastOrNull() != LENGTH_STACK_INDEFINITE)
-                    throw CborDecodingException("next data item", curByte)
+                    throw CborDecodingException("next data item", peekCurByteOrFail())
                 prune(lengthStack)
             } else {
-                val header = curByte and 0b111_00000
+                val header = peekCurByteOrFail() and MAJOR_TYPE_MASK
                 val length = elementLength()
                 if (header == HEADER_TAG) {
-                    val _ = readNumber()
+                    val _ = readUnsignedIntegerIgnoringMajorType { "tag" }
                 } else if (header == HEADER_ARRAY || header == HEADER_MAP) {
                     if (length > 0) lengthStack.add(length)
                     else prune(lengthStack) // empty map or array automatically completes
@@ -481,14 +532,15 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
     }
 
     /**
-     * Determines if [curByte] represents an indefinite length CBOR item.
+     * Determines if [peekCurByteOrFail] represents an indefinite length CBOR item.
      *
      * Per [RFC 8949: 3.2. Indefinite Lengths for Some Major Types](https://tools.ietf.org/html/rfc8949#section-3.2):
      * > Four CBOR items (arrays, maps, byte strings, and text strings) can be encoded with an indefinite length
      */
     private fun isIndefinite(): Boolean {
-        val majorType = curByte and 0b111_00000
-        val value = curByte and 0b000_11111
+        val curByte = peekCurByteOrFail()
+        val majorType = curByte and MAJOR_TYPE_MASK
+        val value = curByte and ADDITIONAL_INFO_MASK
 
         return value == ADDITIONAL_INFORMATION_INDEFINITE_LENGTH &&
             (majorType == HEADER_ARRAY || majorType == HEADER_MAP ||
@@ -496,7 +548,7 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
     }
 
     /**
-     * Determines the length of the CBOR item represented by [curByte]; length has specific meaning based on the type:
+     * Determines the length of the CBOR item represented by [peekCurByteOrFail]; length has specific meaning based on the type:
      *
      * | Major type          | Length represents number of... |
      * |---------------------|--------------------------------|
@@ -509,12 +561,17 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
      * | 6. tag              | bytes                          |
      */
     private fun elementLength(): Int {
-        val majorType = curByte and 0b111_00000
-        val additionalInformation = curByte and 0b000_11111
+        val curByte = peekCurByteOrFail()
+        val majorType = curByte and MAJOR_TYPE_MASK
+        val additionalInformation = curByte and ADDITIONAL_INFO_MASK
 
         return when (majorType) {
-            HEADER_BYTE_STRING, HEADER_STRING, HEADER_ARRAY -> readNumber().toInt()
-            HEADER_MAP -> readNumber().toInt() * 2
+            HEADER_BYTE_STRING, HEADER_STRING, HEADER_ARRAY
+                -> readUnsignedIntegerIgnoringMajorType { "${majorType.majorTypeName} length" }
+                    .asSizedElementLength(majorType)
+            HEADER_MAP
+                -> readUnsignedIntegerIgnoringMajorType { "map length" }
+                    .asSizedElementLength(majorType, Int.MAX_VALUE / 2) * 2
             else -> when (additionalInformation) {
                 24 -> 1
                 25 -> 2
@@ -526,19 +583,55 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
     }
 
     /**
-     * Indefinite-length byte sequences contain an unknown number of fixed-length byte sequences (chunks).
+     * Reads fixed-length chunks constituting indefinite-length byte sequences (either a text, or a byte-string).
      *
+     * @param majorType a type of the enclosing indefinite-length sequence ([HEADER_STRING] or [HEADER_BYTE_STRING])
      * @return [ByteArray] containing all of the concatenated bytes found in the buffer.
      */
-    private fun readIndefiniteLengthBytes(): ByteArray {
+    private fun readIndefiniteLengthStringChunks(majorType: Int): ByteArray {
         val byteStrings = mutableListOf<ByteArray>()
         do {
-            byteStrings.add(readBytes())
+            val header = peekCurByteOrFail()
+            if (header and MAJOR_TYPE_MASK != majorType) {
+                throw CborDecodingException(
+                    "a header of a chunk with a major type bits matching $majorType",
+                    header
+                )
+            }
+            if (header and ADDITIONAL_INFO_MASK == ADDITIONAL_INFORMATION_INDEFINITE_LENGTH) {
+                throw CborDecodingException("a fixed-length chunk", header)
+            }
+            val length = readUnsignedIntegerIgnoringMajorType { "length of a fixed-length chunk" }
+                .asSizedElementLength(majorType)
+            byteStrings.add(input.readExactNBytes(length))
             readByte()
         } while (!isEnd())
         return byteStrings.flatten()
     }
+
+    private fun Long.asSizedElementLength(majorType: Int, sizeLimit: Int = Int.MAX_VALUE): Int {
+        if (this in 0L..sizeLimit.toLong()) return this.toInt()
+
+        val typeName = majorType.majorTypeName
+
+        if (this < 0) {
+            throw CborDecodingException("negative length value was decoded for $typeName: $this")
+        }
+        throw CborDecodingException("length for $typeName is too large: $this")
+    }
 }
+
+private val Int.majorTypeName: String
+    get() = when (this and MAJOR_TYPE_MASK) {
+        HEADER_BYTE_STRING -> "byte string"
+        HEADER_STRING -> "string"
+        HEADER_ARRAY -> "array"
+        HEADER_MAP -> "map"
+        HEADER_TAG -> "tag"
+        HEADER_POSITIVE.toInt() -> "unsigned integer"
+        HEADER_NEGATIVE.toInt() -> "negative integer"
+        else -> "<unknown>"
+    }
 
 private fun Iterable<ByteArray>.flatten(): ByteArray {
     val output = ByteArray(sumOf { it.size })

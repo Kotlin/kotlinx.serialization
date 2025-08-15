@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2025 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 @file:OptIn(ExperimentalUnsignedTypes::class)
@@ -7,7 +7,6 @@
 package kotlinx.serialization.cbor
 
 import kotlinx.serialization.*
-import kotlinx.serialization.SimpleSealed.*
 import kotlinx.serialization.cbor.internal.*
 import kotlin.test.*
 
@@ -27,6 +26,145 @@ class CborParserTest {
         withParser("203903e7") {
             assertEquals(-1L, nextNumber())
             assertEquals(-1000L, nextNumber())
+        }
+    }
+
+    // See https://datatracker.ietf.org/doc/html/rfc8949#section-3.3
+    @Test
+    fun testSimpleValues() {
+        withParser("F4F5") { // boolean values
+            assertFalse(nextBoolean())
+            assertTrue(nextBoolean())
+        }
+        withParser("F6") { // null
+            assertNull(nextNull())
+            expectEof()
+        }
+        // withParser("F7") { // undefined
+        // TODO: how do we handle undefined values?
+        // }
+    }
+
+    // See https://datatracker.ietf.org/doc/html/rfc8949#section-3.3
+    @Test
+    fun testUnsupportedSimpleValueEncodings() {
+        fun CborParser.tryReadAllSimpleValues() {
+            assertFailsWith<CborDecodingException> { nextBoolean() }
+            assertFailsWith<CborDecodingException> { nextNull() }
+            assertFailsWith<CborDecodingException> { nextFloat() }
+            assertFailsWith<CborDecodingException> { nextDouble() }
+        }
+
+        // unassigned
+        withParser("E0") { tryReadAllSimpleValues() }
+        withParser("F3") { tryReadAllSimpleValues() }
+        withParser("FC") { tryReadAllSimpleValues() }
+        // break
+        withParser("FF") { tryReadAllSimpleValues() }
+        // two bytes, the second is missing
+        withParser("F8") { tryReadAllSimpleValues() }
+        // two bytes, unassigned
+        withParser("F800") { tryReadAllSimpleValues() }
+        withParser("F8FF") { tryReadAllSimpleValues() }
+        // two bytes, reserved
+        withParser("F818") { tryReadAllSimpleValues() }
+    }
+
+    // See https://datatracker.ietf.org/doc/html/rfc8949#section-3.3
+    @Test
+    fun testReadArbitraryByteSequenceAsSimpleValue() {
+        withParser("17") { // that's not a simple value
+            assertFailsWith<CborDecodingException> { nextBoolean() }
+        }
+        withParser("17") { // that's not a simple value
+            assertFailsWith<CborDecodingException> { nextNull() }
+        }
+        withParser("6568656C6C6F6568656C6C6F") { // that's not a simple value
+            assertFailsWith<CborDecodingException> { nextFloat() }
+        }
+        withParser("6568656C6C6F6568656C6C6F") { // that's not a simple value
+            assertFailsWith<CborDecodingException> { nextDouble() }
+        }
+    }
+
+    // See https://datatracker.ietf.org/doc/html/rfc8949#section-3.3
+    @Test
+    fun testFloatValues() {
+        // 1.0 -> 0x3F800000
+        // NaN -> 0x7FC00000
+        // Inf -> 0x7F800000
+        // -Inf -> 0xFF800000
+        // 0.0 -> 0x0
+        // -0.0 -> 0x80000000
+
+        // read as float
+        withParser("FA3F800000FA7FC00000FA7F800000FAFF800000FA00000000FA80000000") {
+            assertEquals(1.0f, nextFloat(), 1e-6f)
+            assertTrue(nextFloat().isNaN())
+            assertEquals(Float.POSITIVE_INFINITY, nextFloat())
+            assertEquals(Float.NEGATIVE_INFINITY, nextFloat())
+            assertEquals(0.0f, nextFloat())
+            assertEquals(0x80000000.toInt(), nextFloat().toBits())
+        }
+
+        // read as double
+        withParser("FA3F800000FA7FC00000FA7F800000FAFF800000FA00000000FA80000000") {
+            assertEquals(1.0, nextDouble(), 1e-6)
+            assertTrue(nextDouble().isNaN())
+            assertEquals(Double.POSITIVE_INFINITY, nextDouble())
+            assertEquals(Double.NEGATIVE_INFINITY, nextDouble())
+            assertEquals(0.0, nextDouble())
+            assertEquals(0x8000000000000000UL.toLong(), nextDouble().toBits())
+        }
+
+        // read invalid data
+        repeat(4) {
+            withParser("FA" + "00".repeat(it)) {
+                assertFailsWith<CborDecodingException> { nextFloat() }
+            }
+        }
+        repeat(4) {
+            withParser("FA" + "00".repeat(it)) {
+                assertFailsWith<CborDecodingException> { nextDouble() }
+            }
+        }
+    }
+
+    // See https://datatracker.ietf.org/doc/html/rfc8949#section-3.3
+    @Test
+    fun testDoubleValues() {
+        // 1.0 -> 0x3FF0000000000000
+        // NaN -> 0x7FF8000000000000
+        // Inf -> 0x7FF0000000000000
+        // -Inf -> 0xFFF0000000000000
+        // 0.0 -> 0x0
+        // -0.0 -> 0x8000000000000000
+
+        // read as double
+        withParser("FB3FF0000000000000FB7FF8000000000000FB7FF0000000000000FBFFF0000000000000FB0000000000000000FB8000000000000000") {
+            assertEquals(1.0, nextDouble(), 1e-6)
+            assertTrue(nextDouble().isNaN())
+            assertEquals(Double.POSITIVE_INFINITY, nextDouble())
+            assertEquals(Double.NEGATIVE_INFINITY, nextDouble())
+            assertEquals(0.0, nextDouble())
+            assertEquals(0x8000000000000000UL.toLong(), nextDouble().toBits())
+        }
+
+        // read invalid data
+        repeat(8) {
+            withParser("FB" + "00".repeat(it)) {
+                assertFailsWith<CborDecodingException> { nextFloat() }
+            }
+        }
+        repeat(8) {
+            withParser("FB" + "00".repeat(it)) {
+                assertFailsWith<CborDecodingException> { nextDouble() }
+            }
+        }
+
+        // read double as float
+        withParser("FB3FF0000000000000") {
+            assertFailsWith<CborDecodingException> { nextFloat() }
         }
     }
 
@@ -50,6 +188,159 @@ class CborParserTest {
         }
     }
 
+    // See https://www.rfc-editor.org/rfc/rfc8949#section-3.1
+    @Test
+    fun testPositiveIntegersImmediateEncoding() {
+        withParser("000117") { // immediate encoding, values in range 0..23
+            assertEquals(0L, nextNumber())
+            assertEquals(1L, nextNumber())
+            assertEquals(23L, nextNumber())
+        }
+        withParser("1C") { // additional information > 27 is illegal
+            assertFailsWith<CborDecodingException> { nextNumber() }
+        }
+        withParser("1F") { // additional information > 27 is illegal
+            assertFailsWith<CborDecodingException> { nextNumber() }
+        }
+    }
+
+    // See https://www.rfc-editor.org/rfc/rfc8949#section-3.1
+    @Test
+    fun testPositiveIntegersSingleByteEncoding() {
+        withParser("180018FF") { // single byte encoding
+            assertEquals(0L, nextNumber())
+            assertEquals(0xFFL, nextNumber())
+        }
+        withParser("18") { // single byte encoding, underflow
+            assertFailsWith<CborDecodingException> { nextNumber() }
+        }
+    }
+
+    // See https://www.rfc-editor.org/rfc/rfc8949#section-3.1
+    @Test
+    fun testPositiveIntegersTwoByteEncoding() {
+        withParser("19000019FFFF") { // two byte encoding
+            assertEquals(0L, nextNumber())
+            assertEquals(0xFFFFL, nextNumber())
+        }
+        repeat(2) {
+            withParser("19" + "00".repeat(it)) { // two bytes encoding, underflow
+                assertFailsWith<CborDecodingException> { nextNumber() }
+            }
+        }
+    }
+
+    // See https://www.rfc-editor.org/rfc/rfc8949#section-3.1
+    @Test
+    fun testPositiveIntegersFourByteEncoding() {
+        withParser("1A000000001AFFFFFFFF") { // four bytes encoding
+            assertEquals(0L, nextNumber())
+            assertEquals(0xFFFFFFFFL, nextNumber())
+        }
+        repeat(4) {
+            withParser("1A" + "00".repeat(it)) { // four bytes encoding, underflow
+                assertFailsWith<CborDecodingException> { nextNumber() }
+            }
+        }
+    }
+
+    // See https://www.rfc-editor.org/rfc/rfc8949#section-3.1
+    @Test
+    fun testPositiveIntegersEightByteEncoding() {
+        withParser("1B00000000000000001B7FFFFFFFFFFFFFFF1BFFFFFFFFFFFFFFFF") { // four bytes encoding
+            assertEquals(0L, nextNumber())
+            assertEquals(Long.MAX_VALUE, nextNumber())
+            // TODO: should it be an error?
+            assertEquals(-1L, nextNumber())
+        }
+        repeat(8) {
+            withParser("1B" + "00".repeat(it)) { // four bytes encoding, underflow
+                assertFailsWith<CborDecodingException> { nextNumber() }
+            }
+        }
+    }
+
+    // See https://www.rfc-editor.org/rfc/rfc8949#section-3.1
+    @Test
+    fun testNegativeIntegersImmediateEncoding() {
+        withParser("202137") { // immediate encoding, values in range -24..-1
+            assertEquals(-1L, nextNumber())
+            assertEquals(-2L, nextNumber())
+            assertEquals(-24L, nextNumber())
+        }
+        withParser("3C") { // additional information > 27 is illegal
+            assertFailsWith<CborDecodingException> { nextNumber() }
+        }
+        withParser("3F") { // additional information > 27 is illegal
+            assertFailsWith<CborDecodingException> { nextNumber() }
+        }
+    }
+
+    // See https://www.rfc-editor.org/rfc/rfc8949#section-3.1
+    @Test
+    fun testNegativeIntegersSingleByteEncoding() {
+        withParser("380038FF") {
+            assertEquals(-1L, nextNumber())
+            assertEquals(-256L, nextNumber())
+        }
+        withParser("38") { // underflow
+            assertFailsWith<CborDecodingException> { nextNumber() }
+        }
+    }
+
+    // See https://www.rfc-editor.org/rfc/rfc8949#section-3.1
+    @Test
+    fun testNegativeIntegersTwoByteEncoding() {
+        withParser("39000039FFFF") {
+            assertEquals(-1L, nextNumber())
+            assertEquals(-65536L, nextNumber())
+        }
+        repeat(2) {
+            withParser("39" + "00".repeat(it)) { // underflow
+                assertFailsWith<CborDecodingException> { nextNumber() }
+            }
+        }
+    }
+
+    // See https://www.rfc-editor.org/rfc/rfc8949#section-3.1
+    @Test
+    fun testNegativeIntegersFourByteEncoding() {
+        withParser("3A000000003AFFFFFFFF") {
+            assertEquals(-1L, nextNumber())
+            assertEquals(-4294967296L, nextNumber())
+        }
+        repeat(4) {
+            withParser("3A" + "00".repeat(it)) { // underflow
+                assertFailsWith<CborDecodingException> { nextNumber() }
+            }
+        }
+    }
+
+    // See https://www.rfc-editor.org/rfc/rfc8949#section-3.1
+    @Test
+    fun testNegativeIntegersEightByteEncoding() {
+        withParser("3B00000000000000003BFFFFFFFFFFFFFFFF") {
+            assertEquals(-1L, nextNumber())
+            // TODO: what should it be?
+            assertEquals(0L, nextNumber())
+        }
+        repeat(8) {
+            withParser("3B" + "00".repeat(it)) {
+                assertFailsWith<CborDecodingException> { nextNumber() }
+            }
+        }
+    }
+
+    // See https://www.rfc-editor.org/rfc/rfc8949#section-3.1
+    @Test
+    fun testReadArbitraryByteSequenceAsIntegralNumber() {
+        withParser("6568656C6C6F") { // string "hello"
+            assertFailsWith<CborDecodingException> { nextNumber() }
+        }
+        withParser("FB400921FB54442EEA") { // PI
+            assertFailsWith<CborDecodingException> { nextNumber() }
+        }
+    }
 
     /**
      * Test using example shown on page 11 of [RFC 7049 2.2.2](https://tools.ietf.org/html/rfc7049#section-2.2.2):
@@ -78,6 +369,15 @@ class CborParserTest {
         }
     }
 
+    @Test // from #2886
+    fun testEofInsideIndefiniteByteString() {
+        withParser("7f6100") {
+            val msg = assertFailsWith<CborDecodingException> {
+                nextString()
+            }
+            assertEquals("Unexpected end of encoded CBOR document", msg.message)
+        }
+    }
 
     /**
      * Tests skipping unknown keys associated with values of the following CBOR types:
@@ -533,6 +833,67 @@ class CborParserTest {
             assertEquals("this array", nextString(null))
             assertEquals("is tagged", nextString(null))
             assertEquals("1234567", nextString(null))
+        }
+    }
+
+    @Test
+    fun testTooLongByteString() {
+        withParser("5B0000000080000000010203") { // Int overflow
+            assertFailsWith<CborDecodingException> { nextByteString() }
+        }
+        withParser("5B0001000000000000010203") { // does not fit into Int
+            assertFailsWith<CborDecodingException> { nextByteString() }
+        }
+        withParser("5B0001000000000000010203") { // does not fit into Int
+            assertFailsWith<CborDecodingException> { skipElement() }
+        }
+        withParser("5B0000000070000000010203") { // EOF
+            assertFailsWith<CborDecodingException> { nextByteString() }
+        }
+    }
+
+    @Test
+    fun testTooLongTextString() {
+        withParser("7B00000000800000006C6F6E67") { // Int overflow
+            assertFailsWith<CborDecodingException> { nextString() }
+        }
+        withParser("7B00010000000000006C6F6E67") { // does not fit into Int
+            assertFailsWith<CborDecodingException> { nextString() }
+        }
+        withParser("7B00010000000000006C6F6E67") { // does not fit into Int
+            assertFailsWith<CborDecodingException> { skipElement() }
+        }
+        withParser("7B0000000070000000000000") { // EOF
+            assertFailsWith<CborDecodingException> { nextByteString() }
+        }
+    }
+
+    @Test
+    fun testTooLongList() {
+        withParser("9B000000008000000001020304") { // Int overflow
+            assertFailsWith<CborDecodingException> { startArray() }
+        }
+        withParser("9B000100000000000001020304") { // does not fit into Int
+            assertFailsWith<CborDecodingException> { startArray() }
+        }
+        withParser("9B000100000000000001020304") { // does not fit into Int
+            assertFailsWith<CborDecodingException> { skipElement() }
+        }
+    }
+
+    @Test
+    fun testTooLongMap() {
+        withParser("BB0000000080000000616B6176") { // Int overflow
+            assertFailsWith<CborDecodingException> { startMap() }
+        }
+        withParser("BB0000000040000000616B6176") { // we don't support maps with size larger than Int.MAX_VALUE / 2
+            assertFailsWith<CborDecodingException> { startMap() }
+        }
+        withParser("BB0001000000000000616B6176") { // does not fit into Int
+            assertFailsWith<CborDecodingException> { startMap() }
+        }
+        withParser("BB0001000000000000616B6176") { // does not fit into Int
+            assertFailsWith<CborDecodingException> { skipElement() }
         }
     }
 }
