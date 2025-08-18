@@ -227,8 +227,22 @@ class ModuleBuildersTest {
                 subclass(C2::class)
             }
         }
-        val classNameMsg = if (currentPlatform == Platform.JS || currentPlatform == Platform.WASM) "class Any" else "class kotlin.Any"
-        assertFailsWithMessage<IllegalArgumentException>("Multiple polymorphic serializers in a scope of '$classNameMsg' have the same serial name 'C'") { c1 + c2 }
+        val msgConstructor: (String) -> String = {
+            classNameMsg -> "Multiple polymorphic serializers in a scope of '$classNameMsg' have the same serial name 'C'"
+        }
+        // In WASM the class name may appear as either "class Any" or "class kotlin.Any" due to changing API
+        if (currentPlatform == Platform.WASM) {
+            val ex = assertFailsWith<IllegalArgumentException> { c1 + c2 }
+            val expected1 = msgConstructor("class Any")
+            val expected2 = msgConstructor("class kotlin.Any")
+            assertTrue(
+                ex.message!!.contains(expected1) || ex.message!!.contains(expected2),
+                "Expected exception message '${ex.message}' to contain either:\n'$expected1' or \n'$expected2'"
+            )
+        } else {
+            val classNameMsg = if (currentPlatform == Platform.JS) "class Any" else "class kotlin.Any"
+            assertFailsWithMessage<IllegalArgumentException>(msgConstructor(classNameMsg)) { c1 + c2 }
+        }
         val module = c1 overwriteWith c2
         // C should not be registered at all, C2 should be registered both under "C" and C2::class
         assertEquals(C2.serializer(), module.getPolymorphic(Any::class, serializedClassName = "C"))
