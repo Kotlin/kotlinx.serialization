@@ -1,11 +1,11 @@
 [//]: # (title: Serialization)
 
 **Serialization** is the process of converting data used by an application to a format that can be transferred over a
-network or stored in a database or a file. Deserialization is the opposite process of converting external data back into a runtime object.
+network, or stored in a database or a file. Deserialization is the opposite process of converting external data back into a runtime object.
 Together, they are essential to most applications that exchange data with third parties.
 
-Some data serialization formats, such as [JSON](https://www.json.org/json-en.html) and [Protocol Buffers](https://protobuf.dev/) are particularly common.
-Being language-neutral and platform-neutral, these formats enable data exchange between systems written in any modern language.
+Some data serialization formats, such as [JSON](https://www.json.org/json-en.html) and [Protocol Buffers](https://protobuf.dev/), are particularly common.
+These formats are language-neutral and platform-neutral, so you can use them to exchange data between systems written in any modern language.
 Kotlin provides this functionality through the [`kotlinx.serialization` libraries](#kotlin-serialization-libraries),
 which support multiple platforms and data formats.
 
@@ -16,34 +16,36 @@ It walks you through adding the Kotlin serialization library to your project and
 
 ## Kotlin serialization libraries
 
-The `kotlinx.serialization` library offers support for all platforms, including JVM, JavaScript, Native.
-It works with various serialization formats, such as JSON, CBOR, and Protocol buffers. For the complete list of supported serialization,
-see the [supported formats](#supported-serialization-formats) section.
+Kotlin serialization offers support for all platforms, including JVM, JavaScript, and Native.
+You can use the same [dependency declaration](serialization-get-started.md#add-plugins-and-dependencies-for-kotlin-serialization) regardless of the target platform.
+
+Kotlin serialization supports various serialization formats, such as JSON, CBOR, and Protocol buffers through different serialization format libraries.
+These libraries build on the core `kotlinx.serialization` library.
+For the complete list of supported serialization formats, see [Supported serialization formats](#supported-serialization-formats).
 
 All Kotlin serialization libraries are part of the `org.jetbrains.kotlinx:` group, with names
 starting with `kotlinx-serialization-` and suffixes that reflect the serialization format.
 For example:
 
-* `org.jetbrains.kotlinx:kotlinx-serialization-json` provides JSON serialization for Kotlin projects.
+* `org.jetbrains.kotlinx:kotlinx-serialization-json` provides JSON serialization.
 * `org.jetbrains.kotlinx:kotlinx-serialization-cbor` provides CBOR serialization.
 
-Platform-specific dependencies are automatically managed, so you don't need to add them manually.
-Use the same dependencies for JVM, JavaScript, Native, and multiplatform projects.
-
-The `kotlinx.serialization` libraries follow their own versioning structure, independent of Kotlin.
-You can check out the releases on [GitHub](https://github.com/Kotlin/kotlinx.serialization/releases) to find the latest versions.
+The `kotlinx.serialization` libraries follow their own versioning, independent of Kotlin.
+You can find the latest release versions on [GitHub](https://github.com/Kotlin/kotlinx.serialization/releases).
 
 ## Supported serialization formats
 
-`kotlinx.serialization` includes libraries for various serialization formats:
+`kotlinx.serialization` includes serialization format libraries for various formats:
 
-* [JSON](https://www.json.org/json-en.html): [`kotlinx-serialization-json`](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md#json)
-* [Protocol buffers](https://protobuf.dev/): [`kotlinx-serialization-protobuf`](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md#protobuf)
-* [CBOR](https://cbor.io/): [`kotlinx-serialization-cbor`](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md#cbor)
-* [Properties](https://en.wikipedia.org/wiki/.properties): [`kotlinx-serialization-properties`](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md#properties)
-* [HOCON](https://github.com/lightbend/config/blob/master/HOCON.md): [`kotlinx-serialization-hocon`](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md#hocon) (only on JVM)
+| Format       | Artifact ID                                                                                                                    | Platform                | Status       |
+|--------------|--------------------------------------------------------------------------------------------------------------------------------|-------------------------|--------------|
+| [JSON](https://www.json.org/json-en.html)            | [`kotlinx-serialization-json`](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md#json)             | all supported platforms | Stable       |
+| [HOCON](https://github.com/lightbend/config/blob/master/HOCON.md) | [`kotlinx-serialization-hocon`](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md#hocon)           | JVM only                | Experimental |
+| [Protocol Buffers](https://protobuf.dev/)            | [`kotlinx-serialization-protobuf`](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md#protobuf)     | all supported platforms | Experimental |
+| [CBOR](https://cbor.io/)                             | [`kotlinx-serialization-cbor`](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md#cbor)             | all supported platforms | Experimental |
+| [Properties](https://en.wikipedia.org/wiki/.properties) | [`kotlinx-serialization-properties`](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md#properties) | all supported platforms | Experimental |
 
-All libraries except JSON serialization (`kotlinx-serialization-json`) are [experimental](components-stability.md), which means their API can be changed without notice.
+All serialization format libraries, except for the JSON serialization library (`kotlinx-serialization-json`), are [Experimental](components-stability.md). Their APIs might change at any time.
 For more details about JSON serialization, see [JSON serialization overview](configure-json-serialization.md).
 
 There are also community-maintained libraries that support more serialization formats, such as [YAML](https://yaml.org/) or [Apache Avro](https://avro.apache.org/).
@@ -62,7 +64,7 @@ For more information, see [Serialize classes](serialization-customization-option
 
 * Learn the basics of Kotlin serialization in the [Get started with serialization tutorial](serialization-get-started.md).
 * See how the `kotlinx.serialization` library processes [primitives, collections, and other built-in types](serialization-serialize-builtin-types.md)
-* To explore more complex JSON serialization scenarios, see [JSON serialization overview](configure-json-serialization.md).
-* Dive into the [Serialize classes](serialization-customization-options.md) section to learn how to serialize classes and how to modify the default behavior of the `@Serializable` annotation.
+* Explore more complex JSON serialization scenarios in the [JSON serialization overview](configure-json-serialization.md).
+* Dive into [Serialize classes](serialization-customization-options.md) to learn how to serialize classes and modify the default behavior of the `@Serializable` annotation.
 * Learn how to define and customize your own serializers in [Create custom serializers](serialization-custom-serializers.md).
 * See how to serialize different types through a shared base type in [Serialize polymorphic classes](serialization-polymorphism.md).
