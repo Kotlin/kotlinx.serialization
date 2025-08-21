@@ -23,7 +23,7 @@ Kotlin serialization supports various serialization formats, such as JSON, CBOR,
 These libraries build on the core `kotlinx.serialization` library.
 For the complete list of supported serialization formats, see [Supported serialization formats](#supported-serialization-formats).
 
-All Kotlin serialization libraries are part of the `org.jetbrains.kotlinx:` group, with names
+All Kotlin serialization format libraries are part of the `org.jetbrains.kotlinx:` group, with names
 starting with `kotlinx-serialization-` and suffixes that reflect the serialization format.
 For example:
 
@@ -63,7 +63,7 @@ For more information, see [Serialize classes](serialization-customization-option
 ## What's next
 
 * Learn the basics of Kotlin serialization in the [Get started with serialization tutorial](serialization-get-started.md).
-* See how the `kotlinx.serialization` library processes [primitives, collections, and other built-in types](serialization-serialize-builtin-types.md)
+* See how the Kotlin serialization library processes [primitives, collections, and other built-in types](serialization-serialize-builtin-types.md)
 * Explore more complex JSON serialization scenarios in the [JSON serialization overview](configure-json-serialization.md).
 * Dive into [Serialize classes](serialization-customization-options.md) to learn how to serialize classes and modify the default behavior of the `@Serializable` annotation.
 * Learn how to define and customize your own serializers in [Create custom serializers](serialization-custom-serializers.md).
