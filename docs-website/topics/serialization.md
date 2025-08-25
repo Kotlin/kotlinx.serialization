@@ -39,11 +39,11 @@ You can find the latest release versions on [GitHub](https://github.com/Kotlin/k
 
 | Format       | Artifact ID                                                                                                                    | Platform                | Status       |
 |--------------|--------------------------------------------------------------------------------------------------------------------------------|-------------------------|--------------|
-| [JSON](https://www.json.org/json-en.html)            | [`kotlinx-serialization-json`](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md#json)             | all supported platforms | Stable       |
+| [JSON](https://www.json.org/json-en.html)            | [`kotlinx-serialization-json`](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md#json)             | All supported platforms | Stable       |
 | [HOCON](https://github.com/lightbend/config/blob/master/HOCON.md) | [`kotlinx-serialization-hocon`](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md#hocon)           | JVM only                | Experimental |
-| [Protocol Buffers](https://protobuf.dev/)            | [`kotlinx-serialization-protobuf`](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md#protobuf)     | all supported platforms | Experimental |
-| [CBOR](https://cbor.io/)                             | [`kotlinx-serialization-cbor`](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md#cbor)             | all supported platforms | Experimental |
-| [Properties](https://en.wikipedia.org/wiki/.properties) | [`kotlinx-serialization-properties`](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md#properties) | all supported platforms | Experimental |
+| [Protocol Buffers](https://protobuf.dev/)            | [`kotlinx-serialization-protobuf`](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md#protobuf)     | All supported platforms | Experimental |
+| [CBOR](https://cbor.io/)                             | [`kotlinx-serialization-cbor`](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md#cbor)             | All supported platforms | Experimental |
+| [Properties](https://en.wikipedia.org/wiki/.properties) | [`kotlinx-serialization-properties`](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md#properties) | All supported platforms | Experimental |
 
 All serialization format libraries, except for the JSON serialization library (`kotlinx-serialization-json`), are [Experimental](components-stability.md). Their APIs might change at any time.
 For more details about JSON serialization, see [JSON serialization overview](configure-json-serialization.md).
