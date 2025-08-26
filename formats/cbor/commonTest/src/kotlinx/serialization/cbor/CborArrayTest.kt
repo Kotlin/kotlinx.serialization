@@ -10,7 +10,7 @@ class CborArrayTest {
     fun writeReadVerifyArraySize1() {
         /**
          * 81    # array(1)
-         *    26 # negative(6)
+         *    26 # negative(-7)
          */
         val referenceHexString = "8126"
         val reference = ClassAs1Array(alg = -7)

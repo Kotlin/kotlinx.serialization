@@ -90,29 +90,53 @@ public sealed class CborPrimitive<T : Any>(
 
 /**
  * Class representing either:
- * * signed CBOR integer (major type 1)
- * * unsigned CBOR integer (major type 0)
+ * * signed CBOR integer (major type 1 encompassing `-2^64..-1`)
+ * * unsigned CBOR integer (major type 0 encompassing `0..2^64-1`)
  *
- * depending on whether a positive or a negative number was passed.
+ * depending on the value of [sign]. Note that [absoluteValue] **must** be `0` when sign is set to [Sign.ZERO]
  */
 @Serializable(with = CborIntSerializer::class)
-public sealed class CborInt<T : Any>(
-    tags: ULongArray = ulongArrayOf(),
-    value: T,
-) : CborPrimitive<T>(value, tags) {
+public class CborInt(
+    absoluteValue: ULong,
+    public val sign: Sign,
+    vararg tags: ULong
+) : CborPrimitive<ULong>(absoluteValue, tags) {
+
+    init {
+        if (sign == Sign.ZERO) require(absoluteValue == 0uL) { "Illegal absolute value $absoluteValue for Sign.ZERO" }
+    }
+
+    public enum class Sign {
+        POSITIVE,
+        NEGATIVE,
+        ZERO
+    }
+
+    /**
+     * **WARNING! Possible truncation/overflow!** E.g., `-2^64` -> `1`
+     */
+    public fun toLong(): Long = when (sign) {
+        Sign.POSITIVE, Sign.ZERO -> value.toLong()
+        Sign.NEGATIVE -> -value.toLong()
+    }
+
+
     public companion object {
         /**
          * Creates:
-         * * signed CBOR integer (major type 1)
-         * * unsigned CBOR integer (major type 0)
+         * * signed CBOR integer (major type 1 encompassing `-2^64..-1`)
+         * * unsigned CBOR integer (major type 0 encompassing `0..2^64-1`)
          *
          * depending on whether a positive or a negative number was passed.
+         * If you want to create a negative number exceeding [Long.MIN_VALUE], manually specify sign: `CborInt(ULong.MAX_VALUE, CborInt.Sign.NEGATIVE)`
          */
         public operator fun invoke(
             value: Long,
             vararg tags: ULong
-        ): CborInt<*> =
-            if (value >= 0) CborPositiveInt(value.toULong(), tags = tags) else CborNegativeInt(value, tags = tags)
+        ): CborInt =
+            if (value == 0L) CborInt(value.toULong(), Sign.ZERO, tags = tags)
+            else if (value > 0L) CborInt(value.toULong(), Sign.POSITIVE, tags = tags)
+            else CborInt(ULong.MAX_VALUE - value.toULong() + 1uL, Sign.NEGATIVE, tags = tags)
 
         /**
          * Creates an unsigned CBOR integer (major type 0).
@@ -120,31 +144,36 @@ public sealed class CborInt<T : Any>(
         public operator fun invoke(
             value: ULong,
             vararg tags: ULong
-        ): CborInt<ULong> = CborPositiveInt(value, tags = tags)
+        ): CborInt = if (value == 0uL) CborInt(value, Sign.ZERO, tags = tags)
+        else CborInt(value, Sign.POSITIVE, tags = tags)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CborInt) return false
+        if (!super.equals(other)) return false
+
+        if (sign != other.sign) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + sign.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "CborInt(tags=${tags.joinToString(prefix = "[", postfix = "]")}, " +
+            "value=" + when (sign) {
+            Sign.POSITIVE, Sign.ZERO -> ""
+            Sign.NEGATIVE -> "-"
+        } +
+            value +
+            ")"
     }
 }
-
-/**
- * Class representing signed CBOR integer (major type 1).
- */
-@Serializable(with = CborNegativeIntSerializer::class)
-public class CborNegativeInt(
-    value: Long,
-    vararg tags: ULong
-) : CborInt<Long>(tags, value) {
-    init {
-        require(value < 0) { "Number must be negative: $value" }
-    }
-}
-
-/**
- * Class representing unsigned CBOR integer (major type 0).
- */
-@Serializable(with = CborPositiveIntSerializer::class)
-public class CborPositiveInt(
-    value: ULong,
-    vararg tags: ULong
-) : CborInt<ULong>(tags, value)
 
 /**
  * Class representing CBOR floating point value (major type 7).

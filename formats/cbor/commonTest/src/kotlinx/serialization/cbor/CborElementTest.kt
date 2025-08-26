@@ -22,11 +22,93 @@ class CborElementTest {
 
     @Test
     fun testCborNumber() {
-        val numberElement = CborPositiveInt(42u)
+        val numberElement = CborInt(42u)
         val numberBytes = cbor.encodeToByteArray(numberElement)
         val decodedNumber = cbor.decodeFromByteArray<CborElement>(numberBytes)
         assertEquals(numberElement, decodedNumber)
-        assertEquals(42u, (decodedNumber as CborPositiveInt).value)
+        assertEquals(42u, (decodedNumber as CborInt).value)
+    }
+
+    @Test
+    fun testCborNumberZero() {
+        val numberElement = CborInt(0uL)
+        assertEquals(numberElement, CborInt(0))
+        assertEquals(numberElement.sign, CborInt.Sign.ZERO)
+        assertEquals(numberElement.value, 0uL)
+        val numberBytes = cbor.encodeToByteArray(numberElement)
+        val decodedNumber = cbor.decodeFromByteArray<CborElement>(numberBytes)
+        assertEquals(numberElement, decodedNumber)
+        assertEquals(0uL, (decodedNumber as CborInt).value)
+    }
+
+    @Test
+    fun testCborNumberMax() {
+        val numberElement = CborInt(ULong.MAX_VALUE)
+        assertEquals(numberElement.sign, CborInt.Sign.POSITIVE)
+        assertEquals(numberElement.value, ULong.MAX_VALUE)
+        val numberBytes = cbor.encodeToByteArray(numberElement)
+        val decodedNumber = cbor.decodeFromByteArray<CborElement>(numberBytes)
+        assertEquals(numberElement, decodedNumber)
+        assertEquals(ULong.MAX_VALUE, (decodedNumber as CborInt).value)
+    }
+
+    @Test
+    fun testCborNumberMaxHalv() {
+        val numberElement = CborInt(Long.MAX_VALUE)
+        assertEquals(numberElement.sign, CborInt.Sign.POSITIVE)
+        assertEquals(numberElement.value, Long.MAX_VALUE.toULong())
+        val numberBytes = cbor.encodeToByteArray(numberElement)
+        val decodedNumber = cbor.decodeFromByteArray<CborElement>(numberBytes)
+        assertEquals(numberElement, decodedNumber)
+        assertEquals(Long.MAX_VALUE.toULong(), (decodedNumber as CborInt).value)
+    }
+
+
+    @Test
+    fun testCborNumberMin() {
+        val numberElement = CborInt(ULong.MAX_VALUE, sign = CborInt.Sign.NEGATIVE)
+        assertEquals(numberElement.sign, CborInt.Sign.NEGATIVE)
+        assertEquals(numberElement.value, ULong.MAX_VALUE)
+        val numberBytes = cbor.encodeToByteArray(numberElement)
+        val decodedNumber = cbor.decodeFromByteArray<CborElement>(numberBytes)
+        assertEquals(numberElement, decodedNumber)
+        assertEquals(ULong.MAX_VALUE, (decodedNumber as CborInt).value)
+
+        val lossOfPrecision = cbor.decodeFromCborElement<Long>(numberElement)
+
+        assertEquals(1L, lossOfPrecision)
+        assertEquals(1L, numberElement.toLong())
+    }
+
+
+    @Test
+    fun testCborNumberMinHalv() {
+        val numberElement = CborInt(Long.MAX_VALUE.toULong(), sign = CborInt.Sign.NEGATIVE)
+        assertEquals(numberElement.sign, CborInt.Sign.NEGATIVE)
+        assertEquals(numberElement.value, Long.MAX_VALUE.toULong())
+        val numberBytes = cbor.encodeToByteArray(numberElement)
+        val decodedNumber = cbor.decodeFromByteArray<CborElement>(numberBytes)
+        assertEquals(numberElement, decodedNumber)
+        assertEquals(Long.MAX_VALUE.toULong(), (decodedNumber as CborInt).value)
+
+        val long = cbor.decodeFromCborElement<Long>(numberElement)
+
+        assertEquals(Long.MIN_VALUE+1, long)
+        assertEquals(Long.MIN_VALUE+1, numberElement.toLong())
+    }
+
+
+
+    @Test
+    fun testCborNumberLong() {
+        assertEquals(Long.MAX_VALUE, CborInt(Long.MAX_VALUE).toLong())
+        assertEquals(Long.MIN_VALUE, CborInt(Long.MIN_VALUE).toLong())
+    }
+
+    @Test
+    fun testCborNumberIllegal() {
+        assertFails { CborInt(ULong.MAX_VALUE, sign = CborInt.Sign.ZERO) }
+        assertFails { CborInt(1uL, sign = CborInt.Sign.ZERO) }
     }
 
     @Test
@@ -61,7 +143,7 @@ class CborElementTest {
     fun testCborList() {
         val listElement = CborList(
             listOf(
-                CborPositiveInt(1u),
+                CborInt(1u),
                 CborString("two"),
                 CborBoolean(true),
                 CborNull()
@@ -75,8 +157,8 @@ class CborElementTest {
         assertEquals(4, decodedList.size)
 
         // Verify individual elements
-        assertTrue(decodedList[0] is CborPositiveInt)
-        assertEquals(1u, (decodedList[0] as CborPositiveInt).value)
+        assertTrue(decodedList[0] is CborInt)
+        assertEquals(1u, (decodedList[0] as CborInt).value)
 
         assertTrue(decodedList[1] is CborString)
         assertEquals("two", (decodedList[1] as CborString).value)
@@ -91,9 +173,9 @@ class CborElementTest {
     fun testCborMap() {
         val mapElement = CborMap(
             mapOf(
-                CborString("key1") to CborPositiveInt(42u),
+                CborString("key1") to CborInt(42u),
                 CborString("key2") to CborString("value"),
-                CborPositiveInt(3u) to CborBoolean(true),
+                CborInt(3u) to CborBoolean(true),
                 CborNull() to CborNull()
             )
         )
@@ -107,16 +189,16 @@ class CborElementTest {
         // Verify individual entries
         assertTrue(decodedMap.containsKey(CborString("key1")))
         val value1 = decodedMap[CborString("key1")]
-        assertTrue(value1 is CborPositiveInt)
-        assertEquals(42u, (value1 as CborPositiveInt).value)
+        assertTrue(value1 is CborInt)
+        assertEquals(42u, (value1 as CborInt).value)
 
         assertTrue(decodedMap.containsKey(CborString("key2")))
         val value2 = decodedMap[CborString("key2")]
         assertTrue(value2 is CborString)
         assertEquals("value", (value2 as CborString).value)
 
-        assertTrue(decodedMap.containsKey(CborPositiveInt(3u)))
-        val value3 = decodedMap[CborPositiveInt(3u)]
+        assertTrue(decodedMap.containsKey(CborInt(3u)))
+        val value3 = decodedMap[CborInt(3u)]
         assertTrue(value3 is CborBoolean)
         assertEquals(true, (value3 as CborBoolean).value)
 
@@ -132,7 +214,7 @@ class CborElementTest {
             mapOf(
                 CborString("primitives") to CborList(
                     listOf(
-                        CborPositiveInt(123u),
+                        CborInt(123u),
                         CborString("text"),
                         CborBoolean(false),
                         CborByteString(byteArrayOf(10, 20, 30)),
@@ -143,8 +225,8 @@ class CborElementTest {
                     mapOf(
                         CborString("inner") to CborList(
                             listOf(
-                                CborPositiveInt(1u),
-                                CborPositiveInt(2u)
+                                CborInt(1u),
+                                CborInt(2u)
                             )
                         ),
                         CborString("empty") to CborList(emptyList())
@@ -166,8 +248,8 @@ class CborElementTest {
 
         assertEquals(5, primitivesValue.size)
 
-        assertTrue(primitivesValue[0] is CborPositiveInt)
-        assertEquals(123u, (primitivesValue[0] as CborPositiveInt).value)
+        assertTrue(primitivesValue[0] is CborInt)
+        assertEquals(123u, (primitivesValue[0] as CborInt).value)
 
         assertTrue(primitivesValue[1] is CborString)
         assertEquals("text", (primitivesValue[1] as CborString).value)
@@ -194,11 +276,11 @@ class CborElementTest {
 
         assertEquals(2, innerValue.size)
 
-        assertTrue(innerValue[0] is CborPositiveInt)
-        assertEquals(1u, (innerValue[0] as CborPositiveInt).value)
+        assertTrue(innerValue[0] is CborInt)
+        assertEquals(1u, (innerValue[0] as CborInt).value)
 
-        assertTrue(innerValue[1] is CborPositiveInt)
-        assertEquals(2u, (innerValue[1] as CborPositiveInt).value)
+        assertTrue(innerValue[1] is CborInt)
+        assertEquals(2u, (innerValue[1] as CborInt).value)
 
         // Verify the empty list
         assertTrue(nestedValue.containsKey(CborString("empty")))
@@ -212,7 +294,7 @@ class CborElementTest {
     @Test
     fun testDecodePositiveInt() {
         // Test data from CborParserTest.testParseIntegers
-        val element = cbor.decodeFromHexString<CborElement>("0C") as CborPositiveInt
+        val element = cbor.decodeFromHexString<CborElement>("0C") as CborInt
         assertEquals(12u, element.value)
     }
 
@@ -258,9 +340,9 @@ class CborElementTest {
         assertTrue(element is CborList)
         val list = element as CborList
         assertEquals(3, list.size)
-        assertEquals(1u, (list[0] as CborPositiveInt).value)
-        assertEquals(255u, (list[1] as CborPositiveInt).value)
-        assertEquals(65536u, (list[2] as CborPositiveInt).value)
+        assertEquals(1u, (list[0] as CborInt).value)
+        assertEquals(255u, (list[1] as CborInt).value)
+        assertEquals(65536u, (list[2] as CborInt).value)
     }
 
     @Test
@@ -300,9 +382,9 @@ class CborElementTest {
         // Check the nested map
         val nestedMap = map[CborString("d")] as CborMap
         assertEquals(3, nestedMap.size)
-        assertEquals(CborPositiveInt(1u), nestedMap[CborString("1")])
-        assertEquals(CborPositiveInt(2u), nestedMap[CborString("2")])
-        assertEquals(CborPositiveInt(3u), nestedMap[CborString("3")])
+        assertEquals(CborInt(1u), nestedMap[CborString("1")])
+        assertEquals(CborInt(2u), nestedMap[CborString("2")])
+        assertEquals(CborInt(3u), nestedMap[CborString("3")])
     }
 
     @OptIn(ExperimentalStdlibApi::class)
@@ -337,7 +419,7 @@ class CborElementTest {
                 str = "A string, is a string, is a string",
                 bStr = CborByteString(byteArrayOf()),
                 cborElement = CborBoolean(false),
-                cborPositiveInt = CborPositiveInt(1u),
+                cborPositiveInt = CborInt(1u),
                 cborInt = CborInt(-1),
                 tagged = 26
             ),
@@ -364,7 +446,7 @@ class CborElementTest {
                 str = "A string, is a string, is a string",
                 bStr = null,
                 cborElement = CborBoolean(false),
-                cborPositiveInt = CborPositiveInt(1u),
+                cborPositiveInt = CborInt(1u),
                 cborInt = CborInt(-1),
                 tagged = 26
             ),
@@ -392,7 +474,7 @@ class CborElementTest {
                 str = "A string, is a string, is a string",
                 bStr = null,
                 cborElement = CborMap(mapOf(CborByteString(byteArrayOf(1, 3, 3, 7)) to CborNull())),
-                cborPositiveInt = CborPositiveInt(1u),
+                cborPositiveInt = CborInt(1u),
                 cborInt = CborInt(-1),
                 tagged = 26
             ),
@@ -421,7 +503,7 @@ class CborElementTest {
                 str = "A string, is a string, is a string",
                 bStr = null,
                 cborElement = CborNull(),
-                cborPositiveInt = CborPositiveInt(1u),
+                cborPositiveInt = CborInt(1u),
                 cborInt = CborInt(-1),
                 tagged = 26
             ),
@@ -449,7 +531,7 @@ class CborElementTest {
                 str = "A string, is a string, is a string",
                 bStr = CborByteString(byteArrayOf(), 1u, 3u),
                 cborElement = CborBoolean(false),
-                cborPositiveInt = CborPositiveInt(1u),
+                cborPositiveInt = CborInt(1u),
                 cborInt = CborInt(-1),
                 tagged = 26
             ),
@@ -476,7 +558,7 @@ class CborElementTest {
                 str = "A string, is a string, is a string",
                 bStr = CborByteString(byteArrayOf(), 1u, 3u),
                 cborElement = CborBoolean(false),
-                cborPositiveInt = CborPositiveInt(1u),
+                cborPositiveInt = CborInt(1u),
                 cborInt = CborInt(-1),
                 tagged = 26
             ),
@@ -617,7 +699,7 @@ data class MixedBag(
     val bStr: CborByteString?,
     val cborElement: CborElement?,
     val cborPositiveInt: CborPrimitive<*>,
-    val cborInt: CborInt<*>,
+    val cborInt: CborInt,
     @KeyTags(42u)
     @ValueTags(2337u)
     val tagged: Int

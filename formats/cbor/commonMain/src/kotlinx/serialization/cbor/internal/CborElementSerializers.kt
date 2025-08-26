@@ -29,8 +29,7 @@ internal object CborElementSerializer : KSerializer<CborElement>, CborSerializer
             element("CborMap", defer { CborMapSerializer.descriptor })
             element("CborList", defer { CborListSerializer.descriptor })
             element("CborDouble", defer { CborFloatSerializer.descriptor })
-            element("CborInt", defer { CborNegativeIntSerializer.descriptor })
-            element("CborUInt", defer { CborPositiveIntSerializer.descriptor })
+            element("CborInt", defer { CborIntSerializer.descriptor })
         }
 
     override fun serialize(encoder: Encoder, value: CborElement) {
@@ -65,8 +64,7 @@ internal object CborPrimitiveSerializer : KSerializer<CborPrimitive<*>>, CborSer
             is CborBoolean -> encoder.encodeSerializableValue(CborBooleanSerializer, value)
             is CborByteString -> encoder.encodeSerializableValue(CborByteStringSerializer, value)
             is CborFloat -> encoder.encodeSerializableValue(CborFloatSerializer, value)
-            is CborNegativeInt -> encoder.encodeSerializableValue(CborNegativeIntSerializer, value)
-            is CborPositiveInt -> encoder.encodeSerializableValue(CborPositiveIntSerializer, value)
+            is CborInt -> encoder.encodeSerializableValue(CborIntSerializer, value)
         }
     }
 
@@ -104,53 +102,25 @@ internal object CborNullSerializer : KSerializer<CborNull>, CborSerializer {
 }
 
 
-internal object CborIntSerializer : KSerializer<CborInt<*>>, CborSerializer {
+internal object CborIntSerializer : KSerializer<CborInt>, CborSerializer {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("kotlinx.serialization.cbor.CborInt", PrimitiveKind.LONG)
 
-    override fun serialize(encoder: Encoder, value: CborInt<*>) {
-        when (value) {
-            is CborNegativeInt -> encoder.encodeSerializableValue(CborNegativeIntSerializer, value)
-            is CborPositiveInt -> encoder.encodeSerializableValue(CborPositiveIntSerializer, value)
+    override fun serialize(encoder: Encoder, value: CborInt) {
+        val cborEncoder = encoder.asCborEncoder()
+        cborEncoder.encodeTags(value)
+        when (value.sign) {
+            //@formatter:off
+            CborInt.Sign.ZERO, CborInt.Sign.POSITIVE -> cborEncoder.encodePositive(value.value)
+            CborInt.Sign.NEGATIVE                    -> cborEncoder.encodeNegative(value.value)
+            //@formatter:on
         }
     }
 
-    override fun deserialize(decoder: Decoder): CborInt<*> {
+    override fun deserialize(decoder: Decoder): CborInt {
         val result = decoder.asCborDecoder().decodeCborElement()
-        if (result !is CborInt<*>) throw CborDecodingException("Unexpected CBOR element, expected CborInt, had ${result::class}")
+        if (result !is CborInt) throw CborDecodingException("Unexpected CBOR element, expected CborInt, had ${result::class}")
         return result
-    }
-}
-
-internal object CborNegativeIntSerializer : KSerializer<CborNegativeInt>, CborSerializer {
-    override val descriptor: SerialDescriptor =
-        PrimitiveSerialDescriptor("kotlinx.serialization.cbor.CborNegativeInt", PrimitiveKind.LONG)
-
-    override fun serialize(encoder: Encoder, value: CborNegativeInt) {
-        val cborEncoder = encoder.asCborEncoder()
-        cborEncoder.encodeTags(value)
-        encoder.encodeLong(value.value)
-    }
-
-    override fun deserialize(decoder: Decoder): CborNegativeInt {
-        decoder.asCborDecoder()
-        return CborNegativeInt(decoder.decodeLong())
-    }
-}
-
-internal object CborPositiveIntSerializer : KSerializer<CborPositiveInt>, CborSerializer {
-    override val descriptor: SerialDescriptor =
-        PrimitiveSerialDescriptor("kotlinx.serialization.cbor.CborPositiveInt", PrimitiveKind.LONG)
-
-    override fun serialize(encoder: Encoder, value: CborPositiveInt) {
-        val cborEncoder = encoder.asCborEncoder()
-        cborEncoder.encodeTags(value)
-        encoder.encodeInline(descriptor).encodeSerializableValue(ULong.serializer(), value.value as ULong)
-    }
-
-    override fun deserialize(decoder: Decoder): CborPositiveInt {
-        decoder.asCborDecoder()
-        return CborPositiveInt(decoder.decodeInline(descriptor).decodeSerializableValue(ULong.serializer()))
     }
 }
 
@@ -323,7 +293,7 @@ private fun defer(deferred: () -> SerialDescriptor): SerialDescriptor = object :
 
 private fun CborWriter.encodeTags(value: CborElement) { // Encode tags if present
     if (value.tags.isNotEmpty()) {
-       encodeTags(value.tags)
+        encodeTags(value.tags)
     }
 
 }
