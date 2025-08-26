@@ -332,7 +332,7 @@ The main concept in this part of the library is [CborElement]. Read on to learn 
 #### Encoding from/to `CborElement`
 
 Bytes can be decoded into an instance of `CborElement` with the [Cbor.decodeFromByteArray] function by either manually
-specifying [CborElement.serializer()] or specifying [CborElement] as generic type parameter.  
+specifying `CborElement.serializer()` or specifying [CborElement] as generic type parameter.  
 It is also possible to encode arbitrary serializable structures to a `CborElement` through [Cbor.encodeToCborElement].
 
 Since these operations use the same code paths as regular serialization (but with specialized serializers), the config flags
@@ -417,18 +417,16 @@ A [CborElement] class has three direct subtypes, closely following CBOR grammar:
   `CborPrimitive` is itself an umbrella type (a sealed class) for the following concrete primitives:
   * [CborNull] mapping to a Kotlin `null`
   * [CborBoolean] mapping to a Kotlin `Boolean`
-  * [CborInt] which is an umbrella type (a sealed class) itself for the following concrete types
-    (it is still possible to instantiate it as the `invoke` operator on its companion is overridden accordingly):
-    * [CborPositiveInt] represents all `Long` numbers `≥0`
-    * [CborNegativeInt] represents all `Long` numbers `<0`
+  * [CborInt] represents signed CBOR integer (major type 1 encompassing `-2^64..-1`) and unsigned CBOR integer (major type 0 encompassing `0..2^64-1`).  
+  Since this exceeds the range of Kotlin's built-in `Long` type, CborInt consists of `sign` (set to `CborInt.Sing.POSITIVE`, `CborInt.Sing.NEGATIVE`, or `CborInt.Sing.ZERO`) and `value` representing the absolute value as an `ULong`. It also features a `toLong()` function, albeit incurring possible truncation for negative values exceeding `Long.MIN_VALUE`.
   * [CborString] maps to a Kotlin `String`
   * [CborFloat] maps to Kotlin `Double`
   * [CborByteString] maps to a Kotlin `ByteArray` and is used to encode them as CBOR byte string (in contrast to a list
     of individual bytes)
 
-* [CborList] represents a CBOR array. It is a Kotlin [List] of `CborElement` items.
+* [CborList] represents a CBOR array. It is a Kotlin `List` of `CborElement` items.
 
-* [CborMap] represents a CBOR map/object. It is a Kotlin [Map] from `CborElement` keys to `CborElement` values.
+* [CborMap] represents a CBOR map/object. It is a Kotlin `Map` from `CborElement` keys to `CborElement` values.
   This is typically the result of serializing an arbitrary 
 
 
@@ -1797,8 +1795,6 @@ This chapter concludes [Kotlin Serialization Guide](serialization-guide.md).
 [CborNull]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-null/index.html
 [CborBoolean]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-boolean/index.html
 [CborInt]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-int/index.html
-[CborPositiveInt]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-positive-int/index.html
-[CborNegativeInt]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-negative-int/index.html
 [CborString]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-string/index.html
 [CborFloat]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-float/index.html
 [CborByteString]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-byte-string/index.html

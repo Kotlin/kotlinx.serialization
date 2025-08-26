@@ -8,12 +8,14 @@ import kotlin.test.*
 
 class CborElementEqualityTest {
 
+    //TODO ULONG MIN VALUE TESTS
+
     @Test
     fun testCborPositiveIntEquality() {
-        val int1 = CborPositiveInt(42u)
-        val int2 = CborPositiveInt(42u)
-        val int3 = CborPositiveInt(43u)
-        val int4 = CborPositiveInt(42u, 1u)
+        val int1 = CborInt(42u)
+        val int2 = CborInt(42u)
+        val int3 = CborInt(43u)
+        val int4 = CborInt(42u, 1u)
 
         // Same values should be equal
         assertEquals(int1, int2)
@@ -35,18 +37,18 @@ class CborElementEqualityTest {
 
     @Test
     fun testCborNegativeIntEquality() {
-        val int1 = CborNegativeInt(-42)
-        val int2 = CborNegativeInt(-42)
-        val int3 = CborNegativeInt(-43)
-        val int4 = CborNegativeInt(-42, 1u)
+        val int1 = CborInt(-42)
+        val int2 = CborInt(-42)
+        val int3 = CborInt(-43)
+        val int4 = CborInt(-42, 1u)
 
         assertEquals(int1, int2)
         assertEquals(int1.hashCode(), int2.hashCode())
         assertNotEquals(int1, int3)
         assertNotEquals(int1, int4)
         assertNotEquals(int1, null as CborElement?)
-        assertNotEquals(int1, CborPositiveInt(42u) as CborElement)
-        assertNotEquals(int1 as CborElement, CborPositiveInt(42u))
+        assertNotEquals(int1, CborInt(42u) as CborElement)
+        assertNotEquals(int1 as CborElement, CborInt(42u))
     }
 
     @Test
@@ -77,8 +79,8 @@ class CborElementEqualityTest {
         assertNotEquals(string1, string3)
         assertNotEquals(string1, string4)
         assertNotEquals(string1, null as CborElement?)
-        assertNotEquals(string1 as CborElement, CborPositiveInt(123u))
-        assertNotEquals(string1, CborPositiveInt(123u) as CborElement)
+        assertNotEquals(string1 as CborElement, CborInt(123u))
+        assertNotEquals(string1, CborInt(123u) as CborElement)
     }
 
     @Test
@@ -133,11 +135,11 @@ class CborElementEqualityTest {
 
     @Test
     fun testCborListEquality() {
-        val list1 = CborList(listOf(CborPositiveInt(1u), CborString("test")))
-        val list2 = CborList(listOf(CborPositiveInt(1u), CborString("test")))
-        val list3 = CborList(listOf(CborPositiveInt(2u), CborString("test")))
-        val list4 = CborList(listOf(CborPositiveInt(1u), CborString("test")), 1u)
-        val list5 = CborList(listOf(CborPositiveInt(1u)))
+        val list1 = CborList(listOf(CborInt(1u), CborString("test")))
+        val list2 = CborList(listOf(CborInt(1u), CborString("test")))
+        val list3 = CborList(listOf(CborInt(2u), CborString("test")))
+        val list4 = CborList(listOf(CborInt(1u), CborString("test")), 1u)
+        val list5 = CborList(listOf(CborInt(1u)))
 
         assertEquals(list1, list2)
         assertEquals(list1.hashCode(), list2.hashCode())
@@ -153,31 +155,31 @@ class CborElementEqualityTest {
     fun testCborMapEquality() {
         val map1 = CborMap(
             mapOf(
-                CborString("key1") to CborPositiveInt(1u),
+                CborString("key1") to CborInt(1u),
                 CborString("key2") to CborString("value")
             )
         )
         val map2 = CborMap(
             mapOf(
-                CborString("key1") to CborPositiveInt(1u),
+                CborString("key1") to CborInt(1u),
                 CborString("key2") to CborString("value")
             )
         )
         val map3 = CborMap(
             mapOf(
-                CborString("key1") to CborPositiveInt(2u),
+                CborString("key1") to CborInt(2u),
                 CborString("key2") to CborString("value")
             )
         )
         val map4 = CborMap(
             mapOf(
-                CborString("key1") to CborPositiveInt(1u),
+                CborString("key1") to CborInt(1u),
                 CborString("key2") to CborString("value")
             ), 1u
         )
         val map5 = CborMap(
             mapOf(
-                CborString("key1") to CborPositiveInt(1u)
+                CborString("key1") to CborInt(1u)
             )
         )
 
@@ -227,7 +229,7 @@ class CborElementEqualityTest {
             mapOf(
                 CborString("list") to CborList(
                     listOf(
-                        CborPositiveInt(1u),
+                        CborInt(1u),
                         CborMap(mapOf(CborString("inner") to CborNull()))
                     )
                 )
@@ -237,7 +239,7 @@ class CborElementEqualityTest {
             mapOf(
                 CborString("list") to CborList(
                     listOf(
-                        CborPositiveInt(1u),
+                        CborInt(1u),
                         CborMap(mapOf(CborString("inner") to CborNull()))
                     )
                 )
@@ -247,7 +249,7 @@ class CborElementEqualityTest {
             mapOf(
                 CborString("list") to CborList(
                     listOf(
-                        CborPositiveInt(2u),
+                        CborInt(2u),
                         CborMap(mapOf(CborString("inner") to CborNull()))
                     )
                 )
@@ -262,15 +264,15 @@ class CborElementEqualityTest {
     @Test
     fun testReflexiveEquality() {
         val elements = listOf(
-            CborPositiveInt(42u),
-            CborNegativeInt(-42),
+            CborInt(42u),
+            CborInt(-42),
             CborFloat(3.14),
             CborString("test"),
             CborBoolean(true),
             CborByteString(byteArrayOf(1, 2, 3)),
             CborNull(),
-            CborList(listOf(CborPositiveInt(1u))),
-            CborMap(mapOf(CborString("key") to CborPositiveInt(1u)))
+            CborList(listOf(CborInt(1u))),
+            CborMap(mapOf(CborString("key") to CborInt(1u)))
         )
 
         elements.forEach { element ->
@@ -282,17 +284,17 @@ class CborElementEqualityTest {
     @Test
     fun testSymmetricEquality() {
         val pairs = listOf(
-            CborPositiveInt(42u) to CborPositiveInt(42u),
-            CborNegativeInt(-42) to CborNegativeInt(-42),
+            CborInt(42u) to CborInt(42u),
+            CborInt(-42) to CborInt(-42),
             CborFloat(3.14) to CborFloat(3.14),
             CborString("test") to CborString("test"),
             CborBoolean(true) to CborBoolean(true),
             CborByteString(byteArrayOf(1, 2, 3)) to CborByteString(byteArrayOf(1, 2, 3)),
             CborNull() to CborNull(),
-            CborList(listOf(CborPositiveInt(1u))) to CborList(listOf(CborPositiveInt(1u))),
-            CborMap(mapOf(CborString("key") to CborPositiveInt(1u))) to CborMap(
+            CborList(listOf(CborInt(1u))) to CborList(listOf(CborInt(1u))),
+            CborMap(mapOf(CborString("key") to CborInt(1u))) to CborMap(
                 mapOf(
-                    CborString("key") to CborPositiveInt(
+                    CborString("key") to CborInt(
                         1u
                     )
                 )

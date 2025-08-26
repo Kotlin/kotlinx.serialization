@@ -353,12 +353,22 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
         return res
     }
 
-    private fun readNumber(): Long {
+    internal fun nextULong(tags: ULongArray? = null): ULong {
+        processTags(tags)
+        val res = readNumber(signed = false)
+        readByte()
+        return res.toULong()
+    }
+
+    private fun readNumber(signed: Boolean = true): Long {
         val additionalInfo = curByte and 0b000_11111
         val negative = (curByte and 0b111_00000) == HEADER_NEGATIVE.toInt()
 
         val value = readUnsignedValueFromAdditionalInfo(additionalInfo)
-        return if (negative) -(value + 1) else value
+
+        return if (signed) {
+            if (negative) -(value + 1) else value
+        } else value
     }
 
     private fun ByteArrayInput.readExact(bytes: Int): Long {
@@ -667,10 +677,16 @@ internal class StructuredCborParser(internal val element: CborElement, private v
 
     override fun nextNumber(tags: ULongArray?): Long {
         processTags(tags)
-        return when (layer.current) {
-            is CborPositiveInt -> (layer.current as CborPositiveInt).value.toLong()
-            is CborNegativeInt -> (layer.current as CborNegativeInt).value
-            else -> throw CborDecodingException("Expected number, got ${layer.current::class.simpleName}")
+        if (layer.current !is CborInt) {
+            throw CborDecodingException("Expected number, got ${layer.current::class.simpleName}")
+        }
+        return (layer.current as CborInt).run {
+            when (sign) {
+                //@formatter:off
+                CborInt.Sign.POSITIVE, CborInt.Sign.ZERO ->   value.toLong()
+                CborInt.Sign.NEGATIVE                    ->  -value.toLong() //possible loss of precision, but inevitable
+                //@formatter:on
+            }
         }
     }
 
@@ -707,9 +723,8 @@ internal class StructuredCborParser(internal val element: CborElement, private v
 
         return when (val key = layer.current) {
             is CborString -> Triple(key.value, null, tags)
-            is CborPositiveInt -> Triple(null, key.value.toLong(), tags)
-            is CborNegativeInt -> Triple(null, key.value, tags)
-            else -> throw CborDecodingException("Expected string or number key, got ${key?.let { it::class.simpleName } ?: "null"}")
+            is CborInt -> Triple(null, key.value.toLong(), tags)
+            else -> throw CborDecodingException("Expected string or number key, got ${key::class.simpleName}")
         }
     }
 

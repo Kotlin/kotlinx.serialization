@@ -133,16 +133,29 @@ public final class kotlinx/serialization/cbor/CborFloat$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public abstract class kotlinx/serialization/cbor/CborInt : kotlinx/serialization/cbor/CborPrimitive {
+public final class kotlinx/serialization/cbor/CborInt : kotlinx/serialization/cbor/CborPrimitive {
 	public static final field Companion Lkotlinx/serialization/cbor/CborInt$Companion;
-	public synthetic fun <init> ([JLjava/lang/Object;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> ([JLjava/lang/Object;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JLkotlinx/serialization/cbor/CborInt$Sign;[JLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getSign ()Lkotlinx/serialization/cbor/CborInt$Sign;
+	public fun hashCode ()I
+	public final fun toLong ()J
+	public fun toString ()Ljava/lang/String;
 }
 
 public final class kotlinx/serialization/cbor/CborInt$Companion {
 	public final fun invoke-SIFponk (J[J)Lkotlinx/serialization/cbor/CborInt;
 	public final fun invoke-ahITK_k (J[J)Lkotlinx/serialization/cbor/CborInt;
-	public final fun serializer (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class kotlinx/serialization/cbor/CborInt$Sign : java/lang/Enum {
+	public static final field NEGATIVE Lkotlinx/serialization/cbor/CborInt$Sign;
+	public static final field POSITIVE Lkotlinx/serialization/cbor/CborInt$Sign;
+	public static final field ZERO Lkotlinx/serialization/cbor/CborInt$Sign;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lkotlinx/serialization/cbor/CborInt$Sign;
+	public static fun values ()[Lkotlinx/serialization/cbor/CborInt$Sign;
 }
 
 public final class kotlinx/serialization/cbor/CborKt {
@@ -255,30 +268,12 @@ public final class kotlinx/serialization/cbor/CborMap$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class kotlinx/serialization/cbor/CborNegativeInt : kotlinx/serialization/cbor/CborInt {
-	public static final field Companion Lkotlinx/serialization/cbor/CborNegativeInt$Companion;
-	public synthetic fun <init> (J[JLkotlin/jvm/internal/DefaultConstructorMarker;)V
-}
-
-public final class kotlinx/serialization/cbor/CborNegativeInt$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
 public final class kotlinx/serialization/cbor/CborNull : kotlinx/serialization/cbor/CborPrimitive {
 	public static final field Companion Lkotlinx/serialization/cbor/CborNull$Companion;
 	public synthetic fun <init> ([JLkotlin/jvm/internal/DefaultConstructorMarker;)V
 }
 
 public final class kotlinx/serialization/cbor/CborNull$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class kotlinx/serialization/cbor/CborPositiveInt : kotlinx/serialization/cbor/CborInt {
-	public static final field Companion Lkotlinx/serialization/cbor/CborPositiveInt$Companion;
-	public synthetic fun <init> (J[JLkotlin/jvm/internal/DefaultConstructorMarker;)V
-}
-
-public final class kotlinx/serialization/cbor/CborPositiveInt$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 

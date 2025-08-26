@@ -99,7 +99,8 @@ internal sealed class CborWriter(
     override fun encodeLong(value: Long) {
         getDestination().encodeNumber(value)
     }
-
+    internal open fun encodeNegative(value: ULong) = getDestination().encodeNegative(value)
+    internal open fun encodePositive(value: ULong) = getDestination().encodePositive(value)
 
     override fun encodeBoolean(value: Boolean) {
         getDestination().encodeBoolean(value)
@@ -346,6 +347,15 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
         currentElement += CborInt(value, tags = nextValueTags)
     }
 
+    override fun encodeNegative(value: ULong) {
+        currentElement += CborInt(value, CborInt.Sign.NEGATIVE, tags = nextValueTags)
+    }
+
+    override fun encodePositive(value: ULong) {
+        currentElement += CborInt(value, CborInt.Sign.POSITIVE, tags = nextValueTags)
+    }
+
+
     override fun encodeShort(value: Short) {
         currentElement += CborInt(value.toLong(), tags = nextValueTags)
     }
@@ -446,6 +456,9 @@ internal fun ByteArrayOutput.encodeBoolean(value: Boolean) = write(if (value) TR
 
 internal fun ByteArrayOutput.encodeNumber(value: Long) = write(composeNumber(value))
 
+internal fun ByteArrayOutput.encodeNegative(value: ULong) = write(composeNegativeULong(value))
+internal fun ByteArrayOutput.encodePositive(value: ULong) = write(composePositive(value))
+
 internal fun ByteArrayOutput.encodeByteString(data: ByteArray) {
     this.encodeByteArray(data, HEADER_BYTE_STRING)
 }
@@ -522,6 +535,12 @@ private fun encodeToByteArray(value: ULong, bytes: Int, tag: Byte): ByteArray {
 private fun composeNegative(value: Long): ByteArray {
     val aVal = if (value == Long.MIN_VALUE) Long.MAX_VALUE else -1 - value
     val data = composePositive(aVal.toULong())
+    data[0] = data[0] or HEADER_NEGATIVE
+    return data
+}
+
+private fun composeNegativeULong(value: ULong): ByteArray {
+    val data = composePositive(value-1uL)
     data[0] = data[0] or HEADER_NEGATIVE
     return data
 }
