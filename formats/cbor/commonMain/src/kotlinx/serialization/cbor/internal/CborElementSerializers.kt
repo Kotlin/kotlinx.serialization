@@ -86,7 +86,7 @@ internal object CborNullSerializer : KSerializer<CborNull>, CborSerializer {
 
     override fun serialize(encoder: Encoder, value: CborNull) {
         val cborEncoder = encoder.asCborEncoder()
-        cborEncoder.encodeTags(value)
+        cborEncoder.encodeTags(value.tags)
         encoder.encodeNull()
     }
 
@@ -108,7 +108,7 @@ internal object CborIntSerializer : KSerializer<CborInt>, CborSerializer {
 
     override fun serialize(encoder: Encoder, value: CborInt) {
         val cborEncoder = encoder.asCborEncoder()
-        cborEncoder.encodeTags(value)
+        cborEncoder.encodeTags(value.tags)
         when (value.sign) {
             //@formatter:off
             CborInt.Sign.ZERO, CborInt.Sign.POSITIVE -> cborEncoder.encodePositive(value.value)
@@ -130,7 +130,7 @@ internal object CborFloatSerializer : KSerializer<CborFloat>, CborSerializer {
 
     override fun serialize(encoder: Encoder, value: CborFloat) {
         val cborEncoder = encoder.asCborEncoder()
-        cborEncoder.encodeTags(value)
+        cborEncoder.encodeTags(value.tags)
         encoder.encodeDouble(value.value)
     }
 
@@ -150,7 +150,7 @@ internal object CborStringSerializer : KSerializer<CborString>, CborSerializer {
 
     override fun serialize(encoder: Encoder, value: CborString) {
         val cborEncoder = encoder.asCborEncoder()
-        cborEncoder.encodeTags(value)
+        cborEncoder.encodeTags(value.tags)
         encoder.encodeString(value.value)
     }
 
@@ -172,7 +172,7 @@ internal object CborBooleanSerializer : KSerializer<CborBoolean>, CborSerializer
 
     override fun serialize(encoder: Encoder, value: CborBoolean) {
         val cborEncoder = encoder.asCborEncoder()
-        cborEncoder.encodeTags(value)
+        cborEncoder.encodeTags(value.tags)
         encoder.encodeBoolean(value.value)
     }
 
@@ -194,8 +194,9 @@ internal object CborByteStringSerializer : KSerializer<CborByteString>, CborSeri
 
     override fun serialize(encoder: Encoder, value: CborByteString) {
         val cborEncoder = encoder.asCborEncoder()
-        cborEncoder.encodeTags(value)
-        cborEncoder.encodeByteString(value.value)
+        cborEncoder.encodeTags(value.tags)
+        //this we really don't want to expose so we cast here
+        (cborEncoder as CborWriter).encodeByteString(value.value)
     }
 
     override fun deserialize(decoder: Decoder): CborByteString {
@@ -221,7 +222,7 @@ internal object CborMapSerializer : KSerializer<CborMap>, CborSerializer {
 
     override fun serialize(encoder: Encoder, value: CborMap) {
         val cborEncoder = encoder.asCborEncoder()
-        cborEncoder.encodeTags(value)
+        cborEncoder.encodeTags(value.tags)
         MapSerializer(CborElementSerializer, CborElementSerializer).serialize(encoder, value)
     }
 
@@ -245,7 +246,7 @@ internal object CborListSerializer : KSerializer<CborList>, CborSerializer {
 
     override fun serialize(encoder: Encoder, value: CborList) {
         val cborEncoder = encoder.asCborEncoder()
-        cborEncoder.encodeTags(value)
+        cborEncoder.encodeTags(value.tags)
         ListSerializer(CborElementSerializer).serialize(encoder, value)
     }
 
@@ -263,7 +264,7 @@ internal fun Decoder.asCborDecoder(): CborDecoder = this as? CborDecoder
     )
 
 /*need to expose writer to access encodeTag()*/
-internal fun Encoder.asCborEncoder() = this as? CborWriter
+internal fun Encoder.asCborEncoder() = this as? CborEncoder
     ?: throw IllegalStateException(
         "This serializer can be used only with Cbor format." +
             "Expected Encoder to be CborEncoder, got ${this::class}"

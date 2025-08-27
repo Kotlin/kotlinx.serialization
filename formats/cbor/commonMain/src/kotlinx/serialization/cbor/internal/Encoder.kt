@@ -99,8 +99,8 @@ internal sealed class CborWriter(
     override fun encodeLong(value: Long) {
         getDestination().encodeNumber(value)
     }
-    internal open fun encodeNegative(value: ULong) = getDestination().encodeNegative(value)
-    internal open fun encodePositive(value: ULong) = getDestination().encodePositive(value)
+    override fun encodeNegative(value: ULong) = getDestination().encodeNegative(value)
+    override fun encodePositive(value: ULong) = getDestination().encodePositive(value)
 
     override fun encodeBoolean(value: Boolean) {
         getDestination().encodeBoolean(value)
@@ -148,8 +148,6 @@ internal sealed class CborWriter(
         incrementChildren() // needed for definite len encoding, NOOP for indefinite length encoding
         return true
     }
-
-    internal abstract fun encodeTags(tags: ULongArray)
 }
 
 
