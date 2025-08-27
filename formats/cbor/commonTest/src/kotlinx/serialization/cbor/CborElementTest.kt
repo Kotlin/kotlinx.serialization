@@ -180,6 +180,11 @@ class CborElementTest {
             )
         )
         val mapBytes = cbor.encodeToByteArray(mapElement)
+
+        val output = ByteArrayOutput()
+        IndefiniteLengthCborWriter(cbor, output).encodeCborElement(mapElement)
+        assertEquals(mapBytes.toHexString(),output.toByteArray().toHexString() )
+
         val decodedMap = cbor.decodeFromByteArray<CborElement>(mapBytes)
 
         // Verify the type and size

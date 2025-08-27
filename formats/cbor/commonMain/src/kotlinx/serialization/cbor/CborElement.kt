@@ -21,6 +21,7 @@ import kotlinx.serialization.cbor.internal.*
  * The whole hierarchy is [serializable][Serializable] only by [Cbor] format.
  */
 @Serializable(with = CborElementSerializer::class)
+@ExperimentalSerializationApi
 public sealed class CborElement(
     /**
      * CBOR tags associated with this element.
@@ -60,6 +61,7 @@ public sealed class CborElement(
  * CBOR primitives include numbers, strings, booleans, byte arrays and special null value [CborNull].
  */
 @Serializable(with = CborPrimitiveSerializer::class)
+@ExperimentalSerializationApi
 public sealed class CborPrimitive<T : Any>(
     public val value: T,
     tags: ULongArray = ulongArrayOf()
@@ -96,6 +98,7 @@ public sealed class CborPrimitive<T : Any>(
  * depending on the value of [sign]. Note that [absoluteValue] **must** be `0` when sign is set to [Sign.ZERO]
  */
 @Serializable(with = CborIntSerializer::class)
+@ExperimentalSerializationApi
 public class CborInt(
     absoluteValue: ULong,
     public val sign: Sign,
@@ -179,6 +182,7 @@ public class CborInt(
  * Class representing CBOR floating point value (major type 7).
  */
 @Serializable(with = CborFloatSerializer::class)
+@ExperimentalSerializationApi
 public class CborFloat(
     value: Double,
     vararg tags: ULong
@@ -188,6 +192,7 @@ public class CborFloat(
  * Class representing CBOR string value.
  */
 @Serializable(with = CborStringSerializer::class)
+@ExperimentalSerializationApi
 public class CborString(
     value: String,
     vararg tags: ULong
@@ -197,6 +202,7 @@ public class CborString(
  * Class representing CBOR boolean value.
  */
 @Serializable(with = CborBooleanSerializer::class)
+@ExperimentalSerializationApi
 public class CborBoolean(
     value: Boolean,
     vararg tags: ULong
@@ -206,6 +212,7 @@ public class CborBoolean(
  * Class representing CBOR byte string value.
  */
 @Serializable(with = CborByteStringSerializer::class)
+@ExperimentalSerializationApi
 public class CborByteString(
     value: ByteArray,
     vararg tags: ULong
@@ -235,6 +242,7 @@ public class CborByteString(
  * Class representing CBOR `null` value
  */
 @Serializable(with = CborNullSerializer::class)
+@ExperimentalSerializationApi
 public class CborNull(vararg tags: ULong) : CborPrimitive<Unit>(Unit, tags)
 
 /**
@@ -244,6 +252,7 @@ public class CborNull(vararg tags: ULong) : CborPrimitive<Unit>(Unit, tags)
  * traditional methods like [Map.get] or [Map.getValue] to obtain CBOR elements.
  */
 @Serializable(with = CborMapSerializer::class)
+@ExperimentalSerializationApi
 public class CborMap(
     private val content: Map<CborElement, CborElement>,
     vararg tags: ULong
@@ -270,6 +279,7 @@ public class CborMap(
  * traditional methods like [List.get] or [List.size] to obtain CBOR elements.
  */
 @Serializable(with = CborListSerializer::class)
+@ExperimentalSerializationApi
 public class CborList(
     private val content: List<CborElement>,
     vararg tags: ULong
