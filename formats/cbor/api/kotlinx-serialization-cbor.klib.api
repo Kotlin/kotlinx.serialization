@@ -52,6 +52,8 @@ abstract interface kotlinx.serialization.cbor/CborDecoder : kotlinx.serializatio
 abstract interface kotlinx.serialization.cbor/CborEncoder : kotlinx.serialization.encoding/Encoder { // kotlinx.serialization.cbor/CborEncoder|null[0]
     abstract val cbor // kotlinx.serialization.cbor/CborEncoder.cbor|{}cbor[0]
         abstract fun <get-cbor>(): kotlinx.serialization.cbor/Cbor // kotlinx.serialization.cbor/CborEncoder.cbor.<get-cbor>|<get-cbor>(){}[0]
+
+    open fun encodeCborElement(kotlinx.serialization.cbor/CborElement) // kotlinx.serialization.cbor/CborEncoder.encodeCborElement|encodeCborElement(kotlinx.serialization.cbor.CborElement){}[0]
 }
 
 final class kotlinx.serialization.cbor/CborBoolean : kotlinx.serialization.cbor/CborPrimitive<kotlin/Boolean> { // kotlinx.serialization.cbor/CborBoolean|null[0]

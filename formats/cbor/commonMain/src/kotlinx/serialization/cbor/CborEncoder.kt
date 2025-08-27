@@ -5,6 +5,7 @@
 package kotlinx.serialization.cbor
 
 import kotlinx.serialization.*
+import kotlinx.serialization.cbor.internal.CborElementSerializer
 import kotlinx.serialization.encoding.*
 
 /**
@@ -31,4 +32,33 @@ public interface CborEncoder : Encoder {
      * Exposes the current [Cbor] instance and all its configuration flags. Useful for low-level custom serializers.
      */
     public val cbor: Cbor
+    /**
+     * Appends the given CBOR [element] to the current output.
+     * This method is allowed to invoke only as the part of the whole serialization process of the class,
+     * calling this method after invoking [beginStructure] or any `encode*` method will lead to unspecified behaviour
+     * and may produce an invalid CBOR result.
+     * For example:
+     * ```
+     * class Holder(val value: Int, val list: List<Int>())
+     *
+     * // Holder serialize method
+     * fun serialize(encoder: Encoder, value: Holder) {
+     *     // Completely okay, the whole Holder object is read
+     *     val cborObject = CborMap(...) // build a CborMap from Holder
+     *     (encoder as CborEncoder).encodeCborElement(cborObject) // Write it
+     * }
+     *
+     * // Incorrect Holder serialize method
+     * fun serialize(encoder: Encoder, value: Holder) {
+     *     val composite = encoder.beginStructure(descriptor)
+     *     composite.encodeSerializableElement(descriptor, 0, Int.serializer(), value.value)
+     *     val array = CborList(value.list.map { CborInt(it.toLong()) })
+     *     // Incorrect, encoder is already in an intermediate state after encodeSerializableElement
+     *     (composite as CborEncoder).encodeCborElement(array)
+     *     composite.endStructure(descriptor)
+     *     // ...
+     * }
+     * ```
+     */
+    public fun encodeCborElement(element: CborElement): Unit = encodeSerializableValue(CborElementSerializer, element)
 }
