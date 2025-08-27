@@ -6,6 +6,8 @@ package kotlinx.serialization.cbor
 
 import kotlinx.serialization.*
 import kotlinx.serialization.cbor.internal.CborElementSerializer
+import kotlinx.serialization.cbor.internal.encodeNegative
+import kotlinx.serialization.cbor.internal.encodePositive
 import kotlinx.serialization.encoding.*
 
 /**
@@ -61,4 +63,19 @@ public interface CborEncoder : Encoder {
      * ```
      */
     public fun encodeCborElement(element: CborElement): Unit = encodeSerializableValue(CborElementSerializer, element)
+
+    /**
+     * Allows manually encoding CBOR tags. Use with caution, as it is possible to produce invalid CBOR if invoked carelessly!
+     */
+    public fun encodeTags(@OptIn(kotlin.ExperimentalUnsignedTypes::class) tags: ULongArray): Unit
+
+    /**
+     * Encode a negative value as [CborInt]. This function exists to encode negative values exceeding [Long.MIN_VALUE]
+     */
+    public fun encodeNegative(value: ULong)
+
+    /**
+     * Encode a positive value as [CborInt]. This function exists to encode negative values exceeding [Long.MAX_VALUE]
+     */
+    public fun encodePositive(value: ULong)
 }

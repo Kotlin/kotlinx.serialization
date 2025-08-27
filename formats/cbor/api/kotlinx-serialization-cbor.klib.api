@@ -53,6 +53,9 @@ abstract interface kotlinx.serialization.cbor/CborEncoder : kotlinx.serializatio
     abstract val cbor // kotlinx.serialization.cbor/CborEncoder.cbor|{}cbor[0]
         abstract fun <get-cbor>(): kotlinx.serialization.cbor/Cbor // kotlinx.serialization.cbor/CborEncoder.cbor.<get-cbor>|<get-cbor>(){}[0]
 
+    abstract fun encodeNegative(kotlin/ULong) // kotlinx.serialization.cbor/CborEncoder.encodeNegative|encodeNegative(kotlin.ULong){}[0]
+    abstract fun encodePositive(kotlin/ULong) // kotlinx.serialization.cbor/CborEncoder.encodePositive|encodePositive(kotlin.ULong){}[0]
+    abstract fun encodeTags(kotlin/ULongArray) // kotlinx.serialization.cbor/CborEncoder.encodeTags|encodeTags(kotlin.ULongArray){}[0]
     open fun encodeCborElement(kotlinx.serialization.cbor/CborElement) // kotlinx.serialization.cbor/CborEncoder.encodeCborElement|encodeCborElement(kotlinx.serialization.cbor.CborElement){}[0]
 }
 
