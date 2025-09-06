@@ -34,6 +34,7 @@ public final class kotlinx/serialization/cbor/CborBuilder {
 	public final fun getIgnoreUnknownKeys ()Z
 	public final fun getPreferCborLabelsOverNames ()Z
 	public final fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public final fun getUntaggedNullValueTags ()Z
 	public final fun getUseDefiniteLengthEncoding ()Z
 	public final fun getVerifyKeyTags ()Z
 	public final fun getVerifyObjectTags ()Z
@@ -46,6 +47,7 @@ public final class kotlinx/serialization/cbor/CborBuilder {
 	public final fun setIgnoreUnknownKeys (Z)V
 	public final fun setPreferCborLabelsOverNames (Z)V
 	public final fun setSerializersModule (Lkotlinx/serialization/modules/SerializersModule;)V
+	public final fun setUntaggedNullValueTags (Z)V
 	public final fun setUseDefiniteLengthEncoding (Z)V
 	public final fun setVerifyKeyTags (Z)V
 	public final fun setVerifyObjectTags (Z)V
@@ -60,6 +62,7 @@ public final class kotlinx/serialization/cbor/CborConfiguration {
 	public final fun getEncodeValueTags ()Z
 	public final fun getIgnoreUnknownKeys ()Z
 	public final fun getPreferCborLabelsOverNames ()Z
+	public final fun getUntaggedNullValueTags ()Z
 	public final fun getUseDefiniteLengthEncoding ()Z
 	public final fun getVerifyKeyTags ()Z
 	public final fun getVerifyObjectTags ()Z
