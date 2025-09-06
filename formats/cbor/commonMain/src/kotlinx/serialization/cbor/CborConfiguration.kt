@@ -103,12 +103,14 @@ public class CborConfiguration internal constructor(
     public val useDefiniteLengthEncoding: Boolean,
     public val preferCborLabelsOverNames: Boolean,
     public val alwaysUseByteString: Boolean,
+    public val untaggedNullValueTags: Boolean,
 ) {
     override fun toString(): String {
         return "CborConfiguration(encodeDefaults=$encodeDefaults, ignoreUnknownKeys=$ignoreUnknownKeys, " +
             "encodeKeyTags=$encodeKeyTags, encodeValueTags=$encodeValueTags, encodeObjectTags=$encodeObjectTags, " +
             "verifyKeyTags=$verifyKeyTags, verifyValueTags=$verifyValueTags, verifyObjectTags=$verifyObjectTags, " +
             "useDefiniteLengthEncoding=$useDefiniteLengthEncoding, " +
-            "preferCborLabelsOverNames=$preferCborLabelsOverNames, alwaysUseByteString=$alwaysUseByteString)"
+            "preferCborLabelsOverNames=$preferCborLabelsOverNames, alwaysUseByteString=$alwaysUseByteString, " +
+            "untaggedNullValueTags=$untaggedNullValueTags)"
     }
 }

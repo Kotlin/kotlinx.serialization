@@ -135,7 +135,7 @@ internal open class CborReader(override val cbor: Cbor, protected val parser: Cb
     override fun decodeInt() = parser.nextNumber(tags).toInt()
     override fun decodeLong() = parser.nextNumber(tags)
 
-    override fun decodeNull() = parser.nextNull(tags)
+    override fun decodeNull() = parser.nextNull(tags, allowNoTags = cbor.configuration.untaggedNullValueTags)
 
     override fun decodeEnum(enumDescriptor: SerialDescriptor): Int =
         enumDescriptor.getElementIndexOrThrow(parser.nextString(tags))
@@ -172,8 +172,8 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
 
     fun isNull() = (curByte == NULL || curByte == EMPTY_MAP)
 
-    fun nextNull(tags: ULongArray? = null): Nothing? {
-        processTags(tags)
+    fun nextNull(tags: ULongArray? = null, allowNoTags: Boolean): Nothing? {
+        processTags(tags, allowNoTags)
         if (curByte == NULL) {
             skipByte(NULL)
         } else if (curByte == EMPTY_MAP) {
@@ -250,7 +250,7 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
             input.readExactNBytes(strLen)
         }
 
-    private fun processTags(tags: ULongArray?): ULongArray? {
+    private fun processTags(tags: ULongArray?, allowNoTags: Boolean = false): ULongArray? {
         var index = 0
         val collectedTags = mutableListOf<ULong>()
         while ((curByte and 0b111_00000) == HEADER_TAG) {
@@ -264,6 +264,9 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
                 }
             }
             readByte()
+        }
+        if (collectedTags.isEmpty() && allowNoTags) {
+            return null
         }
         return (if (collectedTags.isEmpty()) null else collectedTags.toULongArray()).also { collected ->
             //We only want to compare if tags are actually set, otherwise, we don't care
