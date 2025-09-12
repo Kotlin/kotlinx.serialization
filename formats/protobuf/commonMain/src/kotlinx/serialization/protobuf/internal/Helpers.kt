@@ -68,12 +68,11 @@ internal val ProtoDesc.integerType: ProtoIntegerType
 }
 
 internal val SerialDescriptor.isPackable: Boolean
-    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
     get() = when (kind) {
         PrimitiveKind.STRING,
         !is PrimitiveKind -> false
         else -> true
-    }
+    } || isInline && elementsCount == 1 && getElementDescriptor(0).isPackable
 
 internal val ProtoDesc.isPacked: Boolean
     get() = (this and PACKEDMASK) != 0L

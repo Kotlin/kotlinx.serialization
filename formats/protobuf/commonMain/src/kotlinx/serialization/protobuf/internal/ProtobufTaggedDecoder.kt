@@ -95,7 +95,7 @@ internal abstract class ProtobufTaggedDecoder : ProtobufTaggedBase(), Decoder, C
     }
 
     override fun decodeInline(descriptor: SerialDescriptor): Decoder {
-        return decodeTaggedInline(popTag(), descriptor)
+        return decodeTaggedInline(popTagOrDefault(), descriptor)
     }
 
     override fun decodeInlineElement(
