@@ -242,6 +242,7 @@ internal open class ProtobufDecoder(
 
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T = decodeSerializableValue(deserializer, null)
 
+    @OptIn(ExperimentalUnsignedTypes::class)
     @Suppress("UNCHECKED_CAST")
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>, previousValue: T?): T = try {
         when {
@@ -250,6 +251,7 @@ internal open class ProtobufDecoder(
             }
 
             deserializer.descriptor == ByteArraySerializer().descriptor -> deserializeByteArray(previousValue as ByteArray?) as T
+            deserializer.descriptor == UByteArraySerializer().descriptor -> deserializeByteArray((previousValue as UByteArray?)?.asByteArray()).asUByteArray() as T
             deserializer is AbstractCollectionSerializer<*, *, *> ->
                 (deserializer as AbstractCollectionSerializer<*, T, *>).merge(this, previousValue)
 

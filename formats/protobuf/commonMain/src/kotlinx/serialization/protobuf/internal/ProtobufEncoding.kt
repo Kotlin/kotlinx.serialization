@@ -138,11 +138,13 @@ internal open class ProtobufEncoder(
 
     override fun SerialDescriptor.getTag(index: Int) = extractParameters(index)
 
+    @OptIn(ExperimentalUnsignedTypes::class)
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) = when {
         serializer is MapLikeSerializer<*, *, *, *> -> {
             serializeMap(serializer as SerializationStrategy<T>, value)
         }
         serializer.descriptor == ByteArraySerializer().descriptor -> serializeByteArray(value as ByteArray)
+        serializer.descriptor == UByteArraySerializer().descriptor -> serializeByteArray((value as UByteArray).asByteArray())
         else -> serializer.serialize(this, value)
     }
 
