@@ -30,6 +30,8 @@ public abstract class AbstractEncoder : Encoder, CompositeEncoder {
      */
     public open fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean = true
 
+    public open fun encodeNullableElement(descriptor: SerialDescriptor, index: Int, isNull: Boolean): Boolean = encodeElement(descriptor, index)
+
     /**
      * Invoked to encode a value when specialized `encode*` method was not overridden.
      */
@@ -86,7 +88,7 @@ public abstract class AbstractEncoder : Encoder, CompositeEncoder {
         serializer: SerializationStrategy<T>,
         value: T?
     ) {
-        if (encodeElement(descriptor, index))
+        if (encodeNullableElement(descriptor, index, value == null))
             encodeNullableSerializableValue(serializer, value)
     }
 }

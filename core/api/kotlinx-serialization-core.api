@@ -424,6 +424,7 @@ public abstract class kotlinx/serialization/encoding/AbstractEncoder : kotlinx/s
 	public final fun encodeLongElement (Lkotlinx/serialization/descriptors/SerialDescriptor;IJ)V
 	public fun encodeNotNullMark ()V
 	public fun encodeNull ()V
+	public fun encodeNullableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;IZ)Z
 	public fun encodeNullableSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
 	public fun encodeNullableSerializableValue (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
 	public fun encodeSerializableElement (Lkotlinx/serialization/descriptors/SerialDescriptor;ILkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V

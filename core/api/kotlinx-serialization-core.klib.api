@@ -498,6 +498,7 @@ abstract class kotlinx.serialization.encoding/AbstractEncoder : kotlinx.serializ
     open fun encodeInt(kotlin/Int) // kotlinx.serialization.encoding/AbstractEncoder.encodeInt|encodeInt(kotlin.Int){}[0]
     open fun encodeLong(kotlin/Long) // kotlinx.serialization.encoding/AbstractEncoder.encodeLong|encodeLong(kotlin.Long){}[0]
     open fun encodeNull() // kotlinx.serialization.encoding/AbstractEncoder.encodeNull|encodeNull(){}[0]
+    open fun encodeNullableElement(kotlinx.serialization.descriptors/SerialDescriptor, kotlin/Int, kotlin/Boolean): kotlin/Boolean // kotlinx.serialization.encoding/AbstractEncoder.encodeNullableElement|encodeNullableElement(kotlinx.serialization.descriptors.SerialDescriptor;kotlin.Int;kotlin.Boolean){}[0]
     open fun encodeShort(kotlin/Short) // kotlinx.serialization.encoding/AbstractEncoder.encodeShort|encodeShort(kotlin.Short){}[0]
     open fun encodeString(kotlin/String) // kotlinx.serialization.encoding/AbstractEncoder.encodeString|encodeString(kotlin.String){}[0]
     open fun encodeValue(kotlin/Any) // kotlinx.serialization.encoding/AbstractEncoder.encodeValue|encodeValue(kotlin.Any){}[0]

@@ -116,6 +116,11 @@ internal sealed class CborWriter(
     }
 
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
+        return encodeNullableElement(descriptor, index, false)
+    }
+
+
+    override fun encodeNullableElement(descriptor: SerialDescriptor, index: Int, isNull: Boolean): Boolean {
         val destination = getDestination()
         isClass = descriptor.getElementDescriptor(index).kind == StructureKind.CLASS
         encodeByteArrayAsByteString = descriptor.isByteString(index)
@@ -137,7 +142,7 @@ internal sealed class CborWriter(
             }
         }
 
-        if (cbor.configuration.encodeValueTags) {
+        if (cbor.configuration.encodeValueTags && !(cbor.configuration.untaggedNullValueTags && isNull)) {
             descriptor.getValueTags(index)?.forEach { destination.encodeTag(it) }
         }
         incrementChildren() // needed for definite len encoding, NOOP for indefinite length encoding

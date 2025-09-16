@@ -42,7 +42,8 @@ public sealed class Cbor(
                 verifyObjectTags = false,
                 useDefiniteLengthEncoding = false,
                 preferCborLabelsOverNames = false,
-                alwaysUseByteString = false
+                alwaysUseByteString = false,
+                untaggedNullValueTags = false,
             ), EmptySerializersModule()
         ) {
 
@@ -119,7 +120,8 @@ public fun Cbor(from: Cbor = Cbor, builderAction: CborBuilder.() -> Unit): Cbor 
         builder.verifyObjectTags,
         builder.useDefiniteLengthEncoding,
         builder.preferCborLabelsOverNames,
-        builder.alwaysUseByteString),
+        builder.alwaysUseByteString,
+        builder.untaggedNullValueTags),
         builder.serializersModule
     )
 }
@@ -242,6 +244,14 @@ public class CborBuilder internal constructor(cbor: Cbor) {
      * to annotate every `ByteArray` in a class hierarchy.
      */
     public var alwaysUseByteString: Boolean = cbor.configuration.alwaysUseByteString
+
+    /**
+     * Specifies whether [ValueTags] will be serialized for `null` values when [encodeValueTags] is enabled, and if
+     * such encodings pass validation when [verifyValueTags] is enabled. CBOR allows for untagged `null` values to
+     * reduce encoding size.
+     * See [RFC 8949 Tagging of Items](https://datatracker.ietf.org/doc/html/rfc8949#name-tagging-of-items) for more info.
+     */
+    public var untaggedNullValueTags: Boolean = cbor.configuration.untaggedNullValueTags
 
     /**
      * Module with contextual and polymorphic serializers to be used in the resulting [Cbor] instance.
