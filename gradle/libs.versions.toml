@@ -6,7 +6,7 @@ knit = "0.5.0"
 bcv = "0.16.2"
 animalsniffer = "1.7.1"
 protobuf = "0.8.19"
-shadow = "8.1.1"
+shadow = "8.3.9"
 jmh = "0.7.2"
 jmh-core = "1.37"
 guava = "31.1-jre"
@@ -58,6 +58,6 @@ moshi-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.re
 [plugins]
 knit = { id = "org.jetbrains.kotlinx.knit", version.ref = "knit" }
 jmh = { id = "me.champeau.jmh", version.ref = "jmh" }
-shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 protobuf = { id = "com.google.protobuf", version.ref = "protobuf" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
