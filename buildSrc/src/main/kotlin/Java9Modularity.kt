@@ -117,6 +117,7 @@ object Java9Modularity {
      * the Kotlin compiler will parse and check module dependencies,
      * but it currently won't compile to a module-info.class file.
      */
+    @OptIn(InternalKotlinGradlePluginApi::class)
     private fun Project.registerVerifyModuleTask(
         compileTask: TaskProvider<KotlinCompile>,
         sourceFile: File
@@ -173,20 +174,8 @@ object Java9Modularity {
                 ownModuleNameProp?.set(compileTask.flatMap { it.compilerOptions.moduleName})
             }
 
-            val taskKotlinLanguageVersion = compilerOptions.languageVersion.orElse(KotlinVersion.DEFAULT)
-            @OptIn(InternalKotlinGradlePluginApi::class)
-            @Suppress("DEPRECATION")
-            if (taskKotlinLanguageVersion.get() < KotlinVersion.KOTLIN_2_0) {
-                // part of work-around for https://youtrack.jetbrains.com/issue/KT-60541
-                @Suppress("INVISIBLE_MEMBER")
-                commonSourceSet.from(compileTask.map {
-                    @Suppress("INVISIBLE_MEMBER")
-                    it.commonSourceSet
-                })
-            } else {
-                multiplatformStructure.refinesEdges.set(compileTask.flatMap { it.multiplatformStructure.refinesEdges })
-                multiplatformStructure.fragments.set(compileTask.flatMap { it.multiplatformStructure.fragments })
-            }
+            multiplatformStructure.refinesEdges.set(compileTask.flatMap { it.multiplatformStructure.refinesEdges })
+            multiplatformStructure.fragments.set(compileTask.flatMap { it.multiplatformStructure.fragments })
             // part of work-around for https://youtrack.jetbrains.com/issue/KT-60541
             // and work-around for https://youtrack.jetbrains.com/issue/KT-60582
             incremental = false

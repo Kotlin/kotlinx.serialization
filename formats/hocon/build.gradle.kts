@@ -22,7 +22,7 @@ kotlin {
             languageVersion = KotlinVersion.fromVersion(overriddenLanguageVersion!!)
             freeCompilerArgs.add("-Xsuppress-version-warnings")
         }
-        freeCompilerArgs.addAll("-Xjdk-release=1.8", "-Xjvm-default=all-compatibility")
+        freeCompilerArgs.addAll("-Xjdk-release=1.8", "-jvm-default=enable")
     }
 
     sourceSets.all {
