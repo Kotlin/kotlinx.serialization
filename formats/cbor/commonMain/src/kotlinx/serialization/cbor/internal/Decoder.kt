@@ -481,7 +481,7 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
     /**
      * Determines if [curByte] represents an indefinite length CBOR item.
      *
-     * Per [RFC 7049: 2.2. Indefinite Lengths for Some Major Types](https://tools.ietf.org/html/rfc7049#section-2.2):
+     * Per [RFC 8949: 3.2. Indefinite Lengths for Some Major Types](https://tools.ietf.org/html/rfc8949#section-3.2):
      * > Four CBOR items (arrays, maps, byte strings, and text strings) can be encoded with an indefinite length
      */
     private fun isIndefinite(): Boolean {
@@ -576,7 +576,7 @@ private val normalizeBaseBits = SINGLE_PRECISION_NORMALIZE_BASE.toBits()
 
 
 /*
- * For details about half-precision floating-point numbers see https://tools.ietf.org/html/rfc7049#appendix-D
+ * For details about half-precision floating-point numbers see https://tools.ietf.org/html/rfc8949#name-half-precision
  */
 private fun floatFromHalfBits(bits: Short): Float {
     val intBits = bits.toInt()

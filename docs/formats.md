@@ -40,7 +40,7 @@ stable, these are currently experimental features of Kotlin Serialization.
 
 ## CBOR (experimental) 
 
-[CBOR][RFC 7049] is one of the standard compact binary
+[CBOR][RFC 8949] is one of the standard compact binary
 encodings for JSON, so it supports a subset of [JSON features](json.md) and
 is generally very similar to JSON in use, but produces binary data.
 
@@ -157,7 +157,7 @@ BF                                      # map(*)
 
 ### Byte arrays and CBOR data types
 
-Per the [RFC 7049 Major Types] section, CBOR supports the following data types:
+Per the [RFC 8949 Major Types] section, CBOR supports the following data types:
 
 - Major type 0: an unsigned integer
 - Major type 1: a negative integer
@@ -1607,9 +1607,9 @@ This chapter concludes [Kotlin Serialization Guide](serialization-guide.md).
                                      
 
 <!-- references -->
-[RFC 7049]: https://tools.ietf.org/html/rfc7049
+[RFC 8949]: https://tools.ietf.org/html/rfc8949
 [IoT]: https://en.wikipedia.org/wiki/Internet_of_things
-[RFC 7049 Major Types]: https://tools.ietf.org/html/rfc7049#section-2.1
+[RFC 8949 Major Types]: https://tools.ietf.org/html/rfc8949#section-3.1
 
 <!-- Java references -->
 [java.io.DataOutput]: https://docs.oracle.com/javase/8/docs/api/java/io/DataOutput.html

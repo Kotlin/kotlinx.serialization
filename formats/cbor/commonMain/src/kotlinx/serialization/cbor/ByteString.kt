@@ -18,7 +18,7 @@ import kotlinx.serialization.*
  * )
  * ```
  *
- * See [RFC 7049 2.1. Major Types](https://tools.ietf.org/html/rfc7049#section-2.1).
+ * See [RFC 8949 3.1. Major Types](https://tools.ietf.org/html/rfc8949#section-3.1).
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
