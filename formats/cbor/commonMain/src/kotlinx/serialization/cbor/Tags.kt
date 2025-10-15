@@ -1,7 +1,7 @@
 package kotlinx.serialization.cbor
 
-import kotlinx.serialization.cbor.internal.SuppressAnimalSniffer
 import kotlinx.serialization.*
+import kotlinx.serialization.cbor.internal.*
 
 /**
  * Specifies that a property shall be tagged and the tag is serialized as CBOR major type 6: optional semantic tagging
@@ -33,23 +33,29 @@ public annotation class ValueTags(@OptIn(ExperimentalUnsignedTypes::class) varar
  * Contains a set of predefined tags, named in accordance with
  * [RFC 8949 3.4. Tagging of Items](https://datatracker.ietf.org/doc/html/rfc8949#name-tagging-of-items)
  */
-public object CborTag{
-    public const val DATE_TIME_STANDARD: ULong = 0u;
-    public const val DATE_TIME_EPOCH: ULong = 1u;
-    public const val BIGNUM_POSITIVE: ULong = 2u;
-    public const val BIGNUM_NEGAIVE: ULong = 3u;
-    public const val DECIMAL_FRACTION: ULong = 4u;
-    public const val BIGFLOAT: ULong = 5u;
-    public const val BASE64_URL: ULong = 21u;
-    public const val BASE64: ULong = 22u;
-    public const val BASE16: ULong = 23u;
-    public const val CBOR_ENCODED_DATA: ULong = 24u;
-    public const val URI: ULong = 32u;
-    public const val STRING_BASE64_URL: ULong = 33u;
-    public const val STRING_BASE64: ULong = 34u;
-    public const val REGEX: ULong = 35u;
-    public const val MIME_MESSAGE: ULong = 36u;
-    public const val CBOR_SELF_DESCRIBE: ULong = 55799u;
+public object CborTag {
+    public const val DATE_TIME_STANDARD: ULong = 0u
+    public const val DATE_TIME_EPOCH: ULong = 1u
+    public const val BIGNUM_POSITIVE: ULong = 2u
+    @Deprecated(
+        "The property has a typo in its name, use BIGNUM_NEGATIVE instead.",
+        ReplaceWith("BIGNUM_NEGATIVE"),
+        DeprecationLevel.ERROR
+    )
+    public const val BIGNUM_NEGAIVE: ULong = 3u
+    public const val BIGNUM_NEGATIVE: ULong = 3u
+    public const val DECIMAL_FRACTION: ULong = 4u
+    public const val BIGFLOAT: ULong = 5u
+    public const val BASE64_URL: ULong = 21u
+    public const val BASE64: ULong = 22u
+    public const val BASE16: ULong = 23u
+    public const val CBOR_ENCODED_DATA: ULong = 24u
+    public const val URI: ULong = 32u
+    public const val STRING_BASE64_URL: ULong = 33u
+    public const val STRING_BASE64: ULong = 34u
+    public const val REGEX: ULong = 35u
+    public const val MIME_MESSAGE: ULong = 36u
+    public const val CBOR_SELF_DESCRIBE: ULong = 55799u
 }
 
 /**
@@ -73,7 +79,6 @@ public object CborTag{
 @ExperimentalSerializationApi
 @SuppressAnimalSniffer
 public annotation class KeyTags(@OptIn(ExperimentalUnsignedTypes::class) vararg val tags: ULong)
-
 
 
 /**
