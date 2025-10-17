@@ -2,22 +2,15 @@
 
 [Serialization](serialization.md) converts objects into a format that can be stored or transmitted and later reconstructed.
 
+Kotlin serialization supports multiple formats. 
 This tutorial shows you how to add the necessary plugins and dependencies for Kotlin serialization and how to serialize and deserialize objects in JSON format.
 
-## Add plugins and dependencies for Kotlin serialization
+## Add plugins and dependencies for Kotlin serialization to your project
 
-To include the `kotlinx.serialization` library in your project, add the corresponding plugin and dependency configuration based on your build tool.
-
-> To set up the Kotlin compiler plugin for Bazel, see the example provided in the [rules_kotlin repository](https://github.com/bazelbuild/rules_kotlin/tree/master/examples/plugin/src/serialization).
->
-{style="tip"}
-
-### Gradle
-
-Add the following dependency to your `build.gradle(.kts)` file:
+To include the `kotlinx.serialization` library in your project, add the corresponding plugin and dependency configuration based on your build tool:
 
 <tabs>
-<tab id="kotlin" title="Kotlin">
+<tab id="kotlin" title="Gradle Kotlin">
 
 ```kotlin
 // build.gradle.kts
@@ -31,8 +24,7 @@ dependencies {
 ```
 
 </tab>
-
-<tab id="groovy" title="Groovy">
+<tab id="groovy" title="Gradle Groovy">
 
 ```groovy
 // build.gradle
@@ -46,72 +38,65 @@ dependencies {
 ```
 
 </tab>
+<tab id="maven" title="Maven">
 
+```xml
+<!-- pom.xml -->
+<properties>
+    <kotlin.version>%kotlinVersion%</kotlin.version>
+    <serialization.version>%serializationVersion%</serialization.version>
+</properties>
+
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-maven-plugin</artifactId>
+            <version>${kotlin.version}</version>
+            <executions>
+                <execution>
+                    <id>compile</id>
+                    <phase>compile</phase>
+                    <goals>
+                        <goal>compile</goal>
+                    </goals>
+                </execution>
+            </executions>
+            <configuration>
+                <compilerPlugins>
+                    <plugin>kotlinx-serialization</plugin>
+                </compilerPlugins>
+            </configuration>
+            <dependencies>
+                <dependency>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                    <artifactId>kotlin-maven-serialization</artifactId>
+                    <version>${kotlin.version}</version>
+                </dependency>
+            </dependencies>
+        </plugin>
+    </plugins>
+</build>
+
+<dependencies>
+    <dependency>
+        <groupId>org.jetbrains.kotlinx</groupId>
+        <artifactId>kotlinx-serialization-json</artifactId>
+        <version>${serialization.version}</version>
+    </dependency>
+</dependencies>
+```
+
+</tab>
 </tabs>
 
-### Maven
-
-Add the serialization plugin and library to your `pom.xml` file:
-
-1. Specify the Kotlin and serialization version in the `<properties>` section:
-
-    ```xml
-    <properties>
-        <kotlin.version>%kotlinVersion%</kotlin.version>
-        <serialization.version>%serializationVersion%</serialization.version>
-    </properties>
-   ```
-
-2. Add the Kotlin serialization Maven plugin to the `<build>` section:
-
-   ```xml
-   <build>
-       <plugins>
-           <plugin>
-               <groupId>org.jetbrains.kotlin</groupId>
-               <artifactId>kotlin-maven-plugin</artifactId>
-               <version>${kotlin.version}</version>
-               <executions>
-                   <execution>
-                       <id>compile</id>
-                       <phase>compile</phase>
-                       <goals>
-                           <goal>compile</goal>
-                       </goals>
-                   </execution>
-               </executions>
-               <configuration>
-                   <compilerPlugins>
-                       <plugin>kotlinx-serialization</plugin>
-                   </compilerPlugins>
-               </configuration>
-               <dependencies>
-                   <dependency>
-                       <groupId>org.jetbrains.kotlin</groupId>
-                       <artifactId>kotlin-maven-serialization</artifactId>
-                       <version>${kotlin.version}</version>
-                   </dependency>
-               </dependencies>
-           </plugin>
-       </plugins>
-   </build>
-   ```
-
-3. Add the JSON serialization library dependency to the `<dependencies>` section:
-
-   ```xml
-   <dependencies>
-       <dependency>
-           <groupId>org.jetbrains.kotlinx</groupId>
-           <artifactId>kotlinx-serialization-json</artifactId>
-           <version>${serialization.version}</version>
-       </dependency>
-   </dependencies>
-   ```
+> To set up the Kotlin compiler plugin for Bazel, see the example provided in the [rules_kotlin repository](https://github.com/bazelbuild/rules_kotlin/tree/master/examples/plugin/src/serialization).
+>
+{style="tip"}
 
 ### Add the Kotlin serialization library to a multiplatform project
 
-To use Kotlin serialization in multiplatform projects, add the JSON serialization library dependency to your common source set:
+To use Kotlin serialization for JSON in multiplatform projects, add the JSON serialization library dependency to your common source set:
 
 ```kotlin
 commonMain {
@@ -120,6 +105,69 @@ commonMain {
    }
 }
 ```
+
+This dependency automatically includes the core serialization library as well.
+
+### Configure R8 for Kotlin serialization in Android projects {initial-collapse-state="collapsed" collapsible="true"}
+
+The Kotlin serialization library includes default [ProGuard rules](https://github.com/Kotlin/kotlinx.serialization/blob/master/rules/common.pro) that keep serializers for all serializable classes retained after shrinking.
+These rules don't apply to classes with named companion objects.
+
+To retain serializers for classes with named companion objects, add rules based on the [compatibility mode](https://r8.googlesource.com/r8/+/refs/heads/master/compatibility-faq.md) you use to your `proguard-rules.pro` file:
+
+<tabs>
+<tab id="compatibility" title="R8 compatibility mode">
+
+```bash
+# Serializer for classes with named companion objects are retrieved using getDeclaredClasses
+# If you have any such classes, replace the examples below with your own
+-keepattributes InnerClasses # Required for getDeclaredClasses
+
+-if @kotlinx.serialization.Serializable class
+com.example.myapplication.HasNamedCompanion, # <-- List serializable classes with named companions
+com.example.myapplication.HasNamedCompanion2
+{
+    static **$* *;
+}
+-keepnames class <1>$$serializer { # Using -keepnames is enough; class is kept when serializer() is kept
+    static <1>$$serializer INSTANCE;
+}
+```
+
+</tab>
+
+<tab id="full" title="R8 full mode">
+
+```bash
+# Serializer for classes with named companion objects are retrieved using getDeclaredClasses
+# If you have any such classes, replace the examples below with your own
+-keepattributes InnerClasses # Required for getDeclaredClasses
+
+-if @kotlinx.serialization.Serializable class
+com.example.myapplication.HasNamedCompanion, # <-- List serializable classes with named companions
+com.example.myapplication.HasNamedCompanion2
+{
+    static **$* *;
+}
+-keepnames class <1>$$serializer { # Using -keepnames is enough; class is kept when serializer() is kept
+    static <1>$$serializer INSTANCE;
+}
+
+# Keep both serializer and serializable classes to save the attribute InnerClasses
+-keepclasseswithmembers, allowshrinking, allowobfuscation, allowaccessmodification class
+com.example.myapplication.HasNamedCompanion, # <-- List serializable classes with named companions
+com.example.myapplication.HasNamedCompanion2
+{
+    *;
+}
+```
+
+</tab>
+</tabs>
+
+> You can exclude serializable classes that are never serialized at runtime by using custom ProGuard rules with narrower [class specifications](https://www.guardsquare.com/manual/configuration/usage).
+> 
+{style="tip"}
 
 ## Serialize objects to JSON
 
