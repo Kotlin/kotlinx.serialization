@@ -110,7 +110,7 @@ This dependency automatically includes the core serialization library as well.
 
 ### Configure R8 for Kotlin serialization in Android projects {initial-collapse-state="collapsed" collapsible="true"}
 
-The Kotlin serialization library includes default [ProGuard rules](https://github.com/Kotlin/kotlinx.serialization/blob/master/rules/common.pro) that keep serializers for all serializable classes retained after shrinking.
+The Kotlin serialization library includes default [ProGuard rules](https://github.com/Kotlin/kotlinx.serialization/blob/master/rules/common.pro) to keep serializers for all serializable classes after shrinking.
 These rules don't apply to classes with named companion objects.
 
 To retain serializers for classes with named companion objects, add rules based on the [compatibility mode](https://r8.googlesource.com/r8/+/refs/heads/master/compatibility-faq.md) you use to your `proguard-rules.pro` file:
