@@ -49,6 +49,7 @@ kotlin {
         nodejs()
     }
     jvm()
+    @Suppress("DEPRECATION")
     macosX64()
     macosArm64()
     linuxX64()
