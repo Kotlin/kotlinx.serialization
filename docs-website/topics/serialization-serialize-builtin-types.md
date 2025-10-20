@@ -1,12 +1,12 @@
 [//]: # (title: Serialize built-in types)
 
-The Kotlin serialization library supports various built-in types, including basic types such as primitives and strings, composite types, and several standard library classes.
+The Kotlin serialization library supports various built-in types, including basic types such as primitives and strings, as well as certain standard library classes.
 The following sections describe these types in detail and provide examples of how to serialize them.
 
 ## Basic types
 
 Kotlin serialization provides built-in serializers for types that are represented as a single value in serialized data.
-This includes, primitives, strings, and enums.
+This includes primitives, strings, and enums.
 
 For example, here’s how you can serialize a `Long` type:
 
@@ -53,15 +53,39 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-### Long numbers as strings
+### Unsigned numbers
 
-When you serialize Kotlin `Long` values to JSON, JavaScript's native number type can't represent the full range of a Kotlin `Long` type,
-leading to precision loss.
+Kotlin Serialization supports Kotlin's [unsigned integer types](unsigned-integer-types.md) like `UByte` and `UInt`.
+In JSON, these values are serialized as regular JSON numbers and preserve their full unsigned range:
 
-Kotlin/JS handles these large `Long` numbers correctly, but JavaScript's native methods don't.
-A common workaround is to represent long numbers with full precision using the JSON string type.
-Kotlin Serialization supports this approach with [`LongAsStringSerializer`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.builtins/-long-as-string-serializer/).
-To apply it to a `Long` property, use the `@Serializable` annotation:
+```kotlin
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
+@Serializable
+class Counter(val counted: UByte, val description: String)
+
+fun main() {
+    val counted = 239.toUByte()
+    println(Json.encodeToString(Counter(counted, "tries")))
+    // {"counted":239,"description":"tries"}
+}
+//sampleEnd
+```
+{kotlin-runnable="true"}
+
+> Unsigned numbers are currently only supported in the JSON format.
+> Other formats such as ProtoBuf and CBOR serialize these types using their signed counterparts internally.
+>
+{style="note"} 
+
+### `Long` numbers as strings
+
+You can represent `Long` numbers as strings in JSON.
+This is useful in JavaScript environments, where JavaScript's `Number` type can't precisely represent all Kotlin `Long` values, which may lead to precision loss.
+
+Use [`LongAsStringSerializer`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.builtins/-long-as-string-serializer/) with the `@Serializable` annotation to encode `Long` values as strings in JSON:
 
 ```kotlin
 import kotlinx.serialization.*
@@ -71,7 +95,7 @@ import kotlinx.serialization.json.*
 //sampleStart
 @Serializable
 class Data(
-    @Serializable(with=LongAsStringSerializer::class)
+    @Serializable(LongAsStringSerializer::class)
     val signature: Long
 )
 
@@ -148,10 +172,10 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-## Composite types
+## Standard library types
 
-Kotlin Serialization supports several composite types from the standard library, but some classes,
-such as ranges and the [`Regex`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.text/-regex/) class aren't supported yet.
+Kotlin Serialization supports several types from the standard library, but some classes,
+such as ranges and the [`Regex`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.text/-regex/) class, aren't supported.
 
 ### Pair and triple
 
@@ -176,8 +200,15 @@ fun main() {
 
 ### Collections
 
-Kotlin Serialization supports collection types such as [`List`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/), [`Set`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/), and [`Map`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/).
-Lists and sets are serialized as JSON arrays, and maps are represented as JSON objects.
+Kotlin Serialization supports collection types, including both immutable and mutable variants of [`List`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/), [`Set`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/), and [`Map`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/).
+It also supports their concrete implementations such as [`ArrayList`](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-array-list/) and [`LinkedHashSet`](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-linked-hash-set/), as well as generic and primitive array types.
+The way these collections are represented depends on the serialization format.
+
+In JSON, lists and sets are serialized as JSON arrays, and maps are represented as JSON objects.
+
+Kotlin uses the declared type to deserialize JSON.
+During deserialization, the type of the resulting object is determined by the static type specified in the source code.
+This type can be either the type of the property or the type parameter of the decoding function.
 
 #### Serialize lists
 
@@ -228,6 +259,10 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
+> By default, you can deserialize sets with duplicate entries. The behavior for handling duplicates depends on the specific `Set` implementation.
+> 
+{style="tip"}
+
 #### Serialize maps
 
 Kotlin serialization supports [`Map`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/) types with primitive or enum keys:
@@ -262,8 +297,7 @@ In JSON, maps are represented as objects. Since JSON object keys are always stri
 
 #### Deserialization behavior of collections
 
-Kotlin uses the declared type to deserialize JSON.
-For example, a `List` preserves duplicates, while a `Set` enforces uniqueness:
+
 
 ```kotlin
 import kotlinx.serialization.*
@@ -295,7 +329,7 @@ fun main() {
 >
 {style="tip"}
 
-## Unit and singleton objects
+### Unit and singleton objects
 
 The Kotlin [`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/) type and other singleton objects are serializable.
 A [singleton](object-declarations.md) is a class with only one instance, where the state is defined by the object itself rather than by external properties.
@@ -326,9 +360,9 @@ fun main() {
 >
 {style="tip"}
 
-## Duration
+### Duration and Instant
 
-Kotlin's [`Duration`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.time/-duration/) class is serialized to a JSON string using the ISO-8601-2 format:
+Kotlin's [`Duration`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.time/-duration/) type is serialized to a string using the ISO-8601-2 format:
 
 ```kotlin
 import kotlinx.serialization.*
@@ -345,7 +379,26 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-## Nothing
+Similarly, Kotlin's [`Instant`](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.time/-instant/) type
+is serialized as a string representing a point in time using the ISO-8601-1 format:
+
+```kotlin
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+import kotlin.time.*
+
+//sampleStart
+fun main() {
+    val instant = Instant.fromEpochMilliseconds(1607505416124)
+    println(Json.encodeToString(instant))
+    // "2020-12-09T09:16:56.124Z"
+}
+//sampleEnd
+
+```
+{kotlin-runnable="true" kotlin-min-compiler-version="2.2"}
+
+### Nothing
 
 The [`Nothing`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-nothing.html) type is serializable by default.
 It has no instances, so encoding or decoding it throws an exception.
