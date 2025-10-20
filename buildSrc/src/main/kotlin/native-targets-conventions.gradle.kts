@@ -17,20 +17,16 @@ kotlin {
 
     // According to https://kotlinlang.org/docs/native-target-support.html
     // Tier 1
-    macosX64()
     macosArm64()
     iosSimulatorArm64()
-    iosX64()
 
     // Tier 2
     linuxX64()
     linuxArm64()
     watchosSimulatorArm64()
-    watchosX64()
     watchosArm32()
     watchosArm64()
     tvosSimulatorArm64()
-    tvosX64()
     tvosArm64()
     iosArm64()
 
@@ -48,6 +44,16 @@ kotlin {
         @Suppress("DEPRECATION")
         linuxArm32Hfp()
     }
+
+    // Deprecated
+    @Suppress("DEPRECATION")
+    macosX64()
+    @Suppress("DEPRECATION")
+    iosX64()
+    @Suppress("DEPRECATION")
+    watchosX64()
+    @Suppress("DEPRECATION")
+    tvosX64()
 
     // setup tests running in RELEASE mode
     targets.withType<KotlinNativeTarget>().configureEach {
