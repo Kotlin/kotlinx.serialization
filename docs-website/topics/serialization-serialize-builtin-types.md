@@ -75,8 +75,8 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-> Unsigned numbers are currently only supported in the JSON format.
-> Other formats such as ProtoBuf and CBOR serialize these types using their signed counterparts internally.
+> Although JSON preserves the full range of unsigned numbers, other serialization formats may handle them differently.
+> For example, ProtoBuf and CBOR serialize these types using their signed counterparts.
 >
 {style="note"} 
 
@@ -200,7 +200,7 @@ fun main() {
 
 ### Collections
 
-Kotlin Serialization supports collection types, including both immutable and mutable variants of [`List`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/), [`Set`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/), and [`Map`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/).
+Kotlin Serialization supports collection types, including both read-only and mutable variants of [`List`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/), [`Set`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/), and [`Map`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/).
 It also supports their concrete implementations such as [`ArrayList`](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-array-list/) and [`LinkedHashSet`](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-linked-hash-set/), as well as generic and primitive array types.
 The way these collections are represented depends on the serialization format.
 
@@ -259,7 +259,7 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-> By default, you can deserialize sets with duplicate entries. The behavior for handling duplicates depends on the specific `Set` implementation.
+> By default, you can deserialize sets with duplicate entries. The behavior for handling duplicates is implementation-defined.
 > 
 {style="tip"}
 
@@ -288,7 +288,9 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
+Map serialization depends on the format.
 In JSON, maps are represented as objects. Since JSON object keys are always strings, keys are encoded as strings even if they are numbers in Kotlin.
+Other formats, such as CBOR, support maps with non-primitive or object keys and preserve them as such.
 
 > JSON doesn't natively support complex or composite keys.
 > To encode structured objects as map keys, see [Encode structured map keys](serialization-json-configuration.md#encode-structured-map-keys).
@@ -331,7 +333,7 @@ fun main() {
 
 ### Unit and singleton objects
 
-The Kotlin [`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/) type and other singleton objects are serializable.
+Kotlin's [`Unit`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/) type and other singleton objects are serializable.
 A [singleton](object-declarations.md) is a class with only one instance, where the state is defined by the object itself rather than by external properties.
 In JSON, singleton objects are serialized as empty structures:
 
@@ -379,8 +381,8 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-Similarly, Kotlin's [`Instant`](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.time/-instant/) type
-is serialized as a string representing a point in time using the ISO-8601-1 format:
+Starting with Kotlin 2.2.0, you can serialize Kotlin's [`Instant`](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.time/-instant/) type
+as a string representing a point in time using the ISO-8601-1 format:
 
 ```kotlin
 import kotlinx.serialization.*
@@ -394,7 +396,6 @@ fun main() {
     // "2020-12-09T09:16:56.124Z"
 }
 //sampleEnd
-
 ```
 {kotlin-runnable="true" kotlin-min-compiler-version="2.2"}
 
