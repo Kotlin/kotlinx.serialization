@@ -90,7 +90,8 @@ dependencies {
 </tab>
 </tabs>
 
-> To set up the Kotlin compiler plugin for Bazel, see the example provided in the [rules_kotlin repository](https://github.com/bazelbuild/rules_kotlin/tree/master/examples/plugin/src/serialization).
+> To set up the Kotlin compiler plugin for Bazel, follow the example from the [rules_kotlin repository](https://github.com/bazelbuild/rules_kotlin/tree/master/examples/plugin/src/serialization).
+> Bazel isn't officially supported by the Kotlin team, and this repository is maintained independently.
 >
 {style="tip"}
 
@@ -110,7 +111,7 @@ This dependency automatically includes the core serialization library as well.
 
 ### Configure R8 for Kotlin serialization in Android projects {initial-collapse-state="collapsed" collapsible="true"}
 
-The Kotlin serialization library includes default [ProGuard rules](https://github.com/Kotlin/kotlinx.serialization/blob/master/rules/common.pro) to keep serializers for all serializable classes after shrinking.
+The Kotlin serialization library includes default [ProGuard rules](https://github.com/Kotlin/kotlinx.serialization/blob/master/rules/common.pro), so you don't need additional setup to keep serializers for all serializable classes after shrinking.
 These rules don't apply to classes with named companion objects.
 
 To retain serializers for classes with named companion objects, add rules based on the [compatibility mode](https://r8.googlesource.com/r8/+/refs/heads/master/compatibility-faq.md) you use to your `proguard-rules.pro` file:
