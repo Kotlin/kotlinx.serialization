@@ -2,6 +2,7 @@ package kotlinx.serialization
 
 import org.junit.Test
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
@@ -74,7 +75,10 @@ class JvmMissingFieldsExceptionTest {
 
     @Test
     fun testShortPlaneClass() {
-        assertFailsWithMessages(listOf("f2", "f4")) {
+        assertFailsWithMessages(
+            fields = listOf("f2", "f4"),
+            expectedSerialName = ShortPlaneClass.serializer().descriptor.serialName
+        ) {
             Json.decodeFromString<ShortPlaneClass>("""{"f1":1}""")
         }
     }
@@ -86,7 +90,10 @@ class JvmMissingFieldsExceptionTest {
         val optionalFields = arrayOf("f3", "f5", "f7")
         missedFields.removeAll(definedInJsonFields)
         missedFields.removeAll(optionalFields)
-        assertFailsWithMessages(missedFields) {
+        assertFailsWithMessages(
+            fields = missedFields,
+            expectedSerialName = BigPlaneClass.serializer().descriptor.serialName
+        ) {
             Json.decodeFromString<BigPlaneClass>("""{"f1":1, "f15": 15, "f34": 34}""")
         }
     }
@@ -102,7 +109,11 @@ class JvmMissingFieldsExceptionTest {
             serializersModule = module
         }
 
-        assertFailsWithMessages(listOf("p2", "c3")) {
+        assertFailsWithMessages(
+            fields = listOf("p2", "c3"),
+            // For polymorphic, the error originates from the actual subtype
+            expectedSerialName = ChildA.serializer().descriptor.serialName
+        ) {
             json.decodeFromString<PolymorphicWrapper>("""{"nested": {"type": "a", "p1": 1, "c1": 11}}""")
         }
     }
@@ -110,30 +121,44 @@ class JvmMissingFieldsExceptionTest {
 
     @Test
     fun testSealed() {
-        assertFailsWithMessages(listOf("p3", "c2")) {
+        assertFailsWithMessages(
+            fields = listOf("p3", "c2"),
+            expectedSerialName = Parent.Child.serializer().descriptor.serialName
+        ) {
             Json.decodeFromString<Parent>("""{"type": "child", "p1":1, "c1": 11}""")
         }
     }
 
     @Test
     fun testTransient() {
-        assertFailsWithMessages(listOf("f3", "f4")) {
+        assertFailsWithMessages(
+            fields = listOf("f3", "f4"),
+            expectedSerialName = WithTransient.serializer().descriptor.serialName
+        ) {
             Json.decodeFromString<WithTransient>("""{"f1":1}""")
         }
     }
 
     @Test
     fun testGeneric() {
-        assertFailsWithMessages(listOf("f2", "f3")) {
+        assertFailsWithMessages(
+            fields = listOf("f2", "f3"),
+            expectedSerialName = Generic.serializer(Int.serializer(), Int.serializer(), Int.serializer()).descriptor.serialName
+        ) {
             Json.decodeFromString<Generic<Int, Int, Int>>("""{"f1":1}""")
         }
     }
 
 
-    private inline fun assertFailsWithMessages(fields: List<String>, block: () -> Any?) {
+    private inline fun assertFailsWithMessages(
+        fields: List<String>,
+        expectedSerialName: String,
+        block: () -> Any?
+    ) {
         val exception = assertFailsWith(MissingFieldException::class, null, block)
         val missedMessages = fields.filter { !exception.message!!.contains(it) }
         assertEquals(exception.missingFields.sorted(), fields.sorted())
+        assertEquals(expectedSerialName, exception.serialName)
         assertTrue(missedMessages.isEmpty(), "Expected message '${exception.message}' to contain substrings $fields")
     }
 }

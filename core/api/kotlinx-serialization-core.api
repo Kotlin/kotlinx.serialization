@@ -51,11 +51,12 @@ public abstract interface annotation class kotlinx/serialization/MetaSerializabl
 }
 
 public final class kotlinx/serialization/MissingFieldException : kotlinx/serialization/SerializationException {
-	public fun <init> (Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;)V
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
 	public fun <init> (Ljava/util/List;Ljava/lang/String;)V
 	public fun <init> (Ljava/util/List;Ljava/lang/String;Ljava/lang/Throwable;)V
 	public final fun getMissingFields ()Ljava/util/List;
+	public final fun getSerialName ()Ljava/lang/String;
 }
 
 public abstract interface annotation class kotlinx/serialization/Polymorphic : java/lang/annotation/Annotation {
@@ -848,6 +849,7 @@ public final class kotlinx/serialization/internal/IntSerializer : kotlinx/serial
 
 public final class kotlinx/serialization/internal/JsonInternalDependenciesKt {
 	public static final fun jsonCachedSerialNames (Lkotlinx/serialization/descriptors/SerialDescriptor;)Ljava/util/Set;
+	public static final fun missingFieldExceptionWithNewMessage (Lkotlinx/serialization/MissingFieldException;Ljava/lang/String;)Lkotlinx/serialization/MissingFieldException;
 }
 
 public abstract class kotlinx/serialization/internal/KeyValueSerializer : kotlinx/serialization/KSerializer {
