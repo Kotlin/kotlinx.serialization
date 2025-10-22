@@ -19,11 +19,6 @@ It walks you through adding the Kotlin serialization library to your project and
 Kotlin serialization offers support for all platforms, including JVM, JavaScript, and Native.
 You can use the same [dependency declaration](serialization-get-started.md#add-plugins-and-dependencies-for-kotlin-serialization) regardless of the target platform.
 
-> When you’re not using a specific format library, for example, when you're writing your own serialization format,
-> use the `kotlinx-serialization-core` library as the dependency.
->
-{style="tip"}
-
 Kotlin serialization supports various serialization formats, such as JSON, CBOR, and Protocol buffers through different serialization format libraries.
 These libraries build on the core `kotlinx.serialization` library.
 For the complete list of supported serialization formats, see [Supported serialization formats](#supported-serialization-formats).
@@ -37,6 +32,11 @@ For example:
 
 The `kotlinx.serialization` libraries follow their own versioning, independent of Kotlin.
 You can find the latest release versions on [GitHub](https://github.com/Kotlin/kotlinx.serialization/releases).
+
+> When you’re not using a specific format library, for example, when you're writing your own serialization format,
+> use the `kotlinx-serialization-core` library as the dependency.
+>
+{style="tip"}
 
 ## Supported serialization formats
 

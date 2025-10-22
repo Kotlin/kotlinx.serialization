@@ -290,7 +290,7 @@ fun main() {
 
 Map serialization depends on the format.
 In JSON, maps are represented as objects. Since JSON object keys are always strings, keys are encoded as strings even if they are numbers in Kotlin.
-Other formats, such as CBOR, support maps with non-primitive or object keys and preserve them as such.
+Other formats, such as CBOR, support maps with non-primitive keys and preserve them as such.
 
 > JSON doesn't natively support complex or composite keys.
 > To encode structured objects as map keys, see [Encode structured map keys](serialization-json-configuration.md#encode-structured-map-keys).
