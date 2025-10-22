@@ -743,6 +743,8 @@ final class kotlinx.serialization/MissingFieldException : kotlinx.serialization/
 
     final val missingFields // kotlinx.serialization/MissingFieldException.missingFields|{}missingFields[0]
         final fun <get-missingFields>(): kotlin.collections/List<kotlin/String> // kotlinx.serialization/MissingFieldException.missingFields.<get-missingFields>|<get-missingFields>(){}[0]
+    final val serialName // kotlinx.serialization/MissingFieldException.serialName|{}serialName[0]
+        final fun <get-serialName>(): kotlin/String? // kotlinx.serialization/MissingFieldException.serialName.<get-serialName>|<get-serialName>(){}[0]
 }
 
 final class kotlinx.serialization/UnknownFieldException : kotlinx.serialization/SerializationException { // kotlinx.serialization/UnknownFieldException|null[0]
@@ -1153,6 +1155,7 @@ final fun kotlinx.serialization.descriptors/listSerialDescriptor(kotlinx.seriali
 final fun kotlinx.serialization.descriptors/mapSerialDescriptor(kotlinx.serialization.descriptors/SerialDescriptor, kotlinx.serialization.descriptors/SerialDescriptor): kotlinx.serialization.descriptors/SerialDescriptor // kotlinx.serialization.descriptors/mapSerialDescriptor|mapSerialDescriptor(kotlinx.serialization.descriptors.SerialDescriptor;kotlinx.serialization.descriptors.SerialDescriptor){}[0]
 final fun kotlinx.serialization.descriptors/serialDescriptor(kotlin.reflect/KType): kotlinx.serialization.descriptors/SerialDescriptor // kotlinx.serialization.descriptors/serialDescriptor|serialDescriptor(kotlin.reflect.KType){}[0]
 final fun kotlinx.serialization.descriptors/setSerialDescriptor(kotlinx.serialization.descriptors/SerialDescriptor): kotlinx.serialization.descriptors/SerialDescriptor // kotlinx.serialization.descriptors/setSerialDescriptor|setSerialDescriptor(kotlinx.serialization.descriptors.SerialDescriptor){}[0]
+final fun kotlinx.serialization.internal/missingFieldExceptionWithNewMessage(kotlinx.serialization/MissingFieldException, kotlin/String): kotlinx.serialization/MissingFieldException // kotlinx.serialization.internal/missingFieldExceptionWithNewMessage|missingFieldExceptionWithNewMessage(kotlinx.serialization.MissingFieldException;kotlin.String){}[0]
 final fun kotlinx.serialization.internal/throwArrayMissingFieldException(kotlin/IntArray, kotlin/IntArray, kotlinx.serialization.descriptors/SerialDescriptor) // kotlinx.serialization.internal/throwArrayMissingFieldException|throwArrayMissingFieldException(kotlin.IntArray;kotlin.IntArray;kotlinx.serialization.descriptors.SerialDescriptor){}[0]
 final fun kotlinx.serialization.internal/throwMissingFieldException(kotlin/Int, kotlin/Int, kotlinx.serialization.descriptors/SerialDescriptor) // kotlinx.serialization.internal/throwMissingFieldException|throwMissingFieldException(kotlin.Int;kotlin.Int;kotlinx.serialization.descriptors.SerialDescriptor){}[0]
 final fun kotlinx.serialization.modules/EmptySerializersModule(): kotlinx.serialization.modules/SerializersModule // kotlinx.serialization.modules/EmptySerializersModule|EmptySerializersModule(){}[0]
