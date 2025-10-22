@@ -29,6 +29,10 @@ tasks.processJmhResources {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
+tasks.shadowJar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
 tasks.jmhJar {
     archiveBaseName.set("benchmarks")
     archiveVersion.set("")
