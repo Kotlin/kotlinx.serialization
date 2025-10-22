@@ -107,6 +107,7 @@ public final class kotlinx/serialization/cbor/CborTag {
 	public static final field BASE64_URL J
 	public static final field BIGFLOAT J
 	public static final field BIGNUM_NEGAIVE J
+	public static final field BIGNUM_NEGATIVE J
 	public static final field BIGNUM_POSITIVE J
 	public static final field CBOR_ENCODED_DATA J
 	public static final field CBOR_SELF_DESCRIBE J
