@@ -45,7 +45,8 @@ internal open class StreamingJsonDecoder(
     private var discriminatorHolder: DiscriminatorHolder? = discriminatorHolder
     private val configuration = json.configuration
 
-    private val elementMarker: JsonElementMarker? = if (configuration.explicitNulls) null else JsonElementMarker(descriptor)
+    private val elementMarker: JsonElementMarker? =
+        if (configuration.explicitNulls) null else JsonElementMarker(descriptor)
 
     override fun decodeJsonElement(): JsonElement = JsonTreeReader(json.configuration, lexer).read()
 
@@ -76,14 +77,14 @@ internal open class StreamingJsonDecoder(
 
             @Suppress("UNCHECKED_CAST")
             val actualSerializer = try {
-                    deserializer.findPolymorphicSerializer(this, type)
-                } catch (it: SerializationException) { // Wrap SerializationException into JsonDecodingException to preserve position, path, and input.
-                    // Split multiline message from private core function:
-                    // core/commonMain/src/kotlinx/serialization/internal/AbstractPolymorphicSerializer.kt:102
-                    val message = it.message!!.substringBefore('\n').removeSuffix(".")
-                    val hint = it.message!!.substringAfter('\n', missingDelimiterValue = "")
-                    lexer.fail(message, hint = hint)
-                } as DeserializationStrategy<T>
+                deserializer.findPolymorphicSerializer(this, type) as DeserializationStrategy<T>
+            } catch (it: SerializationException) { // Wrap SerializationException into JsonDecodingException to preserve position, path, and input.
+                // Split multiline message from private core function:
+                // core/commonMain/src/kotlinx/serialization/internal/AbstractPolymorphicSerializer.kt:102
+                val message = it.message!!.substringBefore('\n').removeSuffix(".")
+                val hint = it.message!!.substringAfter('\n', missingDelimiterValue = "")
+                lexer.fail(message, hint = hint)
+            }
 
             discriminatorHolder = DiscriminatorHolder(discriminator)
             return actualSerializer.deserialize(this)
@@ -110,11 +111,8 @@ internal open class StreamingJsonDecoder(
                 descriptor,
                 discriminatorHolder
             )
-            else -> if (mode == newMode && json.configuration.explicitNulls) {
-                this
-            } else {
-                StreamingJsonDecoder(json, newMode, lexer, descriptor, discriminatorHolder)
-            }
+
+            else -> StreamingJsonDecoder(json, newMode, lexer, descriptor, discriminatorHolder)
         }
     }
 
@@ -125,7 +123,6 @@ internal open class StreamingJsonDecoder(
         if (descriptor.elementsCount == 0 && descriptor.ignoreUnknownKeys(json)) {
             skipLeftoverElements(descriptor)
         }
-        if (lexer.tryConsumeComma() && !json.configuration.allowTrailingComma) lexer.invalidTrailingComma("")
         // First consume the object so we know it's correct
         lexer.consumeNextToken(mode.end)
         // Then cleanup the path
@@ -187,24 +184,21 @@ internal open class StreamingJsonDecoder(
     }
 
     private fun decodeMapIndex(): Int {
-        var hasComma = false
         val decodingKey = currentIndex % 2 != 0
         if (decodingKey) {
             if (currentIndex != -1) {
-                hasComma = lexer.tryConsumeComma()
+                lexer.consumeCommaOrPeekEnd(
+                    allowTrailing = json.configuration.allowTrailingComma,
+                    expectedEnd = mode.end
+                )
             }
         } else {
             lexer.consumeNextToken(COLON)
         }
 
         return if (lexer.canConsumeValue()) {
-            if (decodingKey) {
-                if (currentIndex == -1) lexer.require(!hasComma) { "Unexpected leading comma" }
-                else lexer.require(hasComma) { "Expected comma after the key-value pair" }
-            }
             ++currentIndex
         } else {
-            if (hasComma && !json.configuration.allowTrailingComma) lexer.invalidTrailingComma()
             CompositeDecoder.DECODE_DONE
         }
     }
@@ -220,35 +214,38 @@ internal open class StreamingJsonDecoder(
     )
 
     private fun decodeObjectIndex(descriptor: SerialDescriptor): Int {
-        // hasComma checks are required to properly react on trailing commas
-        var hasComma = lexer.tryConsumeComma()
-        while (lexer.canConsumeValue()) { // TODO: consider merging comma consumption and this check
-            hasComma = false
+        while (true) {
+            if (currentIndex != -1) {
+                lexer.consumeCommaOrPeekEnd(
+                    allowTrailing = json.configuration.allowTrailingComma,
+                    expectedEnd = mode.end
+                )
+            }
+
+            if (!lexer.canConsumeValue()) break
+
             val key = decodeStringKey()
             lexer.consumeNextToken(COLON)
             val index = descriptor.getJsonNameIndex(json, key)
-            val isUnknown = if (index != UNKNOWN_NAME) {
-                if (configuration.coerceInputValues && coerceInputValue(descriptor, index)) {
-                    hasComma = lexer.tryConsumeComma()
-                    false // Known element, but coerced
-                } else {
-                    elementMarker?.mark(index)
-                    return index // Known element without coercing, return it
-                }
-            } else {
-                true // unknown element
+            currentIndex = index
+
+            if (index == UNKNOWN_NAME) {
+                handleUnknown(descriptor, key)
+                continue
             }
 
-            if (isUnknown) { // slow-path for unknown keys handling
-                hasComma = handleUnknown(descriptor, key)
+            if (configuration.coerceInputValues && coerceInputValue(descriptor, index)) {
+                continue
             }
+
+            elementMarker?.mark(index)
+            return index
         }
-        if (hasComma && !json.configuration.allowTrailingComma) lexer.invalidTrailingComma()
 
         return elementMarker?.nextUnmarkedIndex() ?: CompositeDecoder.DECODE_DONE
     }
 
-    private fun handleUnknown(descriptor: SerialDescriptor, key: String): Boolean {
+    private fun handleUnknown(descriptor: SerialDescriptor, key: String) {
         if (descriptor.ignoreUnknownKeys(json) || discriminatorHolder.trySkip(key)) {
             lexer.skipElement(configuration.isLenient)
         } else {
@@ -257,17 +254,20 @@ internal open class StreamingJsonDecoder(
             lexer.path.popDescriptor()
             lexer.failOnUnknownKey(key)
         }
-        return lexer.tryConsumeComma()
     }
 
     private fun decodeListIndex(): Int {
-        // Prohibit leading comma
-        val hasComma = lexer.tryConsumeComma()
+        if (currentIndex != -1) {
+            lexer.consumeCommaOrPeekEnd(
+                allowTrailing = json.configuration.allowTrailingComma,
+                expectedEnd = mode.end,
+                entity = "array"
+            )
+        }
+
         return if (lexer.canConsumeValue()) {
-            if (currentIndex != -1 && !hasComma) lexer.fail("Expected end of the array or comma")
             ++currentIndex
         } else {
-            if (hasComma && !json.configuration.allowTrailingComma) lexer.invalidTrailingComma("array")
             CompositeDecoder.DECODE_DONE
         }
     }
