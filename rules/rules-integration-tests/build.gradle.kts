@@ -1,5 +1,6 @@
 import com.android.tools.r8.*
 import com.android.tools.r8.origin.*
+import org.gradle.kotlin.dsl.support.serviceOf
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 /*
@@ -124,11 +125,13 @@ val extractBaseJarTask = tasks.register<Task>("extractBaseJar") {
             jdkBinDir.resolve("jmod")
         }
 
-        exec {
+        // using internal `serviceOf` https://github.com/gradle/gradle/issues/34483
+        serviceOf<ExecOperations>().exec {
             commandLine(jmodFile.absolutePath, "extract", baseJmod.absolutePath, "--dir", extractDir.absolutePath)
         }
         // pack class-files into jar
-        exec {
+        // using internal `serviceOf` https://github.com/gradle/gradle/issues/34483
+        serviceOf<ExecOperations>().exec {
             commandLine(
                 "jar",
                 "--create",

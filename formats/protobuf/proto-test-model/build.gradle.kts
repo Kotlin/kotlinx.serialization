@@ -21,7 +21,7 @@ protobuf {
 java.toolchain.languageVersion.set(JavaLanguageVersion.of(8))
 
 tasks.clean {
-    delete(protobuf.protobuf.generatedFilesBaseDir)
+    delete(protobuf.generatedFilesBaseDir)
 }
 
 sourceSets.main {

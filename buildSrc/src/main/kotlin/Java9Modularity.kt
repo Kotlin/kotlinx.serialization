@@ -138,10 +138,11 @@ object Java9Modularity {
             source(compileTask.map { it.sources })
             source(compileTask.map { it.javaSources })
             // part of work-around for https://youtrack.jetbrains.com/issue/KT-60541
-            source(compileTask.map {
-                @Suppress("INVISIBLE_MEMBER")
-                it.scriptSources
-            })
+// TODO fix the migration issue
+//            source(compileTask.map {
+//                @Suppress("INVISIBLE_MEMBER")
+//                it.scriptSources
+//            })
             source(sourceFile)
             destinationDirectory.set(temporaryDir)
             multiPlatformEnabled.set(compileTask.get().multiPlatformEnabled)
@@ -178,11 +179,12 @@ object Java9Modularity {
             @Suppress("DEPRECATION")
             if (taskKotlinLanguageVersion.get() < KotlinVersion.KOTLIN_2_0) {
                 // part of work-around for https://youtrack.jetbrains.com/issue/KT-60541
-                @Suppress("INVISIBLE_MEMBER")
-                commonSourceSet.from(compileTask.map {
-                    @Suppress("INVISIBLE_MEMBER")
-                    it.commonSourceSet
-                })
+// TODO fix the migration issue
+//                @Suppress("INVISIBLE_MEMBER")
+//                commonSourceSet.from(compileTask.map {
+//                    @Suppress("INVISIBLE_MEMBER")
+//                    it.commonSourceSet
+//                })
             } else {
                 multiplatformStructure.refinesEdges.set(compileTask.flatMap { it.multiplatformStructure.refinesEdges })
                 multiplatformStructure.fragments.set(compileTask.flatMap { it.multiplatformStructure.fragments })

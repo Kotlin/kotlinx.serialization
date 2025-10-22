@@ -48,7 +48,8 @@ publishing {
 }
 
 fun DefaultMavenPublication.unsetModuleDescriptorGenerator() {
-    @Suppress("NULL_FOR_NONNULL_TYPE")
-    val generator: TaskProvider<Task?> = null
-    setModuleDescriptorGenerator(generator)
+// TODO fix the migration issue
+//    @Suppress("NULL_FOR_NONNULL_TYPE")
+//    val generator: TaskProvider<Task?> = null
+//    setModuleDescriptorGenerator(generator)
 }
