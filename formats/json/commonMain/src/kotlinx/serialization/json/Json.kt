@@ -591,7 +591,6 @@ public class JsonBuilder internal constructor(json: Json) {
      * json.decodeFromString<CaseSensitiveEnum>("ONE")
      * ```
      */
-    @ExperimentalSerializationApi
     public var decodeEnumsCaseInsensitive: Boolean = json.configuration.decodeEnumsCaseInsensitive
 
     /**
