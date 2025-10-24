@@ -23,7 +23,6 @@ public class JsonConfiguration @OptIn(ExperimentalSerializationApi::class) inter
     public val allowStructuredMapKeys: Boolean = false,
     public val prettyPrint: Boolean = false,
     public val explicitNulls: Boolean = true,
-    @ExperimentalSerializationApi
     public val prettyPrintIndent: String = "    ",
     public val coerceInputValues: Boolean = false,
     public val useArrayPolymorphism: Boolean = false,
