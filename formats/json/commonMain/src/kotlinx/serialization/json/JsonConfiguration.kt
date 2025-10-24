@@ -31,7 +31,6 @@ public class JsonConfiguration @OptIn(ExperimentalSerializationApi::class) inter
     public val useAlternativeNames: Boolean = true,
     @ExperimentalSerializationApi
     public val namingStrategy: JsonNamingStrategy? = null,
-    @ExperimentalSerializationApi
     public val decodeEnumsCaseInsensitive: Boolean = false,
     public val allowTrailingComma: Boolean = false,
     public val allowComments: Boolean = false,
