@@ -55,7 +55,7 @@ fun main() {
 
 ### Unsigned numbers
 
-Kotlin Serialization supports Kotlin's [unsigned integer types](unsigned-integer-types.md) like `UByte` and `UInt`.
+Kotlin serialization supports Kotlin's [unsigned integer types](unsigned-integer-types.md) like `UByte` and `UInt`.
 In JSON, these values are serialized as regular JSON numbers and preserve their full unsigned range:
 
 ```kotlin
@@ -174,7 +174,7 @@ fun main() {
 
 ## Standard library types
 
-Kotlin Serialization supports several types from the standard library, but some classes,
+Kotlin serialization supports several types from the standard library, but some classes,
 such as ranges and the [`Regex`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.text/-regex/) class, aren't supported.
 
 ### Pair and triple
@@ -200,7 +200,7 @@ fun main() {
 
 ### Collections
 
-Kotlin Serialization supports collection types, including both read-only and mutable variants of [`List`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/), [`Set`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/), and [`Map`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/).
+Kotlin serialization supports collection types, including both read-only and mutable variants of [`List`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/), [`Set`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/), and [`Map`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/).
 It also supports their concrete implementations such as [`ArrayList`](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-array-list/) and [`LinkedHashSet`](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-linked-hash-set/), as well as generic and primitive array types.
 The way these collections are represented depends on the serialization format.
 
@@ -212,7 +212,7 @@ This type can be either the type of the property or the type parameter of the de
 
 #### Serialize lists
 
-Kotlin Serialization serializes [`List`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/) types as JSON arrays.
+Kotlin serialization serializes [`List`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/) types as JSON arrays.
 Here’s an example with a list of classes:
 
 ```kotlin
