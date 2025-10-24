@@ -600,7 +600,6 @@ public class JsonBuilder internal constructor(json: Json) {
      * Does not affect encoding.
      * `false` by default.
      */
-    @ExperimentalSerializationApi
     public var allowTrailingComma: Boolean = json.configuration.allowTrailingComma
 
     /**
