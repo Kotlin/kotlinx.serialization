@@ -616,7 +616,6 @@ public class JsonBuilder internal constructor(json: Json) {
      *
      *  `false` by default.
      */
-    @ExperimentalSerializationApi
     public var allowComments: Boolean = json.configuration.allowComments
 
     /**

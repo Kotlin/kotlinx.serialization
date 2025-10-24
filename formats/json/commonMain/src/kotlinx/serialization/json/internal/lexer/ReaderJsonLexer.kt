@@ -4,10 +4,8 @@
 
 package kotlinx.serialization.json.internal
 
-import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import kotlin.jvm.*
-import kotlin.math.*
 
 internal const val BATCH_SIZE: Int = 16 * 1024
 private const val DEFAULT_THRESHOLD = 128
@@ -37,7 +35,6 @@ internal class ArrayAsSequence(internal val buffer: CharArray) : CharSequence {
     override fun toString(): String = substring(0, length)
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 internal fun ReaderJsonLexer(json: Json, reader: InternalJsonReader, buffer: CharArray = CharArrayPoolBatchSize.take()) =
     if (!json.configuration.allowComments) ReaderJsonLexer(reader, buffer) else ReaderJsonLexerWithComments(reader, buffer)
 
