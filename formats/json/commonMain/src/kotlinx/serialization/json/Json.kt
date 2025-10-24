@@ -484,11 +484,7 @@ public class JsonBuilder internal constructor(json: Json) {
      * Specifies indent string to use with [prettyPrint] mode.
      * Only whitespace characters are allowed: ' ', '\n', '\r' or '\t'.
      * 4 spaces by default.
-     *
-     * Experimentality note: this API is experimental because
-     * it is not clear whether this option has compelling use-cases.
      */
-    @ExperimentalSerializationApi
     public var prettyPrintIndent: String = json.configuration.prettyPrintIndent
 
     /**
