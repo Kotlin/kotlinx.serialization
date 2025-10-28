@@ -234,8 +234,9 @@ This way we can have a stable _serial name_ that is not affected by the class's 
 > In addition to that, JSON can be configured to use a different key name for the class discriminator. 
 > You can find an example in the [Class discriminator for polymorphism](json.md#class-discriminator-for-polymorphism) section.
 
-When picking a serial name for a class, avoid assigning the same name to different classes.
-Check out equality rules in documentation for [SerialDescriptor] to make sure that class descriptor will stay unique.
+> [!IMPORTANT]
+> When picking a serial name for a class, avoid assigning the same name to different classes.
+Check out equality rules in documentation for [SerialDescriptor] to make sure that the class descriptor will stay unique.
 
 ### Concrete properties in a base class
 
