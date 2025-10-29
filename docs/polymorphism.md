@@ -234,6 +234,10 @@ This way we can have a stable _serial name_ that is not affected by the class's 
 > In addition to that, JSON can be configured to use a different key name for the class discriminator. 
 > You can find an example in the [Class discriminator for polymorphism](json.md#class-discriminator-for-polymorphism) section.
 
+> [!IMPORTANT]
+> When picking a serial name for a class, avoid assigning the same name to different classes.
+Check out equality rules in documentation for [SerialDescriptor] to make sure that the class descriptor will stay unique.
+
 ### Concrete properties in a base class
 
 A base class in a sealed hierarchy can have properties with backing fields. 
@@ -1017,6 +1021,10 @@ The next chapter covers [JSON features](json.md).
 [DeserializationStrategy]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-deserialization-strategy/index.html
 [SerializationStrategy]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serialization-strategy/index.html
 
+<!--- INDEX kotlinx-serialization-core/kotlinx.serialization.descriptors -->
+
+[SerialDescriptor]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.descriptors/-serial-descriptor/index.html
+
 <!--- INDEX kotlinx-serialization-core/kotlinx.serialization.modules -->
 
 [SerializersModule]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/-serializers-module/index.html
@@ -1037,4 +1045,3 @@ The next chapter covers [JSON features](json.md).
 [Json]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/index.html
 
 <!--- END -->
-

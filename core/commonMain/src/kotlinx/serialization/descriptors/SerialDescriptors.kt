@@ -93,6 +93,7 @@ public fun PrimitiveSerialDescriptor(serialName: String, kind: PrimitiveKind): S
 /**
  * Factory to create a new descriptor that is identical to [original] except that the name is equal to [serialName].
  * Usually used when you want to serialize a type as another type, delegating implementation of `serialize` and `deserialize`.
+ * Do not use [serialName] that is equal to the name of [original] or other serializable classes.
  *
  * Example:
  * ```

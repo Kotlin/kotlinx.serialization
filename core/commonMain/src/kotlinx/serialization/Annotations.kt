@@ -148,7 +148,10 @@ public annotation class Serializer(
  * println(Json.encodeToString(CustomName(42)))
  * ```
  *
- * If a name of class or property is overridden with this annotation, original source code name is not available for the library.
+ * When picking a serial name for a class, avoid assigning the same name to different classes.
+ * Check out Equality rules for [SerialDescriptor] to make sure that class descriptor will stay unique.
+ *
+ * If a name of a class or property is overridden with this annotation, the original source code name is not available for the library.
  * Tools like `JsonNamingStrategy` and `ProtoBufSchemaGenerator` would see and transform [value] from [SerialName] annotation.
  */
 @MustBeDocumented
