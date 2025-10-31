@@ -214,6 +214,7 @@ class JsonNamingStrategyTest : JsonTestBase() {
     }
 
     @Serializable
+    @SerialName("SealedBase")
     sealed interface SealedBase {
         @Serializable
         @JsonClassDiscriminator("typeSub")
@@ -243,5 +244,29 @@ class JsonNamingStrategyTest : JsonTestBase() {
             """{"test_base":{"typeBase":"SealedSub2","test_case":0},"test_mid":{"typeSub":"SealedSub1"}}""",
             json
         )
+    }
+
+    @Test
+    fun testClashWithDiscriminator() {
+        val correctJson = Json(jsonWithNaming) {
+            classDiscriminator = "test_base"
+        }
+        val holder = Holder(SealedBase.SealedSub2(), SealedBase.SealedMid.SealedSub1)
+
+        // Should pass because same name is only on different levels
+        assertJsonFormAndRestored(
+            Holder.serializer(),
+            holder,
+            """{"test_base":{"test_base":"SealedSub2","test_case":0},"test_mid":{"typeSub":"SealedSub1"}}""",
+            correctJson
+        )
+
+        val incorrectJson = Json(jsonWithNaming) {
+            classDiscriminator = "test_case"
+        }
+
+        assertFailsWithMessage<SerializationException>("Class 'SealedSub2' cannot be serialized as base class 'SealedBase' because it has property name that conflicts with JSON class discriminator 'test_case'.") {
+            incorrectJson.encodeToString<Holder>(holder)
+        }
     }
 }
