@@ -24,8 +24,8 @@ class SerialNameCollisionInSealedClassesTest {
 
     @Test
     fun testCollisionWithDiscriminator() {
-        assertFailsWith<IllegalStateException> { Json("type").encodeToString(Base.serializer(), Base.Child("a")) }
-        assertFailsWith<IllegalStateException> { Json("type2").encodeToString(Base.serializer(), Base.Child("a")) }
+        assertFailsWith<SerializationException> { Json("type").encodeToString(Base.serializer(), Base.Child("a")) }
+        assertFailsWith<SerializationException> { Json("type2").encodeToString(Base.serializer(), Base.Child("a")) }
         Json("f").encodeToString(Base.serializer(), Base.Child("a"))
     }
 

@@ -9,8 +9,6 @@ import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
-import kotlinx.serialization.modules.*
-import kotlin.jvm.*
 
 @Suppress("UNCHECKED_CAST")
 internal inline fun <T> JsonEncoder.encodePolymorphically(
@@ -37,32 +35,35 @@ internal inline fun <T> JsonEncoder.encodePolymorphically(
         val casted = serializer as AbstractPolymorphicSerializer<Any>
         requireNotNull(value) { "Value for serializer ${serializer.descriptor} should always be non-null. Please report issue to the kotlinx.serialization tracker." }
         val actual = casted.findPolymorphicSerializer(this, value)
-        if (baseClassDiscriminator != null) {
-            validateIfSealed(serializer, actual, baseClassDiscriminator)
-            checkKind(actual.descriptor.kind)
-        }
         actual as SerializationStrategy<T>
     } else serializer
 
-    if (baseClassDiscriminator != null) ifPolymorphic(baseClassDiscriminator, actualSerializer.descriptor.serialName)
+    if (baseClassDiscriminator != null) {
+        json.checkEncodingConflicts(serializer, actualSerializer, baseClassDiscriminator)
+        checkKind(actualSerializer.descriptor.kind)
+        ifPolymorphic(baseClassDiscriminator, actualSerializer.descriptor.serialName)
+    }
     actualSerializer.serialize(this, value)
 }
 
-private fun validateIfSealed(
+private fun Json.checkEncodingConflicts(
     serializer: SerializationStrategy<*>,
     actualSerializer: SerializationStrategy<*>,
     classDiscriminator: String
 ) {
-    if (serializer !is SealedClassSerializer<*>) return
-    @Suppress("DEPRECATION_ERROR")
-    if (classDiscriminator in actualSerializer.descriptor.jsonCachedSerialNames()) {
+    if (classDiscriminator in actualSerializer.descriptor.getJsonEncodedNames(this)) {
         val baseName = serializer.descriptor.serialName
         val actualName = actualSerializer.descriptor.serialName
-        error(
-            "Sealed class '$actualName' cannot be serialized as base class '$baseName' because" +
+
+        val text = when {
+            configuration.classDiscriminatorMode == ClassDiscriminatorMode.ALL_JSON_OBJECTS && baseName == actualName -> "in ALL_JSON_OBJECTS class discriminator mode"
+            else -> "as base class '$baseName'"
+        }
+        throw JsonEncodingException(
+            "Class '$actualName' cannot be serialized $text because" +
                     " it has property name that conflicts with JSON class discriminator '$classDiscriminator'. " +
-                    "You can either change class discriminator in JsonConfiguration, " +
-                    "rename property with @SerialName annotation or fall back to array polymorphism"
+                    "You can either change class discriminator in JsonConfiguration, or " +
+                    "rename property with @SerialName annotation."
         )
     }
 }

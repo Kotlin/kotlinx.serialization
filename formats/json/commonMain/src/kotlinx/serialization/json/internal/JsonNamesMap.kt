@@ -8,8 +8,8 @@ package kotlinx.serialization.json.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
+import kotlinx.serialization.internal.jsonCachedSerialNames
 import kotlinx.serialization.json.*
-import kotlin.native.concurrent.*
 
 internal val JsonDeserializationNamesKey = DescriptorSchemaCache.Key<Map<String, Int>>()
 
@@ -19,7 +19,7 @@ private fun SerialDescriptor.buildDeserializationNamesMap(json: Json): Map<Strin
     fun MutableMap<String, Int>.putOrThrow(name: String, index: Int) {
         val entity = if (kind == SerialKind.ENUM) "enum value" else "property"
         if (name in this) {
-            throw JsonException(
+            throw JsonDecodingException(
                 "The suggested name '$name' for $entity ${getElementName(index)} is already one of the names for $entity " +
                         "${getElementName(getValue(name))} in ${this@buildDeserializationNamesMap}"
             )
@@ -72,6 +72,12 @@ internal fun SerialDescriptor.getJsonElementName(json: Json, index: Int): String
     return if (strategy == null) getElementName(index) else serializationNamesIndices(json, strategy)[index]
 }
 
+// Emits only names used for encoding, i.e. from naming strategy, but not from @JsonNames
+internal fun SerialDescriptor.getJsonEncodedNames(json: Json): Set<String> {
+    val strategy = namingStrategy(json)
+    return if (strategy == null) jsonCachedSerialNames() else serializationNamesIndices(json, strategy).toSet()
+}
+
 internal fun SerialDescriptor.namingStrategy(json: Json) =
     if (kind == StructureKind.CLASS) json.configuration.namingStrategy else null
 
@@ -85,7 +91,6 @@ private fun Json.decodeCaseInsensitive(descriptor: SerialDescriptor) =
  * Serves same purpose as [SerialDescriptor.getElementIndex] but respects [JsonNames] annotation
  * and [JsonConfiguration] settings.
  */
-@OptIn(ExperimentalSerializationApi::class)
 internal fun SerialDescriptor.getJsonNameIndex(json: Json, name: String): Int {
     if (json.decodeCaseInsensitive(this)) {
         return getJsonNameIndexSlowPath(json, name.lowercase())
