@@ -55,9 +55,15 @@ internal fun Json.deserializationNamesMap(descriptor: SerialDescriptor): Map<Str
 
 internal fun SerialDescriptor.serializationNamesIndices(json: Json, strategy: JsonNamingStrategy): Array<String> =
     json.schemaCache.getOrPut(this, JsonSerializationNamesKey) {
+        val trackingSet = mutableSetOf<String>()
         Array(elementsCount) { i ->
             val baseName = getElementName(i)
-            strategy.serialNameForJson(this, i, baseName)
+            val name = strategy.serialNameForJson(this, i, baseName)
+            if (!trackingSet.add(name)) throw JsonEncodingException(
+                "The transformed name '$name' for property $baseName already exists " +
+                    "in ${this@serializationNamesIndices}"
+            )
+            name
         }
     }
 

@@ -183,6 +183,11 @@ class JsonNamingStrategyTest : JsonTestBase() {
             ignoreUnknownKeys = true
         }
         parametrizedTest { mode ->
+            assertFailsWithMessage<SerializationException>("The transformed name 'test_case' for property test_case already exists") {
+                json.encodeToString(CollisionCheckPrimary("a", "b"))
+            }
+        }
+        parametrizedTest { mode ->
             assertFailsWithMessage<SerializationException>("The suggested name 'test_case' for property test_case is already one of the names for property testCase") {
                 json.decodeFromString<CollisionCheckPrimary>("""{"test_case":"a"}""", mode)
             }
