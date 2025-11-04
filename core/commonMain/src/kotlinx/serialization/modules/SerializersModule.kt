@@ -76,8 +76,9 @@ public sealed class SerializersModule {
  * A [SerializersModule] which is empty and always returns `null`.
  */
 @Deprecated("Deprecated in the favour of 'EmptySerializersModule()'",
-    level = DeprecationLevel.WARNING,
-    replaceWith = ReplaceWith("EmptySerializersModule()"))
+    level = DeprecationLevel.ERROR, // Error since 1.10, should be hidden later
+    replaceWith = ReplaceWith("EmptySerializersModule()")
+)
 @JsName("EmptySerializersModuleLegacyJs") // Compatibility with JS
 public val EmptySerializersModule: SerializersModule = SerialModuleImpl(
     emptyMap(),

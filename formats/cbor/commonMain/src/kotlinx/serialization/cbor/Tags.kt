@@ -40,7 +40,7 @@ public object CborTag {
     @Deprecated(
         "The property has a typo in its name, use BIGNUM_NEGATIVE instead.",
         ReplaceWith("BIGNUM_NEGATIVE"),
-        DeprecationLevel.ERROR
+        DeprecationLevel.ERROR // Since 1.10.0
     )
     public const val BIGNUM_NEGAIVE: ULong = 3u
     public const val BIGNUM_NEGATIVE: ULong = 3u

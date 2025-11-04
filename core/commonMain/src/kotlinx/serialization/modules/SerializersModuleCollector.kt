@@ -93,7 +93,7 @@ public interface SerializersModuleCollector {
     @Deprecated(
         "Deprecated in favor of function with more precise name: polymorphicDefaultDeserializer",
         ReplaceWith("polymorphicDefaultDeserializer(baseClass, defaultDeserializerProvider)"),
-        DeprecationLevel.WARNING // Since 1.5.0. Raise to ERROR in 1.6.0, hide in 1.7.0
+        DeprecationLevel.ERROR // Since 1.5.0. Raised to ERROR in 1.10.0, hide later.
     )
     public fun <Base : Any> polymorphicDefault(
         baseClass: KClass<Base>,

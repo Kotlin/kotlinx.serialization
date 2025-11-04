@@ -64,7 +64,7 @@ public fun SerializersModule.getContextualDescriptor(descriptor: SerialDescripto
  * Retrieves a collection of descriptors which serializers are registered for polymorphic serialization in [this]
  * with base class equal to [descriptor]'s [SerialDescriptor.capturedKClass].
  * This method does not retrieve serializers registered with [PolymorphicModuleBuilder.defaultDeserializer]
- * or [PolymorphicModuleBuilder.defaultSerializer].
+ * or [SerializersModuleBuilder.polymorphicDefaultSerializer].
  *
  * @see SerializersModule.getPolymorphic
  * @see SerializersModuleBuilder.polymorphic
