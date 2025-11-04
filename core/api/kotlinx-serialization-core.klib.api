@@ -661,9 +661,6 @@ final class kotlinx.serialization.descriptors/ClassSerialDescriptorBuilder { // 
     final var annotations // kotlinx.serialization.descriptors/ClassSerialDescriptorBuilder.annotations|{}annotations[0]
         final fun <get-annotations>(): kotlin.collections/List<kotlin/Annotation> // kotlinx.serialization.descriptors/ClassSerialDescriptorBuilder.annotations.<get-annotations>|<get-annotations>(){}[0]
         final fun <set-annotations>(kotlin.collections/List<kotlin/Annotation>) // kotlinx.serialization.descriptors/ClassSerialDescriptorBuilder.annotations.<set-annotations>|<set-annotations>(kotlin.collections.List<kotlin.Annotation>){}[0]
-    final var isNullable // kotlinx.serialization.descriptors/ClassSerialDescriptorBuilder.isNullable|{}isNullable[0]
-        final fun <get-isNullable>(): kotlin/Boolean // kotlinx.serialization.descriptors/ClassSerialDescriptorBuilder.isNullable.<get-isNullable>|<get-isNullable>(){}[0]
-        final fun <set-isNullable>(kotlin/Boolean) // kotlinx.serialization.descriptors/ClassSerialDescriptorBuilder.isNullable.<set-isNullable>|<set-isNullable>(kotlin.Boolean){}[0]
 
     final fun element(kotlin/String, kotlinx.serialization.descriptors/SerialDescriptor, kotlin.collections/List<kotlin/Annotation> = ..., kotlin/Boolean = ...) // kotlinx.serialization.descriptors/ClassSerialDescriptorBuilder.element|element(kotlin.String;kotlinx.serialization.descriptors.SerialDescriptor;kotlin.collections.List<kotlin.Annotation>;kotlin.Boolean){}[0]
 }

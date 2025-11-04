@@ -229,9 +229,7 @@ public final class kotlinx/serialization/descriptors/ClassSerialDescriptorBuilde
 	public static synthetic fun element$default (Lkotlinx/serialization/descriptors/ClassSerialDescriptorBuilder;Ljava/lang/String;Lkotlinx/serialization/descriptors/SerialDescriptor;Ljava/util/List;ZILjava/lang/Object;)V
 	public final fun getAnnotations ()Ljava/util/List;
 	public final fun getSerialName ()Ljava/lang/String;
-	public final fun isNullable ()Z
 	public final fun setAnnotations (Ljava/util/List;)V
-	public final fun setNullable (Z)V
 }
 
 public final class kotlinx/serialization/descriptors/ContextAwareKt {

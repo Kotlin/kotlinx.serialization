@@ -287,16 +287,6 @@ public val SerialDescriptor.nonNullOriginal: SerialDescriptor
 public class ClassSerialDescriptorBuilder internal constructor(
     public val serialName: String
 ) {
-
-    /**
-     * Indicates that serializer associated with the current serial descriptor
-     * support nullable types, meaning that it should declare nullable type
-     * in its [KSerializer] type parameter and handle nulls during encoding and decoding.
-     */
-    @ExperimentalSerializationApi
-    @Deprecated("isNullable inside buildSerialDescriptor is deprecated. Please use SerialDescriptor.nullable extension on a builder result.", level = DeprecationLevel.ERROR)
-    public var isNullable: Boolean = false
-
     /**
      * [Serial][SerialInfo] annotations on a target type.
      */

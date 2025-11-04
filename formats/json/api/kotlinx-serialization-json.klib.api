@@ -235,6 +235,8 @@ final class kotlinx.serialization.json/JsonConfiguration { // kotlinx.serializat
         final fun <get-allowTrailingComma>(): kotlin/Boolean // kotlinx.serialization.json/JsonConfiguration.allowTrailingComma.<get-allowTrailingComma>|<get-allowTrailingComma>(){}[0]
     final val classDiscriminator // kotlinx.serialization.json/JsonConfiguration.classDiscriminator|{}classDiscriminator[0]
         final fun <get-classDiscriminator>(): kotlin/String // kotlinx.serialization.json/JsonConfiguration.classDiscriminator.<get-classDiscriminator>|<get-classDiscriminator>(){}[0]
+    final val classDiscriminatorMode // kotlinx.serialization.json/JsonConfiguration.classDiscriminatorMode|{}classDiscriminatorMode[0]
+        final fun <get-classDiscriminatorMode>(): kotlinx.serialization.json/ClassDiscriminatorMode // kotlinx.serialization.json/JsonConfiguration.classDiscriminatorMode.<get-classDiscriminatorMode>|<get-classDiscriminatorMode>(){}[0]
     final val coerceInputValues // kotlinx.serialization.json/JsonConfiguration.coerceInputValues|{}coerceInputValues[0]
         final fun <get-coerceInputValues>(): kotlin/Boolean // kotlinx.serialization.json/JsonConfiguration.coerceInputValues.<get-coerceInputValues>|<get-coerceInputValues>(){}[0]
     final val decodeEnumsCaseInsensitive // kotlinx.serialization.json/JsonConfiguration.decodeEnumsCaseInsensitive|{}decodeEnumsCaseInsensitive[0]
@@ -257,10 +259,6 @@ final class kotlinx.serialization.json/JsonConfiguration { // kotlinx.serializat
         final fun <get-useAlternativeNames>(): kotlin/Boolean // kotlinx.serialization.json/JsonConfiguration.useAlternativeNames.<get-useAlternativeNames>|<get-useAlternativeNames>(){}[0]
     final val useArrayPolymorphism // kotlinx.serialization.json/JsonConfiguration.useArrayPolymorphism|{}useArrayPolymorphism[0]
         final fun <get-useArrayPolymorphism>(): kotlin/Boolean // kotlinx.serialization.json/JsonConfiguration.useArrayPolymorphism.<get-useArrayPolymorphism>|<get-useArrayPolymorphism>(){}[0]
-
-    final var classDiscriminatorMode // kotlinx.serialization.json/JsonConfiguration.classDiscriminatorMode|{}classDiscriminatorMode[0]
-        final fun <get-classDiscriminatorMode>(): kotlinx.serialization.json/ClassDiscriminatorMode // kotlinx.serialization.json/JsonConfiguration.classDiscriminatorMode.<get-classDiscriminatorMode>|<get-classDiscriminatorMode>(){}[0]
-        final fun <set-classDiscriminatorMode>(kotlinx.serialization.json/ClassDiscriminatorMode) // kotlinx.serialization.json/JsonConfiguration.classDiscriminatorMode.<set-classDiscriminatorMode>|<set-classDiscriminatorMode>(kotlinx.serialization.json.ClassDiscriminatorMode){}[0]
 
     final fun toString(): kotlin/String // kotlinx.serialization.json/JsonConfiguration.toString|toString(){}[0]
 }

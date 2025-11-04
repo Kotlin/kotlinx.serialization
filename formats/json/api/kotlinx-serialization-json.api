@@ -160,7 +160,6 @@ public final class kotlinx/serialization/json/JsonConfiguration {
 	public final fun getUseAlternativeNames ()Z
 	public final fun getUseArrayPolymorphism ()Z
 	public final fun isLenient ()Z
-	public final fun setClassDiscriminatorMode (Lkotlinx/serialization/json/ClassDiscriminatorMode;)V
 	public fun toString ()Ljava/lang/String;
 }
 
