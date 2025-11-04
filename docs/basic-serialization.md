@@ -448,9 +448,13 @@ See JSON's [Encoding defaults](json.md#encoding-defaults) section on how this be
 Additionally, this behavior can be controlled without taking format settings into account.
 For that purposes, [EncodeDefault] annotation can be used:
 
+<!--- INCLUDE
+import kotlinx.serialization.EncodeDefault.Mode.NEVER
+-->
+
+
 ```kotlin
 @Serializable
-@OptIn(ExperimentalSerializationApi::class) // EncodeDefault is an experimental annotation for now
 data class Project(
     val name: String,
     @EncodeDefault val language: String = "Kotlin"
@@ -461,12 +465,10 @@ This annotation instructs the framework to always serialize property, regardless
 It's also possible to tweak it into the opposite behavior using [EncodeDefault.Mode] parameter:
 
 ```kotlin
-
 @Serializable
-@OptIn(ExperimentalSerializationApi::class) // EncodeDefault is an experimental annotation for now
 data class User(
     val name: String,
-    @EncodeDefault(EncodeDefault.Mode.NEVER) val projects: List<Project> = emptyList()
+    @EncodeDefault(NEVER) val projects: List<Project> = emptyList()
 )
 
 fun main() {
