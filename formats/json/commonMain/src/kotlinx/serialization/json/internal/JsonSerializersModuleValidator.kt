@@ -15,7 +15,6 @@ internal class JsonSerializersModuleValidator(
     configuration: JsonConfiguration,
 ) : SerializersModuleCollector {
 
-    private val discriminator: String = configuration.classDiscriminator
     private val useArrayPolymorphism: Boolean = configuration.useArrayPolymorphism
     private val isDiscriminatorRequired = configuration.classDiscriminatorMode != ClassDiscriminatorMode.NONE
 
@@ -33,10 +32,6 @@ internal class JsonSerializersModuleValidator(
     ) {
         val descriptor = actualSerializer.descriptor
         checkKind(descriptor, actualClass)
-        if (!useArrayPolymorphism && isDiscriminatorRequired) {
-            // Collisions with "type" can happen only for JSON polymorphism
-            checkDiscriminatorCollisions(descriptor, actualClass)
-        }
     }
 
     private fun checkKind(descriptor: SerialDescriptor, actualClass: KClass<*>) {
@@ -59,23 +54,6 @@ internal class JsonSerializersModuleValidator(
             throw IllegalArgumentException(
                 "Serializer for ${actualClass.simpleName} of kind $kind cannot be serialized polymorphically with class discriminator."
             )
-        }
-    }
-
-    private fun checkDiscriminatorCollisions(
-        descriptor: SerialDescriptor,
-        actualClass: KClass<*>
-    ) {
-        for (i in 0 until descriptor.elementsCount) {
-            val name = descriptor.getElementName(i)
-            if (name == discriminator) {
-                throw IllegalArgumentException(
-                    "Polymorphic serializer for $actualClass has property '$name' that conflicts " +
-                            "with JSON class discriminator. You can either change class discriminator in JsonConfiguration, " +
-                            "rename property with @SerialName annotation " +
-                            "or fall back to array polymorphism"
-                )
-            }
         }
     }
 
