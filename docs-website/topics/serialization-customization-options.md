@@ -129,6 +129,7 @@ import kotlinx.serialization.json.*
 // The Box<T> class can be used with built-in types like Int
 // or with @Serializable user-defined types like Project
 class Box<T>(val contents: T)
+
 @Serializable
 data class Project(val name: String, val language: String)
 
@@ -152,8 +153,9 @@ If that type isn't serializable, you get a compile-time error.
 
 ## Optional properties
 
-A property is optional if it isn't required in the serialized input or output.
-Properties with _default values_ are optional during serialization.
+Properties with _default values_ are optional during deserialization, and can be skipped during serialization,
+if the format is configured to do so.
+For example, JSON is configured to skip encoding of default values out of the box.
 
 ### Set default values for optional properties
 
@@ -184,7 +186,7 @@ fun main() {
 ### Serialize nullable properties
 
 Kotlin Serialization natively supports nullable properties.
-Like other default values, `null` values aren't encoded in the JSON output:
+[Like other default values](#manage-the-serialization-of-default-properties-with-encodedefault), `null` values aren't encoded in the JSON output:
 
 ```kotlin
 // Imports declarations from the serialization and JSON handling libraries
@@ -231,6 +233,8 @@ fun main() {
 {kotlin-runnable="true" validate="false"}
 
 > If you need to handle `null` values from third-party JSON, you can [coerce them to a default value](serialization-json-configuration.md#coerce-input-values).
+> 
+> You can also [omit explicit `null` values](serialization-json-configuration#omit-explicit-nulls) from the encoded JSON with the `explicitNulls` property.
 >
 {style="tip"}
 
@@ -343,6 +347,33 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
+### Make properties required with the `@Required` annotation
+
+You can annotate a property with [`@Required`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-required/) to make it required in the input.
+This enforces that the input contains the property, even if it has a [default value](#set-default-values-for-optional-properties):
+
+```kotlin
+// Imports declarations from the serialization and JSON handling libraries
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+import kotlinx.serialization.Required
+
+//sampleStart
+@Serializable
+// Marks the language property as required
+data class Project(val name: String, @Required val language: String = "Kotlin")
+
+fun main() {
+    val data = Json.decodeFromString<Project>("""
+        {"name":"kotlinx.serialization"}
+    """)
+    println(data)
+    // MissingFieldException
+}
+//sampleEnd
+```
+{kotlin-runnable="true"}
+
 ## Customize class serialization
 
 Kotlin Serialization provides several ways to modify how classes are serialized.
@@ -412,8 +443,9 @@ fun main() {
 
 ### Validate data in the primary constructor
 
-To ensure that a class remains serializable and that invalid data is rejected during deserialization, add validation checks in an `init` block.
-During deserialization, Kotlin calls the class’s primary constructor and runs all initializer blocks.
+After deserialization, the `kotlinx.serialization` plugin runs the class's initializer blocks,
+just like when you create an instance.
+This allows you to validate constructor parameters and reject invalid data during deserialization.
 
 Here's an example:
 
@@ -437,33 +469,6 @@ fun main() {
     """)
     println(data)
     // Exception in thread "main" java.lang.IllegalArgumentException: name cannot be empty
-}
-//sampleEnd
-```
-{kotlin-runnable="true"}
-
-### Make properties required with the `@Required` annotation
-
-You can annotate a property with [`@Required`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-required/) to make it required in the input.
-This enforces that the input contains the property, even if it has a [default value](#set-default-values-for-optional-properties):
-
-```kotlin
-// Imports declarations from the serialization and JSON handling libraries
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
-import kotlinx.serialization.Required
-
-//sampleStart
-@Serializable
-// Marks the language property as required
-data class Project(val name: String, @Required val language: String = "Kotlin")
-
-fun main() {
-    val data = Json.decodeFromString<Project>("""
-        {"name":"kotlinx.serialization"}
-    """)
-    println(data)
-    // MissingFieldException
 }
 //sampleEnd
 ```
