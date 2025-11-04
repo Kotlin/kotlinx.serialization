@@ -275,6 +275,7 @@ In this example, since the `language` property is specified in the input, the `C
 in the output.
 
 ### Manage the serialization of default properties with `@EncodeDefault`
+<primary-label ref="experimental-general"/>
 
 By default, JSON serialization excludes properties that have default values.
 This reduces the size of the serialized data and avoids unnecessary visual clutter.
@@ -306,13 +307,21 @@ fun main() {
 To always serialize a property, regardless of its value or format settings, use the [`@EncodeDefault`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-encode-default/) annotation.
 You can also change this behavior by setting the [`EncodeDefault.Mode`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-encode-default/-mode/) parameter.
 
+> [`@EncodeDefault`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-class-discriminator/) is [Experimental](components-stability.md#stability-levels-explained). To opt in, use the `@OptIn(ExperimentalSerializationApi::class)` annotation or the compiler option `-opt-in=kotlinx.serialization.ExperimentalSerializationApi`.
+>
+{style="warning"}
+
 Let's look at an example, where the `language` property is always included in the serialized output,
 while the `projects` property is excluded when it's an empty list:
 
 ```kotlin
+// Opts in to ExperimentalSerializationApi
+@file:OptIn(ExperimentalSerializationApi::class)
+
 // Imports declarations from the serialization and JSON handling libraries
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
+import kotlinx.serialization.EncodeDefault.Mode.NEVER
 
 //sampleStart
 @Serializable
@@ -327,7 +336,7 @@ data class Project(
 data class User(
     val name: String,
     // Excludes projects when it’s an empty list, even if it has a default value
-    @EncodeDefault(EncodeDefault.Mode.NEVER) val projects: List<Project> = emptyList()
+    @EncodeDefault(NEVER) val projects: List<Project> = emptyList()
 )
 
 fun main() {
