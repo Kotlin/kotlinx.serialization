@@ -199,12 +199,10 @@ public annotation class Transient
  */
 @MustBeDocumented
 @Target(AnnotationTarget.PROPERTY)
-@ExperimentalSerializationApi
 public annotation class EncodeDefault(val mode: Mode = Mode.ALWAYS) {
     /**
      * Strategy for the [EncodeDefault] annotation.
      */
-    @ExperimentalSerializationApi
     public enum class Mode {
         /**
          * Configures serializer to always encode the property, even if its value is equal to its default.
