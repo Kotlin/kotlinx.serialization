@@ -21,17 +21,17 @@ import kotlinx.serialization.json.*
 //sampleStart
 @Serializable
 class Project(
-    // Defines a property with a backing field – serialized
+    // Property with a backing field – serialized
     var name: String
 ) {
-    // Defines a property with a backing field – serialized
+    // Property with a backing field – serialized
     var stars: Int = 0
 
-    // Defines a getter-only property without a backing field - not serialized
+    // Getter-only property without a backing field - not serialized
     val path: String
         get() = "kotlin/$name"
 
-    // Defines a delegated property - not serialized
+    // Delegated property - not serialized
     var id by ::name
 }
 
@@ -275,7 +275,6 @@ In this example, since the `language` property is specified in the input, the `C
 in the output.
 
 ### Manage the serialization of default properties with `@EncodeDefault`
-<primary-label ref="experimental-general"/>
 
 By default, JSON serialization excludes properties that have default values.
 This reduces the size of the serialized data and avoids unnecessary visual clutter.
@@ -300,24 +299,17 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-> Learn more about configuring this JSON behavior in the [Encode default values](serialization-json-configuration.md#encode-default-values) section.
+> You can configure a `Json` instance to [encode default values](serialization-json-configuration.md#encode-default-values) for all properties by default.
 >
 {style="tip"}
 
 To always serialize a property, regardless of its value or format settings, use the [`@EncodeDefault`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-encode-default/) annotation.
 You can also change this behavior by setting the [`EncodeDefault.Mode`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-encode-default/-mode/) parameter.
 
-> [`@EncodeDefault`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-class-discriminator/) is [Experimental](components-stability.md#stability-levels-explained). To opt in, use the `@OptIn(ExperimentalSerializationApi::class)` annotation or the compiler option `-opt-in=kotlinx.serialization.ExperimentalSerializationApi`.
->
-{style="warning"}
-
 Let's look at an example, where the `language` property is always included in the serialized output,
 while the `projects` property is excluded when it's an empty list:
 
 ```kotlin
-// Opts in to ExperimentalSerializationApi
-@file:OptIn(ExperimentalSerializationApi::class)
-
 // Imports declarations from the serialization and JSON handling libraries
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
