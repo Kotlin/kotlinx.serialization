@@ -1,14 +1,14 @@
 [//]: # (title: Serialize built-in types)
 
-The Kotlin serialization library supports various built-in types, including basic types such as primitives and strings, as well as certain standard library classes.
-The following sections describe these types in detail and provide examples of how to serialize them.
+The Kotlin serialization library supports a variety of built-in types, including basic types such as primitives and strings, as well as certain standard library classes.
+The following sections describe these types in detail and show how to serialize them.
 
 ## Basic types
 
 Kotlin serialization provides built-in serializers for types that are represented as a single value in serialized data.
 This includes primitives, strings, and enums.
 
-For example, here’s how you can serialize a `Long` type:
+For example, here's how you can serialize a `Long` type:
 
 ```kotlin
 // Imports the necessary library declarations
@@ -26,7 +26,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="serialize-long-class"}
 
 ### Numbers
 
@@ -138,16 +138,12 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-> On Kotlin/JS and Kotlin/Native, you must use the `@Serializable` annotation for an `enum` class to use as a root object,
+> When targeting Kotlin/JS or Kotlin/Native, you must use the `@Serializable` annotation for an `enum` class to use it as a root object,
 > such as in `encodeToString<Status>(Status.SUPPORTED)`.
 >
 {style="note"}
 
 #### Customize serial names of enum entries
-
-> For more information on customizing serial names, see [Customize serial names](serialization-customization-options.md#customize-serial-names).
->
-{style="tip"}
 
 To customize the serial names of enum entries, use the `@SerialName` annotation and mark the enum class with `@Serializable`:
 
@@ -171,6 +167,8 @@ fun main() {
 //sampleEnd
 ```
 {kotlin-runnable="true"}
+
+For more information on customizing serial names, see [Customize serial names](serialization-customization-options.md#customize-serial-names).
 
 ## Standard library types
 
@@ -213,7 +211,7 @@ This type can be either the type of the property or the type parameter of the de
 #### Serialize lists
 
 Kotlin serialization serializes [`List`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/) types as JSON arrays.
-Here’s an example with a list of classes:
+Here's an example with a list of classes:
 
 ```kotlin
 import kotlinx.serialization.*
@@ -259,9 +257,11 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-> By default, you can deserialize sets with duplicate entries. The behavior for handling duplicates is implementation-defined.
+> By default, you can deserialize sets with duplicate entries.
 > 
 {style="tip"}
+
+<!-- The behavior for handling duplicates is implementation-defined. -->
 
 #### Serialize maps
 
@@ -299,7 +299,8 @@ Other formats, such as CBOR, support maps with non-primitive keys and preserve t
 
 #### Deserialization behavior of collections
 
-
+Kotlin uses the declared type to deserialize JSON.
+For example, with collections, a `List` preserves duplicates, while a `Set` enforces uniqueness:
 
 ```kotlin
 import kotlinx.serialization.*
@@ -319,7 +320,7 @@ fun main() {
             "b": [42, 42]
         }
     """)
-    // Duplicates are removed from data.b because Set enforces unique elements
+    // Duplicates are removed from data.b because the Set type enforces unique elements
     println(data)
     // Data(a=[42, 42], b=[42])
 }
@@ -427,6 +428,6 @@ fun main() {
 
 ## What's next
 
-* Dive into the [Serialize classes](serialization-customization-options.md) section to learn how to serialize classes and how to modify the default behavior of the `@Serializable` annotation.
+* Dive into [Serialize classes](serialization-customization-options.md) to learn how to serialize classes and how to modify the default behavior of the `@Serializable` annotation.
 * To explore more complex JSON serialization scenarios, see [JSON serialization overview](configure-json-serialization.md).
 * Learn more about polymorphism and serializing different types through a shared base in [Serialize polymorphic classes](serialization-polymorphism.md).
