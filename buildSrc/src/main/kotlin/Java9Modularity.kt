@@ -241,4 +241,28 @@ object Java9Modularity {
             )
         })
     }
+
+    /**
+     * For multiplatform Gradle modules, generate and set `Automatic-Module-Name` in metadata JAR's manifest.
+     *
+     * Generated automatic (JPMS) module name has the following format:
+     * `<Gradle module name>. artifact_disambiguating_module`.
+     *
+     * For multiplatform projects, a metadata artifact is the one without a platform-specific suffix,
+     * and it always depends on corresponding `-jvm` artifact (for convenience on build systems other than Gradle).
+     * For a JVM project depending on such an artifact and using JPMS, it may result in the automatic module name clash
+     * with a module provided by the `-jvm` artifact. By explicitly setting a non-clashing automatic module name in
+     * metadata JAR's manifest, we're mitigating this issue.
+     */
+    fun Project.configureMetadataJarAutomaticModuleName() {
+        val kotlin = extensions.findByType<KotlinMultiplatformExtension>() ?: return
+        val moduleName = project.name.replace('-', '.') + ".artifact_disambiguating_module"
+        tasks.withType<Jar>().named(kotlin.metadata().artifactsTaskName) {
+            manifest {
+                attributes(
+                    "Automatic-Module-Name" to moduleName,
+                )
+            }
+        }
+    }
 }
