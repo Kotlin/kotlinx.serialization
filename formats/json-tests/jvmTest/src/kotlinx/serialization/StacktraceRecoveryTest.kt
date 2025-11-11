@@ -35,10 +35,10 @@ class StacktraceRecoveryTest {
     // checks simple name because UFE is internal class
     fun testUnknownFieldException() = checkRecovered("UnknownFieldException") {
         val serializer = Data.serializer()
-        serializer.deserialize(BadDecoder())
+        val _ = serializer.deserialize(BadDecoder())
     }
 
-    private fun checkRecovered(exceptionClassSimpleName: String, block: () -> Unit) = runBlocking {
+    private fun checkRecovered(exceptionClassSimpleName: String, block: () -> Any?) = runBlocking {
         val result = runCatching {
             callBlockWithRecovery(block)
         }
@@ -52,7 +52,7 @@ class StacktraceRecoveryTest {
     }
 
     // KLUDGE: A separate function with state-machine to ensure coroutine DebugMetadata is generated. See KT-41789
-    private suspend fun callBlockWithRecovery(block: () -> Unit) {
+    private suspend fun callBlockWithRecovery(block: () -> Any?) {
         yield()
         // use withContext to perform switch between coroutines and thus trigger exception recovery machinery
         withContext(NonCancellable) {

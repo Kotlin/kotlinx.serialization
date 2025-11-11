@@ -67,6 +67,7 @@ public class JsonObjectBuilder @PublishedApi internal constructor() {
      *
      * Returns the previous value associated with [key], or `null` if the key was not present.
      */
+    @IgnorableReturnValue
     public fun put(key: String, element: JsonElement): JsonElement? = content.put(key, element)
 
     @PublishedApi
@@ -78,6 +79,7 @@ public class JsonObjectBuilder @PublishedApi internal constructor() {
  *
  * Returns the previous value associated with [key], or `null` if the key was not present.
  */
+@IgnorableReturnValue
 public fun JsonObjectBuilder.putJsonObject(key: String, builderAction: JsonObjectBuilder.() -> Unit): JsonElement? =
     put(key, buildJsonObject(builderAction))
 
@@ -86,6 +88,7 @@ public fun JsonObjectBuilder.putJsonObject(key: String, builderAction: JsonObjec
  *
  * Returns the previous value associated with [key], or `null` if the key was not present.
  */
+@IgnorableReturnValue
 public fun JsonObjectBuilder.putJsonArray(key: String, builderAction: JsonArrayBuilder.() -> Unit): JsonElement? =
     put(key, buildJsonArray(builderAction))
 
@@ -94,6 +97,7 @@ public fun JsonObjectBuilder.putJsonArray(key: String, builderAction: JsonArrayB
  *
  * Returns the previous value associated with [key], or `null` if the key was not present.
  */
+@IgnorableReturnValue
 public fun JsonObjectBuilder.put(key: String, value: Boolean?): JsonElement? = put(key, JsonPrimitive(value))
 
 /**
@@ -101,6 +105,7 @@ public fun JsonObjectBuilder.put(key: String, value: Boolean?): JsonElement? = p
  *
  * Returns the previous value associated with [key], or `null` if the key was not present.
  */
+@IgnorableReturnValue
 public fun JsonObjectBuilder.put(key: String, value: Number?): JsonElement? = put(key, JsonPrimitive(value))
 
 /**
@@ -108,6 +113,7 @@ public fun JsonObjectBuilder.put(key: String, value: Number?): JsonElement? = pu
  *
  * Returns the previous value associated with [key], or `null` if the key was not present.
  */
+@IgnorableReturnValue
 public fun JsonObjectBuilder.put(key: String, value: String?): JsonElement? = put(key, JsonPrimitive(value))
 
 /**
@@ -115,6 +121,7 @@ public fun JsonObjectBuilder.put(key: String, value: String?): JsonElement? = pu
  *
  * Returns the previous value associated with [key], or `null` if the key was not present.
  */
+@IgnorableReturnValue
 @ExperimentalSerializationApi
 @Suppress("UNUSED_PARAMETER") // allows to call `put("key", null)`
 public fun JsonObjectBuilder.put(key: String, value: Nothing?): JsonElement? = put(key, JsonNull)
@@ -132,6 +139,7 @@ public class JsonArrayBuilder @PublishedApi internal constructor() {
      *
      * Always returns `true` similarly to [ArrayList] specification.
      */
+    @IgnorableReturnValue
     public fun add(element: JsonElement): Boolean {
         content += element
         return true
@@ -142,6 +150,7 @@ public class JsonArrayBuilder @PublishedApi internal constructor() {
      *
      * @return `true` if the list was changed as the result of the operation.
      */
+    @IgnorableReturnValue
     @ExperimentalSerializationApi
     public fun addAll(elements: Collection<JsonElement>): Boolean =
         content.addAll(elements)
@@ -155,6 +164,7 @@ public class JsonArrayBuilder @PublishedApi internal constructor() {
  *
  * Always returns `true` similarly to [ArrayList] specification.
  */
+@IgnorableReturnValue
 public fun JsonArrayBuilder.add(value: Boolean?): Boolean = add(JsonPrimitive(value))
 
 /**
@@ -162,6 +172,7 @@ public fun JsonArrayBuilder.add(value: Boolean?): Boolean = add(JsonPrimitive(va
  *
  * Always returns `true` similarly to [ArrayList] specification.
  */
+@IgnorableReturnValue
 public fun JsonArrayBuilder.add(value: Number?): Boolean = add(JsonPrimitive(value))
 
 /**
@@ -169,6 +180,7 @@ public fun JsonArrayBuilder.add(value: Number?): Boolean = add(JsonPrimitive(val
  *
  * Always returns `true` similarly to [ArrayList] specification.
  */
+@IgnorableReturnValue
 public fun JsonArrayBuilder.add(value: String?): Boolean = add(JsonPrimitive(value))
 
 /**
@@ -176,6 +188,7 @@ public fun JsonArrayBuilder.add(value: String?): Boolean = add(JsonPrimitive(val
  *
  * Always returns `true` similarly to [ArrayList] specification.
  */
+@IgnorableReturnValue
 @ExperimentalSerializationApi
 @Suppress("UNUSED_PARAMETER") // allows to call `add(null)`
 public fun JsonArrayBuilder.add(value: Nothing?): Boolean = add(JsonNull)
@@ -185,6 +198,7 @@ public fun JsonArrayBuilder.add(value: Nothing?): Boolean = add(JsonNull)
  *
  * Always returns `true` similarly to [ArrayList] specification.
  */
+@IgnorableReturnValue
 public fun JsonArrayBuilder.addJsonObject(builderAction: JsonObjectBuilder.() -> Unit): Boolean =
     add(buildJsonObject(builderAction))
 
@@ -193,6 +207,7 @@ public fun JsonArrayBuilder.addJsonObject(builderAction: JsonObjectBuilder.() ->
  *
  * Always returns `true` similarly to [ArrayList] specification.
  */
+@IgnorableReturnValue
 public fun JsonArrayBuilder.addJsonArray(builderAction: JsonArrayBuilder.() -> Unit): Boolean =
     add(buildJsonArray(builderAction))
 
@@ -201,6 +216,7 @@ public fun JsonArrayBuilder.addJsonArray(builderAction: JsonArrayBuilder.() -> U
  *
  * @return `true` if the list was changed as the result of the operation.
  */
+@IgnorableReturnValue
 @JvmName("addAllStrings")
 @ExperimentalSerializationApi
 public fun JsonArrayBuilder.addAll(values: Collection<String?>): Boolean =
@@ -211,6 +227,7 @@ public fun JsonArrayBuilder.addAll(values: Collection<String?>): Boolean =
  *
  * @return `true` if the list was changed as the result of the operation.
  */
+@IgnorableReturnValue
 @JvmName("addAllBooleans")
 @ExperimentalSerializationApi
 public fun JsonArrayBuilder.addAll(values: Collection<Boolean?>): Boolean =
@@ -221,6 +238,7 @@ public fun JsonArrayBuilder.addAll(values: Collection<Boolean?>): Boolean =
  *
  * @return `true` if the list was changed as the result of the operation.
  */
+@IgnorableReturnValue
 @JvmName("addAllNumbers")
 @ExperimentalSerializationApi
 public fun JsonArrayBuilder.addAll(values: Collection<Number?>): Boolean =

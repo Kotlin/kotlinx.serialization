@@ -127,7 +127,7 @@ class KeepGeneratedSerializerTest {
         override val descriptor = PrimitiveSerialDescriptor("MyEnumSerializer", PrimitiveKind.INT)
 
         override fun deserialize(decoder: Decoder): MyEnum {
-            decoder.decodeString()
+            val _ = decoder.decodeString()
             return MyEnum.A
         }
 
@@ -203,7 +203,7 @@ class KeepGeneratedSerializerTest {
         override val descriptor = PrimitiveSerialDescriptor("ObjectSerializer", PrimitiveKind.INT)
 
         override fun deserialize(decoder: Decoder): Object {
-            decoder.decodeInt()
+            val _ = decoder.decodeInt()
             return Object
         }
         override fun serialize(encoder: Encoder, value: Object) {

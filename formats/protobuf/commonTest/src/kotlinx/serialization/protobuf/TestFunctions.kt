@@ -23,7 +23,7 @@ inline fun <reified T> testConversion(data: T, expectedHexString: String) {
 inline fun <reified T : Throwable> assertFailsWithMessage(
     message: String,
     assertionMessage: String? = null,
-    block: () -> Unit
+    block: () -> Any?
 ) {
     assertFailsWith<T>(
         assertionMessage,
@@ -51,7 +51,7 @@ inline fun <reified R : Throwable> ExceptionCheckScope<*>.assertCausedBy(noinlin
 inline fun <reified T : Throwable> assertFailsWith(
     assertionMessage: String? = null,
     assertion: ExceptionCheckScope<T>.() -> Unit = {},
-    block: () -> Unit
+    block: () -> Any?
 ) {
     val exception = assertFailsWith(T::class, assertionMessage, block = block)
     val scope = buildExceptionCheckScope(exception)

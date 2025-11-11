@@ -15,6 +15,7 @@ val globalCompilerArgs
         "-P", "plugin:org.jetbrains.kotlinx.serialization:disableIntrinsic=false",
         "-Xreport-all-warnings",
         "-Xrender-internal-diagnostic-names",
+        "-Xreturn-value-checker=full",
     )
 
 val kotlin_Werror_override: String? by project

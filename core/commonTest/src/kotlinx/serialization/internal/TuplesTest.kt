@@ -12,7 +12,7 @@ class TuplesTest {
     fun testSequentialDecodingKeyValue() {
         val decoder = DummySequentialDecoder()
         val serializer = MapEntrySerializer(Unit.serializer(), Unit.serializer())
-        serializer.deserialize(decoder)
+        assertNotNull(serializer.deserialize(decoder))
         assertEquals(decoder.beginStructureCalled, decoder.endStructureCalled)
     }
 }

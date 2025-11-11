@@ -191,11 +191,11 @@ internal object JsonArraySerializer : KSerializer<JsonArray> {
 }
 
 private fun verify(encoder: Encoder) {
-    encoder.asJsonEncoder()
+    val _ = encoder.asJsonEncoder()
 }
 
 private fun verify(decoder: Decoder) {
-    decoder.asJsonDecoder()
+    val _ = decoder.asJsonDecoder()
 }
 
 internal fun Decoder.asJsonDecoder(): JsonDecoder = this as? JsonDecoder

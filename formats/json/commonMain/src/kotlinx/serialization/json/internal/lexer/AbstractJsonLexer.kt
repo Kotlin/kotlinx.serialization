@@ -200,6 +200,7 @@ internal abstract class AbstractJsonLexer {
     protected var escapedString = StringBuilder()
 
     // TODO consider replacing usages of this method in JsonParser with char overload
+    @IgnorableReturnValue
     fun consumeNextToken(expected: Byte): Byte {
         val token = consumeNextToken()
         if (token != expected) {
@@ -531,13 +532,13 @@ internal abstract class AbstractJsonLexer {
         val tokenStack = mutableListOf<Byte>()
         var lastToken = peekNextToken()
         if (lastToken != TC_BEGIN_LIST && lastToken != TC_BEGIN_OBJ) {
-            consumeStringLenient()
+            val _ = consumeStringLenient()
             return
         }
         while (true) {
             lastToken = peekNextToken()
             if (lastToken == TC_STRING) {
-                if (allowLenientStrings) consumeStringLenient() else consumeKeyString()
+                val _ = if (allowLenientStrings) consumeStringLenient() else consumeKeyString()
                 continue
             }
             when (lastToken) {
@@ -562,7 +563,7 @@ internal abstract class AbstractJsonLexer {
                 }
                 TC_EOF -> fail("Unexpected end of input due to malformed JSON during ignoring unknown keys")
             }
-            consumeNextToken()
+            val _ = consumeNextToken()
             if (tokenStack.size == 0) return
         }
     }

@@ -15,7 +15,7 @@ class CborStacktraceRecoveryTest {
         Cbor.decodeFromByteArray<String>(byteArrayOf(0xFF.toByte()))
     }
 
-    private inline fun <reified E : Exception> checkRecovered(noinline block: () -> Unit) = runBlocking {
+    private inline fun <reified E : Exception> checkRecovered(noinline block: () -> Any?) = runBlocking {
         val result = runCatching {
             callBlockWithRecovery(block)
         }
@@ -29,7 +29,7 @@ class CborStacktraceRecoveryTest {
     }
 
     // KLUDGE: A separate function with state-machine to ensure coroutine DebugMetadata is generated. See KT-41789
-    private suspend fun callBlockWithRecovery(block: () -> Unit) {
+    private suspend fun callBlockWithRecovery(block: () -> Any?) {
         yield()
         // use withContext to perform switch between coroutines and thus trigger exception recovery machinery
         withContext(NonCancellable) {

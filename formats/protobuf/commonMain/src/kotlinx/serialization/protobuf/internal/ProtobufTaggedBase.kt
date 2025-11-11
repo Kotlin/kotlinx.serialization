@@ -49,6 +49,7 @@ internal abstract class ProtobufTaggedBase {
         tagsStack = tagsStack.copyOf(tagsStack.size * 2)
     }
 
+    @IgnorableReturnValue
     protected fun popTag(): ProtoDesc {
         if (stackSize >= 0) return tagsStack[stackSize--]
         // Unreachable

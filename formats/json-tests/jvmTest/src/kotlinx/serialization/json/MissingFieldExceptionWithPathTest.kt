@@ -16,12 +16,12 @@ class MissingFieldExceptionWithPathTest {
     fun testMfeIsNotReappliedMultipleTimes() {
         val inputMalformed = """{"title": "...","cast": [{}]"""
         try {
-            Json.decodeFromString<Movie>(inputMalformed)
+            val _ = Json.decodeFromString<Movie>(inputMalformed)
             fail("Unreacheable state")
         } catch (e: MissingFieldException) {
             val fullStackTrace = e.stackTraceToString()
-            val i1 = fullStackTrace.toString().indexOf("at path")
-            val i2 = fullStackTrace.toString().lastIndexOf("at path")
+            val i1 = fullStackTrace.indexOf("at path")
+            val i2 = fullStackTrace.lastIndexOf("at path")
             assertEquals(i1, i2)
             assertTrue(i1 != -1)
         }

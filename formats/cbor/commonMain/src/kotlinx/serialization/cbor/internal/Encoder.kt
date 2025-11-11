@@ -193,7 +193,7 @@ internal class DefiniteLengthCborWriter(cbor: Cbor, output: ByteArrayOutput) : C
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
         val current = Data(ByteArrayOutput(), 0)
-        structureStack.push(current)
+        val _ = structureStack.push(current)
         return this
     }
 

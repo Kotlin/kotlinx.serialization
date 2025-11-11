@@ -158,6 +158,7 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
         readByte()
     }
 
+    @IgnorableReturnValue
     private fun readByte(): Int {
         curByte = input.read()
         return curByte
@@ -268,6 +269,7 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
             input.readExactNBytes(strLen)
         }
 
+    @IgnorableReturnValue
     private fun processTags(tags: ULongArray?): ULongArray? {
         var index = 0
         val collectedTags = mutableListOf<ULong>()
@@ -364,7 +366,7 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
             error("Unexpected EOF, available $availableBytes bytes, requested: $bytesCount")
         }
         val array = ByteArray(bytesCount)
-        read(array, 0, bytesCount)
+        val _ = read(array, 0, bytesCount)
         return array
     }
 
@@ -445,7 +447,7 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
                 val header = curByte and 0b111_00000
                 val length = elementLength()
                 if (header == HEADER_TAG) {
-                    readNumber()
+                    val _ = readNumber()
                 } else if (header == HEADER_ARRAY || header == HEADER_MAP) {
                     if (length > 0) lengthStack.add(length)
                     else prune(lengthStack) // empty map or array automatically completes

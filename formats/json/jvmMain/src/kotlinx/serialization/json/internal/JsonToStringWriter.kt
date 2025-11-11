@@ -126,6 +126,7 @@ internal actual class JsonToStringWriter : InternalJsonWriter {
     }
 
     // Old size is passed and returned separately to avoid excessive [size] field read
+    @IgnorableReturnValue
     private fun ensureTotalCapacity(oldSize: Int, additional: Int): Int {
         val newSize = oldSize + additional
         if (array.size <= newSize) {

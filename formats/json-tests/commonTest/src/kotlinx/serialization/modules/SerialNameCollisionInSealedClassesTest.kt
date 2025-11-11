@@ -26,12 +26,18 @@ class SerialNameCollisionInSealedClassesTest {
     fun testCollisionWithDiscriminator() {
         assertFailsWith<SerializationException> { Json("type").encodeToString(Base.serializer(), Base.Child("a")) }
         assertFailsWith<SerializationException> { Json("type2").encodeToString(Base.serializer(), Base.Child("a")) }
-        Json("f").encodeToString(Base.serializer(), Base.Child("a"))
+        val actual = Json("f").encodeToString(Base.serializer(), Base.Child("a"))
+        val expected =
+            """{"f":"kotlinx.serialization.modules.SerialNameCollisionInSealedClassesTest.Base.Child","type":"a"}"""
+        assertEquals(expected, actual)
     }
 
     @Test
     fun testNoCollisionWithArrayPolymorphism() {
-        Json("type", true).encodeToString(Base.serializer(), Base.Child("a"))
+        val actual = Json("type", true).encodeToString(Base.serializer(), Base.Child("a"))
+        val expected =
+            """["kotlinx.serialization.modules.SerialNameCollisionInSealedClassesTest.Base.Child",{"type":"a"}]"""
+        assertEquals(expected, actual)
     }
 
     @Serializable
@@ -46,9 +52,10 @@ class SerialNameCollisionInSealedClassesTest {
 
     @Test
     fun testDescriptorInitializerFailure() {
-        BaseCollision.Child()
-        BaseCollision.ChildCollided()
-        BaseCollision.ChildCollided.serializer().descriptor // Doesn't fail
+        val _ = BaseCollision.Child()
+        val _ = BaseCollision.ChildCollided()
+        val descriptor = BaseCollision.ChildCollided.serializer().descriptor // Doesn't fail
+        assertEquals("$prefix.BaseCollision.Child", descriptor.serialName)
         assertFailsWith<IllegalStateException> { BaseCollision.serializer().descriptor }
     }
 }

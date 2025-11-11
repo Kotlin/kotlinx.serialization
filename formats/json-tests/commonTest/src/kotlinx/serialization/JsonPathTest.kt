@@ -106,15 +106,15 @@ class JsonPathTest : JsonTestBase() {
 
         @Serializable
         @SerialName("n")
-        class Nesting(val f: Sealed) : Sealed()
+        data class Nesting(val f: Sealed) : Sealed()
 
         @Serializable
         @SerialName("b")
-        class Box(val s: String) : Sealed()
+        data class Box(val s: String) : Sealed()
 
         @Serializable
         @SerialName("d")
-        class DoubleNesting(val f: Sealed, val f2: Sealed) : Sealed()
+        data class DoubleNesting(val f: Sealed, val f2: Sealed) : Sealed()
     }
 
     // TODO use non-array polymorphism when https://github.com/Kotlin/kotlinx.serialization/issues/1839 is fixed
@@ -126,8 +126,8 @@ class JsonPathTest : JsonTestBase() {
             outer = Sealed.Nesting(outer)
         }
         val str = json.encodeToString(Sealed.serializer(), outer)
-        // throw-away data
-        json.decodeFromString(Sealed.serializer(), str)
+        // check that data is correctly formed
+        assertEquals(outer, json.decodeFromString(Sealed.serializer(), str))
 
         val malformed = str.replace("\"value\"", "42")
         val expectedPath = "$" + ".value.f".repeat(101) + ".value.s"
@@ -147,9 +147,10 @@ class JsonPathTest : JsonTestBase() {
             outer2 = Sealed.Nesting(outer2)
         }
 
-        val str = json.encodeToString(Sealed.serializer(), Sealed.DoubleNesting(outer1, outer2))
-        // throw-away data
-        json.decodeFromString(Sealed.serializer(), str)
+        val value = Sealed.DoubleNesting(outer1, outer2)
+        val str = json.encodeToString(Sealed.serializer(), value)
+        // check that data is correctly formed
+        assertEquals(value, json.decodeFromString(Sealed.serializer(), str))
 
         val malformed = str.replace("\"incorrect\"", "42")
         val expectedPath = "$.value.f2" + ".value.f".repeat(34) + ".value.s"
@@ -169,15 +170,15 @@ class JsonPathTest : JsonTestBase() {
             outer = SimpleNested(n = outer)
         }
         val str = Json.encodeToString(SimpleNested.serializer(), outer)
-        // throw-away data
-        Json.decodeFromString(SimpleNested.serializer(), str)
+        // check that data is correctly formed
+        assertEquals(outer, Json.decodeFromString(SimpleNested.serializer(), str))
 
         val malformed = str.replace("{}", "42")
         val expectedPath = "$" + ".n".repeat(20) + ".t\n"
         expectPath(expectedPath) { Json.decodeFromString(SimpleNested.serializer(), malformed) }
     }
 
-    private inline fun expectPath(path: String, block: () -> Unit) {
+    private inline fun expectPath(path: String, block: () -> Any?) {
         val message = runCatching { block() }
             .exceptionOrNull()!!.message!!
         assertContains(message, path)
