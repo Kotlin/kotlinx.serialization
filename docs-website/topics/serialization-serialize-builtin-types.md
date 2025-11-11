@@ -51,7 +51,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="serialize-numbers"}
 
 ### Unsigned numbers
 
@@ -73,7 +73,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="serialize-unsigned-numbers"}
 
 > Although JSON preserves the full range of unsigned numbers, other serialization formats may handle them differently.
 > For example, ProtoBuf and CBOR serialize these types using their signed counterparts.
@@ -106,7 +106,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="serialize-long-as-string"}
 
 > You can also specify serializers like `LongAsStringSerializer` for all properties in a file.
 > For more information, see [Specify serializers for a file](third-party-classes.md#specify-serializers-for-a-file).
@@ -136,7 +136,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="serialize-enum"}
 
 > When targeting Kotlin/JS or Kotlin/Native, you must use the `@Serializable` annotation for an `enum` class to use it as a root object,
 > such as in `encodeToString<Status>(Status.SUPPORTED)`.
@@ -166,7 +166,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="serialize-enum-serialname"}
 
 For more information on customizing serial names, see [Customize serial names](serialization-customization-options.md#customize-serial-names).
 
@@ -194,7 +194,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="serialize-pair"}
 
 ### Collections
 
@@ -231,7 +231,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="serialize-list"}
 
 #### Serialize sets
 
@@ -255,7 +255,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="serialize-set"}
 
 > By default, you can deserialize sets with duplicate entries.
 > 
@@ -286,7 +286,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="serialize-map"}
 
 Map serialization depends on the format.
 In JSON, maps are represented as objects. Since JSON object keys are always strings, keys are encoded as strings even if they are numbers in Kotlin.
@@ -326,7 +326,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="serialize-collections"}
 
 > For more information about collections in Kotlin, see [Collections overview](collections-overview.md).
 >
@@ -356,7 +356,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="serialize-singleton"}
 
 > You can use serialized singleton objects in [closed polymorphic hierarchies](serialization-polymorphism.md#serialize-objects-in-sealed-hierarchies)
 > to represent cases without additional fields.
@@ -380,7 +380,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="serialize-duration"}
 
 Starting with Kotlin 2.2.0, you can serialize Kotlin's [`Instant`](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.time/-instant/) type
 as a string representing a point in time using the ISO-8601-1 format:
@@ -398,7 +398,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true" kotlin-min-compiler-version="2.2"}
+{kotlin-runnable="true" kotlin-min-compiler-version="2.2" id="serialize-instant"}
 
 ### Nothing
 
@@ -424,7 +424,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="serialize-nothing"}
 
 ## What's next
 
