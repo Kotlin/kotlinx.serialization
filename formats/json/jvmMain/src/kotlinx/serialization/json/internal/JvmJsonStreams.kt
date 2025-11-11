@@ -91,6 +91,7 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : Intern
         flush()
     }
 
+    @IgnorableReturnValue
     private fun ensureTotalCapacity(oldSize: Int, additional: Int): Int {
         val newSize = oldSize + additional
         if (charArray.size <= newSize) {

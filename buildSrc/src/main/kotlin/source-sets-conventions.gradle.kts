@@ -76,6 +76,8 @@ kotlin {
             freeCompilerArgs.add("-Xsuppress-version-warnings")
         }
         freeCompilerArgs.add("-Xexpect-actual-classes")
+        // for some reason, IDE does not enable feature in test source sets without this line:
+        freeCompilerArgs.add("-Xreturn-value-checker=full")
     }
 
     sourceSets {

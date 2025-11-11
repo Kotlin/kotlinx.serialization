@@ -6,6 +6,7 @@ package kotlinx.serialization.features
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
+import kotlinx.serialization.test.checkSerializationException
 import kotlin.test.*
 
 class PolymorphicDeserializationErrorMessagesTest : JsonTestBase() {
@@ -14,13 +15,6 @@ class PolymorphicDeserializationErrorMessagesTest : JsonTestBase() {
 
     @Serializable
     class Holder(val d: DummyData)
-
-    // TODO: remove this after #2480 is merged
-    private fun checkSerializationException(action: () -> Unit, assertions: SerializationException.(String) -> Unit) {
-        val e = assertFailsWith(SerializationException::class, action)
-        assertNotNull(e.message)
-        e.assertions(e.message!!)
-    }
 
     @Test
     fun testNotRegisteredMessage() = parametrizedTest { mode ->

@@ -61,8 +61,8 @@ class SerializerByTypeCacheTest {
         assertNotSame(serializer1, serializer2)
 
         // serializers must work correctly
-        Json.decodeFromString(serializer1, "[{\"i\":1}]")
-        Json.decodeFromString(serializer2, "[{\"i\":1}]")
+        val _ = Json.decodeFromString(serializer1, "[{\"i\":1}]")
+        val _ = Json.decodeFromString(serializer2, "[{\"i\":1}]")
     }
 
     /**

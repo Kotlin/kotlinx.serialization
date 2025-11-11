@@ -23,6 +23,7 @@ class JsonConfigurationTest {
         assertFailsWith<IllegalArgumentException> { json(true, "\tf\n") }
     }
 
+    @IgnorableReturnValue
     private fun json(prettyPrint: Boolean, prettyPrintIndent: String) = Json {
         this.prettyPrint = prettyPrint
         this.prettyPrintIndent = prettyPrintIndent

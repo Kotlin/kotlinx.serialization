@@ -55,7 +55,7 @@ fun <T : Any> assertSerializedAndRestored(
 inline fun assertFailsWithSerial(
     exceptionName: String,
     assertionMessage: String? = null,
-    block: () -> Unit
+    block: () -> Any?
 ) {
     val exception = assertFailsWith(SerializationException::class, assertionMessage, block)
     assertEquals(
@@ -68,7 +68,7 @@ inline fun assertFailsWithSerialMessage(
     exceptionName: String,
     message: String,
     assertionMessage: String? = null,
-    block: () -> Unit
+    block: () -> Any?
 ) {
     val exception = assertFailsWith(SerializationException::class, assertionMessage, block)
     assertEquals(
@@ -84,7 +84,7 @@ inline fun assertFailsWithSerialMessage(
 inline fun <reified T : Throwable> assertFailsWithMessage(
     message: String,
     assertionMessage: String? = null,
-    block: () -> Unit
+    block: () -> Any?
 ) {
     val exception = assertFailsWith(T::class, assertionMessage, block)
     assertTrue(
@@ -93,7 +93,7 @@ inline fun <reified T : Throwable> assertFailsWithMessage(
     )
 }
 
-inline fun checkSerializationException(action: () -> Unit, assertions: SerializationException.(String) -> Unit) {
+inline fun checkSerializationException(action: () -> Any?, assertions: SerializationException.(String) -> Unit) {
     val e = assertFailsWith(SerializationException::class, action)
     assertNotNull(e.message)
     e.assertions(e.message!!)

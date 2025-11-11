@@ -63,7 +63,7 @@ class SerialNameCollisionTest {
                 subclass(Derived.serializer())
             }
         }
-        Json("type", module, true)
+        val _ = Json("type", module, true)
     }
 
     @Test
@@ -91,7 +91,7 @@ class SerialNameCollisionTest {
 
     @Test
     fun testCollisionWithinHierarchy() {
-        SerializersModule {
+        val _ = SerializersModule {
             assertFailsWith<IllegalArgumentException> {
                 polymorphic(Base::class) {
                     subclass(Derived.serializer())

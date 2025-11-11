@@ -14,7 +14,7 @@ class JsonTreeTest : JsonTestBase() {
     @Test
     fun testParseWithoutExceptions() {
         val input = """{"a": "foo",              "b": 10, "c": ["foo", 100500, {"bar": "baz"}]}"""
-        parse(input)
+        val _ = parse(input)
     }
 
     @Test

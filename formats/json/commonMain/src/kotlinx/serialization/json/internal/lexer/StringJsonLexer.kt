@@ -89,7 +89,7 @@ internal open class StringJsonLexer(override val source: String) : AbstractJsonL
         if (closingQuote == -1) {
             // advance currentPosition to a token after the end of the string to guess position in the error msg
             // (not always correct, as `:`/`,` are valid contents of the string, but good guess anyway)
-            consumeStringLenient()
+            val _ = consumeStringLenient()
             fail(TC_STRING, wasConsumed = false)
         }
         // Now we _optimistically_ know where the string ends (it might have been an escaped quote)

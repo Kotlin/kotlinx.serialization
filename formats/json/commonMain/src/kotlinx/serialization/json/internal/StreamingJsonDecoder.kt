@@ -216,7 +216,7 @@ internal open class StreamingJsonDecoder(
         descriptor, index,
         { lexer.tryConsumeNull(it) },
         { lexer.peekString(configuration.isLenient) },
-        { lexer.consumeString() /* skip unknown enum string*/ }
+        { val _ = lexer.consumeString() /* skip unknown enum string*/ }
     )
 
     private fun decodeObjectIndex(descriptor: SerialDescriptor): Int {

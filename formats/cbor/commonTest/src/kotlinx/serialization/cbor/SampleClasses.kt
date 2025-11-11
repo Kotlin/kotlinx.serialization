@@ -99,7 +99,7 @@ data class NullableByteStringDefaultNull(
         if (this === other) return true
         if (other == null || this::class != other::class) return false
 
-        other as NullableByteString
+        other as NullableByteStringDefaultNull
 
         if (byteString != null) {
             if (other.byteString == null) return false

@@ -130,7 +130,7 @@ class JvmMissingFieldsExceptionTest {
     }
 
 
-    private inline fun assertFailsWithMessages(fields: List<String>, block: () -> Unit) {
+    private inline fun assertFailsWithMessages(fields: List<String>, block: () -> Any?) {
         val exception = assertFailsWith(MissingFieldException::class, null, block)
         val missedMessages = fields.filter { !exception.message!!.contains(it) }
         assertEquals(exception.missingFields.sorted(), fields.sorted())
