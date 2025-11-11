@@ -111,7 +111,7 @@ kotlin {
         }
         named("wasmJsTest") {
             dependencies {
-                api("org.jetbrains.kotlin:kotlin-test-wasm-js")
+                implementation("org.jetbrains.kotlin:kotlin-test-wasm-js")
             }
         }
         named("wasmWasiMain") {
@@ -121,9 +121,13 @@ kotlin {
         }
         named("wasmWasiTest") {
             dependencies {
-                api("org.jetbrains.kotlin:kotlin-test-wasm-wasi")
+                implementation("org.jetbrains.kotlin:kotlin-test-wasm-wasi")
             }
         }
+    }
+
+    compilerOptions {
+        freeCompilerArgs.add("-Xreturn-value-checker=check")
     }
 
     targets.all {

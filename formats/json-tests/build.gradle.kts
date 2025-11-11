@@ -33,9 +33,9 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                api(project(":kotlinx-serialization-json"))
-                api(project(":kotlinx-serialization-json-okio"))
-                api(project(":kotlinx-serialization-json-io"))
+                implementation(project(":kotlinx-serialization-json"))
+                implementation(project(":kotlinx-serialization-json-okio"))
+                implementation(project(":kotlinx-serialization-json-io"))
                 implementation(libs.kotlinx.io)
                 implementation(libs.okio)
             }

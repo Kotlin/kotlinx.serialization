@@ -87,7 +87,7 @@ kotlin {
 
         commonTest {
             dependencies {
-                api(versionCatalog().findLibrary("kotlin.test").get())
+                implementation(versionCatalog().findLibrary("kotlin.test").get())
             }
         }
 
