@@ -130,7 +130,7 @@ com.example.myapplication.HasNamedCompanion2
 {
     static **$* *;
 }
--keepnames class <1>$$serializer { # Using -keepnames is enough; class is kept when serializer() is kept
+-keepnames class <1>$$serializer { # Using -keepnames is enough for the serializer() call to reference the class correctly
     static <1>$$serializer INSTANCE;
 }
 ```
@@ -150,7 +150,7 @@ com.example.myapplication.HasNamedCompanion2
 {
     static **$* *;
 }
--keepnames class <1>$$serializer { # Using -keepnames is enough; class is kept when serializer() is kept
+-keepnames class <1>$$serializer { # Using -keepnames is enough for the serializer() call to reference the class correctly
     static <1>$$serializer INSTANCE;
 }
 
