@@ -43,7 +43,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="serialize-annotation-example"}
 
 ### Serialization of class references
 
@@ -73,7 +73,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="serialize-class-references"}
 
 > To reference non-serializable classes, annotate the corresponding properties with [`@Transient`](#exclude-properties-with-the-transient-annotation), or
 > provide a [custom serializer](create-custom-serializers.md) for them.
@@ -107,7 +107,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="serialize-repeated-references"}
 
 > If you attempt to serialize a circular structure, it results in stack overflow.
 > To exclude references from serialization, use [the @Transient annotation](#exclude-properties-with-the-transient-annotation).
@@ -146,7 +146,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="serialize-generic-classes-example"}
 
 When you serialize a generic class like `Box<T>`, the JSON output depends on the actual type you specify for `T` at compile time.
 If that type isn't serializable, you get a compile-time error.
@@ -181,7 +181,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="deserialize-optional-properties"}
 
 ### Serialize nullable properties
 
@@ -206,7 +206,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="nullable-properties-example"}
 
 Additionally, Kotlin's [null safety](null-safety.md) is strongly enforced during deserialization.
 If a JSON object contains a `null` value for a non-nullable property, an exception is thrown
@@ -230,7 +230,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true" validate="false"}
+{kotlin-runnable="true" validate="false" id="deserialize-nullable-exception-example"}
 
 > If you need to handle `null` values from third-party JSON, you can [coerce them to a default value](serialization-json-configuration.md#coerce-input-values).
 > 
@@ -269,7 +269,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="deserialize-initializer-example"}
 
 In this example, since the `language` property is specified in the input, the `Computing` string isn't printed
 in the output.
@@ -297,7 +297,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="default-properties-example"}
 
 > You can configure a `Json` instance to [encode default values](serialization-json-configuration.md#encode-default-values) for all properties by default.
 >
@@ -327,7 +327,7 @@ data class Project(
 @Serializable
 data class User(
     val name: String,
-    // Excludes projects when it’s an empty list, even if it has a default value
+    // Excludes projects when it's an empty list, even if it has a default value
     @EncodeDefault(NEVER) val projects: List<Project> = emptyList()
 )
 
@@ -346,7 +346,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="serialize-encode-default"}
 
 ### Make properties required with the `@Required` annotation
 
@@ -373,7 +373,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="required-annotation-example"}
 
 ## Customize class serialization
 
@@ -406,7 +406,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="serial-names"}
 
 ### Define constructor properties for serialization
 
@@ -440,7 +440,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="serialize-constructor-properties"}
 
 ### Validate data in the primary constructor
 
@@ -473,7 +473,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="validate-constructor-example"}
 
 ### Exclude properties with the `@Transient` annotation
 
@@ -503,7 +503,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true" validate="false"}
+{kotlin-runnable="true" validate="false" id="transient-annotation-example"}
 
 > To avoid exceptions from unknown keys in JSON, including those marked with the `@Transient` annotation, enable the [`ignoreUnknownKeys`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/ignore-unknown-keys.html) configuration property.
 > For more information, see the [Ignore unknown keys](serialization-json-configuration.md#ignore-unknown-keys) section.
