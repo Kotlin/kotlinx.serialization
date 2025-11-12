@@ -33,6 +33,11 @@ For example:
 The `kotlinx.serialization` libraries follow their own versioning, independent of Kotlin.
 You can find the latest release versions on [GitHub](https://github.com/Kotlin/kotlinx.serialization/releases).
 
+> When you're not using a specific format library, for example, when you're writing your own serialization format,
+> use the `kotlinx-serialization-core` library as the dependency.
+>
+{style="tip"}
+
 ## Supported serialization formats
 
 `kotlinx.serialization` includes serialization format libraries for various formats:
