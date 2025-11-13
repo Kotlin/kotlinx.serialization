@@ -2,8 +2,7 @@
  * Copyright 2017-2022 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 import Java9Modularity.configureJava9ModuleInfo
-import org.jetbrains.dokka.gradle.*
-import java.net.*
+import Java9Modularity.configureMetadataJarAutomaticModuleName
 
 plugins {
     kotlin("multiplatform")
@@ -33,6 +32,7 @@ kotlin {
 }
 
 project.configureJava9ModuleInfo()
+project.configureMetadataJarAutomaticModuleName()
 
 dokka.dokkaSourceSets.configureEach {
     externalDocumentationLinks.register("okio") {

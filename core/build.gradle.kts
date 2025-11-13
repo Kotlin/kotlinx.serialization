@@ -1,4 +1,5 @@
 import Java9Modularity.configureJava9ModuleInfo
+import Java9Modularity.configureMetadataJarAutomaticModuleName
 import org.jetbrains.kotlin.gradle.targets.js.ir.*
 
 /*
@@ -69,6 +70,7 @@ tasks.withType<Jar>().named(kotlin.jvm().artifactsTaskName) {
 }
 
 configureJava9ModuleInfo()
+configureMetadataJarAutomaticModuleName()
 
 tasks.withType<KotlinJsIrLink>().configureEach {
     compilerOptions.freeCompilerArgs.add("-Xwasm-enable-array-range-checks")
