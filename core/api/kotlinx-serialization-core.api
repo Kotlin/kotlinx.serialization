@@ -1336,6 +1336,7 @@ public final class kotlinx/serialization/modules/PolymorphicModuleBuilder {
 	public final fun default (Lkotlin/jvm/functions/Function1;)V
 	public final fun defaultDeserializer (Lkotlin/jvm/functions/Function1;)V
 	public final fun subclass (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
+	public final fun subclassesOfSealed (Lkotlinx/serialization/KSerializer;)V
 }
 
 public abstract class kotlinx/serialization/modules/SerializersModule {

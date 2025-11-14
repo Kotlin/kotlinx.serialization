@@ -5,10 +5,10 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
-import kotlinx.serialization.test.assertStringFormAndRestored
-import kotlin.test.Test
+import kotlinx.serialization.test.*
+import kotlin.test.*
 
 class PolymorphicSealedChildTest {
 
@@ -32,13 +32,36 @@ class PolymorphicSealedChildTest {
         data class Baz(val baz: String) : Foo()
     }
 
+    @Serializable
+    sealed class FooOpen: FooBase() {
+        @Serializable
+        data class Bar(val bar: Int) : FooOpen()
+        @Serializable
+        abstract class Baz: FooOpen()
+        @Serializable
+        data class BazChild1(val baz: String) : Baz()
+        @Serializable
+        data class BazChild2(val baz: String) : Baz()
+    }
+
     val sealedModule = SerializersModule {
         polymorphic(FooBase::class) {
-            subclassesOf<Foo>()
+            subclassesOfSealed<Foo>()
         }
     }
 
     val json = Json { serializersModule = sealedModule }
+
+    @Test
+    fun testOpenGrandchildIsInvalid() {
+        assertFailsWith<IllegalArgumentException> {
+            SerializersModule {
+                polymorphic(FooBase::class) {
+                    subclassesOfSealed<FooOpen>()
+                }
+            }
+        }
+    }
 
     @Test
     fun testSaveSealedClassesList() {

@@ -5,6 +5,7 @@
 package kotlinx.serialization.modules
 
 import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.internal.*
 import kotlin.reflect.*
 
@@ -25,21 +26,70 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
 
 
     /**
-     * Registers the child serializers for the sealed [subclass] [serializer] in the resulting module under the [base class][Base].
+     * Registers the child serializers for the sealed [subclass] [serializer] in the resulting module under
+     * the [base class][Base]. Please note that type `T` must be sealed, if not a runtime error will
+     * be thrown at registration time. This function is a convenience function for the version that
+     * receives a serializer.
+     *
+     *
+     * Example:
+     * ```kotlin
+     * interface Base
+     *
+     * @Serializable
+     * sealed interface Sub
+     *
+     * @Serializable
+     * class Sub1: Sub
+     *
+     * serializersModule {
+     *   polymorphic(Base::class) {
+     *      subclassesOfSealed<Sub>()
+     *   }
+     * }
+     * ```
      */
-    public inline fun <reified T : Base> subclassesOf(): Unit =
-        subclassesOf(serializer<T>())
+    @ExperimentalSerializationApi
+    public inline fun <reified T : Base> subclassesOfSealed(): Unit =
+        subclassesOfSealed(serializer<T>())
 
 
     /**
-     * Registers the subclasses of the given class as subclasses of the outer class. This currently requires `baseClass`
-     * to be sealed.
+     * Registers the subclasses of the given class as subclasses of the outer class. This currently
+     * requires `serializer` to be sealed. If not a runtime error will be thrown at registration time.
+     *
+     * Example:
+     * ```kotlin
+     * interface Base
+     *
+     * @Serializable
+     * sealed interface Sub
+     *
+     * @Serializable
+     * class Sub1: Sub
+     *
+     * serializersModule {
+     *   polymorphic(Base::class) {
+     *      subclassesOfSealed(Sub.serializer())
+     *   }
+     * }
+     * ```
+     *
+     * It is an error if th
      */
-    public fun <T: Base> subclassesOf(serializer: KSerializer<T>) {
+    @ExperimentalSerializationApi
+    public fun <T: Base> subclassesOfSealed(serializer: KSerializer<T>) {
+        // Note that the parameter type is `KSerializer` as `SealedClassSerializer` is an internal type
+        // not available to users
         require(serializer is SealedClassSerializer) {
             "subClassesOf only supports automatic adding of subclasses of sealed types."
         }
         for ((subsubclass, subserializer) in serializer.class2Serializer.entries) {
+            // This error would be caught by the Json format in its validation, but this is format specific
+            require (subserializer.descriptor.kind != PolymorphicKind.OPEN) {
+                "It is not possible to register subclasses of sealed types when those subclasses " +
+                    "themselves are (open) polymorphic, as this would represent an incomplete hierarchy"
+            }
             @Suppress("UNCHECKED_CAST")
             // We don't know the type here, but it matches if correct in the sealed serializer.
             subclass(subsubclass as KClass<T>, subserializer as KSerializer<T>)
@@ -143,5 +193,6 @@ public inline fun <Base : Any, reified T : Base> PolymorphicModuleBuilder<Base>.
 /**
  * Registers the child serializers for the sealed class [T] in the resulting module under the [base class][Base].
  */
-public inline fun <Base : Any, reified T : Base> PolymorphicModuleBuilder<Base>.subclassesOf(clazz: KClass<T>): Unit =
-    subclassesOf(clazz.serializer())
+@ExperimentalSerializationApi
+public inline fun <Base : Any, reified T : Base> PolymorphicModuleBuilder<Base>.subclassesOfSealed(clazz: KClass<T>): Unit =
+    subclassesOfSealed(clazz.serializer())
