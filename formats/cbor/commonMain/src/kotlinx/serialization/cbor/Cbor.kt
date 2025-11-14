@@ -88,7 +88,49 @@ public sealed class Cbor(
         val reader = CborReader(this, CborParser(stream, configuration.verifyObjectTags))
         return reader.decodeSerializableValue(deserializer)
     }
+
+    /**
+     * Deserializes the given [element] into a value of type [T] using the given [deserializer].
+     *
+     * @throws [SerializationException] if the given CBOR element is not a valid CBOR input for the type [T]
+     * @throws [IllegalArgumentException] if the decoded input cannot be represented as a valid instance of type [T]
+     */
+    public fun <T> decodeFromCborElement(deserializer: DeserializationStrategy<T>, element: CborElement): T {
+        val reader = CborReader(this, StructuredCborParser(element, configuration.verifyObjectTags))
+        return reader.decodeSerializableValue(deserializer)
+    }
+
+    /**
+     * Serializes the given [value] into an equivalent [CborElement] using the given [serializer]
+     *
+     * @throws [SerializationException] if the given value cannot be serialized to CBOR
+     */
+    public fun <T> encodeToCborElement(serializer: SerializationStrategy<T>, value: T): CborElement {
+        val writer = StructuredCborWriter(this)
+        writer.encodeSerializableValue(serializer, value)
+        return writer.finalize()
+    }
 }
+/**
+ * Serializes the given [value] into an equivalent [CborElement] using a serializer retrieved
+ * from reified type parameter.
+ *
+ * @throws [SerializationException] if the given value cannot be serialized to CBOR.
+ */
+@ExperimentalSerializationApi
+public inline fun <reified T> Cbor.encodeToCborElement(value: T): CborElement =
+    encodeToCborElement(serializersModule.serializer(), value)
+
+/**
+ * Deserializes the given [element] element into a value of type [T] using a deserializer retrieved
+ * from reified type parameter.
+ *
+ * @throws [SerializationException] if the given JSON element is not a valid CBOR input for the type [T]
+ * @throws [IllegalArgumentException] if the decoded input cannot be represented as a valid instance of type [T]
+ */
+@ExperimentalSerializationApi
+public inline fun <reified T> Cbor.decodeFromCborElement(element: CborElement): T =
+    decodeFromCborElement(serializersModule.serializer(), element)
 
 @OptIn(ExperimentalSerializationApi::class)
 private class CborImpl(
@@ -108,18 +150,20 @@ private class CborImpl(
 public fun Cbor(from: Cbor = Cbor, builderAction: CborBuilder.() -> Unit): Cbor {
     val builder = CborBuilder(from)
     builder.builderAction()
-    return CborImpl(CborConfiguration(
-        builder.encodeDefaults,
-        builder.ignoreUnknownKeys,
-        builder.encodeKeyTags,
-        builder.encodeValueTags,
-        builder.encodeObjectTags,
-        builder.verifyKeyTags,
-        builder.verifyValueTags,
-        builder.verifyObjectTags,
-        builder.useDefiniteLengthEncoding,
-        builder.preferCborLabelsOverNames,
-        builder.alwaysUseByteString),
+    return CborImpl(
+        CborConfiguration(
+            builder.encodeDefaults,
+            builder.ignoreUnknownKeys,
+            builder.encodeKeyTags,
+            builder.encodeValueTags,
+            builder.encodeObjectTags,
+            builder.verifyKeyTags,
+            builder.verifyValueTags,
+            builder.verifyObjectTags,
+            builder.useDefiniteLengthEncoding,
+            builder.preferCborLabelsOverNames,
+            builder.alwaysUseByteString
+        ),
         builder.serializersModule
     )
 }
