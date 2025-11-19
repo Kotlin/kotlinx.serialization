@@ -26,6 +26,11 @@ plugins {
 kotlin {
     // use toolchain from settings
     jvmToolchain(jdkToolchainVersion)
+    compilerOptions {
+        defaultOptions()
+        jvmOptions()
+        languageVersion(overriddenLanguageVersion)
+    }
 }
 
 val sharedSourceSet = sourceSets.create("shared") {

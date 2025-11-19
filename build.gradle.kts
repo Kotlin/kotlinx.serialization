@@ -83,7 +83,7 @@ tasks.named("knitPrepare") {
 // == compiler flags setup ==
 
 subprojects {
-    apply(plugin = "global-compiler-options")
+    apply(plugin = "cli-compiler-options")
 }
 
 // == TeamCity setup ==

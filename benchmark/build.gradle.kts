@@ -47,11 +47,9 @@ tasks.assemble {
 
 kotlin {
     compilerOptions {
-        jvmTarget = JvmTarget.JVM_1_8
-        if (overriddenLanguageVersion != null) {
-            languageVersion = KotlinVersion.fromVersion(overriddenLanguageVersion!!)
-            freeCompilerArgs.add("-Xsuppress-version-warnings")
-        }
+        defaultOptions()
+        jvmOptions()
+        languageVersion(overriddenLanguageVersion)
     }
 }
 

@@ -17,12 +17,9 @@ kotlin {
     jvmToolchain(jdkToolchainVersion)
 
     compilerOptions {
-        jvmTarget = JvmTarget.JVM_1_8
-        if (overriddenLanguageVersion != null) {
-            languageVersion = KotlinVersion.fromVersion(overriddenLanguageVersion!!)
-            freeCompilerArgs.add("-Xsuppress-version-warnings")
-        }
-        freeCompilerArgs.addAll("-Xjdk-release=1.8")
+        defaultOptions()
+        jvmOptions()
+        languageVersion(overriddenLanguageVersion)
     }
 
     sourceSets.all {

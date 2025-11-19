@@ -5,7 +5,6 @@
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.*
 import org.jetbrains.kotlin.gradle.dsl.*
-import org.jetbrains.kotlin.gradle.tasks.*
 
 plugins {
     kotlin("multiplatform")
@@ -20,11 +19,24 @@ internal fun Project.versionCatalog(): VersionCatalog = versionCatalogs.named("l
 kotlin {
     explicitApi()
 
+    compilerOptions {
+        progressiveMode.set(true)
+        optIn.addAll(
+            listOf(
+                "kotlin.ExperimentalMultiplatform",
+                "kotlin.ExperimentalSubclassOptIn",
+                "kotlinx.serialization.InternalSerializationApi",
+                "kotlinx.serialization.SealedSerializationApi",
+            )
+        )
+        defaultOptions()
+        languageVersion(overriddenLanguageVersion)
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+
     jvm {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
-            jvmTarget = JvmTarget.JVM_1_8
-            freeCompilerArgs.addAll("-Xjdk-release=1.8")
+            jvmOptions()
         }
     }
     jvmToolchain(jdkToolchainVersion)
@@ -58,26 +70,6 @@ kotlin {
     sourceSets.all {
         kotlin.srcDirs("$name/src")
         resources.srcDirs("$name/resources")
-    }
-
-    compilerOptions {
-        // These configuration replaces 'languageSettings' config on line 67
-        progressiveMode.set(true)
-        optIn.addAll(
-            listOf(
-                "kotlin.ExperimentalMultiplatform",
-                "kotlin.ExperimentalSubclassOptIn",
-                "kotlinx.serialization.InternalSerializationApi",
-                "kotlinx.serialization.SealedSerializationApi",
-            )
-        )
-        if (overriddenLanguageVersion != null) {
-            languageVersion = KotlinVersion.fromVersion(overriddenLanguageVersion!!)
-            freeCompilerArgs.add("-Xsuppress-version-warnings")
-        }
-        freeCompilerArgs.add("-Xexpect-actual-classes")
-        // for some reason, IDE does not enable feature in test source sets without this line:
-        freeCompilerArgs.add("-Xreturn-value-checker=full")
     }
 
     sourceSets {
