@@ -1,6 +1,4 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import Java9Modularity.configureJava9ModuleInfo
-import org.jetbrains.kotlin.gradle.dsl.*
 
 
 /*
@@ -18,7 +16,7 @@ kotlin {
 
     compilerOptions {
         defaultOptions()
-        jvmOptions()
+        setJava8Compatible()
         languageVersion(overriddenLanguageVersion)
     }
 

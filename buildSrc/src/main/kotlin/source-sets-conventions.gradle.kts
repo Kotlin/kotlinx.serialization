@@ -36,7 +36,7 @@ kotlin {
 
     jvm {
         compilerOptions {
-            jvmOptions()
+            setJava8Compatible()
         }
     }
     jvmToolchain(jdkToolchainVersion)

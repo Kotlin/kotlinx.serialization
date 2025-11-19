@@ -3,7 +3,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinCommonCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
-import kotlin.collections.addAll
 
 /*
  * Copyright 2017-2025 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
@@ -21,7 +20,7 @@ fun KotlinCommonCompilerOptions.defaultOptions() {
     freeCompilerArgs.addAll(defaultCompilerArgs)
 }
 
-fun KotlinJvmCompilerOptions.jvmOptions() {
+fun KotlinJvmCompilerOptions.setJava8Compatible() {
     jvmTarget = JvmTarget.JVM_1_8
     freeCompilerArgs.addAll("-Xjdk-release=1.8")
 }
