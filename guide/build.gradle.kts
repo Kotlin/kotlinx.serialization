@@ -11,11 +11,11 @@ plugins {
 }
 
 kotlin {
-    jvmToolchain(8)
+    jvmToolchain(jdkToolchainVersion)
 
     compilerOptions {
         defaultOptions()
-        jvmOptions()
+        // Do not set jvmTarget=1.8 here, as it conflicts with jvmToolchain
         languageVersion(overriddenLanguageVersion)
     }
 }
