@@ -20,7 +20,7 @@ kotlin {
     explicitApi()
 
     compilerOptions {
-        progressiveMode.set(true)
+        progressiveMode = true
         optIn.addAll(
             listOf(
                 "kotlin.ExperimentalMultiplatform",
@@ -50,7 +50,6 @@ kotlin {
             }
         }
 
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
             sourceMap = true
             moduleKind = JsModuleKind.MODULE_UMD

@@ -18,14 +18,9 @@ kotlin {
         defaultOptions()
         setJava8Compatible()
         languageVersion(overriddenLanguageVersion)
-    }
 
-    sourceSets.all {
-        languageSettings {
-            progressiveMode = true
-
-            optIn("kotlinx.serialization.InternalSerializationApi")
-        }
+        progressiveMode = true
+        optIn.add("kotlinx.serialization.InternalSerializationApi")
     }
 }
 
