@@ -2,25 +2,26 @@
 
 The Kotlin serialization library allows you to easily convert Kotlin objects to JSON and back.
 The [`Json`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/) class is the primary tool for this, offering flexibility in how JSON is generated and parsed.
-You can configure `Json` instances to handle specific JSON behaviors or use it without any changes for basic tasks.
+You can configure `Json` instances to handle specific JSON behaviors or use its default instance for basic tasks.
 
 With the `Json` class, you can:
 
 * Serialize Kotlin objects to JSON strings using the [`encodeToString()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/encode-to-string.html) function.
 * Deserialize JSON strings back to Kotlin objects with the [`decodeFromString()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/decode-from-string.html) function.
-* Work directly with the [`JsonElement`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-element/) when handling complex JSON structures using the [`encodeToJsonElement()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/encode-to-json-element.html) and the [`decodeFromJsonElement()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/decode-from-json-element.html) functions.
+* [Work directly with the `JsonElement`](serialization-json-elements.md) when handling complex JSON structures using the [`encodeToJsonElement()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/encode-to-json-element.html) and the [`decodeFromJsonElement()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/decode-from-json-element.html) functions.
+* Use JVM streams with the [`encodeToStream()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/encode-to-stream.html) [`.decodeFromStream()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/decode-from-stream.html), and [`.decodeToSequence()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/decode-to-sequence.html) functions to work with JSON directly from input and output streams.
 
-Before you start, import the following declarations from the serialization libraries:
+Before you start, import the following declarations from the serialization library:
 
 ```kotlin
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 ```
 
-Here's a simple example that demonstrates how JSON serialization works in Kotlin:
+Here's a simple example that uses the default `Json` instance to show how JSON serialization works in Kotlin:
 
 ```kotlin
-// Imports declarations from the serialization and JSON handling libraries
+// Imports declarations from the serialization library
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
@@ -29,7 +30,7 @@ import kotlinx.serialization.json.*
 data class User(val name: String, val age: Int)
 
 fun main() {
-    // Creates a Json instance with default settings
+    // Uses the default Json instance
     val json = Json
 
     // Creates a User object
@@ -53,11 +54,29 @@ In addition to using the default configuration, you can [customize the `Json` in
 such as ignoring unknown keys:
 
 ```kotlin
+// Imports declarations from the serialization library
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+@Serializable
+data class Project(val name: String)
+
+//sampleStart
 // Configures a Json instance to ignore unknown keys
 val customJson = Json {
     ignoreUnknownKeys = true
 }
+
+fun main() {
+    val data = customJson.decodeFromString<Project>("""
+        {"name":"kotlinx.serialization","language":"Kotlin"}
+    """)
+    println(data)
+    // Project(name=kotlinx.serialization)
+}
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 ## What's next
 
