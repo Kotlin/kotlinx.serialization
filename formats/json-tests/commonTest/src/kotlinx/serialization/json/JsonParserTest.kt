@@ -113,4 +113,12 @@ class JsonParserTest : JsonTestBase() {
         assertTrue { value.jsonPrimitive.isString }
         assertEquals("null", obj["k"]!!.jsonPrimitive.content)
     }
+
+    @Test
+    fun testUnicodeEscapeWithFollowingHex() {
+        // Test case for greedy parsing bug
+        val input = "\"\\u00f3a\""
+        val decoded = Json.decodeFromString<String>(input)
+        assertEquals("óa", decoded, "Should parse 'ó' then 'a', not try to consume 'a'")
+    }
 }

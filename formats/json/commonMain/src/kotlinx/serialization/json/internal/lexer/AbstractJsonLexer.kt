@@ -148,6 +148,17 @@ internal abstract class AbstractJsonLexer {
 
     protected abstract val source: CharSequence
 
+    // Lookup table for fast hex digit validation and conversion
+    companion object {
+        private val HEX_TABLE = IntArray(128) { -1 }
+
+        init {
+            for (i in '0'..'9') HEX_TABLE[i.code] = i - '0'
+            for (i in 'a'..'f') HEX_TABLE[i.code] = i - 'a' + 10
+            for (i in 'A'..'F') HEX_TABLE[i.code] = i - 'A' + 10
+        }
+    }
+
     @JvmField
     internal var currentPosition: Int = 0 // position in source
 
@@ -498,6 +509,7 @@ internal abstract class AbstractJsonLexer {
     }
 
     private fun appendHex(source: CharSequence, startPos: Int): Int {
+        // Ensure we have at least 4 characters for the unicode sequence
         if (startPos + 4 >= source.length) {
             currentPosition = startPos
             ensureHaveChars()
@@ -505,26 +517,30 @@ internal abstract class AbstractJsonLexer {
                 fail("Unexpected EOF during unicode escape")
             return appendHex(source, currentPosition)
         }
-        escapedString.append(
-            ((fromHexChar(source, startPos) shl 12) +
-                    (fromHexChar(source, startPos + 1) shl 8) +
-                    (fromHexChar(source, startPos + 2) shl 4) +
-                    fromHexChar(source, startPos + 3)).toChar()
-        )
+
+        var value = 0
+        // Strict 4-iteration loop to prevent greedy parsing and comply with RFC 8259
+        for (i in 0..3) {
+            val char = source[startPos + i]
+            val code = char.code
+
+            // Fast O(1) lookup. Check range to avoid IndexOutOfBounds for non-ASCII chars
+            val digit = if (code < 128) HEX_TABLE[code] else -1
+
+            if (digit == -1) {
+                fail("Invalid Unicode escape sequence: expected hex digit, found '$char'")
+            }
+
+            // Accumulate result
+            value = (value shl 4) or digit
+        }
+
+        escapedString.append(value.toChar())
         return startPos + 4
     }
 
     internal inline fun require(condition: Boolean, position: Int = currentPosition, message: () -> String) {
         if (!condition) fail(message(), position)
-    }
-
-    private fun fromHexChar(source: CharSequence, currentPosition: Int): Int {
-        return when (val character = source[currentPosition]) {
-            in '0'..'9' -> character.code - '0'.code
-            in 'a'..'f' -> character.code - 'a'.code + 10
-            in 'A'..'F' -> character.code - 'A'.code + 10
-            else -> fail("Invalid toHexChar char '$character' in unicode escape")
-        }
     }
 
     fun skipElement(allowLenientStrings: Boolean) {
