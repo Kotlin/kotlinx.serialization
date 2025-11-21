@@ -86,7 +86,6 @@ internal fun SerialDescriptor.withContext(context: KClass<*>): SerialDescriptor 
  * Descriptor that captures [kClass] and allows retrieving additional runtime information,
  * if proper [SerializersModule] is provided.
  */
-@OptIn(ExperimentalSerializationApi::class)
 private class ContextDescriptor(
     private val original: SerialDescriptor,
     @JvmField val kClass: KClass<*>
