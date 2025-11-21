@@ -354,7 +354,6 @@ public inline fun <reified T> ClassSerialDescriptorBuilder.element(
     element(elementName, descriptor, annotations, isOptional)
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 internal class SerialDescriptorImpl(
     override val serialName: String,
     override val kind: SerialKind,
@@ -363,6 +362,7 @@ internal class SerialDescriptorImpl(
     builder: ClassSerialDescriptorBuilder
 ) : SerialDescriptor, CachedNames {
 
+    @OptIn(ExperimentalSerializationApi::class)
     override val annotations: List<Annotation> = builder.annotations
     override val serialNames: Set<String> = builder.elementNames.toHashSet()
 

@@ -148,7 +148,6 @@ private object JsonLiteralSerializer : KSerializer<JsonLiteral> {
 internal object JsonObjectSerializer : KSerializer<JsonObject> {
 
     private object JsonObjectDescriptor : SerialDescriptor by MapSerializer(String.serializer(), JsonElementSerializer).descriptor {
-        @ExperimentalSerializationApi
         override val serialName: String = "kotlinx.serialization.json.JsonObject"
     }
 
@@ -173,7 +172,6 @@ internal object JsonObjectSerializer : KSerializer<JsonObject> {
 internal object JsonArraySerializer : KSerializer<JsonArray> {
 
     private object JsonArrayDescriptor : SerialDescriptor by ListSerializer(JsonElementSerializer).descriptor {
-        @ExperimentalSerializationApi
         override val serialName: String = "kotlinx.serialization.json.JsonArray"
     }
 
@@ -215,7 +213,6 @@ internal fun Encoder.asJsonEncoder() = this as? JsonEncoder
  * Returns serial descriptor that delegates all the calls to descriptor returned by [deferred] block.
  * Used to resolve cyclic dependencies between recursive serializable structures.
  */
-@OptIn(ExperimentalSerializationApi::class)
 private fun defer(deferred: () -> SerialDescriptor): SerialDescriptor = object : SerialDescriptor {
 
     private val original: SerialDescriptor by lazy(deferred)

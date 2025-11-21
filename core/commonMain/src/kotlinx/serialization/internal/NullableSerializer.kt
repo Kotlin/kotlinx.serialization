@@ -43,7 +43,6 @@ internal class NullableSerializer<T : Any>(private val serializer: KSerializer<T
     }
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 internal class SerialDescriptorForNullable(
     internal val original: SerialDescriptor
 ) : SerialDescriptor by original, CachedNames {
