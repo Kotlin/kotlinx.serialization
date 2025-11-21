@@ -5,25 +5,28 @@
 import org.jetbrains.kotlin.gradle.tasks.*
 import kotlin.collections.joinToString
 
+/**
+ * This file is intended for compiler options that affect CLI compilation only.
+ * The reason is that tasks.withType(...) affects only platform compilations,
+ * so you may get incorrect analysis results in IDE on 'intermediate' source sets.
+ *
+ * If compiler option is likely to affect IDE (e.g., new diagnostic or language feature),
+ * add it to CompilerOptions.kt instead.
+ */
+
+// Used only for User Projects TeamCity configurations, no IDE there
 val kotlinAdditionalCliOptions = providers.gradleProperty("kotlin_additional_cli_options")
     .orNull?.let { options ->
         options.removeSurrounding("\"").split(" ").filter { it.isNotBlank() }
     }
 
-val globalCompilerArgs
-    get() = listOf(
-        "-P", "plugin:org.jetbrains.kotlinx.serialization:disableIntrinsic=false",
-        "-Xreport-all-warnings",
-        "-Xrender-internal-diagnostic-names",
-        "-Xreturn-value-checker=full",
-    )
-
 val kotlin_Werror_override: String? by project
 
+// -Werror option only for test source sets
+// Cannot migrate to general compilerOptions {} because we need compilation task name
+// to know whether it is main or test SS.
 tasks.withType(KotlinCompilationTask::class).configureEach {
     compilerOptions {
-        // Unconditional compiler options
-        freeCompilerArgs.addAll(globalCompilerArgs)
         kotlinAdditionalCliOptions?.forEach { option -> freeCompilerArgs.add(option) }
 
         val isMainTaskName = name.startsWith("compileKotlin")

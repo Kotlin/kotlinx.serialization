@@ -11,13 +11,12 @@ plugins {
 }
 
 kotlin {
-    jvmToolchain(8)
+    jvmToolchain(jdkToolchainVersion)
 
     compilerOptions {
-        if (overriddenLanguageVersion != null) {
-            languageVersion = KotlinVersion.fromVersion(overriddenLanguageVersion!!)
-            freeCompilerArgs.add("-Xsuppress-version-warnings")
-        }
+        defaultOptions()
+        // Do not set jvmTarget=1.8 here, as it conflicts with jvmToolchain
+        languageVersion(overriddenLanguageVersion)
     }
 }
 

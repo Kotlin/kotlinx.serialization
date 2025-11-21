@@ -1,6 +1,4 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import Java9Modularity.configureJava9ModuleInfo
-import org.jetbrains.kotlin.gradle.dsl.*
 
 
 /*
@@ -17,20 +15,12 @@ kotlin {
     jvmToolchain(jdkToolchainVersion)
 
     compilerOptions {
-        jvmTarget = JvmTarget.JVM_1_8
-        if (overriddenLanguageVersion != null) {
-            languageVersion = KotlinVersion.fromVersion(overriddenLanguageVersion!!)
-            freeCompilerArgs.add("-Xsuppress-version-warnings")
-        }
-        freeCompilerArgs.addAll("-Xjdk-release=1.8")
-    }
+        defaultOptions()
+        setJava8Compatible()
+        languageVersion(overriddenLanguageVersion)
 
-    sourceSets.all {
-        languageSettings {
-            progressiveMode = true
-
-            optIn("kotlinx.serialization.InternalSerializationApi")
-        }
+        progressiveMode = true
+        optIn.add("kotlinx.serialization.InternalSerializationApi")
     }
 }
 
