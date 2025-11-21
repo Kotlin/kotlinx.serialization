@@ -123,7 +123,6 @@ public fun JsonPrimitive(value: Nothing?): JsonNull = JsonNull
  * @see JsonPrimitive is the preferred method for encoding JSON primitives.
  * @throws JsonEncodingException if `value == "null"`
  */
-@ExperimentalSerializationApi
 @Suppress("FunctionName")
 public fun JsonUnquotedLiteral(value: String?): JsonPrimitive {
     return when (value) {
