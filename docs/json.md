@@ -30,7 +30,7 @@ In this chapter, we'll walk through features of [JSON](https://www.json.org/json
   * [Types of Json elements](#types-of-json-elements)
   * [Json element builders](#json-element-builders)
   * [Decoding Json elements](#decoding-json-elements)
-  * [Encoding literal Json content (experimental)](#encoding-literal-json-content-experimental)
+  * [Encoding literal Json content](#encoding-literal-json-content)
     * [Serializing large decimal numbers](#serializing-large-decimal-numbers)
     * [Using `JsonUnquotedLiteral` to create a literal unquoted value of `null` is forbidden](#using-jsonunquotedliteral-to-create-a-literal-unquoted-value-of-null-is-forbidden)
 * [Json transformations](#json-transformations)
@@ -913,9 +913,7 @@ Project(name=kotlinx.serialization, language=Kotlin)
 
 <!--- TEST -->
 
-### Encoding literal Json content (experimental)
-
-> This functionality is experimental and requires opting-in to [the experimental Kotlinx Serialization API](compatibility.md#experimental-api).
+### Encoding literal Json content
 
 In some cases it might be necessary to encode an arbitrary unquoted value. 
 This can be achieved with [JsonUnquotedLiteral].
@@ -974,7 +972,6 @@ fun main() {
     val pi = BigDecimal("3.141592653589793238462643383279")
 
     // use JsonUnquotedLiteral to encode raw JSON content
-    @OptIn(ExperimentalSerializationApi::class)
     val piJsonLiteral = JsonUnquotedLiteral(pi.toString())
 
     val piJsonDouble = JsonPrimitive(pi.toDouble())
@@ -1046,7 +1043,6 @@ To avoid creating an inconsistent state, encoding a String equal to `"null"` is 
 Use [JsonNull] or [JsonPrimitive] instead.
 
 ```kotlin
-@OptIn(ExperimentalSerializationApi::class)
 fun main() {
     // caution: creating null with JsonUnquotedLiteral will cause an exception! 
     JsonUnquotedLiteral("null")
