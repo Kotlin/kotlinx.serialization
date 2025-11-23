@@ -114,11 +114,133 @@ class JsonParserTest : JsonTestBase() {
         assertEquals("null", obj["k"]!!.jsonPrimitive.content)
     }
 
+    // ==================================================================================
+    // Unicode Escape Sequence Tests
+    // These tests verify correct parsing of \uXXXX sequences per RFC 8259 Section 7.
+    // The JSON spec mandates exactly 4 hexadecimal digits after \u.
+    // ==================================================================================
+
     @Test
     fun testUnicodeEscapeWithFollowingHex() {
-        // Test case for greedy parsing bug
+        // Verifies fix for greedy parsing bug where hex characters following a valid
+        // 4-digit unicode escape were incorrectly consumed as part of the escape sequence.
         val input = "\"\\u00f3a\""
         val decoded = Json.decodeFromString<String>(input)
-        assertEquals("óa", decoded, "Should parse 'ó' then 'a', not try to consume 'a'")
+        assertEquals("óa", decoded, "Should parse 'ó' (U+00F3) followed by literal 'a'")
+    }
+
+    @Test
+    fun testUnicodeEscapeFollowedByVariousHexChars() {
+        // Ensures all hex characters [0-9a-fA-F] following a unicode escape are treated as literals.
+        assertEquals("ó0", Json.decodeFromString<String>("\"\\u00f30\""))
+        assertEquals("ó9", Json.decodeFromString<String>("\"\\u00f39\""))
+        assertEquals("óa", Json.decodeFromString<String>("\"\\u00f3a\""))
+        assertEquals("óf", Json.decodeFromString<String>("\"\\u00f3f\""))
+        assertEquals("óA", Json.decodeFromString<String>("\"\\u00f3A\""))
+        assertEquals("óF", Json.decodeFromString<String>("\"\\u00f3F\""))
+    }
+
+    @Test
+    fun testConsecutiveUnicodeEscapes() {
+        // Validates correct parsing of multiple consecutive unicode escape sequences.
+        assertEquals("óéí", Json.decodeFromString<String>("\"\\u00f3\\u00e9\\u00ed\""))
+        assertEquals("ABC", Json.decodeFromString<String>("\"\\u0041\\u0042\\u0043\""))
+    }
+
+    @Test
+    fun testUnicodeEscapeAtStringBoundaries() {
+        // Tests unicode escapes at the beginning, middle, and end of strings.
+        assertEquals("ó", Json.decodeFromString<String>("\"\\u00f3\""))
+        assertEquals("ótest", Json.decodeFromString<String>("\"\\u00f3test\""))
+        assertEquals("testó", Json.decodeFromString<String>("\"test\\u00f3\""))
+        assertEquals("teóst", Json.decodeFromString<String>("\"te\\u00f3st\""))
+    }
+
+    @Test
+    fun testSurrogatePairs() {
+        // Verifies correct handling of UTF-16 surrogate pairs for characters outside the BMP.
+        // U+1D11E (Musical Symbol G Clef) requires surrogate pair \uD834\uDD1E.
+        assertEquals("\uD834\uDD1E", Json.decodeFromString<String>("\"\\uD834\\uDD1E\""))
+        
+        // U+1F914 (Thinking Face emoji) requires surrogate pair \uD83E\uDD14.
+        assertEquals("\uD83E\uDD14", Json.decodeFromString<String>("\"\\uD83E\\uDD14\""))
+    }
+
+    @Test
+    fun testSurrogatePairFollowedByHex() {
+        // Ensures hex characters after a complete surrogate pair are not consumed.
+        val decoded = Json.decodeFromString<String>("\"\\uD83E\\uDD14abc\"")
+        assertEquals("\uD83E\uDD14abc", decoded)
+    }
+
+    @Test
+    fun testUnicodeEscapeMixedWithRegularText() {
+        // Tests complex strings mixing unicode escapes with regular text and hex characters.
+        assertEquals(
+            "Caf\u00e9 costs \u20ac5",
+            Json.decodeFromString<String>("\"Caf\\u00e9 costs \\u20ac5\"")
+        )
+    }
+
+    @Test
+    fun testUnicodeEscapeWithInsufficientDigits() {
+        // Validates rejection of malformed escapes with fewer than 4 hex digits.
+        assertFailsWithSerial("JsonDecodingException") {
+            Json.decodeFromString<String>("\"\\u00f\"")
+        }
+        assertFailsWithSerial("JsonDecodingException") {
+            Json.decodeFromString<String>("\"\\u00\"")
+        }
+        assertFailsWithSerial("JsonDecodingException") {
+            Json.decodeFromString<String>("\"\\u0\"")
+        }
+        assertFailsWithSerial("JsonDecodingException") {
+            Json.decodeFromString<String>("\"\\u\"")
+        }
+    }
+
+    @Test
+    fun testUnicodeEscapeWithInvalidHexDigits() {
+        // Validates rejection of escapes containing non-hexadecimal characters.
+        assertFailsWithSerial("JsonDecodingException") {
+            Json.decodeFromString<String>("\"\\u00gf\"")
+        }
+        assertFailsWithSerial("JsonDecodingException") {
+            Json.decodeFromString<String>("\"\\uXYZW\"")
+        }
+    }
+
+    @Test
+    fun testTruncatedUnicodeEscapeAtEndOfInput() {
+        // Ensures proper error handling when input ends mid-escape sequence.
+        assertFailsWithSerial("JsonDecodingException") {
+            Json.decodeFromString<String>("\"\\u00f")
+        }
+        assertFailsWithSerial("JsonDecodingException") {
+            Json.decodeFromString<String>("\"test\\u00")
+        }
+    }
+
+    @Test
+    fun testNullCharacterEscape() {
+        // Verifies correct parsing of the null character (U+0000).
+        assertEquals("\u0000", Json.decodeFromString<String>("\"\\u0000\""))
+        assertEquals("a\u0000b", Json.decodeFromString<String>("\"a\\u0000b\""))
+    }
+
+    @Test
+    fun testMaxBmpCodepoint() {
+        // Tests the maximum Basic Multilingual Plane codepoint (U+FFFF).
+        assertEquals("\uFFFF", Json.decodeFromString<String>("\"\\uFFFF\""))
+        assertEquals("\uffff", Json.decodeFromString<String>("\"\\uffff\""))
+    }
+
+    @Test
+    fun testCaseInsensitiveHexDigits() {
+        // Confirms hex digits are parsed case-insensitively per JSON specification.
+        assertEquals("\u00AB", Json.decodeFromString<String>("\"\\u00AB\""))
+        assertEquals("\u00AB", Json.decodeFromString<String>("\"\\u00ab\""))
+        assertEquals("\u00AB", Json.decodeFromString<String>("\"\\u00Ab\""))
+        assertEquals("\u00AB", Json.decodeFromString<String>("\"\\u00aB\""))
     }
 }

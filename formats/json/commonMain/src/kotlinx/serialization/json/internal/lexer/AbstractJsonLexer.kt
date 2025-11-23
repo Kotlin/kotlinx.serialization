@@ -148,7 +148,8 @@ internal abstract class AbstractJsonLexer {
 
     protected abstract val source: CharSequence
 
-    // Lookup table for fast hex digit validation and conversion
+    // Lookup table for fast hex digit validation and conversion.
+    // Pre-computed O(1) table avoids expensive character range checks.
     companion object {
         private val HEX_TABLE = IntArray(128) { -1 }
 
@@ -508,34 +509,60 @@ internal abstract class AbstractJsonLexer {
         return currentPosition
     }
 
+    /**
+    * Parses a Unicode escape sequence (\uXXXX) from the input source.
+    * 
+    * Per RFC 8259 Section 7, Unicode escapes must be exactly 4 hexadecimal digits.
+    * This method strictly enforces this requirement to prevent greedy parsing bugs
+    * where subsequent hex characters could be incorrectly consumed as part of the escape.
+    * 
+    * For example, "\u00f3a" must be parsed as the character 'ó' (U+00F3) followed by
+    * the literal character 'a', not as an invalid 5-digit escape sequence.
+    * 
+    * @param source The character sequence containing the escape sequence
+    * @param startPos Position immediately after '\u' in the source
+    * @return Position after the 4 hex digits (ready to continue parsing)
+    * @throws JsonDecodingException if the escape sequence is invalid or incomplete
+    */
     private fun appendHex(source: CharSequence, startPos: Int): Int {
-        // Ensure we have at least 4 characters for the unicode sequence
-        if (startPos + 4 >= source.length) {
+        // Ensure we have at least 4 characters available for the unicode escape sequence.
+        // This boundary check prevents IndexOutOfBoundsException on truncated input.
+        if (startPos + 4 > source.length) {
             currentPosition = startPos
             ensureHaveChars()
-            if (currentPosition + 4 >= source.length)
+            // After attempting to load more data, verify again that we have enough characters
+            if (currentPosition + 4 > source.length)
                 fail("Unexpected EOF during unicode escape")
             return appendHex(source, currentPosition)
         }
 
         var value = 0
-        // Strict 4-iteration loop to prevent greedy parsing and comply with RFC 8259
+        
+        // Strict 4-iteration loop to comply with RFC 8259.
+        // This prevents greedy parsing where a 5th hex character following a valid
+        // 4-digit sequence would be incorrectly consumed (e.g., "\u00f3a" -> 5 digits).
         for (i in 0..3) {
             val char = source[startPos + i]
             val code = char.code
 
-            // Fast O(1) lookup. Check range to avoid IndexOutOfBounds for non-ASCII chars
+            // Fast O(1) lookup using pre-computed table.
+            // Bounds check ensures non-ASCII characters (code >= 128) don't cause exceptions.
             val digit = if (code < 128) HEX_TABLE[code] else -1
 
             if (digit == -1) {
-                fail("Invalid Unicode escape sequence: expected hex digit, found '$char'")
+                fail("Invalid Unicode escape sequence at position ${startPos + i}: " +
+                    "expected hexadecimal digit [0-9a-fA-F], found '$char'")
             }
 
-            // Accumulate result
+            // Accumulate the hex value by shifting left 4 bits and ORing with the new digit
             value = (value shl 4) or digit
         }
 
         escapedString.append(value.toChar())
+        
+        // Return position exactly 4 characters after startPos.
+        // Any following character (even if hex) will be processed separately,
+        // preventing greedy consumption and ensuring spec compliance.
         return startPos + 4
     }
 
