@@ -66,7 +66,6 @@ public fun JsonPrimitive(value: Number?): JsonPrimitive {
  *
  * The value will be encoded as a JSON number.
  */
-@ExperimentalSerializationApi
 public fun JsonPrimitive(value: UByte): JsonPrimitive = JsonPrimitive(value.toULong())
 
 /**
@@ -74,7 +73,6 @@ public fun JsonPrimitive(value: UByte): JsonPrimitive = JsonPrimitive(value.toUL
  *
  * The value will be encoded as a JSON number.
  */
-@ExperimentalSerializationApi
 public fun JsonPrimitive(value: UShort): JsonPrimitive = JsonPrimitive(value.toULong())
 
 /**
@@ -82,7 +80,6 @@ public fun JsonPrimitive(value: UShort): JsonPrimitive = JsonPrimitive(value.toU
  *
  * The value will be encoded as a JSON number.
  */
-@ExperimentalSerializationApi
 public fun JsonPrimitive(value: UInt): JsonPrimitive = JsonPrimitive(value.toULong())
 
 /**
@@ -91,7 +88,6 @@ public fun JsonPrimitive(value: UInt): JsonPrimitive = JsonPrimitive(value.toULo
  * The value will be encoded as a JSON number.
  */
 @SuppressAnimalSniffer // Long.toUnsignedString(long)
-@ExperimentalSerializationApi
 public fun JsonPrimitive(value: ULong): JsonPrimitive = JsonUnquotedLiteral(value.toString())
 
 /** Creates a [JsonPrimitive] from the given string. */
