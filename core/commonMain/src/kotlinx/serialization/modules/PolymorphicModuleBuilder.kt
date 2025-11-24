@@ -20,20 +20,20 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
     private val baseClass: KClass<Base>,
     private val baseSerializer: KSerializer<Base>? = null
 ) {
-    private val subclasses: MutableMap<KClass<out Base>, KSerializer<out Base>> = mutableMapOf()
+    private val subclasses: MutableList<Pair<KClass<out Base>, KSerializer<out Base>>> = mutableListOf()
     private var defaultSerializerProvider: ((Base) -> SerializationStrategy<Base>?)? = null
     private var defaultDeserializerProvider: ((String?) -> DeserializationStrategy<Base>?)? = null
 
 
     /**
      * Registers the child serializers for the sealed [subclass] [serializer] in the resulting module under
-     * the [base class][Base]. Please note that type `T` must be sealed, if not a runtime error will
+     * the [base class][Base]. Please note that type `T` has to be sealed and have a standard serializer, if not a runtime error will
      * be thrown at registration time. This function is a convenience function for the version that
      * receives a serializer.
      *
      *
      * Example:
-     * ```kotlin
+     * ```
      * interface Base
      *
      * @Serializable
@@ -75,20 +75,21 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
      * }
      * ```
      *
-     * It is an error if th
+     * Note that if Sub1 is itself open polymorphic this is an error.
+     * 
      */
     @ExperimentalSerializationApi
     public fun <T: Base> subclassesOfSealed(serializer: KSerializer<T>) {
         // Note that the parameter type is `KSerializer` as `SealedClassSerializer` is an internal type
         // not available to users
         require(serializer is SealedClassSerializer) {
-            "subClassesOf only supports automatic adding of subclasses of sealed types."
+            "subclassesOfSealed only supports automatic adding of subclasses of sealed types with standard serializers."
         }
         for ((subsubclass, subserializer) in serializer.class2Serializer.entries) {
             // This error would be caught by the Json format in its validation, but this is format specific
             require (subserializer.descriptor.kind != PolymorphicKind.OPEN) {
-                "It is not possible to register subclasses of sealed types when those subclasses " +
-                    "themselves are (open) polymorphic, as this would represent an incomplete hierarchy"
+                "It is not possible to register subclasses (${serializer.descriptor.serialName}) of sealed types when those subclasses " +
+                    "themselves are (open) polymorphic, as this would represent an incomplete hierarchy."
             }
             @Suppress("UNCHECKED_CAST")
             // We don't know the type here, but it matches if correct in the sealed serializer.
@@ -100,7 +101,7 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
      * Registers a [subclass] [serializer] in the resulting module under the [base class][Base].
      */
     public fun <T : Base> subclass(subclass: KClass<T>, serializer: KSerializer<T>) {
-        subclasses[subclass] = serializer
+        subclasses.add(subclass to serializer)
     }
 
     /**
