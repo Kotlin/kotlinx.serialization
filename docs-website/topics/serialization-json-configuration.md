@@ -33,12 +33,6 @@ val lenientJson = Json(customJson) {
 
 The following sections cover the various `Json` class configuration features.
 
-## Customize JSON serialization
-
-You can control how Kotlin objects are serialized to JSON by configuring a `Json` instance.
-This allows you to format the output, choose whether to include or omit certain values,
-and customize how specific types are encoded.
-
 ### Pretty printing
 
 By default, `Json` produces a compact, single-line output.
@@ -77,15 +71,20 @@ This example prints the following result:
 }
 ```
 
-> You can use the [Experimental](components-stability.md#stability-levels-explained) [`prettyPrintIndent`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/pretty-print-indent.html) option to customize the indentation used in pretty-printed JSON.
+> You can use the [`prettyPrintIndent`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/pretty-print-indent.html) option to customize the indentation used in pretty-printed JSON.
 >
-> For example, you can replace the default four spaces with any allowed whitespace character, such as `\t` or `\n`.
-> 
+> For example, you can replace the default four spaces with any allowed whitespace characters, such as `\t` or `\n`.
+>
 {style="note"}
+
+## Customize JSON structure
+
+You can customize how a `Json` instance structures the encoded data.
+This allows you to control which values appear in the output and how specific types are represented.
 
 ### Encode default values
 
-By default, the JSON serializer doesn't encode default property values because they are automatically applied to missing properties during decoding.
+By default, the JSON encoder omits default property values because they are automatically applied to missing properties during decoding.
 This behavior is especially useful for nullable properties with null defaults, as it avoids writing unnecessary `null` values.
 For more details, see the [Manage serialization of default properties](serialization-customization-options.md#manage-the-serialization-of-default-properties-with-encodeddefault) section.
 
@@ -417,7 +416,7 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-#### Allow trailing commas
+### Allow trailing commas
 
 To allow trailing commas in JSON input, set the [`allowTrailingComma`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/allow-trailing-comma.html) property to `true`:
 
@@ -443,17 +442,13 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-#### Allow comments in JSON
+### Allow comments in JSON
 
 Use the [`allowComments`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/allow-comments.html) property to allow comments in JSON input.
 When this property is enabled, the parser accepts the following comment forms in the input:
 
 * `//` line comments that end at a newline `\n`
 * `/* */` block comments
-
-> Nested block comments aren't supported
-> 
-{style="note"}
 
 Here's an example:
 
