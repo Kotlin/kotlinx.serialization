@@ -45,9 +45,9 @@ fun main() {
 ```
 {kotlin-runnable="true" id="serialize-annotation-example"}
 
-### Serialization of class references
+### Serialize class references
 
-Serializable classes can contain properties that reference other classes.
+Classes annotated with `@Serializable` can contain properties that reference other classes.
 The referenced classes must also be annotated with `@Serializable`.
 When encoded to JSON, this results in a nested JSON object:
 
@@ -73,7 +73,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true" id="serialize-class-references"}
+{kotlin-runnable="true" id="serialize-class-references-example"}
 
 > To reference non-serializable classes, annotate the corresponding properties with [`@Transient`](#exclude-properties-with-the-transient-annotation), or
 > provide a [custom serializer](create-custom-serializers.md) for them.
@@ -114,7 +114,7 @@ fun main() {
 >
 {style="tip"}
 
-### Generic class serialization
+### Serialize generic classes
 
 Generic classes in Kotlin support type-polymorphism, which is enforced by Kotlin serialization at
 compile-time. For example, consider a generic serializable class `Payload<T>`:
@@ -243,7 +243,7 @@ fun main() {
 
 ### Initializers in optional properties
 
-When the input includes a value for an optional property, the property's initializer isn't called.
+When the serialization input includes a value for an optional property, the property's initializer isn't called.
 For this reason, avoid using code with side effects in property initializers.
 
 Here's an example:
