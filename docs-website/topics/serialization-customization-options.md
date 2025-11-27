@@ -1,6 +1,6 @@
 [//]: # (title: Serialize classes)
 
-The [`@Serializable`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/) annotation enables the default serialization of all class properties with backing fields.
+The [`@Serializable`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/) annotation enables the default serialization of all class properties with [backing fields](properties.md#backing-fields).
 You can customize this behavior to fit your specific needs.
 This page covers various serialization techniques, showing you how to specify which properties are serialized, and how the serialization process is managed.
 
@@ -11,7 +11,7 @@ Before starting, make sure you've imported the [necessary library dependencies](
 The `@Serializable` annotation enables the automatic serialization of class properties,
 allowing a class to be converted to and from formats such as JSON.
 
-In Kotlin, only properties with [backing fields](properties.md#backing-fields) are serialized:
+In Kotlin, only properties with backing fields are serialized:
 
 ```kotlin
 // Imports declarations from the serialization library
@@ -415,7 +415,7 @@ fun main() {
 
 A class annotated with `@Serializable` must declare all parameters in its primary constructor as properties.
 
-If you need to perform additional initialization logic before assigning values to properties, use a secondary constructor.
+If you need to perform additional initialization logic before assigning values to properties, use a [secondary constructor](classes.md#secondary-constructors).
 The primary constructor can remain `private` and handle property initialization.
 
 Here's an example where the secondary constructor parses a string into two values, which are then passed to the primary constructor for serialization:
