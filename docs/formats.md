@@ -409,10 +409,10 @@ of a generic serializable class with `@ValueTags`.
 
 A [CborElement] class has three direct subtypes, closely following CBOR grammar:
 
-* [CborPrimitive] represents primitive CBOR elements, such as string, integer, float boolean, and null.
-  CBOR byte strings are also treated as primitives  
+* [CborPrimitive] represents primitive CBOR elements, such as string, integer, float, boolean, and null.
+  CBOR byte strings are also treated as primitives.
   Each primitive has a [value][CborPrimitive.value]. Depending on the concrete type of the primitive, it maps
-  to corresponding Kotlin Types such as `String`, `Int`, `Double`, etc.
+  to corresponding Kotlin Types such as `String`, `Long`, `Double`, etc.
   Note that Cbor discriminates between positive ("unsigned") and negative ("signed") integers!  
   `CborPrimitive` is itself an umbrella type (a sealed class) for the following concrete primitives:
   * [CborNull] mapping to a Kotlin `null`

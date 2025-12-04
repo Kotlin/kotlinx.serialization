@@ -259,14 +259,14 @@ internal object CborListSerializer : KSerializer<CborList>, CborSerializer {
 
 internal fun Decoder.asCborDecoder(): CborDecoder = this as? CborDecoder
     ?: throw IllegalStateException(
-        "This serializer can be used only with Cbor format." +
+        "This serializer can be used only with Cbor format. " +
             "Expected Decoder to be CborDecoder, got ${this::class}"
     )
 
 /*need to expose writer to access encodeTag()*/
 internal fun Encoder.asCborEncoder() = this as? CborEncoder
     ?: throw IllegalStateException(
-        "This serializer can be used only with Cbor format." +
+        "This serializer can be used only with Cbor format. " +
             "Expected Encoder to be CborEncoder, got ${this::class}"
     )
 
