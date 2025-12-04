@@ -73,23 +73,23 @@ class PolymorphismTest {
 
     @Test
     fun testExamplePoly10() {
-        captureOutput("ExamplePoly10") { example.examplePoly10.main() }.verifyOutputLinesStart(
+        captureOutput("ExamplePoly10") { example.examplePoly10.main() }.verifyOutputLines(
             "{\"type\":\"owned\",\"name\":\"kotlinx.coroutines\",\"owner\":\"kotlin\"}"
         )
     }
 
     @Test
     fun testExamplePoly11() {
-        captureOutput("ExamplePoly11") { example.examplePoly11.main() }.verifyOutputLines(
-            "{\"project\":{\"type\":\"owned\",\"name\":\"kotlinx.coroutines\",\"owner\":\"kotlin\"}}"
+        captureOutput("ExamplePoly11") { example.examplePoly11.main() }.verifyOutputLinesStart(
+            "{\"type\":\"example.examplePoly11.Sub1\",\"data\":\"kotlin\"}",
+            "{\"type\":\"example.examplePoly11.Sub1\",\"data\":\"kotlin\"}"
         )
     }
 
     @Test
     fun testExamplePoly12() {
-        captureOutput("ExamplePoly12") { example.examplePoly12.main() }.verifyOutputLinesStart(
-            "Exception in thread \"main\" kotlinx.serialization.SerializationException: Serializer for class 'Any' is not found.",
-            "Please ensure that class is marked as '@Serializable' and that the serialization compiler plugin is applied."
+        captureOutput("ExamplePoly12") { example.examplePoly12.main() }.verifyOutputLines(
+            "{\"project\":{\"type\":\"owned\",\"name\":\"kotlinx.coroutines\",\"owner\":\"kotlin\"}}"
         )
     }
 
@@ -103,51 +103,59 @@ class PolymorphismTest {
 
     @Test
     fun testExamplePoly14() {
-        captureOutput("ExamplePoly14") { example.examplePoly14.main() }.verifyOutputLines(
-            "{\"type\":\"owned\",\"name\":\"kotlinx.coroutines\",\"owner\":\"kotlin\"}"
+        captureOutput("ExamplePoly14") { example.examplePoly14.main() }.verifyOutputLinesStart(
+            "Exception in thread \"main\" kotlinx.serialization.SerializationException: Serializer for class 'Any' is not found.",
+            "Please ensure that class is marked as '@Serializable' and that the serialization compiler plugin is applied."
         )
     }
 
     @Test
     fun testExamplePoly15() {
         captureOutput("ExamplePoly15") { example.examplePoly15.main() }.verifyOutputLines(
-            "{\"project\":{\"type\":\"owned\",\"name\":\"kotlinx.coroutines\",\"owner\":\"kotlin\"}}"
+            "{\"type\":\"owned\",\"name\":\"kotlinx.coroutines\",\"owner\":\"kotlin\"}"
         )
     }
 
     @Test
     fun testExamplePoly16() {
         captureOutput("ExamplePoly16") { example.examplePoly16.main() }.verifyOutputLines(
-            "{\"project\":{\"type\":\"owned\",\"name\":\"kotlinx.coroutines\",\"owner\":\"kotlin\"},\"any\":{\"type\":\"owned\",\"name\":\"kotlinx.coroutines\",\"owner\":\"kotlin\"}}"
+            "{\"project\":{\"type\":\"owned\",\"name\":\"kotlinx.coroutines\",\"owner\":\"kotlin\"}}"
         )
     }
 
     @Test
     fun testExamplePoly17() {
         captureOutput("ExamplePoly17") { example.examplePoly17.main() }.verifyOutputLines(
+            "{\"project\":{\"type\":\"owned\",\"name\":\"kotlinx.coroutines\",\"owner\":\"kotlin\"},\"any\":{\"type\":\"owned\",\"name\":\"kotlinx.coroutines\",\"owner\":\"kotlin\"}}"
+        )
+    }
+
+    @Test
+    fun testExamplePoly18() {
+        captureOutput("ExamplePoly18") { example.examplePoly18.main() }.verifyOutputLines(
             "{\"type\":\"OkResponse\",\"data\":{\"type\":\"OwnedProject\",\"name\":\"kotlinx.serialization\",\"owner\":\"kotlin\"}}",
             "OkResponse(data=OwnedProject(name=kotlinx.serialization, owner=kotlin))"
         )
     }
 
     @Test
-    fun testExamplePoly18() {
-        captureOutput("ExamplePoly18") { example.examplePoly18.main() }.verifyOutputLinesStart(
+    fun testExamplePoly19() {
+        captureOutput("ExamplePoly19") { example.examplePoly19.main() }.verifyOutputLinesStart(
             "Exception in thread \"main\" kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 0: Serializer for subclass 'unknown' is not found in the polymorphic scope of 'Project' at path: $",
             "Check if class with serial name 'unknown' exists and serializer is registered in a corresponding SerializersModule."
         )
     }
 
     @Test
-    fun testExamplePoly19() {
-        captureOutput("ExamplePoly19") { example.examplePoly19.main() }.verifyOutputLines(
+    fun testExamplePoly20() {
+        captureOutput("ExamplePoly20") { example.examplePoly20.main() }.verifyOutputLines(
             "[BasicProject(name=example, type=unknown), OwnedProject(name=kotlinx.serialization, owner=kotlin)]"
         )
     }
 
     @Test
-    fun testExamplePoly20() {
-        captureOutput("ExamplePoly20") { example.examplePoly20.main() }.verifyOutputLines(
+    fun testExamplePoly21() {
+        captureOutput("ExamplePoly21") { example.examplePoly21.main() }.verifyOutputLines(
             "{\"type\":\"Cat\",\"catType\":\"Tabby\"}"
         )
     }

@@ -97,6 +97,7 @@ Once the project is set up, we can start serializing some classes.
 * <a name='open-polymorphism'></a>[Open polymorphism](polymorphism.md#open-polymorphism)
   * <a name='registered-subclasses'></a>[Registered subclasses](polymorphism.md#registered-subclasses)
   * <a name='serializing-interfaces'></a>[Serializing interfaces](polymorphism.md#serializing-interfaces)
+  * <a name='registering-sealed-children-as-subclasses'></a>[Registering sealed children as subclasses](polymorphism.md#registering-sealed-children-as-subclasses)
   * <a name='property-of-an-interface-type'></a>[Property of an interface type](polymorphism.md#property-of-an-interface-type)
   * <a name='static-parent-type-lookup-for-polymorphism'></a>[Static parent type lookup for polymorphism](polymorphism.md#static-parent-type-lookup-for-polymorphism)
   * <a name='explicitly-marking-polymorphic-class-properties'></a>[Explicitly marking polymorphic class properties](polymorphism.md#explicitly-marking-polymorphic-class-properties)
