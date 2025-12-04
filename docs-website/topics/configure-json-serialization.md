@@ -58,10 +58,10 @@ such as ignoring unknown keys:
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
+//sampleStart
 @Serializable
 data class Project(val name: String)
 
-//sampleStart
 // Configures a Json instance to ignore unknown keys
 val customJson = Json {
     ignoreUnknownKeys = true

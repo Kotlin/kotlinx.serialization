@@ -33,53 +33,9 @@ val lenientJson = Json(customJson) {
 
 The following sections cover the various `Json` class configuration features.
 
-### Pretty printing
-
-By default, `Json` produces a compact, single-line output.
-
-You can add indentations and line breaks for better readability by enabling pretty printing in the output.
-To do so, set the [`prettyPrint`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/pretty-print.html) property to `true` in a `Json` instance:
-
-```kotlin
-// Imports declarations from the serialization library
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
-
-//sampleStart
-// Creates a custom Json format
-val format = Json { prettyPrint = true }
-
-@Serializable
-data class Project(val name: String, val language: String)
-
-fun main() {
-    val data = Project("kotlinx.serialization", "Kotlin")
-
-    // Prints the JSON output with line breaks and indentations
-    println(format.encodeToString(data))
-}
-//sampleEnd
-```
-{kotlin-runnable="true"}
-
-This example prints the following result:
-
-```text
-{
-    "name": "kotlinx.serialization",
-    "language": "Kotlin"
-}
-```
-
-> You can use the [`prettyPrintIndent`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/pretty-print-indent.html) option to customize the indentation used in pretty-printed JSON.
->
-> For example, you can replace the default four spaces with any allowed whitespace characters, such as `\t` or `\n`.
->
-{style="note"}
-
 ## Customize JSON structure
 
-You can customize how a `Json` instance structures the encoded data.
+You can customize how a `Json` instance structures data during encoding and decoding.
 This allows you to control which values appear in the output and how specific types are represented.
 
 ### Encode default values
@@ -165,10 +121,10 @@ In this example, the `version` property is `null` before encoding but decodes to
 >
 {style="tip"}
 
-### Encode structured map keys
+### Allow structured map keys
 
 The JSON format doesn't natively support maps with structured keys, because JSON keys are strings that represent only primitives or enums.
-To serialize maps with user-defined class keys, use the [`allowStructuredMapKeys`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/allow-structured-map-keys.html) property:
+To serialize and deserialize maps with user-defined class keys, use the [`allowStructuredMapKeys`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/allow-structured-map-keys.html) property:
 
 ```kotlin
 // Imports declarations from the serialization library
@@ -196,12 +152,12 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-### Encode special floating-point values
+### Allow special floating-point values
 
 By default, special floating-point values like [`Double.NaN`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-double/-na-n.html)
 and infinities aren't supported in JSON because the JSON specification prohibits them.
 
-To enable their encoding, set the [`allowSpecialFloatingPointValues`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/allow-special-floating-point-values.html) property to `true` in a `Json` instance:
+To enable their encoding and decoding, set the [`allowSpecialFloatingPointValues`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/allow-special-floating-point-values.html) property to `true` in a `Json` instance:
 
 ```kotlin
 // Imports declarations from the serialization library
@@ -378,6 +334,86 @@ fun main() {
 ## Customize JSON deserialization
 
 Kotlin's `Json` parser provides several settings that let you customize how JSON data is parsed and deserialized.
+
+### Coerce input values
+
+When working with JSON data from third-party services or other dynamic sources, the format can evolve over time.
+This may cause exceptions during decoding when actual values don't match the expected types.
+
+The default `Json` implementation is [strict about input types](serialization-customization-options.md#the-serializable-annotation).
+To relax this restriction, set the [`coerceInputValues`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/coerce-input-values.html) property to `true` in a `Json` instance:
+
+```kotlin
+// Imports declarations from the serialization library
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
+val format = Json { coerceInputValues = true }
+
+@Serializable
+data class Project(val name: String, val language: String = "Kotlin")
+
+fun main() {
+    val data = format.decodeFromString<Project>("""
+        {"name":"kotlinx.serialization","language":null}
+    """)
+
+    // Coerces the invalid null value for language to its default value
+    println(data)
+    // Project(name=kotlinx.serialization, language=Kotlin)
+}
+//sampleEnd
+```
+{kotlin-runnable="true"}
+
+The `coerceInputValues` property only affects decoding. It treats certain invalid input values as if the corresponding property were missing.
+Currently, it applies to:
+
+* `null` inputs for non-nullable types
+* unknown values for enums
+
+> This list may be expanded in future versions, making `Json` instances with this property even more permissive
+> by replacing invalid values with defaults or `null`.
+>
+{style="note"}
+
+If a value is missing, it's replaced with a default property value if one exists.
+
+For enums the value is replaced with `null` only if:
+
+* No default is defined.
+* The [`explicitNulls`](#omit-explicit-nulls) property is set to `false`.
+* The property is nullable.
+
+You can combine `coerceInputValues` with the `explicitNulls` property to handle invalid enum values:
+
+```kotlin
+// Imports declarations from the serialization library
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
+enum class Color { BLACK, WHITE }
+
+@Serializable
+data class Brush(val foreground: Color = Color.BLACK, val background: Color?)
+
+val json = Json { 
+  coerceInputValues = true
+  explicitNulls = false
+}
+
+fun main() {
+
+    // Coerces the unknown foreground value to its default and background to null
+    val brush = json.decodeFromString<Brush>("""{"foreground":"pink", "background":"purple"}""")
+    println(brush)
+    // Brush(foreground=BLACK, background=null)
+}
+//sampleEnd
+```
+{kotlin-runnable="true"}
 
 ### Lenient parsing
 
@@ -560,86 +596,6 @@ fun main() {
 
 In this example, `Inner` throws a `SerializationException` for unknown keys because it isn't annotated with `@JsonIgnoreUnknownKeys`.
 
-### Coerce input values
-
-When working with JSON data from third-party services or other dynamic sources, the format can evolve over time.
-This may cause exceptions during decoding when actual values don't match the expected types.
-
-The default `Json` implementation is [strict about input types](serialization-customization-options.md#the-serializable-annotation).
-To relax this restriction, set the [`coerceInputValues`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/coerce-input-values.html) property to `true` in a `Json` instance:
-
-```kotlin
-// Imports declarations from the serialization library
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
-
-//sampleStart
-val format = Json { coerceInputValues = true }
-
-@Serializable
-data class Project(val name: String, val language: String = "Kotlin")
-
-fun main() {
-    val data = format.decodeFromString<Project>("""
-        {"name":"kotlinx.serialization","language":null}
-    """)
-
-    // Coerces the invalid null value for language to its default value
-    println(data)
-    // Project(name=kotlinx.serialization, language=Kotlin)
-}
-//sampleEnd
-```
-{kotlin-runnable="true"}
-
-The `coerceInputValues` property only affects decoding. It treats certain invalid input values as if the corresponding property were missing.
-Currently, it applies to:
-
-* `null` inputs for non-nullable types
-* unknown values for enums
-
-> This list may be expanded in future versions, making `Json` instances with this property even more permissive
-> by replacing invalid values with defaults or `null`.
->
-{style="note"}
-
-If a value is missing, it's replaced with a default property value if one exists.
-
-For enums the value is replaced with `null` only if:
-
-* No default is defined.
-* The [`explicitNulls`](#omit-explicit-nulls) property is set to `false`.
-* The property is nullable.
-
-You can combine `coerceInputValues` with the `explicitNulls` property to handle invalid enum values:
-
-```kotlin
-// Imports declarations from the serialization library
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
-
-//sampleStart
-enum class Color { BLACK, WHITE }
-
-@Serializable
-data class Brush(val foreground: Color = Color.BLACK, val background: Color?)
-
-val json = Json { 
-  coerceInputValues = true
-  explicitNulls = false
-}
-
-fun main() {
-
-    // Coerces the unknown foreground value to its default and background to null
-    val brush = json.decodeFromString<Brush>("""{"foreground":"pink", "background":"purple"}""")
-    println(brush)
-    // Brush(foreground=BLACK, background=null)
-}
-//sampleEnd
-```
-{kotlin-runnable="true"}
-
 ## Customize name mapping between JSON and Kotlin
 
 Some JSON data may not perfectly align with Kotlin's naming conventions or expected formats.
@@ -765,6 +721,50 @@ When using a global naming strategy with [`JsonNamingStrategy`](https://kotlinla
   This can make tasks like **Find Usages**, **Rename** in IDEs, or full-text searches using tools like `grep`, more difficult, potentially increasing the risk of bugs and maintenance costs.
 
 Given these factors, consider the trade-offs carefully before implementing global naming strategies in your application.
+
+## Pretty printing
+
+By default, `Json` produces a compact, single-line output.
+
+You can add indentations and line breaks for better readability by enabling pretty printing in the output.
+To do so, set the [`prettyPrint`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/pretty-print.html) property to `true` in a `Json` instance:
+
+```kotlin
+// Imports declarations from the serialization library
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
+// Creates a custom Json format
+val format = Json { prettyPrint = true }
+
+@Serializable
+data class Project(val name: String, val language: String)
+
+fun main() {
+    val data = Project("kotlinx.serialization", "Kotlin")
+
+    // Prints the JSON output with line breaks and indentations
+    println(format.encodeToString(data))
+}
+//sampleEnd
+```
+{kotlin-runnable="true"}
+
+This example prints the following result:
+
+```text
+{
+    "name": "kotlinx.serialization",
+    "language": "Kotlin"
+}
+```
+
+> You can use the [`prettyPrintIndent`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/pretty-print-indent.html) option to customize the indentation used in pretty-printed JSON.
+>
+> For example, you can replace the default four spaces with any allowed whitespace characters, such as `\t` or `\n`.
+>
+{style="note"}
 
 ## What's next
 
