@@ -26,9 +26,13 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
 
 
     /**
-     * Registers the child serializers for the sealed [subclass] [serializer] in the resulting module under
+     * Registers the child serializers for the sealed  type [T] in the resulting module under
      * the [base class][Base]. Please note that type `T` has to be sealed and have a standard serializer, if not a runtime error will
-     * be thrown at registration time. This function is a convenience function for the version that
+     * be thrown at registration time. If one of [T]'s subclasses is a sealed serializable class on
+     * its own, its subclasses are registered recursively as well. If one of [T]'s subclasses is an
+     * open polymorphic class an [IllegalArgumentException] is thrown.
+     *
+     * This function is a convenience function for the version that
      * receives a serializer.
      *
      *
@@ -37,7 +41,7 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
      * interface Base
      *
      * @Serializable
-     * sealed interface Sub
+     * sealed interface Sub: Base
      *
      * @Serializable
      * class Sub1: Sub
@@ -55,15 +59,18 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
 
 
     /**
-     * Registers the subclasses of the given class as subclasses of the outer class. This currently
-     * requires `serializer` to be sealed. If not a runtime error will be thrown at registration time.
+     * Registers the child serializers for the sealed  type [T] in the resulting module under
+     * the [base class][Base]. Please note that type `T` has to be sealed and have a standard serializer, if not a runtime error will
+     * be thrown at registration time. If one of [T]'s subclasses is a sealed serializable class on
+     * its own, its subclasses are registered recursively as well. If one of [T]'s subclasses is an
+     * open polymorphic class an [IllegalArgumentException] is thrown.
      *
      * Example:
      * ```kotlin
      * interface Base
      *
      * @Serializable
-     * sealed interface Sub
+     * sealed interface Sub: Base
      *
      * @Serializable
      * class Sub1: Sub
@@ -195,5 +202,5 @@ public inline fun <Base : Any, reified T : Base> PolymorphicModuleBuilder<Base>.
  * Registers the child serializers for the sealed class [T] in the resulting module under the [base class][Base].
  */
 @ExperimentalSerializationApi
-public inline fun <Base : Any, reified T : Base> PolymorphicModuleBuilder<Base>.subclassesOfSealed(clazz: KClass<T>): Unit =
-    subclassesOfSealed(clazz.serializer())
+public inline fun <Base : Any, reified T : Base> PolymorphicModuleBuilder<Base>.subclassesOfSealed(): Unit =
+    subclassesOfSealed(serializer<T>())

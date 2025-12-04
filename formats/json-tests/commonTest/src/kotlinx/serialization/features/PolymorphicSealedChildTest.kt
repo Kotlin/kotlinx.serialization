@@ -75,20 +75,10 @@ class PolymorphicSealedChildTest {
                 serializersModule = SerializersModule {
                     polymorphic(FooBase::class) {
                         subclassesOfSealed<FooOpen>()
-                        fail("This code should be unreachable as the previous operation fails")
-                        subclass(FooOpen.BazChild1::class)
-                        subclass(FooOpen.BazChild2::class)
                     }
                 }
             }
 
-            fail("Unreachable code that would represent the usage if valid (which is isn't per policy)")
-            assertStringFormAndRestored(
-                """{"someMetadata":43,"payload":[{"type":"BazOC1","baz":"aaa"}]}""",
-                FooHolder(43,listOf(FooOpen.BazChild1("aaa"))),
-                FooHolder.serializer(),
-                openJson
-            )
         }
         assertContains(assertNotNull(e.message), "FooOpen", )
         assertContains(assertNotNull(e.message), "incomplete hierarchy", )
