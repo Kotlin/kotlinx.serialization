@@ -9,7 +9,7 @@ With the `Json` class, you can:
 * Serialize Kotlin objects to JSON strings using the [`encodeToString()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/encode-to-string.html) function.
 * Deserialize JSON strings back to Kotlin objects with the [`decodeFromString()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/decode-from-string.html) function.
 * [Work directly with the `JsonElement`](serialization-json-elements.md) when handling complex JSON structures using the [`encodeToJsonElement()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/encode-to-json-element.html) and the [`decodeFromJsonElement()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/decode-from-json-element.html) functions.
-* Use extension functions to [serialize and deserialize I/O sources](serialization-json-io-sources.md) without creating intermediate strings, including JVM streams as well as [`kotlinx-io`](https://github.com/Kotlin/kotlinx-io) and [Okio](https://square.github.io/okio/) types.
+* Use [Experimental](components-stability.md#stability-levels-explained) extension functions to [serialize and deserialize I/O sources](serialization-json-io-sources.md) without creating intermediate strings, including JVM streams as well as [`kotlinx-io`](https://github.com/Kotlin/kotlinx-io) and [Okio](https://square.github.io/okio/) types.
 
 Before you start, import the following declarations from the serialization library:
 

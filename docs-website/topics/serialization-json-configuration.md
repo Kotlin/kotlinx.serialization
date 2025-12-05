@@ -331,9 +331,134 @@ fun main() {
 >
 {style="note"}
 
+### Pretty printing
+
+By default, `Json` produces a compact, single-line output.
+
+You can add indentations and line breaks for better readability by enabling pretty printing in the output.
+To do so, set the [`prettyPrint`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/pretty-print.html) property to `true` in a `Json` instance:
+
+```kotlin
+// Imports declarations from the serialization library
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
+// Creates a custom Json format
+val format = Json { prettyPrint = true }
+
+@Serializable
+data class Project(val name: String, val language: String)
+
+fun main() {
+    val data = Project("kotlinx.serialization", "Kotlin")
+
+    // Prints the JSON output with line breaks and indentations
+    println(format.encodeToString(data))
+}
+//sampleEnd
+```
+{kotlin-runnable="true"}
+
+This example prints the following result:
+
+```text
+{
+    "name": "kotlinx.serialization",
+    "language": "Kotlin"
+}
+```
+
+> You can use the [`prettyPrintIndent`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/pretty-print-indent.html) option to customize the indentation used in pretty-printed JSON.
+>
+> For example, you can replace the default four spaces with any allowed whitespace characters, such as `\t` or `\n`.
+>
+{style="note"}
+
 ## Customize JSON deserialization
 
 Kotlin's `Json` parser provides several settings that let you customize how JSON data is parsed and deserialized.
+
+### Ignore unknown keys
+
+When working with JSON data from third-party services or other dynamic sources, new properties may be added to the JSON objects over time.
+
+By default, unknown keys (the property names in the JSON input) result in an error during deserialization.
+To prevent this, set the [`ignoreUnknownKeys`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/ignore-unknown-keys.html) property
+to `true` in a `Json` instance:
+
+```kotlin
+// Imports declarations from the serialization library
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
+// Creates a Json instance to ignore unknown keys
+val format = Json { ignoreUnknownKeys = true }
+
+@Serializable
+data class Project(val name: String)
+
+fun main() {
+    val data = format.decodeFromString<Project>("""
+        {"name":"kotlinx.serialization","language":"Kotlin"}
+    """)
+    // The language key is ignored because it's not in the Project class
+    println(data)
+    // Project(name=kotlinx.serialization)
+}
+//sampleEnd
+```
+{kotlin-runnable="true"}
+
+#### Ignore unknown keys for specific classes
+<primary-label ref="experimental-general"/>
+
+> This feature is [Experimental](components-stability.md#stability-levels-explained). To opt in, use the `@OptIn(ExperimentalSerializationApi::class)` annotation or the compiler option `-opt-in=kotlinx.serialization.ExperimentalSerializationApi`.
+>
+{style="warning"}
+
+Instead of [enabling `ignoreUnknownKeys` for all classes](#ignore-unknown-keys),
+you can ignore unknown keys only for specific classes by annotating them with the `@JsonIgnoreUnknownKeys` annotation.
+This lets you keep strict deserialization by default while allowing leniency only where you need it.
+
+Here's an example:
+
+```kotlin
+// Imports declarations from the serialization library
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+//sampleStart
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+// Unknown properties in Outer are ignored during deserialization
+@JsonIgnoreUnknownKeys
+data class Outer(val a: Int, val inner: Inner)
+
+@Serializable
+data class Inner(val x: String)
+
+fun main() {
+    val outer = Json.decodeFromString<Outer>(
+        """{"a":1,"inner":{"x":"value"},"unknownKey":42}"""
+    )
+    println(outer)
+    // Outer(a=1, inner=Inner(x=value))
+
+    // Throws an exception
+    // unknownKey inside inner is NOT ignored because Inner is not annotated
+    println(
+        Json.decodeFromString<Outer>(
+            """{"a":1,"inner":{"x":"value","unknownKey":"unexpected"}}"""
+        )
+    )
+}
+//sampleEnd
+```
+{kotlin-runnable="true" min-compiler-version="2.2" validate="false"}
+
+In this example, `Inner` throws a `SerializationException` for unknown keys because it isn't annotated with `@JsonIgnoreUnknownKeys`.
 
 ### Coerce input values
 
@@ -415,43 +540,6 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-### Lenient parsing
-
-By default, the `Json` parser enforces strict JSON rules to ensure compliance with the [RFC-4627](https://www.ietf.org/rfc/rfc4627.txt) specification, 
-which requires keys and string literals to be quoted.
-
-To relax these restrictions, set the [`isLenient`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/is-lenient.html) property to `true` in a `Json` instance:
-
-```kotlin
-// Imports declarations from the serialization library
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
-
-//sampleStart
-val format = Json { isLenient = true }
-
-enum class Status { SUPPORTED }
-
-@Serializable
-data class Project(val name: String, val status: Status, val votes: Int)
-
-fun main() {
-    // Decodes a JSON string with lenient parsing
-    // Lenient parsing allows unquoted keys, string and enum values
-    val data = format.decodeFromString<Project>("""
-        {
-            name   : kotlinx.serialization,
-            status : SUPPORTED,
-            votes  : "9000"
-        }
-    """)
-    println(data)
-    // Project(name=kotlinx.serialization, status=SUPPORTED, votes=9000)
-}
-//sampleEnd
-```
-{kotlin-runnable="true"}
-
 ### Allow trailing commas
 
 To allow trailing commas in JSON input, set the [`allowTrailingComma`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/allow-trailing-comma.html) property to `true`:
@@ -515,13 +603,12 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-### Ignore unknown keys
+### Lenient parsing
 
-When working with JSON data from third-party services or other dynamic sources, new properties may be added to the JSON objects over time.
+By default, the `Json` parser enforces strict JSON rules to ensure compliance with the [RFC-4627](https://www.ietf.org/rfc/rfc4627.txt) specification, 
+which requires keys and string literals to be quoted.
 
-By default, unknown keys (the property names in the JSON input) result in an error during deserialization.
-To prevent this, set the [`ignoreUnknownKeys`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/ignore-unknown-keys.html) property
-to `true` in a `Json` instance:
+To relax these restrictions, set the [`isLenient`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/is-lenient.html) property to `true` in a `Json` instance:
 
 ```kotlin
 // Imports declarations from the serialization library
@@ -529,72 +616,29 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
 //sampleStart
-// Creates a Json instance to ignore unknown keys
-val format = Json { ignoreUnknownKeys = true }
+val format = Json { isLenient = true }
+
+enum class Status { SUPPORTED }
 
 @Serializable
-data class Project(val name: String)
+data class Project(val name: String, val status: Status, val votes: Int)
 
 fun main() {
+    // Decodes a JSON string with lenient parsing
+    // Lenient parsing allows unquoted keys, string and enum values
     val data = format.decodeFromString<Project>("""
-        {"name":"kotlinx.serialization","language":"Kotlin"}
+        {
+            name   : kotlinx.serialization,
+            status : SUPPORTED,
+            votes  : "9000"
+        }
     """)
-    // The language key is ignored because it's not in the Project class
     println(data)
-    // Project(name=kotlinx.serialization)
+    // Project(name=kotlinx.serialization, status=SUPPORTED, votes=9000)
 }
 //sampleEnd
 ```
 {kotlin-runnable="true"}
-
-#### Ignore unknown keys for specific classes
-<primary-label ref="experimental-general"/>
-
-> This feature is [Experimental](components-stability.md#stability-levels-explained). To opt in, use the `@OptIn(ExperimentalSerializationApi::class)` annotation or the compiler option `-opt-in=kotlinx.serialization.ExperimentalSerializationApi`.
-> 
-{style="warning"}
-
-Instead of [enabling `ignoreUnknownKeys` for all classes](#ignore-unknown-keys),
-you can ignore unknown keys only for specific classes by annotating them with the `@JsonIgnoreUnknownKeys` annotation.
-This lets you keep strict deserialization by default while allowing leniency only where you need it.
-
-Here's an example:
-
-```kotlin
-// Imports declarations from the serialization library
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
-
-//sampleStart
-@OptIn(ExperimentalSerializationApi::class)
-@Serializable
-// Unknown properties in Outer are ignored during deserialization
-@JsonIgnoreUnknownKeys
-data class Outer(val a: Int, val inner: Inner)
-
-@Serializable
-data class Inner(val x: String)
-
-fun main() {
-    val outer = Json.decodeFromString<Outer>(
-        """{"a":1,"inner":{"x":"value"},"unknownKey":42}"""
-    )
-    println(outer)
-    // Outer(a=1, inner=Inner(x=value))
-
-    // Throws an exception
-    // unknownKey inside inner is NOT ignored because Inner is not annotated
-    println(
-        Json.decodeFromString<Outer>(
-            """{"a":1,"inner":{"x":"value","unknownKey":"unexpected"}}"""
-        )
-    )
-}
-//sampleEnd
-```
-{kotlin-runnable="true" min-compiler-version="2.2" validate="false"}
-
-In this example, `Inner` throws a `SerializationException` for unknown keys because it isn't annotated with `@JsonIgnoreUnknownKeys`.
 
 ## Customize name mapping between JSON and Kotlin
 
@@ -721,50 +765,6 @@ When using a global naming strategy with [`JsonNamingStrategy`](https://kotlinla
   This can make tasks like **Find Usages**, **Rename** in IDEs, or full-text searches using tools like `grep`, more difficult, potentially increasing the risk of bugs and maintenance costs.
 
 Given these factors, consider the trade-offs carefully before implementing global naming strategies in your application.
-
-## Pretty printing
-
-By default, `Json` produces a compact, single-line output.
-
-You can add indentations and line breaks for better readability by enabling pretty printing in the output.
-To do so, set the [`prettyPrint`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/pretty-print.html) property to `true` in a `Json` instance:
-
-```kotlin
-// Imports declarations from the serialization library
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
-
-//sampleStart
-// Creates a custom Json format
-val format = Json { prettyPrint = true }
-
-@Serializable
-data class Project(val name: String, val language: String)
-
-fun main() {
-    val data = Project("kotlinx.serialization", "Kotlin")
-
-    // Prints the JSON output with line breaks and indentations
-    println(format.encodeToString(data))
-}
-//sampleEnd
-```
-{kotlin-runnable="true"}
-
-This example prints the following result:
-
-```text
-{
-    "name": "kotlinx.serialization",
-    "language": "Kotlin"
-}
-```
-
-> You can use the [`prettyPrintIndent`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/pretty-print-indent.html) option to customize the indentation used in pretty-printed JSON.
->
-> For example, you can replace the default four spaces with any allowed whitespace characters, such as `\t` or `\n`.
->
-{style="note"}
 
 ## What's next
 
