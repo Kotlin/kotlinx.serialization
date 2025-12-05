@@ -26,15 +26,13 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
 
 
     /**
-     * Registers the child serializers for the sealed  type [T] in the resulting module under
-     * the [base class][Base]. Please note that type `T` has to be sealed and have a standard serializer, if not a runtime error will
-     * be thrown at registration time. If one of [T]'s subclasses is a sealed serializable class on
-     * its own, its subclasses are registered recursively as well. If one of [T]'s subclasses is an
-     * open polymorphic class an [IllegalArgumentException] is thrown.
+     * Registers the child serializers for the sealed type [T] in the resulting module under the [base class][Base].
+     * Please note that type `T` has to be sealed and have a standard serializer, if not a runtime error will be
+     * thrown at registration time. If one of [T]'s subclasses is a sealed serializable class on its own, its
+     * subclasses are registered recursively as well. If one of [T]'s subclasses is an open polymorphic class
+     * an [IllegalArgumentException] is thrown.
      *
-     * This function is a convenience function for the version that
-     * receives a serializer.
-     *
+     * This function is a convenience function for the version that receives a serializer.
      *
      * Example:
      * ```
@@ -59,11 +57,11 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
 
 
     /**
-     * Registers the child serializers for the sealed  type [T] in the resulting module under
-     * the [base class][Base]. Please note that type `T` has to be sealed and have a standard serializer, if not a runtime error will
-     * be thrown at registration time. If one of [T]'s subclasses is a sealed serializable class on
-     * its own, its subclasses are registered recursively as well. If one of [T]'s subclasses is an
-     * open polymorphic class an [IllegalArgumentException] is thrown.
+     * Registers the child serializers for the sealed  type [T] in the resulting module under the [base class][Base].
+     * Please note that type `T` has to be sealed and have a standard serializer, if not a runtime error will be
+     * thrown at registration time. If one of [T]'s subclasses is a sealed serializable class on its own, its
+     * subclasses are registered recursively as well. If one of [T]'s subclasses is an open polymorphic class
+     * an [IllegalArgumentException] is thrown.
      *
      * Example:
      * ```kotlin
