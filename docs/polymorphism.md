@@ -417,10 +417,11 @@ fun main() {
 
 ### Registering sealed children as subclasses
 A sealed parent interface or class can be used to directly register all its children using `subclassesOfSealed`.
-This will expose all children that would be available when serializing the parent directly, but now as sealed. Please
-note that this is will remain open serialization, and the sealed parent serializer will not be used in serialization.
-In addition, it is not valid if the hierarchy contains open (not sealed) polymorphic children (this will result in
-an error at runtime). In other words all children/descendants must be either concrete or sealed.
+This will allow serializing the children using open polymorphism without the need to register each one individually. 
+
+If one of the type's subclasses is a sealed serializable class on its own, its subclasses are registered recursively
+as well. However, if one of the type's subclasses is an open polymorphic class, an [IllegalArgumentException] is thrown.
+In other words, all children/descendants must be either concrete or sealed.
 
 <!--- TEST -->
 
