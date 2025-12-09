@@ -420,7 +420,7 @@ A sealed parent interface or class can be used to directly register all its chil
 This will allow serializing the children using open polymorphism without the need to register each one individually. 
 
 If one of the type's subclasses is a sealed serializable class on its own, its subclasses are registered recursively
-as well. However, if one of the type's subclasses is an open polymorphic class, an [IllegalArgumentException] is thrown.
+as well. However, if one of the type's subclasses is an open polymorphic class, an `IllegalArgumentException` is thrown.
 In other words, all children/descendants must be either concrete or sealed.
 
 <!--- TEST -->
