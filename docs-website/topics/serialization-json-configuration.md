@@ -42,7 +42,7 @@ This allows you to control which values appear in the output and how specific ty
 
 By default, the JSON encoder omits default property values because they are automatically applied to missing properties during decoding.
 This behavior is especially useful for nullable properties with null defaults, as it avoids writing unnecessary `null` values.
-For more details, see the [Manage serialization of default properties](serialization-customization-options.md#manage-the-serialization-of-default-properties-with-encodeddefault) section.
+For more details, see the [Manage serialization of default properties](serialization-customization-options.md#manage-the-serialization-of-default-properties-with-encodedefault) section.
 
 To change this default behavior, set the [`encodeDefaults`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/encode-defaults.html) property to `true` in a `Json` instance:
 
@@ -605,7 +605,7 @@ fun main() {
 
 ### Lenient parsing
 
-By default, the `Json` parser enforces strict JSON rules to ensure compliance with the [RFC-4627](https://www.ietf.org/rfc/rfc4627.txt) specification, 
+By default, the `Json` parser enforces strict JSON rules to ensure compliance with the [RFC-8259](https://www.ietf.org/rfc/rfc8259.txt) specification,
 which requires keys and string literals to be quoted.
 
 To relax these restrictions, set the [`isLenient`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/is-lenient.html) property to `true` in a `Json` instance:

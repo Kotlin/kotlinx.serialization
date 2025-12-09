@@ -3,6 +3,7 @@
 
 The Kotlin serialization library provides APIs for working with JVM streams and [`kotlinx-io`](https://github.com/Kotlin/kotlinx-io) or [Okio](https://square.github.io/okio/) sources and sinks.
 You can use these APIs to serialize and deserialize JSON directly from I/O sources without creating intermediate strings.
+These APIs use UTF-8 encoding and throw `SerializationException` for invalid JSON data and `IOException` for I/O failures.
 
 > When working with I/O resources, it's important to close them properly to prevent resource leaks.  
 > You can do this with the `.use()` function, which closes the resource automatically when the operation completes.
@@ -64,7 +65,7 @@ fun main() {
 
 In this example, the JSON contents of the input stream are deserialized into a single `Project` instance.
 
-If your input contains multiple JSON objects in a top-level JSON array, you can use [`.decodeToSequence()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/decode-to-sequence.html) to process the elements lazily.
+If your input contains multiple JSON objects in a top-level JSON array or as whitespace-separated objects, you can use [`.decodeToSequence()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/decode-to-sequence.html) to process the elements lazily.
 This lets you handle each value as it is parsed.
 
 Here's an example:
@@ -96,24 +97,74 @@ fun main() {
 > You can iterate through sequences returned by `.decodeToSequence()` only once
 > because they are tied to the underlying stream.
 > 
+> Closing the stream before the sequence is fully evaluated causes an `IOException`.
+> 
 {style="note"}
 
 ## JSON serialization with kotlinx-io and Okio
 
-In addition to JVM streams, you can work with JSON using I/O types, such as `Source` and `Sink` from [`kotlinx-io`](https://github.com/Kotlin/kotlinx-io), and `BufferedSource`
-and `BufferedSink` from [Okio](https://square.github.io/okio/).
+In addition to JVM streams, you can work with JSON using I/O types, such as `kotlinx.io.Sink` and `kotlinx.io.Source` from [`kotlinx-io`](https://github.com/Kotlin/kotlinx-io) (currently in [Alpha](components-stability.md#stability-levels-explained)), and `okio.BufferedSink`
+and `okio.BufferedSource` from [Okio](https://square.github.io/okio/).
 
 You can use the following `Json` extension functions to read and write JSON directly through these I/O types:
 
-* [`.encodeToSink()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json-io/kotlinx.serialization.json.io/encode-to-sink.html) and [`.encodeToBufferedSink()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json-okio/kotlinx.serialization.json.okio/encode-to-buffered-sink.html) to write JSON to a `Sink` or `BufferedSink`.
-* [`.decodeFromSource()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json-io/kotlinx.serialization.json.io/decode-from-source.html) and [`.decodeFromBufferedSource()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json-okio/kotlinx.serialization.json.okio/decode-from-buffered-source.html) to read a single JSON value from a `Source` or `BufferedSource`.
+* [`.encodeToSink()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json-io/kotlinx.serialization.json.io/encode-to-sink.html) and [`.encodeToBufferedSink()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json-okio/kotlinx.serialization.json.okio/encode-to-buffered-sink.html) to write JSON to a `kotlinx.io.Sink` or `okio.BufferedSink`.
+* [`.decodeFromSource()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json-io/kotlinx.serialization.json.io/decode-from-source.html) and [`.decodeFromBufferedSource()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json-okio/kotlinx.serialization.json.okio/decode-from-buffered-source.html) to read a single JSON value from a `kotlinx.io.Source` or `okio.BufferedSource`.
 * [`.decodeSourceToSequence()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json-io/kotlinx.serialization.json.io/decode-source-to-sequence.html) and [`.decodeBufferedSourceToSequence()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json-okio/kotlinx.serialization.json.okio/decode-buffered-source-to-sequence.html) to lazily decode multiple JSON values as a `Sequence<T>`.
 
-> The JSON I/O extension functions use UTF-8 encoding and throw `SerializationException` for invalid JSON data and `IOException` for I/O failures.
-> 
-{style="tip"}
+The next sections cover examples using `kotlinx-io` types with these APIs.  
+You can use Okio types similarly with their corresponding `okio.BufferedSink` and `okio.BufferedSource`.
 
-To use these extension functions with `kotlinx-io` or Okio types, add the following dependencies to your project:
+### Add dependencies for kotlinx-io and Okio
+
+To use the extension functions with `kotlinx-io` or Okio types, add the dependencies you need.
+
+#### Add dependencies for `kotlinx-io` {initial-collapse-state="collapsed" collapsible="true"}
+
+<tabs>
+<tab id="kotlin-io" title="Gradle Kotlin">
+
+```kotlin
+// build.gradle.kts
+dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-io:%serializationVersion%")
+    implementation("org.jetbrains.kotlinx:kotlinx-io-core:%kotlinxIoVersion%")
+}
+```
+
+</tab>
+<tab id="groovy-io" title="Gradle Groovy">
+
+```groovy
+// build.gradle
+dependencies {
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json-io:%serializationVersion%"
+    implementation "org.jetbrains.kotlinx:kotlinx-io-core:%kotlinxIoVersion%"
+}
+```
+
+</tab>
+<tab id="maven-io" title="Maven">
+
+```xml
+<!-- pom.xml -->
+<dependencies>
+    <dependency>
+        <groupId>org.jetbrains.kotlinx</groupId>
+        <artifactId>kotlinx-serialization-json-io</artifactId>
+        <version>%serializationVersion%</version>
+    </dependency>
+    <dependency>
+        <groupId>org.jetbrains.kotlinx</groupId>
+        <artifactId>kotlinx-io-core</artifactId>
+        <version>%kotlinxIoVersion%</version>
+    </dependency>
+</dependencies>
+```
+</tab>
+</tabs>
+
+#### Add dependencies for Okio {initial-collapse-state="collapsed" collapsible="true"}
 
 <tabs>
 <tab id="kotlin" title="Gradle Kotlin">
@@ -121,13 +172,9 @@ To use these extension functions with `kotlinx-io` or Okio types, add the follow
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-io:%serializationVersion%")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-okio:%serializationVersion%")
-
-    implementation("org.jetbrains.kotlinx:kotlinx-io-core:%kotlinxIoVersion%")
     implementation("com.squareup.okio:okio:%okioVersion%")
 }
-
 ```
 
 </tab>
@@ -136,10 +183,7 @@ dependencies {
 ```groovy
 // build.gradle
 dependencies {
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json-io:%serializationVersion%"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json-okio:%serializationVersion%"
-
-    implementation "org.jetbrains.kotlinx:kotlinx-io-core:%kotlinxIoVersion%"
     implementation "com.squareup.okio:okio:%okioVersion%"
 }
 ```
@@ -152,18 +196,8 @@ dependencies {
 <dependencies>
     <dependency>
         <groupId>org.jetbrains.kotlinx</groupId>
-        <artifactId>kotlinx-serialization-json-io</artifactId>
-        <version>%serializationVersion%</version>
-    </dependency>
-    <dependency>
-        <groupId>org.jetbrains.kotlinx</groupId>
         <artifactId>kotlinx-serialization-json-okio</artifactId>
         <version>%serializationVersion%</version>
-    </dependency>
-    <dependency>
-        <groupId>org.jetbrains.kotlinx</groupId>
-        <artifactId>kotlinx-io-core</artifactId>
-        <version>%kotlinxIoVersion%</version>
     </dependency>
     <dependency>
         <groupId>com.squareup.okio</groupId>
@@ -174,10 +208,6 @@ dependencies {
 ```
 </tab>
 </tabs>
-
-The next sections cover examples using `kotlinx-io` types with these APIs.  
-You can use Okio types similarly with their corresponding `BufferedSource` and `BufferedSink`.
-
 
 ### Serialize JSON to Sinks
 
@@ -277,4 +307,47 @@ fun main() {
 > You can iterate through sequences returned by `.decodeSourceToSequence()` only once
 > because they are tied to the underlying `Source`.
 > 
+> Closing the stream before the sequence is fully evaluated causes an `IOException`.
+> 
 {style="note"}
+
+## Okio
+
+```kotlin
+// Imports declarations from the serialization library
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+// Imports declarations for Okio types and JSON Okio support
+import kotlinx.serialization.json.okio.*
+import okio.BufferedSource
+import okio.FileSystem
+import okio.Path.Companion.toPath
+import okio.buffer
+
+
+@Serializable
+data class Project(val name: String, val stars: Int)
+
+@OptIn(ExperimentalSerializationApi::class)
+fun main() {
+    // Opens a BufferedSource for the "projects.json" file containing multiple JSON objects
+    val path = "projects.json".toPath()
+    FileSystem.SYSTEM.source(path).buffer().use { source: BufferedSource ->
+
+        // Lazily deserializes each Project as it is read from the BufferedSource
+        val projects: Sequence<Project> = Json.decodeBufferedSourceToSequence(source)
+
+        for (project in projects) {
+            println(project)
+        }
+    }
+}
+
+```
+
+
+## What's next
+
+* Explore [advanced JSON element handling](serialization-json-elements.md) to manipulate and work with JSON data before it's parsed or serialized.
+* Discover how to [transform JSON during serialization and deserialization](serialization-transform-json.md) for more control over your data.
