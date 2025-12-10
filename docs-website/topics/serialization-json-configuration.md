@@ -155,7 +155,7 @@ fun main() {
 ### Allow special floating-point values
 
 By default, special floating-point values like [`Double.NaN`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-double/-na-n.html)
-and infinities aren't supported in JSON because the JSON specification prohibits them.
+and infinities aren't supported in JSON because the [JSON specification](https://datatracker.ietf.org/doc/html/rfc8259#section-6) prohibits them.
 
 To enable their encoding and decoding, set the [`allowSpecialFloatingPointValues`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/allow-special-floating-point-values.html) property to `true` in a `Json` instance:
 

@@ -97,7 +97,7 @@ fun main() {
 > You can iterate through sequences returned by `.decodeToSequence()` only once
 > because they are tied to the underlying stream.
 > 
-> Closing the stream before the sequence is fully evaluated causes an `IOException`.
+> Accessing a sequence may result in an exception if its underlying stream is closed before the sequence is completely evaluated.
 > 
 {style="note"}
 
@@ -307,47 +307,12 @@ fun main() {
 > You can iterate through sequences returned by `.decodeSourceToSequence()` only once
 > because they are tied to the underlying `Source`.
 > 
-> Closing the stream before the sequence is fully evaluated causes an `IOException`.
+> Accessing a sequence may result in an exception if its underlying source is closed before the sequence is completely evaluated.
 > 
 {style="note"}
 
-## Okio
-
-```kotlin
-// Imports declarations from the serialization library
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
-
-// Imports declarations for Okio types and JSON Okio support
-import kotlinx.serialization.json.okio.*
-import okio.BufferedSource
-import okio.FileSystem
-import okio.Path.Companion.toPath
-import okio.buffer
-
-
-@Serializable
-data class Project(val name: String, val stars: Int)
-
-@OptIn(ExperimentalSerializationApi::class)
-fun main() {
-    // Opens a BufferedSource for the "projects.json" file containing multiple JSON objects
-    val path = "projects.json".toPath()
-    FileSystem.SYSTEM.source(path).buffer().use { source: BufferedSource ->
-
-        // Lazily deserializes each Project as it is read from the BufferedSource
-        val projects: Sequence<Project> = Json.decodeBufferedSourceToSequence(source)
-
-        for (project in projects) {
-            println(project)
-        }
-    }
-}
-
-```
-
-
 ## What's next
 
+* Learn how to [customize Json instances](serialization-json-configuration.md) to address different use cases for serialization and deserialization.
 * Explore [advanced JSON element handling](serialization-json-elements.md) to manipulate and work with JSON data before it's parsed or serialized.
 * Discover how to [transform JSON during serialization and deserialization](serialization-transform-json.md) for more control over your data.
