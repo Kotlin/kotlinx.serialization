@@ -205,6 +205,7 @@ class PackedArraySerializerTest {
         assertEquals(expectedByteCarrier, decodedBytes)
         assertEquals(expectedIntCarrier, decodedInts)
     }
+
     @Test
     fun testEncodePackedUnsigned() {
         val byteCarrier = PackedUByteCarrier(ubyteArrayOf(1.toUByte(), 2.toUByte(), 128.toUByte()))

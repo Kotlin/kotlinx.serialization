@@ -68,11 +68,11 @@ internal val ProtoDesc.integerType: ProtoIntegerType
 }
 
 internal val SerialDescriptor.isPackable: Boolean
-    get() = when (kind) {
-        PrimitiveKind.STRING,
-        !is PrimitiveKind -> false
-        else -> true
-    } || isInline && elementsCount == 1 && getElementDescriptor(0).isPackable
+    get() = when {
+        isInline -> elementsCount == 1 && getElementDescriptor(0).isPackable
+        kind is PrimitiveKind -> kind != PrimitiveKind.STRING
+        else -> false
+    }
 
 internal val ProtoDesc.isPacked: Boolean
     get() = (this and PACKEDMASK) != 0L
