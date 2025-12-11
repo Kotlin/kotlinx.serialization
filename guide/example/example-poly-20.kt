@@ -4,71 +4,34 @@ package example.examplePoly20
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-import kotlinx.serialization.descriptors.*
-import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 
-interface Animal {
+@Serializable
+abstract class Project {
+    abstract val name: String
 }
 
-interface Cat : Animal {
-    val catType: String
-}
+@Serializable
+data class BasicProject(override val name: String, val type: String): Project()
 
-interface Dog : Animal {
-    val dogType: String
-}
-
-private class CatImpl : Cat {
-    override val catType: String = "Tabby"
-}
-
-private class DogImpl : Dog {
-    override val dogType: String = "Husky"
-}
-
-object AnimalProvider {
-    fun createCat(): Cat = CatImpl()
-    fun createDog(): Dog = DogImpl()
-}
+@Serializable
+@SerialName("OwnedProject")
+data class OwnedProject(override val name: String, val owner: String) : Project()
 
 val module = SerializersModule {
-    polymorphicDefaultSerializer(Animal::class) { instance ->
-        @Suppress("UNCHECKED_CAST")
-        when (instance) {
-            is Cat -> CatSerializer as SerializationStrategy<Animal>
-            is Dog -> DogSerializer as SerializationStrategy<Animal>
-            else -> null
-        }
+    polymorphic(Project::class) {
+        subclass(OwnedProject::class)
+        defaultDeserializer { BasicProject.serializer() }
     }
-}
-
-object CatSerializer : SerializationStrategy<Cat> {
-    override val descriptor = buildClassSerialDescriptor("Cat") {
-        element<String>("catType")
-    }
-  
-    override fun serialize(encoder: Encoder, value: Cat) {
-        encoder.encodeStructure(descriptor) {
-          encodeStringElement(descriptor, 0, value.catType)
-        }
-    }
-}
-
-object DogSerializer : SerializationStrategy<Dog> {
-  override val descriptor = buildClassSerialDescriptor("Dog") {
-    element<String>("dogType")
-  }
-
-  override fun serialize(encoder: Encoder, value: Dog) {
-    encoder.encodeStructure(descriptor) {
-      encodeStringElement(descriptor, 0, value.dogType)
-    }
-  }
 }
 
 val format = Json { serializersModule = module }
 
 fun main() {
-    println(format.encodeToString<Animal>(AnimalProvider.createCat()))
+    println(format.decodeFromString<List<Project>>("""
+        [
+            {"type":"unknown","name":"example"},
+            {"type":"OwnedProject","name":"kotlinx.serialization","owner":"kotlin"} 
+        ]
+    """))
 }
