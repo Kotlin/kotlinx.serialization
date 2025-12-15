@@ -21,6 +21,10 @@ open annotation class kotlinx.serialization.cbor/CborLabel : kotlin/Annotation {
         final fun <get-label>(): kotlin/Long // kotlinx.serialization.cbor/CborLabel.label.<get-label>|<get-label>(){}[0]
 }
 
+open annotation class kotlinx.serialization.cbor/CborNullAsEmptyMap : kotlin/Annotation { // kotlinx.serialization.cbor/CborNullAsEmptyMap|null[0]
+    constructor <init>() // kotlinx.serialization.cbor/CborNullAsEmptyMap.<init>|<init>(){}[0]
+}
+
 open annotation class kotlinx.serialization.cbor/KeyTags : kotlin/Annotation { // kotlinx.serialization.cbor/KeyTags|null[0]
     constructor <init>(kotlin/ULongArray...) // kotlinx.serialization.cbor/KeyTags.<init>|<init>(kotlin.ULongArray...){}[0]
 

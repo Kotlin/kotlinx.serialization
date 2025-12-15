@@ -36,7 +36,7 @@ internal sealed class CborWriter(
         getDestination().encodeUndefined()
     }
 
-    protected var isClass = false
+    protected var encodeNullAsEmptyMap = false
 
     protected var encodeByteArrayAsByteString = false
 
@@ -112,7 +112,7 @@ internal sealed class CborWriter(
 
 
     override fun encodeNull() {
-        if (isClass) getDestination().encodeEmptyMap()
+        if (encodeNullAsEmptyMap) getDestination().encodeEmptyMap()
         else getDestination().encodeNull()
     }
 
@@ -126,7 +126,7 @@ internal sealed class CborWriter(
 
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
         val destination = getDestination()
-        isClass = descriptor.getElementDescriptor(index).kind == StructureKind.CLASS
+        encodeNullAsEmptyMap = descriptor.getElementAnnotations(index).find { it is CborNullAsEmptyMap } != null
         encodeByteArrayAsByteString = descriptor.isByteString(index)
 
         val name = descriptor.getElementName(index)
@@ -294,10 +294,7 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
 
 
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
-        // this mirrors the special encoding of nullable classes that are null into am empty map.
-        // THIS IS NOT CBOR-COMPLiANT
-        // but keeps backwards compatibility with the way kotlinx.serialization CBOR format has always worked.
-        isClass = descriptor.getElementDescriptor(index).kind == StructureKind.CLASS
+        encodeNullAsEmptyMap = descriptor.getElementAnnotations(index).find { it is CborNullAsEmptyMap } != null
 
         encodeByteArrayAsByteString = descriptor.isByteString(index)
         //TODO check if cborelement and be done
@@ -384,8 +381,7 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
     }
 
     override fun encodeNull() {
-        /*NOT CBOR-COMPLIANT, KxS-proprietary behaviour*/
-        currentElement += if (isClass) CborMap(
+        currentElement += if (encodeNullAsEmptyMap) CborMap(
             mapOf(),
             tags = nextValueTags
         )

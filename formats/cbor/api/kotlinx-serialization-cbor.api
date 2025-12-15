@@ -27,6 +27,13 @@ public final synthetic class kotlinx/serialization/cbor/CborArray$Impl : kotlinx
 	public fun <init> ()V
 }
 
+public abstract interface annotation class kotlinx/serialization/cbor/CborNullAsEmptyMap : java/lang/annotation/Annotation {
+}
+
+public final synthetic class kotlinx/serialization/cbor/CborNullAsEmptyMap$Impl : kotlinx/serialization/cbor/CborNullAsEmptyMap {
+	public fun <init> ()V
+}
+
 public final class kotlinx/serialization/cbor/CborBoolean : kotlinx/serialization/cbor/CborPrimitive {
 	public static final field Companion Lkotlinx/serialization/cbor/CborBoolean$Companion;
 	public synthetic fun <init> (Z[JLkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -352,4 +359,3 @@ public final synthetic class kotlinx/serialization/cbor/ValueTags$Impl : kotlinx
 	public synthetic fun <init> ([JLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final synthetic fun tags ()[J
 }
-

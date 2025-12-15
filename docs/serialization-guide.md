@@ -154,6 +154,7 @@ Once the project is set up, we can start serializing some classes.
   * <a name='definite-vs-indefinite-length-encoding'></a>[Definite vs. Indefinite Length Encoding](formats.md#definite-vs-indefinite-length-encoding)
   * <a name='tags-and-labels'></a>[Tags and Labels](formats.md#tags-and-labels)
   * <a name='arrays'></a>[Arrays](formats.md#arrays)
+  * <a name='nullability-of-properties'></a>[Nullability of Properties](formats.md#nullability-of-properties)
   * <a name='custom-cbor-specific-serializers'></a>[Custom CBOR-specific Serializers](formats.md#custom-cbor-specific-serializers)
   * <a name='cbor-elements'></a>[CBOR Elements](formats.md#cbor-elements)
     * <a name='encoding-fromto-cborelement'></a>[Encoding from/to `CborElement`](formats.md#encoding-fromto-cborelement)

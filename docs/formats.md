@@ -16,6 +16,7 @@ stable, these are currently experimental features of Kotlin Serialization.
   * [Definite vs. Indefinite Length Encoding](#definite-vs-indefinite-length-encoding)
   * [Tags and Labels](#tags-and-labels)
   * [Arrays](#arrays)
+  * [Nullability of Properties](#nullability-of-properties)
   * [Custom CBOR-specific Serializers](#custom-cbor-specific-serializers)
   * [CBOR Elements](#cbor-elements)
     * [Encoding from/to `CborElement`](#encoding-fromto-cborelement)
@@ -312,6 +313,11 @@ When annotated with `@CborArray`, serialization of the same object will produce 
    F6 # primitive(22)
 ```
 This may be used to encode COSE structures, see [RFC 9052 2. Basic COSE Structure](https://www.rfc-editor.org/rfc/rfc9052#section-2).
+
+### Nullability of Properties
+Some standards, like COSE, tend to encode the absence of a complex property as an empty map (because the complex property itself
+consists only of nullable properties). This cannot be modelled elegantly, such that the null-safety of Kotlin can be leveraged.
+To work around this, complex nullable properties can be annotated with [`@CborNullAsEmptyMap`](CborNullAsEmptyMap.kt), to emulate this behaviour.
 
 ### Custom CBOR-specific Serializers
 Cbor encoders and decoders implement the interfaces [CborEncoder](CborEncoder.kt) and [CborDecoder](CborDecoder.kt), respectively.
