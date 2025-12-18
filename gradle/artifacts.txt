@@ -112,6 +112,7 @@ kotlinx-serialization-json-okio-wasm-js
 kotlinx-serialization-json-okio-wasm-wasi
 kotlinx-serialization-json-okio-watchosarm32
 kotlinx-serialization-json-okio-watchosarm64
+kotlinx-serialization-json-okio-watchosdevicearm64
 kotlinx-serialization-json-okio-watchossimulatorarm64
 kotlinx-serialization-json-okio-watchosx64
 kotlinx-serialization-json-tvosarm64
