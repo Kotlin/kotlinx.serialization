@@ -42,7 +42,8 @@ public sealed class Cbor(
                 verifyObjectTags = false,
                 useDefiniteLengthEncoding = false,
                 preferCborLabelsOverNames = false,
-                alwaysUseByteString = false
+                alwaysUseByteString = false,
+                treatNullComplexObjectsAsNull = false,
             ), EmptySerializersModule()
         ) {
 
@@ -64,6 +65,7 @@ public sealed class Cbor(
                 useDefiniteLengthEncoding = true
                 preferCborLabelsOverNames = true
                 alwaysUseByteString = false
+                treatNullComplexObjectsAsNull = false
                 serializersModule = EmptySerializersModule()
             }
     }
@@ -85,7 +87,7 @@ public sealed class Cbor(
 
     override fun <T> decodeFromByteArray(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T {
         val stream = ByteArrayInput(bytes)
-        val reader = CborReader(this, CborParser(stream, configuration.verifyObjectTags))
+        val reader = CborReader(this, CborParser(stream, configuration))
         return reader.decodeSerializableValue(deserializer)
     }
 }
@@ -119,7 +121,8 @@ public fun Cbor(from: Cbor = Cbor, builderAction: CborBuilder.() -> Unit): Cbor 
         builder.verifyObjectTags,
         builder.useDefiniteLengthEncoding,
         builder.preferCborLabelsOverNames,
-        builder.alwaysUseByteString),
+        builder.alwaysUseByteString,
+        builder.treatNullComplexObjectsAsNull),
         builder.serializersModule
     )
 }
@@ -242,6 +245,16 @@ public class CborBuilder internal constructor(cbor: Cbor) {
      * to annotate every `ByteArray` in a class hierarchy.
      */
     public var alwaysUseByteString: Boolean = cbor.configuration.alwaysUseByteString
+
+    /**
+     * Specifies the encoding of null instances of complex types when serializing or deserializing.
+     * By default, null instances of complex types are encoded as an empty map (i.e. major type 5 with zero elements, 0xA0) and
+     * all complex types being deserialized will be set to null when null or an empty map is found.
+     * The [treatNullComplexObjectsAsNull] configuration switch can be used to force only null values be used instead
+     * (i.e major type 7, value 22, 0xF6).
+     * See [RFC 8949 Table 3](https://datatracker.ietf.org/doc/html/rfc8949#table-3)
+     */
+    public var treatNullComplexObjectsAsNull: Boolean = cbor.configuration.treatNullComplexObjectsAsNull
 
     /**
      * Module with contextual and polymorphic serializers to be used in the resulting [Cbor] instance.

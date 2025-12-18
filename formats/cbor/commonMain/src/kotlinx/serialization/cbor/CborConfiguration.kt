@@ -89,6 +89,12 @@ import kotlinx.serialization.*
  * basis. The [alwaysUseByteString] configuration switch allows for globally preferring **major type 2** without needing
  * to annotate every `ByteArray` in a class hierarchy.
  *
+ * @param treatNullComplexObjectsAsNull Specifies the encoding of null instances of complex types when serializing or deserializing.
+ * By default, null instances of complex types are encoded as an empty map (i.e. major type 5 with zero elements, 0xA0) and
+ * all complex types being deserialized will be set to null when null or an empty map is found.
+ * The [treatNullComplexObjectsAsNull] configuration switch can be used to force only null values be used instead
+ * (i.e major type 7, value 22, 0xF6).
+ * See [RFC 8949 Table 3](https://datatracker.ietf.org/doc/html/rfc8949#table-3)
  */
 @ExperimentalSerializationApi
 public class CborConfiguration internal constructor(
@@ -103,12 +109,14 @@ public class CborConfiguration internal constructor(
     public val useDefiniteLengthEncoding: Boolean,
     public val preferCborLabelsOverNames: Boolean,
     public val alwaysUseByteString: Boolean,
+    public val treatNullComplexObjectsAsNull: Boolean,
 ) {
     override fun toString(): String {
         return "CborConfiguration(encodeDefaults=$encodeDefaults, ignoreUnknownKeys=$ignoreUnknownKeys, " +
             "encodeKeyTags=$encodeKeyTags, encodeValueTags=$encodeValueTags, encodeObjectTags=$encodeObjectTags, " +
             "verifyKeyTags=$verifyKeyTags, verifyValueTags=$verifyValueTags, verifyObjectTags=$verifyObjectTags, " +
             "useDefiniteLengthEncoding=$useDefiniteLengthEncoding, " +
-            "preferCborLabelsOverNames=$preferCborLabelsOverNames, alwaysUseByteString=$alwaysUseByteString)"
+            "preferCborLabelsOverNames=$preferCborLabelsOverNames, alwaysUseByteString=$alwaysUseByteString, " +
+            "treatNullComplexObjectsAsNull=$treatNullComplexObjectsAsNull)"
     }
 }
