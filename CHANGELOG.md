@@ -54,7 +54,7 @@ Previously, it was possible in the sealed hierarchies alone due to missing asser
 ## Bugfixes
 
   * Fix the type in the `BIGNUM_NEGATIVE` tag name. (#3090)
-  * CBOR: Fix various bugs in the decoder implementation to be more strict and consistent.
+  * CBOR: Fix various bugs in the decoder implementation to be more strict and consistent with the specification.
 
 1.9.0 / 2025-06-27
 ==================
