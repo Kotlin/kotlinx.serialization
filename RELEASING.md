@@ -33,13 +33,13 @@ If review is not required, commit directly to `dev`.
 
 1. On [TeamCity integration server](https://teamcity.jetbrains.com/project.html?projectId=KotlinTools_KotlinxSerialization&tab=projectOverview):
    * Wait until "Runtime library (Build – Aggregated)" configuration for committed `dev` branch passes tests.
-   * Run "Runtime library (Deploy - Train)" configuration:
+   * Run "Runtime library (Deployment / Deploy [RUN THIS ONE])" configuration:
      * On 'Changes' tab, select `dev` branch and corresponding commit.
      * On 'Parameters' tab, find 'Deploy version' and fill in with `<version>`.
 
-4. !Temporary! Ask the owner of Maven Central access credentials to publish artifacts on Maven Central.
+4. Ask the owner of Maven Central access credentials to publish artifacts on [Maven Central Portal](https://central.sonatype.com/publishing/deployments).
    
-5. Set a new value for [`KOTLINX_SERIALIZATION_RELEASE_TAG`](https://github.com/JetBrains/kotlin-web-site/blob/master/.teamcity/BuildParams.kt),
+5. Set a new value for [`KOTLINX_SERIALIZATION_RELEASE_LABEL`](https://github.com/JetBrains/kotlin-web-site/blob/master/.teamcity/BuildParams.kt),
    creating a pull request in the website's repository. To find out why it is needed, [read this](#kotlinxserializationreleasetag).
 
 6. Create a new release in [Github releases](https://github.com/Kotlin/kotlinx.serialization/releases). Use created git tag for title and changelog message for body.
