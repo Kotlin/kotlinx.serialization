@@ -2,13 +2,12 @@
 <primary-label ref="experimental-general"/>
 
 The Kotlin serialization library provides APIs for working with JVM streams and [`kotlinx-io`](https://github.com/Kotlin/kotlinx-io) or [Okio](https://square.github.io/okio/) sources and sinks.
+
 You can use these APIs to serialize and deserialize JSON directly from I/O sources without creating intermediate strings.
 These APIs use UTF-8 encoding and throw `SerializationException` for invalid JSON data and `IOException` for I/O failures.
 
-> When working with I/O resources, it's important to close them properly to prevent resource leaks.  
-> You can do this with the `.use()` function, which closes the resource automatically when the operation completes.
->
-{style="note"}
+When working with I/O resources, it's important to close them properly to prevent resource leaks.
+You can do this with the `.use()` function, which closes the resource automatically when the operation completes.
 
 ## Serialize JSON to JVM output streams
 
@@ -66,9 +65,7 @@ fun main() {
 In this example, the JSON contents of the input stream are deserialized into a single `Project` instance.
 
 If your input contains multiple JSON objects in a top-level JSON array or as whitespace-separated objects, you can use [`.decodeToSequence()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/decode-to-sequence.html) to process the elements lazily.
-This lets you handle each value as it is parsed.
-
-Here's an example:
+This lets you handle each value as it is parsed, for example:
 
 ```kotlin
 // Imports declarations from the serialization library
@@ -103,8 +100,8 @@ fun main() {
 
 ## JSON serialization with kotlinx-io and Okio
 
-In addition to JVM streams, you can work with JSON using I/O types, such as `kotlinx.io.Sink` and `kotlinx.io.Source` from [`kotlinx-io`](https://github.com/Kotlin/kotlinx-io) (currently in [Alpha](components-stability.md#stability-levels-explained)), and `okio.BufferedSink`
-and `okio.BufferedSource` from [Okio](https://square.github.io/okio/).
+In addition to JVM streams, you can work with JSON using I/O types, such as `kotlinx.io.Sink` and `kotlinx.io.Source` from the [`kotlinx-io`](https://github.com/Kotlin/kotlinx-io) library (currently in [Alpha](components-stability.md#stability-levels-explained)), and `okio.BufferedSink`
+and `okio.BufferedSource` from the [Okio](https://square.github.io/okio/) library.
 
 You can use the following `Json` extension functions to read and write JSON directly through these I/O types:
 
@@ -113,13 +110,13 @@ You can use the following `Json` extension functions to read and write JSON dire
 * [`.decodeSourceToSequence()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json-io/kotlinx.serialization.json.io/decode-source-to-sequence.html) and [`.decodeBufferedSourceToSequence()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json-okio/kotlinx.serialization.json.okio/decode-buffered-source-to-sequence.html) to lazily decode multiple JSON values as a `Sequence<T>`.
 
 The next sections cover examples using `kotlinx-io` types with these APIs.  
-You can use Okio types similarly with their corresponding `okio.BufferedSink` and `okio.BufferedSource`.
+You can use Okio types similarly to their corresponding types `okio.BufferedSink` and `okio.BufferedSource`.
 
 ### Add dependencies for kotlinx-io and Okio
 
-To use the extension functions with `kotlinx-io` or Okio types, add the dependencies you need.
+To use the extension functions with `kotlinx-io` or Okio types, add the corresponding dependencies:
 
-#### Add dependencies for `kotlinx-io` {initial-collapse-state="collapsed" collapsible="true"}
+#### Add dependencies for `kotlinx-io` {collapsible="true"}
 
 <tabs>
 <tab id="kotlin-io" title="Gradle Kotlin">
@@ -164,7 +161,7 @@ dependencies {
 </tab>
 </tabs>
 
-#### Add dependencies for Okio {initial-collapse-state="collapsed" collapsible="true"}
+#### Add dependencies for Okio {collapsible="true"}
 
 <tabs>
 <tab id="kotlin" title="Gradle Kotlin">
@@ -211,7 +208,7 @@ dependencies {
 
 ### Serialize JSON to Sinks
 
-Use the `.encodeToSink()` function to serialize JSON to a `Sink`:
+To serialize JSON to a `Sink`, use the `.encodeToSink()` function:
 
 ```kotlin
 // Imports declarations from the serialization library

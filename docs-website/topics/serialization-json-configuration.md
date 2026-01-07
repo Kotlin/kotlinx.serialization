@@ -31,8 +31,6 @@ val lenientJson = Json(customJson) {
 }
 ```
 
-The following sections cover the various `Json` class configuration features.
-
 ## Customize JSON structure
 
 You can customize how a `Json` instance structures data during encoding and decoding.
@@ -65,13 +63,13 @@ class Project(
 fun main() {
     val data = Project("kotlinx.serialization")
 
-    // Encodes all the property values including the default ones
+    // Encodes all the property values, including the default ones
     println(format.encodeToString(data))
     // {"name":"kotlinx.serialization","language":"Kotlin","website":null}
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="encode-default-values-example"}
 
 ### Omit explicit nulls
 
@@ -111,10 +109,10 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="omit-nulls-example"}
 
-When `explicitNulls` is set to `false` encoding and decoding can become asymmetrical.
-In this example, the `version` property is `null` before encoding but decodes to `1.2.2`.
+When `explicitNulls` is set to `false`, encoding and decoding can become asymmetrical.
+In this example, the `version` property is `null` before encoding, but it decodes to `1.2.2`.
 
 > You can configure the decoder to handle certain invalid input values by treating them as missing properties with the [`coerceInputValues`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/coerce-input-values.html) property.
 > For more information, see the [Coerce input values](#coerce-input-values) section.
@@ -150,7 +148,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="allow-structured-map-keys-example"}
 
 ### Allow special floating-point values
 
@@ -181,7 +179,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="allow-special-float-point-example"}
 
 ### Specify class discriminator for polymorphism
 
@@ -228,7 +226,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="class-discriminator-example"}
 
 
 While the `classDiscriminator` property in a `Json` instance lets you specify a single discriminator key for all polymorphic types, the [Experimental](components-stability.md#stability-levels-explained) [`@JsonClassDiscriminator`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-class-discriminator/) annotation offers more flexibility.
@@ -278,7 +276,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="jsonclass-discriminator-example"}
 
 > You can't specify different class discriminators in subclasses of a sealed base class.
 > Only hierarchies with distinct, non-overlapping subclasses can define their own discriminators.
@@ -294,9 +292,9 @@ By default, the [discriminator is only added for polymorphic types](#specify-cla
 
 To adjust this behavior, set the [`ClassDiscriminatorMode`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-class-discriminator-mode/) property to one of these options:
 
-* [`POLYMORPHIC`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-class-discriminator-mode/-p-o-l-y-m-o-r-p-h-i-c/): (Default) Adds the class discriminator only for polymorphic types.
-* [`ALL_JSON_OBJECTS`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-class-discriminator-mode/-a-l-l_-j-s-o-n_-o-b-j-e-c-t-s/): Adds the class discriminator to all JSON objects, wherever possible.
-* [`NONE`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-class-discriminator-mode/-n-o-n-e/): Omits the class discriminator entirely.
+* [`POLYMORPHIC`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-class-discriminator-mode/-p-o-l-y-m-o-r-p-h-i-c/): (default) adds the class discriminator only for polymorphic types.
+* [`ALL_JSON_OBJECTS`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-class-discriminator-mode/-a-l-l_-j-s-o-n_-o-b-j-e-c-t-s/): adds the class discriminator to all JSON objects, wherever possible.
+* [`NONE`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-class-discriminator-mode/-n-o-n-e/): omits the class discriminator entirely.
 
 Here's an example with the `ClassDiscriminatorMode` property set to `NONE`:
 
@@ -325,9 +323,9 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="set-classdiscriminatormode-example"}
 
-> Without the discriminator, the Kotlin serialization library can't deserialize this output back into the appropriate type.
+> Without the discriminator, the Kotlin serialization library can't deserialize the output back into the appropriate type.
 >
 {style="note"}
 
@@ -358,7 +356,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="pretty-printing-example"}
 
 This example prints the following result:
 
@@ -373,11 +371,11 @@ This example prints the following result:
 >
 > For example, you can replace the default four spaces with any allowed whitespace characters, such as `\t` or `\n`.
 >
-{style="note"}
+{style="tip"}
 
 ## Customize JSON deserialization
 
-Kotlin's `Json` parser provides several settings that let you customize how JSON data is parsed and deserialized.
+Kotlin's `Json` parser offers several settings that allow you to customize the parsing and deserialization of JSON data.
 
 ### Ignore unknown keys
 
@@ -409,18 +407,17 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="ignore-unknown-keys-example"}
 
 #### Ignore unknown keys for specific classes
-<primary-label ref="experimental-general"/>
-
-> This feature is [Experimental](components-stability.md#stability-levels-explained). To opt in, use the `@OptIn(ExperimentalSerializationApi::class)` annotation or the compiler option `-opt-in=kotlinx.serialization.ExperimentalSerializationApi`.
->
-{style="warning"}
+<primary-label ref="experimental-opt-in"/>
 
 Instead of [enabling `ignoreUnknownKeys` for all classes](#ignore-unknown-keys),
-you can ignore unknown keys only for specific classes by annotating them with the `@JsonIgnoreUnknownKeys` annotation.
-This lets you keep strict deserialization by default while allowing leniency only where you need it.
+you can ignore unknown keys only for specific classes by using the `@JsonIgnoreUnknownKeys` annotation.
+This allows you to keep strict deserialization by default while allowing leniency only where needed.
+
+The `@JsonIgnoreUnknownKeys` annotation is [Experimental](components-stability.md#stability-levels-explained).
+To opt in, use the `@OptIn(ExperimentalSerializationApi::class)` annotation or the compiler option `-opt-in=kotlinx.serialization.ExperimentalSerializationApi`.
 
 Here's an example:
 
@@ -456,13 +453,13 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true" min-compiler-version="2.2" validate="false"}
+{kotlin-runnable="true" min-compiler-version="2.2" validate="false" id="ignore-specific-unknown-keys-example"}
 
 In this example, `Inner` throws a `SerializationException` for unknown keys because it isn't annotated with `@JsonIgnoreUnknownKeys`.
 
 ### Coerce input values
 
-When working with JSON data from third-party services or other dynamic sources, the format can evolve over time.
+When working with JSON data from third-party services or other dynamic sources, the format can evolve.
 This may cause exceptions during decoding when actual values don't match the expected types.
 
 The default `Json` implementation is [strict about input types](serialization-customization-options.md#the-serializable-annotation).
@@ -505,7 +502,7 @@ Currently, it applies to:
 
 If a value is missing, it's replaced with a default property value if one exists.
 
-For enums the value is replaced with `null` only if:
+For enums, the value is replaced with `null` only if:
 
 * No default is defined.
 * The [`explicitNulls`](#omit-explicit-nulls) property is set to `false`.
@@ -538,7 +535,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="coerce-input-values-example"}
 
 ### Allow trailing commas
 
@@ -564,7 +561,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="allow-trailing-commas-example"}
 
 ### Allow comments in JSON
 
@@ -601,7 +598,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="allow-comments-example"}
 
 ### Lenient parsing
 
@@ -625,7 +622,7 @@ data class Project(val name: String, val status: Status, val votes: Int)
 
 fun main() {
     // Decodes a JSON string with lenient parsing
-    // Lenient parsing allows unquoted keys, string and enum values
+    // Lenient parsing allows unquoted keys, string, and enum values
     val data = format.decodeFromString<Project>("""
         {
             name   : kotlinx.serialization,
@@ -638,7 +635,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="lenient-parsing-example"}
 
 ## Customize name mapping between JSON and Kotlin
 
@@ -676,9 +673,9 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="accept-alternative-json-property-example"}
 
-> The `@JsonNames` annotation is enabled by the [`useAlternativeNames`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/use-alternative-names.html) property in [`JsonBuilder`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/).
+> The [`useAlternativeNames`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/use-alternative-names.html) property in [`JsonBuilder`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/) enables the `@JsonNames` annotation.
 > This property is set to `true` by default and allows `Json` to recognize and decode multiple names for a single property.
 > 
 > If you aren't using `@JsonNames` and want to improve performance,
@@ -716,7 +713,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="decode-enums-caseinsensitive-example"}
 
 > This property applies to both [serial names](serialization-customization-options.md#customize-serial-names) and [alternative names](#accept-alternative-json-property-names-for-a-single-kotlin-property) specified with the `@JsonNames` annotation,
 > ensuring that all values are decoded successfully. This property doesn't affect encoding.
@@ -751,18 +748,18 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="global-naming-strategy-example"}
 
 When using a global naming strategy with [`JsonNamingStrategy`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-naming-strategy/), keep the following in mind:
 
-* **The transformation applies to all properties**, whether the serial name is derived from the property name or explicitly defined with the [`@SerialName`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serial-name/) annotation.
+* _The transformation applies to all properties_, whether the serial name is derived from the property name or explicitly defined with the [`@SerialName`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serial-name/) annotation.
   You can't exclude a property from transformation by specifying a serial name.
   To keep specific names unchanged during serialization, use the `@JsonNames` annotation instead.
 * If a transformed name conflicts with other transformed property names or with alternative names specified by the `@JsonNames` annotation,
   deserialization fails with an exception.
 * Global naming strategies are implicit.
   It makes it difficult to determine the serialized names by looking at the class definition.
-  This can make tasks like **Find Usages**, **Rename** in IDEs, or full-text searches using tools like `grep`, more difficult, potentially increasing the risk of bugs and maintenance costs.
+  This can make tasks like **Find Usages**, and **Rename** in IDEs, or full-text searches using tools like `grep`, more difficult, potentially increasing the risk of bugs and maintenance costs.
 
 Given these factors, consider the trade-offs carefully before implementing global naming strategies in your application.
 

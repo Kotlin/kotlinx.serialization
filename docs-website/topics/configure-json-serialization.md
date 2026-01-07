@@ -48,9 +48,9 @@ fun main() {
 //sampleEnd
 }
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="first-json-example"}
 
-In addition to using the default configuration, you can [customize the `Json` instance](serialization-json-configuration.md) for specific different use cases,
+In addition to using the default configuration, you can [customize the `Json` instance](serialization-json-configuration.md) for specific use cases,
 such as ignoring unknown keys:
 
 ```kotlin
@@ -76,7 +76,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true"}
+{kotlin-runnable="true" id="first-json-instance-example"}
 
 ## What's next
 
