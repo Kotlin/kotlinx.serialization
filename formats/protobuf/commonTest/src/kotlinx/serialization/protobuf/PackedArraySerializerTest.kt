@@ -2,6 +2,8 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@file:OptIn(ExperimentalUnsignedTypes::class)
+
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
@@ -55,6 +57,31 @@ class PackedArraySerializerTest {
     data class PackedIntCarrier(
         @ProtoPacked
         val i: List<Int>
+    )
+
+    @Serializable
+    data class PackedUByteCarrier(
+        @ProtoPacked
+        val b: UByteArray
+    ) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as PackedUByteCarrier
+
+            return b.contentEquals(other.b)
+        }
+
+        override fun hashCode(): Int {
+            return b.contentHashCode()
+        }
+    }
+
+    @Serializable
+    data class PackedUintCarrier(
+        @ProtoPacked
+        val i: List<UInt>
     )
 
     /**
@@ -162,6 +189,36 @@ class PackedArraySerializerTest {
 
         assertEquals(obj, decodedExplicitEmpty)
         assertEquals(obj, decodedAbsentField)
+    }
+
+    @Test
+    fun testDecodePackedUnsigned() {
+        val expectedByteCarrier = PackedUByteCarrier(ubyteArrayOf(1.toUByte(), 2.toUByte(), 128.toUByte()))
+        val expectedIntCarrier = PackedUintCarrier(listOf(1u, 2u, 3u, 128u))
+
+        val byteHex = """0a03010280"""
+        val intHex = """0a050102038001"""
+
+        val decodedBytes = ProtoBuf.decodeFromHexString<PackedUByteCarrier>(byteHex)
+        val decodedInts = ProtoBuf.decodeFromHexString<PackedUintCarrier>(intHex)
+
+        assertEquals(expectedByteCarrier, decodedBytes)
+        assertEquals(expectedIntCarrier, decodedInts)
+    }
+
+    @Test
+    fun testEncodePackedUnsigned() {
+        val byteCarrier = PackedUByteCarrier(ubyteArrayOf(1.toUByte(), 2.toUByte(), 128.toUByte()))
+        val intCarrier = PackedUintCarrier(listOf(1u, 2u, 3u, 128u))
+
+        val expectedByteHex = """0a03010280"""
+        val expectedIntHex = """0a050102038001"""
+
+        val byteHex = ProtoBuf.encodeToHexString(byteCarrier)
+        val intHex = ProtoBuf.encodeToHexString(intCarrier)
+
+        assertEquals(expectedByteHex, byteHex)
+        assertEquals(expectedIntHex, intHex)
     }
 
 }
