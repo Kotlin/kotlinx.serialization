@@ -4,6 +4,7 @@
 
 package kotlinx.serialization.json
 
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.*
@@ -87,6 +88,11 @@ class DecodeFromDynamicTest {
         val dyn3 = js("{a: 97}")
         val parsed3 = Json.decodeFromDynamic(WithChar.serializer(), dyn3)
         assertEquals(WithChar('a'), parsed3)
+    }
+
+    @Test
+    fun dynamicNull() {
+        assertNull(Json.decodeFromDynamic(Data.serializer().nullable, null))
     }
 
     @Test
