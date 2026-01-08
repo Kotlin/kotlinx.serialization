@@ -25,6 +25,7 @@ internal open class StreamingJsonDecoder(
     descriptor: SerialDescriptor,
     discriminatorHolder: DiscriminatorHolder?
 ) : JsonDecoder, ChunkedDecoder, AbstractDecoder() {
+    private val coercePrimitives = json.configuration.allowPrimitiveCoercion
 
     // A mutable reference to the discriminator that have to be skipped when in optimistic phase
     // of polymorphic serialization, see `decodeSerializableValue`
@@ -273,47 +274,51 @@ internal open class StreamingJsonDecoder(
     }
 
     /*
-     * The primitives are allowed to be quoted and unquoted
-     * to simplify map key parsing and integrations with third-party API.
-     */
+         * The primitives are allowed to be quoted and unquoted
+         * to simplify map key parsing and integrations with third-party API.
+         */
     override fun decodeBoolean(): Boolean {
-        return lexer.consumeBooleanLenient()
+        return if (coercePrimitives) {
+            lexer.consumeBooleanLenient()
+        } else {
+            lexer.consumeBoolean()
+        }
     }
 
     override fun decodeByte(): Byte {
-        val value = lexer.consumeNumericLiteral()
+        val value = lexer.consumeNumericLiteral(coercePrimitives)
         // Check for overflow
         if (value != value.toByte().toLong()) lexer.fail("Failed to parse byte for input '$value'")
         return value.toByte()
     }
 
     override fun decodeShort(): Short {
-        val value = lexer.consumeNumericLiteral()
+        val value = lexer.consumeNumericLiteral(coercePrimitives)
         // Check for overflow
         if (value != value.toShort().toLong()) lexer.fail("Failed to parse short for input '$value'")
         return value.toShort()
     }
 
     override fun decodeInt(): Int {
-        val value = lexer.consumeNumericLiteral()
+        val value = lexer.consumeNumericLiteral(coercePrimitives)
         // Check for overflow
         if (value != value.toInt().toLong()) lexer.fail("Failed to parse int for input '$value'")
         return value.toInt()
     }
 
     override fun decodeLong(): Long {
-        return lexer.consumeNumericLiteral()
+        return lexer.consumeNumericLiteral(coercePrimitives)
     }
 
     override fun decodeFloat(): Float {
-        val result = lexer.parseString("float") { toFloat() }
+        val result = lexer.parseString("float", coercePrimitives) { toFloat() }
         val specialFp = json.configuration.allowSpecialFloatingPointValues
         if (specialFp || result.isFinite()) return result
         lexer.throwInvalidFloatingPointDecoded(result)
     }
 
     override fun decodeDouble(): Double {
-        val result = lexer.parseString("double") { toDouble() }
+        val result = lexer.parseString("double", coercePrimitives) { toDouble() }
         val specialFp = json.configuration.allowSpecialFloatingPointValues
         if (specialFp || result.isFinite()) return result
         lexer.throwInvalidFloatingPointDecoded(result)
@@ -374,15 +379,16 @@ internal class JsonDecoderForUnsignedTypes(
 ) : AbstractDecoder() {
     override val serializersModule: SerializersModule = json.serializersModule
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int = error("unsupported")
+    private val coercePrimitves = json.configuration.allowPrimitiveCoercion
 
-    override fun decodeInt(): Int = lexer.parseString("UInt") { toUInt().toInt() }
-    override fun decodeLong(): Long = lexer.parseString("ULong") { toULong().toLong() }
-    override fun decodeByte(): Byte = lexer.parseString("UByte") { toUByte().toByte() }
-    override fun decodeShort(): Short = lexer.parseString("UShort") { toUShort().toShort() }
+    override fun decodeInt(): Int = lexer.parseString("UInt", coercePrimitves) { toUInt().toInt() }
+    override fun decodeLong(): Long = lexer.parseString("ULong", coercePrimitves) { toULong().toLong() }
+    override fun decodeByte(): Byte = lexer.parseString("UByte", coercePrimitves) { toUByte().toByte() }
+    override fun decodeShort(): Short = lexer.parseString("UShort", coercePrimitves) { toUShort().toShort() }
 }
 
-private inline fun <T> AbstractJsonLexer.parseString(expectedType: String, block: String.() -> T): T {
-    val input = consumeStringLenient()
+private inline fun <T> AbstractJsonLexer.parseString(expectedType: String, coercePrimitives: Boolean, block: String.() -> T): T {
+    val input = consumeOther(allowQuoted = coercePrimitives)
     try {
         return input.block()
     } catch (e: IllegalArgumentException) {
