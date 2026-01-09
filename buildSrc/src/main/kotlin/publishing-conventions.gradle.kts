@@ -172,6 +172,16 @@ fun MavenPom.configureMavenCentralMetadata() {
     }
 }
 
+tasks.withType<Jar>().configureEach {
+    manifest {
+        attributes(
+            "Implementation-Vendor" to "JetBrains",
+            "Implementation-Title" to project.name,
+            "Implementation-Version" to project.version,
+        )
+    }
+}
+
 // utility functions
 
 /**
