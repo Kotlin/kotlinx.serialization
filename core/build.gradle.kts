@@ -63,7 +63,6 @@ tasks.withType<Jar>().named(kotlin.jvm().artifactsTaskName) {
 
     manifest {
         attributes(
-                "Implementation-Version" to version,
                 "Require-Kotlin-Version" to "2.0.0-RC1",
         )
     }
