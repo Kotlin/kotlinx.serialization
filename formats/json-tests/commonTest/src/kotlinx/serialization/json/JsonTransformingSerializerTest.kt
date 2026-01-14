@@ -123,4 +123,23 @@ class JsonTransformingSerializerTest : JsonTestBase() {
         assertJsonFormAndRestored(NullableStringDataHolder.serializer(), NullableStringDataHolder(StringData("str1")), normalInput)
         assertJsonFormAndRestored(NullableStringDataHolder.serializer(), NullableStringDataHolder(null), nullInput)
     }
+
+    @Serializable
+    sealed class BaseExample
+
+    @Serializable(SubExample.PolymorphicSerializer::class)
+    @KeepGeneratedSerializer
+    @SerialName("Sub")
+    data class SubExample(
+        val data: String
+    ) : BaseExample() {
+        object PolymorphicSerializer : JsonTransformingSerializer<SubExample>(generatedSerializer())
+    }
+
+    @Test
+    fun testPolymorphicExampleCanBeParsed() {
+        val baseExample: BaseExample = SubExample("str1")
+        val polymorphicInput = Json.encodeToString(baseExample)
+        assertEquals(baseExample, Json.decodeFromString(polymorphicInput))
+    }
 }
