@@ -18,7 +18,7 @@ import kotlin.jvm.*
 @JsonFriendModuleApi
 public fun <T> readJson(json: Json, element: JsonElement, deserializer: DeserializationStrategy<T>): T {
     val input = when (element) {
-        is JsonObject -> JsonTreeDecoder(json, element)
+        is JsonObject -> JsonTreeDecoder(json, element, deserializer.descriptor.classDiscriminator(json))
         is JsonArray -> JsonTreeListDecoder(json, element)
         is JsonLiteral, JsonNull -> JsonPrimitiveDecoder(json, element as JsonPrimitive)
     }
