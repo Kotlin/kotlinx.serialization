@@ -417,9 +417,7 @@ you can ignore unknown keys only for specific classes by using the `@JsonIgnoreU
 This allows you to keep strict deserialization by default while allowing leniency only where needed.
 
 The `@JsonIgnoreUnknownKeys` annotation is [Experimental](components-stability.md#stability-levels-explained).
-To opt in, use the `@OptIn(ExperimentalSerializationApi::class)` annotation or the compiler option `-opt-in=kotlinx.serialization.ExperimentalSerializationApi`.
-
-Here's an example:
+To opt in, use the `@OptIn(ExperimentalSerializationApi::class)` annotation or the compiler option `-opt-in=kotlinx.serialization.ExperimentalSerializationApi`:
 
 ```kotlin
 // Imports declarations from the serialization library

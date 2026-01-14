@@ -110,13 +110,13 @@ You can use the following `Json` extension functions to read and write JSON dire
 * [`.decodeSourceToSequence()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json-io/kotlinx.serialization.json.io/decode-source-to-sequence.html) and [`.decodeBufferedSourceToSequence()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json-okio/kotlinx.serialization.json.okio/decode-buffered-source-to-sequence.html) to lazily decode multiple JSON values as a `Sequence<T>`.
 
 The next sections cover examples using `kotlinx-io` types with these APIs.  
-You can use Okio types similarly to their corresponding types `okio.BufferedSink` and `okio.BufferedSource`.
+You can use Okio types similarly with their corresponding `okio.BufferedSink` and `okio.BufferedSource` APIs.
 
 ### Add dependencies for kotlinx-io and Okio
 
 To use the extension functions with `kotlinx-io` or Okio types, add the corresponding dependencies:
 
-#### Add dependencies for `kotlinx-io` {collapsible="true"}
+#### Add dependencies for `kotlinx-io`
 
 <tabs>
 <tab id="kotlin-io" title="Gradle Kotlin">
@@ -161,7 +161,7 @@ dependencies {
 </tab>
 </tabs>
 
-#### Add dependencies for Okio {collapsible="true"}
+#### Add dependencies for Okio
 
 <tabs>
 <tab id="kotlin" title="Gradle Kotlin">
