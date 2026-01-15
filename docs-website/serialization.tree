@@ -13,6 +13,7 @@
             <toc-element topic="serialization-json-configuration.md"/>
             <toc-element topic="serialization-json-elements.md"/>
             <toc-element topic="serialization-transform-json.md" toc-title="JSON transformation"/>
+            <toc-element topic="serialization-json-io-sources.md"/>
         </toc-element>
         <toc-element topic="serialization-polymorphism.md"/>
         <toc-element toc-title="Custom serializers">
