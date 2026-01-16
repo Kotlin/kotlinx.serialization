@@ -188,5 +188,3 @@ class JsonTransformingSerializerTest : JsonTestBase() {
         assertEquals(root, Json.decodeFromString(polymorphicInput))
     }
 }
-
- 
