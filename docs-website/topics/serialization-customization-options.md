@@ -411,6 +411,10 @@ fun main() {
 ```
 {kotlin-runnable="true" id="serial-names"}
 
+> If you assign the same `@SerialName` to multiple classes, an `IllegalStateException` is thrown.
+> 
+{style="note"}
+
 ### Define constructor properties for serialization
 
 A class annotated with `@Serializable` must declare all parameters in its primary constructor as properties.
