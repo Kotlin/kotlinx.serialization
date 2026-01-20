@@ -2,7 +2,7 @@
 ==================
 
 This release is based on Kotlin 2.3.0 and contains all of the changes from 1.10.0-RC.
-The only additional change is a fix for ProtoBuf packing of kotlin unsigned types (#3079).
+The only additional change is a fix for ProtoBuf packing of Kotlin unsigned types (#3079).
 Big thanks to [KosmX](https://github.com/KosmX) for contributing the fix.
 
 > For your convenience, the changelog for 1.10.0-RC is duplicated below:
