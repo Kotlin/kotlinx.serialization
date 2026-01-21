@@ -95,12 +95,19 @@ class JsonTransformingSerializerTest : JsonTestBase() {
     @Test
     fun testDocumentationSample() = parametrizedTest { streaming ->
         val correctExample = DocExample("str1")
-        assertEquals(correctExample, json.decodeFromString(DocExample.serializer(), """{"data":["str1"]}""", streaming))
-        assertEquals(correctExample, json.decodeFromString(DocExample.serializer(), """{"data":"str1"}""", streaming))
+        assertEquals(
+            correctExample,
+            json.decodeFromString(DocExample.serializer(), """{"data":["str1"]}""", streaming)
+        )
+        assertEquals(
+            correctExample,
+            json.decodeFromString(DocExample.serializer(), """{"data":"str1"}""", streaming)
+        )
     }
 
     // Wraps/unwraps {"data":null} to just `null`, because StringData.data is not nullable
-    object NullableStringDataSerializer : JsonTransformingSerializer<StringData?>(StringData.serializer().nullable) {
+    object NullableStringDataSerializer :
+        JsonTransformingSerializer<StringData?>(StringData.serializer().nullable) {
         override fun transformDeserialize(element: JsonElement): JsonElement {
             val data = element.jsonObject["data"]?.jsonPrimitive
             if (data?.contentOrNull.isNullOrBlank()) return JsonNull
@@ -120,7 +127,64 @@ class JsonTransformingSerializerTest : JsonTestBase() {
     fun testNullableTransformingSerializer() {
         val normalInput = """{"stringData":{"data":"str1"}}"""
         val nullInput = """{"stringData":{"data":null}}"""
-        assertJsonFormAndRestored(NullableStringDataHolder.serializer(), NullableStringDataHolder(StringData("str1")), normalInput)
-        assertJsonFormAndRestored(NullableStringDataHolder.serializer(), NullableStringDataHolder(null), nullInput)
+        assertJsonFormAndRestored(
+            NullableStringDataHolder.serializer(),
+            NullableStringDataHolder(StringData("str1")),
+            normalInput
+        )
+        assertJsonFormAndRestored(
+            NullableStringDataHolder.serializer(),
+            NullableStringDataHolder(null),
+            nullInput
+        )
+    }
+
+    @Serializable
+    sealed class BaseExample
+
+    @Serializable(SubExample.PolymorphicSerializer::class)
+    @KeepGeneratedSerializer
+    @SerialName("Sub")
+    data class SubExample(
+        val data: String
+    ) : BaseExample() {
+        object PolymorphicSerializer : JsonTransformingSerializer<SubExample>(generatedSerializer())
+    }
+
+    @Test
+    fun testPolymorphicExampleCanBeParsed() {
+        val baseExample: BaseExample = SubExample("str1")
+        val polymorphicInput = Json.encodeToString(baseExample)
+        assertEquals(baseExample, Json.decodeFromString(polymorphicInput))
+    }
+
+    @Serializable
+    sealed class NestedBaseExample
+
+    @Serializable
+    @SerialName("leaf")
+    data class LeafSubExample(val value: String) : NestedBaseExample()
+
+    @Serializable
+    @SerialName("composite")
+    data class CompositeSubExample(
+        val name: String,
+        val children: List<NestedBaseExample>,
+        val metadata: NestedBaseExample? = null
+    ) : NestedBaseExample()
+
+    @Test
+    fun testNestedPolymorphicExampleCanBeParsed() {
+        val root: NestedBaseExample = CompositeSubExample(
+            name = "root",
+            children = listOf(
+                LeafSubExample("child1"),
+                CompositeSubExample("sub-root", listOf(LeafSubExample("grand-child")))
+            ),
+            metadata = LeafSubExample("meta-info")
+        )
+
+        val polymorphicInput = Json.encodeToString(root)
+        assertEquals(root, Json.decodeFromString(polymorphicInput))
     }
 }
