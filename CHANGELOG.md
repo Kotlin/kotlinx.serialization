@@ -1,3 +1,64 @@
+1.10.0 / 2026-01-21
+==================
+
+This release is based on Kotlin 2.3.0 and contains all of the changes from 1.10.0-RC.
+The only additional change is a fix for ProtoBuf packing of Kotlin unsigned types (#3079).
+Big thanks to [KosmX](https://github.com/KosmX) for contributing the fix.
+
+> For your convenience, the changelog for 1.10.0-RC is duplicated below:
+
+## Stabilization of APIs
+
+kotlinx-serialization 1.10 and subsequent releases will be focused on stabilization of existing APIs.
+The following APIs and configuration options are no longer experimental because they're widely used without any known major issues:
+
+* `Json` configuration options: `decodeEnumsCaseInsensitive`, `allowTrailingComma`, `allowComments`, and `prettyPrintIndent`. (#3100)
+* `@EncodeDefault` annotation and its modes. (#3106)
+* `JsonUnquotedLiteral` constructor function (#2900)
+* `JsonPrimitive` constructor function overloads that accept unsigned types. (#3117)
+* JSON DSL functions on `JsonElement` with `Nothing?` overloads. (#3117)
+
+## Readiness for return value checker
+
+Kotlin 2.3.0 [introduces a new feature](https://kotlinlang.org/docs/whatsnew23.html#unused-return-value-checker) aimed
+at helping you to catch bugs related to the accidentally ignored return value of the function.
+kotlinx-serialization 1.10.0-RC code is fully marked for this feature, meaning that you
+can get warnings for unused function calls like `Json.encodeToString(...)`.
+To get the warnings, the feature has to be enabled in your project as [described here](https://kotlinlang.org/docs/unused-return-value-checker.html#configure-the-unused-return-value-checker).
+
+## Polymorphism improvements
+
+Polymorphic serialization received a couple of improvements in this release:
+
+New `subclassesOfSealed` utility to automatically register sealed subclasses serializers in polymorphic modules (#2201).
+Use it in your `SerializersModule` when configuring a polymorphic hierarchy which contains both abstract and sealed classes.
+[For example](https://github.com/Kotlin/kotlinx.serialization/issues/2199), when root of your hierarchy is an `interface`, but most of your inheritors are `sealed` classes.
+The new function will register all known sealed subclasses for you, so you don’t need to list them one by one.
+This makes writing your `SerializerModule`s much faster and simpler.
+Big thanks to [Paul de Vrieze](https://github.com/pdvrieze) for contributing this feature.
+
+Class discriminator conflict check rework (#3105).
+If a payload already contains a property with the same name as the configured discriminator (for example, `type`),
+it is called a class discriminator conflict.
+To produce a correct output and allow more inputs to be deserialized at the same time, the following changes were made:
+* Conflicts introduced by `JsonNamingStrategy` transformations are now detected during serialization as well and will cause `SerializationException`.
+  It also affects non-polymorphic classes.
+* Conflicts from `ClassDisciminatorMode.ALL_JSON_OBJECTS` and `SerializersModuleBuilder.polymorphicDefaultSerializer` are also detected.
+* It is allowed to deserialize such a conflicting key for both sealed and open polymorphic hierarchies.
+  Previously, it was possible in the sealed hierarchies alone due to missing assertion. See #1664 for details.
+
+## General improvements
+
+* Add `.serialName` to `MissingFieldException` for clearer diagnostics. (#3114)
+* Generate unique `Automatic-Module-Name` entries for metadata JARs. (#3109)
+* Revised ProGuard rules and added R8 tests. (#3041)
+* CBOR: Improved error message when a byte string/array type mismatch is encountered. (#3052)
+
+## Bugfixes
+
+* Fix the type in the `BIGNUM_NEGATIVE` tag name. (#3090)
+* CBOR: Fix various bugs in the decoder implementation to be more strict and consistent with the specification.
+
 1.10.0-RC / 2025-12-18
 ==================
 
@@ -29,7 +90,7 @@ Polymorphic serialization received a couple of improvements in this release:
 
 New `subclassesOfSealed` utility to automatically register sealed subclasses serializers in polymorphic modules (#2201).
 Use it in your `SerializersModule` when configuring a polymorphic hierarchy which contains both abstract and sealed classes.
-[For example](https://github.com/Kotlin/kotlinx.serialization/issues/2199), when root of your hierarchy is an `inteface`, but most of your inheritors are `sealed` classes.
+[For example](https://github.com/Kotlin/kotlinx.serialization/issues/2199), when root of your hierarchy is an `interface`, but most of your inheritors are `sealed` classes.
 The new function will register all known sealed subclasses for you, so you don’t need to list them one by one.
 This makes writing your `SerializerModule`s much faster and simpler.
 Big thanks to [Paul de Vrieze](https://github.com/pdvrieze) for contributing this feature.
