@@ -32,7 +32,7 @@ Polymorphic serialization received a couple of improvements in this release:
 
 New `subclassesOfSealed` utility to automatically register sealed subclasses serializers in polymorphic modules (#2201).
 Use it in your `SerializersModule` when configuring a polymorphic hierarchy which contains both abstract and sealed classes.
-[For example](https://github.com/Kotlin/kotlinx.serialization/issues/2199), when root of your hierarchy is an `inteface`, but most of your inheritors are `sealed` classes.
+[For example](https://github.com/Kotlin/kotlinx.serialization/issues/2199), when root of your hierarchy is an `interface`, but most of your inheritors are `sealed` classes.
 The new function will register all known sealed subclasses for you, so you don’t need to list them one by one.
 This makes writing your `SerializerModule`s much faster and simpler.
 Big thanks to [Paul de Vrieze](https://github.com/pdvrieze) for contributing this feature.
@@ -90,7 +90,7 @@ Polymorphic serialization received a couple of improvements in this release:
 
 New `subclassesOfSealed` utility to automatically register sealed subclasses serializers in polymorphic modules (#2201).
 Use it in your `SerializersModule` when configuring a polymorphic hierarchy which contains both abstract and sealed classes.
-[For example](https://github.com/Kotlin/kotlinx.serialization/issues/2199), when root of your hierarchy is an `inteface`, but most of your inheritors are `sealed` classes.
+[For example](https://github.com/Kotlin/kotlinx.serialization/issues/2199), when root of your hierarchy is an `interface`, but most of your inheritors are `sealed` classes.
 The new function will register all known sealed subclasses for you, so you don’t need to list them one by one.
 This makes writing your `SerializerModule`s much faster and simpler.
 Big thanks to [Paul de Vrieze](https://github.com/pdvrieze) for contributing this feature.
