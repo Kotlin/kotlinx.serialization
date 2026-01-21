@@ -28,10 +28,10 @@ internal abstract class ProtobufTaggedBase {
     @JvmField
     protected var stackSize = -1
 
-    protected val currentTag: ProtoDesc
+    internal val currentTag: ProtoDesc
         get() = tagsStack[stackSize]
 
-    protected val currentTagOrDefault: ProtoDesc
+    internal val currentTagOrDefault: ProtoDesc
         get() = if (stackSize == -1) MISSING_TAG else tagsStack[stackSize]
 
     protected fun popTagOrDefault(): ProtoDesc = if (stackSize == -1) MISSING_TAG else tagsStack[stackSize--]
