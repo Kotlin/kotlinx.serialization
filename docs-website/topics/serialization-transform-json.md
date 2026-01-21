@@ -1,39 +1,33 @@
 [//]: # (title: Transform JSON structure)
 <primary-label ref="advanced"/>
 
-> This section builds on concepts from [Serialize polymorphic classes](serialization-polymorphism.md) and [Create custom serializers](create-custom-serializers.md).
-> If you're not familiar with these concepts, we recommend reviewing them first.
->
-{style="note"}
-
 To control the structure and content of the JSON you generate during serialization, you can create [custom serializers](create-custom-serializers.md).
 For smaller adjustments, the [`JsonTransformingSerializer`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-transforming-serializer/) class offers a simpler way to modify JSON by working directly with the JSON element tree instead of interacting with [`Encoder`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-encoder/)
 or [`Decoder`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx.serialization-core/kotlinx.serialization.encoding/-decoder/) manually.
 
-The `JsonTransformingSerializer` implements the [`KSerializer`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-k-serializer/) interface, which
-lets you override the [`transformSerialize()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-transforming-serializer/transform-serialize.html) and [`transformDeserialize()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-transforming-serializer/transform-deserialize.html) functions to adjust the JSON element tree either before serialization or before deserialization.
+> These sections build on concepts detailed in [Create custom serializers](create-custom-serializers.md).
+> If you're not familiar with custom serializers, we recommend reviewing that page first.
+>
+{style="note"}
 
-> In addition to transforming JSON structures, you can also use `JsonContentPolymorphicSerializer` to [select the appropriate polymorphic class based on the JSON content](#select-the-appropriate-polymorphic-class-based-on-the-json-content).
-> 
-{style="tip"} 
+The `JsonTransformingSerializer` is a JSON-specific abstract serializer that implements the [`KSerializer`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-k-serializer/) interface.
+It provides the [`transformSerialize()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-transforming-serializer/transform-serialize.html) and [`transformDeserialize()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-transforming-serializer/transform-deserialize.html) functions that you can override to adjust the JSON element tree before serialization or deserialization.
+
+In addition to transforming JSON structures, you can also use `JsonContentPolymorphicSerializer` to [select the appropriate polymorphic class based on the JSON content](#select-the-appropriate-polymorphic-class-based-on-the-json-content).
 
 ## Modify JSON structure
 
-You can make small structural adjustments to JSON by transforming the JSON element tree.
+You can make structural adjustments to JSON by transforming the JSON element tree.
 The following examples demonstrate common use cases, such as wrapping or unwrapping arrays and omitting specific properties.
 
 ### Wrap a single object in an array during deserialization
 
 Some APIs return a single JSON object when there is one item and an array when there are multiple.
-If you want both cases to deserialize into a [`List`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/), use
-`JsonTransformingSerializer` to modify the JSON element tree during deserialization.
-To implement the wrapping logic, override the `transformDeserialize()` function.
+To deserialize both cases into a [`List`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/):
 
-> You must specify a serializer when calling the `JsonTransformingSerializer` constructor.
-> To use the standard conversion logic for the type, specify a default serializer.
-> For example, you can use the default list serializer with the [`ListSerializer()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.builtins/-list-serializer.html) function.
->
-{style="note"}
+1. Create a subclass of `JsonTransformingSerializer` and specify a serializer in its constructor.
+   To use the standard conversion logic, pass the default serializer for the target type, such as [`ListSerializer()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.builtins/-list-serializer.html) for lists.
+2. Override the `transformDeserialize()` function.
 
 Here's an example:
 
@@ -44,11 +38,10 @@ import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.*
 
 //sampleStart
-// Uses UserListSerializer to handle the serialization of the users property
 @Serializable
 data class Project(
     val name: String,
-    // Specifies a custom serializer for the users property
+    // Specifies UserListSerializer to handle the serialization of the users property
     @Serializable(with = UserListSerializer::class)
     val users: List<User>
 )
@@ -56,21 +49,19 @@ data class Project(
 @Serializable
 data class User(val name: String)
 
-// Specifies the default List serializer
+// Creates a serializer that transforms the results of the default List serializer
 object UserListSerializer : JsonTransformingSerializer<List<User>>(ListSerializer(User.serializer())) {
-    // If not an array, wrap the element as a single-item array
+    // Wraps a single JSON object into a single-element array
     override fun transformDeserialize(element: JsonElement): JsonElement =
         if (element !is JsonArray) JsonArray(listOf(element)) else element
 }
 
 fun main() {
-    // Deserializes a single JSON object wrapped as an array
     println(Json.decodeFromString<Project>("""
         {"name":"kotlinx.serialization","users":{"name":"kotlin"}}
     """))
     // Project(name=kotlinx.serialization, users=[User(name=kotlin)])
-
-    // Deserializes a JSON array of objects
+   
     println(Json.decodeFromString<Project>("""
         {"name":"kotlinx.serialization","users":[{"name":"kotlin"},{"name":"jetbrains"}]}
     """))
@@ -93,19 +84,19 @@ import kotlinx.serialization.json.*
 //sampleStart
 @Serializable
 data class Project(
-  val name: String,
-  @Serializable(with = UserListSerializer::class)
-  val users: List<User>
+    val name: String,
+    // Specifies UserListSerializer to handle serialization of the users property
+    @Serializable(with = UserListSerializer::class)
+    val users: List<User>
 )
 
 @Serializable
 data class User(val name: String)
 
-// Unwraps single-element lists into a single object during serialization
+// Creates a serializer that transforms the results of the default List serializer
 object UserListSerializer : JsonTransformingSerializer<List<User>>(ListSerializer(User.serializer())) {
 
     override fun transformSerialize(element: JsonElement): JsonElement {
-        // Ensures that the input is a list
         require(element is JsonArray)
         // Unwraps single-element lists into a single JSON object
         return element.singleOrNull() ?: element
@@ -123,10 +114,14 @@ fun main() {
 
 ### Omit specific properties during serialization
 
-You can omit properties from the JSON output. This can be useful when they have default values, match specific values, or when the values are missing.
-This helps streamline the data, reducing unnecessary information while ensuring that only relevant properties are serialized.
+You can use `JsonTransformingSerializer` when you can't [specify a default value](serialization-customization-options.md#set-default-values-for-optional-properties), but still want to omit a property when it has a specific value.
 
-To omit properties during serialization, create a custom serializer and override the `transformSerialize()` function to remove the fields you don't want in the JSON output:
+To do so:
+
+1. Create a custom serializer and override the `transformSerialize()` function. 
+2. Pass the custom serializer to `encodeToString()` to apply the custom transformation.
+
+Here's an example:
 
 ```kotlin
 // Imports declarations from the serialization library
@@ -163,7 +158,6 @@ fun main() {
 {kotlin-runnable="true"}
 
 In this example, the `Project` class has a `language` property, which is omitted when its value is `"Kotlin"`.
-The custom serializer is passed to `encodeToString()` to ensure the custom transformation is applied.
 
 > When serializing an object directly, you need to explicitly pass the custom serializer to the `encodeToString()`
 > function to ensure that the custom serialization logic is applied. For more information, see the [Pass serializers manually](third-party-classes.md#pass-serializers-manually) section.
@@ -172,17 +166,46 @@ The custom serializer is passed to `encodeToString()` to ensure the custom trans
 
 ## Select the appropriate polymorphic class based on the JSON content
 
-In [polymorphic serialization](serialization-polymorphism.md), JSON often includes a dedicated _class discriminator_ property that identifies the concrete subtype during deserialization.
+In [polymorphic serialization](serialization-polymorphism.md), JSON often contains a dedicated _class discriminator_ property that identifies the concrete subtype during deserialization.
 
 When no class discriminator is present in the JSON input, you can use [`JsonContentPolymorphicSerializer`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-content-polymorphic-serializer/) to infer the type from the structure of the JSON.
 This serializer allows you to override the `selectDeserializer()` function to choose the correct deserializer based on the JSON content.
 
-> When you use this serializer, the appropriate deserializer is chosen at runtime.
-> It may be one you [specified in a `SerializersModule`](serialization-polymorphism.md#serialize-closed-polymorphic-classes) or the default serializer.
->
-{style="tip"}
+Let's look at an example where all values share a common base type with a `name` property:
 
-Here's an example:
+```kotlin
+@Serializable
+abstract class Project {
+    abstract val name: String
+}
+
+@Serializable
+data class BasicProject(override val name: String): Project()
+
+@Serializable
+data class OwnedProject(override val name: String, val owner: String) : Project()
+```
+
+> In this example, the serializer decides which subtype to use based on the JSON content, so you don't need a `sealed` class for the class hierarchy.
+>
+{style="note"}
+
+To distinguish between `BasicProject` and `OwnedProject`, override the `selectDeserializer()` function to select a serializer
+based on the presence of the `owner` key in the JSON object:
+
+```kotlin
+// Creates a custom serializer that selects deserializer based on the presence of "owner"
+object ProjectSerializer : JsonContentPolymorphicSerializer<Project>(Project::class) {
+    override fun selectDeserializer(element: JsonElement) = when {
+        // Selects the OwnedProject serializer if the JSON object contains an "owner" key
+        "owner" in element.jsonObject -> OwnedProject.serializer()
+        else -> BasicProject.serializer()
+    }
+}
+```
+
+When you use this serializer to serialize data, Kotlin serialization uses the serializer of the value's actual runtime type.
+This could be one you [specified in a `SerializersModule`](serialization-polymorphism.md#serialize-closed-polymorphic-classes) or the default serializer:
 
 ```kotlin
 // Imports declarations from the serialization library
@@ -190,7 +213,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.*
 
-//sampleStart
+
 @Serializable
 abstract class Project {
     abstract val name: String
@@ -211,6 +234,7 @@ object ProjectSerializer : JsonContentPolymorphicSerializer<Project>(Project::cl
     }
 }
 
+//sampleStart
 fun main() {
     val data = listOf(
         OwnedProject("kotlinx.serialization", "kotlin"),
@@ -229,63 +253,14 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-In this example, the serializer decides which subtype to use based on the JSON content, so you don't need a `sealed` class for the class hierarchy.
-
 ## Add custom behavior to the default serializer
+<primary-label ref="experimental-opt-in"/>
 
-You can add custom behavior to the default serializer that Kotlin serialization generates.
+You can add custom behavior to the default serializer that Kotlin serialization generates, by using the default serializer as a delegate.
 
-To do so, annotate a serializable class with the [Experimental](components-stability.md#stability-levels-explained) [`@KeepGeneratedSerializer`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-keep-generated-serializer/) and use the automatically created `generatedSerializer()` as the base serializer in your custom implementation:
+To do so, annotate a serializable class with the [Experimental](components-stability.md#stability-levels-explained) [`@KeepGeneratedSerializer`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-keep-generated-serializer/) and use the automatically created `generatedSerializer()` as the base serializer in your custom `JsonTransformingSerializer`:
 
-```kotlin
-// Imports declarations from the serialization library
-import kotlinx.serialization.*
-import kotlinx.serialization.builtins.*
-import kotlinx.serialization.json.*
-
-//sampleStart
-// Defines a sealed hierarchy where each subtype has a name property
-@Serializable
-sealed class Project {
-    abstract val name: String
-}
-
-@OptIn(ExperimentalSerializationApi::class)
-@KeepGeneratedSerializer
-@Serializable(with = BasicProjectSerializer::class)
-@SerialName("basic")
-data class BasicProject(override val name: String): Project()
-
-// Adds custom logic to the default serializer to rename a field during deserialization
-object BasicProjectSerializer : JsonTransformingSerializer<BasicProject>(BasicProject.generatedSerializer()) {
-    override fun transformDeserialize(element: JsonElement): JsonElement {
-        val jsonObject = element.jsonObject
-        // Renames "basic-name" to "name" if it exists in the JSON input
-        return if ("basic-name" in jsonObject) {
-            val nameElement = jsonObject["basic-name"] ?: throw IllegalStateException()
-            JsonObject(mapOf("name" to nameElement))
-        } else {
-            jsonObject
-        }
-    }
-}
-
-
-fun main() {
-
-    // Deserializes JSON where the field name differs from the expected structure
-    val project = Json.decodeFromString<Project>("""{"type":"basic","basic-name":"example"}""")
-
-    println(project)
-    // BasicProject(name=example)
-}
-//sampleEnd
-```
-{kotlin-runnable="true"}
-
-In this example, the custom serializer updates the JSON structure during deserialization by renaming a field so it matches the `name` property defined in the base class.
-
-<!-- Would another example like this work? to focus more on the custom behavior not the polymorphism:
+Here’s an example that updates the JSON structure during deserialization by renaming a field so it matches the deserialized class's `name` property:
 
 ```kotlin
 // Imports declarations from the serialization library
@@ -293,15 +268,16 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
 //sampleStart
+// Defines a type with a name property
 @Serializable
 data class Project(val name: String)
 
-// Adds custom logic to rename "projectName" to "name" during deserialization
+// Adds custom logic to the default serializer to rename a field during deserialization
 object ProjectSerializer : JsonTransformingSerializer<Project>(Project.serializer()) {
     override fun transformDeserialize(element: JsonElement): JsonElement {
         val jsonObject = element.jsonObject
 
-        // If "projectName" is present, map it to "name"
+        // Renames "projectName" to "name" if it exists in the JSON input
         return if ("projectName" in jsonObject) {
             val nameElement = jsonObject.getValue("projectName")
             JsonObject(mapOf("name" to nameElement))
@@ -312,7 +288,7 @@ object ProjectSerializer : JsonTransformingSerializer<Project>(Project.serialize
 }
 
 fun main() {
-    // Deserializes JSON where the key needs renaming
+    // Deserializes JSON where the field name differs from the expected structure
     val fromExternal = Json.decodeFromString(
         ProjectSerializer,
         """{"projectName":"example"}"""
@@ -320,7 +296,7 @@ fun main() {
     println(fromExternal)
     // Project(name=example)
 
-    // Deserializes JSON where the key already matches the property name
+    // Deserializes JSON where the field name matches the expected structure
     val fromInternal = Json.decodeFromString(
         ProjectSerializer,
         """{"name":"example"}"""
@@ -329,10 +305,8 @@ fun main() {
     // Project(name=example)
 }
 //sampleEnd
-
 ```
-
--->
+{kotlin-runnable="true"}
 
 ## Implement custom serialization logic in JSON
 <primary-label ref="experimental-general"/>
@@ -341,22 +315,22 @@ If the transformation functions provided by `JsonTransformingSerializer` or
 `JsonContentPolymorphicSerializer` aren't enough, you can implement custom
 serialization logic by defining your own [`KSerializer`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-k-serializer/) class.
 
-This gives you full control over how values are serialized and deserialized by overriding the
+You can get full control over how values are serialized and deserialized by overriding the
 `serialize()` and `deserialize()` functions directly.
 
 When you implement custom serialization logic for JSON, you can cast `Encoder` to
-`JsonEncoder` and `Decoder` to `JsonDecoder` to call JSON-specific functions such as
+[`JsonEncoder`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-encoder/) and `Decoder` to [`JsonDecoder`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-decoder/) to call the JSON-specific functions
 [`decodeJsonElement()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-decoder/decode-json-element.html) and [`encodeToJsonElement()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/encode-to-json-element.html).
-These functions allow you to retrieve and insert JSON elements at specific points in the serialization process.
+These functions allow you to retrieve and insert JSON elements for the value the serializer is currently handling.
 
 Both `JsonDecoder` and `JsonEncoder` expose a `json` property that gives access to the active `Json` instance, which controls how values are encoded and decoded.
 Through that instance, you can use [`encodeToJsonElement()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/encode-to-json-element.html) and [`decodeFromJsonElement()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/decode-from-json-element.html) to convert
-between `JsonElement` instances and Kotlin objects.
+between [`JsonElement`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-element/) instances and Kotlin objects.
 
-Using these APIs, you can implement two-stage conversions. For example, you can:
+Using these APIs, you can implement two-stage conversions:
 
-* decode the input into a `JsonElement` first and then convert that element into a Kotlin value.
-* convert a Kotlin value into a `JsonElement` first and then encode that element with the encoder.
+* Decode the input into a `JsonElement` first and then convert that element into a Kotlin value.
+* Convert a Kotlin value into a `JsonElement` first and then encode that element with the encoder.
 
 Here's an example that shows how to implement a custom `KSerializer` to fully control how a type is encoded and decoded in JSON:
 
@@ -376,19 +350,15 @@ sealed class Response<out T> {
 }
 
 // Implements custom serialization logic for Response
-@OptIn(InternalSerializationApi::class)
 class ResponseSerializer<T>(
     private val dataSerializer: KSerializer<T>
 ) : KSerializer<Response<T>> {
-
-    override val descriptor: SerialDescriptor =
-        buildSerialDescriptor("Response", PolymorphicKind.SEALED) {
-            element("Ok", dataSerializer.descriptor)
-            element("Error", buildClassSerialDescriptor("Error") {
-                element<String>("message")
-            })
-        }
-
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("Response") {
+        element("Ok", dataSerializer.descriptor)
+        element("Error", buildClassSerialDescriptor("Error") {
+            element<String>("message")
+        })
+    }
     // Deserializes a Response value from JSON
     override fun deserialize(decoder: Decoder): Response<T> {
         // Ensures that the decoder is a JsonDecoder
@@ -482,8 +452,6 @@ object UnknownProjectSerializer : KSerializer<UnknownProject> {
 
         // Extracts and removes the name property
         val name = json.getValue("name").jsonPrimitive.content
-
-        // Collects all remaining JSON properties into the details field
         val details = json.toMutableMap()
         details.remove("name")
         return UnknownProject(name, JsonObject(details))
@@ -497,7 +465,7 @@ object UnknownProjectSerializer : KSerializer<UnknownProject> {
 fun main() {
     // Deserializes JSON with properties not defined in the serializable class into UnknownProject
     println(Json.decodeFromString(UnknownProjectSerializer, """{"type":"unknown","name":"example","maintainer":"Unknown","license":"Apache 2.0"}"""))
-    // UnknownProject(name=example, details={"type":"Unknown","maintainer":"Unknown","license":"Apache 2.0"})
+    // UnknownProject(name=example, details={"type":"unknown","maintainer":"Unknown","license":"Apache 2.0"})
 
 }
 //sampleEnd
