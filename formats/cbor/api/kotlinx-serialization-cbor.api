@@ -101,6 +101,13 @@ public final synthetic class kotlinx/serialization/cbor/CborLabel$Impl : kotlinx
 	public final synthetic fun label ()J
 }
 
+public abstract interface annotation class kotlinx/serialization/cbor/CborNullAsEmptyMap : java/lang/annotation/Annotation {
+}
+
+public final synthetic class kotlinx/serialization/cbor/CborNullAsEmptyMap$Impl : kotlinx/serialization/cbor/CborNullAsEmptyMap {
+	public fun <init> ()V
+}
+
 public final class kotlinx/serialization/cbor/CborTag {
 	public static final field BASE16 J
 	public static final field BASE64 J

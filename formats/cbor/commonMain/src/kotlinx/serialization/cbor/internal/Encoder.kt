@@ -28,7 +28,7 @@ internal sealed class CborWriter(
     override val cbor: Cbor,
     protected val output: ByteArrayOutput,
 ) : AbstractEncoder(), CborEncoder {
-    protected var isClass = false
+    protected var encodeNullAsEmptyMap = false
 
     protected var encodeByteArrayAsByteString = false
 
@@ -103,7 +103,7 @@ internal sealed class CborWriter(
 
 
     override fun encodeNull() {
-        if (isClass) getDestination().encodeEmptyMap()
+        if (encodeNullAsEmptyMap) getDestination().encodeEmptyMap()
         else getDestination().encodeNull()
     }
 
@@ -117,7 +117,7 @@ internal sealed class CborWriter(
 
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
         val destination = getDestination()
-        isClass = descriptor.getElementDescriptor(index).kind == StructureKind.CLASS
+        encodeNullAsEmptyMap = descriptor.getElementAnnotations(index).find { it is CborNullAsEmptyMap } != null
         encodeByteArrayAsByteString = descriptor.isByteString(index)
 
         val name = descriptor.getElementName(index)
