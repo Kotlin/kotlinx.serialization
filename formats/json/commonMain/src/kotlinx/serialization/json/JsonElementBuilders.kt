@@ -70,6 +70,14 @@ public class JsonObjectBuilder @PublishedApi internal constructor() {
     @IgnorableReturnValue
     public fun put(key: String, element: JsonElement): JsonElement? = content.put(key, element)
 
+    /**
+     * Remove the JSON Element associated with the given [key].
+     *
+     * Returns the previous value associated with [key], or `null` if the key was not present.
+     */
+    @ExperimentalSerializationApi
+    public fun remove(key: String): JsonElement? = content.remove(key)
+
     @PublishedApi
     internal fun build(): JsonObject = JsonObject(content)
 }
