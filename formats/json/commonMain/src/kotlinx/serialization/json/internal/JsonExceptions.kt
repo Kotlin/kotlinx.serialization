@@ -11,25 +11,78 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.json.*
 
 /**
- * Generic exception indicating a problem with JSON serialization and deserialization.
+ * Base type for all JSON-specific exceptions thrown by [Json].
+ *
+ * This class extends [SerializationException] and provides a uniform, user-friendly
+ * error message along with a compact [shortMessage] and an optional [hint].
+ *
+ * Notes:
+ * - The concrete subclasses format a verbose exception message that may include
+ *   additional context such as input offset, JSON path, and a minified input excerpt.
+ * - The [shortMessage] is intended to be concise and human-readable; it is included
+ *   in the full exception message as well.
+ * - The [hint] may contain actionable advice, e.g. enabling a specific
+ *   configuration option.
+ *
+ *
+ * @property shortMessage short, human-readable description of the error.
+ * @property hint optional suggestions for the developer that can help fix or diagnose the problem.
  */
 public sealed class JsonException(message: String) : SerializationException(message) {
     public abstract val shortMessage: String
     public abstract val hint: String?
 }
 /**
- * Thrown when [Json] has failed to parse the given JSON string or deserialize it to a target class.
+ * Thrown when [Json] fails to parse the given JSON or to deserialize it into a target type.
+ *
+ * The exception [message] is formatted to include, when available, the character [offset],
+ * the JSON [path] to the failing element, a [hint] with actionable guidance, and a
+ * minified excerpt of the original [input].
+ *
+ * Typical cases include malformed JSON, unexpected tokens, missing required fields,
+ * or values that cannot be read for the declared type.
+ *
+ * Notes about properties:
+ * - [offset]: zero-based character index in the input where the failure was detected,
+ *   or `-1` when the position is unknown.
+ * - [path]: JSON path to the element that failed to decode (e.g. `$.user.address[0].city`),
+ *   when available.
+ * - [input]: the original JSON input (or its minified excerpt in the message). Large inputs
+ *   are shortened with context around [offset].
+ * - [hint]: optional suggestions for the developer, e.g., enabling certain [Json] configuration options.
+ *
+ * @property shortMessage short, human-readable description of the decoding error.
+ * @property offset zero-based index of the error position in the input, or `-1` if unknown.
+ * @property path JSON path to the failing element when available, or `null`.
+ * @property input original input or its excerpt; used to build a contextual message.
+ * @property hint optional suggestions for the developer that can help fix or diagnose the problem.
  */
 public class JsonDecodingException(
     public override val shortMessage: String,
     public val offset: Int = -1,
     public val path: String? = null,
-    public val input: CharSequence? = null, // TODO: minify inputs
+    input: CharSequence? = null,
     public override val hint: String? = null
-) : JsonException(formatDecodingException(offset, shortMessage, path, hint, input)) // TODO: CopyableThrowable?
+) : JsonException( // TODO: CopyableThrowable (see StackTraceRecoveryTest.kt)?
+    formatDecodingException(offset, shortMessage, path, hint, input)
+) {
+    // Sadly, there's no way to minify it before passing to superclass, so we have to do it twice :(
+    public val input: CharSequence? = input?.minify(offset)
+}
 
 /**
- * Thrown when [Json] has failed to create a JSON string from the given value.
+ * Thrown when [Json] fails to encode a value to a JSON string.
+ *
+ * Typical cases include encountering values that cannot be represented in JSON
+ * (e.g., non-finite floating-point numbers when they are not allowed) or using
+ * unsupported types as map keys.
+ *
+ * The exception [message] includes [shortMessage] and, when present, a [hint] with
+ * actionable guidance for the developer.
+ *
+ * @property shortMessage short, human-readable description of the encoding error.
+ * @property classSerialName serial name of the affected class, if known; used for diagnostics.
+ * @property hint optional suggestions for the developer that can help fix or diagnose the problem.
  */
 public class JsonEncodingException(
     public override val shortMessage: String,
