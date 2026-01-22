@@ -122,7 +122,7 @@ public fun JsonPrimitive(value: Nothing?): JsonNull = JsonNull
 public fun JsonUnquotedLiteral(value: String?): JsonPrimitive {
     return when (value) {
         null -> JsonNull
-        JsonNull.content -> throw JsonEncodingException("Creating a literal unquoted value of 'null' is forbidden. If you want to create JSON null literal, use JsonNull object, otherwise, use JsonPrimitive")
+        JsonNull.content -> throw JsonEncodingException("Creating a literal unquoted value of 'null' is forbidden.", hint = "If you want to create JSON null literal, use JsonNull object, otherwise, use JsonPrimitive")
         else -> JsonLiteral(value, isString = false, coerceToInlineType = jsonUnquotedLiteralDescriptor)
     }
 }

@@ -547,16 +547,18 @@ internal abstract class AbstractJsonLexer {
                 }
                 TC_END_LIST -> {
                     if (tokenStack.last() != TC_BEGIN_LIST) throw JsonDecodingException(
+                        "found ] instead of }",
                         currentPosition,
-                        "found ] instead of } at path: $path",
+                        path.toString(),
                         source
                     )
                     tokenStack.removeLast()
                 }
                 TC_END_OBJ -> {
                     if (tokenStack.last() != TC_BEGIN_OBJ) throw JsonDecodingException(
+                        "found } instead of ]",
                         currentPosition,
-                        "found } instead of ] at path: $path",
+                        path.toString(),
                         source
                     )
                     tokenStack.removeLast()
@@ -578,14 +580,16 @@ internal abstract class AbstractJsonLexer {
         val processed = substring(0, currentPosition)
         val lastIndexOf = processed.lastIndexOf(key)
         throw JsonDecodingException(
-            "Encountered an unknown key '$key' at offset $lastIndexOf at path: ${path.getPath()}\n$ignoreUnknownKeysHint\n" +
-                "JSON input: ${source.minify(lastIndexOf)}"
+            "Encountered an unknown key '$key'",
+            lastIndexOf,
+            path.getPath(),
+            source,
+            ignoreUnknownKeysHint
         )
     }
 
     fun fail(message: String, position: Int = currentPosition, hint: String = ""): Nothing {
-        val hintMessage = if (hint.isEmpty()) "" else "\n$hint"
-        throw JsonDecodingException(position, message + " at path: " + path.getPath() + hintMessage, source)
+        throw JsonDecodingException(message, position, path.getPath(), source, hint)
     }
 
     fun consumeNumericLiteral(): Long {
@@ -613,26 +617,26 @@ internal abstract class AbstractJsonLexer {
         while (current != source.length) {
             val ch: Char = source[current]
             if ((ch == 'e' || ch == 'E') && !hasExponent) {
-                if (current == start) fail("Unexpected symbol $ch in numeric literal")
+                if (current == start) fail("Unexpected symbol '$ch' in numeric literal", current)
                 isExponentPositive = true
                 hasExponent = true
                 ++current
                 continue
             }
             if (ch == '-' && hasExponent) {
-                if (current == start) fail("Unexpected symbol '-' in numeric literal")
+                if (current == start) fail("Unexpected symbol '-' in numeric literal", current)
                 isExponentPositive = false
                 ++current
                 continue
             }
             if (ch == '+' && hasExponent) {
-                if (current == start) fail("Unexpected symbol '+' in numeric literal")
+                if (current == start) fail("Unexpected symbol '+' in numeric literal", current)
                 isExponentPositive = true
                 ++current
                 continue
             }
             if (ch == '-') {
-                if (current != start) fail("Unexpected symbol '-' in numeric literal")
+                if (current != start) fail("Unexpected symbol '-' in numeric literal", current)
                 isNegative = true
                 ++current
                 continue
@@ -641,7 +645,7 @@ internal abstract class AbstractJsonLexer {
             if (token != TC_OTHER) break
             ++current
             val digit = ch - '0'
-            if (digit !in 0..9) fail("Unexpected symbol '$ch' in numeric literal")
+            if (digit !in 0..9) fail("Unexpected symbol '$ch' in numeric literal", current - 1)
             if (hasExponent) {
                 exponentAccumulator = exponentAccumulator * 10 + digit
                 continue
@@ -651,11 +655,11 @@ internal abstract class AbstractJsonLexer {
         }
         val hasChars = current != start
         if (start == current || (isNegative && start == current - 1)) {
-            fail("Expected numeric literal")
+            fail("Expected numeric literal", current)
         }
         if (hasQuotation) {
             if (!hasChars) fail("EOF")
-            if (source[current] != STRING) fail("Expected closing quotation mark")
+            if (source[current] != STRING) fail("Expected closing quotation mark", current)
             ++current
         }
         currentPosition = current

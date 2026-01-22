@@ -248,7 +248,7 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : Intern
             }
 
             else -> {
-                throw JsonEncodingException("Unexpected code point: $codePoint")
+                throw JsonEncodingException("Unexpected code point: $codePoint. Check your strings for malformed UTF-8 sequences.")
             }
         }
     }

@@ -13,38 +13,56 @@ import kotlinx.serialization.json.*
 /**
  * Generic exception indicating a problem with JSON serialization and deserialization.
  */
-internal open class JsonException(message: String) : SerializationException(message)
-
+public sealed class JsonException(message: String) : SerializationException(message) {
+    public abstract val shortMessage: String
+    public abstract val hint: String?
+}
 /**
  * Thrown when [Json] has failed to parse the given JSON string or deserialize it to a target class.
  */
-internal class JsonDecodingException(message: String) : JsonException(message)
-
-internal fun JsonDecodingException(offset: Int, message: String) =
-    JsonDecodingException(if (offset >= 0) "Unexpected JSON token at offset $offset: $message" else message)
+public class JsonDecodingException(
+    public override val shortMessage: String,
+    public val offset: Int = -1,
+    public val path: String? = null,
+    public val input: CharSequence? = null, // TODO: minify inputs
+    public override val hint: String? = null
+) : JsonException(formatDecodingException(offset, shortMessage, path, hint, input)) // TODO: CopyableThrowable?
 
 /**
  * Thrown when [Json] has failed to create a JSON string from the given value.
  */
-internal class JsonEncodingException(message: String) : JsonException(message)
+public class JsonEncodingException(
+    public override val shortMessage: String,
+    public val classSerialName: String? = null,
+    public override val hint: String? = null
+) : JsonException(formatEncodingException(shortMessage, hint))
 
-internal fun JsonDecodingException(offset: Int, message: String, input: CharSequence) =
-    JsonDecodingException(offset, "$message\nJSON input: ${input.minify(offset)}")
-
-internal fun InvalidFloatingPointEncoded(value: Number, output: String) = JsonEncodingException(
-    "Unexpected special floating-point value $value. By default, " +
-            "non-finite floating point values are prohibited because they do not conform JSON specification. " +
-            "$specialFlowingValuesHint\n" +
-            "Current output: ${output.minify()}"
-)
-
-
-// Extension on JSON reader and fail immediately
-internal fun AbstractJsonLexer.throwInvalidFloatingPointDecoded(result: Number): Nothing {
-    fail("Unexpected special floating-point value $result. By default, " +
-            "non-finite floating point values are prohibited because they do not conform JSON specification",
-        hint = specialFlowingValuesHint)
+private fun formatEncodingException(shortMessage: String, hint: String?): String {
+    return shortMessage + if (hint.isNullOrBlank()) "" else "\n$hint"
 }
+
+private fun formatDecodingException(
+    offset: Int,
+    shortMessage: String,
+    path: String?,
+    hint: String?,
+    input: CharSequence?,
+): String = buildString {
+    if (offset >= 0) append("Unexpected JSON token at offset $offset: ")
+    append(shortMessage)
+
+    if (!path.isNullOrBlank()) {
+        append(" at path: ")
+        append(path)
+    }
+    if (!hint.isNullOrBlank()) {
+        append("\n$hint")
+    }
+    if (input != null) {
+        append("\nJSON input: ${input.minify(offset)}")
+    }
+}
+
 
 internal fun AbstractJsonLexer.invalidTrailingComma(entity: String = "object"): Nothing {
     fail("Trailing comma before the end of JSON $entity",
@@ -53,27 +71,27 @@ internal fun AbstractJsonLexer.invalidTrailingComma(entity: String = "object"): 
     )
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 internal fun InvalidKeyKindException(keyDescriptor: SerialDescriptor) = JsonEncodingException(
     "Value of type '${keyDescriptor.serialName}' can't be used in JSON as a key in the map. " +
-            "It should have either primitive or enum kind, but its kind is '${keyDescriptor.kind}'.\n" +
-            allowStructuredMapKeysHint
+        "It should have either primitive or enum kind, but its kind is '${keyDescriptor.kind}'",
+    classSerialName = keyDescriptor.serialName,
+    hint = allowStructuredMapKeysHint
 )
 
-// Exceptions for tree-based decoder
-
-internal fun InvalidFloatingPointEncoded(value: Number, key: String, output: String) =
-    JsonEncodingException(unexpectedFpErrorMessage(value, key, output))
-
-internal fun InvalidFloatingPointDecoded(value: Number, key: String, output: String) =
-    JsonDecodingException(-1, unexpectedFpErrorMessage(value, key, output))
-
-private fun unexpectedFpErrorMessage(value: Number, key: String, output: String): String {
-    return "Unexpected special floating-point value $value with key $key. By default, " +
-            "non-finite floating point values are prohibited because they do not conform JSON specification. " +
-            "$specialFlowingValuesHint\n" +
-            "Current output: ${output.minify()}"
+// Invalid FP messages:
+internal fun AbstractJsonLexer.throwInvalidFloatingPointDecoded(result: Number): Nothing {
+    fail(nonFiniteFpMessage(result, null), hint = specialFlowingValuesHint)
 }
+
+internal fun InvalidFloatingPointEncoded(value: Number, key: String? = null) =
+    JsonEncodingException(nonFiniteFpMessage(value, key), hint = specialFlowingValuesHint)
+
+internal fun InvalidFloatingPointDecoded(value: Number, key: String, input: String) =
+    JsonDecodingException(nonFiniteFpMessage(value, key), input = input, hint = specialFlowingValuesHint)
+
+private fun nonFiniteFpMessage(value: Number, key: String?): String =
+    "Unexpected special floating-point value $value" + if (key != null) " with key $key. " else ". " + "By default, " +
+        "non-finite floating point values are prohibited because they do not conform JSON specification."
 
 internal fun CharSequence.minify(offset: Int = -1): CharSequence {
     if (length < 200) return this

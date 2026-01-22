@@ -71,7 +71,7 @@ internal object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
 
     override fun deserialize(decoder: Decoder): JsonPrimitive {
         val result = decoder.asJsonDecoder().decodeJsonElement()
-        if (result !is JsonPrimitive) throw JsonDecodingException(-1, "Unexpected JSON element, expected JsonPrimitive, had ${result::class}", result.toString())
+        if (result !is JsonPrimitive) throw JsonDecodingException("Unexpected JSON element, expected JsonPrimitive, had ${result::class}", input = result.toString())
         return result
     }
 }
@@ -135,7 +135,7 @@ private object JsonLiteralSerializer : KSerializer<JsonLiteral> {
 
     override fun deserialize(decoder: Decoder): JsonLiteral {
         val result = decoder.asJsonDecoder().decodeJsonElement()
-        if (result !is JsonLiteral) throw JsonDecodingException(-1, "Unexpected JSON element, expected JsonLiteral, had ${result::class}", result.toString())
+        if (result !is JsonLiteral) throw JsonDecodingException("Unexpected JSON element, expected JsonLiteral, had ${result::class}", input = result.toString())
         return result
     }
 }

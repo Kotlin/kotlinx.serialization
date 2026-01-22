@@ -95,7 +95,7 @@ private sealed class AbstractJsonTreeDecoder(
 
     private fun unparsedPrimitive(literal: JsonPrimitive, primitive: String, tag: String): Nothing {
         val type = if (primitive.startsWith("i")) "an $primitive" else "a $primitive"
-        throw JsonDecodingException(-1, "Failed to parse literal '$literal' as $type value at element: ${renderTagStack(tag)}", currentObject().toString())
+        throw JsonDecodingException("Failed to parse literal '$literal' as $type value", path = renderTagStack(tag), input = currentObject().toString())
     }
 
     protected abstract fun currentElement(tag: String): JsonElement
@@ -149,10 +149,10 @@ private sealed class AbstractJsonTreeDecoder(
     override fun decodeTaggedString(tag: String): String {
         val value = cast<JsonPrimitive>(currentElement(tag), "string", tag)
         if (value !is JsonLiteral)
-            throw JsonDecodingException(-1, "Expected string value for a non-null key '$tag', got null literal instead at element: ${renderTagStack(tag)}", currentObject().toString())
+            throw JsonDecodingException("Expected string value for a non-null key '$tag', got null literal instead", path = renderTagStack(tag), input = currentObject().toString())
         if (!value.isString && !json.configuration.isLenient) {
             throw JsonDecodingException(
-                -1, "String literal for key '$tag' should be quoted at element: ${renderTagStack(tag)}.\n$lenientHint", currentObject().toString()
+                "String literal for key '$tag' should be quoted", -1, renderTagStack(tag), currentObject().toString(), lenientHint
             )
         }
         return value.content
@@ -290,10 +290,11 @@ private open class JsonTreeDecoder(
         for (key in value.keys) {
             if (key !in names && key != polymorphicDiscriminator) {
                 throw JsonDecodingException(
+                    "Encountered an unknown key '$key'",
                     -1,
-                    "Encountered an unknown key '$key' at element: ${renderTagStack()}\n" +
-                        "$ignoreUnknownKeysHint\n" +
-                        "JSON input: ${value.toString().minify()}"
+                    renderTagStack(),
+                    value.toString(),
+                    ignoreUnknownKeysHint
                 )
             }
         }

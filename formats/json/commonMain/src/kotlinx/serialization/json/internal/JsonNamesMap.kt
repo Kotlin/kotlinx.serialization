@@ -61,7 +61,8 @@ internal fun SerialDescriptor.serializationNamesIndices(json: Json, strategy: Js
             val name = strategy.serialNameForJson(this, i, baseName)
             if (!trackingSet.add(name)) throw JsonEncodingException(
                 "The transformed name '$name' for property $baseName already exists " +
-                    "in ${this@serializationNamesIndices}"
+                    "in ${this@serializationNamesIndices}",
+                classSerialName = this@serializationNamesIndices.serialName,
             )
             name
         }
