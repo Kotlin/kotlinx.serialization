@@ -21,7 +21,6 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
     private val baseSerializer: KSerializer<Base>? = null
 ) {
     private val subclasses: MutableList<Pair<KClass<out Base>, KSerializer<out Base>>> = mutableListOf()
-    private var defaultSerializerProvider: ((Base) -> SerializationStrategy<Base>?)? = null
     private var defaultDeserializerProvider: ((String?) -> DeserializationStrategy<Base>?)? = null
 
 
@@ -84,7 +83,7 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
      * 
      */
     @ExperimentalSerializationApi
-    public fun <T: Base> subclassesOfSealed(serializer: KSerializer<T>) {
+    public fun <T : Base> subclassesOfSealed(serializer: KSerializer<T>) {
         // Note that the parameter type is `KSerializer` as `SealedClassSerializer` is an internal type
         // not available to users
         require(serializer is SealedClassSerializer) {
@@ -92,7 +91,7 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
         }
         for ((subsubclass, subserializer) in serializer.class2Serializer.entries) {
             // This error would be caught by the Json format in its validation, but this is format specific
-            require (subserializer.descriptor.kind != PolymorphicKind.OPEN) {
+            require(subserializer.descriptor.kind != PolymorphicKind.OPEN) {
                 "It is not possible to register subclasses (${serializer.descriptor.serialName}) of sealed types when those subclasses " +
                     "themselves are (open) polymorphic, as this would represent an incomplete hierarchy."
             }
@@ -170,11 +169,6 @@ public class PolymorphicModuleBuilder<in Base : Any> @PublishedApi internal cons
                 kclass as KClass<Base>,
                 serializer.cast()
             )
-        }
-
-        val defaultSerializer = defaultSerializerProvider
-        if (defaultSerializer != null) {
-            builder.registerDefaultPolymorphicSerializer(baseClass, defaultSerializer, false)
         }
 
         val defaultDeserializer = defaultDeserializerProvider
