@@ -434,6 +434,30 @@ public final class kotlinx/serialization/json/internal/InternalJsonWriter$Compan
 	public final fun doWriteEscaping (Ljava/lang/String;Lkotlin/jvm/functions/Function3;)V
 }
 
+public final class kotlinx/serialization/json/internal/JsonDecodingException : kotlinx/serialization/json/internal/JsonException {
+	public fun <init> (Ljava/lang/String;ILjava/lang/String;Ljava/lang/CharSequence;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;ILjava/lang/String;Ljava/lang/CharSequence;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getHint ()Ljava/lang/String;
+	public final fun getInput ()Ljava/lang/CharSequence;
+	public final fun getOffset ()I
+	public final fun getPath ()Ljava/lang/String;
+	public fun getShortMessage ()Ljava/lang/String;
+}
+
+public final class kotlinx/serialization/json/internal/JsonEncodingException : kotlinx/serialization/json/internal/JsonException {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getClassSerialName ()Ljava/lang/String;
+	public fun getHint ()Ljava/lang/String;
+	public fun getShortMessage ()Ljava/lang/String;
+}
+
+public abstract class kotlinx/serialization/json/internal/JsonException : kotlinx/serialization/SerializationException {
+	public synthetic fun <init> (Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public abstract fun getHint ()Ljava/lang/String;
+	public abstract fun getShortMessage ()Ljava/lang/String;
+}
+
 public final class kotlinx/serialization/json/internal/JsonStreamsKt {
 	public static final fun decodeByReader (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/DeserializationStrategy;Lkotlinx/serialization/json/internal/InternalJsonReader;)Ljava/lang/Object;
 	public static final fun decodeToSequenceByReader (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/json/internal/InternalJsonReader;Lkotlinx/serialization/DeserializationStrategy;Lkotlinx/serialization/json/DecodeSequenceMode;)Lkotlin/sequences/Sequence;

@@ -1,5 +1,6 @@
 package kotlinx.serialization.json.internal
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -209,6 +210,7 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : Intern
     /**
      * Sources taken from okio library with minor changes, see https://github.com/square/okio
      */
+    @OptIn(ExperimentalSerializationApi::class)
     private fun writeUtf8CodePoint(codePoint: Int) {
         when {
             codePoint < 0x80 -> {

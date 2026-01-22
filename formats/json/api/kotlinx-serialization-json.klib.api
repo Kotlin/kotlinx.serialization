@@ -131,6 +131,32 @@ abstract class kotlinx.serialization.json.internal/InternalJsonReaderCodePointIm
     final fun read(kotlin/CharArray, kotlin/Int, kotlin/Int): kotlin/Int // kotlinx.serialization.json.internal/InternalJsonReaderCodePointImpl.read|read(kotlin.CharArray;kotlin.Int;kotlin.Int){}[0]
 }
 
+final class kotlinx.serialization.json.internal/JsonDecodingException : kotlinx.serialization.json.internal/JsonException { // kotlinx.serialization.json.internal/JsonDecodingException|null[0]
+    constructor <init>(kotlin/String, kotlin/Int = ..., kotlin/String? = ..., kotlin/CharSequence? = ..., kotlin/String? = ...) // kotlinx.serialization.json.internal/JsonDecodingException.<init>|<init>(kotlin.String;kotlin.Int;kotlin.String?;kotlin.CharSequence?;kotlin.String?){}[0]
+
+    final val hint // kotlinx.serialization.json.internal/JsonDecodingException.hint|{}hint[0]
+        final fun <get-hint>(): kotlin/String? // kotlinx.serialization.json.internal/JsonDecodingException.hint.<get-hint>|<get-hint>(){}[0]
+    final val input // kotlinx.serialization.json.internal/JsonDecodingException.input|{}input[0]
+        final fun <get-input>(): kotlin/CharSequence? // kotlinx.serialization.json.internal/JsonDecodingException.input.<get-input>|<get-input>(){}[0]
+    final val offset // kotlinx.serialization.json.internal/JsonDecodingException.offset|{}offset[0]
+        final fun <get-offset>(): kotlin/Int // kotlinx.serialization.json.internal/JsonDecodingException.offset.<get-offset>|<get-offset>(){}[0]
+    final val path // kotlinx.serialization.json.internal/JsonDecodingException.path|{}path[0]
+        final fun <get-path>(): kotlin/String? // kotlinx.serialization.json.internal/JsonDecodingException.path.<get-path>|<get-path>(){}[0]
+    final val shortMessage // kotlinx.serialization.json.internal/JsonDecodingException.shortMessage|{}shortMessage[0]
+        final fun <get-shortMessage>(): kotlin/String // kotlinx.serialization.json.internal/JsonDecodingException.shortMessage.<get-shortMessage>|<get-shortMessage>(){}[0]
+}
+
+final class kotlinx.serialization.json.internal/JsonEncodingException : kotlinx.serialization.json.internal/JsonException { // kotlinx.serialization.json.internal/JsonEncodingException|null[0]
+    constructor <init>(kotlin/String, kotlin/String? = ..., kotlin/String? = ...) // kotlinx.serialization.json.internal/JsonEncodingException.<init>|<init>(kotlin.String;kotlin.String?;kotlin.String?){}[0]
+
+    final val classSerialName // kotlinx.serialization.json.internal/JsonEncodingException.classSerialName|{}classSerialName[0]
+        final fun <get-classSerialName>(): kotlin/String? // kotlinx.serialization.json.internal/JsonEncodingException.classSerialName.<get-classSerialName>|<get-classSerialName>(){}[0]
+    final val hint // kotlinx.serialization.json.internal/JsonEncodingException.hint|{}hint[0]
+        final fun <get-hint>(): kotlin/String? // kotlinx.serialization.json.internal/JsonEncodingException.hint.<get-hint>|<get-hint>(){}[0]
+    final val shortMessage // kotlinx.serialization.json.internal/JsonEncodingException.shortMessage|{}shortMessage[0]
+        final fun <get-shortMessage>(): kotlin/String // kotlinx.serialization.json.internal/JsonEncodingException.shortMessage.<get-shortMessage>|<get-shortMessage>(){}[0]
+}
+
 final class kotlinx.serialization.json/JsonArray : kotlin.collections/List<kotlinx.serialization.json/JsonElement>, kotlinx.serialization.json/JsonElement { // kotlinx.serialization.json/JsonArray|null[0]
     constructor <init>(kotlin.collections/List<kotlinx.serialization.json/JsonElement>) // kotlinx.serialization.json/JsonArray.<init>|<init>(kotlin.collections.List<kotlinx.serialization.json.JsonElement>){}[0]
 
@@ -298,6 +324,13 @@ final class kotlinx.serialization.json/JsonObjectBuilder { // kotlinx.serializat
 
     final fun build(): kotlinx.serialization.json/JsonObject // kotlinx.serialization.json/JsonObjectBuilder.build|build(){}[0]
     final fun put(kotlin/String, kotlinx.serialization.json/JsonElement): kotlinx.serialization.json/JsonElement? // kotlinx.serialization.json/JsonObjectBuilder.put|put(kotlin.String;kotlinx.serialization.json.JsonElement){}[0]
+}
+
+sealed class kotlinx.serialization.json.internal/JsonException : kotlinx.serialization/SerializationException { // kotlinx.serialization.json.internal/JsonException|null[0]
+    abstract val hint // kotlinx.serialization.json.internal/JsonException.hint|{}hint[0]
+        abstract fun <get-hint>(): kotlin/String? // kotlinx.serialization.json.internal/JsonException.hint.<get-hint>|<get-hint>(){}[0]
+    abstract val shortMessage // kotlinx.serialization.json.internal/JsonException.shortMessage|{}shortMessage[0]
+        abstract fun <get-shortMessage>(): kotlin/String // kotlinx.serialization.json.internal/JsonException.shortMessage.<get-shortMessage>|<get-shortMessage>(){}[0]
 }
 
 sealed class kotlinx.serialization.json/Json : kotlinx.serialization/StringFormat { // kotlinx.serialization.json/Json|null[0]

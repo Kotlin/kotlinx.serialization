@@ -3,6 +3,7 @@
  */
 
 @file:Suppress("unused")
+@file:OptIn(ExperimentalSerializationApi::class)
 
 package kotlinx.serialization.json
 

@@ -4,6 +4,7 @@
 
 package kotlinx.serialization.json.internal
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.internal.CharMappings.CHAR_TO_TOKEN
 import kotlinx.serialization.json.internal.CharMappings.ESCAPE_2_CHAR
 import kotlin.js.*
@@ -528,6 +529,7 @@ internal abstract class AbstractJsonLexer {
         }
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     fun skipElement(allowLenientStrings: Boolean) {
         val tokenStack = mutableListOf<Byte>()
         var lastToken = peekNextToken()
@@ -574,6 +576,7 @@ internal abstract class AbstractJsonLexer {
         return "JsonReader(source='$source', currentPosition=$currentPosition)"
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     fun failOnUnknownKey(key: String) {
         // At this moment we already have both key and semicolon (and whitespaces! consumed),
         // but still would like an error to point to the beginning of the key, so we are backtracking it
@@ -588,6 +591,7 @@ internal abstract class AbstractJsonLexer {
         )
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     fun fail(message: String, position: Int = currentPosition, hint: String = ""): Nothing {
         throw JsonDecodingException(message, position, path.getPath(), source, hint)
     }

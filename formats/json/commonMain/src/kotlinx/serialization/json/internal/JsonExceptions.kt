@@ -28,6 +28,7 @@ import kotlinx.serialization.json.*
  * @property shortMessage short, human-readable description of the error.
  * @property hint optional suggestions for the developer that can help fix or diagnose the problem.
  */
+@ExperimentalSerializationApi // TODO: consider making only properties experimental?
 public sealed class JsonException(message: String) : SerializationException(message) {
     public abstract val shortMessage: String
     public abstract val hint: String?
@@ -57,6 +58,7 @@ public sealed class JsonException(message: String) : SerializationException(mess
  * @property input original input or its excerpt; used to build a contextual message.
  * @property hint optional suggestions for the developer that can help fix or diagnose the problem.
  */
+@ExperimentalSerializationApi
 public class JsonDecodingException(
     public override val shortMessage: String,
     public val offset: Int = -1,
@@ -84,6 +86,7 @@ public class JsonDecodingException(
  * @property classSerialName serial name of the affected class, if known; used for diagnostics.
  * @property hint optional suggestions for the developer that can help fix or diagnose the problem.
  */
+@ExperimentalSerializationApi
 public class JsonEncodingException(
     public override val shortMessage: String,
     public val classSerialName: String? = null,
@@ -124,6 +127,7 @@ internal fun AbstractJsonLexer.invalidTrailingComma(entity: String = "object"): 
     )
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 internal fun InvalidKeyKindException(keyDescriptor: SerialDescriptor) = JsonEncodingException(
     "Value of type '${keyDescriptor.serialName}' can't be used in JSON as a key in the map. " +
         "It should have either primitive or enum kind, but its kind is '${keyDescriptor.kind}'",
@@ -136,9 +140,11 @@ internal fun AbstractJsonLexer.throwInvalidFloatingPointDecoded(result: Number):
     fail(nonFiniteFpMessage(result, null), hint = specialFlowingValuesHint)
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 internal fun InvalidFloatingPointEncoded(value: Number, key: String? = null) =
     JsonEncodingException(nonFiniteFpMessage(value, key), hint = specialFlowingValuesHint)
 
+@OptIn(ExperimentalSerializationApi::class)
 internal fun InvalidFloatingPointDecoded(value: Number, key: String, input: String) =
     JsonDecodingException(nonFiniteFpMessage(value, key), input = input, hint = specialFlowingValuesHint)
 
