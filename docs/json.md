@@ -197,7 +197,7 @@ However, line (2) throws `SerializationException` because there is no "unknownKe
 ```text
 Outer(a=1, inner=Inner(x=value))
 
-Exception in thread "main" kotlinx.serialization.json.internal.JsonDecodingException: Encountered an unknown key 'unknownKey' at offset 29 at path: $.inner
+Exception in thread "main" kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 29: Encountered an unknown key 'unknownKey' at path: $.inner
 Use 'ignoreUnknownKeys = true' in 'Json {}' builder or '@JsonIgnoreUnknownKeys' annotation to ignore unknown keys.
 ```
 
@@ -1052,7 +1052,7 @@ fun main() {
 > You can get the full code [here](../guide/example/example-json-25.kt).
 
 ```text
-Exception in thread "main" kotlinx.serialization.json.internal.JsonEncodingException: Creating a literal unquoted value of 'null' is forbidden. If you want to create JSON null literal, use JsonNull object, otherwise, use JsonPrimitive
+Exception in thread "main" kotlinx.serialization.json.internal.JsonEncodingException: Creating a literal unquoted value of 'null' is forbidden.
 ```
 
 <!--- TEST LINES_START -->
