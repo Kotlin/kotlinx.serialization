@@ -4,6 +4,8 @@
 
 package kotlinx.serialization.json.internal
 
+import kotlin.native.concurrent.*
+
 /**
  * Creates a ConcurrentHashMap on JVM and regular HashMap on other platforms.
  * To make actual use of cache in Kotlin/Native, mark a top-level object with this map
