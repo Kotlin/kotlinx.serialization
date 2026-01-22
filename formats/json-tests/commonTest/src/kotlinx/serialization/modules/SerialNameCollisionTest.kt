@@ -6,7 +6,7 @@ package kotlinx.serialization.modules
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
-import kotlinx.serialization.test.assertFailsWithMessage
+import kotlinx.serialization.test.checkEncodingException
 import kotlin.test.*
 
 private const val prefix = "kotlinx.serialization.modules.SerialNameCollisionTest"
@@ -37,19 +37,30 @@ class SerialNameCollisionTest {
         serializersModule = context
     }
 
+    val defaultHint = "change class discriminator in JsonConfiguration, or rename property"
+
     @Test
     fun testCollisionWithDiscriminator() {
+        val mode = JsonTestingMode.STREAMING // all exception messages are equal
         val module = SerializersModule {
             polymorphic(Base::class) {
                 subclass(Derived.serializer())
             }
         }
 
-        assertFailsWithMessage<SerializationException>("Class 'kotlinx.serialization.modules.SerialNameCollisionTest.Derived' cannot be serialized as base class 'kotlinx.serialization.Polymorphic<Base>' because it has property name that conflicts with JSON class discriminator 'type'.") {
+        checkEncodingException(mode, {
             Json("type", module).encodeToString<Base>(Derived("foo", "bar"))
+        }) {
+            message("Class 'kotlinx.serialization.modules.SerialNameCollisionTest.Derived' cannot be serialized as base class 'kotlinx.serialization.Polymorphic<Base>' because it has property name that conflicts with JSON class discriminator 'type'.")
+            serialName("kotlinx.serialization.modules.SerialNameCollisionTest.Derived")
+            hint(defaultHint)
         }
-        assertFailsWithMessage<SerializationException>("Class 'kotlinx.serialization.modules.SerialNameCollisionTest.Derived' cannot be serialized as base class 'kotlinx.serialization.Polymorphic<Base>' because it has property name that conflicts with JSON class discriminator 'type2'.") {
+        checkEncodingException(mode, {
             Json("type2", module).encodeToString<Base>(Derived("foo", "bar"))
+        }) {
+            message("Class 'kotlinx.serialization.modules.SerialNameCollisionTest.Derived' cannot be serialized as base class 'kotlinx.serialization.Polymorphic<Base>' because it has property name that conflicts with JSON class discriminator 'type2'.")
+            serialName("kotlinx.serialization.modules.SerialNameCollisionTest.Derived")
+            hint(defaultHint)
         }
         assertEquals("{\"type3\":\"kotlinx.serialization.modules.SerialNameCollisionTest.Derived\",\"type\":\"foo\",\"type2\":\"bar\"}",
             Json("type3", module).encodeToString<Base>(Derived("foo", "bar"))
@@ -68,20 +79,33 @@ class SerialNameCollisionTest {
 
     @Test
     fun testCollisionWithDiscriminatorViaSerialNames() {
+        val mode = JsonTestingMode.STREAMING // all exception messages are equal
         val module = SerializersModule {
             polymorphic(Base::class) {
                 subclass(DerivedCustomized.serializer())
             }
         }
 
-        assertFailsWithMessage<SerializationException>("Class 'kotlinx.serialization.modules.SerialNameCollisionTest.DerivedCustomized' cannot be serialized as base class 'kotlinx.serialization.Polymorphic<Base>' because it has property name that conflicts with JSON class discriminator 'type'.") {
+        checkEncodingException(mode, {
             Json("type", module).encodeToString<Base>(DerivedCustomized("foo", "bar", "t3"))
+        }) {
+            message("Class 'kotlinx.serialization.modules.SerialNameCollisionTest.DerivedCustomized' cannot be serialized as base class 'kotlinx.serialization.Polymorphic<Base>' because it has property name that conflicts with JSON class discriminator 'type'.")
+            serialName("kotlinx.serialization.modules.SerialNameCollisionTest.DerivedCustomized")
+            hint(defaultHint)
         }
-        assertFailsWithMessage<SerializationException>("Class 'kotlinx.serialization.modules.SerialNameCollisionTest.DerivedCustomized' cannot be serialized as base class 'kotlinx.serialization.Polymorphic<Base>' because it has property name that conflicts with JSON class discriminator 'type2'.") {
+        checkEncodingException(mode, {
             Json("type2", module).encodeToString<Base>(DerivedCustomized("foo", "bar", "t3"))
+        }) {
+            message("Class 'kotlinx.serialization.modules.SerialNameCollisionTest.DerivedCustomized' cannot be serialized as base class 'kotlinx.serialization.Polymorphic<Base>' because it has property name that conflicts with JSON class discriminator 'type2'.")
+            serialName("kotlinx.serialization.modules.SerialNameCollisionTest.DerivedCustomized")
+            hint(defaultHint)
         }
-        assertFailsWithMessage<SerializationException>("Class 'kotlinx.serialization.modules.SerialNameCollisionTest.DerivedCustomized' cannot be serialized as base class 'kotlinx.serialization.Polymorphic<Base>' because it has property name that conflicts with JSON class discriminator 't3'.") {
+        checkEncodingException(mode, {
             Json("t3", module).encodeToString<Base>(DerivedCustomized("foo", "bar", "t3"))
+        }) {
+            message("Class 'kotlinx.serialization.modules.SerialNameCollisionTest.DerivedCustomized' cannot be serialized as base class 'kotlinx.serialization.Polymorphic<Base>' because it has property name that conflicts with JSON class discriminator 't3'.")
+            serialName("kotlinx.serialization.modules.SerialNameCollisionTest.DerivedCustomized")
+            hint(defaultHint)
         }
         assertEquals("{\"t4\":\"kotlinx.serialization.modules.SerialNameCollisionTest.DerivedCustomized\",\"type\":\"foo\",\"type2\":\"bar\",\"t3\":\"t3\"}",
         Json("t4", module).encodeToString<Base>(DerivedCustomized("foo", "bar", "t3"))

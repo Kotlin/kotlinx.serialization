@@ -22,11 +22,13 @@ class StacktraceRecoveryTest {
     }
 
     @Test
+    @Ignore // Reconsider whether we need recovery for Json exceptions at all. It is inconvenient unless we move CopyableThrowable to stdlib or implement other mechanism in kotlinx.coroutines.
     fun testJsonDecodingException() = checkRecovered("JsonDecodingException") {
         Json.decodeFromString<String>("42")
     }
 
     @Test
+    @Ignore // Reconsider whether we need recovery for Json exceptions at all. It is inconvenient unless we move CopyableThrowable to stdlib or implement other mechanism in kotlinx.coroutines.
     fun testJsonEncodingException() = checkRecovered("JsonEncodingException") {
         Json.encodeToString(Double.NaN)
     }

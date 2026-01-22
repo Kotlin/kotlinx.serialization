@@ -41,6 +41,9 @@ public class JsonConfiguration @OptIn(ExperimentalSerializationApi::class) inter
         level = DeprecationLevel.ERROR
     )
     public var classDiscriminatorMode: ClassDiscriminatorMode = ClassDiscriminatorMode.POLYMORPHIC,
+
+    @ExperimentalSerializationApi
+    public var addInputsToExceptionMessages: Boolean = true,
 ) {
 
     /** @suppress Dokka **/
@@ -51,7 +54,7 @@ public class JsonConfiguration @OptIn(ExperimentalSerializationApi::class) inter
                 "prettyPrintIndent='$prettyPrintIndent', coerceInputValues=$coerceInputValues, useArrayPolymorphism=$useArrayPolymorphism, " +
                 "classDiscriminator='$classDiscriminator', allowSpecialFloatingPointValues=$allowSpecialFloatingPointValues, " +
                 "useAlternativeNames=$useAlternativeNames, namingStrategy=$namingStrategy, decodeEnumsCaseInsensitive=$decodeEnumsCaseInsensitive, " +
-                "allowTrailingComma=$allowTrailingComma, allowComments=$allowComments, classDiscriminatorMode=$classDiscriminatorMode)"
+                "allowTrailingComma=$allowTrailingComma, allowComments=$allowComments, classDiscriminatorMode=$classDiscriminatorMode, addInputsToExceptionMessages=$addInputsToExceptionMessages)"
     }
 }
 

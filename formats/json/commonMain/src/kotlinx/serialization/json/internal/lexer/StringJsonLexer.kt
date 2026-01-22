@@ -6,10 +6,17 @@ package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.json.*
 
-internal fun StringJsonLexer(json: Json, source: String) = if (!json.configuration.allowComments) StringJsonLexer(source) else StringJsonLexerWithComments(source)
+internal fun StringJsonLexer(json: Json, source: String) =
+    if (!json.configuration.allowComments)
+        StringJsonLexer(source, json.configuration)
+    else
+        StringJsonLexerWithComments(source, json.configuration)
 
 @Suppress("unused")
-internal open class StringJsonLexer(override val source: String) : AbstractJsonLexer() {
+internal open class StringJsonLexer(
+    override val source: String,
+    configuration: JsonConfiguration
+) : AbstractJsonLexer(configuration) {
 
     override fun prefetchOrEof(position: Int): Int = if (position < source.length) position else -1
 
@@ -123,4 +130,3 @@ internal open class StringJsonLexer(override val source: String) : AbstractJsonL
         }
     }
 }
-

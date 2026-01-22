@@ -95,7 +95,9 @@ private sealed class AbstractJsonTreeDecoder(
 
     private fun unparsedPrimitive(literal: JsonPrimitive, primitive: String, tag: String): Nothing {
         val type = if (primitive.startsWith("i")) "an $primitive" else "a $primitive"
-        throw JsonDecodingException(-1, "Failed to parse literal '$literal' as $type value at element: ${renderTagStack(tag)}", currentObject().toString())
+        throw decodingExceptionOf("Failed to parse literal '$literal' as $type value", path = renderTagStack(tag)) {
+            currentObject().toString()
+        }
     }
 
     protected abstract fun currentElement(tag: String): JsonElement
@@ -134,14 +136,14 @@ private sealed class AbstractJsonTreeDecoder(
         val result = getPrimitiveValue(tag, "float") { float }
         val specialFp = json.configuration.allowSpecialFloatingPointValues
         if (specialFp || result.isFinite()) return result
-        throw InvalidFloatingPointDecoded(result, tag, currentObject().toString())
+        throw InvalidFloatingPointDecoded(result, tag) { currentObject().toString() }
     }
 
     override fun decodeTaggedDouble(tag: String): Double {
         val result = getPrimitiveValue(tag, "double") { double }
         val specialFp = json.configuration.allowSpecialFloatingPointValues
         if (specialFp || result.isFinite()) return result
-        throw InvalidFloatingPointDecoded(result, tag, currentObject().toString())
+        throw InvalidFloatingPointDecoded(result, tag) { currentObject().toString() }
     }
 
     override fun decodeTaggedChar(tag: String): Char = getPrimitiveValue(tag, "char") { content.single() }
@@ -149,11 +151,13 @@ private sealed class AbstractJsonTreeDecoder(
     override fun decodeTaggedString(tag: String): String {
         val value = cast<JsonPrimitive>(currentElement(tag), "string", tag)
         if (value !is JsonLiteral)
-            throw JsonDecodingException(-1, "Expected string value for a non-null key '$tag', got null literal instead at element: ${renderTagStack(tag)}", currentObject().toString())
+            throw decodingExceptionOf("Expected string value for a non-null key '$tag', got null literal instead", renderTagStack(tag), coerceInputValuesHint) {
+                currentObject().toString()
+            }
         if (!value.isString && !json.configuration.isLenient) {
-            throw JsonDecodingException(
-                -1, "String literal for key '$tag' should be quoted at element: ${renderTagStack(tag)}.\n$lenientHint", currentObject().toString()
-            )
+            throw decodingExceptionOf("String literal for value of key '$tag' should be quoted", renderTagStack(tag), lenientHint) {
+                currentObject().toString()
+            }
         }
         return value.content
     }
@@ -289,12 +293,11 @@ private open class JsonTreeDecoder(
 
         for (key in value.keys) {
             if (key !in names && key != polymorphicDiscriminator) {
-                throw JsonDecodingException(
-                    -1,
-                    "Encountered an unknown key '$key' at element: ${renderTagStack()}\n" +
-                        "$ignoreUnknownKeysHint\n" +
-                        "JSON input: ${value.toString().minify()}"
-                )
+                throw decodingExceptionOf(
+                    "Encountered an unknown key '$key'",
+                    renderTagStack(),
+                    ignoreUnknownKeysHint
+                ) { value.toString() }
             }
         }
     }

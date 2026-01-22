@@ -8,7 +8,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
-import kotlinx.serialization.test.assertFailsWithMessage
+import kotlinx.serialization.test.*
 import kotlin.test.*
 
 class JsonClassDiscriminatorTest : JsonTestBase() {
@@ -122,9 +122,13 @@ class JsonClassDiscriminatorTest : JsonTestBase() {
     data class FooImpl(val type2: String) : Foo
 
     @Test
-    fun testCannotHaveConflictWithJsonClassDiscriminator() {
-        assertFailsWithMessage<SerializationException>("Class 'FooImpl' cannot be serialized as base class 'Foo' because it has property name that conflicts with JSON class discriminator 'type2'") {
-            Json.encodeToString<Foo>( FooImpl("foo"))
+    fun testCannotHaveConflictWithJsonClassDiscriminator() = parametrizedTest { mode ->
+        checkEncodingException(mode, {
+            Json.encodeToString<Foo>(FooImpl("foo"), mode)
+        }) {
+            message("Class 'FooImpl' cannot be serialized as base class 'Foo' because it has property name that conflicts with JSON class discriminator 'type2'.")
+            serialName("FooImpl")
+            hint("change class discriminator in JsonConfiguration, or rename property")
         }
     }
 

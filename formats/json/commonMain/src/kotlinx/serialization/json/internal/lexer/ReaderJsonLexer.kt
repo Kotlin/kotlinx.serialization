@@ -36,12 +36,16 @@ internal class ArrayAsSequence(internal val buffer: CharArray) : CharSequence {
 }
 
 internal fun ReaderJsonLexer(json: Json, reader: InternalJsonReader, buffer: CharArray = CharArrayPoolBatchSize.take()) =
-    if (!json.configuration.allowComments) ReaderJsonLexer(reader, buffer) else ReaderJsonLexerWithComments(reader, buffer)
+    if (!json.configuration.allowComments)
+        ReaderJsonLexer(reader, buffer, json.configuration)
+    else
+        ReaderJsonLexerWithComments(reader, buffer, json.configuration)
 
 internal open class ReaderJsonLexer(
     val reader: InternalJsonReader,
-    val buffer: CharArray = CharArrayPoolBatchSize.take()
-) : AbstractJsonLexer() {
+    val buffer: CharArray = CharArrayPoolBatchSize.take(),
+    configuration: JsonConfiguration
+) : AbstractJsonLexer(configuration) {
 
     @JvmField
     protected var threshold: Int = DEFAULT_THRESHOLD // chars

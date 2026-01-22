@@ -109,9 +109,13 @@ class JsonMapKeysTest : JsonTestBase() {
     }
 
     private inline fun <reified T: Any> verifyProhibition(value: T, streaming: JsonTestingMode) {
-        assertFailsWithSerialMessage("JsonEncodingException", "can't be used in JSON as a key in the map") {
+        checkEncodingException(streaming, {
             Json.encodeToString(value, streaming)
-        }
+        }, {
+            message("Value of type 'kotlinx.serialization.IntData' can't be used in JSON as a key in the map. It should have either primitive or enum kind, but its kind is 'CLASS'")
+            hint("allowStructuredMapKeys = true")
+            serialName("kotlinx.serialization.IntData")
+        })
     }
 
     @Test

@@ -50,20 +50,28 @@ class JsonElementPolymorphicErrorTest : JsonTestBase() {
 
     @Test
     fun test() = parametrizedTest { mode ->
-        assertFailsWithMessage<SerializationException>("Class with serial name kotlinx.serialization.JsonElementPolymorphicErrorTest.IntChild cannot be serialized polymorphically because it is represented as JsonLiteral. Make sure that its JsonTransformingSerializer returns JsonObject, so class discriminator can be added to it") {
+        checkEncodingException(mode, {
             format.encodeToString(
                 Holder.serializer(),
                 Holder(IntChild(42)),
                 mode
             )
+        }) {
+            message("Class with serial name kotlinx.serialization.JsonElementPolymorphicErrorTest.IntChild cannot be serialized polymorphically because it is represented as JsonLiteral.\nMake sure that its JsonTransformingSerializer returns JsonObject, so class discriminator can be added to it")
+            serialName("kotlinx.serialization.JsonElementPolymorphicErrorTest.IntChild")
+            hint("Make sure that its JsonTransformingSerializer returns JsonObject, so class discriminator can be added to it")
         }
 
-        assertFailsWithMessage<SerializationException>("Class with serial name kotlinx.serialization.JsonElementPolymorphicErrorTest.CollectionChild cannot be serialized polymorphically because it is represented as JsonArray. Make sure that its JsonTransformingSerializer returns JsonObject, so class discriminator can be added to it") {
+        checkEncodingException(mode, {
             format.encodeToString(
                 Holder.serializer(),
                 Holder(CollectionChild(42)),
                 mode
             )
+        }) {
+            message("Class with serial name kotlinx.serialization.JsonElementPolymorphicErrorTest.CollectionChild cannot be serialized polymorphically because it is represented as JsonArray.\nMake sure that its JsonTransformingSerializer returns JsonObject, so class discriminator can be added to it")
+            serialName("kotlinx.serialization.JsonElementPolymorphicErrorTest.CollectionChild")
+            hint("Make sure that its JsonTransformingSerializer returns JsonObject, so class discriminator can be added to it")
         }
 
     }

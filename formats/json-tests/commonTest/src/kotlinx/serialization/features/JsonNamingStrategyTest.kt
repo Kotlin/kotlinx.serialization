@@ -183,19 +183,26 @@ class JsonNamingStrategyTest : JsonTestBase() {
             ignoreUnknownKeys = true
         }
         parametrizedTest { mode ->
-            assertFailsWithMessage<SerializationException>("The transformed name 'test_case' for property test_case already exists") {
+            checkEncodingException(mode, {
                 json.encodeToString(CollisionCheckPrimary("a", "b"))
-            }
+            }, {
+                message("The transformed name 'test_case' for property test_case already exists in kotlinx.serialization.features.JsonNamingStrategyTest.CollisionCheckPrimary(testCase: kotlin.String, test_case: kotlin.String)")
+                serialName(CollisionCheckPrimary.serializer().descriptor.serialName)
+            })
         }
         parametrizedTest { mode ->
-            assertFailsWithMessage<SerializationException>("The suggested name 'test_case' for property test_case is already one of the names for property testCase") {
+            checkDecodingException(mode, {
                 json.decodeFromString<CollisionCheckPrimary>("""{"test_case":"a"}""", mode)
-            }
+            }, {
+                message("The suggested name 'test_case' for property test_case is already one of the names for property testCase in kotlinx.serialization.features.JsonNamingStrategyTest.CollisionCheckPrimary(testCase: kotlin.String, test_case: kotlin.String)")
+            })
         }
         parametrizedTest { mode ->
-            assertFailsWithMessage<SerializationException>("The suggested name 'test_case' for property testCase2 is already one of the names for property testCase") {
+            checkDecodingException(mode, {
                 json.decodeFromString<CollisionCheckAlternate>("""{"test_case":"a"}""", mode)
-            }
+            }, {
+                message("The suggested name 'test_case' for property testCase2 is already one of the names for property testCase in kotlinx.serialization.features.JsonNamingStrategyTest.CollisionCheckAlternate(testCase: kotlin.String, testCase2: kotlin.String)")
+            })
         }
     }
 
