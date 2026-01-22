@@ -45,6 +45,9 @@ kotlin {
             dependencies {
                 implementation(libs.gson)
                 implementation(libs.coroutines.core)
+                implementation(libs.jackson.databind)
+                implementation(libs.jackson.module.kotlin)
+                implementation(libs.moshi.kotlin)
             }
         }
     }

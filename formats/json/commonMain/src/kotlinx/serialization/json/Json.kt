@@ -660,6 +660,36 @@ public class JsonBuilder internal constructor(json: Json) {
      */
     public var serializersModule: SerializersModule = json.serializersModule
 
+    /**
+     * Specifies whether actual input data should be included in exception messages.
+     * 
+     * When `false`, exception messages will not contain sensitive input data that could be logged
+     * or exposed in error reporting systems. This is the default and recommended setting for production
+     * environments where input data may contain sensitive or confidential information.
+     * 
+     * When `true`, exception messages will include the actual input data that caused the error,
+     * which can be helpful for debugging purposes during development.
+     * 
+     * While in experimental stage, this flag is `true` by default.
+     * It will be changed to `false` when API stabilizes to assume data is sensitive and unsafe by default.
+     * 
+     * Example of usage:
+     * ```
+     * @Serializable
+     * data class User(val name: String, val age: Int)
+     * 
+     * val json = Json { addInputsToExceptionMessages = false }
+     * // Exception message will not contain the invalid input string
+     * json.decodeFromString<User>("""{"name":"John","age":"invalid"}""")
+     * 
+     * val debugJson = Json { addInputsToExceptionMessages = true }
+     * // Exception message will include `JSON Input: {"name":"John","age":"invalid"}` line
+     * debugJson.decodeFromString<User>("""{"name":"John","age":"invalid"}""")
+     * ```
+     */
+    @ExperimentalSerializationApi
+    public var addInputsToExceptionMessages: Boolean = json.configuration.addInputsToExceptionMessages
+
     @OptIn(ExperimentalSerializationApi::class)
     internal fun build(): JsonConfiguration {
         if (useArrayPolymorphism) {
@@ -688,7 +718,8 @@ public class JsonBuilder internal constructor(json: Json) {
             allowStructuredMapKeys, prettyPrint, explicitNulls, prettyPrintIndent,
             coerceInputValues, useArrayPolymorphism,
             classDiscriminator, allowSpecialFloatingPointValues, useAlternativeNames,
-            namingStrategy, decodeEnumsCaseInsensitive, allowTrailingComma, allowComments, classDiscriminatorMode
+            namingStrategy, decodeEnumsCaseInsensitive, allowTrailingComma, allowComments, classDiscriminatorMode,
+            addInputsToExceptionMessages
         )
     }
 }

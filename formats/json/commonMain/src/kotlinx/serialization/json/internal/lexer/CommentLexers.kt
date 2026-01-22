@@ -4,6 +4,8 @@
 
 package kotlinx.serialization.json.internal
 
+import kotlinx.serialization.json.JsonConfiguration
+
 /*
  Implementations of these two classes are nearly identical. However, there are several reasons why it can't be unified
  and merged into one lexer:
@@ -18,7 +20,7 @@ package kotlinx.serialization.json.internal
  generalized implementation to some CommentJsonLexer in between.
  */
 
-internal class StringJsonLexerWithComments(source: String): StringJsonLexer(source) {
+internal class StringJsonLexerWithComments(source: String, configuration: JsonConfiguration): StringJsonLexer(source, configuration) {
     override fun consumeNextToken(): Byte {
         val source = source
         val cpos = skipWhitespaces()
@@ -93,7 +95,7 @@ internal class StringJsonLexerWithComments(source: String): StringJsonLexer(sour
     }
 }
 
-internal class ReaderJsonLexerWithComments(reader: InternalJsonReader, buffer: CharArray): ReaderJsonLexer(reader, buffer) {
+internal class ReaderJsonLexerWithComments(reader: InternalJsonReader, buffer: CharArray, configuration: JsonConfiguration): ReaderJsonLexer(reader, buffer, configuration) {
     override fun consumeNextToken(expected: Char) {
         ensureHaveChars()
         val source = source

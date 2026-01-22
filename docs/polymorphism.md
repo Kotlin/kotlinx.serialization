@@ -899,7 +899,7 @@ fun main() {
 We get the following exception.
 
 ```text 
-Exception in thread "main" kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 0: Serializer for subclass 'unknown' is not found in the polymorphic scope of 'Project' at path: $
+Exception in thread "main" kotlinx.serialization.json.JsonDecodingException: Unexpected JSON token at offset 0: Serializer for subclass 'unknown' is not found in the polymorphic scope of 'Project' at path: $
 Check if class with serial name 'unknown' exists and serializer is registered in a corresponding SerializersModule.
 ```
 

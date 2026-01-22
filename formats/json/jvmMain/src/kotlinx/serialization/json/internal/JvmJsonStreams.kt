@@ -1,5 +1,7 @@
 package kotlinx.serialization.json.internal
 
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.JsonEncodingException
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -209,6 +211,7 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : Intern
     /**
      * Sources taken from okio library with minor changes, see https://github.com/square/okio
      */
+    @OptIn(ExperimentalSerializationApi::class)
     private fun writeUtf8CodePoint(codePoint: Int) {
         when {
             codePoint < 0x80 -> {
@@ -248,7 +251,7 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : Intern
             }
 
             else -> {
-                throw JsonEncodingException("Unexpected code point: $codePoint")
+                throw JsonEncodingException("Unexpected code point: $codePoint. Check your strings for malformed UTF-8 sequences.")
             }
         }
     }

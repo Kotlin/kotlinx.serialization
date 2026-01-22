@@ -19,7 +19,7 @@ private fun SerialDescriptor.buildDeserializationNamesMap(json: Json): Map<Strin
     fun MutableMap<String, Int>.putOrThrow(name: String, index: Int) {
         val entity = if (kind == SerialKind.ENUM) "enum value" else "property"
         if (name in this) {
-            throw JsonDecodingException(
+            throw decodingExceptionOf(
                 "The suggested name '$name' for $entity ${getElementName(index)} is already one of the names for $entity " +
                         "${getElementName(getValue(name))} in ${this@buildDeserializationNamesMap}"
             )
@@ -61,7 +61,8 @@ internal fun SerialDescriptor.serializationNamesIndices(json: Json, strategy: Js
             val name = strategy.serialNameForJson(this, i, baseName)
             if (!trackingSet.add(name)) throw JsonEncodingException(
                 "The transformed name '$name' for property $baseName already exists " +
-                    "in ${this@serializationNamesIndices}"
+                    "in ${this@serializationNamesIndices}",
+                classSerialName = this@serializationNamesIndices.serialName,
             )
             name
         }

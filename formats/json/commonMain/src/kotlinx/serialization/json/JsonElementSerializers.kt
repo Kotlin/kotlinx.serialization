@@ -10,7 +10,7 @@ import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.*
-import kotlinx.serialization.json.internal.JsonDecodingException
+import kotlinx.serialization.json.internal.decodingExceptionOf
 
 /**
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [JsonElement].
@@ -70,8 +70,9 @@ internal object JsonPrimitiveSerializer : KSerializer<JsonPrimitive> {
     }
 
     override fun deserialize(decoder: Decoder): JsonPrimitive {
-        val result = decoder.asJsonDecoder().decodeJsonElement()
-        if (result !is JsonPrimitive) throw JsonDecodingException(-1, "Unexpected JSON element, expected JsonPrimitive, had ${result::class}", result.toString())
+        val jsonDecoder = decoder.asJsonDecoder()
+        val result = jsonDecoder.decodeJsonElement()
+        if (result !is JsonPrimitive) throw jsonDecoder.decodingExceptionOf("Unexpected JSON element, expected JsonPrimitive, had ${result::class}") { result.toString() }
         return result
     }
 }
@@ -94,7 +95,7 @@ internal object JsonNullSerializer : KSerializer<JsonNull> {
     override fun deserialize(decoder: Decoder): JsonNull {
         verify(decoder)
         if (decoder.decodeNotNullMark()) {
-            throw JsonDecodingException("Expected 'null' literal")
+            throw decodingExceptionOf("Expected 'null' literal")
         }
         decoder.decodeNull()
         return JsonNull
@@ -134,8 +135,11 @@ private object JsonLiteralSerializer : KSerializer<JsonLiteral> {
     }
 
     override fun deserialize(decoder: Decoder): JsonLiteral {
-        val result = decoder.asJsonDecoder().decodeJsonElement()
-        if (result !is JsonLiteral) throw JsonDecodingException(-1, "Unexpected JSON element, expected JsonLiteral, had ${result::class}", result.toString())
+        val jsonDecoder = decoder.asJsonDecoder()
+        val result = jsonDecoder.decodeJsonElement()
+        if (result !is JsonLiteral) throw jsonDecoder.decodingExceptionOf("Unexpected JSON element, expected JsonLiteral, had ${result::class}") {
+            result.toString()
+        }
         return result
     }
 }
