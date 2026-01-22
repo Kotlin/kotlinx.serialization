@@ -31,4 +31,8 @@ dokka {
             remoteUrl("https://github.com/Kotlin/kotlinx.serialization/tree/master")
         }
     }
+
+    dokkaGeneratorIsolation.set(ProcessIsolation {
+        systemProperties.put("org.jetbrains.dokka.analysis.enableExperimentalKDocResolution", true)
+    })
 }
