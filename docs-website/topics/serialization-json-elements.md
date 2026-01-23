@@ -120,7 +120,7 @@ You can create `JsonArray` and `JsonObject` elements either by directly calling 
 
 To create a `JsonArray` from a `List`, use [`JsonArray()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-array/-json-array.html). To create a `JsonObject` from a `Map`, use [`JsonObject()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-object/-json-object.html).
 
-To use the builder functions, call [`buildJsonArray()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/build-json-array.html) or [`buildJsonObject()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/build-json-object.html).
+You can also use the [`buildJsonArray()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/build-json-array.html) and [`buildJsonObject()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/build-json-object.html) builder functions to create `JsonArray` and `JsonObject` elements.
 These provide a DSL similar to [Kotlin's standard library collection builders](constructing-collections.md#create-with-collection-builder-functions), but with JSON-specific overloads and inner builder functions.
 
 Let's look at an example that highlights the key features of the JSON builder DSLs:
