@@ -1,7 +1,7 @@
 [//]: # (title: JSON elements)
 
 Besides converting between JSON strings and Kotlin objects, the Kotlin serialization library also supports working with JSON at a structural level.
-To do this, you can use the [`JsonElement`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-element/) API, which lets you inspect, modify, and construct JSON structure directly before converting it into a Kotlin type.
+To do this, you can use the [`JsonElement`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-element/) API, which lets you inspect, modify, and construct JSON structure directly before converting it into a Kotlin type or a string.
 
 `JsonElement` has three direct subtypes that represent the core JSON structures:
 
@@ -12,7 +12,7 @@ To do this, you can use the [`JsonElement`](https://kotlinlang.org/api/kotlinx.s
 
 ## Parse to JSON elements
 
-You can parse a string into a `JsonElement` to work with the JSON structure before converting it into a Kotlin type or string.
+You can parse a string into a `JsonElement` to work with the JSON structure before converting it into a Kotlin type or a string.
 To do so, use the [`Json.parseToJsonElement()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/parse-to-json-element.html) function.
 This function parses the input into a JSON element tree without decoding or deserializing it.
 
@@ -83,7 +83,7 @@ If you don't know the JSON structure in advance, you can check the element type 
 For example, you can use a helper function with a `when` expression:
 
 ```kotlin
-fun checkElement(element: JsonElement): String = when (element) {
+fun processElement(element: JsonElement): String = when (element) {
     is JsonObject -> "JsonObject with keys: ${element.keys}"
     is JsonArray -> "JsonArray with ${element.size} elements"
     is JsonPrimitive -> "JsonPrimitive with content: ${element.content}"
@@ -116,15 +116,14 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-To create `JsonArray` or `JsonObject` elements, use the
-[`buildJsonArray()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/build-json-array.html) and [`buildJsonObject()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/build-json-object.html) builder functions respectively.
-These provide a DSL to define the JSON structure, similar to [Kotlin's standard library collection builders](constructing-collections.md#create-with-collection-builder-functions), but with JSON-specific overloads and inner builder functions.
+You can create `JsonArray` and `JsonObject` elements either by directly calling their constructors or by using the builder functions.
 
-> You can also directly create a `JsonArray` from a `List` with [`JsonArray()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-array/-json-array.html) or a `JsonObject` from a `Map` with [`JsonObject()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-object/-json-object.html).
-> 
-{style="tip"}
+To create a `JsonArray` from a `List`, use [`JsonArray()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-array/-json-array.html). To create a `JsonObject` from a `Map`, use [`JsonObject()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-object/-json-object.html).
 
-Let's look at an example that highlights the key features:
+To use the builder functions, call [`buildJsonArray()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/build-json-array.html) or [`buildJsonObject()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/build-json-object.html).
+These provide a DSL similar to [Kotlin's standard library collection builders](constructing-collections.md#create-with-collection-builder-functions), but with JSON-specific overloads and inner builder functions.
+
+Let's look at an example that highlights the key features of the JSON builder DSLs:
 
 ```kotlin
 // Imports declarations from the serialization library
