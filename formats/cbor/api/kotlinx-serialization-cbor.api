@@ -117,6 +117,11 @@ public final class kotlinx/serialization/cbor/CborElement$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
+public final class kotlinx/serialization/cbor/CborElementKt {
+	public static final fun CborInt-SIFponk (J[J)Lkotlinx/serialization/cbor/CborInt;
+	public static final fun CborInt-ahITK_k (J[J)Lkotlinx/serialization/cbor/CborInt;
+}
+
 public abstract interface class kotlinx/serialization/cbor/CborEncoder : kotlinx/serialization/encoding/Encoder {
 	public abstract fun encodeByteString ([B)V
 	public fun encodeCborElement (Lkotlinx/serialization/cbor/CborElement;)V
@@ -159,8 +164,6 @@ public final class kotlinx/serialization/cbor/CborInt : kotlinx/serialization/cb
 }
 
 public final class kotlinx/serialization/cbor/CborInt$Companion {
-	public final fun invoke-SIFponk (J[J)Lkotlinx/serialization/cbor/CborInt;
-	public final fun invoke-ahITK_k (J[J)Lkotlinx/serialization/cbor/CborInt;
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 

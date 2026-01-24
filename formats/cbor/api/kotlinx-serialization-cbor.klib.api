@@ -182,8 +182,6 @@ final class kotlinx.serialization.cbor/CborInt : kotlinx.serialization.cbor/Cbor
     final fun toString(): kotlin/String // kotlinx.serialization.cbor/CborInt.toString|toString(){}[0]
 
     final object Companion { // kotlinx.serialization.cbor/CborInt.Companion|null[0]
-        final fun invoke(kotlin/Long, kotlin/ULongArray...): kotlinx.serialization.cbor/CborInt // kotlinx.serialization.cbor/CborInt.Companion.invoke|invoke(kotlin.Long;kotlin.ULongArray...){}[0]
-        final fun invoke(kotlin/ULong, kotlin/ULongArray...): kotlinx.serialization.cbor/CborInt // kotlinx.serialization.cbor/CborInt.Companion.invoke|invoke(kotlin.ULong;kotlin.ULongArray...){}[0]
         final fun serializer(): kotlinx.serialization/KSerializer<kotlinx.serialization.cbor/CborInt> // kotlinx.serialization.cbor/CborInt.Companion.serializer|serializer(){}[0]
     }
 }
@@ -363,5 +361,7 @@ final object kotlinx.serialization.cbor/CborTag { // kotlinx.serialization.cbor/
 }
 
 final fun kotlinx.serialization.cbor/Cbor(kotlinx.serialization.cbor/Cbor = ..., kotlin/Function1<kotlinx.serialization.cbor/CborBuilder, kotlin/Unit>): kotlinx.serialization.cbor/Cbor // kotlinx.serialization.cbor/Cbor|Cbor(kotlinx.serialization.cbor.Cbor;kotlin.Function1<kotlinx.serialization.cbor.CborBuilder,kotlin.Unit>){}[0]
+final fun kotlinx.serialization.cbor/CborInt(kotlin/Long, kotlin/ULongArray...): kotlinx.serialization.cbor/CborInt // kotlinx.serialization.cbor/CborInt|CborInt(kotlin.Long;kotlin.ULongArray...){}[0]
+final fun kotlinx.serialization.cbor/CborInt(kotlin/ULong, kotlin/ULongArray...): kotlinx.serialization.cbor/CborInt // kotlinx.serialization.cbor/CborInt|CborInt(kotlin.ULong;kotlin.ULongArray...){}[0]
 final inline fun <#A: reified kotlin/Any?> (kotlinx.serialization.cbor/Cbor).kotlinx.serialization.cbor/decodeFromCborElement(kotlinx.serialization.cbor/CborElement): #A // kotlinx.serialization.cbor/decodeFromCborElement|decodeFromCborElement@kotlinx.serialization.cbor.Cbor(kotlinx.serialization.cbor.CborElement){0§<kotlin.Any?>}[0]
 final inline fun <#A: reified kotlin/Any?> (kotlinx.serialization.cbor/Cbor).kotlinx.serialization.cbor/encodeToCborElement(#A): kotlinx.serialization.cbor/CborElement // kotlinx.serialization.cbor/encodeToCborElement|encodeToCborElement@kotlinx.serialization.cbor.Cbor(0:0){0§<kotlin.Any?>}[0]

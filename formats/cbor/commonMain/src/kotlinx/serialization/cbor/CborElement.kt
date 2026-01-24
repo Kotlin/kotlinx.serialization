@@ -119,32 +119,6 @@ public class CborInt(
      */
     public fun toLong(): Long = if (isPositive) value.toLong() else -value.toLong()
 
-
-    public companion object {
-        /**
-         * Creates:
-         * * signed CBOR integer (major type 1 encompassing `-2^64..-1`)
-         * * unsigned CBOR integer (major type 0 encompassing `0..2^64-1`)
-         *
-         * depending on whether a positive or a negative number was passed.
-         * If you want to create a negative number exceeding [Long.MIN_VALUE], manually specify sign: `CborInt(ULong.MAX_VALUE, isPositive = false)`
-         */
-        public operator fun invoke(
-            value: Long,
-            vararg tags: ULong
-        ): CborInt =
-            if (value >= 0L) CborInt(value.toULong(), isPositive = true, tags = tags)
-            else CborInt(ULong.MAX_VALUE - value.toULong() + 1uL, isPositive = false, tags = tags)
-
-        /**
-         * Creates an unsigned CBOR integer (major type 0).
-         */
-        public operator fun invoke(
-            value: ULong,
-            vararg tags: ULong
-        ): CborInt = CborInt(value, isPositive = true, tags = tags)
-    }
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is CborInt) return false
@@ -171,6 +145,28 @@ public class CborInt(
             ")"
     }
 }
+
+/**
+ * Creates:
+ * * signed CBOR integer (major type 1 encompassing `-2^64..-1`)
+ * * unsigned CBOR integer (major type 0 encompassing `0..2^64-1`)
+ *
+ * depending on whether a positive or a negative number was passed.
+ * If you want to create a negative number exceeding [Long.MIN_VALUE], manually specify sign: `CborInt(ULong.MAX_VALUE, isPositive = false)`.
+ */
+@ExperimentalSerializationApi
+@Suppress("FunctionName")
+public fun CborInt(value: Long, vararg tags: ULong): CborInt =
+    if (value >= 0L) CborInt(value.toULong(), isPositive = true, tags = tags)
+    else CborInt(ULong.MAX_VALUE - value.toULong() + 1uL, isPositive = false, tags = tags)
+
+/**
+ * Creates an unsigned CBOR integer (major type 0).
+ */
+@ExperimentalSerializationApi
+@Suppress("FunctionName")
+public fun CborInt(value: ULong, vararg tags: ULong): CborInt =
+    CborInt(value, isPositive = true, tags = tags)
 
 /**
  * Class representing CBOR floating point value (major type 7).
