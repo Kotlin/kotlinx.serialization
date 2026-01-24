@@ -24,6 +24,9 @@ import kotlinx.serialization.encoding.*
  *     }
  * }
  * ```
+ *
+ * To encode integers outside of the [Long] range, encode a [CborInt] explicitly
+ * (e.g. `encoder.encodeSerializableValue(CborInt.serializer(), CborInt(value = someULong, isPositive = true))`).
  */
 @ExperimentalSerializationApi
 @SubclassOptInRequired(SealedSerializationApi::class)
