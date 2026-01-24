@@ -57,9 +57,11 @@ abstract interface kotlinx.serialization.cbor/CborEncoder : kotlinx.serializatio
     abstract val cbor // kotlinx.serialization.cbor/CborEncoder.cbor|{}cbor[0]
         abstract fun <get-cbor>(): kotlinx.serialization.cbor/Cbor // kotlinx.serialization.cbor/CborEncoder.cbor.<get-cbor>|<get-cbor>(){}[0]
 
+    abstract fun encodeByteString(kotlin/ByteArray) // kotlinx.serialization.cbor/CborEncoder.encodeByteString|encodeByteString(kotlin.ByteArray){}[0]
     abstract fun encodeNegative(kotlin/ULong) // kotlinx.serialization.cbor/CborEncoder.encodeNegative|encodeNegative(kotlin.ULong){}[0]
     abstract fun encodePositive(kotlin/ULong) // kotlinx.serialization.cbor/CborEncoder.encodePositive|encodePositive(kotlin.ULong){}[0]
     abstract fun encodeTags(kotlin/ULongArray) // kotlinx.serialization.cbor/CborEncoder.encodeTags|encodeTags(kotlin.ULongArray){}[0]
+    abstract fun encodeUndefined() // kotlinx.serialization.cbor/CborEncoder.encodeUndefined|encodeUndefined(){}[0]
     open fun encodeCborElement(kotlinx.serialization.cbor/CborElement) // kotlinx.serialization.cbor/CborEncoder.encodeCborElement|encodeCborElement(kotlinx.serialization.cbor.CborElement){}[0]
 }
 
@@ -158,27 +160,15 @@ final class kotlinx.serialization.cbor/CborFloat : kotlinx.serialization.cbor/Cb
 }
 
 final class kotlinx.serialization.cbor/CborInt : kotlinx.serialization.cbor/CborPrimitive<kotlin/ULong> { // kotlinx.serialization.cbor/CborInt|null[0]
-    constructor <init>(kotlin/ULong, kotlinx.serialization.cbor/CborInt.Sign, kotlin/ULongArray...) // kotlinx.serialization.cbor/CborInt.<init>|<init>(kotlin.ULong;kotlinx.serialization.cbor.CborInt.Sign;kotlin.ULongArray...){}[0]
+    constructor <init>(kotlin/ULong, kotlin/Boolean, kotlin/ULongArray...) // kotlinx.serialization.cbor/CborInt.<init>|<init>(kotlin.ULong;kotlin.Boolean;kotlin.ULongArray...){}[0]
 
-    final val sign // kotlinx.serialization.cbor/CborInt.sign|{}sign[0]
-        final fun <get-sign>(): kotlinx.serialization.cbor/CborInt.Sign // kotlinx.serialization.cbor/CborInt.sign.<get-sign>|<get-sign>(){}[0]
+    final val isPositive // kotlinx.serialization.cbor/CborInt.isPositive|{}isPositive[0]
+        final fun <get-isPositive>(): kotlin/Boolean // kotlinx.serialization.cbor/CborInt.isPositive.<get-isPositive>|<get-isPositive>(){}[0]
 
     final fun equals(kotlin/Any?): kotlin/Boolean // kotlinx.serialization.cbor/CborInt.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // kotlinx.serialization.cbor/CborInt.hashCode|hashCode(){}[0]
     final fun toLong(): kotlin/Long // kotlinx.serialization.cbor/CborInt.toLong|toLong(){}[0]
     final fun toString(): kotlin/String // kotlinx.serialization.cbor/CborInt.toString|toString(){}[0]
-
-    final enum class Sign : kotlin/Enum<kotlinx.serialization.cbor/CborInt.Sign> { // kotlinx.serialization.cbor/CborInt.Sign|null[0]
-        enum entry NEGATIVE // kotlinx.serialization.cbor/CborInt.Sign.NEGATIVE|null[0]
-        enum entry POSITIVE // kotlinx.serialization.cbor/CborInt.Sign.POSITIVE|null[0]
-        enum entry ZERO // kotlinx.serialization.cbor/CborInt.Sign.ZERO|null[0]
-
-        final val entries // kotlinx.serialization.cbor/CborInt.Sign.entries|#static{}entries[0]
-            final fun <get-entries>(): kotlin.enums/EnumEntries<kotlinx.serialization.cbor/CborInt.Sign> // kotlinx.serialization.cbor/CborInt.Sign.entries.<get-entries>|<get-entries>#static(){}[0]
-
-        final fun valueOf(kotlin/String): kotlinx.serialization.cbor/CborInt.Sign // kotlinx.serialization.cbor/CborInt.Sign.valueOf|valueOf#static(kotlin.String){}[0]
-        final fun values(): kotlin/Array<kotlinx.serialization.cbor/CborInt.Sign> // kotlinx.serialization.cbor/CborInt.Sign.values|values#static(){}[0]
-    }
 
     final object Companion { // kotlinx.serialization.cbor/CborInt.Companion|null[0]
         final fun invoke(kotlin/Long, kotlin/ULongArray...): kotlinx.serialization.cbor/CborInt // kotlinx.serialization.cbor/CborInt.Companion.invoke|invoke(kotlin.Long;kotlin.ULongArray...){}[0]
@@ -230,7 +220,13 @@ final class kotlinx.serialization.cbor/CborMap : kotlin.collections/Map<kotlinx.
     final fun containsKey(kotlinx.serialization.cbor/CborElement): kotlin/Boolean // kotlinx.serialization.cbor/CborMap.containsKey|containsKey(kotlinx.serialization.cbor.CborElement){}[0]
     final fun containsValue(kotlinx.serialization.cbor/CborElement): kotlin/Boolean // kotlinx.serialization.cbor/CborMap.containsValue|containsValue(kotlinx.serialization.cbor.CborElement){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // kotlinx.serialization.cbor/CborMap.equals|equals(kotlin.Any?){}[0]
+    final fun get(kotlin/Int): kotlinx.serialization.cbor/CborElement? // kotlinx.serialization.cbor/CborMap.get|get(kotlin.Int){}[0]
+    final fun get(kotlin/Long): kotlinx.serialization.cbor/CborElement? // kotlinx.serialization.cbor/CborMap.get|get(kotlin.Long){}[0]
+    final fun get(kotlin/String): kotlinx.serialization.cbor/CborElement? // kotlinx.serialization.cbor/CborMap.get|get(kotlin.String){}[0]
     final fun get(kotlinx.serialization.cbor/CborElement): kotlinx.serialization.cbor/CborElement? // kotlinx.serialization.cbor/CborMap.get|get(kotlinx.serialization.cbor.CborElement){}[0]
+    final fun getValue(kotlin/Int): kotlinx.serialization.cbor/CborElement // kotlinx.serialization.cbor/CborMap.getValue|getValue(kotlin.Int){}[0]
+    final fun getValue(kotlin/Long): kotlinx.serialization.cbor/CborElement // kotlinx.serialization.cbor/CborMap.getValue|getValue(kotlin.Long){}[0]
+    final fun getValue(kotlin/String): kotlinx.serialization.cbor/CborElement // kotlinx.serialization.cbor/CborMap.getValue|getValue(kotlin.String){}[0]
     final fun hashCode(): kotlin/Int // kotlinx.serialization.cbor/CborMap.hashCode|hashCode(){}[0]
     final fun isEmpty(): kotlin/Boolean // kotlinx.serialization.cbor/CborMap.isEmpty|isEmpty(){}[0]
     final fun toString(): kotlin/String // kotlinx.serialization.cbor/CborMap.toString|toString(){}[0]
@@ -256,6 +252,14 @@ final class kotlinx.serialization.cbor/CborString : kotlinx.serialization.cbor/C
 
     final object Companion { // kotlinx.serialization.cbor/CborString.Companion|null[0]
         final fun serializer(): kotlinx.serialization/KSerializer<kotlinx.serialization.cbor/CborString> // kotlinx.serialization.cbor/CborString.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final class kotlinx.serialization.cbor/CborUndefined : kotlinx.serialization.cbor/CborPrimitive<kotlin/Unit> { // kotlinx.serialization.cbor/CborUndefined|null[0]
+    constructor <init>(kotlin/ULongArray...) // kotlinx.serialization.cbor/CborUndefined.<init>|<init>(kotlin.ULongArray...){}[0]
+
+    final object Companion { // kotlinx.serialization.cbor/CborUndefined.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<kotlinx.serialization.cbor/CborUndefined> // kotlinx.serialization.cbor/CborUndefined.Companion.serializer|serializer(){}[0]
     }
 }
 
