@@ -430,7 +430,7 @@ A [CborElement] class has three direct subtypes, closely following CBOR grammar:
   * [CborByteString] maps to a Kotlin `ByteArray` and is used to encode them as CBOR byte string (in contrast to a list
     of individual bytes)
 
-* [CborList] represents a CBOR array. It is a Kotlin `List` of `CborElement` items.
+* [CborArray] represents a CBOR array. It is a Kotlin `List` of `CborElement` items.
 
 * [CborMap] represents a CBOR map/object. It is a Kotlin `Map` from `CborElement` keys to `CborElement` values.
   This is typically the result of serializing an arbitrary 
@@ -1797,14 +1797,13 @@ This chapter concludes [Kotlin Serialization Guide](serialization-guide.md).
 [CborElement]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-element/index.html
 [Cbor.encodeToCborElement]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/encode-to-cbor-element.html
 [CborPrimitive]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-primitive/index.html
-[CborPrimitive.value]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-primitive/value.html
 [CborNull]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-null/index.html
 [CborBoolean]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-boolean/index.html
-[CborInt]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-int/index.html
+[CborInt]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-int.html
 [CborString]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-string/index.html
 [CborFloat]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-float/index.html
 [CborByteString]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-byte-string/index.html
-[CborList]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-list/index.html
+[CborArray]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-array/index.html
 [CborMap]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-map/index.html
 
 <!--- END -->

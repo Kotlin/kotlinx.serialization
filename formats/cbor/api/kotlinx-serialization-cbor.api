@@ -20,6 +20,52 @@ public final class kotlinx/serialization/cbor/Cbor$Default : kotlinx/serializati
 	public final fun getCoseCompliant ()Lkotlinx/serialization/cbor/Cbor;
 }
 
+public final class kotlinx/serialization/cbor/CborArray : kotlinx/serialization/cbor/CborElement, java/util/List, kotlin/jvm/internal/markers/KMappedMarker {
+	public static final field Companion Lkotlinx/serialization/cbor/CborArray$Companion;
+	public synthetic fun <init> (Ljava/util/List;[JLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun add (ILjava/lang/Object;)V
+	public fun add (ILkotlinx/serialization/cbor/CborElement;)V
+	public synthetic fun add (Ljava/lang/Object;)Z
+	public fun add (Lkotlinx/serialization/cbor/CborElement;)Z
+	public fun addAll (ILjava/util/Collection;)Z
+	public fun addAll (Ljava/util/Collection;)Z
+	public fun clear ()V
+	public final fun contains (Ljava/lang/Object;)Z
+	public fun contains (Lkotlinx/serialization/cbor/CborElement;)Z
+	public fun containsAll (Ljava/util/Collection;)Z
+	public fun equals (Ljava/lang/Object;)Z
+	public synthetic fun get (I)Ljava/lang/Object;
+	public fun get (I)Lkotlinx/serialization/cbor/CborElement;
+	public fun getSize ()I
+	public fun hashCode ()I
+	public final fun indexOf (Ljava/lang/Object;)I
+	public fun indexOf (Lkotlinx/serialization/cbor/CborElement;)I
+	public fun isEmpty ()Z
+	public fun iterator ()Ljava/util/Iterator;
+	public final fun lastIndexOf (Ljava/lang/Object;)I
+	public fun lastIndexOf (Lkotlinx/serialization/cbor/CborElement;)I
+	public fun listIterator ()Ljava/util/ListIterator;
+	public fun listIterator (I)Ljava/util/ListIterator;
+	public synthetic fun remove (I)Ljava/lang/Object;
+	public fun remove (I)Lkotlinx/serialization/cbor/CborElement;
+	public fun remove (Ljava/lang/Object;)Z
+	public fun removeAll (Ljava/util/Collection;)Z
+	public fun replaceAll (Ljava/util/function/UnaryOperator;)V
+	public fun retainAll (Ljava/util/Collection;)Z
+	public synthetic fun set (ILjava/lang/Object;)Ljava/lang/Object;
+	public fun set (ILkotlinx/serialization/cbor/CborElement;)Lkotlinx/serialization/cbor/CborElement;
+	public final fun size ()I
+	public fun sort (Ljava/util/Comparator;)V
+	public fun subList (II)Ljava/util/List;
+	public fun toArray ()[Ljava/lang/Object;
+	public fun toArray ([Ljava/lang/Object;)[Ljava/lang/Object;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class kotlinx/serialization/cbor/CborArray$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
 public final class kotlinx/serialization/cbor/CborBoolean : kotlinx/serialization/cbor/CborPrimitive {
 	public static final field Companion Lkotlinx/serialization/cbor/CborBoolean$Companion;
 	public synthetic fun <init> (Z[JLkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -179,52 +225,6 @@ public abstract interface annotation class kotlinx/serialization/cbor/CborLabel 
 public final synthetic class kotlinx/serialization/cbor/CborLabel$Impl : kotlinx/serialization/cbor/CborLabel {
 	public fun <init> (J)V
 	public final synthetic fun label ()J
-}
-
-public final class kotlinx/serialization/cbor/CborList : kotlinx/serialization/cbor/CborElement, java/util/List, kotlin/jvm/internal/markers/KMappedMarker {
-	public static final field Companion Lkotlinx/serialization/cbor/CborList$Companion;
-	public synthetic fun <init> (Ljava/util/List;[JLkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun add (ILjava/lang/Object;)V
-	public fun add (ILkotlinx/serialization/cbor/CborElement;)V
-	public synthetic fun add (Ljava/lang/Object;)Z
-	public fun add (Lkotlinx/serialization/cbor/CborElement;)Z
-	public fun addAll (ILjava/util/Collection;)Z
-	public fun addAll (Ljava/util/Collection;)Z
-	public fun clear ()V
-	public final fun contains (Ljava/lang/Object;)Z
-	public fun contains (Lkotlinx/serialization/cbor/CborElement;)Z
-	public fun containsAll (Ljava/util/Collection;)Z
-	public fun equals (Ljava/lang/Object;)Z
-	public synthetic fun get (I)Ljava/lang/Object;
-	public fun get (I)Lkotlinx/serialization/cbor/CborElement;
-	public fun getSize ()I
-	public fun hashCode ()I
-	public final fun indexOf (Ljava/lang/Object;)I
-	public fun indexOf (Lkotlinx/serialization/cbor/CborElement;)I
-	public fun isEmpty ()Z
-	public fun iterator ()Ljava/util/Iterator;
-	public final fun lastIndexOf (Ljava/lang/Object;)I
-	public fun lastIndexOf (Lkotlinx/serialization/cbor/CborElement;)I
-	public fun listIterator ()Ljava/util/ListIterator;
-	public fun listIterator (I)Ljava/util/ListIterator;
-	public synthetic fun remove (I)Ljava/lang/Object;
-	public fun remove (I)Lkotlinx/serialization/cbor/CborElement;
-	public fun remove (Ljava/lang/Object;)Z
-	public fun removeAll (Ljava/util/Collection;)Z
-	public fun replaceAll (Ljava/util/function/UnaryOperator;)V
-	public fun retainAll (Ljava/util/Collection;)Z
-	public synthetic fun set (ILjava/lang/Object;)Ljava/lang/Object;
-	public fun set (ILkotlinx/serialization/cbor/CborElement;)Lkotlinx/serialization/cbor/CborElement;
-	public final fun size ()I
-	public fun sort (Ljava/util/Comparator;)V
-	public fun subList (II)Ljava/util/List;
-	public fun toArray ()[Ljava/lang/Object;
-	public fun toArray ([Ljava/lang/Object;)[Ljava/lang/Object;
-	public fun toString ()Ljava/lang/String;
-}
-
-public final class kotlinx/serialization/cbor/CborList$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
 public final class kotlinx/serialization/cbor/CborMap : kotlinx/serialization/cbor/CborElement, java/util/Map, kotlin/jvm/internal/markers/KMappedMarker {

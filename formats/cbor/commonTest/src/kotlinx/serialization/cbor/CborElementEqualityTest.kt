@@ -134,12 +134,12 @@ class CborElementEqualityTest {
     }
 
     @Test
-    fun testCborListEquality() {
-        val list1 = CborList(listOf(CborInt(1u), CborString("test")))
-        val list2 = CborList(listOf(CborInt(1u), CborString("test")))
-        val list3 = CborList(listOf(CborInt(2u), CborString("test")))
-        val list4 = CborList(listOf(CborInt(1u), CborString("test")), 1u)
-        val list5 = CborList(listOf(CborInt(1u)))
+    fun testCborArrayEquality() {
+        val list1 = CborArray(listOf(CborInt(1u), CborString("test")))
+        val list2 = CborArray(listOf(CborInt(1u), CborString("test")))
+        val list3 = CborArray(listOf(CborInt(2u), CborString("test")))
+        val list4 = CborArray(listOf(CborInt(1u), CborString("test")), 1u)
+        val list5 = CborArray(listOf(CborInt(1u)))
 
         assertEquals(list1, list2)
         assertEquals(list1.hashCode(), list2.hashCode())
@@ -210,8 +210,8 @@ class CborElementEqualityTest {
 
     @Test
     fun testEmptyCollectionsEquality() {
-        val emptyList1 = CborList(emptyList())
-        val emptyList2 = CborList(emptyList())
+        val emptyList1 = CborArray(emptyList())
+        val emptyList2 = CborArray(emptyList())
         val emptyMap1 = CborMap(emptyMap())
         val emptyMap2 = CborMap(emptyMap())
 
@@ -227,7 +227,7 @@ class CborElementEqualityTest {
     fun testNestedStructureEquality() {
         val nested1 = CborMap(
             mapOf(
-                CborString("list") to CborList(
+                CborString("list") to CborArray(
                     listOf(
                         CborInt(1u),
                         CborMap(mapOf(CborString("inner") to CborNull()))
@@ -237,7 +237,7 @@ class CborElementEqualityTest {
         )
         val nested2 = CborMap(
             mapOf(
-                CborString("list") to CborList(
+                CborString("list") to CborArray(
                     listOf(
                         CborInt(1u),
                         CborMap(mapOf(CborString("inner") to CborNull()))
@@ -247,7 +247,7 @@ class CborElementEqualityTest {
         )
         val nested3 = CborMap(
             mapOf(
-                CborString("list") to CborList(
+                CborString("list") to CborArray(
                     listOf(
                         CborInt(2u),
                         CborMap(mapOf(CborString("inner") to CborNull()))
@@ -271,7 +271,7 @@ class CborElementEqualityTest {
             CborBoolean(true),
             CborByteString(byteArrayOf(1, 2, 3)),
             CborNull(),
-            CborList(listOf(CborInt(1u))),
+            CborArray(listOf(CborInt(1u))),
             CborMap(mapOf(CborString("key") to CborInt(1u)))
         )
 
@@ -291,7 +291,7 @@ class CborElementEqualityTest {
             CborBoolean(true) to CborBoolean(true),
             CborByteString(byteArrayOf(1, 2, 3)) to CborByteString(byteArrayOf(1, 2, 3)),
             CborNull() to CborNull(),
-            CborList(listOf(CborInt(1u))) to CborList(listOf(CborInt(1u))),
+            CborArray(listOf(CborInt(1u))) to CborArray(listOf(CborInt(1u))),
             CborMap(mapOf(CborString("key") to CborInt(1u))) to CborMap(
                 mapOf(
                     CborString("key") to CborInt(

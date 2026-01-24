@@ -6,7 +6,6 @@
 package kotlinx.serialization.cbor.internal
 
 import kotlinx.serialization.*
-import kotlinx.serialization.cbor.CborList
 
 /**
  * Common interface for CBOR parsers that can read CBOR data from different sources.

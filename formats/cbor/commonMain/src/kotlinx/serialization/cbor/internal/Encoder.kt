@@ -261,7 +261,7 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
         }
 
         fun finalize() = when (this) {
-            is List -> CborList(content = elements, tags = tags)
+            is List -> CborArray(content = elements, tags = tags)
             is Map -> CborMap(
                 content = if (elements.isNotEmpty()) {
                     require(elements.size % 2 == 0) {

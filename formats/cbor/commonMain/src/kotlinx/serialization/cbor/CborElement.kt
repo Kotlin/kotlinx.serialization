@@ -15,7 +15,7 @@ internal val EMPTY_TAGS: ULongArray = ULongArray(0)
 
 /**
  * Class representing single CBOR element.
- * Can be [CborPrimitive], [CborMap] or [CborList].
+ * Can be [CborPrimitive], [CborMap] or [CborArray].
  *
  * [CborElement.toString] properly prints CBOR tree as a human-readable representation.
  * Whole hierarchy is serializable, but only when used with [Cbor] as [CborElement] is purely CBOR-specific structure
@@ -357,25 +357,25 @@ public class CborMap(
 }
 
 /**
- * Class representing CBOR array, consisting of CBOR elements.
+ * Class representing CBOR array consisting of CBOR elements.
  *
  * Since this class also implements [List] interface, you can use
  * traditional methods like [List.get] or [List.size] to obtain CBOR elements.
  */
-@Serializable(with = CborListSerializer::class)
+@Serializable(with = CborArraySerializer::class)
 @ExperimentalSerializationApi
-public class CborList(
+public class CborArray(
     private val content: List<CborElement>,
     vararg tags: ULong
 ) : CborElement(tags), List<CborElement> by content {
 
     public override fun equals(other: Any?): Boolean =
-        other is CborList && other.content == content && other.tags.contentEquals(tags)
+        other is CborArray && other.content == content && other.tags.contentEquals(tags)
 
     public override fun hashCode(): Int = content.hashCode() * 31 + tags.contentHashCode()
 
     override fun toString(): String {
-        return "CborList(" +
+        return "CborArray(" +
             "tags=${tags.joinToString(prefix = "[", postfix = "]")}, " +
             "content=$content" +
             ")"

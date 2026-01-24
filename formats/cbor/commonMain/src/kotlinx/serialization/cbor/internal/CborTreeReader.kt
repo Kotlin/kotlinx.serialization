@@ -108,7 +108,7 @@ internal class CborTreeReader(
     }
 
 
-    private fun readArray(tags: ULongArray): CborList {
+    private fun readArray(tags: ULongArray): CborArray {
         val size = parser.startArray()
         val elements = mutableListOf<CborElement>()
 
@@ -125,7 +125,7 @@ internal class CborTreeReader(
             parser.end()
         }
 
-        return CborList(elements, tags = tags)
+        return CborArray(elements, tags = tags)
     }
 
     private fun readMap(tags: ULongArray): CborMap {

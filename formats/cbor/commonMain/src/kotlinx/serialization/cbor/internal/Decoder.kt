@@ -46,9 +46,9 @@ internal open class CborReader(override val cbor: Cbor, protected val parser: Cb
     @OptIn(ExperimentalSerializationApi::class)
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
         val re = if (descriptor.hasArrayTag()) {
-            CborListReader(cbor, parser)
+            CborArrayReader(cbor, parser)
         } else when (descriptor.kind) {
-            StructureKind.LIST, is PolymorphicKind -> CborListReader(cbor, parser)
+            StructureKind.LIST, is PolymorphicKind -> CborArrayReader(cbor, parser)
             StructureKind.MAP -> CborMapReader(cbor, parser)
             else -> CborReader(cbor, parser)
         }
@@ -630,11 +630,11 @@ internal class StructuredCborParser(internal val element: CborElement, private v
 
     override fun startArray(tags: ULongArray?): Int {
         processTags(tags)
-        if (layer.current !is CborList) {
+        if (layer.current !is CborArray) {
             throw CborDecodingException("Expected array, got ${layer.current::class.simpleName}")
         }
         layerStack += layer
-        val list = layer.current as CborList
+        val list = layer.current as CborArray
         layer = PeekingIterator(list.listIterator())
         return list.size //we could just return -1 and let the current layer run out of elements to never run into inconsistencies
         // if we do keep it like this, any inconsistencies serve as a canary for implementation bugs
@@ -764,13 +764,13 @@ internal class StructuredCborParser(internal val element: CborElement, private v
 }
 
 
-private class CborMapReader(cbor: Cbor, decoder: CborParserInterface) : CborListReader(cbor, decoder) {
+private class CborMapReader(cbor: Cbor, decoder: CborParserInterface) : CborArrayReader(cbor, decoder) {
     override fun skipBeginToken(objectTags: ULongArray?) =
         setSize(parser.startMap(tags?.let { if (objectTags == null) it else ulongArrayOf(*it, *objectTags) }
             ?: objectTags) * 2)
 }
 
-private open class CborListReader(cbor: Cbor, decoder: CborParserInterface) : CborReader(cbor, decoder) {
+private open class CborArrayReader(cbor: Cbor, decoder: CborParserInterface) : CborReader(cbor, decoder) {
     private var ind = 0
 
     override fun skipBeginToken(objectTags: ULongArray?) =

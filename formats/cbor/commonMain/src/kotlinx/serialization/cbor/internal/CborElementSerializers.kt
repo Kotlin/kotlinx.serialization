@@ -28,7 +28,7 @@ internal object CborElementSerializer : KSerializer<CborElement>, CborSerializer
             element("CborBoolean", defer { CborBooleanSerializer.descriptor })
             element("CborByteString", defer { CborByteStringSerializer.descriptor })
             element("CborMap", defer { CborMapSerializer.descriptor })
-            element("CborList", defer { CborListSerializer.descriptor })
+            element("CborArray", defer { CborArraySerializer.descriptor })
             element("CborDouble", defer { CborFloatSerializer.descriptor })
             element("CborInt", defer { CborIntSerializer.descriptor })
         }
@@ -40,7 +40,7 @@ internal object CborElementSerializer : KSerializer<CborElement>, CborSerializer
         when (value) {
             is CborPrimitive -> encoder.encodeSerializableValue(CborPrimitiveSerializer, value)
             is CborMap -> encoder.encodeSerializableValue(CborMapSerializer, value)
-            is CborList -> encoder.encodeSerializableValue(CborListSerializer, value)
+            is CborArray -> encoder.encodeSerializableValue(CborArraySerializer, value)
         }
     }
 
@@ -247,25 +247,25 @@ internal object CborMapSerializer : KSerializer<CborMap>, CborSerializer {
 }
 
 /**
- * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [CborList].
+ * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [CborArray].
  * It can only be used by with [Cbor] format an its input ([CborDecoder] and [CborEncoder]).
  */
-internal object CborListSerializer : KSerializer<CborList>, CborSerializer {
+internal object CborArraySerializer : KSerializer<CborArray>, CborSerializer {
     override val descriptor: SerialDescriptor =
         SerialDescriptor(
-            serialName = "kotlinx.serialization.cbor.CborList",
+            serialName = "kotlinx.serialization.cbor.CborArray",
             original = ListSerializer(CborElementSerializer).descriptor
         )
 
-    override fun serialize(encoder: Encoder, value: CborList) {
+    override fun serialize(encoder: Encoder, value: CborArray) {
         val cborEncoder = encoder.asCborEncoder()
         cborEncoder.encodeTags(value.tags)
         ListSerializer(CborElementSerializer).serialize(encoder, value)
     }
 
-    override fun deserialize(decoder: Decoder): CborList {
+    override fun deserialize(decoder: Decoder): CborArray {
         val element = decoder.asCborDecoder().decodeCborElement()
-        if (element !is CborList) throw CborDecodingException("Unexpected CBOR element, expected CborList, had ${element::class}")
+        if (element !is CborArray) throw CborDecodingException("Unexpected CBOR element, expected CborArray, had ${element::class}")
         return element
     }
 }

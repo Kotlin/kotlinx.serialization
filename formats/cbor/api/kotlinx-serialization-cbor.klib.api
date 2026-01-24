@@ -65,6 +65,34 @@ abstract interface kotlinx.serialization.cbor/CborEncoder : kotlinx.serializatio
     open fun encodeCborElement(kotlinx.serialization.cbor/CborElement) // kotlinx.serialization.cbor/CborEncoder.encodeCborElement|encodeCborElement(kotlinx.serialization.cbor.CborElement){}[0]
 }
 
+final class kotlinx.serialization.cbor/CborArray : kotlin.collections/List<kotlinx.serialization.cbor/CborElement>, kotlinx.serialization.cbor/CborElement { // kotlinx.serialization.cbor/CborArray|null[0]
+    constructor <init>(kotlin.collections/List<kotlinx.serialization.cbor/CborElement>, kotlin/ULongArray...) // kotlinx.serialization.cbor/CborArray.<init>|<init>(kotlin.collections.List<kotlinx.serialization.cbor.CborElement>;kotlin.ULongArray...){}[0]
+
+    final val size // kotlinx.serialization.cbor/CborArray.size|{}size[0]
+        final fun <get-size>(): kotlin/Int // kotlinx.serialization.cbor/CborArray.size.<get-size>|<get-size>(){}[0]
+
+    final fun contains(kotlinx.serialization.cbor/CborElement): kotlin/Boolean // kotlinx.serialization.cbor/CborArray.contains|contains(kotlinx.serialization.cbor.CborElement){}[0]
+    final fun containsAll(kotlin.collections/Collection<kotlinx.serialization.cbor/CborElement>): kotlin/Boolean // kotlinx.serialization.cbor/CborArray.containsAll|containsAll(kotlin.collections.Collection<kotlinx.serialization.cbor.CborElement>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // kotlinx.serialization.cbor/CborArray.equals|equals(kotlin.Any?){}[0]
+    final fun get(kotlin/Int): kotlinx.serialization.cbor/CborElement // kotlinx.serialization.cbor/CborArray.get|get(kotlin.Int){}[0]
+    final fun hashCode(): kotlin/Int // kotlinx.serialization.cbor/CborArray.hashCode|hashCode(){}[0]
+    final fun indexOf(kotlinx.serialization.cbor/CborElement): kotlin/Int // kotlinx.serialization.cbor/CborArray.indexOf|indexOf(kotlinx.serialization.cbor.CborElement){}[0]
+    final fun isEmpty(): kotlin/Boolean // kotlinx.serialization.cbor/CborArray.isEmpty|isEmpty(){}[0]
+    final fun iterator(): kotlin.collections/Iterator<kotlinx.serialization.cbor/CborElement> // kotlinx.serialization.cbor/CborArray.iterator|iterator(){}[0]
+    final fun lastIndexOf(kotlinx.serialization.cbor/CborElement): kotlin/Int // kotlinx.serialization.cbor/CborArray.lastIndexOf|lastIndexOf(kotlinx.serialization.cbor.CborElement){}[0]
+    final fun listIterator(): kotlin.collections/ListIterator<kotlinx.serialization.cbor/CborElement> // kotlinx.serialization.cbor/CborArray.listIterator|listIterator(){}[0]
+    final fun listIterator(kotlin/Int): kotlin.collections/ListIterator<kotlinx.serialization.cbor/CborElement> // kotlinx.serialization.cbor/CborArray.listIterator|listIterator(kotlin.Int){}[0]
+    final fun subList(kotlin/Int, kotlin/Int): kotlin.collections/List<kotlinx.serialization.cbor/CborElement> // kotlinx.serialization.cbor/CborArray.subList|subList(kotlin.Int;kotlin.Int){}[0]
+    final fun toString(): kotlin/String // kotlinx.serialization.cbor/CborArray.toString|toString(){}[0]
+
+    final object Companion { // kotlinx.serialization.cbor/CborArray.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<kotlinx.serialization.cbor/CborArray> // kotlinx.serialization.cbor/CborArray.Companion.serializer|serializer(){}[0]
+    }
+
+    // Targets: [js]
+    final fun asJsReadonlyArrayView(): kotlin.js.collections/JsReadonlyArray<kotlinx.serialization.cbor/CborElement> // kotlinx.serialization.cbor/CborArray.asJsReadonlyArrayView|asJsReadonlyArrayView(){}[0]
+}
+
 final class kotlinx.serialization.cbor/CborBoolean : kotlinx.serialization.cbor/CborPrimitive { // kotlinx.serialization.cbor/CborBoolean|null[0]
     constructor <init>(kotlin/Boolean, kotlin/ULongArray...) // kotlinx.serialization.cbor/CborBoolean.<init>|<init>(kotlin.Boolean;kotlin.ULongArray...){}[0]
 
@@ -183,34 +211,6 @@ final class kotlinx.serialization.cbor/CborInteger : kotlinx.serialization.cbor/
     final object Companion { // kotlinx.serialization.cbor/CborInteger.Companion|null[0]
         final fun serializer(): kotlinx.serialization/KSerializer<kotlinx.serialization.cbor/CborInteger> // kotlinx.serialization.cbor/CborInteger.Companion.serializer|serializer(){}[0]
     }
-}
-
-final class kotlinx.serialization.cbor/CborList : kotlin.collections/List<kotlinx.serialization.cbor/CborElement>, kotlinx.serialization.cbor/CborElement { // kotlinx.serialization.cbor/CborList|null[0]
-    constructor <init>(kotlin.collections/List<kotlinx.serialization.cbor/CborElement>, kotlin/ULongArray...) // kotlinx.serialization.cbor/CborList.<init>|<init>(kotlin.collections.List<kotlinx.serialization.cbor.CborElement>;kotlin.ULongArray...){}[0]
-
-    final val size // kotlinx.serialization.cbor/CborList.size|{}size[0]
-        final fun <get-size>(): kotlin/Int // kotlinx.serialization.cbor/CborList.size.<get-size>|<get-size>(){}[0]
-
-    final fun contains(kotlinx.serialization.cbor/CborElement): kotlin/Boolean // kotlinx.serialization.cbor/CborList.contains|contains(kotlinx.serialization.cbor.CborElement){}[0]
-    final fun containsAll(kotlin.collections/Collection<kotlinx.serialization.cbor/CborElement>): kotlin/Boolean // kotlinx.serialization.cbor/CborList.containsAll|containsAll(kotlin.collections.Collection<kotlinx.serialization.cbor.CborElement>){}[0]
-    final fun equals(kotlin/Any?): kotlin/Boolean // kotlinx.serialization.cbor/CborList.equals|equals(kotlin.Any?){}[0]
-    final fun get(kotlin/Int): kotlinx.serialization.cbor/CborElement // kotlinx.serialization.cbor/CborList.get|get(kotlin.Int){}[0]
-    final fun hashCode(): kotlin/Int // kotlinx.serialization.cbor/CborList.hashCode|hashCode(){}[0]
-    final fun indexOf(kotlinx.serialization.cbor/CborElement): kotlin/Int // kotlinx.serialization.cbor/CborList.indexOf|indexOf(kotlinx.serialization.cbor.CborElement){}[0]
-    final fun isEmpty(): kotlin/Boolean // kotlinx.serialization.cbor/CborList.isEmpty|isEmpty(){}[0]
-    final fun iterator(): kotlin.collections/Iterator<kotlinx.serialization.cbor/CborElement> // kotlinx.serialization.cbor/CborList.iterator|iterator(){}[0]
-    final fun lastIndexOf(kotlinx.serialization.cbor/CborElement): kotlin/Int // kotlinx.serialization.cbor/CborList.lastIndexOf|lastIndexOf(kotlinx.serialization.cbor.CborElement){}[0]
-    final fun listIterator(): kotlin.collections/ListIterator<kotlinx.serialization.cbor/CborElement> // kotlinx.serialization.cbor/CborList.listIterator|listIterator(){}[0]
-    final fun listIterator(kotlin/Int): kotlin.collections/ListIterator<kotlinx.serialization.cbor/CborElement> // kotlinx.serialization.cbor/CborList.listIterator|listIterator(kotlin.Int){}[0]
-    final fun subList(kotlin/Int, kotlin/Int): kotlin.collections/List<kotlinx.serialization.cbor/CborElement> // kotlinx.serialization.cbor/CborList.subList|subList(kotlin.Int;kotlin.Int){}[0]
-    final fun toString(): kotlin/String // kotlinx.serialization.cbor/CborList.toString|toString(){}[0]
-
-    final object Companion { // kotlinx.serialization.cbor/CborList.Companion|null[0]
-        final fun serializer(): kotlinx.serialization/KSerializer<kotlinx.serialization.cbor/CborList> // kotlinx.serialization.cbor/CborList.Companion.serializer|serializer(){}[0]
-    }
-
-    // Targets: [js]
-    final fun asJsReadonlyArrayView(): kotlin.js.collections/JsReadonlyArray<kotlinx.serialization.cbor/CborElement> // kotlinx.serialization.cbor/CborList.asJsReadonlyArrayView|asJsReadonlyArrayView(){}[0]
 }
 
 final class kotlinx.serialization.cbor/CborMap : kotlin.collections/Map<kotlinx.serialization.cbor/CborElement, kotlinx.serialization.cbor/CborElement>, kotlinx.serialization.cbor/CborElement { // kotlinx.serialization.cbor/CborMap|null[0]

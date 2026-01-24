@@ -52,7 +52,7 @@ public interface CborEncoder : Encoder {
      * fun serialize(encoder: Encoder, value: Holder) {
      *     val composite = encoder.beginStructure(descriptor)
      *     composite.encodeSerializableElement(descriptor, 0, Int.serializer(), value.value)
-     *     val array = CborList(value.list.map { CborInt(it.toLong()) })
+     *     val array = CborArray(value.list.map { CborInt(it.toLong()) })
      *     // Incorrect, encoder is already in an intermediate state after encodeSerializableElement
      *     (composite as CborEncoder).encodeCborElement(array)
      *     composite.endStructure(descriptor)

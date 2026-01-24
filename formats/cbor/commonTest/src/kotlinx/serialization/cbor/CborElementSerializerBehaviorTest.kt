@@ -71,26 +71,26 @@ class CborElementSerializerBehaviorTest {
     }
 
     @Test
-    fun typedCborListDeserializationFailsOnNonListInput() {
+    fun typedCborArrayDeserializationFailsOnNonListInput() {
         val cbor = Cbor {}
         val bytes = cbor.encodeToByteArray(CborElement.serializer(), CborInt(1))
         assertFailsWith<CborDecodingException> {
-            cbor.decodeFromByteArray(CborList.serializer(), bytes)
+            cbor.decodeFromByteArray(CborArray.serializer(), bytes)
         }
         assertFailsWith<CborDecodingException> {
-            cbor.decodeFromCborElement(CborList.serializer(), CborInt(1))
+            cbor.decodeFromCborElement(CborArray.serializer(), CborInt(1))
         }
     }
 
     @Test
     fun typedCborIntDeserializationFailsOnNonIntInput() {
         val cbor = Cbor {}
-        val bytes = cbor.encodeToByteArray(CborElement.serializer(), CborList(listOf(CborInt(1))))
+        val bytes = cbor.encodeToByteArray(CborElement.serializer(), CborArray(listOf(CborInt(1))))
         assertFailsWith<CborDecodingException> {
             cbor.decodeFromByteArray(CborInteger.serializer(), bytes)
         }
         assertFailsWith<CborDecodingException> {
-            cbor.decodeFromCborElement(CborInteger.serializer(), CborList(listOf(CborInt(1))))
+            cbor.decodeFromCborElement(CborInteger.serializer(), CborArray(listOf(CborInt(1))))
         }
     }
 

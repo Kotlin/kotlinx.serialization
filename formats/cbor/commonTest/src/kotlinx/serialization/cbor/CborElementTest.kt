@@ -49,7 +49,7 @@ class CborElementTest {
     fun testEncodeDecodeRootListViaCborElement() {
         val value = listOf(1, 2, 3)
         val element = cbor.encodeToCborElement(value)
-        assertTrue(element is CborList)
+        assertTrue(element is CborArray)
         assertEquals(value, cbor.decodeFromCborElement<List<Int>>(element))
     }
 
@@ -174,8 +174,8 @@ class CborElementTest {
     }
 
     @Test
-    fun testCborList() {
-        val listElement = CborList(
+    fun testCborArray() {
+        val listElement = CborArray(
             listOf(
                 CborInt(1u),
                 CborString("two"),
@@ -187,7 +187,7 @@ class CborElementTest {
         val decodedList = cbor.decodeFromByteArray<CborElement>(listBytes)
 
         // Verify the type and size
-        assertTrue(decodedList is CborList)
+        assertTrue(decodedList is CborArray)
         assertEquals(4, decodedList.size)
 
         // Verify individual elements
@@ -251,7 +251,7 @@ class CborElementTest {
         // Create a complex nested structure with maps and lists
         val complexElement = CborMap(
             mapOf(
-                CborString("primitives") to CborList(
+                CborString("primitives") to CborArray(
                     listOf(
                         CborInt(123u),
                         CborString("text"),
@@ -262,13 +262,13 @@ class CborElementTest {
                 ),
                 CborString("nested") to CborMap(
                     mapOf(
-                        CborString("inner") to CborList(
+                        CborString("inner") to CborArray(
                             listOf(
                                 CborInt(1u),
                                 CborInt(2u)
                             )
                         ),
-                        CborString("empty") to CborList(emptyList())
+                        CborString("empty") to CborArray(emptyList())
                     )
                 )
             )
@@ -283,7 +283,7 @@ class CborElementTest {
         // Verify the primitives list
         assertTrue(decodedComplex.containsKey(CborString("primitives")))
         val primitivesValue = decodedComplex[CborString("primitives")]
-        assertTrue(primitivesValue is CborList)
+        assertTrue(primitivesValue is CborArray)
 
         assertEquals(5, primitivesValue.size)
 
@@ -311,7 +311,7 @@ class CborElementTest {
         // Verify the inner list
         assertTrue(nestedValue.containsKey(CborString("inner")))
         val innerValue = nestedValue[CborString("inner")]
-        assertTrue(innerValue is CborList)
+        assertTrue(innerValue is CborArray)
 
         assertEquals(2, innerValue.size)
 
@@ -324,7 +324,7 @@ class CborElementTest {
         // Verify the empty list
         assertTrue(nestedValue.containsKey(CborString("empty")))
         val emptyValue = nestedValue[CborString("empty")]
-        assertTrue(emptyValue is CborList)
+        assertTrue(emptyValue is CborArray)
         val empty = emptyValue
 
         assertEquals(0, empty.size)
@@ -376,8 +376,8 @@ class CborElementTest {
     fun testDecodeArray() {
         // Test data from CborParserTest.testSkipCollections
         val element = cbor.decodeFromHexString<CborElement>("830118ff1a00010000")
-        assertTrue(element is CborList)
-        val list = element as CborList
+        assertTrue(element is CborArray)
+        val list = element as CborArray
         assertEquals(3, list.size)
         assertEquals(1u, (list[0] as CborInteger).value)
         assertEquals(255u, (list[1] as CborInteger).value)
@@ -413,7 +413,7 @@ class CborElementTest {
         assertEquals(CborString("Hello world"), map[CborString("b")])
 
         // Check the array
-        val array = map[CborString("c")] as CborList
+        val array = map[CborString("c")] as CborArray
         assertEquals(2, array.size)
         assertEquals(CborString("kotlinx"), array[0])
         assertEquals(CborString("serialization"), array[1])
@@ -745,8 +745,8 @@ class CborElementTest {
         val taggedMap = CborMap(mapOf(CborString("a") to CborInt(1)), 1uL)
         assertEquals(taggedMap, cbor.decodeFromByteArray<CborMap>(cbor.encodeToByteArray(taggedMap)))
 
-        val taggedList = CborList(listOf(CborInt(1)), 2uL)
-        assertEquals(taggedList, cbor.decodeFromByteArray<CborList>(cbor.encodeToByteArray(taggedList)))
+        val taggedList = CborArray(listOf(CborInt(1)), 2uL)
+        assertEquals(taggedList, cbor.decodeFromByteArray<CborArray>(cbor.encodeToByteArray(taggedList)))
 
         val taggedFloat = CborFloat(1.5, 3uL)
         assertEquals(taggedFloat, cbor.decodeFromByteArray<CborFloat>(cbor.encodeToByteArray(taggedFloat)))
