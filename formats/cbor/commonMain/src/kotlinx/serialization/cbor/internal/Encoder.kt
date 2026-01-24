@@ -245,16 +245,15 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
         this!!.add(element)
     }
 
-
     private val stack = ArrayDeque<CborContainer>()
-    private var currentElement: CborContainer? = CborContainer.Primitive(tags = ulongArrayOf())
+    private var currentElement: CborContainer? = CborContainer.Primitive(tags = EMPTY_TAGS)
 
     // value tags are collects inside beginStructure, so we need to cache them here and write them in beginStructure or encodeXXX
     // and then null them out, so there are no leftovers
-    private var nextValueTags: ULongArray = ulongArrayOf()
+    private var nextValueTags: ULongArray = EMPTY_TAGS
         get() {
             val ret = field
-            field = ulongArrayOf()
+            field = EMPTY_TAGS
             return ret
         }
 
@@ -262,8 +261,8 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
         val tags = nextValueTags +
-            if (cbor.configuration.encodeObjectTags) descriptor.getObjectTags() ?: ulongArrayOf()
-            else ulongArrayOf()
+            if (cbor.configuration.encodeObjectTags) descriptor.getObjectTags() ?: EMPTY_TAGS
+            else EMPTY_TAGS
         val element = if (descriptor.hasArrayTag()) {
             CborContainer.List(tags)
         } else {
@@ -306,9 +305,9 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
                 //indices are put into the name field. we don't want to write those, as it would result in double writes
                 val cborLabel = descriptor.getCborLabel(index)
                 if (cbor.configuration.preferCborLabelsOverNames && cborLabel != null) {
-                    currentElement += CborInt(value = cborLabel, tags = keyTags ?: ulongArrayOf())
+                    currentElement += CborInt(value = cborLabel, tags = keyTags ?: EMPTY_TAGS)
                 } else {
-                    currentElement += CborString(name, tags = keyTags ?: ulongArrayOf())
+                    currentElement += CborString(name, tags = keyTags ?: EMPTY_TAGS)
                 }
             }
         }
@@ -316,7 +315,7 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
         if (cbor.configuration.encodeValueTags) {
             descriptor.getValueTags(index).let { valueTags ->
                 //collect them for late encoding in beginStructure or encodeXXX
-                nextValueTags = valueTags ?: ulongArrayOf()
+                nextValueTags = valueTags ?: EMPTY_TAGS
             }
         }
         return true

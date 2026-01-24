@@ -10,6 +10,9 @@ package kotlinx.serialization.cbor
 import kotlinx.serialization.*
 import kotlinx.serialization.cbor.internal.*
 
+@OptIn(ExperimentalUnsignedTypes::class)
+internal val EMPTY_TAGS: ULongArray = ULongArray(0)
+
 /**
  * Class representing single CBOR element.
  * Can be [CborPrimitive], [CborMap] or [CborList].
@@ -29,7 +32,7 @@ public sealed class CborElement(
      * See [RFC 8949 3.4. Tagging of Items](https://datatracker.ietf.org/doc/html/rfc8949#name-tagging-of-items).
      */
     @OptIn(ExperimentalUnsignedTypes::class)
-    tags: ULongArray = ulongArrayOf()
+    tags: ULongArray = EMPTY_TAGS
 
 ) {
     /**
@@ -64,7 +67,7 @@ public sealed class CborElement(
 @ExperimentalSerializationApi
 public sealed class CborPrimitive<T : Any>(
     public val value: T,
-    tags: ULongArray = ulongArrayOf()
+    tags: ULongArray = EMPTY_TAGS
 ) : CborElement(tags) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
