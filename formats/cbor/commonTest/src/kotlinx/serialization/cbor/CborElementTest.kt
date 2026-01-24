@@ -751,7 +751,7 @@ data class MixedBag(
     val str: String,
     val bStr: CborByteString?,
     val cborElement: CborElement?,
-    val cborPositiveInt: CborPrimitive<*>,
+    val cborPositiveInt: CborPrimitive,
     val cborInt: CborInt,
     @KeyTags(42u)
     @ValueTags(2337u)

@@ -65,13 +65,14 @@ public sealed class CborElement(
  */
 @Serializable(with = CborPrimitiveSerializer::class)
 @ExperimentalSerializationApi
-public sealed class CborPrimitive<T : Any>(
-    public val value: T,
+public sealed class CborPrimitive(
     tags: ULongArray = EMPTY_TAGS
 ) : CborElement(tags) {
+    protected abstract val value: Any
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is CborPrimitive<*>) return false
+        if (other !is CborPrimitive) return false
         if (!super.equals(other)) return false
 
         if (value != other.value) return false
@@ -106,7 +107,8 @@ public class CborInt(
     absoluteValue: ULong,
     public val isPositive: Boolean,
     vararg tags: ULong
-) : CborPrimitive<ULong>(absoluteValue, tags) {
+) : CborPrimitive(tags) {
+    public override val value: ULong = absoluteValue
 
     init {
         if (!isPositive) require(absoluteValue > 0uL) { "Illegal absolute value $absoluteValue for a negative number." }
@@ -176,9 +178,9 @@ public class CborInt(
 @Serializable(with = CborFloatSerializer::class)
 @ExperimentalSerializationApi
 public class CborFloat(
-    value: Double,
+    public override val value: Double,
     vararg tags: ULong
-) : CborPrimitive<Double>(value, tags)
+) : CborPrimitive(tags)
 
 /**
  * Class representing CBOR string value.
@@ -186,9 +188,9 @@ public class CborFloat(
 @Serializable(with = CborStringSerializer::class)
 @ExperimentalSerializationApi
 public class CborString(
-    value: String,
+    public override val value: String,
     vararg tags: ULong
-) : CborPrimitive<String>(value, tags)
+) : CborPrimitive(tags)
 
 /**
  * Class representing CBOR boolean value.
@@ -196,9 +198,9 @@ public class CborString(
 @Serializable(with = CborBooleanSerializer::class)
 @ExperimentalSerializationApi
 public class CborBoolean(
-    value: Boolean,
+    public override val value: Boolean,
     vararg tags: ULong
-) : CborPrimitive<Boolean>(value, tags)
+) : CborPrimitive(tags)
 
 /**
  * Class representing CBOR byte string value.
@@ -206,9 +208,9 @@ public class CborBoolean(
 @Serializable(with = CborByteStringSerializer::class)
 @ExperimentalSerializationApi
 public class CborByteString(
-    value: ByteArray,
+    public override val value: ByteArray,
     vararg tags: ULong
-) : CborPrimitive<ByteArray>(value, tags) {
+) : CborPrimitive(tags) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is CborByteString) return false
@@ -235,14 +237,18 @@ public class CborByteString(
  */
 @Serializable(with = CborNullSerializer::class)
 @ExperimentalSerializationApi
-public class CborNull(vararg tags: ULong) : CborPrimitive<Unit>(Unit, tags)
+public class CborNull(vararg tags: ULong) : CborPrimitive(tags) {
+    public override val value: Unit = Unit
+}
 
 /**
  * Class representing CBOR `undefined` value
  */
 @Serializable(with = CborUndefinedSerializer::class)
 @ExperimentalSerializationApi
-public class CborUndefined(vararg tags: ULong) : CborPrimitive<Unit>(Unit, tags)
+public class CborUndefined(vararg tags: ULong) : CborPrimitive(tags) {
+    public override val value: Unit = Unit
+}
 
 /**
  * Class representing CBOR map, consisting of key-value pairs, where both key and value are arbitrary [CborElement]

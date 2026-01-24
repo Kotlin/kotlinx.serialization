@@ -38,7 +38,7 @@ internal object CborElementSerializer : KSerializer<CborElement>, CborSerializer
 
         // Encode the value
         when (value) {
-            is CborPrimitive<*> -> encoder.encodeSerializableValue(CborPrimitiveSerializer, value)
+            is CborPrimitive -> encoder.encodeSerializableValue(CborPrimitiveSerializer, value)
             is CborMap -> encoder.encodeSerializableValue(CborMapSerializer, value)
             is CborList -> encoder.encodeSerializableValue(CborListSerializer, value)
         }
@@ -54,11 +54,11 @@ internal object CborElementSerializer : KSerializer<CborElement>, CborSerializer
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [CborPrimitive].
  * It can only be used by with [Cbor] format an its input ([CborDecoder] and [CborEncoder]).
  */
-internal object CborPrimitiveSerializer : KSerializer<CborPrimitive<*>>, CborSerializer {
+internal object CborPrimitiveSerializer : KSerializer<CborPrimitive>, CborSerializer {
     override val descriptor: SerialDescriptor =
         buildSerialDescriptor("kotlinx.serialization.cbor.CborPrimitive", PolymorphicKind.SEALED)
 
-    override fun serialize(encoder: Encoder, value: CborPrimitive<*>) {
+    override fun serialize(encoder: Encoder, value: CborPrimitive) {
         when (value) {
             is CborNull -> encoder.encodeSerializableValue(CborNullSerializer, value)
             is CborUndefined -> encoder.encodeSerializableValue(CborUndefinedSerializer, value)
@@ -70,9 +70,9 @@ internal object CborPrimitiveSerializer : KSerializer<CborPrimitive<*>>, CborSer
         }
     }
 
-    override fun deserialize(decoder: Decoder): CborPrimitive<*> {
+    override fun deserialize(decoder: Decoder): CborPrimitive {
         val result = decoder.asCborDecoder().decodeCborElement()
-        if (result !is CborPrimitive<*>) throw CborDecodingException("Unexpected CBOR element, expected CborPrimitive, had ${result::class}")
+        if (result !is CborPrimitive) throw CborDecodingException("Unexpected CBOR element, expected CborPrimitive, had ${result::class}")
         return result
     }
 }
