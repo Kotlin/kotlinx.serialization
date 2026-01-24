@@ -15,7 +15,9 @@ class CborElementTest {
     @OptIn(ExperimentalSerializationApi::class)
     @Test
     fun testEncodeToCborElementRootPrimitiveInt() {
-        assertEquals(CborInt(42), cbor.encodeToCborElement(42))
+        val element = cbor.encodeToCborElement(42)
+        assertEquals(CborInt(42), element)
+        assertEquals(42, cbor.decodeFromCborElement<Int>(element))
     }
 
     @OptIn(ExperimentalSerializationApi::class)
@@ -25,6 +27,7 @@ class CborElementTest {
         val element = configured.encodeToCborElement(byteArrayOf(1, 2, 3))
         assertTrue(element is CborByteString)
         assertTrue(element.value.contentEquals(byteArrayOf(1, 2, 3)))
+        assertTrue(configured.decodeFromCborElement<ByteArray>(element).contentEquals(byteArrayOf(1, 2, 3)))
     }
 
     @Serializable
@@ -39,6 +42,15 @@ class CborElementTest {
         val wrapper = Wrapper(null)
         val element = cbor.encodeToCborElement(wrapper)
         assertEquals(wrapper, cbor.decodeFromCborElement<Wrapper>(element))
+    }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    @Test
+    fun testEncodeDecodeRootListViaCborElement() {
+        val value = listOf(1, 2, 3)
+        val element = cbor.encodeToCborElement(value)
+        assertTrue(element is CborList)
+        assertEquals(value, cbor.decodeFromCborElement<List<Int>>(element))
     }
 
     @Test
