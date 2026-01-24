@@ -131,7 +131,7 @@ public inline fun <reified T> Cbor.encodeToCborElement(value: T): CborElement =
  * Deserializes the given [element] element into a value of type [T] using a deserializer retrieved
  * from reified type parameter.
  *
- * @throws [SerializationException] if the given JSON element is not a valid CBOR input for the type [T]
+ * @throws [SerializationException] if the given CBOR element is not a valid CBOR input for the type [T]
  * @throws [IllegalArgumentException] if the decoded input cannot be represented as a valid instance of type [T]
  */
 @ExperimentalSerializationApi

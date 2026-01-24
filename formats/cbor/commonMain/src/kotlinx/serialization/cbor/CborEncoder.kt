@@ -70,6 +70,18 @@ public interface CborEncoder : Encoder {
     public fun encodeTags(@OptIn(kotlin.ExperimentalUnsignedTypes::class) tags: ULongArray): Unit
 
     /**
+     * Encode a CBOR byte string (major type 2).
+     *
+     * This exists for low-level CBOR serializers and for encoding [CborByteString] values.
+     */
+    public fun encodeByteString(byteArray: ByteArray)
+
+    /**
+     * Encode CBOR `undefined` (simple value 23 / `0xF7`).
+     */
+    public fun encodeUndefined()
+
+    /**
      * Encode a negative value as [CborInt]. This function exists to encode negative values exceeding [Long.MIN_VALUE]
      */
     public fun encodeNegative(value: ULong)

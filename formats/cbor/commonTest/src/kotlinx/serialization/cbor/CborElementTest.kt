@@ -27,6 +27,20 @@ class CborElementTest {
         assertTrue(element.value.contentEquals(byteArrayOf(1, 2, 3)))
     }
 
+    @Serializable
+    private data class Wrapped(val x: Int)
+
+    @Serializable
+    private data class Wrapper(val datum: Wrapped?)
+
+    @OptIn(ExperimentalSerializationApi::class)
+    @Test
+    fun testEncodeDecodeNullableClassViaCborElement() {
+        val wrapper = Wrapper(null)
+        val element = cbor.encodeToCborElement(wrapper)
+        assertEquals(wrapper, cbor.decodeFromCborElement<Wrapper>(element))
+    }
+
     @Test
     fun testCborNull() {
         val nullElement = CborNull()

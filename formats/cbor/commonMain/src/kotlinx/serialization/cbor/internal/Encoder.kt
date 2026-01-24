@@ -28,11 +28,11 @@ internal sealed class CborWriter(
     override val cbor: Cbor,
 ) : AbstractEncoder(), CborEncoder {
 
-    internal open fun encodeByteString(byteArray: ByteArray) {
+    override fun encodeByteString(byteArray: ByteArray) {
         getDestination().encodeByteString(byteArray)
     }
 
-    internal open fun encodeUndefined() {
+    override fun encodeUndefined() {
         getDestination().encodeUndefined()
     }
 

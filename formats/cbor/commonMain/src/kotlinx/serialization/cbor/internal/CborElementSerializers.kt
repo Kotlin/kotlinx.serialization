@@ -106,10 +106,7 @@ internal object CborUndefinedSerializer : KSerializer<CborUndefined>, CborSerial
     override fun serialize(encoder: Encoder, value: CborUndefined) {
         val cborEncoder = encoder.asCborEncoder()
         cborEncoder.encodeTags(value.tags)
-        (cborEncoder as? CborWriter ?: throw IllegalStateException(
-            "This serializer can be used only with Cbor format. " +
-                "Expected Encoder to be internal CborWriter, got ${cborEncoder::class}"
-        )).encodeUndefined()
+        cborEncoder.encodeUndefined()
     }
 
     override fun deserialize(decoder: Decoder): CborUndefined {
@@ -214,11 +211,7 @@ internal object CborByteStringSerializer : KSerializer<CborByteString>, CborSeri
     override fun serialize(encoder: Encoder, value: CborByteString) {
         val cborEncoder = encoder.asCborEncoder()
         cborEncoder.encodeTags(value.tags)
-        //this we really don't want to expose so we cast here
-        (cborEncoder as? CborWriter ?: throw IllegalStateException(
-            "This serializer can be used only with Cbor format. " +
-                "Expected Encoder to be internal CborWriter, got ${cborEncoder::class}"
-        )).encodeByteString(value.value)
+        cborEncoder.encodeByteString(value.value)
     }
 
     override fun deserialize(decoder: Decoder): CborByteString {
