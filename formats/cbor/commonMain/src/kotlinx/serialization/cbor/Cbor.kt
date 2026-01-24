@@ -78,6 +78,7 @@ public sealed class Cbor(
             output
         )
         dumper.encodeSerializableValue(serializer, value)
+        dumper.ensureNoDanglingTagsAtEndOfSerialization()
 
         return output.toByteArray()
 
@@ -114,6 +115,7 @@ public sealed class Cbor(
     public fun <T> encodeToCborElement(serializer: SerializationStrategy<T>, value: T): CborElement {
         val writer = StructuredCborWriter(this)
         writer.encodeSerializableValue(serializer, value)
+        writer.ensureNoDanglingTagsAtEndOfSerialization()
         return writer.finalize()
     }
 }
