@@ -120,7 +120,7 @@ internal open class CborReader(override val cbor: Cbor, protected val parser: Cb
         return if (deserializer is CborSerializer) {
             val tags = parser.processTags(tags)
             decodeCborElement().also { /*this is a NOOP for structured parser but not from bytes */it.tags =
-                tags ?: ulongArrayOf()
+                tags ?: EMPTY_TAGS
             } as T
         } else if ((decodeByteArrayAsByteString || cbor.configuration.alwaysUseByteString)
             && deserializer.descriptor == ByteArraySerializer().descriptor
