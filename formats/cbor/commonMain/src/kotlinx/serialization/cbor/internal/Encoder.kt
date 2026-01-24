@@ -250,17 +250,15 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
 
     // value tags are collects inside beginStructure, so we need to cache them here and write them in beginStructure or encodeXXX
     // and then null them out, so there are no leftovers
-    private var nextValueTags: ULongArray = EMPTY_TAGS
-        get() {
-            val ret = field
-            field = EMPTY_TAGS
-            return ret
-        }
+    private var pendingValueTags: ULongArray = EMPTY_TAGS
+
+    private fun takePendingValueTags(): ULongArray =
+        pendingValueTags.also { pendingValueTags = EMPTY_TAGS }
 
     fun finalize() = currentElement!!.finalize()
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
-        val tags = nextValueTags +
+        val tags = takePendingValueTags() +
             if (cbor.configuration.encodeObjectTags) descriptor.getObjectTags() ?: EMPTY_TAGS
             else EMPTY_TAGS
         val element = if (descriptor.hasArrayTag()) {
@@ -315,7 +313,7 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
         if (cbor.configuration.encodeValueTags) {
             descriptor.getValueTags(index).let { valueTags ->
                 //collect them for late encoding in beginStructure or encodeXXX
-                nextValueTags = valueTags ?: EMPTY_TAGS
+                pendingValueTags = valueTags ?: EMPTY_TAGS
             }
         }
         return true
@@ -323,72 +321,74 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
 
 
     override fun encodeTags(tags: ULongArray) {
-        nextValueTags += tags
+        if (tags.isEmpty()) return
+        pendingValueTags = if (pendingValueTags.isEmpty()) tags else pendingValueTags + tags
     }
 
     override fun encodeBoolean(value: Boolean) {
-        currentElement += CborBoolean(value, tags = nextValueTags)
+        currentElement += CborBoolean(value, tags = takePendingValueTags())
     }
 
     override fun encodeByte(value: Byte) {
-        currentElement += CborInt(value.toLong(), tags = nextValueTags)
+        currentElement += CborInt(value.toLong(), tags = takePendingValueTags())
     }
 
     override fun encodeChar(value: Char) {
-        currentElement += CborInt(value.code.toLong(), tags = nextValueTags)
+        currentElement += CborInt(value.code.toLong(), tags = takePendingValueTags())
     }
 
     override fun encodeDouble(value: Double) {
-        currentElement += CborFloat(value, tags = nextValueTags)
+        currentElement += CborFloat(value, tags = takePendingValueTags())
     }
 
     override fun encodeFloat(value: Float) {
-        currentElement += CborFloat(value.toDouble(), tags = nextValueTags)
+        currentElement += CborFloat(value.toDouble(), tags = takePendingValueTags())
     }
 
     override fun encodeInt(value: Int) {
-        currentElement += CborInt(value.toLong(), tags = nextValueTags)
+        currentElement += CborInt(value.toLong(), tags = takePendingValueTags())
     }
 
     override fun encodeLong(value: Long) {
-        currentElement += CborInt(value, tags = nextValueTags)
+        currentElement += CborInt(value, tags = takePendingValueTags())
     }
 
     override fun encodeNegative(value: ULong) {
-        currentElement += CborInt(value, isPositive = false, tags = nextValueTags)
+        currentElement += CborInt(value, isPositive = false, tags = takePendingValueTags())
     }
 
     override fun encodePositive(value: ULong) {
-        currentElement += CborInt(value, isPositive = true, tags = nextValueTags)
+        currentElement += CborInt(value, isPositive = true, tags = takePendingValueTags())
     }
 
 
     override fun encodeShort(value: Short) {
-        currentElement += CborInt(value.toLong(), tags = nextValueTags)
+        currentElement += CborInt(value.toLong(), tags = takePendingValueTags())
     }
 
     override fun encodeString(value: String) {
-        currentElement += CborString(value, tags = nextValueTags)
+        currentElement += CborString(value, tags = takePendingValueTags())
     }
 
     override fun encodeByteString(byteArray: ByteArray) {
-        currentElement += CborByteString(byteArray, tags = nextValueTags)
+        currentElement += CborByteString(byteArray, tags = takePendingValueTags())
     }
 
     override fun encodeUndefined() {
-        currentElement += CborUndefined(tags = nextValueTags)
+        currentElement += CborUndefined(tags = takePendingValueTags())
     }
 
     override fun encodeNull() {
+        val tags = takePendingValueTags()
         currentElement += if (encodeNullAsEmptyMap) CborMap(
             mapOf(),
-            tags = nextValueTags
+            tags = tags
         )
-        else CborNull(tags = nextValueTags)
+        else CborNull(tags = tags)
     }
 
     override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) {
-        currentElement += CborString(enumDescriptor.getElementName(index), tags = nextValueTags)
+        currentElement += CborString(enumDescriptor.getElementName(index), tags = takePendingValueTags())
     }
 
 }
