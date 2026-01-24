@@ -124,31 +124,11 @@ internal object CborIntSerializer : KSerializer<CborInt>, CborSerializer {
     override fun serialize(encoder: Encoder, value: CborInt) {
         val cborEncoder = encoder.asCborEncoder()
         cborEncoder.encodeTags(value.tags)
-        when (cborEncoder) {
-            is CborWriter -> cborEncoder.encodeCborInt(value.value, value.isPositive)
-            else -> {
-                // Best-effort fallback for custom CborEncoder implementations.
-                if (value.isPositive) {
-                    if (value.value <= Long.MAX_VALUE.toULong()) {
-                        encoder.encodeLong(value.value.toLong())
-                        return
-                    }
-                } else {
-                    val abs = value.value
-                    if (abs <= Long.MAX_VALUE.toULong()) {
-                        encoder.encodeLong(-abs.toLong())
-                        return
-                    }
-                    if (abs == Long.MAX_VALUE.toULong() + 1uL) {
-                        encoder.encodeLong(Long.MIN_VALUE)
-                        return
-                    }
-                }
-                throw IllegalStateException(
-                    "This serializer can be used only with kotlinx.serialization.cbor's built-in encoder " +
-                        "to encode full-range CBOR integers. Got ${encoder::class}."
-                )
-            }
+        when (value.isPositive) {
+            //@formatter:off
+            true  -> cborEncoder.encodePositive(value.value)
+            false -> cborEncoder.encodeNegative(value.value)
+            //@formatter:on
         }
     }
 

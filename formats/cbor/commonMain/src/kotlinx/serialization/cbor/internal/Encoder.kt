@@ -103,11 +103,8 @@ internal sealed class CborWriter(
     override fun encodeLong(value: Long) {
         getDestination().encodeNumber(value)
     }
-
-    internal open fun encodeCborInt(absoluteValue: ULong, isPositive: Boolean) {
-        if (isPositive) getDestination().encodePositive(absoluteValue)
-        else getDestination().encodeNegative(absoluteValue)
-    }
+    override fun encodeNegative(value: ULong) = getDestination().encodeNegative(value)
+    override fun encodePositive(value: ULong) = getDestination().encodePositive(value)
 
     override fun encodeBoolean(value: Boolean) {
         getDestination().encodeBoolean(value)
@@ -357,8 +354,12 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
         currentElement += CborInt(value, tags = nextValueTags)
     }
 
-    override fun encodeCborInt(absoluteValue: ULong, isPositive: Boolean) {
-        currentElement += CborInt(absoluteValue, isPositive = isPositive, tags = nextValueTags)
+    override fun encodeNegative(value: ULong) {
+        currentElement += CborInt(value, isPositive = false, tags = nextValueTags)
+    }
+
+    override fun encodePositive(value: ULong) {
+        currentElement += CborInt(value, isPositive = true, tags = nextValueTags)
     }
 
 

@@ -24,9 +24,6 @@ import kotlinx.serialization.encoding.*
  *     }
  * }
  * ```
- *
- * To encode integers outside of the [Long] range, encode a [CborInt] explicitly
- * (e.g. `encoder.encodeSerializableValue(CborInt.serializer(), CborInt(value = someULong, isPositive = true))`).
  */
 @ExperimentalSerializationApi
 @SubclassOptInRequired(SealedSerializationApi::class)
@@ -81,4 +78,16 @@ public interface CborEncoder : Encoder {
      * Encode CBOR `undefined` (simple value 23 / `0xF7`).
      */
     public fun encodeUndefined()
+
+    /**
+     * Encode a negative integer (major type 1) with an absolute value that may exceed [Long.MIN_VALUE].
+     *
+     * The encoded CBOR value is `-1 - (value - 1)` (i.e. `-value` in terms of [CborInt]'s absolute representation).
+     */
+    public fun encodeNegative(value: ULong)
+
+    /**
+     * Encode an unsigned integer (major type 0) that may exceed [Long.MAX_VALUE].
+     */
+    public fun encodePositive(value: ULong)
 }
