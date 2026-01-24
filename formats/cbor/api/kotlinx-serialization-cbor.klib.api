@@ -360,6 +360,23 @@ final object kotlinx.serialization.cbor/CborTag { // kotlinx.serialization.cbor/
         final fun <get-URI>(): kotlin/ULong // kotlinx.serialization.cbor/CborTag.URI.<get-URI>|<get-URI>(){}[0]
 }
 
+final val kotlinx.serialization.cbor/byte // kotlinx.serialization.cbor/byte|@kotlinx.serialization.cbor.CborInt{}byte[0]
+    final fun (kotlinx.serialization.cbor/CborInt).<get-byte>(): kotlin/Byte // kotlinx.serialization.cbor/byte.<get-byte>|<get-byte>@kotlinx.serialization.cbor.CborInt(){}[0]
+final val kotlinx.serialization.cbor/byteOrNull // kotlinx.serialization.cbor/byteOrNull|@kotlinx.serialization.cbor.CborInt{}byteOrNull[0]
+    final fun (kotlinx.serialization.cbor/CborInt).<get-byteOrNull>(): kotlin/Byte? // kotlinx.serialization.cbor/byteOrNull.<get-byteOrNull>|<get-byteOrNull>@kotlinx.serialization.cbor.CborInt(){}[0]
+final val kotlinx.serialization.cbor/int // kotlinx.serialization.cbor/int|@kotlinx.serialization.cbor.CborInt{}int[0]
+    final fun (kotlinx.serialization.cbor/CborInt).<get-int>(): kotlin/Int // kotlinx.serialization.cbor/int.<get-int>|<get-int>@kotlinx.serialization.cbor.CborInt(){}[0]
+final val kotlinx.serialization.cbor/intOrNull // kotlinx.serialization.cbor/intOrNull|@kotlinx.serialization.cbor.CborInt{}intOrNull[0]
+    final fun (kotlinx.serialization.cbor/CborInt).<get-intOrNull>(): kotlin/Int? // kotlinx.serialization.cbor/intOrNull.<get-intOrNull>|<get-intOrNull>@kotlinx.serialization.cbor.CborInt(){}[0]
+final val kotlinx.serialization.cbor/long // kotlinx.serialization.cbor/long|@kotlinx.serialization.cbor.CborInt{}long[0]
+    final fun (kotlinx.serialization.cbor/CborInt).<get-long>(): kotlin/Long // kotlinx.serialization.cbor/long.<get-long>|<get-long>@kotlinx.serialization.cbor.CborInt(){}[0]
+final val kotlinx.serialization.cbor/longOrNull // kotlinx.serialization.cbor/longOrNull|@kotlinx.serialization.cbor.CborInt{}longOrNull[0]
+    final fun (kotlinx.serialization.cbor/CborInt).<get-longOrNull>(): kotlin/Long? // kotlinx.serialization.cbor/longOrNull.<get-longOrNull>|<get-longOrNull>@kotlinx.serialization.cbor.CborInt(){}[0]
+final val kotlinx.serialization.cbor/short // kotlinx.serialization.cbor/short|@kotlinx.serialization.cbor.CborInt{}short[0]
+    final fun (kotlinx.serialization.cbor/CborInt).<get-short>(): kotlin/Short // kotlinx.serialization.cbor/short.<get-short>|<get-short>@kotlinx.serialization.cbor.CborInt(){}[0]
+final val kotlinx.serialization.cbor/shortOrNull // kotlinx.serialization.cbor/shortOrNull|@kotlinx.serialization.cbor.CborInt{}shortOrNull[0]
+    final fun (kotlinx.serialization.cbor/CborInt).<get-shortOrNull>(): kotlin/Short? // kotlinx.serialization.cbor/shortOrNull.<get-shortOrNull>|<get-shortOrNull>@kotlinx.serialization.cbor.CborInt(){}[0]
+
 final fun kotlinx.serialization.cbor/Cbor(kotlinx.serialization.cbor/Cbor = ..., kotlin/Function1<kotlinx.serialization.cbor/CborBuilder, kotlin/Unit>): kotlinx.serialization.cbor/Cbor // kotlinx.serialization.cbor/Cbor|Cbor(kotlinx.serialization.cbor.Cbor;kotlin.Function1<kotlinx.serialization.cbor.CborBuilder,kotlin.Unit>){}[0]
 final fun kotlinx.serialization.cbor/CborInt(kotlin/Long, kotlin/ULongArray...): kotlinx.serialization.cbor/CborInt // kotlinx.serialization.cbor/CborInt|CborInt(kotlin.Long;kotlin.ULongArray...){}[0]
 final fun kotlinx.serialization.cbor/CborInt(kotlin/ULong, kotlin/ULongArray...): kotlinx.serialization.cbor/CborInt // kotlinx.serialization.cbor/CborInt|CborInt(kotlin.ULong;kotlin.ULongArray...){}[0]

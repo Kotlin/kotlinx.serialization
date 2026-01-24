@@ -114,11 +114,6 @@ public class CborInt(
         if (!isPositive) require(absoluteValue > 0uL) { "Illegal absolute value $absoluteValue for a negative number." }
     }
 
-    /**
-     * **WARNING! Possible truncation/overflow!** E.g., `-2^64` -> `1`
-     */
-    public fun toLong(): Long = if (isPositive) value.toLong() else -value.toLong()
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is CborInt) return false
@@ -167,6 +162,85 @@ public fun CborInt(value: Long, vararg tags: ULong): CborInt =
 @Suppress("FunctionName")
 public fun CborInt(value: ULong, vararg tags: ULong): CborInt =
     CborInt(value, isPositive = true, tags = tags)
+
+/**
+ * Converts this integer to [Long], throwing if it cannot be represented as [Long].
+ */
+@ExperimentalSerializationApi
+public val CborInt.long: Long
+    get() = longOrNull ?: throw ArithmeticException("$this cannot be represented as Long")
+
+/**
+ * Converts this integer to [Long], or returns `null` if it cannot be represented as [Long].
+ */
+@ExperimentalSerializationApi
+public val CborInt.longOrNull: Long?
+    get() {
+        val max = Long.MAX_VALUE.toULong()
+        return if (isPositive) {
+            if (value <= max) value.toLong() else null
+        } else {
+            when {
+                value <= max -> -value.toLong()
+                value == max + 1uL -> Long.MIN_VALUE
+                else -> null
+            }
+        }
+    }
+
+/**
+ * Converts this integer to [Int], throwing if it cannot be represented as [Int].
+ */
+@ExperimentalSerializationApi
+public val CborInt.int: Int
+    get() = intOrNull ?: throw ArithmeticException("$this cannot be represented as Int")
+
+/**
+ * Converts this integer to [Int], or returns `null` if it cannot be represented as [Int].
+ */
+@ExperimentalSerializationApi
+public val CborInt.intOrNull: Int?
+    get() {
+        val longValue = longOrNull ?: return null
+        if (longValue !in Int.MIN_VALUE.toLong()..Int.MAX_VALUE.toLong()) return null
+        return longValue.toInt()
+    }
+
+/**
+ * Converts this integer to [Short], throwing if it cannot be represented as [Short].
+ */
+@ExperimentalSerializationApi
+public val CborInt.short: Short
+    get() = shortOrNull ?: throw ArithmeticException("$this cannot be represented as Short")
+
+/**
+ * Converts this integer to [Short], or returns `null` if it cannot be represented as [Short].
+ */
+@ExperimentalSerializationApi
+public val CborInt.shortOrNull: Short?
+    get() {
+        val longValue = longOrNull ?: return null
+        if (longValue !in Short.MIN_VALUE.toLong()..Short.MAX_VALUE.toLong()) return null
+        return longValue.toShort()
+    }
+
+/**
+ * Converts this integer to [Byte], throwing if it cannot be represented as [Byte].
+ */
+@ExperimentalSerializationApi
+public val CborInt.byte: Byte
+    get() = byteOrNull ?: throw ArithmeticException("$this cannot be represented as Byte")
+
+/**
+ * Converts this integer to [Byte], or returns `null` if it cannot be represented as [Byte].
+ */
+@ExperimentalSerializationApi
+public val CborInt.byteOrNull: Byte?
+    get() {
+        val longValue = longOrNull ?: return null
+        if (longValue !in Byte.MIN_VALUE.toLong()..Byte.MAX_VALUE.toLong()) return null
+        return longValue.toByte()
+    }
 
 /**
  * Class representing CBOR floating point value (major type 7).

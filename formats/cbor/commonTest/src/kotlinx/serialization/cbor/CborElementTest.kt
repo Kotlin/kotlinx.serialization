@@ -103,10 +103,9 @@ class CborElementTest {
         assertEquals(numberElement, decodedNumber)
         assertEquals(ULong.MAX_VALUE, (decodedNumber as CborInt).value)
 
-        val lossOfPrecision = cbor.decodeFromCborElement<Long>(numberElement)
-
-        assertEquals(1L, lossOfPrecision)
-        assertEquals(1L, numberElement.toLong())
+        assertNull(numberElement.longOrNull)
+        assertFailsWith<ArithmeticException> { numberElement.long }
+        assertFailsWith<SerializationException> { cbor.decodeFromCborElement<Long>(numberElement) }
     }
 
 
@@ -123,15 +122,15 @@ class CborElementTest {
         val long = cbor.decodeFromCborElement<Long>(numberElement)
 
         assertEquals(Long.MIN_VALUE+1, long)
-        assertEquals(Long.MIN_VALUE+1, numberElement.toLong())
+        assertEquals(Long.MIN_VALUE + 1, numberElement.long)
     }
 
 
 
     @Test
     fun testCborNumberLong() {
-        assertEquals(Long.MAX_VALUE, CborInt(Long.MAX_VALUE).toLong())
-        assertEquals(Long.MIN_VALUE, CborInt(Long.MIN_VALUE).toLong())
+        assertEquals(Long.MAX_VALUE, CborInt(Long.MAX_VALUE).long)
+        assertEquals(Long.MIN_VALUE, CborInt(Long.MIN_VALUE).long)
     }
 
     @Test

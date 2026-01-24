@@ -120,6 +120,14 @@ public final class kotlinx/serialization/cbor/CborElement$Companion {
 public final class kotlinx/serialization/cbor/CborElementKt {
 	public static final fun CborInt-SIFponk (J[J)Lkotlinx/serialization/cbor/CborInt;
 	public static final fun CborInt-ahITK_k (J[J)Lkotlinx/serialization/cbor/CborInt;
+	public static final fun getByte (Lkotlinx/serialization/cbor/CborInt;)B
+	public static final fun getByteOrNull (Lkotlinx/serialization/cbor/CborInt;)Ljava/lang/Byte;
+	public static final fun getInt (Lkotlinx/serialization/cbor/CborInt;)I
+	public static final fun getIntOrNull (Lkotlinx/serialization/cbor/CborInt;)Ljava/lang/Integer;
+	public static final fun getLong (Lkotlinx/serialization/cbor/CborInt;)J
+	public static final fun getLongOrNull (Lkotlinx/serialization/cbor/CborInt;)Ljava/lang/Long;
+	public static final fun getShort (Lkotlinx/serialization/cbor/CborInt;)S
+	public static final fun getShortOrNull (Lkotlinx/serialization/cbor/CborInt;)Ljava/lang/Short;
 }
 
 public abstract interface class kotlinx/serialization/cbor/CborEncoder : kotlinx/serialization/encoding/Encoder {
