@@ -676,10 +676,10 @@ internal class StructuredCborParser(internal val element: CborElement, private v
 
     override fun nextNumber(tags: ULongArray?): Long {
         processTags(tags)
-        if (layer.current !is CborInt) {
+        if (layer.current !is CborInteger) {
             throw CborDecodingException("Expected number, got ${layer.current::class.simpleName}")
         }
-        return (layer.current as CborInt).longOrNull
+        return (layer.current as CborInteger).longOrNull
             ?: throw CborDecodingException("${layer.current} cannot be represented as Long")
     }
 
@@ -716,7 +716,7 @@ internal class StructuredCborParser(internal val element: CborElement, private v
 
         return when (val key = layer.current) {
             is CborString -> Triple(key.value, null, tags)
-            is CborInt -> Triple(
+            is CborInteger -> Triple(
                 null,
                 key.longOrNull ?: throw CborDecodingException("$key cannot be represented as Long"),
                 tags

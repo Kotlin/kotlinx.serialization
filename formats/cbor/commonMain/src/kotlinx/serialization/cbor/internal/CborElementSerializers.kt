@@ -66,7 +66,7 @@ internal object CborPrimitiveSerializer : KSerializer<CborPrimitive>, CborSerial
             is CborBoolean -> encoder.encodeSerializableValue(CborBooleanSerializer, value)
             is CborByteString -> encoder.encodeSerializableValue(CborByteStringSerializer, value)
             is CborFloat -> encoder.encodeSerializableValue(CborFloatSerializer, value)
-            is CborInt -> encoder.encodeSerializableValue(CborIntSerializer, value)
+            is CborInteger -> encoder.encodeSerializableValue(CborIntSerializer, value)
         }
     }
 
@@ -117,11 +117,11 @@ internal object CborUndefinedSerializer : KSerializer<CborUndefined>, CborSerial
 }
 
 
-internal object CborIntSerializer : KSerializer<CborInt>, CborSerializer {
+internal object CborIntSerializer : KSerializer<CborInteger>, CborSerializer {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("kotlinx.serialization.cbor.CborInt", PrimitiveKind.LONG)
 
-    override fun serialize(encoder: Encoder, value: CborInt) {
+    override fun serialize(encoder: Encoder, value: CborInteger) {
         val cborEncoder = encoder.asCborEncoder()
         cborEncoder.encodeTags(value.tags)
         when (value.isPositive) {
@@ -132,9 +132,9 @@ internal object CborIntSerializer : KSerializer<CborInt>, CborSerializer {
         }
     }
 
-    override fun deserialize(decoder: Decoder): CborInt {
+    override fun deserialize(decoder: Decoder): CborInteger {
         val result = decoder.asCborDecoder().decodeCborElement()
-        if (result !is CborInt) throw CborDecodingException("Unexpected CBOR element, expected CborInt, had ${result::class}")
+        if (result !is CborInteger) throw CborDecodingException("Unexpected CBOR element, expected CborInt, had ${result::class}")
         return result
     }
 }

@@ -82,7 +82,7 @@ public interface CborEncoder : Encoder {
     /**
      * Encode a negative integer (major type 1) with an absolute value that may exceed [Long.MIN_VALUE].
      *
-     * The encoded CBOR value is `-1 - (value - 1)` (i.e. `-value` in terms of [CborInt]'s absolute representation).
+     * The encoded CBOR value is `-1 - (value - 1)` (i.e. `-value` in terms of [CborInteger]'s absolute representation).
      */
     public fun encodeNegative(value: ULong)
 

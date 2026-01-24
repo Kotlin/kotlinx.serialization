@@ -87,10 +87,10 @@ class CborElementSerializerBehaviorTest {
         val cbor = Cbor {}
         val bytes = cbor.encodeToByteArray(CborElement.serializer(), CborList(listOf(CborInt(1))))
         assertFailsWith<CborDecodingException> {
-            cbor.decodeFromByteArray(CborInt.serializer(), bytes)
+            cbor.decodeFromByteArray(CborInteger.serializer(), bytes)
         }
         assertFailsWith<CborDecodingException> {
-            cbor.decodeFromCborElement(CborInt.serializer(), CborList(listOf(CborInt(1))))
+            cbor.decodeFromCborElement(CborInteger.serializer(), CborList(listOf(CborInt(1))))
         }
     }
 

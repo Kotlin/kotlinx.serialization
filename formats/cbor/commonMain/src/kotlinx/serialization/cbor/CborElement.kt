@@ -103,7 +103,7 @@ public sealed class CborPrimitive(
  */
 @Serializable(with = CborIntSerializer::class)
 @ExperimentalSerializationApi
-public class CborInt(
+public class CborInteger(
     absoluteValue: ULong,
     public val isPositive: Boolean,
     vararg tags: ULong
@@ -116,7 +116,7 @@ public class CborInt(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is CborInt) return false
+        if (other !is CborInteger) return false
         if (!super.equals(other)) return false
 
         if (isPositive != other.isPositive) return false
@@ -151,30 +151,30 @@ public class CborInt(
  */
 @ExperimentalSerializationApi
 @Suppress("FunctionName")
-public fun CborInt(value: Long, vararg tags: ULong): CborInt =
-    if (value >= 0L) CborInt(value.toULong(), isPositive = true, tags = tags)
-    else CborInt(ULong.MAX_VALUE - value.toULong() + 1uL, isPositive = false, tags = tags)
+public fun CborInt(value: Long, vararg tags: ULong): CborInteger =
+    if (value >= 0L) CborInteger(value.toULong(), isPositive = true, tags = tags)
+    else CborInteger(ULong.MAX_VALUE - value.toULong() + 1uL, isPositive = false, tags = tags)
 
 /**
  * Creates an unsigned CBOR integer (major type 0).
  */
 @ExperimentalSerializationApi
 @Suppress("FunctionName")
-public fun CborInt(value: ULong, vararg tags: ULong): CborInt =
-    CborInt(value, isPositive = true, tags = tags)
+public fun CborInt(value: ULong, vararg tags: ULong): CborInteger =
+    CborInteger(value, isPositive = true, tags = tags)
 
 /**
  * Converts this integer to [Long], throwing if it cannot be represented as [Long].
  */
 @ExperimentalSerializationApi
-public val CborInt.long: Long
+public val CborInteger.long: Long
     get() = longOrNull ?: throw ArithmeticException("$this cannot be represented as Long")
 
 /**
  * Converts this integer to [Long], or returns `null` if it cannot be represented as [Long].
  */
 @ExperimentalSerializationApi
-public val CborInt.longOrNull: Long?
+public val CborInteger.longOrNull: Long?
     get() {
         val max = Long.MAX_VALUE.toULong()
         return if (isPositive) {
@@ -192,14 +192,14 @@ public val CborInt.longOrNull: Long?
  * Converts this integer to [Int], throwing if it cannot be represented as [Int].
  */
 @ExperimentalSerializationApi
-public val CborInt.int: Int
+public val CborInteger.int: Int
     get() = intOrNull ?: throw ArithmeticException("$this cannot be represented as Int")
 
 /**
  * Converts this integer to [Int], or returns `null` if it cannot be represented as [Int].
  */
 @ExperimentalSerializationApi
-public val CborInt.intOrNull: Int?
+public val CborInteger.intOrNull: Int?
     get() {
         val longValue = longOrNull ?: return null
         if (longValue !in Int.MIN_VALUE.toLong()..Int.MAX_VALUE.toLong()) return null
@@ -210,14 +210,14 @@ public val CborInt.intOrNull: Int?
  * Converts this integer to [Short], throwing if it cannot be represented as [Short].
  */
 @ExperimentalSerializationApi
-public val CborInt.short: Short
+public val CborInteger.short: Short
     get() = shortOrNull ?: throw ArithmeticException("$this cannot be represented as Short")
 
 /**
  * Converts this integer to [Short], or returns `null` if it cannot be represented as [Short].
  */
 @ExperimentalSerializationApi
-public val CborInt.shortOrNull: Short?
+public val CborInteger.shortOrNull: Short?
     get() {
         val longValue = longOrNull ?: return null
         if (longValue !in Short.MIN_VALUE.toLong()..Short.MAX_VALUE.toLong()) return null
@@ -228,14 +228,14 @@ public val CborInt.shortOrNull: Short?
  * Converts this integer to [Byte], throwing if it cannot be represented as [Byte].
  */
 @ExperimentalSerializationApi
-public val CborInt.byte: Byte
+public val CborInteger.byte: Byte
     get() = byteOrNull ?: throw ArithmeticException("$this cannot be represented as Byte")
 
 /**
  * Converts this integer to [Byte], or returns `null` if it cannot be represented as [Byte].
  */
 @ExperimentalSerializationApi
-public val CborInt.byteOrNull: Byte?
+public val CborInteger.byteOrNull: Byte?
     get() {
         val longValue = longOrNull ?: return null
         if (longValue !in Byte.MIN_VALUE.toLong()..Byte.MAX_VALUE.toLong()) return null

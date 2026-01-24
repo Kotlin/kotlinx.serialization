@@ -406,12 +406,12 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
 
     override fun encodeNegative(value: ULong) {
         onDataItemEncoded()
-        currentElement += CborInt(value, isPositive = false, tags = takePendingValueTags())
+        currentElement += CborInteger(value, isPositive = false, tags = takePendingValueTags())
     }
 
     override fun encodePositive(value: ULong) {
         onDataItemEncoded()
-        currentElement += CborInt(value, isPositive = true, tags = takePendingValueTags())
+        currentElement += CborInteger(value, isPositive = true, tags = takePendingValueTags())
     }
 
 
