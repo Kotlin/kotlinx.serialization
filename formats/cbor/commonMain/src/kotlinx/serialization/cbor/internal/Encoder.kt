@@ -197,12 +197,7 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
      * Tags and values are "written", i.e. recorded/prepared for encoding separately. Hence, we need a helper that allows
      * for setting tags and values independently, and then merging them into the final [CborElement] at the end.
      */
-    internal sealed class CborContainer(tags: ULongArray, elements: MutableList<CborElement>) {
-        protected val elements = elements
-
-        var tags = tags
-            internal set
-
+    internal sealed class CborContainer(private val tags: ULongArray, protected val elements: MutableList<CborElement>) {
 
         open fun add(element: CborElement) = elements.add(element)
         class Map(tags: ULongArray, elements: MutableList<CborElement> = mutableListOf()) :
@@ -211,7 +206,7 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
         class List(tags: ULongArray, elements: MutableList<CborElement> = mutableListOf()) :
             CborContainer(tags, elements)
 
-        class Primitive(tags: ULongArray) : CborContainer(tags, elements = mutableListOf()) {
+        class Root(tags: ULongArray) : CborContainer(tags, elements = mutableListOf()) {
             override fun add(element: CborElement): Boolean {
                 require(elements.isEmpty()) { "Implementation error. Please report a bug." }
                 return elements.add(element)
@@ -236,7 +231,7 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
                 tags = tags
             )
 
-            is Primitive -> elements.first().also { it.tags += tags }
+            is Root -> elements.first().also { it.tags += tags }
 
         }
     }
@@ -246,7 +241,7 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
     }
 
     private val stack = ArrayDeque<CborContainer>()
-    private var currentElement: CborContainer? = CborContainer.Primitive(tags = EMPTY_TAGS)
+    private var currentElement: CborContainer = CborContainer.Root(tags = EMPTY_TAGS)
 
     // value tags are collects inside beginStructure, so we need to cache them here and write them in beginStructure or encodeXXX
     // and then null them out, so there are no leftovers
@@ -255,7 +250,7 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
     private fun takePendingValueTags(): ULongArray =
         pendingValueTags.also { pendingValueTags = EMPTY_TAGS }
 
-    fun finalize() = currentElement!!.finalize()
+    fun finalize() = currentElement.finalize()
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
         val tags = takePendingValueTags() +
