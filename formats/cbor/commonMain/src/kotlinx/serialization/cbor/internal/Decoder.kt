@@ -116,12 +116,11 @@ internal open class CborReader(override val cbor: Cbor, protected val parser: Cb
 
     @OptIn(ExperimentalSerializationApi::class)
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
-        @Suppress("UNCHECKED_CAST")
         return if (deserializer is CborSerializer) {
-            val tags = parser.processTags(tags)
-            decodeCborElement().also { /*this is a NOOP for structured parser but not from bytes */it.tags =
-                tags ?: EMPTY_TAGS
-            } as T
+            val collectedTags = parser.processTags(tags) ?: EMPTY_TAGS
+            deserializer.deserialize(this).also { value ->
+                (value as? CborElement)?.tags = collectedTags
+            }
         } else if ((decodeByteArrayAsByteString || cbor.configuration.alwaysUseByteString)
             && deserializer.descriptor == ByteArraySerializer().descriptor
         ) {
