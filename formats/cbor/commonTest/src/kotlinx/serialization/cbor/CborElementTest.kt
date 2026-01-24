@@ -12,6 +12,21 @@ class CborElementTest {
 
     private val cbor = Cbor {}
 
+    @OptIn(ExperimentalSerializationApi::class)
+    @Test
+    fun testEncodeToCborElementRootPrimitiveInt() {
+        assertEquals(CborInt(42), cbor.encodeToCborElement(42))
+    }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    @Test
+    fun testEncodeToCborElementRootPrimitiveByteArrayAlwaysUseByteString() {
+        val configured = Cbor { alwaysUseByteString = true }
+        val element = configured.encodeToCborElement(byteArrayOf(1, 2, 3))
+        assertTrue(element is CborByteString)
+        assertTrue(element.value.contentEquals(byteArrayOf(1, 2, 3)))
+    }
+
     @Test
     fun testCborNull() {
         val nullElement = CborNull()
@@ -77,7 +92,7 @@ class CborElementTest {
         val lossOfPrecision = cbor.decodeFromCborElement<Long>(numberElement)
 
         assertEquals(1L, lossOfPrecision)
-        assertEquals(-1L, numberElement.toLong())
+        assertEquals(1L, numberElement.toLong())
     }
 
 
@@ -94,7 +109,7 @@ class CborElementTest {
         val long = cbor.decodeFromCborElement<Long>(numberElement)
 
         assertEquals(Long.MIN_VALUE+1, long)
-        assertEquals(-(Long.MIN_VALUE+1), numberElement.toLong())
+        assertEquals(Long.MIN_VALUE+1, numberElement.toLong())
     }
 
 
@@ -688,6 +703,31 @@ class CborElementTest {
                 assertEquals(obj, cbor.decodeFromCborElement(struct))
                 assertEquals(obj, cbor.decodeFromHexString(hex))
             }
+    }
+
+    @OptIn(ExperimentalUnsignedTypes::class)
+    @Test
+    fun testCborUndefinedRoundTrip() {
+        val element = CborUndefined(1uL)
+        val bytes = cbor.encodeToByteArray(element)
+        assertEquals("c1f7", bytes.toHexString())
+        assertEquals(element, cbor.decodeFromByteArray<CborElement>(bytes))
+    }
+
+    @OptIn(ExperimentalUnsignedTypes::class)
+    @Test
+    fun testTagsPreservedWhenDecodingTypedElements() {
+        val taggedMap = CborMap(mapOf(CborString("a") to CborInt(1)), 1uL)
+        assertEquals(taggedMap, cbor.decodeFromByteArray<CborMap>(cbor.encodeToByteArray(taggedMap)))
+
+        val taggedList = CborList(listOf(CborInt(1)), 2uL)
+        assertEquals(taggedList, cbor.decodeFromByteArray<CborList>(cbor.encodeToByteArray(taggedList)))
+
+        val taggedFloat = CborFloat(1.5, 3uL)
+        assertEquals(taggedFloat, cbor.decodeFromByteArray<CborFloat>(cbor.encodeToByteArray(taggedFloat)))
+
+        val taggedNull = CborNull(4uL)
+        assertEquals(taggedNull, cbor.decodeFromByteArray<CborNull>(cbor.encodeToByteArray(taggedNull)))
     }
 
 }

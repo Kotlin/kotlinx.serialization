@@ -32,6 +32,10 @@ internal sealed class CborWriter(
         getDestination().encodeByteString(byteArray)
     }
 
+    internal open fun encodeUndefined() {
+        getDestination().encodeUndefined()
+    }
+
     protected var isClass = false
 
     protected var encodeByteArrayAsByteString = false
@@ -217,9 +221,18 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
         fun finalize() = when (this) {
             is List -> CborList(content = elements, tags = tags)
             is Map -> CborMap(
-                content = if (elements.isNotEmpty()) IntRange(0, elements.size / 2 - 1).associate {
-                    elements[it * 2] to elements[it * 2 + 1]
-                } else mapOf(),
+                content = if (elements.isNotEmpty()) {
+                    require(elements.size % 2 == 0) {
+                        "Implementation error: map element list must contain alternating keys and values, but had odd size ${elements.size}."
+                    }
+                    buildMap(elements.size / 2) {
+                        for (index in 0 until elements.size step 2) {
+                            put(elements[index], elements[index + 1])
+                        }
+                    }
+                } else {
+                    mapOf()
+                },
                 tags = tags
             )
 
@@ -234,7 +247,7 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
 
 
     private val stack = ArrayDeque<CborContainer>()
-    private var currentElement: CborContainer? = null
+    private var currentElement: CborContainer? = CborContainer.Primitive(tags = ulongArrayOf())
 
     // value tags are collects inside beginStructure, so we need to cache them here and write them in beginStructure or encodeXXX
     // and then null them out, so there are no leftovers
@@ -366,6 +379,10 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
         currentElement += CborByteString(byteArray, tags = nextValueTags)
     }
 
+    override fun encodeUndefined() {
+        currentElement += CborUndefined(tags = nextValueTags)
+    }
+
     override fun encodeNull() {
         /*NOT CBOR-COMPLIANT, KxS-proprietary behaviour*/
         currentElement += if (isClass) CborMap(
@@ -445,6 +462,8 @@ internal fun ByteArrayOutput.encodeTag(tag: ULong) {
 internal fun ByteArrayOutput.end() = write(BREAK)
 
 internal fun ByteArrayOutput.encodeNull() = write(NULL)
+
+internal fun ByteArrayOutput.encodeUndefined() = write(UNDEFINED)
 
 internal fun ByteArrayOutput.encodeEmptyMap() = write(EMPTY_MAP)
 

@@ -12,6 +12,7 @@ import kotlinx.serialization.descriptors.*
 internal const val FALSE = 0xf4
 internal const val TRUE = 0xf5
 internal const val NULL = 0xf6
+internal const val UNDEFINED = 0xf7
 internal const val EMPTY_MAP = 0xa0
 
 internal const val NEXT_HALF = 0xf9

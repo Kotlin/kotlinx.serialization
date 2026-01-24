@@ -112,10 +112,7 @@ public class CborInt(
     /**
      * **WARNING! Possible truncation/overflow!** E.g., `-2^64` -> `1`
      */
-    public fun toLong(): Long = when (isPositive) {
-        isPositive -> value.toLong()
-        else -> -value.toLong()
-    }
+    public fun toLong(): Long = if (isPositive) value.toLong() else -value.toLong()
 
 
     public companion object {
@@ -125,7 +122,7 @@ public class CborInt(
          * * unsigned CBOR integer (major type 0 encompassing `0..2^64-1`)
          *
          * depending on whether a positive or a negative number was passed.
-         * If you want to create a negative number exceeding [Long.MIN_VALUE], manually specify sign: `CborInt(ULong.MAX_VALUE, CborInt.Sign.NEGATIVE)`
+         * If you want to create a negative number exceeding [Long.MIN_VALUE], manually specify sign: `CborInt(ULong.MAX_VALUE, isPositive = false)`
          */
         public operator fun invoke(
             value: Long,
@@ -238,6 +235,13 @@ public class CborByteString(
 public class CborNull(vararg tags: ULong) : CborPrimitive<Unit>(Unit, tags)
 
 /**
+ * Class representing CBOR `undefined` value
+ */
+@Serializable(with = CborUndefinedSerializer::class)
+@ExperimentalSerializationApi
+public class CborUndefined(vararg tags: ULong) : CborPrimitive<Unit>(Unit, tags)
+
+/**
  * Class representing CBOR map, consisting of key-value pairs, where both key and value are arbitrary [CborElement]
  *
  * Since this class also implements [Map] interface, you can use
@@ -262,9 +266,14 @@ public class CborMap(
             ")"
     }
 
-    public operator fun get(key: String?): CborElement? = content[key?.let { CborString(it) }?:CborNull() ]
-    public operator fun get(key: Long?): CborElement? = content[key?.let { CborInt(it) }?:CborNull() ]
-    public operator fun get(key: Int?): CborElement? = content[key?.let { CborInt(it.toULong()) }?:CborNull() ]
+    public operator fun get(key: String): CborElement? = content[CborString(key)]
+    public fun getValue(key: String): CborElement = content.getValue(CborString(key))
+
+    public operator fun get(key: Long): CborElement? = content[CborInt(key)]
+    public fun getValue(key: Long): CborElement = content.getValue(CborInt(key))
+
+    public operator fun get(key: Int): CborElement? = content[CborInt(key.toLong())]
+    public fun getValue(key: Int): CborElement = content.getValue(CborInt(key.toLong()))
 
 }
 

@@ -64,9 +64,14 @@ internal class CborTreeReader(
                         CborBoolean(true, tags = tags)
                     }
 
-                    0xF6, 0xF7 -> {
+                    0xF6 -> {
                         parser.nextNull()
                         CborNull(tags = tags)
+                    }
+
+                    0xF7 -> {
+                        parser.readByte() // Advance parser position
+                        CborUndefined(tags = tags)
                     }
                     // Half/Float32/Float64
                     NEXT_HALF, NEXT_FLOAT, NEXT_DOUBLE -> CborFloat(parser.nextDouble(), tags = tags)
