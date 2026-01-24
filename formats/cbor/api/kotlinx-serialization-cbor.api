@@ -116,8 +116,6 @@ public final class kotlinx/serialization/cbor/CborElement$Companion {
 public abstract interface class kotlinx/serialization/cbor/CborEncoder : kotlinx/serialization/encoding/Encoder {
 	public abstract fun encodeByteString ([B)V
 	public fun encodeCborElement (Lkotlinx/serialization/cbor/CborElement;)V
-	public abstract fun encodeNegative-VKZWuLQ (J)V
-	public abstract fun encodePositive-VKZWuLQ (J)V
 	public abstract fun encodeTags-QwZRm1k ([J)V
 	public abstract fun encodeUndefined ()V
 	public abstract fun getCbor ()Lkotlinx/serialization/cbor/Cbor;
