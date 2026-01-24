@@ -83,7 +83,7 @@ public annotation class KeyTags(@OptIn(ExperimentalUnsignedTypes::class) vararg 
 
 /**
  * Specifies that an object of a class annotated using `ObjectTags` shall be tagged and serialized as
- * CBOR major type 6: optional semantic tagging of other major types. Can be combined with [CborArray] and [ValueTags].
+ * CBOR major type 6: optional semantic tagging of other major types. Can be combined with [CborObjectAsArray] and [ValueTags].
  * Note that `ObjectTags` will always be encoded directly before to the data of the tagged object, i.e. a value-tagged
  * property of an object-tagged type will have the value tags preceding the object tags.
  *

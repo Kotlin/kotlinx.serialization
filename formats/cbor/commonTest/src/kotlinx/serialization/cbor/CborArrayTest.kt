@@ -121,14 +121,14 @@ class CborArrayTest {
         assertEquals(referenceHexString, cbor.encodeToHexString(CborElement.serializer(), struct))
     }
 
-    @CborArray
+    @CborObjectAsArray
     @Serializable
     data class ClassAs1Array(
         @SerialName("alg")
         val alg: Int,
     )
 
-    @CborArray
+    @CborObjectAsArray
     @ObjectTags(8U)
     @Serializable
     data class ClassAs2Array(
@@ -138,7 +138,7 @@ class CborArrayTest {
         val kid: String,
     )
 
-    @CborArray
+    @CborObjectAsArray
     @Serializable
     data class ClassAs4ArrayNullable(
         @SerialName("alg")

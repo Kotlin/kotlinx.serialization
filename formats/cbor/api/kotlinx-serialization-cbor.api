@@ -20,13 +20,6 @@ public final class kotlinx/serialization/cbor/Cbor$Default : kotlinx/serializati
 	public final fun getCoseCompliant ()Lkotlinx/serialization/cbor/Cbor;
 }
 
-public abstract interface annotation class kotlinx/serialization/cbor/CborArray : java/lang/annotation/Annotation {
-}
-
-public final synthetic class kotlinx/serialization/cbor/CborArray$Impl : kotlinx/serialization/cbor/CborArray {
-	public fun <init> ()V
-}
-
 public final class kotlinx/serialization/cbor/CborBoolean : kotlinx/serialization/cbor/CborPrimitive {
 	public static final field Companion Lkotlinx/serialization/cbor/CborBoolean$Companion;
 	public synthetic fun <init> (Z[JLkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -118,16 +111,16 @@ public final class kotlinx/serialization/cbor/CborElement$Companion {
 }
 
 public final class kotlinx/serialization/cbor/CborElementKt {
-	public static final fun CborInt-SIFponk (J[J)Lkotlinx/serialization/cbor/CborInt;
-	public static final fun CborInt-ahITK_k (J[J)Lkotlinx/serialization/cbor/CborInt;
-	public static final fun getByte (Lkotlinx/serialization/cbor/CborInt;)B
-	public static final fun getByteOrNull (Lkotlinx/serialization/cbor/CborInt;)Ljava/lang/Byte;
-	public static final fun getInt (Lkotlinx/serialization/cbor/CborInt;)I
-	public static final fun getIntOrNull (Lkotlinx/serialization/cbor/CborInt;)Ljava/lang/Integer;
-	public static final fun getLong (Lkotlinx/serialization/cbor/CborInt;)J
-	public static final fun getLongOrNull (Lkotlinx/serialization/cbor/CborInt;)Ljava/lang/Long;
-	public static final fun getShort (Lkotlinx/serialization/cbor/CborInt;)S
-	public static final fun getShortOrNull (Lkotlinx/serialization/cbor/CborInt;)Ljava/lang/Short;
+	public static final fun CborInt-SIFponk (J[J)Lkotlinx/serialization/cbor/CborInteger;
+	public static final fun CborInt-ahITK_k (J[J)Lkotlinx/serialization/cbor/CborInteger;
+	public static final fun getByte (Lkotlinx/serialization/cbor/CborInteger;)B
+	public static final fun getByteOrNull (Lkotlinx/serialization/cbor/CborInteger;)Ljava/lang/Byte;
+	public static final fun getInt (Lkotlinx/serialization/cbor/CborInteger;)I
+	public static final fun getIntOrNull (Lkotlinx/serialization/cbor/CborInteger;)Ljava/lang/Integer;
+	public static final fun getLong (Lkotlinx/serialization/cbor/CborInteger;)J
+	public static final fun getLongOrNull (Lkotlinx/serialization/cbor/CborInteger;)Ljava/lang/Long;
+	public static final fun getShort (Lkotlinx/serialization/cbor/CborInteger;)S
+	public static final fun getShortOrNull (Lkotlinx/serialization/cbor/CborInteger;)Ljava/lang/Short;
 }
 
 public abstract interface class kotlinx/serialization/cbor/CborEncoder : kotlinx/serialization/encoding/Encoder {
@@ -159,19 +152,18 @@ public final class kotlinx/serialization/cbor/CborFloat$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class kotlinx/serialization/cbor/CborInt : kotlinx/serialization/cbor/CborPrimitive {
-	public static final field Companion Lkotlinx/serialization/cbor/CborInt$Companion;
+public final class kotlinx/serialization/cbor/CborInteger : kotlinx/serialization/cbor/CborPrimitive {
+	public static final field Companion Lkotlinx/serialization/cbor/CborInteger$Companion;
 	public synthetic fun <init> (JZ[JLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun equals (Ljava/lang/Object;)Z
 	public synthetic fun getValue ()Ljava/lang/Object;
 	public fun getValue-s-VKNKU ()J
 	public fun hashCode ()I
 	public final fun isPositive ()Z
-	public final fun toLong ()J
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class kotlinx/serialization/cbor/CborInt$Companion {
+public final class kotlinx/serialization/cbor/CborInteger$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
@@ -306,6 +298,13 @@ public abstract interface annotation class kotlinx/serialization/cbor/CborNullAs
 }
 
 public final synthetic class kotlinx/serialization/cbor/CborNullAsEmptyMap$Impl : kotlinx/serialization/cbor/CborNullAsEmptyMap {
+	public fun <init> ()V
+}
+
+public abstract interface annotation class kotlinx/serialization/cbor/CborObjectAsArray : java/lang/annotation/Annotation {
+}
+
+public final synthetic class kotlinx/serialization/cbor/CborObjectAsArray$Impl : kotlinx/serialization/cbor/CborObjectAsArray {
 	public fun <init> ()V
 }
 

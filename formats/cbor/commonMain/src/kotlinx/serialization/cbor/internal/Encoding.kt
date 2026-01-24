@@ -71,7 +71,7 @@ internal fun SerialDescriptor.getCborLabel(index: Int): Long? = findAnnotation<C
 
 @OptIn(ExperimentalSerializationApi::class)
 internal fun SerialDescriptor.hasArrayTag(): Boolean {
-    return annotations.any { it is CborArray }
+    return annotations.any { it is CborObjectAsArray }
 }
 
 @OptIn(ExperimentalSerializationApi::class)

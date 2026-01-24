@@ -305,7 +305,7 @@ A2           # map(2)
    F6        # primitive(22)
 ```
 
-When annotated with `@CborArray`, serialization of the same object will produce a Cbor array: bytes `0x8226F6`, or in diagnostic notation:
+When annotated with `@CborObjectAsArray`, serialization of the same object will produce a Cbor array: bytes `0x8226F6`, or in diagnostic notation:
 
 ```
 82    # array(2)
