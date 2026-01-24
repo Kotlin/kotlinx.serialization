@@ -87,7 +87,7 @@ public interface CborEncoder : Encoder {
     public fun encodeNegative(value: ULong)
 
     /**
-     * Encode a positive value as [CborInt]. This function exists to encode negative values exceeding [Long.MAX_VALUE]
+     * Encode a positive value as [CborInt]. This function exists to encode positive values exceeding [Long.MAX_VALUE]
      */
     public fun encodePositive(value: ULong)
 }
