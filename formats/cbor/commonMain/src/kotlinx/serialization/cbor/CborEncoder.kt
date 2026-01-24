@@ -6,8 +6,6 @@ package kotlinx.serialization.cbor
 
 import kotlinx.serialization.*
 import kotlinx.serialization.cbor.internal.CborElementSerializer
-import kotlinx.serialization.cbor.internal.encodeNegative
-import kotlinx.serialization.cbor.internal.encodePositive
 import kotlinx.serialization.encoding.*
 
 /**
@@ -80,14 +78,4 @@ public interface CborEncoder : Encoder {
      * Encode CBOR `undefined` (simple value 23 / `0xF7`).
      */
     public fun encodeUndefined()
-
-    /**
-     * Encode a negative value as [CborInt]. This function exists to encode negative values exceeding [Long.MIN_VALUE]
-     */
-    public fun encodeNegative(value: ULong)
-
-    /**
-     * Encode a positive value as [CborInt]. This function exists to encode positive values exceeding [Long.MAX_VALUE]
-     */
-    public fun encodePositive(value: ULong)
 }
