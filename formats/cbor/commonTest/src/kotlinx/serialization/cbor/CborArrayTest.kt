@@ -53,9 +53,9 @@ class CborArrayTest {
          *    63        # text(3)
          *       626172 # "bar"
          *    F6        # primitive(22)
-         *    A0        # map(0)
+         *    F6        # primitive(22)
          */
-        val referenceHexString = "842663626172f6a0"
+        val referenceHexString = "842663626172f6f6"
         val reference = ClassAs4ArrayNullable(alg = -7, kid = "bar", iv = null, array = null)
 
         val cbor = Cbor.CoseCompliant
@@ -192,4 +192,3 @@ class CborArrayTest {
         val array: ClassAs2Array,
     )
 }
-
