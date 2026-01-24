@@ -33,7 +33,7 @@ class CborElementTest {
     fun testCborNumberZero() {
         val numberElement = CborInt(0uL)
         assertEquals(numberElement, CborInt(0))
-        assertEquals(numberElement.sign, CborInt.Sign.ZERO)
+        assertEquals(numberElement.isPositive, true)
         assertEquals(numberElement.value, 0uL)
         val numberBytes = cbor.encodeToByteArray(numberElement)
         val decodedNumber = cbor.decodeFromByteArray<CborElement>(numberBytes)
@@ -44,7 +44,7 @@ class CborElementTest {
     @Test
     fun testCborNumberMax() {
         val numberElement = CborInt(ULong.MAX_VALUE)
-        assertEquals(numberElement.sign, CborInt.Sign.POSITIVE)
+        assertEquals(numberElement.isPositive, true)
         assertEquals(numberElement.value, ULong.MAX_VALUE)
         val numberBytes = cbor.encodeToByteArray(numberElement)
         val decodedNumber = cbor.decodeFromByteArray<CborElement>(numberBytes)
@@ -55,7 +55,7 @@ class CborElementTest {
     @Test
     fun testCborNumberMaxHalv() {
         val numberElement = CborInt(Long.MAX_VALUE)
-        assertEquals(numberElement.sign, CborInt.Sign.POSITIVE)
+        assertEquals(numberElement.isPositive, true)
         assertEquals(numberElement.value, Long.MAX_VALUE.toULong())
         val numberBytes = cbor.encodeToByteArray(numberElement)
         val decodedNumber = cbor.decodeFromByteArray<CborElement>(numberBytes)
@@ -66,8 +66,8 @@ class CborElementTest {
 
     @Test
     fun testCborNumberMin() {
-        val numberElement = CborInt(ULong.MAX_VALUE, sign = CborInt.Sign.NEGATIVE)
-        assertEquals(numberElement.sign, CborInt.Sign.NEGATIVE)
+        val numberElement = CborInt(ULong.MAX_VALUE, isPositive = false)
+        assertEquals(numberElement.isPositive, false)
         assertEquals(numberElement.value, ULong.MAX_VALUE)
         val numberBytes = cbor.encodeToByteArray(numberElement)
         val decodedNumber = cbor.decodeFromByteArray<CborElement>(numberBytes)
@@ -77,14 +77,14 @@ class CborElementTest {
         val lossOfPrecision = cbor.decodeFromCborElement<Long>(numberElement)
 
         assertEquals(1L, lossOfPrecision)
-        assertEquals(1L, numberElement.toLong())
+        assertEquals(-1L, numberElement.toLong())
     }
 
 
     @Test
     fun testCborNumberMinHalv() {
-        val numberElement = CborInt(Long.MAX_VALUE.toULong(), sign = CborInt.Sign.NEGATIVE)
-        assertEquals(numberElement.sign, CborInt.Sign.NEGATIVE)
+        val numberElement = CborInt(Long.MAX_VALUE.toULong(), isPositive = false)
+        assertEquals(numberElement.isPositive, false)
         assertEquals(numberElement.value, Long.MAX_VALUE.toULong())
         val numberBytes = cbor.encodeToByteArray(numberElement)
         val decodedNumber = cbor.decodeFromByteArray<CborElement>(numberBytes)
@@ -94,7 +94,7 @@ class CborElementTest {
         val long = cbor.decodeFromCborElement<Long>(numberElement)
 
         assertEquals(Long.MIN_VALUE+1, long)
-        assertEquals(Long.MIN_VALUE+1, numberElement.toLong())
+        assertEquals(-(Long.MIN_VALUE+1), numberElement.toLong())
     }
 
 
@@ -103,12 +103,6 @@ class CborElementTest {
     fun testCborNumberLong() {
         assertEquals(Long.MAX_VALUE, CborInt(Long.MAX_VALUE).toLong())
         assertEquals(Long.MIN_VALUE, CborInt(Long.MIN_VALUE).toLong())
-    }
-
-    @Test
-    fun testCborNumberIllegal() {
-        assertFails { CborInt(ULong.MAX_VALUE, sign = CborInt.Sign.ZERO) }
-        assertFails { CborInt(1uL, sign = CborInt.Sign.ZERO) }
     }
 
     @Test

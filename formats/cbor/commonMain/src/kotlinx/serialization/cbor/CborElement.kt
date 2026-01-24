@@ -95,32 +95,26 @@ public sealed class CborPrimitive<T : Any>(
  * * signed CBOR integer (major type 1 encompassing `-2^64..-1`)
  * * unsigned CBOR integer (major type 0 encompassing `0..2^64-1`)
  *
- * depending on the value of [sign]. Note that [absoluteValue] **must** be `0` when sign is set to [Sign.ZERO]
+ * depending on the value of [isPositive]. Note that [absoluteValue] **must not be** `0` when [isPositive] is set to `false`.
  */
 @Serializable(with = CborIntSerializer::class)
 @ExperimentalSerializationApi
 public class CborInt(
     absoluteValue: ULong,
-    public val sign: Sign,
+    public val isPositive: Boolean,
     vararg tags: ULong
 ) : CborPrimitive<ULong>(absoluteValue, tags) {
 
     init {
-        if (sign == Sign.ZERO) require(absoluteValue == 0uL) { "Illegal absolute value $absoluteValue for Sign.ZERO" }
-    }
-
-    public enum class Sign {
-        POSITIVE,
-        NEGATIVE,
-        ZERO
+        if (!isPositive) require(absoluteValue > 0uL) { "Illegal absolute value $absoluteValue for a negative number." }
     }
 
     /**
      * **WARNING! Possible truncation/overflow!** E.g., `-2^64` -> `1`
      */
-    public fun toLong(): Long = when (sign) {
-        Sign.POSITIVE, Sign.ZERO -> value.toLong()
-        Sign.NEGATIVE -> -value.toLong()
+    public fun toLong(): Long = when (isPositive) {
+        isPositive -> value.toLong()
+        else -> -value.toLong()
     }
 
 
@@ -137,9 +131,8 @@ public class CborInt(
             value: Long,
             vararg tags: ULong
         ): CborInt =
-            if (value == 0L) CborInt(value.toULong(), Sign.ZERO, tags = tags)
-            else if (value > 0L) CborInt(value.toULong(), Sign.POSITIVE, tags = tags)
-            else CborInt(ULong.MAX_VALUE - value.toULong() + 1uL, Sign.NEGATIVE, tags = tags)
+            if (value >= 0L) CborInt(value.toULong(), isPositive = true, tags = tags)
+            else CborInt(ULong.MAX_VALUE - value.toULong() + 1uL, isPositive = false, tags = tags)
 
         /**
          * Creates an unsigned CBOR integer (major type 0).
@@ -147,8 +140,7 @@ public class CborInt(
         public operator fun invoke(
             value: ULong,
             vararg tags: ULong
-        ): CborInt = if (value == 0uL) CborInt(value, Sign.ZERO, tags = tags)
-        else CborInt(value, Sign.POSITIVE, tags = tags)
+        ): CborInt = CborInt(value, isPositive = true, tags = tags)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -156,22 +148,22 @@ public class CborInt(
         if (other !is CborInt) return false
         if (!super.equals(other)) return false
 
-        if (sign != other.sign) return false
+        if (isPositive != other.isPositive) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = super.hashCode()
-        result = 31 * result + sign.hashCode()
+        result = 31 * result + isPositive.hashCode()
         return result
     }
 
     override fun toString(): String {
         return "CborInt(tags=${tags.joinToString(prefix = "[", postfix = "]")}, " +
-            "value=" + when (sign) {
-            Sign.POSITIVE, Sign.ZERO -> ""
-            Sign.NEGATIVE -> "-"
+            "value=" + when (isPositive) {
+           true -> ""
+           false -> "-"
         } +
             value +
             ")"
@@ -269,6 +261,10 @@ public class CborMap(
             "content=$content" +
             ")"
     }
+
+    public operator fun get(key: String?): CborElement? = content[key?.let { CborString(it) }?:CborNull() ]
+    public operator fun get(key: Long?): CborElement? = content[key?.let { CborInt(it) }?:CborNull() ]
+    public operator fun get(key: Int?): CborElement? = content[key?.let { CborInt(it.toULong()) }?:CborNull() ]
 
 }
 

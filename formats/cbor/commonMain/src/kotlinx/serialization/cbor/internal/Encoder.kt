@@ -346,11 +346,11 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
     }
 
     override fun encodeNegative(value: ULong) {
-        currentElement += CborInt(value, CborInt.Sign.NEGATIVE, tags = nextValueTags)
+        currentElement += CborInt(value, isPositive = false, tags = nextValueTags)
     }
 
     override fun encodePositive(value: ULong) {
-        currentElement += CborInt(value, CborInt.Sign.POSITIVE, tags = nextValueTags)
+        currentElement += CborInt(value, isPositive = true, tags = nextValueTags)
     }
 
 

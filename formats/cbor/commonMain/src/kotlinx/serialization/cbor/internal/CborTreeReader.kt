@@ -28,12 +28,12 @@ internal class CborTreeReader(
         val result = when (parser.curByte shr 5) { // Get major type from the first 3 bits
             0 -> { // Major type 0: unsigned integer
                 val value = parser.nextULong()
-                CborInt(value, if (value == 0uL) CborInt.Sign.ZERO else CborInt.Sign.POSITIVE, tags = tags)
+                CborInt(value, isPositive = true, tags = tags)
             }
 
             1 -> { // Major type 1: negative integer
                 val value = parser.nextULong() + 1uL
-                CborInt(value, CborInt.Sign.NEGATIVE, tags = tags)
+                CborInt(value, isPositive = false, tags = tags)
             }
 
             2 -> { // Major type 2: byte string

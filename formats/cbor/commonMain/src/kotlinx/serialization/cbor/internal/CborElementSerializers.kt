@@ -109,10 +109,10 @@ internal object CborIntSerializer : KSerializer<CborInt>, CborSerializer {
     override fun serialize(encoder: Encoder, value: CborInt) {
         val cborEncoder = encoder.asCborEncoder()
         cborEncoder.encodeTags(value.tags)
-        when (value.sign) {
+        when (value.isPositive) {
             //@formatter:off
-            CborInt.Sign.ZERO, CborInt.Sign.POSITIVE -> cborEncoder.encodePositive(value.value)
-            CborInt.Sign.NEGATIVE                    -> cborEncoder.encodeNegative(value.value)
+            true -> cborEncoder.encodePositive(value.value)
+            false                    -> cborEncoder.encodeNegative(value.value)
             //@formatter:on
         }
     }

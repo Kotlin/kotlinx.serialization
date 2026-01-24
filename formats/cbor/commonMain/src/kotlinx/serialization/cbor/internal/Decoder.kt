@@ -681,10 +681,10 @@ internal class StructuredCborParser(internal val element: CborElement, private v
             throw CborDecodingException("Expected number, got ${layer.current::class.simpleName}")
         }
         return (layer.current as CborInt).run {
-            when (sign) {
+            when (isPositive) {
                 //@formatter:off
-                CborInt.Sign.POSITIVE, CborInt.Sign.ZERO ->   value.toLong()
-                CborInt.Sign.NEGATIVE                    ->  -value.toLong() //possible loss of precision, but inevitable
+                true  ->   value.toLong()
+                false ->  -value.toLong() //possible loss of precision, but inevitable
                 //@formatter:on
             }
         }
