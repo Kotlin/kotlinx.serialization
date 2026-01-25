@@ -57,7 +57,7 @@ class CborElementSerializerBehaviorTest {
     @Test
     fun cborElementSerializerRequiresCborEncoder() {
         val ex = assertFailsWith<IllegalStateException> {
-            CborElement.serializer().serialize(NonCborEncoder, CborInt(1))
+            CborElement.serializer().serialize(NonCborEncoder, CborInteger(1))
         }
         assertTrue(ex.message?.contains("This serializer can be used only with Cbor format") == true)
     }
@@ -73,24 +73,24 @@ class CborElementSerializerBehaviorTest {
     @Test
     fun typedCborArrayDeserializationFailsOnNonListInput() {
         val cbor = Cbor {}
-        val bytes = cbor.encodeToByteArray(CborElement.serializer(), CborInt(1))
+        val bytes = cbor.encodeToByteArray(CborElement.serializer(), CborInteger(1))
         assertFailsWith<CborDecodingException> {
             cbor.decodeFromByteArray(CborArray.serializer(), bytes)
         }
         assertFailsWith<CborDecodingException> {
-            cbor.decodeFromCborElement(CborArray.serializer(), CborInt(1))
+            cbor.decodeFromCborElement(CborArray.serializer(), CborInteger(1))
         }
     }
 
     @Test
     fun typedCborIntDeserializationFailsOnNonIntInput() {
         val cbor = Cbor {}
-        val bytes = cbor.encodeToByteArray(CborElement.serializer(), CborArray(listOf(CborInt(1))))
+        val bytes = cbor.encodeToByteArray(CborElement.serializer(), CborArray(listOf(CborInteger(1))))
         assertFailsWith<CborDecodingException> {
             cbor.decodeFromByteArray(CborInteger.serializer(), bytes)
         }
         assertFailsWith<CborDecodingException> {
-            cbor.decodeFromCborElement(CborInteger.serializer(), CborArray(listOf(CborInt(1))))
+            cbor.decodeFromCborElement(CborInteger.serializer(), CborArray(listOf(CborInteger(1))))
         }
     }
 

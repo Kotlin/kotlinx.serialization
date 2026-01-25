@@ -147,7 +147,7 @@ public class CborInteger(
  */
 @ExperimentalSerializationApi
 @Suppress("FunctionName")
-public fun CborInt(value: Long, vararg tags: ULong): CborInteger =
+public fun CborInteger(value: Long, vararg tags: ULong): CborInteger =
     if (value >= 0L) CborInteger(value.toULong(), isPositive = true, tags = tags)
     else CborInteger(ULong.MAX_VALUE - value.toULong() + 1uL, isPositive = false, tags = tags)
 
@@ -156,7 +156,7 @@ public fun CborInt(value: Long, vararg tags: ULong): CborInteger =
  */
 @ExperimentalSerializationApi
 @Suppress("FunctionName")
-public fun CborInt(value: ULong, vararg tags: ULong): CborInteger =
+public fun CborInteger(value: ULong, vararg tags: ULong): CborInteger =
     CborInteger(value, isPositive = true, tags = tags)
 
 /**
@@ -344,11 +344,11 @@ public class CborMap(
     public operator fun get(key: String): CborElement? = content[CborString(key)]
     public fun getValue(key: String): CborElement = content.getValue(CborString(key))
 
-    public operator fun get(key: Long): CborElement? = content[CborInt(key)]
-    public fun getValue(key: Long): CborElement = content.getValue(CborInt(key))
+    public operator fun get(key: Long): CborElement? = content[CborInteger(key)]
+    public fun getValue(key: Long): CborElement = content.getValue(CborInteger(key))
 
-    public operator fun get(key: Int): CborElement? = content[CborInt(key.toLong())]
-    public fun getValue(key: Int): CborElement = content.getValue(CborInt(key.toLong()))
+    public operator fun get(key: Int): CborElement? = content[CborInteger(key.toLong())]
+    public fun getValue(key: Int): CborElement = content.getValue(CborInteger(key.toLong()))
 
 }
 

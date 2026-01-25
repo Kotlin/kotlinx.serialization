@@ -126,7 +126,7 @@ class CborDelegatedPropertiesTest {
         }
 
         override fun setValue(thisRef: Any?, property: KProperty<*>, value: Int) {
-            content[CborString(spec.name, *spec.keyTags)] = CborInt(value.toLong(), *spec.valueTags)
+            content[CborString(spec.name, *spec.keyTags)] = CborInteger(value.toLong(), *spec.valueTags)
         }
     }
 
@@ -184,7 +184,7 @@ class CborDelegatedPropertiesTest {
                     else -> null
                 }
 
-                out[if (label == null) key else CborInt(label)] = v
+                out[if (label == null) key else CborInteger(label)] = v
             }
             cborEncoder.encodeCborElement(CborMap(out, *value.backing.tags))
         }
@@ -243,7 +243,7 @@ class CborDelegatedPropertiesTest {
         val element = cbor.encodeToCborElement(MapBackedPersonSerializer, value)
         assertTrue(element is CborMap)
         assertEquals(CborString("Ada"), element.getValue(NAME_LABEL))
-        assertEquals(CborInt(42), element.getValue(AGE_LABEL))
+        assertEquals(CborInteger(42), element.getValue(AGE_LABEL))
         assertEquals(CborString("female"), element.getValue(GENDER_LABEL))
         assertEquals(CborString("AT"), element.getValue("country"))
 

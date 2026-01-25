@@ -359,7 +359,7 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
                 //indices are put into the name field. we don't want to write those, as it would result in double writes
                 val cborLabel = descriptor.getCborLabel(index)
                 if (cbor.configuration.preferCborLabelsOverNames && cborLabel != null) {
-                    currentElement += CborInt(value = cborLabel, tags = keyTags ?: EMPTY_TAGS)
+                    currentElement += CborInteger(value = cborLabel, tags = keyTags ?: EMPTY_TAGS)
                 } else {
                     currentElement += CborString(name, tags = keyTags ?: EMPTY_TAGS)
                 }
@@ -388,12 +388,12 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
 
     override fun encodeByte(value: Byte) {
         onDataItemEncoded()
-        currentElement += CborInt(value.toLong(), tags = takePendingValueTags())
+        currentElement += CborInteger(value.toLong(), tags = takePendingValueTags())
     }
 
     override fun encodeChar(value: Char) {
         onDataItemEncoded()
-        currentElement += CborInt(value.code.toLong(), tags = takePendingValueTags())
+        currentElement += CborInteger(value.code.toLong(), tags = takePendingValueTags())
     }
 
     override fun encodeDouble(value: Double) {
@@ -408,12 +408,12 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
 
     override fun encodeInt(value: Int) {
         onDataItemEncoded()
-        currentElement += CborInt(value.toLong(), tags = takePendingValueTags())
+        currentElement += CborInteger(value.toLong(), tags = takePendingValueTags())
     }
 
     override fun encodeLong(value: Long) {
         onDataItemEncoded()
-        currentElement += CborInt(value, tags = takePendingValueTags())
+        currentElement += CborInteger(value, tags = takePendingValueTags())
     }
 
     override fun encodeNegative(value: ULong) {
@@ -429,7 +429,7 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
 
     override fun encodeShort(value: Short) {
         onDataItemEncoded()
-        currentElement += CborInt(value.toLong(), tags = takePendingValueTags())
+        currentElement += CborInteger(value.toLong(), tags = takePendingValueTags())
     }
 
     override fun encodeString(value: String) {
