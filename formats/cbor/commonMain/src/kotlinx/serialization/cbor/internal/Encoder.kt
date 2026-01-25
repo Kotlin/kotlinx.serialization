@@ -91,6 +91,17 @@ internal sealed class CborWriter(
     override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean =
         cbor.configuration.encodeDefaults
 
+    override fun encodeInline(descriptor: SerialDescriptor): Encoder {
+        return when (descriptor.serialName) {
+            "kotlin.UByte",
+            "kotlin.UShort",
+            "kotlin.UInt",
+            "kotlin.ULong",
+            -> UnsignedInlineEncoder(this)
+            else -> super.encodeInline(descriptor)
+        }
+    }
+
     protected abstract fun incrementChildren()
 
     override fun encodeString(value: String) {
@@ -198,7 +209,6 @@ internal sealed class CborWriter(
         return true
     }
 }
-
 
 // optimized indefinite length encoder
 internal class IndefiniteLengthCborWriter(cbor: Cbor, private val output: ByteArrayOutput) : CborWriter(

@@ -12,7 +12,7 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 
-internal open class CborReader(override val cbor: Cbor, protected val parser: CborParserInterface) : AbstractDecoder(),
+internal open class CborReader(override val cbor: Cbor, internal val parser: CborParserInterface) : AbstractDecoder(),
     CborDecoder {
 
     override fun decodeCborElement(): CborElement =
@@ -29,7 +29,7 @@ internal open class CborReader(override val cbor: Cbor, protected val parser: Cb
     private var readProperties: Int = 0
 
     protected var decodeByteArrayAsByteString = false
-    protected var tags: ULongArray? = null
+    internal var tags: ULongArray? = null
 
     protected fun setSize(size: Int) {
         if (size >= 0) {
@@ -40,6 +40,17 @@ internal open class CborReader(override val cbor: Cbor, protected val parser: Cb
 
     override val serializersModule: SerializersModule
         get() = cbor.serializersModule
+
+    override fun decodeInline(descriptor: SerialDescriptor): Decoder {
+        return when (descriptor.serialName) {
+            "kotlin.UByte",
+            "kotlin.UShort",
+            "kotlin.UInt",
+            "kotlin.ULong",
+            -> UnsignedInlineDecoder(this)
+            else -> super.decodeInline(descriptor)
+        }
+    }
 
     protected open fun skipBeginToken(objectTags: ULongArray?) = setSize(parser.startMap(objectTags))
 
@@ -170,6 +181,7 @@ internal open class CborReader(override val cbor: Cbor, protected val parser: Cb
             }
         }
     }
+
 }
 
 internal class CborParser(private val input: ByteArrayInput, private val verifyObjectTags: Boolean) :
