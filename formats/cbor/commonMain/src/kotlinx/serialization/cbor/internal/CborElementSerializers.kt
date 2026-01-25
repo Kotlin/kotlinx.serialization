@@ -278,6 +278,7 @@ internal fun Decoder.asCborDecoder(): CborDecoder = this as? CborDecoder
     )
 
 /*need to expose writer to access encodeTag()*/
+@IgnorableReturnValue
 internal fun Encoder.asCborEncoder() = this as? CborEncoder
     ?: throw IllegalStateException(
         "This serializer can be used only with Cbor format. " +

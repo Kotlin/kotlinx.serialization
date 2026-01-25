@@ -55,26 +55,24 @@ internal class CborTreeReader(
             7 -> { // Major type 7: simple/float/break
                 when (parser.curByte) {
                     0xF4 -> {
-                        parser.readByte() // Advance parser position
-                        CborBoolean(false, tags = tags)
+                        CborBoolean(parser.nextBoolean(null), tags = tags)
                     }
 
                     0xF5 -> {
-                        parser.readByte() // Advance parser position
-                        CborBoolean(true, tags = tags)
+                        CborBoolean(parser.nextBoolean(null), tags = tags)
                     }
 
                     0xF6 -> {
-                        parser.nextNull()
+                        parser.nextNull(null)
                         CborNull(tags = tags)
                     }
 
                     0xF7 -> {
-                        parser.readByte() // Advance parser position
+                        parser.skipElement(null)
                         CborUndefined(tags = tags)
                     }
                     // Half/Float32/Float64
-                    NEXT_HALF, NEXT_FLOAT, NEXT_DOUBLE -> CborFloat(parser.nextDouble(), tags = tags)
+                    NEXT_HALF, NEXT_FLOAT, NEXT_DOUBLE -> CborFloat(parser.nextDouble(null), tags = tags)
                     else -> throw CborDecodingException(
                         "Invalid simple value or float type: ${parser.curByte.toString(16).uppercase()}"
                     )
@@ -94,22 +92,18 @@ internal class CborTreeReader(
      * Reads any tags preceding the current value.
      * @return An array of tags, possibly empty
      */
-    @OptIn(ExperimentalUnsignedTypes::class)
     private fun readTags(): ULongArray {
+        if ((parser.curByte shr 5) != 6) return EMPTY_TAGS
+
         val tags = mutableListOf<ULong>()
-
-        // Read tags (major type 6) until we encounter a non-tag
         while ((parser.curByte shr 5) == 6) { // Major type 6: tag
-            val tag = parser.nextTag()
-            tags.add(tag)
+            tags.add(parser.nextTag())
         }
-
         return tags.toULongArray()
     }
 
-
     private fun readArray(tags: ULongArray): CborArray {
-        val size = parser.startArray()
+        val size = parser.startArray(null)
         val elements = mutableListOf<CborElement>()
 
         if (size >= 0) {
@@ -129,7 +123,7 @@ internal class CborTreeReader(
     }
 
     private fun readMap(tags: ULongArray): CborMap {
-        val size = parser.startMap()
+        val size = parser.startMap(null)
         val elements = mutableMapOf<CborElement, CborElement>()
 
         if (size >= 0) {

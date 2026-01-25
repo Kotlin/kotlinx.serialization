@@ -39,5 +39,6 @@ internal sealed interface CborParserInterface {
     // Tag verification
     fun verifyTagsAndThrow(expected: ULongArray, actual: ULongArray?)
 
+    @IgnorableReturnValue
     fun processTags(tags: ULongArray?): ULongArray?
 }

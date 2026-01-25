@@ -246,7 +246,9 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
      */
     internal sealed class CborContainer(private val tags: ULongArray, protected val elements: MutableList<CborElement>) {
 
-        open fun add(element: CborElement) = elements.add(element)
+        open fun add(element: CborElement) {
+            elements.add(element)
+        }
         class Map(tags: ULongArray, elements: MutableList<CborElement> = mutableListOf()) :
             CborContainer(tags, elements)
 
@@ -254,9 +256,9 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
             CborContainer(tags, elements)
 
         class Root(tags: ULongArray) : CborContainer(tags, elements = mutableListOf()) {
-            override fun add(element: CborElement): Boolean {
+            override fun add(element: CborElement) {
                 require(elements.isEmpty()) { "Implementation error. Please report a bug." }
-                return elements.add(element)
+                elements.add(element)
             }
         }
 
@@ -283,8 +285,8 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
         }
     }
 
-    private operator fun CborContainer?.plusAssign(element: CborElement) {
-        this!!.add(element)
+    private operator fun CborContainer.plusAssign(element: CborElement) {
+        add(element)
     }
 
     private val stack = ArrayDeque<CborContainer>()
@@ -313,14 +315,14 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
                 else -> CborContainer.Map(tags)
             }
         }
-        currentElement?.let { stack.add(it) }
+        stack.addLast(currentElement)
         currentElement = element
         return this
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
         ensureNoDanglingTags("endStructure")
-        val finalized = currentElement!!.finalize()
+        val finalized = currentElement.finalize()
         if (stack.isNotEmpty()) {
             currentElement = stack.removeLast()
             currentElement += finalized
