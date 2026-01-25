@@ -5,6 +5,7 @@
 package kotlinx.serialization.cbor
 
 import kotlinx.serialization.*
+import kotlinx.serialization.cbor.internal.CborElementSerializer
 import kotlinx.serialization.encoding.*
 
 /**
@@ -31,4 +32,62 @@ public interface CborEncoder : Encoder {
      * Exposes the current [Cbor] instance and all its configuration flags. Useful for low-level custom serializers.
      */
     public val cbor: Cbor
+    /**
+     * Appends the given CBOR [element] to the current output.
+     * This method is allowed to invoke only as the part of the whole serialization process of the class,
+     * calling this method after invoking [beginStructure] or any `encode*` method will lead to unspecified behaviour
+     * and may produce an invalid CBOR result.
+     * For example:
+     * ```
+     * class Holder(val value: Int, val list: List<Int>())
+     *
+     * // Holder serialize method
+     * fun serialize(encoder: Encoder, value: Holder) {
+     *     // Completely okay, the whole Holder object is read
+     *     val cborObject = CborMap(...) // build a CborMap from Holder
+     *     (encoder as CborEncoder).encodeCborElement(cborObject) // Write it
+     * }
+     *
+     * // Incorrect Holder serialize method
+     * fun serialize(encoder: Encoder, value: Holder) {
+     *     val composite = encoder.beginStructure(descriptor)
+     *     composite.encodeSerializableElement(descriptor, 0, Int.serializer(), value.value)
+     *     val array = CborArray(value.list.map { CborInt(it.toLong()) })
+     *     // Incorrect, encoder is already in an intermediate state after encodeSerializableElement
+     *     (composite as CborEncoder).encodeCborElement(array)
+     *     composite.endStructure(descriptor)
+     *     // ...
+     * }
+     * ```
+     */
+    public fun encodeCborElement(element: CborElement): Unit = encodeSerializableValue(CborElementSerializer, element)
+
+    /**
+     * Allows manually encoding CBOR tags. Use with caution, as it is possible to produce invalid CBOR if invoked carelessly!
+     */
+    public fun encodeTags(@OptIn(kotlin.ExperimentalUnsignedTypes::class) tags: ULongArray): Unit
+
+    /**
+     * Encode a CBOR byte string (major type 2).
+     *
+     * This exists for low-level CBOR serializers and for encoding [CborByteString] values.
+     */
+    public fun encodeByteString(byteArray: ByteArray)
+
+    /**
+     * Encode CBOR `undefined` (simple value 23 / `0xF7`).
+     */
+    public fun encodeUndefined()
+
+    /**
+     * Encode a negative integer (major type 1) with an absolute value that may exceed [Long.MIN_VALUE].
+     *
+     * The encoded CBOR value is `-1 - (value - 1)` (i.e. `-value` in terms of [CborInteger]'s absolute representation).
+     */
+    public fun encodeNegative(value: ULong)
+
+    /**
+     * Encode an unsigned integer (major type 0) that may exceed [Long.MAX_VALUE].
+     */
+    public fun encodePositive(value: ULong)
 }

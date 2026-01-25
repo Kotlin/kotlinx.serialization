@@ -17,7 +17,14 @@ class CborDecoderTest {
 
     @Test
     fun testDecodeSimpleObject() {
-        assertEquals(Simple("str"), Cbor.decodeFromHexString(Simple.serializer(), "bf616163737472ff"))
+        val hex = "bf616163737472ff"
+        val reference = Simple("str")
+        assertEquals(reference, Cbor.decodeFromHexString(Simple.serializer(), hex))
+
+        val struct = Cbor.decodeFromHexString<CborElement>(hex)
+        assertEquals(reference, Cbor.decodeFromCborElement(Simple.serializer(), struct))
+
+        assertEquals(hex, Cbor.encodeToHexString(CborElement.serializer(), struct))
     }
 
     @Test
@@ -33,20 +40,40 @@ class CborDecoderTest {
             HexConverter.parseHexBinary("cafe"),
             HexConverter.parseHexBinary("cafe")
         )
-        // with maps, lists & strings of indefinite length
+        // with maps, lists & strings of indefinite length (note: this test vector did not correspond to proper encoding before, but decoded fine)
+        // this collapsing bytes wrapped in a bytes string into a byte string could be an indicator of a buggy (as in: too lenient) decoder.
+        val hex =
+            "bf637374726d48656c6c6f2c20776f726c64216169182a686e756c6c61626c65f6646c6973749f61616162ff636d6170bf01f502f4ff65696e6e6572bf6161636c6f6cff6a696e6e6572734c6973749fbf6161636b656bffff6a62797465537472696e6742cafe696279746541727261799f383521ffff"
         assertEquals(
             test, Cbor.decodeFromHexString(
                 TypesUmbrella.serializer(),
-                "bf637374726d48656c6c6f2c20776f726c64216169182a686e756c6c61626c65f6646c6973749f61616162ff636d6170bf01f502f4ff65696e6e6572bf6161636c6f6cff6a696e6e6572734c6973749fbf6161636b656bffff6a62797465537472696e675f42cafeff696279746541727261799f383521ffff"
+                hex
             )
         )
+
+        val struct = Cbor.decodeFromHexString<CborElement>(hex)
+        assertEquals(Cbor.encodeToCborElement(test), struct)
+        assertEquals(test, Cbor.decodeFromCborElement(TypesUmbrella.serializer(), struct))
+
+        assertEquals(hex, Cbor.encodeToHexString(TypesUmbrella.serializer(), test))
+        assertEquals(hex, Cbor.encodeToHexString(CborElement.serializer(), struct))
+
+
+
         // with maps, lists & strings of definite length
+        val hexDef =
+            "a9646c6973748261616162686e756c6c61626c65f6636d6170a202f401f56169182a6a696e6e6572734c69737481a16161636b656b637374726d48656c6c6f2c20776f726c642165696e6e6572a16161636c6f6c6a62797465537472696e6742cafe6962797465417272617982383521"
         assertEquals(
             test, Cbor.decodeFromHexString(
                 TypesUmbrella.serializer(),
-                "a9646c6973748261616162686e756c6c61626c65f6636d6170a202f401f56169182a6a696e6e6572734c69737481a16161636b656b637374726d48656c6c6f2c20776f726c642165696e6e6572a16161636c6f6c6a62797465537472696e6742cafe6962797465417272617982383521"
+                hexDef
             )
         )
+
+        val structDef = Cbor.decodeFromHexString<CborElement>(hexDef)
+        assertEquals(Cbor.encodeToCborElement(test), structDef)
+        assertEquals(test, Cbor.decodeFromCborElement(TypesUmbrella.serializer(), structDef))
+
     }
 
     @Test
@@ -57,31 +84,43 @@ class CborDecoderTest {
          *    44                      # bytes(4)
          *       01020304             # "\x01\x02\x03\x04"
          */
+        val hex = "a16a62797465537472696e674401020304"
+        val expected = NullableByteString(byteArrayOf(1, 2, 3, 4))
         assertEquals(
-            expected = NullableByteString(byteArrayOf(1, 2, 3, 4)),
+            expected = expected,
             actual = Cbor.decodeFromHexString(
                 deserializer = NullableByteString.serializer(),
-                hex = "a16a62797465537472696e674401020304"
+                hex = hex
             )
         )
+
+        val struct = Cbor.decodeFromHexString<CborElement>(hex)
+        assertEquals(expected, Cbor.decodeFromCborElement(NullableByteString.serializer(), struct))
 
         /* A1                         # map(1)
          *    6A                      # text(10)
          *       62797465537472696E67 # "byteString"
          *    F6                      # primitive(22)
          */
+        val hexNull = "a16a62797465537472696e67f6"
+        val expectedNull = NullableByteString(byteString = null)
         assertEquals(
-            expected = NullableByteString(byteString = null),
+            expected = expectedNull,
             actual = Cbor.decodeFromHexString(
                 deserializer = NullableByteString.serializer(),
-                hex = "a16a62797465537472696e67f6"
+                hex = hexNull
             )
         )
+
+        val structNull = Cbor.decodeFromHexString<CborElement>(hexNull)
+        assertEquals(expectedNull, Cbor.decodeFromCborElement(NullableByteString.serializer(), structNull))
     }
 
     @Test
     fun testNullables() {
         assertEquals(NullableByteStringDefaultNull(), Cbor.decodeFromHexString<NullableByteStringDefaultNull>("a0"))
+        val struct = Cbor.decodeFromHexString<CborElement>("a0")
+        assertEquals(NullableByteStringDefaultNull(), Cbor.decodeFromCborElement(NullableByteStringDefaultNull.serializer(), struct))
     }
 
     /**
@@ -91,18 +130,39 @@ class CborDecoderTest {
     @Test
     fun testIgnoreUnknownKeysFailsWhenCborDataIsMissingKeysThatArePresentInKotlinClass() {
         // with maps & lists of indefinite length
+        val hex =
+            "bf637374726d48656c6c6f2c20776f726c64216169182a686e756c6c61626c65f6646c6973749f61616162ff636d6170bf01f502f4ff65696e6e6572bf6161636c6f6cff6a696e6e6572734c6973749fbf6161636b656bffffff"
+
         assertFailsWithMessage<SerializationException>("Field 'a' is required") {
             ignoreUnknownKeys.decodeFromHexString(
                 Simple.serializer(),
-                "bf637374726d48656c6c6f2c20776f726c64216169182a686e756c6c61626c65f6646c6973749f61616162ff636d6170bf01f502f4ff65696e6e6572bf6161636c6f6cff6a696e6e6572734c6973749fbf6161636b656bffffff"
+                hex
+            )
+        }
+
+        val struct = Cbor.decodeFromHexString<CborElement>(hex)
+        assertFailsWithMessage<SerializationException>("Field 'a' is required") {
+            ignoreUnknownKeys.decodeFromCborElement(
+                Simple.serializer(),
+                struct
             )
         }
 
         // with maps & lists of definite length
+        val hexDef =
+            "a7646c6973748261616162686e756c6c61626c65f6636d6170a202f401f56169182a6a696e6e6572734c69737481a16161636b656b637374726d48656c6c6f2c20776f726c642165696e6e6572a16161636c6f6c"
         assertFailsWithMessage<SerializationException>("Field 'a' is required") {
             ignoreUnknownKeys.decodeFromHexString(
                 Simple.serializer(),
-                "a7646c6973748261616162686e756c6c61626c65f6636d6170a202f401f56169182a6a696e6e6572734c69737481a16161636b656b637374726d48656c6c6f2c20776f726c642165696e6e6572a16161636c6f6c"
+                hexDef
+            )
+        }
+
+        val structDef = Cbor.decodeFromHexString<CborElement>(hexDef)
+        assertFailsWithMessage<SerializationException>("Field 'a' is required") {
+            ignoreUnknownKeys.decodeFromCborElement(
+                Simple.serializer(),
+                structDef
             )
         }
     }
@@ -121,11 +181,17 @@ class CborDecoderTest {
          *       69676E6F7265 # "ignore"
          * (missing value associated with "ignore" key)
          */
-        assertFailsWithMessage<CborDecodingException>("Unexpected end of encoded CBOR document") {
+        val hex = "a36373747266737472696e676169006669676e6f7265"
+        assertFailsWithMessage<CborDecodingException>("Unexpected EOF while skipping element") {
             ignoreUnknownKeys.decodeFromHexString(
                 TypesUmbrella.serializer(),
-                "a36373747266737472696e676169006669676e6f7265"
+                hex
             )
+        }
+
+
+        assertFailsWithMessage<CborDecodingException>("Unexpected EOF") {
+            Cbor.decodeFromHexString<CborElement>(hex)
         }
 
         /* A3                 # map(3)
@@ -141,11 +207,16 @@ class CborDecoderTest {
          *    A2              # map(2)
          * (missing map contents associated with "ignore" key)
          */
-        assertFailsWithMessage<CborDecodingException>("Unexpected end of encoded CBOR document") {
+        val hex2 = "a36373747266737472696e676169006669676e6f7265a2"
+        assertFailsWithMessage<CborDecodingException>("Unexpected EOF while skipping element") {
             ignoreUnknownKeys.decodeFromHexString(
                 TypesUmbrella.serializer(),
-                "a36373747266737472696e676169006669676e6f7265a2"
+                hex2
             )
+        }
+
+        assertFailsWithMessage<CborDecodingException>("Unexpected EOF") {
+            Cbor.decodeFromHexString<CborElement>(hex2)
         }
     }
 
@@ -160,19 +231,26 @@ class CborDecoderTest {
          *       69676E6F7265 # "ignore"
          *    FF              # primitive(*)
          */
+        val hex = "a36373747266737472696e676669676e6f7265ff"
         assertFailsWithMessage<CborDecodingException>("Expected next data item, but found FF") {
             ignoreUnknownKeys.decodeFromHexString(
                 TypesUmbrella.serializer(),
-                "a36373747266737472696e676669676e6f7265ff"
+                hex
             )
+        }
+
+        assertFailsWithMessage<CborDecodingException>("Invalid simple value or float type: FF") {
+            Cbor.decodeFromHexString<CborElement>(hex)
         }
     }
 
 
     @Test
     fun testDecodeCborWithUnknownField() {
+        val hex = "bf616163313233616263393837ff"
+        val expected = Simple("123")
         assertEquals(
-            expected = Simple("123"),
+            expected = expected,
             actual = ignoreUnknownKeys.decodeFromHexString(
                 deserializer = Simple.serializer(),
 
@@ -187,15 +265,20 @@ class CborDecoderTest {
                  *       393837 # "987"
                  *    FF        # primitive(*)
                  */
-                hex = "bf616163313233616263393837ff"
+                hex = hex
             )
         )
+        val struct = Cbor.decodeFromHexString<CborElement>(hex)
+        assertEquals(expected, ignoreUnknownKeys.decodeFromCborElement(Simple.serializer(), struct))
+
     }
 
     @Test
     fun testDecodeCborWithUnknownNestedIndefiniteFields() {
+        val hex = "bf6161633132336162bf7f6178ffa161790aff61639f010203ffff"
+        val expected = Simple("123")
         assertEquals(
-            expected = Simple("123"),
+            expected = expected,
             actual = ignoreUnknownKeys.decodeFromHexString(
                 deserializer = Simple.serializer(),
 
@@ -225,9 +308,12 @@ class CborDecoderTest {
                  *       FF       # primitive(*)
                  *    FF          # primitive(*)
                  */
-                hex = "bf6161633132336162bf7f6178ffa161790aff61639f010203ffff"
+                hex = hex
             )
         )
+
+        val struct = Cbor.decodeFromHexString<CborElement>(hex)
+        assertEquals(expected, ignoreUnknownKeys.decodeFromCborElement(Simple.serializer(), struct))
     }
 
     /**
@@ -308,70 +394,106 @@ class CborDecoderTest {
          *    FF                   # primitive(*)
          */
 
-        assertEquals(
-            expected = SealedBox(
-                listOf(
-                    SubSealedA("a"),
-                    SubSealedB(1)
-                )
-            ),
-            actual = ignoreUnknownKeys.decodeFromHexString(
-                SealedBox.serializer(),
-                "bf6565787472618309080765626f7865649f9f782d6b6f746c696e782e73657269616c697a6174696f6e2e53696d706c655365616c65642e5375625365616c656441bf61736161646e657741bf617801617902ffffff9f782d6b6f746c696e782e73657269616c697a6174696f6e2e53696d706c655365616c65642e5375625365616c656442bf616901ffffffff"
+        val expected = SealedBox(
+            listOf(
+                SubSealedA("a"),
+                SubSealedB(1)
             )
         )
+        val hex =
+            "bf6565787472618309080765626f7865649f9f782d6b6f746c696e782e73657269616c697a6174696f6e2e53696d706c655365616c65642e5375625365616c656441bf61736161646e657741bf617801617902ffffff9f782d6b6f746c696e782e73657269616c697a6174696f6e2e53696d706c655365616c65642e5375625365616c656442bf616901ffffffff"
+        assertEquals(
+            expected = expected,
+            actual = ignoreUnknownKeys.decodeFromHexString(
+                SealedBox.serializer(),
+                hex
+            )
+        )
+        val struct = Cbor.decodeFromHexString<CborElement>(hex)
+        assertEquals(expected, ignoreUnknownKeys.decodeFromCborElement(SealedBox.serializer(), struct))
+
     }
 
     @Test
     fun testReadCustomByteString() {
+        val expected = TypeWithCustomByteString(CustomByteString(0x11, 0x22, 0x33))
+        val hex = "bf617843112233ff"
         assertEquals(
-            expected = TypeWithCustomByteString(CustomByteString(0x11, 0x22, 0x33)),
-            actual = Cbor.decodeFromHexString("bf617843112233ff")
+            expected = expected,
+            actual = Cbor.decodeFromHexString(hex)
         )
+        val struct = Cbor.decodeFromHexString<CborElement>(hex)
+        assertEquals(expected, Cbor.decodeFromCborElement(TypeWithCustomByteString.serializer(), struct))
+
     }
 
     @Test
     fun testReadNullableCustomByteString() {
+        val hex = "bf617843112233ff"
+        val expected = TypeWithNullableCustomByteString(CustomByteString(0x11, 0x22, 0x33))
         assertEquals(
-            expected = TypeWithNullableCustomByteString(CustomByteString(0x11, 0x22, 0x33)),
-            actual = Cbor.decodeFromHexString("bf617843112233ff")
+            expected = expected,
+            actual = Cbor.decodeFromHexString(hex)
         )
+        val struct = Cbor.decodeFromHexString<CborElement>(hex)
+        assertEquals(expected, Cbor.decodeFromCborElement(TypeWithNullableCustomByteString.serializer(), struct))
+
     }
 
     @Test
     fun testReadNullCustomByteString() {
+        val hex = "bf6178f6ff"
+        val expected = TypeWithNullableCustomByteString(null)
         assertEquals(
-            expected = TypeWithNullableCustomByteString(null),
-            actual = Cbor.decodeFromHexString("bf6178f6ff")
+            expected = expected,
+            actual = Cbor.decodeFromHexString(hex)
         )
+        val struct = Cbor.decodeFromHexString<CborElement>(hex)
+        assertEquals(expected, Cbor.decodeFromCborElement(TypeWithNullableCustomByteString.serializer(), struct))
+
     }
 
     @Test
     fun testReadValueClassWithByteString() {
+        val expected = byteArrayOf(0x11, 0x22, 0x33)
+        val hex = "43112233"
         assertContentEquals(
-            expected = byteArrayOf(0x11, 0x22, 0x33),
-            actual = Cbor.decodeFromHexString<ValueClassWithByteString>("43112233").x
+            expected = expected,
+            actual = Cbor.decodeFromHexString<ValueClassWithByteString>(hex).x
         )
+        val struct = Cbor.decodeFromHexString<CborElement>(hex)
+        assertContentEquals(expected, Cbor.decodeFromCborElement(ValueClassWithByteString.serializer(), struct).x)
+
     }
 
     @Test
     fun testReadValueClassCustomByteString() {
+        val expected = ValueClassWithCustomByteString(CustomByteString(0x11, 0x22, 0x33))
+        val hex = "43112233"
         assertEquals(
-            expected = ValueClassWithCustomByteString(CustomByteString(0x11, 0x22, 0x33)),
-            actual = Cbor.decodeFromHexString("43112233")
+            expected = expected,
+            actual = Cbor.decodeFromHexString(hex)
         )
+        val struct = Cbor.decodeFromHexString<CborElement>(hex)
+        assertEquals(expected, Cbor.decodeFromCborElement(ValueClassWithCustomByteString.serializer(), struct))
+
     }
 
     @Test
     fun testReadValueClassWithUnlabeledByteString() {
-        assertContentEquals(
-            expected = byteArrayOf(
-                0x11,
-                0x22,
-                0x33
-            ),
-            actual = Cbor.decodeFromHexString<ValueClassWithUnlabeledByteString>("43112233").x.x
+        val expected = byteArrayOf(
+            0x11,
+            0x22,
+            0x33
         )
+        val hex = "43112233"
+        assertContentEquals(
+            expected = expected,
+            actual = Cbor.decodeFromHexString<ValueClassWithUnlabeledByteString>(hex).x.x
+        )
+        val struct = Cbor.decodeFromHexString<CborElement>(hex)
+        assertContentEquals(expected, Cbor.decodeFromCborElement(ValueClassWithUnlabeledByteString.serializer(), struct).x.x)
+
     }
 
     @Test

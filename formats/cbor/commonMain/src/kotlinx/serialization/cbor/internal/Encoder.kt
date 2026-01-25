@@ -26,9 +26,44 @@ private fun Stack.peek() = last()
 // Split implementation to optimize base case
 internal sealed class CborWriter(
     override val cbor: Cbor,
-    protected val output: ByteArrayOutput,
 ) : AbstractEncoder(), CborEncoder {
-    protected var isClass = false
+
+    private var tagsMustBeFollowedByDataItem: Boolean = false
+
+    protected fun onDataItemEncoded() {
+        tagsMustBeFollowedByDataItem = false
+    }
+
+    protected fun ensureNoDanglingTags(context: String) {
+        if (tagsMustBeFollowedByDataItem) {
+            throw SerializationException(
+                "Invalid CBOR encoding: encodeTags() must be followed by another encode* call that writes a CBOR data item ($context)."
+            )
+        }
+    }
+
+    internal fun ensureNoDanglingTagsAtEndOfSerialization() {
+        ensureNoDanglingTags("end of serialization")
+    }
+
+    final override fun encodeTags(tags: ULongArray) {
+        if (tags.isNotEmpty()) tagsMustBeFollowedByDataItem = true
+        encodeTagsImpl(tags)
+    }
+
+    protected abstract fun encodeTagsImpl(tags: ULongArray)
+
+    override fun encodeByteString(byteArray: ByteArray) {
+        onDataItemEncoded()
+        getDestination().encodeByteString(byteArray)
+    }
+
+    override fun encodeUndefined() {
+        onDataItemEncoded()
+        getDestination().encodeUndefined()
+    }
+
+    protected var encodeNullAsEmptyMap = false
 
     protected var encodeByteArrayAsByteString = false
 
@@ -46,7 +81,7 @@ internal sealed class CborWriter(
         if ((encodeByteArrayAsByteString || cbor.configuration.alwaysUseByteString)
             && serializer.descriptor == ByteArraySerializer().descriptor
         ) {
-            getDestination().encodeByteString(value as ByteArray)
+            encodeByteString(value as ByteArray)
         } else {
             encodeByteArrayAsByteString = encodeByteArrayAsByteString || serializer.descriptor.isInlineByteString()
             super<AbstractEncoder>.encodeSerializableValue(serializer, value)
@@ -56,54 +91,83 @@ internal sealed class CborWriter(
     override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean =
         cbor.configuration.encodeDefaults
 
+    override fun encodeInline(descriptor: SerialDescriptor): Encoder {
+        return when (descriptor.serialName) {
+            "kotlin.UByte",
+            "kotlin.UShort",
+            "kotlin.UInt",
+            "kotlin.ULong",
+            -> UnsignedInlineEncoder(this)
+            else -> super.encodeInline(descriptor)
+        }
+    }
+
     protected abstract fun incrementChildren()
 
     override fun encodeString(value: String) {
+        onDataItemEncoded()
         getDestination().encodeString(value)
     }
 
 
     override fun encodeFloat(value: Float) {
+        onDataItemEncoded()
         getDestination().encodeFloat(value)
     }
 
 
     override fun encodeDouble(value: Double) {
+        onDataItemEncoded()
         getDestination().encodeDouble(value)
     }
 
 
     override fun encodeChar(value: Char) {
+        onDataItemEncoded()
         getDestination().encodeNumber(value.code.toLong())
     }
 
 
     override fun encodeByte(value: Byte) {
+        onDataItemEncoded()
         getDestination().encodeNumber(value.toLong())
     }
 
 
     override fun encodeShort(value: Short) {
+        onDataItemEncoded()
         getDestination().encodeNumber(value.toLong())
     }
 
     override fun encodeInt(value: Int) {
+        onDataItemEncoded()
         getDestination().encodeNumber(value.toLong())
     }
 
 
     override fun encodeLong(value: Long) {
+        onDataItemEncoded()
         getDestination().encodeNumber(value)
     }
+    override fun encodeNegative(value: ULong) {
+        onDataItemEncoded()
+        getDestination().encodeNegative(value)
+    }
 
+    override fun encodePositive(value: ULong) {
+        onDataItemEncoded()
+        getDestination().encodePositive(value)
+    }
 
     override fun encodeBoolean(value: Boolean) {
+        onDataItemEncoded()
         getDestination().encodeBoolean(value)
     }
 
 
     override fun encodeNull() {
-        if (isClass) getDestination().encodeEmptyMap()
+        onDataItemEncoded()
+        if (encodeNullAsEmptyMap) getDestination().encodeEmptyMap()
         else getDestination().encodeNull()
     }
 
@@ -112,12 +176,13 @@ internal sealed class CborWriter(
         enumDescriptor: SerialDescriptor,
         index: Int
     ) {
+        onDataItemEncoded()
         getDestination().encodeString(enumDescriptor.getElementName(index))
     }
 
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
         val destination = getDestination()
-        isClass = descriptor.getElementDescriptor(index).kind == StructureKind.CLASS
+        encodeNullAsEmptyMap = descriptor.getElementAnnotations(index).find { it is CborNullAsEmptyMap } != null
         encodeByteArrayAsByteString = descriptor.isByteString(index)
 
         val name = descriptor.getElementName(index)
@@ -145,13 +210,13 @@ internal sealed class CborWriter(
     }
 }
 
-
 // optimized indefinite length encoder
-internal class IndefiniteLengthCborWriter(cbor: Cbor, output: ByteArrayOutput) : CborWriter(
-    cbor, output
+internal class IndefiniteLengthCborWriter(cbor: Cbor, private val output: ByteArrayOutput) : CborWriter(
+    cbor
 ) {
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
+        onDataItemEncoded()
         if (cbor.configuration.encodeObjectTags) descriptor.getObjectTags()?.forEach {
             output.encodeTag(it)
         }
@@ -168,6 +233,7 @@ internal class IndefiniteLengthCborWriter(cbor: Cbor, output: ByteArrayOutput) :
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
+        ensureNoDanglingTags("endStructure")
         output.end()
     }
 
@@ -177,10 +243,229 @@ internal class IndefiniteLengthCborWriter(cbor: Cbor, output: ByteArrayOutput) :
     override fun incrementChildren() {/*NOOP*/
     }
 
+    override fun encodeTagsImpl(tags: ULongArray) = tags.forEach { getDestination().encodeTag(it) }
+
+}
+
+// optimized indefinite length encoder
+internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
+
+    /**
+     * Tags and values are "written", i.e. recorded/prepared for encoding separately. Hence, we need a helper that allows
+     * for setting tags and values independently, and then merging them into the final [CborElement] at the end.
+     */
+    internal sealed class CborContainer(private val tags: ULongArray, protected val elements: MutableList<CborElement>) {
+
+        open fun add(element: CborElement) {
+            elements.add(element)
+        }
+        class Map(tags: ULongArray, elements: MutableList<CborElement> = mutableListOf()) :
+            CborContainer(tags, elements)
+
+        class List(tags: ULongArray, elements: MutableList<CborElement> = mutableListOf()) :
+            CborContainer(tags, elements)
+
+        class Root(tags: ULongArray) : CborContainer(tags, elements = mutableListOf()) {
+            override fun add(element: CborElement) {
+                require(elements.isEmpty()) { "Implementation error. Please report a bug." }
+                elements.add(element)
+            }
+        }
+
+        fun finalize() = when (this) {
+            is List -> CborArray(content = elements, tags = tags)
+            is Map -> CborMap(
+                content = if (elements.isNotEmpty()) {
+                    require(elements.size % 2 == 0) {
+                        "Implementation error: map element list must contain alternating keys and values, but had odd size ${elements.size}."
+                    }
+                    buildMap(elements.size / 2) {
+                        for (index in 0 until elements.size step 2) {
+                            put(elements[index], elements[index + 1])
+                        }
+                    }
+                } else {
+                    mapOf()
+                },
+                tags = tags
+            )
+
+            is Root -> elements.first().also { it.tags += tags }
+
+        }
+    }
+
+    private operator fun CborContainer.plusAssign(element: CborElement) {
+        add(element)
+    }
+
+    private val stack = ArrayDeque<CborContainer>()
+    private var currentElement: CborContainer = CborContainer.Root(tags = EMPTY_TAGS)
+
+    // value tags are collects inside beginStructure, so we need to cache them here and write them in beginStructure or encodeXXX
+    // and then null them out, so there are no leftovers
+    private var pendingValueTags: ULongArray = EMPTY_TAGS
+
+    private fun takePendingValueTags(): ULongArray =
+        pendingValueTags.also { pendingValueTags = EMPTY_TAGS }
+
+    fun finalize() = currentElement.finalize()
+
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
+        onDataItemEncoded()
+        val tags = takePendingValueTags() +
+            if (cbor.configuration.encodeObjectTags) descriptor.getObjectTags() ?: EMPTY_TAGS
+            else EMPTY_TAGS
+        val element = if (descriptor.hasArrayTag()) {
+            CborContainer.List(tags)
+        } else {
+            when (descriptor.kind) {
+                StructureKind.LIST, is PolymorphicKind -> CborContainer.List(tags)
+                is StructureKind.MAP -> CborContainer.Map(tags)
+                else -> CborContainer.Map(tags)
+            }
+        }
+        stack.addLast(currentElement)
+        currentElement = element
+        return this
+    }
+
+    override fun endStructure(descriptor: SerialDescriptor) {
+        ensureNoDanglingTags("endStructure")
+        val finalized = currentElement.finalize()
+        if (stack.isNotEmpty()) {
+            currentElement = stack.removeLast()
+            currentElement += finalized
+        }
+    }
+
+    override fun getDestination() = throw IllegalStateException("There is no byteArrayInput")
+
+    override fun incrementChildren() {
+        /*NOOP*/
+    }
+
+
+    override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
+        encodeNullAsEmptyMap = descriptor.getElementAnnotations(index).find { it is CborNullAsEmptyMap } != null
+
+        encodeByteArrayAsByteString = descriptor.isByteString(index)
+        //TODO check if cborelement and be done
+        val name = descriptor.getElementName(index)
+        if (!descriptor.hasArrayTag()) {
+            val keyTags = if (cbor.configuration.encodeKeyTags) descriptor.getKeyTags(index) else null
+
+            if ((descriptor.kind !is StructureKind.LIST) && (descriptor.kind !is StructureKind.MAP) && (descriptor.kind !is PolymorphicKind)) {
+                //indices are put into the name field. we don't want to write those, as it would result in double writes
+                val cborLabel = descriptor.getCborLabel(index)
+                if (cbor.configuration.preferCborLabelsOverNames && cborLabel != null) {
+                    currentElement += CborInteger(value = cborLabel, tags = keyTags ?: EMPTY_TAGS)
+                } else {
+                    currentElement += CborString(name, tags = keyTags ?: EMPTY_TAGS)
+                }
+            }
+        }
+
+        if (cbor.configuration.encodeValueTags) {
+            descriptor.getValueTags(index).let { valueTags ->
+                //collect them for late encoding in beginStructure or encodeXXX
+                pendingValueTags = valueTags ?: EMPTY_TAGS
+            }
+        }
+        return true
+    }
+
+
+    override fun encodeTagsImpl(tags: ULongArray) {
+        if (tags.isEmpty()) return
+        pendingValueTags = if (pendingValueTags.isEmpty()) tags else pendingValueTags + tags
+    }
+
+    override fun encodeBoolean(value: Boolean) {
+        onDataItemEncoded()
+        currentElement += CborBoolean(value, tags = takePendingValueTags())
+    }
+
+    override fun encodeByte(value: Byte) {
+        onDataItemEncoded()
+        currentElement += CborInteger(value.toLong(), tags = takePendingValueTags())
+    }
+
+    override fun encodeChar(value: Char) {
+        onDataItemEncoded()
+        currentElement += CborInteger(value.code.toLong(), tags = takePendingValueTags())
+    }
+
+    override fun encodeDouble(value: Double) {
+        onDataItemEncoded()
+        currentElement += CborFloat(value, tags = takePendingValueTags())
+    }
+
+    override fun encodeFloat(value: Float) {
+        onDataItemEncoded()
+        currentElement += CborFloat(value.toDouble(), tags = takePendingValueTags())
+    }
+
+    override fun encodeInt(value: Int) {
+        onDataItemEncoded()
+        currentElement += CborInteger(value.toLong(), tags = takePendingValueTags())
+    }
+
+    override fun encodeLong(value: Long) {
+        onDataItemEncoded()
+        currentElement += CborInteger(value, tags = takePendingValueTags())
+    }
+
+    override fun encodeNegative(value: ULong) {
+        onDataItemEncoded()
+        currentElement += CborInteger(value, isPositive = false, tags = takePendingValueTags())
+    }
+
+    override fun encodePositive(value: ULong) {
+        onDataItemEncoded()
+        currentElement += CborInteger(value, isPositive = true, tags = takePendingValueTags())
+    }
+
+
+    override fun encodeShort(value: Short) {
+        onDataItemEncoded()
+        currentElement += CborInteger(value.toLong(), tags = takePendingValueTags())
+    }
+
+    override fun encodeString(value: String) {
+        onDataItemEncoded()
+        currentElement += CborString(value, tags = takePendingValueTags())
+    }
+
+    override fun encodeByteString(byteArray: ByteArray) {
+        onDataItemEncoded()
+        currentElement += CborByteString(byteArray, tags = takePendingValueTags())
+    }
+
+    override fun encodeUndefined() {
+        onDataItemEncoded()
+        currentElement += CborUndefined(tags = takePendingValueTags())
+    }
+
+    override fun encodeNull() {
+        onDataItemEncoded()
+        val tags = takePendingValueTags()
+        currentElement += if (encodeNullAsEmptyMap) CborMap(
+            mapOf(),
+            tags = tags
+        )
+        else CborNull(tags = tags)
+    }
+
+    override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) {
+        onDataItemEncoded()
+        currentElement += CborString(enumDescriptor.getElementName(index), tags = takePendingValueTags())
+    }
+
 }
 
 //optimized definite length encoder
-internal class DefiniteLengthCborWriter(cbor: Cbor, output: ByteArrayOutput) : CborWriter(cbor, output) {
+internal class DefiniteLengthCborWriter(cbor: Cbor, output: ByteArrayOutput) : CborWriter(cbor) {
 
     private val structureStack = Stack(Data(output, -1))
     override fun getDestination(): ByteArrayOutput =
@@ -191,13 +476,17 @@ internal class DefiniteLengthCborWriter(cbor: Cbor, output: ByteArrayOutput) : C
         structureStack.peek().elementCount++
     }
 
+    override fun encodeTagsImpl(tags: ULongArray) = tags.forEach { getDestination().encodeTag(it) }
+
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
+        onDataItemEncoded()
         val current = Data(ByteArrayOutput(), 0)
         val _ = structureStack.push(current)
         return this
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
+        ensureNoDanglingTags("endStructure")
         val completedCurrent = structureStack.pop()
 
         val accumulator = getDestination()
@@ -234,13 +523,15 @@ private fun ByteArrayOutput.startMap(size: ULong) {
     composePositiveInline(size, HEADER_MAP)
 }
 
-private fun ByteArrayOutput.encodeTag(tag: ULong) {
+internal fun ByteArrayOutput.encodeTag(tag: ULong) {
     composePositiveInline(tag, HEADER_TAG)
 }
 
 internal fun ByteArrayOutput.end() = write(BREAK)
 
 internal fun ByteArrayOutput.encodeNull() = write(NULL)
+
+internal fun ByteArrayOutput.encodeUndefined() = write(UNDEFINED)
 
 internal fun ByteArrayOutput.encodeEmptyMap() = write(EMPTY_MAP)
 
@@ -249,6 +540,9 @@ internal fun ByteArrayOutput.writeByte(byteValue: Int) = write(byteValue)
 internal fun ByteArrayOutput.encodeBoolean(value: Boolean) = write(if (value) TRUE else FALSE)
 
 internal fun ByteArrayOutput.encodeNumber(value: Long) = write(composeNumber(value))
+
+internal fun ByteArrayOutput.encodeNegative(value: ULong) = write(composeNegativeULong(value))
+internal fun ByteArrayOutput.encodePositive(value: ULong) = write(composePositive(value))
 
 internal fun ByteArrayOutput.encodeByteString(data: ByteArray) {
     this.encodeByteArray(data, HEADER_BYTE_STRING)
@@ -330,3 +624,8 @@ private fun composeNegative(value: Long): ByteArray {
     return data
 }
 
+private fun composeNegativeULong(value: ULong): ByteArray {
+    val data = composePositive(value-1uL)
+    data[0] = data[0] or HEADER_NEGATIVE
+    return data
+}
