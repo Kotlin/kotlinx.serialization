@@ -51,8 +51,8 @@ data class User(val name: String)
 
 // Creates a serializer that transforms the results of the default List serializer
 object UserListSerializer : JsonTransformingSerializer<List<User>>(ListSerializer(User.serializer())) {
-    // Wraps a single JSON object into a single-element array
     override fun transformDeserialize(element: JsonElement): JsonElement =
+        // If the element is not a JsonArray, wraps it into a single-element array
         if (element !is JsonArray) JsonArray(listOf(element)) else element
 }
 
@@ -118,8 +118,8 @@ You can use `JsonTransformingSerializer` when you can't [specify a default value
 
 To do so:
 
-1. Create a custom serializer and override the `transformSerialize()` function. 
-2. Pass the custom serializer to `encodeToString()` to apply the custom transformation.
+1. Create a subclass of `JsonTransformingSerializer` and specify a serializer in its constructor.
+2. Override the `transformSerialize()` function.
 
 Here's an example:
 
@@ -205,7 +205,7 @@ object ProjectSerializer : JsonContentPolymorphicSerializer<Project>(Project::cl
 ```
 
 When you use this serializer to serialize data, Kotlin serialization uses the serializer of the value's actual runtime type.
-This could be one you [specified in a `SerializersModule`](serialization-polymorphism.md#serialize-closed-polymorphic-classes) or the default serializer:
+This could be the one [specified in a `SerializersModule`](serialization-polymorphism.md#serialize-closed-polymorphic-classes) or the default serializer:
 
 ```kotlin
 // Imports declarations from the serialization library
@@ -258,9 +258,9 @@ fun main() {
 
 You can add custom behavior to the default serializer that Kotlin serialization generates, by using the default serializer as a delegate.
 
-To do so, annotate a serializable class with the [Experimental](components-stability.md#stability-levels-explained) [`@KeepGeneratedSerializer`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-keep-generated-serializer/) and use the automatically created `generatedSerializer()` as the base serializer in your custom `JsonTransformingSerializer`:
+To do so, annotate a serializable class with the [Experimental](components-stability.md#stability-levels-explained) [`@KeepGeneratedSerializer`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-keep-generated-serializer/) and use the automatically created `generatedSerializer()` as the base serializer in your custom `JsonTransformingSerializer`.
 
-Here’s an example that updates the JSON structure during deserialization by renaming a field so it matches the deserialized class's `name` property:
+Here's an example that updates the JSON structure during deserialization by combining multiple input properties into a single `name` property expected by the target class:
 
 ```kotlin
 // Imports declarations from the serialization library
@@ -268,19 +268,23 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
 //sampleStart
+@OptIn(ExperimentalSerializationApi::class)
+@KeepGeneratedSerializer
+@Serializable(with = UserNameSerializer::class)
 // Defines a type with a name property
-@Serializable
-data class Project(val name: String)
+data class User(val name: String)
 
-// Adds custom logic to the default serializer to rename a field during deserialization
-object ProjectSerializer : JsonTransformingSerializer<Project>(Project.serializer()) {
+// Adds custom logic to the default serializer to combine input properties during deserialization
+object UserNameSerializer : JsonTransformingSerializer<User>(User.generatedSerializer()) {
     override fun transformDeserialize(element: JsonElement): JsonElement {
         val jsonObject = element.jsonObject
+        val first = jsonObject["firstName"]?.jsonPrimitive?.content
+        val last = jsonObject["lastName"]?.jsonPrimitive?.content
 
-        // Renames "projectName" to "name" if it exists in the JSON input
-        return if ("projectName" in jsonObject) {
-            val nameElement = jsonObject.getValue("projectName")
-            JsonObject(mapOf("name" to nameElement))
+        // Combines input properties into the name property
+        // if the input doesn't match the expected structure
+        return if (first != null && last != null) {
+            JsonObject(mapOf("name" to JsonPrimitive("$first $last")))
         } else {
             jsonObject
         }
@@ -288,21 +292,19 @@ object ProjectSerializer : JsonTransformingSerializer<Project>(Project.serialize
 }
 
 fun main() {
-    // Deserializes JSON where the field name differs from the expected structure
-    val fromExternal = Json.decodeFromString(
-        ProjectSerializer,
-        """{"projectName":"example"}"""
+    // Deserializes JSON where the name property is split across multiple input properties
+   val fromExternalData = Json.decodeFromString<User>(
+        """{"firstName":"John","lastName":"Smith"}"""
     )
-    println(fromExternal)
-    // Project(name=example)
+    println(fromExternalData)
+    // User(name=John Smith)
 
-    // Deserializes JSON where the field name matches the expected structure
-    val fromInternal = Json.decodeFromString(
-        ProjectSerializer,
-        """{"name":"example"}"""
+    // Deserializes JSON where the name property matches the expected structure
+    val fromInternalData = Json.decodeFromString<User>(
+        """{"name":"John Smith"}"""
     )
-    println(fromInternal)
-    // Project(name=example)
+    println(fromInternalData)
+    // User(name=John Smith)
 }
 //sampleEnd
 ```
@@ -321,7 +323,7 @@ You can get full control over how values are serialized and deserialized by over
 When you implement custom serialization logic for JSON, you can cast `Encoder` to
 [`JsonEncoder`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-encoder/) and `Decoder` to [`JsonDecoder`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-decoder/) to call the JSON-specific functions
 [`decodeJsonElement()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-decoder/decode-json-element.html) and [`encodeToJsonElement()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/encode-to-json-element.html).
-These functions allow you to retrieve and insert JSON elements for the value the serializer is currently handling.
+These functions allow you to retrieve JSON elements from the value the decoder is currently handling, or insert JSON elements into it.
 
 Both `JsonDecoder` and `JsonEncoder` expose a `json` property that gives access to the active `Json` instance, which controls how values are encoded and decoded.
 Through that instance, you can use [`encodeToJsonElement()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/encode-to-json-element.html) and [`decodeFromJsonElement()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/decode-from-json-element.html) to convert
