@@ -6,6 +6,7 @@ package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.test.assertFailsWithSerialMessage
 import kotlin.test.*
 
 class JsonTransformingSerializerTest : JsonTestBase() {
@@ -95,19 +96,12 @@ class JsonTransformingSerializerTest : JsonTestBase() {
     @Test
     fun testDocumentationSample() = parametrizedTest { streaming ->
         val correctExample = DocExample("str1")
-        assertEquals(
-            correctExample,
-            json.decodeFromString(DocExample.serializer(), """{"data":["str1"]}""", streaming)
-        )
-        assertEquals(
-            correctExample,
-            json.decodeFromString(DocExample.serializer(), """{"data":"str1"}""", streaming)
-        )
+        assertEquals(correctExample, json.decodeFromString(DocExample.serializer(), """{"data":["str1"]}""", streaming))
+        assertEquals(correctExample, json.decodeFromString(DocExample.serializer(), """{"data":"str1"}""", streaming))
     }
 
     // Wraps/unwraps {"data":null} to just `null`, because StringData.data is not nullable
-    object NullableStringDataSerializer :
-        JsonTransformingSerializer<StringData?>(StringData.serializer().nullable) {
+    object NullableStringDataSerializer : JsonTransformingSerializer<StringData?>(StringData.serializer().nullable) {
         override fun transformDeserialize(element: JsonElement): JsonElement {
             val data = element.jsonObject["data"]?.jsonPrimitive
             if (data?.contentOrNull.isNullOrBlank()) return JsonNull
@@ -127,16 +121,8 @@ class JsonTransformingSerializerTest : JsonTestBase() {
     fun testNullableTransformingSerializer() {
         val normalInput = """{"stringData":{"data":"str1"}}"""
         val nullInput = """{"stringData":{"data":null}}"""
-        assertJsonFormAndRestored(
-            NullableStringDataHolder.serializer(),
-            NullableStringDataHolder(StringData("str1")),
-            normalInput
-        )
-        assertJsonFormAndRestored(
-            NullableStringDataHolder.serializer(),
-            NullableStringDataHolder(null),
-            nullInput
-        )
+        assertJsonFormAndRestored(NullableStringDataHolder.serializer(), NullableStringDataHolder(StringData("str1")), normalInput)
+        assertJsonFormAndRestored(NullableStringDataHolder.serializer(), NullableStringDataHolder(null), nullInput)
     }
 
     @Serializable
@@ -165,13 +151,16 @@ class JsonTransformingSerializerTest : JsonTestBase() {
     @SerialName("leaf")
     data class LeafSubExample(val value: String) : NestedBaseExample()
 
-    @Serializable
+    @Serializable(CompositeSubExample.PolymorphicSerializer::class)
+    @KeepGeneratedSerializer
     @SerialName("composite")
     data class CompositeSubExample(
         val name: String,
         val children: List<NestedBaseExample>,
         val metadata: NestedBaseExample? = null
-    ) : NestedBaseExample()
+    ) : NestedBaseExample() {
+        object PolymorphicSerializer : JsonTransformingSerializer<CompositeSubExample>(generatedSerializer())
+    }
 
     @Test
     fun testNestedPolymorphicExampleCanBeParsed() {
@@ -186,5 +175,26 @@ class JsonTransformingSerializerTest : JsonTestBase() {
 
         val polymorphicInput = Json.encodeToString(root)
         assertEquals(root, Json.decodeFromString(polymorphicInput))
+    }
+
+    @Serializable(SubExample2.PolymorphicSerializer::class)
+    @KeepGeneratedSerializer
+    @SerialName("Sub")
+    data class SubExample2(
+        val data: String
+    ) {
+        object PolymorphicSerializer : JsonTransformingSerializer<SubExample2>(generatedSerializer())
+    }
+
+    @Test
+    fun testNonPolymorphicExampleShouldNotBeParsed() {
+        val input = """{"type":"Sub","data":"str1"}"""
+        val nonPolymorphicInput = Json { ignoreUnknownKeys = false }
+        assertFailsWithSerialMessage(
+            "JsonDecodingException",
+            "Encountered an unknown key 'type'"
+        ) {
+            nonPolymorphicInput.decodeFromString<SubExample2>(input)
+        }
     }
 }
