@@ -12,25 +12,10 @@ private val MAX_CHARS_IN_POOL = runCatching {
 }.getOrNull() ?: (2 * 1024 * 1024)
 
 internal open class CharArrayPoolBase {
-    private val arrays = ArrayDeque<CharArray>()
-    private var charsTotal = 0
 
-    protected fun take(size: Int): CharArray {
-        /*
-         * Initially the pool is empty, so an instance will be allocated
-         * and the pool will be populated in the 'release'
-         */
-        val candidate = synchronized(this) {
-            arrays.removeLastOrNull()?.also { charsTotal -= it.size }
-        }
-        return candidate ?: CharArray(size)
-    }
+    protected fun take(size: Int): CharArray = CharArray(size)
 
-    protected fun releaseImpl(array: CharArray): Unit = synchronized(this) {
-        if (charsTotal + array.size >= MAX_CHARS_IN_POOL) return@synchronized
-        charsTotal += array.size
-        arrays.addLast(array)
-    }
+    protected fun releaseImpl(array: CharArray): Unit = Unit
 }
 
 internal object CharArrayPool : CharArrayPoolBase() {
