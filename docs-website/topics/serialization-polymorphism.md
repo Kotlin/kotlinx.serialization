@@ -835,7 +835,7 @@ To do so:
 2. Specify a lambda in `polymorphicDefaultSerializer()` that returns a [`SerializationStrategy`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serialization-strategy/)` for the runtime value.
 
 Let's look at an example with two private classes, `CatImpl` and `DogImpl`.
-To avoid raising their visibility, register a default serializer for Animal that selects a serializer based on the runtime value:
+To avoid raising their visibility, register a default serializer for `Animal` that selects a serializer based on the runtime value:
 
 ```kotlin
 interface Animal
