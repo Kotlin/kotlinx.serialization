@@ -3,6 +3,7 @@
  */
 package kotlinx.serialization.json.internal
 
+import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.ConcurrentLinkedDeque
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
@@ -17,7 +18,7 @@ private val MAX_CHARS_IN_POOL = runCatching {
 
 @OptIn(ExperimentalAtomicApi::class)
 internal open class CharArrayPoolBase {
-    private val arrays = ConcurrentLinkedDeque<CharArray>()
+    private val arrays = ArrayBlockingQueue<CharArray>(MAX_CHARS_IN_POOL / 128)
     private var charsTotal = AtomicInt(0)
 
     protected fun take(size: Int): CharArray {
@@ -25,7 +26,7 @@ internal open class CharArrayPoolBase {
          * Initially the pool is empty, so an instance will be allocated
          * and the pool will be populated in the 'release'
          */
-        val candidate = arrays.pollLast()?.also {
+        val candidate = arrays.poll()?.also {
             val _ = charsTotal.addAndFetch(-it.size)
         }
         return candidate ?: CharArray(size)
@@ -37,7 +38,7 @@ internal open class CharArrayPoolBase {
             val _ = charsTotal.addAndFetch(-array.size)
             return
         }
-        arrays.offerLast(array)
+        arrays.offer(array)
     }
 }
 
