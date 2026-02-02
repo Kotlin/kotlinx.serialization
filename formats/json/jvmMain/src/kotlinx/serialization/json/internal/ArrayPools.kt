@@ -20,20 +20,24 @@ internal open class CharArrayPoolBase {
     private val lock = ReentrantLock()
 
     protected fun take(size: Int): CharArray {
-        /*
-         * Initially the pool is empty, so an instance will be allocated
-         * and the pool will be populated in the 'release'
-         */
-        val candidate = lock.withLock {
+        if (!lock.tryLock()) return CharArray(size)
+        val candidate = try {
             arrays.removeLastOrNull()?.also { charsTotal -= it.size }
+        } finally {
+            lock.unlock()
         }
         return candidate ?: CharArray(size)
     }
 
-    protected fun releaseImpl(array: CharArray): Unit = lock.withLock {
-        if (charsTotal + array.size >= MAX_CHARS_IN_POOL) return@withLock
-        charsTotal += array.size
-        arrays.addLast(array)
+    protected fun releaseImpl(array: CharArray) {
+        if (!lock.tryLock()) return
+        try {
+            if (charsTotal + array.size >= MAX_CHARS_IN_POOL) return
+            charsTotal += array.size
+            arrays.addLast(array)
+        } finally {
+            lock.unlock()
+        }
     }
 }
 
