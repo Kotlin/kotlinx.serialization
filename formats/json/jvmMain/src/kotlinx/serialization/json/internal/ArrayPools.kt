@@ -3,6 +3,10 @@
  */
 package kotlinx.serialization.json.internal
 
+import java.util.concurrent.ConcurrentLinkedDeque
+import kotlin.concurrent.atomics.AtomicInt
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
+
 /*
  * Not really documented kill switch as a workaround for potential
  * (unlikely) problems with memory consumptions.
@@ -11,25 +15,29 @@ private val MAX_CHARS_IN_POOL = runCatching {
     System.getProperty("kotlinx.serialization.json.pool.size")?.toIntOrNull()
 }.getOrNull() ?: (2 * 1024 * 1024)
 
+@OptIn(ExperimentalAtomicApi::class)
 internal open class CharArrayPoolBase {
-    private val arrays = ArrayDeque<CharArray>()
-    private var charsTotal = 0
+    private val arrays = ConcurrentLinkedDeque<CharArray>()
+    private var charsTotal = AtomicInt(0)
 
     protected fun take(size: Int): CharArray {
         /*
          * Initially the pool is empty, so an instance will be allocated
          * and the pool will be populated in the 'release'
          */
-        val candidate = synchronized(this) {
-            arrays.removeLastOrNull()?.also { charsTotal -= it.size }
+        val candidate = arrays.pollLast()?.also {
+            val _ = charsTotal.addAndFetch(-it.size)
         }
         return candidate ?: CharArray(size)
     }
 
-    protected fun releaseImpl(array: CharArray): Unit = synchronized(this) {
-        if (charsTotal + array.size >= MAX_CHARS_IN_POOL) return@synchronized
-        charsTotal += array.size
-        arrays.addLast(array)
+    protected fun releaseImpl(array: CharArray): Unit {
+        val newSize = charsTotal.addAndFetch(array.size)
+        if (newSize >= MAX_CHARS_IN_POOL) {
+            val _ = charsTotal.addAndFetch(-array.size)
+            return
+        }
+        arrays.offerLast(array)
     }
 }
 
