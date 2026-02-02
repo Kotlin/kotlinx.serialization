@@ -3,6 +3,9 @@
  */
 package kotlinx.serialization.json.internal
 
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
+
 /*
  * Not really documented kill switch as a workaround for potential
  * (unlikely) problems with memory consumptions.
@@ -14,20 +17,21 @@ private val MAX_CHARS_IN_POOL = runCatching {
 internal open class CharArrayPoolBase {
     private val arrays = ArrayDeque<CharArray>()
     private var charsTotal = 0
+    private val lock = ReentrantLock()
 
     protected fun take(size: Int): CharArray {
         /*
          * Initially the pool is empty, so an instance will be allocated
          * and the pool will be populated in the 'release'
          */
-        val candidate = synchronized(this) {
+        val candidate = lock.withLock {
             arrays.removeLastOrNull()?.also { charsTotal -= it.size }
         }
         return candidate ?: CharArray(size)
     }
 
-    protected fun releaseImpl(array: CharArray): Unit = synchronized(this) {
-        if (charsTotal + array.size >= MAX_CHARS_IN_POOL) return@synchronized
+    protected fun releaseImpl(array: CharArray): Unit = lock.withLock {
+        if (charsTotal + array.size >= MAX_CHARS_IN_POOL) return@withLock
         charsTotal += array.size
         arrays.addLast(array)
     }
