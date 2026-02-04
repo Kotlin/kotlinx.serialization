@@ -152,7 +152,7 @@ You can [customize their serial names](serialization-customization-options.md#cu
 
 > You must use a unique `@SerialName` for each serializable class in a polymorphic hierarchy. Otherwise, an `IllegalStateException` is thrown.
 >
-{style="note"}
+{style="warning"}
 
 Use `@SerialName` to define a stable identifier for a subclass that doesn't depend on its source code:
 
@@ -767,10 +767,38 @@ val combinedModule = SerializersModule {
 When deserializing polymorphic data, Kotlin serialization resolves the subtype from the `type` property.
 If the subtype isn't registered, deserialization fails with a `SerializationException`.
 
-To handle unknown polymorphic subtypes, configure a default deserializer for the base type.
-Use the [`defaultDeserializer()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/-polymorphic-module-builder/default-deserializer.html) function inside the `polymorphic()` block to define a fallback for unregistered subtypes.
+You can define a default deserializer to handle unregistered or unknown polymorphic subtypes.
 
-Let's look at an example where deserialization uses `BasicProject` for unknown subtypes:
+Let's look at the following example where `Project` is the base type, `OwnedProject` is a registered subtype, and `BasicProject` represents unknown project subtypes:
+
+```kotlin
+@Serializable
+abstract class Project {
+    abstract val name: String
+}
+
+// Represents unknown project types
+@Serializable
+data class BasicProject(override val name: String, val type: String): Project()
+
+@Serializable
+@SerialName("OwnedProject")
+data class OwnedProject(override val name: String, val owner: String) : Project()
+```
+
+To handle unknown polymorphic subtypes like `BasicProject`, configure a default deserializer for the base type.
+Use the [`defaultDeserializer()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/-polymorphic-module-builder/default-deserializer.html) function inside the `polymorphic()` block to define a fallback for these unregistered subtypes:
+
+```kotlin
+val module = SerializersModule {
+    polymorphic(Project::class) {
+        subclass(OwnedProject::class)
+        defaultDeserializer { BasicProject.serializer() }
+    }
+}
+```
+
+You can use this `SerializersModule` configuration to deserialize both registered and unregistered subtypes:
 
 ```kotlin
 // Imports declarations from the serialization library
@@ -778,7 +806,6 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 
-//sampleStart
 @Serializable
 abstract class Project {
     abstract val name: String
@@ -800,6 +827,7 @@ val module = SerializersModule {
     }
 }
 
+//sampleStart
 val format = Json { serializersModule = module }
 
 fun main() {
