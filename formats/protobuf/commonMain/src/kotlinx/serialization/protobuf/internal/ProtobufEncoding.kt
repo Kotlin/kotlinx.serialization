@@ -253,6 +253,12 @@ private class OneOfElementEncoder(
             "Implementation of oneOf type ${descriptor.serialName} should have @ProtoNumber annotation"
         }
     }
+
+    // For oneof fields, we must always encode the element even if it contains default values,
+    // because the oneof semantics require knowing which case was selected.
+    // Otherwise, decoding an empty byte array would incorrectly select the default variant defined in the message class.
+    // An element with default values will be encoded as {TAG}00 for 0-length content.
+    override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = true
 }
 
 private class MapRepeatedEncoder(
