@@ -10,22 +10,22 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.protobuf.*
 
-internal object ProtoMessageSerializer : KSerializer<ProtoMessage> {
+internal object ProtoUnknownFieldHolderSerializer : KSerializer<ProtoUnknownFieldHolder> {
     internal val fieldsSerializer = ProtoFieldSerializer
 
     override val descriptor: SerialDescriptor
         get() = UnknownFieldsDescriptor(fieldsSerializer.descriptor)
 
-    override fun deserialize(decoder: Decoder): ProtoMessage {
+    override fun deserialize(decoder: Decoder): ProtoUnknownFieldHolder {
         if (decoder is ProtobufDecoder) {
             return decoder.decodeStructure(descriptor) {
-                ProtoMessage(fieldsSerializer.deserializeComposite(this))
+                ProtoUnknownFieldHolder(fieldsSerializer.deserializeComposite(this))
             }
         }
-        return ProtoMessage.Empty
+        return ProtoUnknownFieldHolder.Empty
     }
 
-    override fun serialize(encoder: Encoder, value: ProtoMessage) {
+    override fun serialize(encoder: Encoder, value: ProtoUnknownFieldHolder) {
         if (encoder is ProtobufEncoder) {
             value.fields.forEach {
                 fieldsSerializer.serialize(encoder, it)
@@ -62,7 +62,7 @@ internal object ProtoFieldSerializer : KSerializer<ProtoField> {
             val field = ProtoField(
                 id = id,
                 wireType = type,
-                data = ProtoContentHolder(data),
+                data = data,
             )
             return field
         }
@@ -71,14 +71,14 @@ internal object ProtoFieldSerializer : KSerializer<ProtoField> {
 
     override fun serialize(encoder: Encoder, value: ProtoField) {
         if (encoder is ProtobufEncoder) {
-            encoder.encodeRawElement(value.id, value.wireType, value.data.byteArray)
+            encoder.encodeRawElement(value.id, value.wireType, value.data)
         }
     }
 }
 
 internal class UnknownFieldsDescriptor(private val original: SerialDescriptor) : SerialDescriptor by original {
     override val serialName: String
-        get() = "UnknownProtoFieldsHolder"
+        get() = "UnknownProtoFieldsHolder[${original.serialName}]"
 
     override fun equals(other: Any?): Boolean {
         return other is UnknownFieldsDescriptor && other.original == original

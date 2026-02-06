@@ -143,8 +143,8 @@ internal open class ProtobufEncoder(
         serializer is MapLikeSerializer<*, *, *, *> -> {
             serializeMap(serializer as SerializationStrategy<T>, value)
         }
-        serializer == ProtoMessageSerializer -> {
-            serializeUnknownFields(serializer as ProtoMessageSerializer, value as ProtoMessage)
+        serializer == ProtoUnknownFieldHolderSerializer -> {
+            serializeUnknownFields(serializer as ProtoUnknownFieldHolderSerializer, value as ProtoUnknownFieldHolder)
         }
         serializer.descriptor == ByteArraySerializer().descriptor -> serializeByteArray(value as ByteArray)
         serializer.descriptor == UByteArraySerializer().descriptor -> serializeByteArray((value as UByteArray).asByteArray())
@@ -201,14 +201,14 @@ internal open class ProtobufEncoder(
         }
     }
 
-    private fun serializeUnknownFields(serializer: SerializationStrategy<ProtoMessage>, protoMessage: ProtoMessage) {
+    private fun serializeUnknownFields(serializer: SerializationStrategy<ProtoUnknownFieldHolder>, protoUnknownFieldHolder: ProtoUnknownFieldHolder) {
         require(currentTagOrDefault != MISSING_TAG) {
-            "Cannot serialize directly from kotlinx.serialization.protobuf.ProtoMessage."
+            "Cannot serialize directly from kotlinx.serialization.protobuf.ProtoUnknownFieldHolder."
         }
         require(currentTagOrDefault.isUnknown) {
-            "kotlinx.serialization.protobuf.ProtoMessage should be annotated with @ProtoUnknownFields."
+            "kotlinx.serialization.protobuf.ProtoUnknownFieldHolder should be annotated with @ProtoUnknownFields."
         }
-        serializer.serialize(this, protoMessage)
+        serializer.serialize(this, protoUnknownFieldHolder)
     }
 
     @Suppress("UNCHECKED_CAST")

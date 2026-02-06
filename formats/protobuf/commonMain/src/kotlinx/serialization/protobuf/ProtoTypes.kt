@@ -5,7 +5,6 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
-import kotlinx.serialization.descriptors.*
 
 /**
  * Specifies protobuf field number (a unique number for a field in the protobuf message)
@@ -66,7 +65,7 @@ public annotation class ProtoPacked
 public annotation class ProtoOneOf
 
 /**
- * Mark a property with type [ProtoMessage] as a holder for unknown fields in protobuf message.
+ * Mark a property with type [ProtoUnknownFieldHolder] as a holder for unknown fields in protobuf message.
  *
  * All the contents with unregistered proto number will be stored in this field.
  */

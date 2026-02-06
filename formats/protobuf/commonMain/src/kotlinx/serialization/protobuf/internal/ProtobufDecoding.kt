@@ -90,8 +90,8 @@ internal open class ProtobufDecoder(
                     require(unknownHolderIndex == INDEX_NOT_EXISTSED) {
                         "Only one unknown fields holder is allowed in a message, but get ${descriptor.getElementName(i)} and ${descriptor.getElementName(unknownHolderIndex)}"
                     }
-                    require(descriptor.getElementDescriptor(i).nullable == ProtoMessageSerializer.descriptor.nullable) {
-                        "ProtoUnknownFields is only allowed on property with type kotlinx.serialization.protobuf.ProtoMessage, with its original serializer. ${descriptor.getElementDescriptor(i)} is rejected."
+                    require(descriptor.getElementDescriptor(i).nullable == ProtoUnknownFieldHolderSerializer.descriptor.nullable) {
+                        "ProtoUnknownFields is only allowed on property with type kotlinx.serialization.protobuf.ProtoUnknownFieldHolder with its original serializer. ${descriptor.getElementDescriptor(i)} is rejected."
                     }
                     mapSize ++
                     unknownHolderIndex = i
@@ -273,8 +273,8 @@ internal open class ProtobufDecoder(
             deserializer.descriptor == UByteArraySerializer().descriptor -> deserializeByteArray((previousValue as UByteArray?)?.asByteArray()).asUByteArray() as T
             deserializer is AbstractCollectionSerializer<*, *, *> ->
                 (deserializer as AbstractCollectionSerializer<*, T, *>).merge(this, previousValue)
-            deserializer == ProtoMessageSerializer -> {
-                decodeUnknownFields(previousValue as? ProtoMessage) as T
+            deserializer == ProtoUnknownFieldHolderSerializer -> {
+                decodeUnknownFields(previousValue as? ProtoUnknownFieldHolder) as T
             }
 
             else -> deserializer.deserialize(this)
@@ -382,9 +382,9 @@ internal open class ProtobufDecoder(
         return false
     }
 
-    private fun decodeUnknownFields(previous: ProtoMessage?): ProtoMessage {
+    private fun decodeUnknownFields(previous: ProtoUnknownFieldHolder?): ProtoUnknownFieldHolder {
         require(currentTagOrDefault != MISSING_TAG) {
-            "Cannot deserialize directly to kotlinx.serialization.protobuf.ProtoMessage."
+            "Cannot deserialize directly to kotlinx.serialization.protobuf.ProtoUnknownFieldHolder."
         }
         val serializer = ProtoFieldSerializer
         val restoredTag = index2IdMap?.get(unknownHolderIndex)?.let { currentTag.overrideId(it) } ?: currentTag
