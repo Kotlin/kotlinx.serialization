@@ -359,4 +359,51 @@ class ProtobufUnknownFieldsTest {
         assertNull(decoded2.oneOf)
         assertEquals(1, decoded2.unknownFields.size)
     }
+
+    @Serializable
+    data class DataWithLargeNumbers(
+        @ProtoNumber(1) val smallNumber: Int,
+        @ProtoNumber(536870911) val hugeFieldNumber: Int  // Max field number (2^29 - 1)
+    )
+
+    @Serializable
+    data class DataWithUnknownLargeNumbers(
+        @ProtoNumber(1) val smallNumber: Int,
+        @ProtoUnknownFields val unknownFields: ProtoMessage = ProtoMessage.Empty
+    )
+
+    private fun assertRoundTripWithLargeNumbers(smallNumber: Int, hugeFieldNumber: Int) {
+        val data = DataWithLargeNumbers(smallNumber, hugeFieldNumber)
+        val encoded = ProtoBuf.encodeToHexString(DataWithLargeNumbers.serializer(), data)
+        val decoded = ProtoBuf.decodeFromHexString(DataWithUnknownLargeNumbers.serializer(), encoded)
+
+        assertEquals(smallNumber, decoded.smallNumber)
+        assertEquals(1, decoded.unknownFields.size)
+
+        val reEncoded = ProtoBuf.encodeToHexString(DataWithUnknownLargeNumbers.serializer(), decoded)
+        val finalData = ProtoBuf.decodeFromHexString(DataWithLargeNumbers.serializer(), reEncoded)
+
+        assertEquals(data.smallNumber, finalData.smallNumber)
+        assertEquals(data.hugeFieldNumber, finalData.hugeFieldNumber)
+    }
+
+    @Test
+    fun testUnknownFieldsWithNumbersGreaterThan127() {
+        // 1-byte varint boundary
+        assertRoundTripWithLargeNumbers(smallNumber = 1, hugeFieldNumber = 127)
+
+        // 2-byte varint: min and max
+        assertRoundTripWithLargeNumbers(smallNumber = 2, hugeFieldNumber = 128)
+        assertRoundTripWithLargeNumbers(smallNumber = 3, hugeFieldNumber = 16383)
+
+        // 3-byte varint: min and max
+        assertRoundTripWithLargeNumbers(smallNumber = 4, hugeFieldNumber = 16384)
+        assertRoundTripWithLargeNumbers(smallNumber = 5, hugeFieldNumber = 2097151)
+
+        // Larger values
+        assertRoundTripWithLargeNumbers(smallNumber = 6, hugeFieldNumber = Int.MAX_VALUE)
+
+        // Negative value (encoded as 10-byte varint in protobuf)
+        assertRoundTripWithLargeNumbers(smallNumber = 7, hugeFieldNumber = -1)
+    }
 }

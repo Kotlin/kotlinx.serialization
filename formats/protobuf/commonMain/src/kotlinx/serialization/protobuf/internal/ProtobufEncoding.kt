@@ -154,23 +154,41 @@ internal open class ProtobufEncoder(
     internal fun encodeRawElement(id: Int, wireType: ProtoWireType, data: ByteArray) {
         when(wireType) {
             ProtoWireType.INVALID -> {}
-            ProtoWireType.VARINT -> writer.writeInt(
-                value = data.first().toInt(),
-                tag = id,
-                format = ProtoIntegerType.DEFAULT
-            )
+            ProtoWireType.VARINT -> {
+                var value = 0L
+                for (i in data.indices) {
+                    value = value or ((data[i].toLong() and 0xFF) shl (i * 8))
+                }
+                writer.writeLong(
+                    value = value,
+                    tag = id,
+                    format = ProtoIntegerType.DEFAULT
+                )
+            }
 
-            ProtoWireType.i64 -> writer.writeLong(
-                value = data.first().toLong(),
-                tag = id,
-                format = ProtoIntegerType.FIXED
-            )
+            ProtoWireType.i64 -> {
+                var value = 0L
+                for (i in data.indices) {
+                    value = value or ((data[i].toLong() and 0xFF) shl (i * 8))
+                }
+                writer.writeLong(
+                    value = value,
+                    tag = id,
+                    format = ProtoIntegerType.FIXED
+                )
+            }
             ProtoWireType.SIZE_DELIMITED -> writer.writeBytes(data, id)
-            ProtoWireType.i32 -> writer.writeInt(
-                value = data.first().toInt(),
-                tag = id,
-                format = ProtoIntegerType.FIXED
-            )
+            ProtoWireType.i32 -> {
+                var value = 0
+                for (i in data.indices) {
+                    value = value or ((data[i].toInt() and 0xFF) shl (i * 8))
+                }
+                writer.writeInt(
+                    value = value,
+                    tag = id,
+                    format = ProtoIntegerType.FIXED
+                )
+            }
         }
     }
 
