@@ -53,21 +53,20 @@ final class kotlinx.serialization.protobuf/ProtoBufBuilder { // kotlinx.serializ
         final fun <set-serializersModule>(kotlinx.serialization.modules/SerializersModule) // kotlinx.serialization.protobuf/ProtoBufBuilder.serializersModule.<set-serializersModule>|<set-serializersModule>(kotlinx.serialization.modules.SerializersModule){}[0]
 }
 
-final class kotlinx.serialization.protobuf/ProtoMessage { // kotlinx.serialization.protobuf/ProtoMessage|null[0]
-    final val size // kotlinx.serialization.protobuf/ProtoMessage.size|{}size[0]
-        final fun <get-size>(): kotlin/Int // kotlinx.serialization.protobuf/ProtoMessage.size.<get-size>|<get-size>(){}[0]
+final class kotlinx.serialization.protobuf/ProtoUnknownFieldHolder { // kotlinx.serialization.protobuf/ProtoUnknownFieldHolder|null[0]
+    final val size // kotlinx.serialization.protobuf/ProtoUnknownFieldHolder.size|{}size[0]
+        final fun <get-size>(): kotlin/Int // kotlinx.serialization.protobuf/ProtoUnknownFieldHolder.size.<get-size>|<get-size>(){}[0]
 
-    final fun asByteArray(): kotlin/ByteArray // kotlinx.serialization.protobuf/ProtoMessage.asByteArray|asByteArray(){}[0]
-    final fun equals(kotlin/Any?): kotlin/Boolean // kotlinx.serialization.protobuf/ProtoMessage.equals|equals(kotlin.Any?){}[0]
-    final fun hashCode(): kotlin/Int // kotlinx.serialization.protobuf/ProtoMessage.hashCode|hashCode(){}[0]
-    final fun merge(kotlinx.serialization.protobuf/ProtoMessage): kotlinx.serialization.protobuf/ProtoMessage // kotlinx.serialization.protobuf/ProtoMessage.merge|merge(kotlinx.serialization.protobuf.ProtoMessage){}[0]
-    final fun plus(kotlinx.serialization.protobuf/ProtoMessage): kotlinx.serialization.protobuf/ProtoMessage // kotlinx.serialization.protobuf/ProtoMessage.plus|plus(kotlinx.serialization.protobuf.ProtoMessage){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // kotlinx.serialization.protobuf/ProtoUnknownFieldHolder.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // kotlinx.serialization.protobuf/ProtoUnknownFieldHolder.hashCode|hashCode(){}[0]
+    final fun merge(kotlinx.serialization.protobuf/ProtoUnknownFieldHolder): kotlinx.serialization.protobuf/ProtoUnknownFieldHolder // kotlinx.serialization.protobuf/ProtoUnknownFieldHolder.merge|merge(kotlinx.serialization.protobuf.ProtoUnknownFieldHolder){}[0]
+    final fun plus(kotlinx.serialization.protobuf/ProtoUnknownFieldHolder): kotlinx.serialization.protobuf/ProtoUnknownFieldHolder // kotlinx.serialization.protobuf/ProtoUnknownFieldHolder.plus|plus(kotlinx.serialization.protobuf.ProtoUnknownFieldHolder){}[0]
 
-    final object Companion { // kotlinx.serialization.protobuf/ProtoMessage.Companion|null[0]
-        final val Empty // kotlinx.serialization.protobuf/ProtoMessage.Companion.Empty|{}Empty[0]
-            final fun <get-Empty>(): kotlinx.serialization.protobuf/ProtoMessage // kotlinx.serialization.protobuf/ProtoMessage.Companion.Empty.<get-Empty>|<get-Empty>(){}[0]
+    final object Companion { // kotlinx.serialization.protobuf/ProtoUnknownFieldHolder.Companion|null[0]
+        final val Empty // kotlinx.serialization.protobuf/ProtoUnknownFieldHolder.Companion.Empty|{}Empty[0]
+            final fun <get-Empty>(): kotlinx.serialization.protobuf/ProtoUnknownFieldHolder // kotlinx.serialization.protobuf/ProtoUnknownFieldHolder.Companion.Empty.<get-Empty>|<get-Empty>(){}[0]
 
-        final fun serializer(): kotlinx.serialization/KSerializer<kotlinx.serialization.protobuf/ProtoMessage> // kotlinx.serialization.protobuf/ProtoMessage.Companion.serializer|serializer(){}[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<kotlinx.serialization.protobuf/ProtoUnknownFieldHolder> // kotlinx.serialization.protobuf/ProtoUnknownFieldHolder.Companion.serializer|serializer(){}[0]
     }
 }
 
@@ -86,5 +85,5 @@ final object kotlinx.serialization.protobuf.schema/ProtoBufSchemaGenerator { // 
     final fun generateSchemaText(kotlinx.serialization.descriptors/SerialDescriptor, kotlin/String? = ..., kotlin.collections/Map<kotlin/String, kotlin/String> = ...): kotlin/String // kotlinx.serialization.protobuf.schema/ProtoBufSchemaGenerator.generateSchemaText|generateSchemaText(kotlinx.serialization.descriptors.SerialDescriptor;kotlin.String?;kotlin.collections.Map<kotlin.String,kotlin.String>){}[0]
 }
 
-final fun (kotlinx.serialization.protobuf/ProtoMessage?).kotlinx.serialization.protobuf/merge(kotlinx.serialization.protobuf/ProtoMessage?): kotlinx.serialization.protobuf/ProtoMessage // kotlinx.serialization.protobuf/merge|merge@kotlinx.serialization.protobuf.ProtoMessage?(kotlinx.serialization.protobuf.ProtoMessage?){}[0]
+final fun (kotlinx.serialization.protobuf/ProtoUnknownFieldHolder?).kotlinx.serialization.protobuf/merge(kotlinx.serialization.protobuf/ProtoUnknownFieldHolder?): kotlinx.serialization.protobuf/ProtoUnknownFieldHolder // kotlinx.serialization.protobuf/merge|merge@kotlinx.serialization.protobuf.ProtoUnknownFieldHolder?(kotlinx.serialization.protobuf.ProtoUnknownFieldHolder?){}[0]
 final fun kotlinx.serialization.protobuf/ProtoBuf(kotlinx.serialization.protobuf/ProtoBuf = ..., kotlin/Function1<kotlinx.serialization.protobuf/ProtoBufBuilder, kotlin/Unit>): kotlinx.serialization.protobuf/ProtoBuf // kotlinx.serialization.protobuf/ProtoBuf|ProtoBuf(kotlinx.serialization.protobuf.ProtoBuf;kotlin.Function1<kotlinx.serialization.protobuf.ProtoBufBuilder,kotlin.Unit>){}[0]

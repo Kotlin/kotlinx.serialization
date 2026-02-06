@@ -30,25 +30,6 @@ public final class kotlinx/serialization/protobuf/ProtoIntegerType : java/lang/E
 	public static fun values ()[Lkotlinx/serialization/protobuf/ProtoIntegerType;
 }
 
-public final class kotlinx/serialization/protobuf/ProtoMessage {
-	public static final field Companion Lkotlinx/serialization/protobuf/ProtoMessage$Companion;
-	public final fun asByteArray ()[B
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getSize ()I
-	public fun hashCode ()I
-	public final fun merge (Lkotlinx/serialization/protobuf/ProtoMessage;)Lkotlinx/serialization/protobuf/ProtoMessage;
-	public final fun plus (Lkotlinx/serialization/protobuf/ProtoMessage;)Lkotlinx/serialization/protobuf/ProtoMessage;
-}
-
-public final class kotlinx/serialization/protobuf/ProtoMessage$Companion {
-	public final fun getEmpty ()Lkotlinx/serialization/protobuf/ProtoMessage;
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class kotlinx/serialization/protobuf/ProtoMessageKt {
-	public static final fun merge (Lkotlinx/serialization/protobuf/ProtoMessage;Lkotlinx/serialization/protobuf/ProtoMessage;)Lkotlinx/serialization/protobuf/ProtoMessage;
-}
-
 public abstract interface annotation class kotlinx/serialization/protobuf/ProtoNumber : java/lang/annotation/Annotation {
 	public abstract fun number ()I
 }
@@ -81,10 +62,28 @@ public final synthetic class kotlinx/serialization/protobuf/ProtoType$Impl : kot
 	public final synthetic fun type ()Lkotlinx/serialization/protobuf/ProtoIntegerType;
 }
 
+public final class kotlinx/serialization/protobuf/ProtoUnknownFieldHolder {
+	public static final field Companion Lkotlinx/serialization/protobuf/ProtoUnknownFieldHolder$Companion;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getSize ()I
+	public fun hashCode ()I
+	public final fun merge (Lkotlinx/serialization/protobuf/ProtoUnknownFieldHolder;)Lkotlinx/serialization/protobuf/ProtoUnknownFieldHolder;
+	public final fun plus (Lkotlinx/serialization/protobuf/ProtoUnknownFieldHolder;)Lkotlinx/serialization/protobuf/ProtoUnknownFieldHolder;
+}
+
+public final class kotlinx/serialization/protobuf/ProtoUnknownFieldHolder$Companion {
+	public final fun getEmpty ()Lkotlinx/serialization/protobuf/ProtoUnknownFieldHolder;
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class kotlinx/serialization/protobuf/ProtoUnknownFieldHolderKt {
+	public static final fun merge (Lkotlinx/serialization/protobuf/ProtoUnknownFieldHolder;Lkotlinx/serialization/protobuf/ProtoUnknownFieldHolder;)Lkotlinx/serialization/protobuf/ProtoUnknownFieldHolder;
+}
+
 public abstract interface annotation class kotlinx/serialization/protobuf/ProtoUnknownFields : java/lang/annotation/Annotation {
 }
 
-public synthetic class kotlinx/serialization/protobuf/ProtoUnknownFields$Impl : kotlinx/serialization/protobuf/ProtoUnknownFields {
+public final synthetic class kotlinx/serialization/protobuf/ProtoUnknownFields$Impl : kotlinx/serialization/protobuf/ProtoUnknownFields {
 	public fun <init> ()V
 }
 
