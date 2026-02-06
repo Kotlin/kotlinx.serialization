@@ -154,41 +154,12 @@ internal open class ProtobufEncoder(
     internal fun encodeRawElement(id: Int, wireType: ProtoWireType, data: ByteArray) {
         when(wireType) {
             ProtoWireType.INVALID -> {}
-            ProtoWireType.VARINT -> {
-                var value = 0L
-                for (i in data.indices) {
-                    value = value or ((data[i].toLong() and 0xFF) shl (i * 8))
-                }
-                writer.writeLong(
-                    value = value,
-                    tag = id,
-                    format = ProtoIntegerType.DEFAULT
-                )
-            }
-
-            ProtoWireType.i64 -> {
-                var value = 0L
-                for (i in data.indices) {
-                    value = value or ((data[i].toLong() and 0xFF) shl (i * 8))
-                }
-                writer.writeLong(
-                    value = value,
-                    tag = id,
-                    format = ProtoIntegerType.FIXED
-                )
+            ProtoWireType.VARINT,
+            ProtoWireType.i64,
+            ProtoWireType.i32 -> {
+                writer.writeRawBytes(data, wireType.wireIntWithTag(id))
             }
             ProtoWireType.SIZE_DELIMITED -> writer.writeBytes(data, id)
-            ProtoWireType.i32 -> {
-                var value = 0
-                for (i in data.indices) {
-                    value = value or ((data[i].toInt() and 0xFF) shl (i * 8))
-                }
-                writer.writeInt(
-                    value = value,
-                    tag = id,
-                    format = ProtoIntegerType.FIXED
-                )
-            }
         }
     }
 
