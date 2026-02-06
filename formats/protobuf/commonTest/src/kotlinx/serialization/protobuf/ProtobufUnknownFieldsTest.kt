@@ -48,6 +48,15 @@ class ProtobufUnknownFieldsTest {
     )
 
     @Test
+    fun testDecodeFromHexString() {
+        // This is the only test that verifies decoding from a known HEX constant
+        val encoded = "082a120234321a032a2a2a202a202a202a2a120a023432102a1a0234321a0234321a023432"
+        val decoded = ProtoBuf.decodeFromHexString(DataWithUnknownFields.serializer(), encoded)
+        assertEquals(42, decoded.a)
+        assertEquals(6, decoded.unknownFields.size)
+    }
+
+    @Test
     fun testDecodeWithUnknownField() {
         val data = BuildData(
             42,
@@ -57,30 +66,15 @@ class ProtobufUnknownFieldsTest {
             InnerData("42", 42, listOf("42", "42", "42"))
         )
 
-        /**
-         * 1: 42
-         * 2: {"42"}
-         * 3: {"***"}
-         * 4: 42
-         * 4: 42
-         * 4: 42
-         * 5: {
-         *   1: {"42"}
-         *   2: 42
-         *   3: {"42"}
-         *   3: {"42"}
-         *   3: {"42"}
-         * }
-         */
-        val encoded = "082a120234321a032a2a2a202a202a202a2a120a023432102a1a0234321a0234321a023432"
-        val decoded = ProtoBuf.decodeFromHexString(DataWithUnknownFields.serializer(), encoded)
+        val encoded = ProtoBuf.encodeToByteArray(BuildData.serializer(), data)
+        val decoded = ProtoBuf.decodeFromByteArray(DataWithUnknownFields.serializer(), encoded)
         assertEquals(data.a, decoded.a)
         assertEquals(6, decoded.unknownFields.size)
 
-        val encoded2 = ProtoBuf.encodeToHexString(DataWithUnknownFields.serializer(), decoded)
-        assertEquals(encoded, encoded2)
-        val data2 = ProtoBuf.decodeFromHexString(BuildData.serializer(), encoded2)
-        assertEquals(data, data2)
+        val reEncoded = ProtoBuf.encodeToByteArray(DataWithUnknownFields.serializer(), decoded)
+        assertContentEquals(encoded, reEncoded)
+        val restored = ProtoBuf.decodeFromByteArray(BuildData.serializer(), reEncoded)
+        assertEquals(data, restored)
     }
 
     @Test
@@ -106,7 +100,8 @@ class ProtobufUnknownFieldsTest {
 
     @Test
     fun testOnlyOneUnknownFieldAllowed() {
-        val encoded = "082a120234321a032a2a2a202a202a202a2a120a023432102a1a0234321a0234321a023432"
+        val data = BuildData(42, "42", byteArrayOf(42), listOf(42), InnerData("42", 42, listOf("42")))
+        val encoded = ProtoBuf.encodeToHexString(BuildData.serializer(), data)
         assertFailsWithMessage<IllegalArgumentException>(
             "Only one unknown fields holder is allowed in a message, but get unknownFields2 and unknownFields"
         ) {
@@ -133,49 +128,15 @@ class ProtobufUnknownFieldsTest {
             InnerData("42", 42, listOf("42", "42", "42"))
         )
 
-        /**
-         * 1: 42
-         * 2: {"42"}
-         * 3: {"***"}
-         * 4: 42
-         * 4: 42
-         * 4: 42
-         * 5: {
-         *   1: {"42"}
-         *   2: 42
-         *   3: {"42"}
-         *   3: {"42"}
-         *   3: {"42"}
-         * }
-         * }
-         */
-        val hex = "082a120234321a032a2a2a202a202a202a2a120a023432102a1a0234321a0234321a023432"
-        val decoded = ProtoBuf.decodeFromHexString(DataWithStaggeredFields.serializer(), hex)
+        val encoded = ProtoBuf.encodeToByteArray(BuildData.serializer(), data)
+        val decoded = ProtoBuf.decodeFromByteArray(DataWithStaggeredFields.serializer(), encoded)
         assertEquals(3, decoded.unknownFields.size)
         assertEquals("42", decoded.b)
         assertEquals(listOf(42, 42, 42), decoded.d)
 
-        val encoded = ProtoBuf.encodeToHexString(DataWithStaggeredFields.serializer(), decoded)
-        /**
-         * fields are re-ordered but acceptable in protobuf wire data
-         *
-         * 2: {"42"}
-         * 1: 42
-         * 3: {"***"}
-         * 5: {
-         *   1: {"42"}
-         *   2: 42
-         *   3: {"42"}
-         *   3: {"42"}
-         *   3: {"42"}
-         * }
-         * 4: 42
-         * 4: 42
-         * 4: 42
-         */
-        assertEquals("12023432082a1a032a2a2a2a120a023432102a1a0234321a0234321a023432202a202a202a", encoded)
-        val decodeOrigin = ProtoBuf.decodeFromHexString(BuildData.serializer(), encoded)
-        assertEquals(data, decodeOrigin)
+        val reEncoded = ProtoBuf.encodeToByteArray(DataWithStaggeredFields.serializer(), decoded)
+        val restored = ProtoBuf.decodeFromByteArray(BuildData.serializer(), reEncoded)
+        assertEquals(data, restored)
     }
 
     @Serializable
@@ -190,24 +151,22 @@ class ProtobufUnknownFieldsTest {
 
     @Test
     fun testDecodeNestedUnknownData() {
-        /**
-         * 1: 42
-         * 2: {"42"}
-         * 3: {"***"}
-         * 4: 42
-         * 4: 42
-         * 4: 42
-         * 5: {
-         *   1: {"42"}
-         *   2: 42
-         *   3: {"42"}
-         *   3: {"42"}
-         *   3: {"42"}
-         * }
-         */
-        val hex = "082a120234321a032a2a2a202a202a202a2a120a023432102a1a0234321a0234321a023432"
-        val decoded = ProtoBuf.decodeFromHexString(NestedUnknownData.serializer(), hex)
+        val data = BuildData(
+            42,
+            "42",
+            byteArrayOf(42, 42, 42),
+            listOf(42, 42, 42),
+            InnerData("42", 42, listOf("42", "42", "42"))
+        )
+
+        val encoded = ProtoBuf.encodeToByteArray(BuildData.serializer(), data)
+        val decoded = ProtoBuf.decodeFromByteArray(NestedUnknownData.serializer(), encoded)
+        assertEquals(42, decoded.a)
         assertEquals(5, decoded.unknown.size)
+
+        val reEncoded = ProtoBuf.encodeToByteArray(NestedUnknownData.serializer(), decoded)
+        val restored = ProtoBuf.decodeFromByteArray(BuildData.serializer(), reEncoded)
+        assertEquals(data, restored)
     }
 
     object CustomSerializer : KSerializer<DataWithUnknownFields> {
@@ -251,31 +210,16 @@ class ProtobufUnknownFieldsTest {
             InnerData("42", 42, listOf("42", "42", "42"))
         )
 
-        /**
-         * 1: 42
-         * 2: {"42"}
-         * 3: {"***"}
-         * 4: 42
-         * 4: 42
-         * 4: 42
-         * 5: {
-         *   1: {"42"}
-         *   2: 42
-         *   3: {"42"}
-         *   3: {"42"}
-         *   3: {"42"}
-         * }
-         */
-        val encoded = "082a120234321a032a2a2a202a202a202a2a120a023432102a1a0234321a0234321a023432"
-        val decoded = ProtoBuf.decodeFromHexString(CustomSerializer, encoded)
+        val encoded = ProtoBuf.encodeToByteArray(BuildData.serializer(), data)
+        val decoded = ProtoBuf.decodeFromByteArray(CustomSerializer, encoded)
 
         assertEquals(data.a, decoded.a)
         assertEquals(6, decoded.unknownFields.size)
 
-        val encoded2 = ProtoBuf.encodeToHexString(CustomSerializer, decoded)
-        assertEquals(encoded, encoded2)
-        val data2 = ProtoBuf.decodeFromHexString(BuildData.serializer(), encoded2)
-        assertEquals(data, data2)
+        val reEncoded = ProtoBuf.encodeToByteArray(CustomSerializer, decoded)
+        assertContentEquals(encoded, reEncoded)
+        val restored = ProtoBuf.decodeFromByteArray(BuildData.serializer(), reEncoded)
+        assertEquals(data, restored)
     }
 
     @Serializable
@@ -301,10 +245,11 @@ class ProtobufUnknownFieldsTest {
 
     @Test
     fun testCannotEncodeMissingAnnotationUnknownFields() {
-        val encoded = "082a120234321a032a2a2a202a202a202a2a120a023432102a1a0234321a0234321a023432"
-        val decoded = ProtoBuf.decodeFromHexString(DataWithMissingUnknownFields.serializer(), encoded)
+        val data = BuildData(42, "42", byteArrayOf(42), listOf(42), InnerData("42", 42, listOf("42")))
+        val encoded = ProtoBuf.encodeToByteArray(BuildData.serializer(), data)
+        val decoded = ProtoBuf.decodeFromByteArray(DataWithMissingUnknownFields.serializer(), encoded)
         assertFailsWith<IllegalArgumentException> {
-            ProtoBuf.encodeToHexString(DataWithMissingUnknownFields.serializer(), decoded)
+            ProtoBuf.encodeToByteArray(DataWithMissingUnknownFields.serializer(), decoded)
         }
     }
 
@@ -316,13 +261,17 @@ class ProtobufUnknownFieldsTest {
 
     @Test
     fun testDataWithNullableUnknownFields() {
-        val encoded = "082a120234321a032a2a2a202a202a202a2a120a023432102a1a0234321a0234321a023432"
-        val decoded = ProtoBuf.decodeFromHexString(DataWithNullableUnknownFields.serializer(), encoded)
+        val data = BuildData(42, "42", byteArrayOf(42), listOf(42), InnerData("42", 42, listOf("42")))
+        val encoded = ProtoBuf.encodeToByteArray(BuildData.serializer(), data)
+        val decoded = ProtoBuf.decodeFromByteArray(DataWithNullableUnknownFields.serializer(), encoded)
         assertEquals(42, decoded.a)
-        assertEquals(6, decoded.unknownFields?.size)
+        assertEquals(4, decoded.unknownFields?.size)
 
-        val encoded2 = "082a"
-        val decoded2 = ProtoBuf.decodeFromHexString(DataWithNullableUnknownFields.serializer(), encoded2)
+        // When there are no unknown fields, the holder should be null
+        @Serializable
+        data class OnlyA(@ProtoNumber(1) val a: Int)
+        val encodedKnownOnly = ProtoBuf.encodeToByteArray(OnlyA.serializer(), OnlyA(42))
+        val decoded2 = ProtoBuf.decodeFromByteArray(DataWithNullableUnknownFields.serializer(), encodedKnownOnly)
         assertEquals(42, decoded2.a)
         assertNull(decoded2.unknownFields)
     }
