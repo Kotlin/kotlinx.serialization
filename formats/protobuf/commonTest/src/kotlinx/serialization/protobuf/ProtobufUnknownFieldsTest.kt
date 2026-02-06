@@ -410,4 +410,163 @@ class ProtobufUnknownFieldsTest {
         // Negative value (encoded as 10-byte varint in protobuf)
         assertRoundTripWithLargeNumbers(smallNumber = 7, hugeFieldNumber = -1)
     }
+
+    // --- Tests for all wire types with extreme values ---
+
+    @Serializable
+    data class OnlyKnownId(@ProtoNumber(1) val id: Int = 0, @ProtoUnknownFields val unknown: ProtoUnknownFieldHolder = ProtoUnknownFieldHolder.Empty)
+
+    /**
+     * Helper: encode [full] with its serializer, decode as [OnlyKnownId] (field 1 known, rest unknown),
+     * re-encode, then decode back as [T] and assert equality.
+     */
+    private inline fun <reified T> assertUnknownFieldRoundTrip(full: T, serializer: KSerializer<T>) {
+        val encoded = ProtoBuf.encodeToByteArray(serializer, full)
+        val partial = ProtoBuf.decodeFromByteArray(OnlyKnownId.serializer(), encoded)
+        val reEncoded = ProtoBuf.encodeToByteArray(OnlyKnownId.serializer(), partial)
+        val restored = ProtoBuf.decodeFromByteArray(serializer, reEncoded)
+        assertEquals(full, restored)
+    }
+
+    // -- VARINT wire type --
+
+    @Serializable
+    data class VarintIntData(@ProtoNumber(1) val id: Int, @ProtoNumber(2) val value: Int)
+
+    @Test
+    fun testUnknownVarintInt() {
+        assertUnknownFieldRoundTrip(VarintIntData(1, 0), VarintIntData.serializer())
+        assertUnknownFieldRoundTrip(VarintIntData(1, -1), VarintIntData.serializer())
+        assertUnknownFieldRoundTrip(VarintIntData(1, Int.MIN_VALUE), VarintIntData.serializer())
+        assertUnknownFieldRoundTrip(VarintIntData(1, Int.MAX_VALUE), VarintIntData.serializer())
+        assertUnknownFieldRoundTrip(VarintIntData(1, 127), VarintIntData.serializer())
+        assertUnknownFieldRoundTrip(VarintIntData(1, 128), VarintIntData.serializer())
+    }
+
+    @Serializable
+    data class VarintLongData(@ProtoNumber(1) val id: Int, @ProtoNumber(2) val value: Long)
+
+    @Test
+    fun testUnknownVarintLong() {
+        assertUnknownFieldRoundTrip(VarintLongData(1, 0L), VarintLongData.serializer())
+        assertUnknownFieldRoundTrip(VarintLongData(1, -1L), VarintLongData.serializer())
+        assertUnknownFieldRoundTrip(VarintLongData(1, Long.MIN_VALUE), VarintLongData.serializer())
+        assertUnknownFieldRoundTrip(VarintLongData(1, Long.MAX_VALUE), VarintLongData.serializer())
+    }
+
+    @Serializable
+    data class VarintBoolData(@ProtoNumber(1) val id: Int, @ProtoNumber(2) val value: Boolean)
+
+    @Test
+    fun testUnknownVarintBool() {
+        assertUnknownFieldRoundTrip(VarintBoolData(1, false), VarintBoolData.serializer())
+        assertUnknownFieldRoundTrip(VarintBoolData(1, true), VarintBoolData.serializer())
+    }
+
+    // -- i32 wire type (fixed32) --
+
+    @Serializable
+    data class Fixed32Data(
+        @ProtoNumber(1) val id: Int,
+        @ProtoNumber(2) @ProtoType(ProtoIntegerType.FIXED) val value: Int
+    )
+
+    @Test
+    fun testUnknownFixed32() {
+        assertUnknownFieldRoundTrip(Fixed32Data(1, 0), Fixed32Data.serializer())
+        assertUnknownFieldRoundTrip(Fixed32Data(1, -1), Fixed32Data.serializer())
+        assertUnknownFieldRoundTrip(Fixed32Data(1, Int.MIN_VALUE), Fixed32Data.serializer())
+        assertUnknownFieldRoundTrip(Fixed32Data(1, Int.MAX_VALUE), Fixed32Data.serializer())
+    }
+
+    @Serializable
+    data class FloatData(@ProtoNumber(1) val id: Int, @ProtoNumber(2) val value: Float)
+
+    @Test
+    fun testUnknownFloat() {
+        assertUnknownFieldRoundTrip(FloatData(1, 0.0f), FloatData.serializer())
+        assertUnknownFieldRoundTrip(FloatData(1, -1.0f), FloatData.serializer())
+        assertUnknownFieldRoundTrip(FloatData(1, Float.MIN_VALUE), FloatData.serializer())
+        assertUnknownFieldRoundTrip(FloatData(1, Float.MAX_VALUE), FloatData.serializer())
+        assertUnknownFieldRoundTrip(FloatData(1, Float.NaN), FloatData.serializer())
+        assertUnknownFieldRoundTrip(FloatData(1, Float.POSITIVE_INFINITY), FloatData.serializer())
+        assertUnknownFieldRoundTrip(FloatData(1, Float.NEGATIVE_INFINITY), FloatData.serializer())
+    }
+
+    // -- i64 wire type (fixed64) --
+
+    @Serializable
+    data class Fixed64Data(
+        @ProtoNumber(1) val id: Int,
+        @ProtoNumber(2) @ProtoType(ProtoIntegerType.FIXED) val value: Long
+    )
+
+    @Test
+    fun testUnknownFixed64() {
+        assertUnknownFieldRoundTrip(Fixed64Data(1, 0L), Fixed64Data.serializer())
+        assertUnknownFieldRoundTrip(Fixed64Data(1, -1L), Fixed64Data.serializer())
+        assertUnknownFieldRoundTrip(Fixed64Data(1, Long.MIN_VALUE), Fixed64Data.serializer())
+        assertUnknownFieldRoundTrip(Fixed64Data(1, Long.MAX_VALUE), Fixed64Data.serializer())
+    }
+
+    @Serializable
+    data class DoubleData(@ProtoNumber(1) val id: Int, @ProtoNumber(2) val value: Double)
+
+    @Test
+    fun testUnknownDouble() {
+        assertUnknownFieldRoundTrip(DoubleData(1, 0.0), DoubleData.serializer())
+        assertUnknownFieldRoundTrip(DoubleData(1, -1.0), DoubleData.serializer())
+        assertUnknownFieldRoundTrip(DoubleData(1, Double.MIN_VALUE), DoubleData.serializer())
+        assertUnknownFieldRoundTrip(DoubleData(1, Double.MAX_VALUE), DoubleData.serializer())
+        assertUnknownFieldRoundTrip(DoubleData(1, Double.NaN), DoubleData.serializer())
+        assertUnknownFieldRoundTrip(DoubleData(1, Double.POSITIVE_INFINITY), DoubleData.serializer())
+        assertUnknownFieldRoundTrip(DoubleData(1, Double.NEGATIVE_INFINITY), DoubleData.serializer())
+    }
+
+    // -- SIZE_DELIMITED wire type --
+
+    @Serializable
+    data class StringData(@ProtoNumber(1) val id: Int, @ProtoNumber(2) val value: String)
+
+    @Test
+    fun testUnknownString() {
+        assertUnknownFieldRoundTrip(StringData(1, ""), StringData.serializer())
+        assertUnknownFieldRoundTrip(StringData(1, "hello"), StringData.serializer())
+        assertUnknownFieldRoundTrip(StringData(1, "a".repeat(70_000)), StringData.serializer()) // > 65kB
+    }
+
+    @Serializable
+    data class ByteArrayData(@ProtoNumber(1) val id: Int, @ProtoNumber(2) val value: ByteArray) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+            other as ByteArrayData
+            return id == other.id && value.contentEquals(other.value)
+        }
+        override fun hashCode(): Int = 31 * id + value.contentHashCode()
+    }
+
+    @Test
+    fun testUnknownByteArray() {
+        assertUnknownFieldRoundTrip(ByteArrayData(1, ByteArray(0)), ByteArrayData.serializer())
+        assertUnknownFieldRoundTrip(ByteArrayData(1, byteArrayOf(0, 1, 127, -128, -1)), ByteArrayData.serializer())
+        assertUnknownFieldRoundTrip(ByteArrayData(1, ByteArray(70_000) { it.toByte() }), ByteArrayData.serializer()) // > 65kB
+    }
+
+    @Serializable
+    data class EmbeddedMessageData(@ProtoNumber(1) val id: Int, @ProtoNumber(2) val value: InnerData)
+
+    @Test
+    fun testUnknownEmbeddedMessage() {
+        // Empty-ish embedded message
+        assertUnknownFieldRoundTrip(
+            EmbeddedMessageData(1, InnerData("", 0, emptyList())),
+            EmbeddedMessageData.serializer()
+        )
+        // Normal embedded message
+        assertUnknownFieldRoundTrip(
+            EmbeddedMessageData(1, InnerData("test", 42, listOf("a", "b", "c"))),
+            EmbeddedMessageData.serializer()
+        )
+    }
 }
