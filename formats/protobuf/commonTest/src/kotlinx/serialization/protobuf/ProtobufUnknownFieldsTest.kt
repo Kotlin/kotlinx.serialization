@@ -107,7 +107,9 @@ class ProtobufUnknownFieldsTest {
     @Test
     fun testOnlyOneUnknownFieldAllowed() {
         val encoded = "082a120234321a032a2a2a202a202a202a2a120a023432102a1a0234321a0234321a023432"
-        assertFailsWith<IllegalArgumentException> {
+        assertFailsWithMessage<IllegalArgumentException>(
+            "Only one unknown fields holder is allowed in a message, but get unknownFields2 and unknownFields"
+        ) {
             ProtoBuf.decodeFromHexString(DataWithMultipleUnknownFields.serializer(), encoded)
         }
     }
@@ -284,7 +286,9 @@ class ProtobufUnknownFieldsTest {
 
     @Test
     fun testCannotDecodeWrongTypeUnknownFields() {
-        assertFailsWith<IllegalArgumentException> {
+        assertFailsWithMessage<IllegalArgumentException>(
+            "ProtoUnknownFields is only allowed on property with type kotlinx.serialization.protobuf.ProtoMessage, with its original serializer. kotlin.collections.LinkedHashMap(PrimitiveDescriptor(kotlin.Int), kotlin.ByteArray(PrimitiveDescriptor(kotlin.Byte))) is rejected."
+        ) {
             ProtoBuf.decodeFromHexString(DataWithWrongTypeUnknownFields.serializer(), "")
         }
     }
