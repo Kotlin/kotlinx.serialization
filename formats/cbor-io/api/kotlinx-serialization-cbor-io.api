@@ -1,0 +1,5 @@
+public final class kotlinx/serialization/cbor/io/IoStreamsKt {
+	public static final fun decodeFromSource (Lkotlinx/serialization/cbor/Cbor;Lkotlinx/serialization/DeserializationStrategy;Lkotlinx/io/Source;)Ljava/lang/Object;
+	public static final fun encodeToSink (Lkotlinx/serialization/cbor/Cbor;Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;Lkotlinx/io/Sink;)V
+}
+

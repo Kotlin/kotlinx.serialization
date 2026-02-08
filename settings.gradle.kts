@@ -65,6 +65,9 @@ project(":kotlinx-serialization-protobuf:proto-test-model").projectDir = file(".
 include(":kotlinx-serialization-cbor")
 project(":kotlinx-serialization-cbor").projectDir = file("./formats/cbor")
 
+include(":kotlinx-serialization-cbor-io")
+project(":kotlinx-serialization-cbor-io").projectDir = file("./formats/cbor-io")
+
 include(":kotlinx-serialization-hocon")
 project(":kotlinx-serialization-hocon").projectDir = file("./formats/hocon")
 

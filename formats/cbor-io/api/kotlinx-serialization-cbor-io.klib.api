@@ -1,0 +1,12 @@
+// Klib ABI Dump
+// Targets: [androidNativeArm32, androidNativeArm64, androidNativeX64, androidNativeX86, iosArm64, iosSimulatorArm64, iosX64, js, linuxArm32Hfp, linuxArm64, linuxX64, macosArm64, macosX64, mingwX64, tvosArm64, tvosSimulatorArm64, tvosX64, wasmJs, wasmWasi, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64, watchosX64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <org.jetbrains.kotlinx:kotlinx-serialization-cbor-io>
+final fun <#A: kotlin/Any?> (kotlinx.serialization.cbor/Cbor).kotlinx.serialization.cbor.io/decodeFromSource(kotlinx.serialization/DeserializationStrategy<#A>, kotlinx.io/Source): #A // kotlinx.serialization.cbor.io/decodeFromSource|decodeFromSource@kotlinx.serialization.cbor.Cbor(kotlinx.serialization.DeserializationStrategy<0:0>;kotlinx.io.Source){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> (kotlinx.serialization.cbor/Cbor).kotlinx.serialization.cbor.io/encodeToSink(kotlinx.serialization/SerializationStrategy<#A>, #A, kotlinx.io/Sink) // kotlinx.serialization.cbor.io/encodeToSink|encodeToSink@kotlinx.serialization.cbor.Cbor(kotlinx.serialization.SerializationStrategy<0:0>;0:0;kotlinx.io.Sink){0§<kotlin.Any?>}[0]
+final inline fun <#A: reified kotlin/Any?> (kotlinx.serialization.cbor/Cbor).kotlinx.serialization.cbor.io/decodeFromSource(kotlinx.io/Source): #A // kotlinx.serialization.cbor.io/decodeFromSource|decodeFromSource@kotlinx.serialization.cbor.Cbor(kotlinx.io.Source){0§<kotlin.Any?>}[0]
+final inline fun <#A: reified kotlin/Any?> (kotlinx.serialization.cbor/Cbor).kotlinx.serialization.cbor.io/encodeToSink(#A, kotlinx.io/Sink) // kotlinx.serialization.cbor.io/encodeToSink|encodeToSink@kotlinx.serialization.cbor.Cbor(0:0;kotlinx.io.Sink){0§<kotlin.Any?>}[0]

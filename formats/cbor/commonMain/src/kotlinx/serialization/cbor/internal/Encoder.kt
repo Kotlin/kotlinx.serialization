@@ -13,28 +13,18 @@ import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 import kotlin.experimental.*
 
-
-//value classes are only inlined on the JVM, so we use a typealias and extensions instead
-private typealias Stack = MutableList<CborWriter.Data>
-
-private fun Stack(initial: CborWriter.Data): Stack = mutableListOf(initial)
-private fun Stack.push(value: CborWriter.Data) = add(value)
-private fun Stack.pop() = removeLast()
-private fun Stack.peek() = last()
-
 // Writes class as map [fieldName, fieldValue]
 // Split implementation to optimize base case
-internal sealed class CborWriter(
+@CborFriendModuleApi
+public sealed class CborWriter(
     override val cbor: Cbor,
-    protected val output: ByteArrayOutput,
+    protected val output: Output,
 ) : AbstractEncoder(), CborEncoder {
-    protected var isClass = false
+    protected var isClass: Boolean = false
 
-    protected var encodeByteArrayAsByteString = false
+    protected var encodeByteArrayAsByteString: Boolean = false
 
-    class Data(val bytes: ByteArrayOutput, var elementCount: Int)
-
-    protected abstract fun getDestination(): ByteArrayOutput
+    protected abstract fun getDestination(): Output
 
     override val serializersModule: SerializersModule
         get() = cbor.serializersModule
@@ -147,7 +137,8 @@ internal sealed class CborWriter(
 
 
 // optimized indefinite length encoder
-internal class IndefiniteLengthCborWriter(cbor: Cbor, output: ByteArrayOutput) : CborWriter(
+@CborFriendModuleApi
+public class IndefiniteLengthCborWriter(cbor: Cbor, output: Output) : CborWriter(
     cbor, output
 ) {
 
@@ -171,7 +162,7 @@ internal class IndefiniteLengthCborWriter(cbor: Cbor, output: ByteArrayOutput) :
         output.end()
     }
 
-    override fun getDestination(): ByteArrayOutput = output
+    override fun getDestination(): Output = output
 
 
     override fun incrementChildren() {/*NOOP*/
@@ -180,25 +171,28 @@ internal class IndefiniteLengthCborWriter(cbor: Cbor, output: ByteArrayOutput) :
 }
 
 //optimized definite length encoder
-internal class DefiniteLengthCborWriter(cbor: Cbor, output: ByteArrayOutput) : CborWriter(cbor, output) {
+@CborFriendModuleApi
+public class DefiniteLengthCborWriter(cbor: Cbor, output: Output) : CborWriter(cbor, output) {
 
-    private val structureStack = Stack(Data(output, -1))
-    override fun getDestination(): ByteArrayOutput =
-        structureStack.peek().bytes
+    private class Data(val bytes: ByteArrayOutput, var elementCount: Int)
+
+    private val structureStack = mutableListOf<Data>()
+    override fun getDestination(): Output =
+        structureStack.lastOrNull()?.bytes ?: output
 
 
     override fun incrementChildren() {
-        structureStack.peek().elementCount++
+        structureStack.last().elementCount++
     }
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
         val current = Data(ByteArrayOutput(), 0)
-        val _ = structureStack.push(current)
+        val _ = structureStack.add(current)
         return this
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
-        val completedCurrent = structureStack.pop()
+        val completedCurrent = structureStack.removeLast()
 
         val accumulator = getDestination()
 
@@ -217,73 +211,73 @@ internal class DefiniteLengthCborWriter(cbor: Cbor, output: ByteArrayOutput) : C
                 else -> accumulator.startMap((numChildren).toULong())
             }
         }
-        accumulator.copyFrom(completedCurrent.bytes)
+        completedCurrent.bytes.copyInto(accumulator)
     }
 }
 
 
-private fun ByteArrayOutput.startArray() = write(BEGIN_ARRAY)
+private fun Output.startArray() = write(BEGIN_ARRAY.toByte())
 
-private fun ByteArrayOutput.startArray(size: ULong) {
+private fun Output.startArray(size: ULong) {
     composePositiveInline(size, HEADER_ARRAY)
 }
 
-private fun ByteArrayOutput.startMap() = write(BEGIN_MAP)
+private fun Output.startMap() = write(BEGIN_MAP.toByte())
 
-private fun ByteArrayOutput.startMap(size: ULong) {
+private fun Output.startMap(size: ULong) {
     composePositiveInline(size, HEADER_MAP)
 }
 
-private fun ByteArrayOutput.encodeTag(tag: ULong) {
+private fun Output.encodeTag(tag: ULong) {
     composePositiveInline(tag, HEADER_TAG)
 }
 
-internal fun ByteArrayOutput.end() = write(BREAK)
+internal fun Output.end() = write(BREAK.toByte())
 
-internal fun ByteArrayOutput.encodeNull() = write(NULL)
+internal fun Output.encodeNull() = write(NULL.toByte())
 
-internal fun ByteArrayOutput.encodeEmptyMap() = write(EMPTY_MAP)
+internal fun Output.encodeEmptyMap() = write(EMPTY_MAP.toByte())
 
-internal fun ByteArrayOutput.writeByte(byteValue: Int) = write(byteValue)
+internal fun Output.writeByte(byteValue: Int) = write(byteValue.toByte())
 
-internal fun ByteArrayOutput.encodeBoolean(value: Boolean) = write(if (value) TRUE else FALSE)
+internal fun Output.encodeBoolean(value: Boolean) = write(if (value) TRUE.toByte() else FALSE.toByte())
 
-internal fun ByteArrayOutput.encodeNumber(value: Long) = write(composeNumber(value))
+internal fun Output.encodeNumber(value: Long) = write(composeNumber(value))
 
-internal fun ByteArrayOutput.encodeByteString(data: ByteArray) {
+internal fun Output.encodeByteString(data: ByteArray) {
     this.encodeByteArray(data, HEADER_BYTE_STRING)
 }
 
-internal fun ByteArrayOutput.encodeString(value: String) {
+internal fun Output.encodeString(value: String) {
     this.encodeByteArray(value.encodeToByteArray(), HEADER_STRING)
 }
 
-internal fun ByteArrayOutput.encodeByteArray(data: ByteArray, type: Int) {
+internal fun Output.encodeByteArray(data: ByteArray, type: Int) {
     composePositiveInline(data.size.toULong(), type)
     write(data)
 }
 
-internal fun ByteArrayOutput.encodeFloat(value: Float) {
-    write(NEXT_FLOAT)
+internal fun Output.encodeFloat(value: Float) {
+    write(NEXT_FLOAT.toByte())
     val bits = value.toRawBits()
     for (i in 0..3) {
-        write((bits shr (24 - 8 * i)) and 0xFF)
+        write(((bits shr (24 - 8 * i)) and 0xFF).toByte())
     }
 }
 
-internal fun ByteArrayOutput.encodeDouble(value: Double) {
-    write(NEXT_DOUBLE)
+internal fun Output.encodeDouble(value: Double) {
+    write(NEXT_DOUBLE.toByte())
     val bits = value.toRawBits()
     for (i in 0..7) {
-        write(((bits shr (56 - 8 * i)) and 0xFF).toInt())
+        write(((bits shr (56 - 8 * i)) and 0xFF).toByte())
     }
 }
 
-//don't know why, but if the negative branch is also optimized and everything operates directly on the ByteArrayOutput it gets slower
+//don't know why, but if the negative branch is also optimized and everything operates directly on the Output it gets slower
 private fun composeNumber(value: Long): ByteArray =
     if (value >= 0) composePositive(value.toULong()) else composeNegative(value)
 
-private fun ByteArrayOutput.composePositiveInline(value: ULong, mod: Int) = when (value) {
+private fun Output.composePositiveInline(value: ULong, mod: Int) = when (value) {
     in 0u..23u -> writeByte(value.toInt() or mod)
     in 24u..UByte.MAX_VALUE.toUInt() -> {
         writeByte(24 or mod)
@@ -305,7 +299,7 @@ private fun composePositive(value: ULong): ByteArray = when (value) {
 }
 
 
-private fun ByteArrayOutput.encodeToInline(value: ULong, bytes: Int, tag: Int) {
+private fun Output.encodeToInline(value: ULong, bytes: Int, tag: Int) {
     val limit = bytes * 8 - 8
     writeByte(tag)
     for (i in 0 until bytes) {
@@ -329,4 +323,3 @@ private fun composeNegative(value: Long): ByteArray {
     data[0] = data[0] or HEADER_NEGATIVE
     return data
 }
-

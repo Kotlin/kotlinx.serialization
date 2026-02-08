@@ -70,26 +70,30 @@ public sealed class Cbor(
 
     override fun <T> encodeToByteArray(serializer: SerializationStrategy<T>, value: T): ByteArray {
         val output = ByteArrayOutput()
-        val dumper = if (configuration.useDefiniteLengthEncoding) DefiniteLengthCborWriter(
-            this,
-            output
-        ) else IndefiniteLengthCborWriter(
-            this,
-            output
-        )
-        dumper.encodeSerializableValue(serializer, value)
-
+        encodeToOutput(serializer, value, output)
         return output.toByteArray()
-
     }
 
-    override fun <T> decodeFromByteArray(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T {
-        val stream = ByteArrayInput(bytes)
-        val reader = CborReader(this, CborParser(stream, configuration.verifyObjectTags))
+    override fun <T> decodeFromByteArray(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T =
+        decodeFromInput(deserializer, ByteArrayInput(bytes))
+
+    @CborFriendModuleApi
+    public fun <T> encodeToOutput(serializer: SerializationStrategy<T>, value: T, output: Output) {
+        val dumper = if (configuration.useDefiniteLengthEncoding) {
+            DefiniteLengthCborWriter(this, output)
+        } else {
+            IndefiniteLengthCborWriter(this, output)
+        }
+        dumper.encodeSerializableValue(serializer, value)
+    }
+
+    @CborFriendModuleApi
+    public fun <T> decodeFromInput(deserializer: DeserializationStrategy<T>, input: Input): T {
+        val reader = CborReader(this, CborParser(input, configuration.verifyObjectTags))
         val result = reader.decodeSerializableValue(deserializer)
-        if (stream.availableBytes > 0) {
+        if (input.availableBytes > 0) {
             throw CborDecodingException(
-                "Input contains ${stream.availableBytes} unprocessed bytes left after decoding a value."
+                "Input contains ${input.availableBytes} unprocessed bytes left after decoding a value."
             )
         }
         return result

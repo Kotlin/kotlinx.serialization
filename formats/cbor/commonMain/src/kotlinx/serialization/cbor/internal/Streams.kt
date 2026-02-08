@@ -4,15 +4,30 @@
 
 package kotlinx.serialization.cbor.internal
 
-internal class ByteArrayInput(private var array: ByteArray) {
-    private var position: Int = 0
-    public val availableBytes: Int get() = array.size - position
+@CborFriendModuleApi
+public interface Input {
+    public val availableBytes: Int
+    /** Returns a -1 if no bytes are available. Otherwise returns a value between 0 and 255 (inclusive). */
+    public fun read(): Int
+    public fun read(b: ByteArray, offset: Int, length: Int): Int
+    public fun skip(length: Int)
+}
 
-    fun read(): Int {
+@CborFriendModuleApi
+public interface Output {
+    public fun write(buffer: ByteArray, offset: Int = 0, count: Int = buffer.size)
+    public fun write(byteValue: Byte)
+}
+
+internal class ByteArrayInput(private var array: ByteArray) : Input {
+    private var position: Int = 0
+    override val availableBytes: Int get() = array.size - position
+
+    override fun read(): Int {
         return if (position < array.size) array[position++].toInt() and 0xFF else -1
     }
 
-    fun read(b: ByteArray, offset: Int, length: Int): Int {
+    override fun read(b: ByteArray, offset: Int, length: Int): Int {
         // avoid int overflow
         if (offset < 0 || offset > b.size || length < 0
             || length > b.size - offset
@@ -33,12 +48,12 @@ internal class ByteArrayInput(private var array: ByteArray) {
         return copied
     }
 
-    fun skip(length: Int) {
+    override fun skip(length: Int) {
         position += length
     }
 }
 
-internal class ByteArrayOutput {
+internal class ByteArrayOutput : Output {
     private var array: ByteArray = ByteArray(32)
     private var position: Int = 0
 
@@ -51,17 +66,17 @@ internal class ByteArrayOutput {
         array = newArray
     }
 
-    public fun toByteArray(): ByteArray {
+    fun toByteArray(): ByteArray {
         val newArray = ByteArray(position)
         array.copyInto(newArray, startIndex = 0, endIndex = this.position)
         return newArray
     }
 
-    fun copyFrom(src: ByteArrayOutput) {
-        write(src.array, count = src.position)
+    fun copyInto(other: Output) {
+        other.write(array, 0, position)
     }
 
-    fun write(buffer: ByteArray, offset: Int = 0, count: Int = buffer.size) {
+    override fun write(buffer: ByteArray, offset: Int, count: Int) {
         // avoid int overflow
         if (offset < 0 || offset > buffer.size || count < 0
             || count > buffer.size - offset
@@ -82,8 +97,8 @@ internal class ByteArrayOutput {
         this.position += count
     }
 
-    fun write(byteValue: Int) {
+    override fun write(byteValue: Byte) {
         ensureCapacity(1)
-        array[position++] = byteValue.toByte()
+        array[position++] = byteValue
     }
 }

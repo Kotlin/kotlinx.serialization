@@ -42,6 +42,20 @@ open annotation class kotlinx.serialization.cbor/ValueTags : kotlin/Annotation {
         final fun <get-tags>(): kotlin/ULongArray // kotlinx.serialization.cbor/ValueTags.tags.<get-tags>|<get-tags>(){}[0]
 }
 
+abstract interface kotlinx.serialization.cbor.internal/Input { // kotlinx.serialization.cbor.internal/Input|null[0]
+    abstract val availableBytes // kotlinx.serialization.cbor.internal/Input.availableBytes|{}availableBytes[0]
+        abstract fun <get-availableBytes>(): kotlin/Int // kotlinx.serialization.cbor.internal/Input.availableBytes.<get-availableBytes>|<get-availableBytes>(){}[0]
+
+    abstract fun read(): kotlin/Int // kotlinx.serialization.cbor.internal/Input.read|read(){}[0]
+    abstract fun read(kotlin/ByteArray, kotlin/Int, kotlin/Int): kotlin/Int // kotlinx.serialization.cbor.internal/Input.read|read(kotlin.ByteArray;kotlin.Int;kotlin.Int){}[0]
+    abstract fun skip(kotlin/Int) // kotlinx.serialization.cbor.internal/Input.skip|skip(kotlin.Int){}[0]
+}
+
+abstract interface kotlinx.serialization.cbor.internal/Output { // kotlinx.serialization.cbor.internal/Output|null[0]
+    abstract fun write(kotlin/Byte) // kotlinx.serialization.cbor.internal/Output.write|write(kotlin.Byte){}[0]
+    abstract fun write(kotlin/ByteArray, kotlin/Int = ..., kotlin/Int = ...) // kotlinx.serialization.cbor.internal/Output.write|write(kotlin.ByteArray;kotlin.Int;kotlin.Int){}[0]
+}
+
 abstract interface kotlinx.serialization.cbor/CborDecoder : kotlinx.serialization.encoding/Decoder { // kotlinx.serialization.cbor/CborDecoder|null[0]
     abstract val cbor // kotlinx.serialization.cbor/CborDecoder.cbor|{}cbor[0]
         abstract fun <get-cbor>(): kotlinx.serialization.cbor/Cbor // kotlinx.serialization.cbor/CborDecoder.cbor.<get-cbor>|<get-cbor>(){}[0]
@@ -50,6 +64,20 @@ abstract interface kotlinx.serialization.cbor/CborDecoder : kotlinx.serializatio
 abstract interface kotlinx.serialization.cbor/CborEncoder : kotlinx.serialization.encoding/Encoder { // kotlinx.serialization.cbor/CborEncoder|null[0]
     abstract val cbor // kotlinx.serialization.cbor/CborEncoder.cbor|{}cbor[0]
         abstract fun <get-cbor>(): kotlinx.serialization.cbor/Cbor // kotlinx.serialization.cbor/CborEncoder.cbor.<get-cbor>|<get-cbor>(){}[0]
+}
+
+final class kotlinx.serialization.cbor.internal/DefiniteLengthCborWriter : kotlinx.serialization.cbor.internal/CborWriter { // kotlinx.serialization.cbor.internal/DefiniteLengthCborWriter|null[0]
+    constructor <init>(kotlinx.serialization.cbor/Cbor, kotlinx.serialization.cbor.internal/Output) // kotlinx.serialization.cbor.internal/DefiniteLengthCborWriter.<init>|<init>(kotlinx.serialization.cbor.Cbor;kotlinx.serialization.cbor.internal.Output){}[0]
+
+    final fun beginStructure(kotlinx.serialization.descriptors/SerialDescriptor): kotlinx.serialization.encoding/CompositeEncoder // kotlinx.serialization.cbor.internal/DefiniteLengthCborWriter.beginStructure|beginStructure(kotlinx.serialization.descriptors.SerialDescriptor){}[0]
+    final fun endStructure(kotlinx.serialization.descriptors/SerialDescriptor) // kotlinx.serialization.cbor.internal/DefiniteLengthCborWriter.endStructure|endStructure(kotlinx.serialization.descriptors.SerialDescriptor){}[0]
+}
+
+final class kotlinx.serialization.cbor.internal/IndefiniteLengthCborWriter : kotlinx.serialization.cbor.internal/CborWriter { // kotlinx.serialization.cbor.internal/IndefiniteLengthCborWriter|null[0]
+    constructor <init>(kotlinx.serialization.cbor/Cbor, kotlinx.serialization.cbor.internal/Output) // kotlinx.serialization.cbor.internal/IndefiniteLengthCborWriter.<init>|<init>(kotlinx.serialization.cbor.Cbor;kotlinx.serialization.cbor.internal.Output){}[0]
+
+    final fun beginStructure(kotlinx.serialization.descriptors/SerialDescriptor): kotlinx.serialization.encoding/CompositeEncoder // kotlinx.serialization.cbor.internal/IndefiniteLengthCborWriter.beginStructure|beginStructure(kotlinx.serialization.descriptors.SerialDescriptor){}[0]
+    final fun endStructure(kotlinx.serialization.descriptors/SerialDescriptor) // kotlinx.serialization.cbor.internal/IndefiniteLengthCborWriter.endStructure|endStructure(kotlinx.serialization.descriptors.SerialDescriptor){}[0]
 }
 
 final class kotlinx.serialization.cbor/CborBuilder { // kotlinx.serialization.cbor/CborBuilder|null[0]
@@ -118,12 +146,47 @@ final class kotlinx.serialization.cbor/CborConfiguration { // kotlinx.serializat
     final fun toString(): kotlin/String // kotlinx.serialization.cbor/CborConfiguration.toString|toString(){}[0]
 }
 
+sealed class kotlinx.serialization.cbor.internal/CborWriter : kotlinx.serialization.cbor/CborEncoder, kotlinx.serialization.encoding/AbstractEncoder { // kotlinx.serialization.cbor.internal/CborWriter|null[0]
+    final val output // kotlinx.serialization.cbor.internal/CborWriter.output|{}output[0]
+        final fun <get-output>(): kotlinx.serialization.cbor.internal/Output // kotlinx.serialization.cbor.internal/CborWriter.output.<get-output>|<get-output>(){}[0]
+    open val cbor // kotlinx.serialization.cbor.internal/CborWriter.cbor|{}cbor[0]
+        open fun <get-cbor>(): kotlinx.serialization.cbor/Cbor // kotlinx.serialization.cbor.internal/CborWriter.cbor.<get-cbor>|<get-cbor>(){}[0]
+    open val serializersModule // kotlinx.serialization.cbor.internal/CborWriter.serializersModule|{}serializersModule[0]
+        open fun <get-serializersModule>(): kotlinx.serialization.modules/SerializersModule // kotlinx.serialization.cbor.internal/CborWriter.serializersModule.<get-serializersModule>|<get-serializersModule>(){}[0]
+
+    final var encodeByteArrayAsByteString // kotlinx.serialization.cbor.internal/CborWriter.encodeByteArrayAsByteString|{}encodeByteArrayAsByteString[0]
+        final fun <get-encodeByteArrayAsByteString>(): kotlin/Boolean // kotlinx.serialization.cbor.internal/CborWriter.encodeByteArrayAsByteString.<get-encodeByteArrayAsByteString>|<get-encodeByteArrayAsByteString>(){}[0]
+        final fun <set-encodeByteArrayAsByteString>(kotlin/Boolean) // kotlinx.serialization.cbor.internal/CborWriter.encodeByteArrayAsByteString.<set-encodeByteArrayAsByteString>|<set-encodeByteArrayAsByteString>(kotlin.Boolean){}[0]
+    final var isClass // kotlinx.serialization.cbor.internal/CborWriter.isClass|{}isClass[0]
+        final fun <get-isClass>(): kotlin/Boolean // kotlinx.serialization.cbor.internal/CborWriter.isClass.<get-isClass>|<get-isClass>(){}[0]
+        final fun <set-isClass>(kotlin/Boolean) // kotlinx.serialization.cbor.internal/CborWriter.isClass.<set-isClass>|<set-isClass>(kotlin.Boolean){}[0]
+
+    abstract fun getDestination(): kotlinx.serialization.cbor.internal/Output // kotlinx.serialization.cbor.internal/CborWriter.getDestination|getDestination(){}[0]
+    abstract fun incrementChildren() // kotlinx.serialization.cbor.internal/CborWriter.incrementChildren|incrementChildren(){}[0]
+    open fun <#A1: kotlin/Any?> encodeSerializableValue(kotlinx.serialization/SerializationStrategy<#A1>, #A1) // kotlinx.serialization.cbor.internal/CborWriter.encodeSerializableValue|encodeSerializableValue(kotlinx.serialization.SerializationStrategy<0:0>;0:0){0§<kotlin.Any?>}[0]
+    open fun encodeBoolean(kotlin/Boolean) // kotlinx.serialization.cbor.internal/CborWriter.encodeBoolean|encodeBoolean(kotlin.Boolean){}[0]
+    open fun encodeByte(kotlin/Byte) // kotlinx.serialization.cbor.internal/CborWriter.encodeByte|encodeByte(kotlin.Byte){}[0]
+    open fun encodeChar(kotlin/Char) // kotlinx.serialization.cbor.internal/CborWriter.encodeChar|encodeChar(kotlin.Char){}[0]
+    open fun encodeDouble(kotlin/Double) // kotlinx.serialization.cbor.internal/CborWriter.encodeDouble|encodeDouble(kotlin.Double){}[0]
+    open fun encodeElement(kotlinx.serialization.descriptors/SerialDescriptor, kotlin/Int): kotlin/Boolean // kotlinx.serialization.cbor.internal/CborWriter.encodeElement|encodeElement(kotlinx.serialization.descriptors.SerialDescriptor;kotlin.Int){}[0]
+    open fun encodeEnum(kotlinx.serialization.descriptors/SerialDescriptor, kotlin/Int) // kotlinx.serialization.cbor.internal/CborWriter.encodeEnum|encodeEnum(kotlinx.serialization.descriptors.SerialDescriptor;kotlin.Int){}[0]
+    open fun encodeFloat(kotlin/Float) // kotlinx.serialization.cbor.internal/CborWriter.encodeFloat|encodeFloat(kotlin.Float){}[0]
+    open fun encodeInt(kotlin/Int) // kotlinx.serialization.cbor.internal/CborWriter.encodeInt|encodeInt(kotlin.Int){}[0]
+    open fun encodeLong(kotlin/Long) // kotlinx.serialization.cbor.internal/CborWriter.encodeLong|encodeLong(kotlin.Long){}[0]
+    open fun encodeNull() // kotlinx.serialization.cbor.internal/CborWriter.encodeNull|encodeNull(){}[0]
+    open fun encodeShort(kotlin/Short) // kotlinx.serialization.cbor.internal/CborWriter.encodeShort|encodeShort(kotlin.Short){}[0]
+    open fun encodeString(kotlin/String) // kotlinx.serialization.cbor.internal/CborWriter.encodeString|encodeString(kotlin.String){}[0]
+    open fun shouldEncodeElementDefault(kotlinx.serialization.descriptors/SerialDescriptor, kotlin/Int): kotlin/Boolean // kotlinx.serialization.cbor.internal/CborWriter.shouldEncodeElementDefault|shouldEncodeElementDefault(kotlinx.serialization.descriptors.SerialDescriptor;kotlin.Int){}[0]
+}
+
 sealed class kotlinx.serialization.cbor/Cbor : kotlinx.serialization/BinaryFormat { // kotlinx.serialization.cbor/Cbor|null[0]
     final val configuration // kotlinx.serialization.cbor/Cbor.configuration|{}configuration[0]
         final fun <get-configuration>(): kotlinx.serialization.cbor/CborConfiguration // kotlinx.serialization.cbor/Cbor.configuration.<get-configuration>|<get-configuration>(){}[0]
     open val serializersModule // kotlinx.serialization.cbor/Cbor.serializersModule|{}serializersModule[0]
         open fun <get-serializersModule>(): kotlinx.serialization.modules/SerializersModule // kotlinx.serialization.cbor/Cbor.serializersModule.<get-serializersModule>|<get-serializersModule>(){}[0]
 
+    final fun <#A1: kotlin/Any?> decodeFromInput(kotlinx.serialization/DeserializationStrategy<#A1>, kotlinx.serialization.cbor.internal/Input): #A1 // kotlinx.serialization.cbor/Cbor.decodeFromInput|decodeFromInput(kotlinx.serialization.DeserializationStrategy<0:0>;kotlinx.serialization.cbor.internal.Input){0§<kotlin.Any?>}[0]
+    final fun <#A1: kotlin/Any?> encodeToOutput(kotlinx.serialization/SerializationStrategy<#A1>, #A1, kotlinx.serialization.cbor.internal/Output) // kotlinx.serialization.cbor/Cbor.encodeToOutput|encodeToOutput(kotlinx.serialization.SerializationStrategy<0:0>;0:0;kotlinx.serialization.cbor.internal.Output){0§<kotlin.Any?>}[0]
     open fun <#A1: kotlin/Any?> decodeFromByteArray(kotlinx.serialization/DeserializationStrategy<#A1>, kotlin/ByteArray): #A1 // kotlinx.serialization.cbor/Cbor.decodeFromByteArray|decodeFromByteArray(kotlinx.serialization.DeserializationStrategy<0:0>;kotlin.ByteArray){0§<kotlin.Any?>}[0]
     open fun <#A1: kotlin/Any?> encodeToByteArray(kotlinx.serialization/SerializationStrategy<#A1>, #A1): kotlin/ByteArray // kotlinx.serialization.cbor/Cbor.encodeToByteArray|encodeToByteArray(kotlinx.serialization.SerializationStrategy<0:0>;0:0){0§<kotlin.Any?>}[0]
 

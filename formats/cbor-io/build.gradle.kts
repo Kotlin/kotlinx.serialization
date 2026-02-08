@@ -1,0 +1,41 @@
+/*
+ * Copyright 2017-2022 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+import Java9Modularity.configureJava9ModuleInfo
+import Java9Modularity.configureMetadataJarAutomaticModuleName
+
+plugins {
+    kotlin("multiplatform")
+    kotlin("plugin.serialization")
+
+    id("native-targets-conventions")
+    id("source-sets-conventions")
+}
+
+kotlin {
+    sourceSets {
+        configureEach {
+            languageSettings {
+                optIn("kotlinx.serialization.internal.CoreFriendModuleApi")
+                optIn("kotlinx.serialization.cbor.internal.CborFriendModuleApi")
+            }
+        }
+        val commonMain by getting {
+            dependencies {
+                api(project(":kotlinx-serialization-core"))
+                api(project(":kotlinx-serialization-cbor"))
+                implementation(libs.kotlinx.io)
+            }
+        }
+    }
+}
+
+project.configureJava9ModuleInfo()
+project.configureMetadataJarAutomaticModuleName()
+
+dokka.dokkaSourceSets.configureEach {
+    externalDocumentationLinks.register("kotlinx-io") {
+        url("https://kotlinlang.org/api/kotlinx-io/")
+        packageListUrl = file("dokka/kotlinx-io.package-list").toURI()
+    }
+}

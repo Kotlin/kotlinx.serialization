@@ -9,7 +9,9 @@ public abstract class kotlinx/serialization/cbor/Cbor : kotlinx/serialization/Bi
 	public static final field Default Lkotlinx/serialization/cbor/Cbor$Default;
 	public synthetic fun <init> (Lkotlinx/serialization/cbor/CborConfiguration;Lkotlinx/serialization/modules/SerializersModule;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun decodeFromByteArray (Lkotlinx/serialization/DeserializationStrategy;[B)Ljava/lang/Object;
+	public final fun decodeFromInput (Lkotlinx/serialization/DeserializationStrategy;Lkotlinx/serialization/cbor/internal/Input;)Ljava/lang/Object;
 	public fun encodeToByteArray (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)[B
+	public final fun encodeToOutput (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;Lkotlinx/serialization/cbor/internal/Output;)V
 	public final fun getConfiguration ()Lkotlinx/serialization/cbor/CborConfiguration;
 	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
 }
@@ -147,5 +149,61 @@ public abstract interface annotation class kotlinx/serialization/cbor/ValueTags 
 public final synthetic class kotlinx/serialization/cbor/ValueTags$Impl : kotlinx/serialization/cbor/ValueTags {
 	public synthetic fun <init> ([JLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final synthetic fun tags ()[J
+}
+
+public abstract class kotlinx/serialization/cbor/internal/CborWriter : kotlinx/serialization/encoding/AbstractEncoder, kotlinx/serialization/cbor/CborEncoder {
+	public synthetic fun <init> (Lkotlinx/serialization/cbor/Cbor;Lkotlinx/serialization/cbor/internal/Output;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun encodeBoolean (Z)V
+	public fun encodeByte (B)V
+	public fun encodeChar (C)V
+	public fun encodeDouble (D)V
+	public fun encodeElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Z
+	public fun encodeEnum (Lkotlinx/serialization/descriptors/SerialDescriptor;I)V
+	public fun encodeFloat (F)V
+	public fun encodeInt (I)V
+	public fun encodeLong (J)V
+	public fun encodeNull ()V
+	public fun encodeSerializableValue (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
+	public fun encodeShort (S)V
+	public fun encodeString (Ljava/lang/String;)V
+	public fun getCbor ()Lkotlinx/serialization/cbor/Cbor;
+	protected abstract fun getDestination ()Lkotlinx/serialization/cbor/internal/Output;
+	protected final fun getEncodeByteArrayAsByteString ()Z
+	protected final fun getOutput ()Lkotlinx/serialization/cbor/internal/Output;
+	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+	protected abstract fun incrementChildren ()V
+	protected final fun isClass ()Z
+	protected final fun setClass (Z)V
+	protected final fun setEncodeByteArrayAsByteString (Z)V
+	public fun shouldEncodeElementDefault (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Z
+}
+
+public final class kotlinx/serialization/cbor/internal/DefiniteLengthCborWriter : kotlinx/serialization/cbor/internal/CborWriter {
+	public fun <init> (Lkotlinx/serialization/cbor/Cbor;Lkotlinx/serialization/cbor/internal/Output;)V
+	public fun beginStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/encoding/CompositeEncoder;
+	public fun endStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)V
+}
+
+public final class kotlinx/serialization/cbor/internal/IndefiniteLengthCborWriter : kotlinx/serialization/cbor/internal/CborWriter {
+	public fun <init> (Lkotlinx/serialization/cbor/Cbor;Lkotlinx/serialization/cbor/internal/Output;)V
+	public fun beginStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)Lkotlinx/serialization/encoding/CompositeEncoder;
+	public fun endStructure (Lkotlinx/serialization/descriptors/SerialDescriptor;)V
+}
+
+public abstract interface class kotlinx/serialization/cbor/internal/Input {
+	public abstract fun getAvailableBytes ()I
+	public abstract fun read ()I
+	public abstract fun read ([BII)I
+	public abstract fun skip (I)V
+}
+
+public abstract interface class kotlinx/serialization/cbor/internal/Output {
+	public abstract fun write (B)V
+	public abstract fun write ([BII)V
+	public static synthetic fun write$default (Lkotlinx/serialization/cbor/internal/Output;[BIIILjava/lang/Object;)V
+}
+
+public final class kotlinx/serialization/cbor/internal/Output$DefaultImpls {
+	public static synthetic fun write$default (Lkotlinx/serialization/cbor/internal/Output;[BIIILjava/lang/Object;)V
 }
 

@@ -166,6 +166,7 @@ val documentedSubprojects
         "kotlinx-serialization-json-okio",
         "kotlinx-serialization-json-io",
         "kotlinx-serialization-cbor",
+        "kotlinx-serialization-cbor-io",
         "kotlinx-serialization-properties",
         "kotlinx-serialization-hocon",
         "kotlinx-serialization-protobuf"

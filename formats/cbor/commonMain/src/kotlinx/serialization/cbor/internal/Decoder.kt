@@ -159,7 +159,7 @@ internal open class CborReader(override val cbor: Cbor, protected val parser: Cb
     }
 }
 
-internal class CborParser(private val input: ByteArrayInput, private val verifyObjectTags: Boolean) {
+internal class CborParser(private val input: Input, private val verifyObjectTags: Boolean) {
     private var curByteOrEof: Int = -1
 
     private fun peekCurByteOrFail(): Int {
@@ -398,7 +398,7 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
         return if (negative) -(unsignedValue + 1) else unsignedValue
     }
 
-    private fun ByteArrayInput.readExact(bytes: Int): Long {
+    private fun Input.readExact(bytes: Int): Long {
         val arr = readExactNBytes(bytes)
         var result = 0L
         for (i in 0 until bytes) {
@@ -407,13 +407,13 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
         return result
     }
 
-    private fun ByteArrayInput.ensureEnoughBytes(bytesCount: Int) {
+    private fun Input.ensureEnoughBytes(bytesCount: Int) {
         if (bytesCount > availableBytes) {
             throw CborDecodingException("Unexpected EOF, available $availableBytes bytes, requested: $bytesCount")
         }
     }
 
-    private fun ByteArrayInput.readExactNBytes(bytesCount: Int): ByteArray {
+    private fun Input.readExactNBytes(bytesCount: Int): ByteArray {
         ensureEnoughBytes(bytesCount)
         val array = ByteArray(bytesCount)
         val _ = read(array, 0, bytesCount)
