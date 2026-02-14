@@ -11,7 +11,7 @@ private const val QUOTE_CODE = '"'.code
 
 internal class JsonToOkioStreamWriter(private val sink: BufferedSink) : InternalJsonWriter {
     override fun writeLong(value: Long) {
-        write(value.toString())
+        sink.writeDecimalLong(value)
     }
 
     override fun writeChar(char: Char) {
