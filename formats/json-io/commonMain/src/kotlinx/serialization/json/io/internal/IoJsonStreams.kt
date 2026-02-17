@@ -12,7 +12,7 @@ private const val QUOTE_CODE = '"'.code
 internal class JsonToIoStreamWriter(private val sink: Sink) : InternalJsonWriter {
 
     override fun writeLong(value: Long) {
-        write(value.toString())
+        sink.writeDecimalLong(value)
     }
 
     override fun writeChar(char: Char) {
