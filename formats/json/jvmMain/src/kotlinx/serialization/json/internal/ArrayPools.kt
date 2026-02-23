@@ -4,6 +4,7 @@
 package kotlinx.serialization.json.internal
 
 import java.util.concurrent.locks.ReentrantLock
+import java.util.concurrent.locks.StampedLock
 import kotlin.concurrent.withLock
 
 /*
@@ -17,23 +18,31 @@ private val MAX_CHARS_IN_POOL = runCatching {
 internal open class CharArrayPoolBase {
     private val arrays = ArrayDeque<CharArray>()
     private var charsTotal = 0
-    private val lock = ReentrantLock()
+    private val lock = StampedLock()
 
     protected fun take(size: Int): CharArray {
         /*
          * Initially the pool is empty, so an instance will be allocated
          * and the pool will be populated in the 'release'
          */
-        val candidate = lock.withLock {
+        val stamp = lock.writeLock()
+        val candidate = try {
             arrays.removeLastOrNull()?.also { charsTotal -= it.size }
+        } finally {
+            lock.unlockWrite(stamp)
         }
         return candidate ?: CharArray(size)
     }
 
-    protected fun releaseImpl(array: CharArray): Unit = lock.withLock {
-        if (charsTotal + array.size >= MAX_CHARS_IN_POOL) return@withLock
-        charsTotal += array.size
-        arrays.addLast(array)
+    protected fun releaseImpl(array: CharArray): Unit {
+        val stamp = lock.writeLock()
+        try {
+            if (charsTotal + array.size >= MAX_CHARS_IN_POOL) return
+            charsTotal += array.size
+            arrays.addLast(array)
+        } finally {
+            lock.unlockWrite(stamp)
+        }
     }
 }
 
