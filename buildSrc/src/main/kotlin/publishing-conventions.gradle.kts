@@ -1,10 +1,7 @@
 import groovy.util.*
 import org.gradle.jvm.tasks.Jar
-import org.gradle.kotlin.dsl.*
-import org.gradle.plugins.signing.*
 import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.tasks.*
-import java.net.*
 
 /*
  * Copyright 2017-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
@@ -172,13 +169,25 @@ fun MavenPom.configureMavenCentralMetadata() {
     }
 }
 
+// Add Implementation-* attributes to JAR's manifest
+// While the manifest and these attributes could be added to any JAR file,
+// it does not make a lot of sense for anything but JAR files with actual implementation.
+// Those are JAR files without a classifier (where classifier is sources, javadoc, you name it).
+// Unfortunately, archiveClassifier is always empty during the configuration phase,
+// so the check is postponed until the actual task execution.
 tasks.withType<Jar>().configureEach {
-    manifest {
-        attributes(
-            "Implementation-Vendor" to "JetBrains",
-            "Implementation-Title" to project.name,
-            "Implementation-Version" to project.version,
-        )
+    doFirst {
+        // Skip all non-main JARs (sources, javadoc, etc)
+        if (archiveClassifier.getOrElse("").isNotEmpty()) return@doFirst
+        // Skip multiplatform metadata JARs
+        if (isMultiplatform && archiveAppendix.getOrElse("") != "jvm") return@doFirst
+        manifest {
+            attributes(
+                "Implementation-Vendor" to "JetBrains",
+                "Implementation-Title" to project.name,
+                "Implementation-Version" to project.version,
+            )
+        }
     }
 }
 
