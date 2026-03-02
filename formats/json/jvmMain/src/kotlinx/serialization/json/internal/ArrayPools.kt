@@ -66,7 +66,7 @@ private object LockSupport {
 }
 
 internal open class CharArrayPoolBase {
-    private val arrays = ArrayDeque<CharArray>()
+    private val arrays = ArrayList<CharArray>()
     private var charsTotal = 0
     private val lock = LockSupport.initLock()
 
@@ -82,7 +82,7 @@ internal open class CharArrayPoolBase {
     protected fun releaseImpl(array: CharArray) = LockSupport.withLock(lock) {
         if (charsTotal + array.size >= MAX_CHARS_IN_POOL) return@withLock
         charsTotal += array.size
-        arrays.addLast(array)
+        arrays.add(array)
     }
 }
 
@@ -106,7 +106,7 @@ internal actual object CharArrayPoolBatchSize : CharArrayPoolBase() {
 
 // Byte array pool
 internal open class ByteArrayPoolBase {
-    private val arrays = ArrayDeque<ByteArray>()
+    private val arrays = ArrayList<ByteArray>()
     private var bytesTotal = 0
     private val lock = LockSupport.initLock()
 
@@ -126,7 +126,7 @@ internal open class ByteArrayPoolBase {
     protected fun releaseImpl(array: ByteArray): Unit = LockSupport.withLock(lock) {
         if (bytesTotal + array.size >= MAX_CHARS_IN_POOL) return
         bytesTotal += array.size / 2
-        arrays.addLast(array)
+        arrays.add(array)
     }
 }
 
