@@ -16,7 +16,7 @@ pluginManagement {
         }
         /*
         * This property group is used to build kotlinx.serialization against Kotlin compiler snapshot.
-        * When build_snapshot_train is set to true, kotlin_version property is overridden with kotlin_snapshot_version.
+        * When build_snapshot_train is set to true, kotlin_version property is used.
         * DO NOT change the name of these properties without adapting kotlinx.train build chain.
         */
         val buildSnapshotTrain: String? = providers.gradleProperty("build_snapshot_train").orNull
@@ -100,7 +100,6 @@ fun overriddenKotlinVersion(): String? {
     val bootstrapVersion: String? = providers.gradleProperty("kotlin.version.snapshot").orNull
 
     val buildSnapshotTrain: String? = providers.gradleProperty("build_snapshot_train").orNull
-    val trainVersion: String? = providers.gradleProperty("kotlin_snapshot_version").orNull
 
     if (kotlinRepoUrl?.isNotEmpty() == true) {
         return repoVersion ?: throw IllegalArgumentException("\"kotlin_version\" Gradle property should be defined")
@@ -109,8 +108,8 @@ fun overriddenKotlinVersion(): String? {
             ?: throw IllegalArgumentException("\"kotlin.version.snapshot\" Gradle property should be defined")
     }
     if (buildSnapshotTrain?.isNotEmpty() == true) {
-        return trainVersion
-            ?: throw IllegalArgumentException("\"kotlin_snapshot_version\" should be defined when building with snapshot compiler")
+        return repoVersion
+            ?: throw IllegalArgumentException("\"kotlin_version\" should be defined when building with snapshot compiler")
     }
     return null
 }

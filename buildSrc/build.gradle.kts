@@ -19,7 +19,7 @@ repositories {
     }
     /*
     * This property group is used to build kotlinx.serialization against Kotlin compiler snapshot.
-    * When build_snapshot_train is set to true, kotlin_version property is overridden with kotlin_snapshot_version.
+    * When build_snapshot_train is set to true, kotlin_version property is used.
     * DO NOT change the name of these properties without adapting kotlinx.train build chain.
     */
     if ((findProperty("build_snapshot_train") as? String?).equals("true", true)) {
