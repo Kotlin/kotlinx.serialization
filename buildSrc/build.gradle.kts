@@ -32,7 +32,8 @@ repositories {
 
 kotlin {
     compilerOptions {
-        allWarningsAsErrors = true
+        // KMP KGP has an opt-in type in the accessors. Enable -Werror after bumping Gradle to 9+ https://github.com/gradle/gradle/issues/32019
+        // allWarningsAsErrors = true
     }
 }
 
