@@ -254,7 +254,7 @@ fun main() {
 
 ## Open polymorphism in Kotlin serialization
 
-Kotlin serialization supports open polymorphism for `open` and `abstract` classes.
+Kotlin serialization supports open polymorphism for `open` and `abstract` classes and interfaces.
 In this model, subclasses can be defined anywhere in the codebase, even in other modules.
 Since the compiler can't determine all subclasses at compile time, you must specify them explicitly.
 
