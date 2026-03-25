@@ -32,6 +32,7 @@ kotlin {
 
     // Tier 3
     mingwX64()
+    iosX64()
     watchosDeviceArm64()
     // https://github.com/square/okio/issues/1242#issuecomment-1759357336
     if (doesNotDependOnOkio(project)) {
@@ -46,13 +47,11 @@ kotlin {
     }
 
     // Deprecated
-    @Suppress("DEPRECATION")
+    @Suppress("DEPRECATION", "DEPRECATION_ERROR")
     macosX64()
-    @Suppress("DEPRECATION")
-    iosX64()
-    @Suppress("DEPRECATION")
+    @Suppress("DEPRECATION", "DEPRECATION_ERROR")
     watchosX64()
-    @Suppress("DEPRECATION")
+    @Suppress("DEPRECATION", "DEPRECATION_ERROR")
     tvosX64()
 
     // setup tests running in RELEASE mode
