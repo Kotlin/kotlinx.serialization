@@ -129,17 +129,17 @@ internal open class CborReader(override val cbor: Cbor, protected val parser: Cb
 
     override fun decodeBoolean() = parser.nextBoolean(tags)
 
-    override fun decodeByte() = parser.nextNumberWithinRange(
-        tags, Byte.MIN_VALUE.toLong(), Byte.MAX_VALUE.toLong(), "Byte"
+    override fun decodeByte() = parser.nextNumberWithMaxWidth(
+        tags, Byte.SIZE_BITS, "Byte"
     ).toByte()
-    override fun decodeShort() = parser.nextNumberWithinRange(
-        tags, Short.MIN_VALUE.toLong(), Short.MAX_VALUE.toLong(), "Short"
+    override fun decodeShort() = parser.nextNumberWithMaxWidth(
+        tags, Short.SIZE_BITS, "Short"
     ).toShort()
-    override fun decodeChar() = parser.nextNumberWithinRange(
-        tags, Char.MIN_VALUE.code.toLong(), Char.MAX_VALUE.code.toLong(), "Char"
+    override fun decodeChar() = parser.nextNumberWithMaxWidth(
+        tags, Char.SIZE_BITS, "Char"
     ).toInt().toChar()
-    override fun decodeInt() = parser.nextNumberWithinRange(
-        tags, Int.MIN_VALUE.toLong(), Int.MAX_VALUE.toLong(), "Int"
+    override fun decodeInt() = parser.nextNumberWithMaxWidth(
+        tags, Int.SIZE_BITS, "Int"
     ).toInt()
     override fun decodeLong() = parser.nextNumber(tags)
 
@@ -353,11 +353,18 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
         }
     }
 
-    internal fun nextNumberWithinRange(tags: ULongArray?, from: Long, to: Long, type: String): Long {
+    internal fun nextNumberWithMaxWidth(tags: ULongArray?, widthBits: Int, type: String): Long {
         val number = nextNumber(tags)
-        if (number !in from..to) {
-            throw CborDecodingException("Decoded number $number is not within the range for type $type ([$from..$to])")
+        val msb = number.shr(widthBits)
+        // A number's value will fit into widthBits if:
+        // 1) (64 - widthBits) most significant bits are all zeros (the value is positive and fits into widthBits)
+        // 2) (64 - widthBits) most significant bits are all ones and
+        //    bit # (widthBits - 1) is also one (the value is negative and fits into widthBits,
+        //    truncation of the MSBs won't truncate the value itself)
+        if ((msb != 0L && msb != -1L) || (msb == -1L && number.shr(widthBits - 1) != -1L)) {
+            throw CborDecodingException("Decoded number $number could not be represented as $type without loss")
         }
+
         return number
     }
 
