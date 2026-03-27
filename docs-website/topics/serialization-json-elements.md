@@ -1,22 +1,20 @@
 [//]: # (title: JSON elements)
 
-Besides converting between JSON strings and Kotlin objects, the Kotlin serialization library also supports working with JSON at a structural level.
-To do this, you can use the [`JsonElement`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-element/) API, which lets you inspect, modify, and construct JSON structure directly before converting it into a Kotlin type or a string.
+The Kotlin serialization library also supports working with JSON at a structural level.
+You can use the [`JsonElement`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-element/) API, to inspect, modify, and build JSON structures directly before converting them into a Kotlin type or a string.
 
 `JsonElement` has three direct subtypes that represent the core JSON structures:
 
-* [`JsonPrimitive`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-primitive/) handles primitive JSON elements such as strings, numbers, booleans, and `null`. `null` is represented by a special subclass of `JsonPrimitive`, [`JsonNull`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-null/).
+* [`JsonPrimitive`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-primitive/) handles primitive JSON elements such as strings, numbers, booleans, and `null`. The `null` value is represented by a special subclass of `JsonPrimitive`, called [`JsonNull`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-null/).
   Each `JsonPrimitive` stores a string representation of its value, which you can access through its [`JsonPrimitive.content`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-primitive/content.html) property.
-* [`JsonArray`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-array/) is a JSON array. It's a Kotlin [`List`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/) of `JsonElement` items.
-* [`JsonObject`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-object/) is a JSON object. It's a Kotlin [`Map`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/#kotlin.collections.Map) with `String` keys and `JsonElement` values.
+* [`JsonArray`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-array/) represents a JSON array. It's a Kotlin [`List`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/) of `JsonElement` items.
+* [`JsonObject`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-object/) represents a JSON object. It's a Kotlin [`Map`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/#kotlin.collections.Map) with `String` keys and `JsonElement` values.
 
-## Parse to JSON elements
+## Parse strings to JSON elements
 
 You can parse a string into a `JsonElement` to work with the JSON structure before converting it into a Kotlin type or a string.
-To do so, use the [`Json.parseToJsonElement()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/parse-to-json-element.html) function.
-This function parses the input into a JSON element tree without decoding or deserializing it.
 
-Here's an example:
+Use the [`Json.parseToJsonElement()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/parse-to-json-element.html) function to parse the input into a JSON element tree without decoding or deserializing it:
 
 ```kotlin
 // Imports declarations from the serialization library
@@ -36,10 +34,10 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-## Access JSON element contents
+## Access the contents of JSON elements
 
 You can access the contents of a JSON element directly through the extension properties of the `JsonElement` API.
-These extension properties cast the element to a specific subtype,
+These extension properties cast the element to a specific subtype
 and throw an `IllegalArgumentException` if the element doesn't have the expected JSON structure.
 
 The available extension properties are:
@@ -116,14 +114,14 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-You can create `JsonArray` and `JsonObject` elements either by directly calling their constructors or by using the builder functions.
+You can create `JsonArray` and `JsonObject` elements either by directly calling their constructors or by using the builder functions:
 
-To create a `JsonArray` from a `List`, use [`JsonArray()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-array/-json-array.html). To create a `JsonObject` from a `Map`, use [`JsonObject()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-object/-json-object.html).
+* To create a `JsonArray` from a `List`, use [`JsonArray()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-array/-json-array.html), or use the [`buildJsonArray()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/build-json-array.html) builder function.
+* To create a `JsonObject` from a `Map`, use [`JsonObject()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-object/-json-object.html), or use the [`buildJsonObject()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/build-json-object.html) builder function.
 
-You can also use the [`buildJsonArray()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/build-json-array.html) and [`buildJsonObject()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/build-json-object.html) builder functions to create `JsonArray` and `JsonObject` elements.
-These provide a DSL similar to [Kotlin's standard library collection builders](constructing-collections.md#create-with-collection-builder-functions), but with JSON-specific overloads and inner builder functions.
+The builder functions provide a DSL similar to [Kotlin's standard library collection builders](constructing-collections.md#create-with-collection-builder-functions) with JSON-specific overloads and inner builder functions.
 
-Let's look at an example that highlights the key features of the JSON builder DSLs:
+Here's an example that highlights the key features of the JSON builder DSLs:
 
 ```kotlin
 // Imports declarations from the serialization library
@@ -195,8 +193,8 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-In this example, even though `pi` is defined as a number with 30 decimal places, the resulting JSON doesn't reflect this.
-The `Double` value is truncated to 15 decimal places, and the `String` is wrapped in quotes, making it a string instead of a JSON number.
+In this example, even though `pi` is defined as a number with 30 decimal places, the resulting JSON doesn't preserve that precision.
+The `Double` value is truncated to 15 decimal places, and the `String` value is wrapped in quotes, so it becomes a JSON string rather than a number.
 
 To avoid these issues, you can encode an arbitrary unquoted value, such as the string value of `pi` in this example, using the [`JsonUnquotedLiteral()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-unquoted-literal.html) function:
 
@@ -226,7 +224,7 @@ fun main() {
         put("pi_string", piJsonString)
     }
 
-    // pi_literal now accurately matches the value defined.
+    // pi_literal now accurately matches the value defined
     println(format.encodeToString(piObject))
     // "pi_literal": 3.141592653589793238462643383279,
     // "pi_double": 3.141592653589793,
@@ -276,7 +274,7 @@ fun main() {
 #### JSON null literal
 
 To avoid creating an inconsistent state, you can't encode the string `"null"` with `JsonUnquotedLiteral`.
-Attempting to do so results in an exception:
+If you try to do so, an exception is thrown:
 
 ```kotlin
 // Imports declarations from the serialization library
@@ -293,7 +291,7 @@ fun main() {
 ```
 {kotlin-runnable="true" validate="false"}
 
-To represent a JSON `null` literal value, use [`JsonNull`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-null/) instead:
+To represent a JSON `null` literal value, use [`JsonNull`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-null/):
 
 ```kotlin
 // Imports declarations from the serialization library
