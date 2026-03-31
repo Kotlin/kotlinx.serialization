@@ -129,18 +129,23 @@ internal open class CborReader(override val cbor: Cbor, protected val parser: Cb
 
     override fun decodeBoolean() = parser.nextBoolean(tags)
 
-    override fun decodeByte() = parser.nextNumberWithMaxWidth(
-        tags, Byte.SIZE_BITS, "Byte"
+    override fun decodeByte() = parser.nextNumberWithinRange(
+        tags, Byte.MIN_VALUE.toLong(), Byte.MAX_VALUE.toLong(), UByte.MAX_VALUE.toLong(), "Byte"
     ).toByte()
-    override fun decodeShort() = parser.nextNumberWithMaxWidth(
-        tags, Short.SIZE_BITS, "Short"
+
+    override fun decodeShort() = parser.nextNumberWithinRange(
+        tags, Short.MIN_VALUE.toLong(), Short.MAX_VALUE.toLong(), UShort.MAX_VALUE.toLong(), "Short"
     ).toShort()
-    override fun decodeChar() = parser.nextNumberWithMaxWidth(
-        tags, Char.SIZE_BITS, "Char"
+
+    override fun decodeChar() = parser.nextNumberWithinRange(
+        tags, Char.MIN_VALUE.code.toLong(), Char.MAX_VALUE.code.toLong(),
+        /* no unsigned type for Char */ -1, "Char"
     ).toInt().toChar()
-    override fun decodeInt() = parser.nextNumberWithMaxWidth(
-        tags, Int.SIZE_BITS, "Int"
+
+    override fun decodeInt() = parser.nextNumberWithinRange(
+        tags, Int.MIN_VALUE.toLong(), Int.MAX_VALUE.toLong(), UInt.MAX_VALUE.toLong(), "Int"
     ).toInt()
+
     override fun decodeLong() = parser.nextNumber(tags)
 
     override fun decodeNull() = parser.nextNull(tags)
@@ -353,18 +358,22 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
         }
     }
 
-    internal fun nextNumberWithMaxWidth(tags: ULongArray?, widthBits: Int, type: String): Long {
+    internal fun nextNumberWithinRange(
+        tags: ULongArray?,
+        from: Long,
+        to: Long,
+        unsignedUpperBound: Long,
+        type: String,
+    ): Long {
         val number = nextNumber(tags)
-        val msb = number.shr(widthBits)
-        // A number's value will fit into widthBits if:
-        // 1) (64 - widthBits) most significant bits are all zeros (the value is positive and fits into widthBits)
-        // 2) (64 - widthBits) most significant bits are all ones and
-        //    bit # (widthBits - 1) is also one (the value is negative and fits into widthBits,
-        //    truncation of the MSBs won't truncate the value itself)
-        if ((msb != 0L && msb != -1L) || (msb == -1L && number.shr(widthBits - 1) != -1L)) {
-            throw CborDecodingException("Decoded number $number could not be represented as $type without loss")
+        if (number !in from..to && number !in 0..unsignedUpperBound) {
+            throw CborDecodingException(buildString {
+                append("Decoded number $number is not within the range for type $type ([$from..$to])")
+                if (unsignedUpperBound >= 0) {
+                    append(", nor it is within the range for U$type ([0..$unsignedUpperBound])")
+                }
+            })
         }
-
         return number
     }
 
@@ -575,10 +584,12 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
         return when (majorType) {
             HEADER_BYTE_STRING, HEADER_STRING, HEADER_ARRAY
                 -> readUnsignedIntegerIgnoringMajorType { "${majorType.majorTypeName} length" }
-                    .asSizedElementLength(majorType)
+                .asSizedElementLength(majorType)
+
             HEADER_MAP
                 -> readUnsignedIntegerIgnoringMajorType { "map length" }
-                    .asSizedElementLength(majorType, Int.MAX_VALUE / 2) * 2
+                .asSizedElementLength(majorType, Int.MAX_VALUE / 2) * 2
+
             else -> when (additionalInformation) {
                 24 -> 1
                 25 -> 2

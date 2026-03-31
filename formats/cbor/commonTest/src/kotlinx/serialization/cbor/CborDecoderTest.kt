@@ -729,11 +729,13 @@ class CborDecoderTest {
     @Test
     fun testEncodeUnsignedValuesFromPositiveInteger() {
         assertEquals(200U.toUByte(), Cbor.decodeFromHexString<UByte>("18C8"))
-        checkDecodingException<UByte>("197D00", "Decoded number 32000 could not be represented as Byte without loss")
+        checkDecodingException<UByte>("197D00", "Decoded number 32000 is not within the range for type Byte ([-128..127]), nor it is within the range for UByte ([0..255])")
         assertEquals(32000U.toUShort(), Cbor.decodeFromHexString<UShort>("197D00"))
-        checkDecodingException<UShort>("1A80000000", "Decoded number 2147483648 could not be represented as Short without loss")
+        assertEquals(32000.toChar(), Cbor.decodeFromHexString<Char>("197D00"))
+        checkDecodingException<Char>("1A80000000", "Decoded number 2147483648 is not within the range for type Char ([0..65535])")
+        checkDecodingException<UShort>("1A80000000", "Decoded number 2147483648 is not within the range for type Short ([-32768..32767]), nor it is within the range for UShort ([0..65535])")
         assertEquals(2147483648U, Cbor.decodeFromHexString<UInt>("1A80000000"))
-        checkDecodingException<UInt>("1B8000000000000000", "Decoded number -9223372036854775808 could not be represented as Int without loss")
+        checkDecodingException<UInt>("1B8000000000000000", "Decoded number -9223372036854775808 is not within the range for type Int ([-2147483648..2147483647]), nor it is within the range for UInt ([0..4294967295])")
         assertEquals(9223372036854775808UL, Cbor.decodeFromHexString<ULong>("1B8000000000000000"))
     }
 }
