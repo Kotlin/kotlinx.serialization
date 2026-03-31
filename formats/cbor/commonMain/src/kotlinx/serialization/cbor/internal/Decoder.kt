@@ -584,12 +584,10 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
         return when (majorType) {
             HEADER_BYTE_STRING, HEADER_STRING, HEADER_ARRAY
                 -> readUnsignedIntegerIgnoringMajorType { "${majorType.majorTypeName} length" }
-                .asSizedElementLength(majorType)
-
+                    .asSizedElementLength(majorType)
             HEADER_MAP
                 -> readUnsignedIntegerIgnoringMajorType { "map length" }
-                .asSizedElementLength(majorType, Int.MAX_VALUE / 2) * 2
-
+                    .asSizedElementLength(majorType, Int.MAX_VALUE / 2) * 2
             else -> when (additionalInformation) {
                 24 -> 1
                 25 -> 2
