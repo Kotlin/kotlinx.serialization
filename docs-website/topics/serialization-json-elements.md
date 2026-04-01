@@ -210,7 +210,7 @@ val format = Json { prettyPrint = true }
 fun main() {
     val pi = BigDecimal("3.141592653589793238462643383279")
 
-    // Encodes the raw JSON content using JsonUnquotedLiteral
+    // Encodes the raw JSON content using JsonUnquotedLiteral()
     @OptIn(ExperimentalSerializationApi::class)
     val piJsonLiteral = JsonUnquotedLiteral(pi.toString())
 
@@ -273,7 +273,7 @@ fun main() {
 
 #### JSON null literal
 
-To avoid creating an inconsistent state, you can't encode the string `"null"` with `JsonUnquotedLiteral`.
+To avoid creating an inconsistent state, you can't encode the string `"null"` with the `JsonUnquotedLiteral()` function.
 If you try to do so, an exception is thrown:
 
 ```kotlin
