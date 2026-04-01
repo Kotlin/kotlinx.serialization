@@ -85,6 +85,9 @@ private sealed class AbstractJsonTreeDecoder(
 
     private inline fun <T : Any> getPrimitiveValue(tag: String, primitiveName: String, convert: JsonPrimitive.() -> T?): T {
         val literal = cast<JsonPrimitive>(currentElement(tag), primitiveName, tag)
+        if (!json.configuration.allowPrimitiveCoercion && literal.isString) {
+            unparsedPrimitive(literal, primitiveName, tag)
+        }
         try {
             return literal.convert() ?: unparsedPrimitive(literal, primitiveName, tag)
         } catch (e: IllegalArgumentException) {

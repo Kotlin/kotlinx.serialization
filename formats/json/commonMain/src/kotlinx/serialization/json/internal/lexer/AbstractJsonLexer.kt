@@ -439,14 +439,18 @@ internal abstract class AbstractJsonLexer {
     }
 
     // Allows consuming unquoted string
-    fun consumeStringLenient(): String {
+    fun consumeStringLenient(): String =
+        consumeOther(allowQuoted = true)
+
+    fun consumeOther(allowQuoted: Boolean): String {
+        // TODO this string peeking stuff might break things...
         if (peekedString != null) {
             return takePeeked()
         }
         var current = skipWhitespaces()
         if (current >= source.length || current == -1) fail("EOF", current)
         val token = charToTokenClass(source[current])
-        if (token == TC_STRING) {
+        if (allowQuoted && token == TC_STRING) {
             return consumeString()
         }
 
@@ -588,7 +592,10 @@ internal abstract class AbstractJsonLexer {
         throw JsonDecodingException(position, message + " at path: " + path.getPath() + hintMessage, source)
     }
 
-    fun consumeNumericLiteral(): Long {
+    fun consumeNumericLiteral(): Long =
+        consumeNumericLiteral(coercePrimitives = true)
+
+    fun consumeNumericLiteral(coercePrimitives: Boolean): Long {
         /*
          * This is an optimized (~40% for numbers) version of consumeString().toLong()
          * that doesn't allocate and also doesn't support any radix but 10
@@ -596,7 +603,7 @@ internal abstract class AbstractJsonLexer {
         var current = skipWhitespaces()
         current = prefetchOrEof(current)
         if (current >= source.length || current == -1) fail("EOF")
-        val hasQuotation = if (source[current] == STRING) {
+        val hasQuotation = if (coercePrimitives && source[current] == STRING) {
             // Check it again
             // not sure if should call ensureHaveChars() because threshold is far greater than chars count in MAX_LONG
             if (++current == source.length) fail("EOF")

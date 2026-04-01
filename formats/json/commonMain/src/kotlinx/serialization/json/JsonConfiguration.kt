@@ -41,6 +41,8 @@ public class JsonConfiguration @OptIn(ExperimentalSerializationApi::class) inter
         level = DeprecationLevel.ERROR
     )
     public var classDiscriminatorMode: ClassDiscriminatorMode = ClassDiscriminatorMode.POLYMORPHIC,
+    @ExperimentalSerializationApi
+    public val allowPrimitiveCoercion: Boolean = true,
 ) {
 
     /** @suppress Dokka **/
