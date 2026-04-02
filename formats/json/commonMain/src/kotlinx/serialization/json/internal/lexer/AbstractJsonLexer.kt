@@ -154,7 +154,7 @@ internal abstract class AbstractJsonLexer(internal val configuration: JsonConfig
     internal var currentPosition: Int = 0 // position in source
 
     @JvmField
-    val path = JsonPath()
+    val path = JsonPath(configuration)
 
     @Suppress("NOTHING_TO_INLINE")
     protected inline fun Char.isWs() = this == ' ' || this == '\n' || this == '\r' || this == '\t'

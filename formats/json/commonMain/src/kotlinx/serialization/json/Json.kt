@@ -666,6 +666,8 @@ public class JsonBuilder internal constructor(json: Json) {
      * When `false`, exception messages will not contain sensitive input data that could be logged
      * or exposed in error reporting systems. This is the default and recommended setting for production
      * environments where input data may contain sensitive or confidential information.
+     * With this setting disabled, [JsonDecodingException.input] will be null and [JsonDecodingException.path]
+     * will have `<debug info disabled>` where `Map` keys are supposed to be.
      * 
      * When `true`, exception messages will include the actual input data that caused the error,
      * which can be helpful for debugging purposes during development.

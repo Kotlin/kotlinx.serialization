@@ -115,6 +115,10 @@ class DecodingExceptionAsserter(val mode: JsonTestingMode, val exception: JsonDe
         assertEquals(input, exception.input, message = "Input is not equal to expected input")
     }
 
+    fun noInput() {
+        assertNull(exception.input, "Input is not null")
+    }
+
     fun assertMissing() {
         if (!hasPath) assertNull(exception.path, "Path is not null")
         if (!hasOffset) assertEquals(-1, exception.offset, "Offset is not -1")
