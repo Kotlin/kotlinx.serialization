@@ -72,7 +72,7 @@ internal class JsonPath(private val configuration: JsonConfiguration) {
         if (indicies[currentDepth] != -2 && ++currentDepth == currentObjectPath.size) {
             resize()
         }
-        currentObjectPath[currentDepth] = if (configuration.addInputsToExceptionMessages) key else RedactedKey
+        currentObjectPath[currentDepth] = if (configuration.exceptionsWithDebugInfo) key else RedactedKey
         indicies[currentDepth] = -2
     }
 

@@ -680,17 +680,17 @@ public class JsonBuilder internal constructor(json: Json) {
      * @Serializable
      * data class User(val name: String, val age: Int)
      * 
-     * val json = Json { addInputsToExceptionMessages = false }
+     * val json = Json { exceptionsWithDebugInfo = false }
      * // Exception message will not contain the invalid input string
      * json.decodeFromString<User>("""{"name":"John","age":"invalid"}""")
      * 
-     * val debugJson = Json { addInputsToExceptionMessages = true }
+     * val debugJson = Json { exceptionsWithDebugInfo = true }
      * // Exception message will include `JSON Input: {"name":"John","age":"invalid"}` line
      * debugJson.decodeFromString<User>("""{"name":"John","age":"invalid"}""")
      * ```
      */
     @ExperimentalSerializationApi
-    public var addInputsToExceptionMessages: Boolean = json.configuration.addInputsToExceptionMessages
+    public var exceptionsWithDebugInfo: Boolean = json.configuration.exceptionsWithDebugInfo
 
     @OptIn(ExperimentalSerializationApi::class)
     internal fun build(): JsonConfiguration {
@@ -721,7 +721,7 @@ public class JsonBuilder internal constructor(json: Json) {
             coerceInputValues, useArrayPolymorphism,
             classDiscriminator, allowSpecialFloatingPointValues, useAlternativeNames,
             namingStrategy, decodeEnumsCaseInsensitive, allowTrailingComma, allowComments, classDiscriminatorMode,
-            addInputsToExceptionMessages
+            exceptionsWithDebugInfo
         )
     }
 }

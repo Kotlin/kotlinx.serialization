@@ -94,7 +94,6 @@ public final class kotlinx/serialization/json/JsonArraySerializer : kotlinx/seri
 }
 
 public final class kotlinx/serialization/json/JsonBuilder {
-	public final fun getAddInputsToExceptionMessages ()Z
 	public final fun getAllowComments ()Z
 	public final fun getAllowSpecialFloatingPointValues ()Z
 	public final fun getAllowStructuredMapKeys ()Z
@@ -104,6 +103,7 @@ public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun getCoerceInputValues ()Z
 	public final fun getDecodeEnumsCaseInsensitive ()Z
 	public final fun getEncodeDefaults ()Z
+	public final fun getExceptionsWithDebugInfo ()Z
 	public final fun getExplicitNulls ()Z
 	public final fun getIgnoreUnknownKeys ()Z
 	public final fun getNamingStrategy ()Lkotlinx/serialization/json/JsonNamingStrategy;
@@ -113,7 +113,6 @@ public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun getUseAlternativeNames ()Z
 	public final fun getUseArrayPolymorphism ()Z
 	public final fun isLenient ()Z
-	public final fun setAddInputsToExceptionMessages (Z)V
 	public final fun setAllowComments (Z)V
 	public final fun setAllowSpecialFloatingPointValues (Z)V
 	public final fun setAllowStructuredMapKeys (Z)V
@@ -123,6 +122,7 @@ public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun setCoerceInputValues (Z)V
 	public final fun setDecodeEnumsCaseInsensitive (Z)V
 	public final fun setEncodeDefaults (Z)V
+	public final fun setExceptionsWithDebugInfo (Z)V
 	public final fun setExplicitNulls (Z)V
 	public final fun setIgnoreUnknownKeys (Z)V
 	public final fun setLenient (Z)V
@@ -145,7 +145,6 @@ public final synthetic class kotlinx/serialization/json/JsonClassDiscriminator$I
 
 public final class kotlinx/serialization/json/JsonConfiguration {
 	public fun <init> ()V
-	public final fun getAddInputsToExceptionMessages ()Z
 	public final fun getAllowComments ()Z
 	public final fun getAllowSpecialFloatingPointValues ()Z
 	public final fun getAllowStructuredMapKeys ()Z
@@ -155,6 +154,7 @@ public final class kotlinx/serialization/json/JsonConfiguration {
 	public final fun getCoerceInputValues ()Z
 	public final fun getDecodeEnumsCaseInsensitive ()Z
 	public final fun getEncodeDefaults ()Z
+	public final fun getExceptionsWithDebugInfo ()Z
 	public final fun getExplicitNulls ()Z
 	public final fun getIgnoreUnknownKeys ()Z
 	public final fun getNamingStrategy ()Lkotlinx/serialization/json/JsonNamingStrategy;
@@ -163,8 +163,8 @@ public final class kotlinx/serialization/json/JsonConfiguration {
 	public final fun getUseAlternativeNames ()Z
 	public final fun getUseArrayPolymorphism ()Z
 	public final fun isLenient ()Z
-	public final fun setAddInputsToExceptionMessages (Z)V
 	public final fun setClassDiscriminatorMode (Lkotlinx/serialization/json/ClassDiscriminatorMode;)V
+	public final fun setExceptionsWithDebugInfo (Z)V
 	public fun toString ()Ljava/lang/String;
 }
 

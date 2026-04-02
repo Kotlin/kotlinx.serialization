@@ -45,7 +45,7 @@ public sealed class JsonException(override val message: String) : SerializationE
  *   when available.
  * - [input]: the original JSON input (or its minified excerpt in the message). Large inputs
  *   are shortened with context around [offset]. Input is provided on a best-effort basis,
- *   so it may be incomplete. Input is only included when [JsonConfiguration.addInputsToExceptionMessages] is enabled.
+ *   so it may be incomplete. Input is only included when [JsonConfiguration.exceptionsWithDebugInfo] is enabled.
  * - [hint]: optional suggestions for the developer, e.g., enabling certain [Json] configuration options.
  *
  * @property shortMessage short, human-readable description of the decoding error.

@@ -43,7 +43,7 @@ public class JsonConfiguration @OptIn(ExperimentalSerializationApi::class) inter
     public var classDiscriminatorMode: ClassDiscriminatorMode = ClassDiscriminatorMode.POLYMORPHIC,
 
     @ExperimentalSerializationApi
-    public var addInputsToExceptionMessages: Boolean = true,
+    public var exceptionsWithDebugInfo: Boolean = true,
 ) {
 
     /** @suppress Dokka **/
@@ -54,7 +54,7 @@ public class JsonConfiguration @OptIn(ExperimentalSerializationApi::class) inter
                 "prettyPrintIndent='$prettyPrintIndent', coerceInputValues=$coerceInputValues, useArrayPolymorphism=$useArrayPolymorphism, " +
                 "classDiscriminator='$classDiscriminator', allowSpecialFloatingPointValues=$allowSpecialFloatingPointValues, " +
                 "useAlternativeNames=$useAlternativeNames, namingStrategy=$namingStrategy, decodeEnumsCaseInsensitive=$decodeEnumsCaseInsensitive, " +
-                "allowTrailingComma=$allowTrailingComma, allowComments=$allowComments, classDiscriminatorMode=$classDiscriminatorMode, addInputsToExceptionMessages=$addInputsToExceptionMessages)"
+                "allowTrailingComma=$allowTrailingComma, allowComments=$allowComments, classDiscriminatorMode=$classDiscriminatorMode, exceptionsWithDebugInfo=$exceptionsWithDebugInfo)"
     }
 }
 

@@ -168,9 +168,6 @@ final class kotlinx.serialization.json/JsonArrayBuilder { // kotlinx.serializati
 }
 
 final class kotlinx.serialization.json/JsonBuilder { // kotlinx.serialization.json/JsonBuilder|null[0]
-    final var addInputsToExceptionMessages // kotlinx.serialization.json/JsonBuilder.addInputsToExceptionMessages|{}addInputsToExceptionMessages[0]
-        final fun <get-addInputsToExceptionMessages>(): kotlin/Boolean // kotlinx.serialization.json/JsonBuilder.addInputsToExceptionMessages.<get-addInputsToExceptionMessages>|<get-addInputsToExceptionMessages>(){}[0]
-        final fun <set-addInputsToExceptionMessages>(kotlin/Boolean) // kotlinx.serialization.json/JsonBuilder.addInputsToExceptionMessages.<set-addInputsToExceptionMessages>|<set-addInputsToExceptionMessages>(kotlin.Boolean){}[0]
     final var allowComments // kotlinx.serialization.json/JsonBuilder.allowComments|{}allowComments[0]
         final fun <get-allowComments>(): kotlin/Boolean // kotlinx.serialization.json/JsonBuilder.allowComments.<get-allowComments>|<get-allowComments>(){}[0]
         final fun <set-allowComments>(kotlin/Boolean) // kotlinx.serialization.json/JsonBuilder.allowComments.<set-allowComments>|<set-allowComments>(kotlin.Boolean){}[0]
@@ -198,6 +195,9 @@ final class kotlinx.serialization.json/JsonBuilder { // kotlinx.serialization.js
     final var encodeDefaults // kotlinx.serialization.json/JsonBuilder.encodeDefaults|{}encodeDefaults[0]
         final fun <get-encodeDefaults>(): kotlin/Boolean // kotlinx.serialization.json/JsonBuilder.encodeDefaults.<get-encodeDefaults>|<get-encodeDefaults>(){}[0]
         final fun <set-encodeDefaults>(kotlin/Boolean) // kotlinx.serialization.json/JsonBuilder.encodeDefaults.<set-encodeDefaults>|<set-encodeDefaults>(kotlin.Boolean){}[0]
+    final var exceptionsWithDebugInfo // kotlinx.serialization.json/JsonBuilder.exceptionsWithDebugInfo|{}exceptionsWithDebugInfo[0]
+        final fun <get-exceptionsWithDebugInfo>(): kotlin/Boolean // kotlinx.serialization.json/JsonBuilder.exceptionsWithDebugInfo.<get-exceptionsWithDebugInfo>|<get-exceptionsWithDebugInfo>(){}[0]
+        final fun <set-exceptionsWithDebugInfo>(kotlin/Boolean) // kotlinx.serialization.json/JsonBuilder.exceptionsWithDebugInfo.<set-exceptionsWithDebugInfo>|<set-exceptionsWithDebugInfo>(kotlin.Boolean){}[0]
     final var explicitNulls // kotlinx.serialization.json/JsonBuilder.explicitNulls|{}explicitNulls[0]
         final fun <get-explicitNulls>(): kotlin/Boolean // kotlinx.serialization.json/JsonBuilder.explicitNulls.<get-explicitNulls>|<get-explicitNulls>(){}[0]
         final fun <set-explicitNulls>(kotlin/Boolean) // kotlinx.serialization.json/JsonBuilder.explicitNulls.<set-explicitNulls>|<set-explicitNulls>(kotlin.Boolean){}[0]
@@ -261,12 +261,12 @@ final class kotlinx.serialization.json/JsonConfiguration { // kotlinx.serializat
     final val useArrayPolymorphism // kotlinx.serialization.json/JsonConfiguration.useArrayPolymorphism|{}useArrayPolymorphism[0]
         final fun <get-useArrayPolymorphism>(): kotlin/Boolean // kotlinx.serialization.json/JsonConfiguration.useArrayPolymorphism.<get-useArrayPolymorphism>|<get-useArrayPolymorphism>(){}[0]
 
-    final var addInputsToExceptionMessages // kotlinx.serialization.json/JsonConfiguration.addInputsToExceptionMessages|{}addInputsToExceptionMessages[0]
-        final fun <get-addInputsToExceptionMessages>(): kotlin/Boolean // kotlinx.serialization.json/JsonConfiguration.addInputsToExceptionMessages.<get-addInputsToExceptionMessages>|<get-addInputsToExceptionMessages>(){}[0]
-        final fun <set-addInputsToExceptionMessages>(kotlin/Boolean) // kotlinx.serialization.json/JsonConfiguration.addInputsToExceptionMessages.<set-addInputsToExceptionMessages>|<set-addInputsToExceptionMessages>(kotlin.Boolean){}[0]
     final var classDiscriminatorMode // kotlinx.serialization.json/JsonConfiguration.classDiscriminatorMode|{}classDiscriminatorMode[0]
         final fun <get-classDiscriminatorMode>(): kotlinx.serialization.json/ClassDiscriminatorMode // kotlinx.serialization.json/JsonConfiguration.classDiscriminatorMode.<get-classDiscriminatorMode>|<get-classDiscriminatorMode>(){}[0]
         final fun <set-classDiscriminatorMode>(kotlinx.serialization.json/ClassDiscriminatorMode) // kotlinx.serialization.json/JsonConfiguration.classDiscriminatorMode.<set-classDiscriminatorMode>|<set-classDiscriminatorMode>(kotlinx.serialization.json.ClassDiscriminatorMode){}[0]
+    final var exceptionsWithDebugInfo // kotlinx.serialization.json/JsonConfiguration.exceptionsWithDebugInfo|{}exceptionsWithDebugInfo[0]
+        final fun <get-exceptionsWithDebugInfo>(): kotlin/Boolean // kotlinx.serialization.json/JsonConfiguration.exceptionsWithDebugInfo.<get-exceptionsWithDebugInfo>|<get-exceptionsWithDebugInfo>(){}[0]
+        final fun <set-exceptionsWithDebugInfo>(kotlin/Boolean) // kotlinx.serialization.json/JsonConfiguration.exceptionsWithDebugInfo.<set-exceptionsWithDebugInfo>|<set-exceptionsWithDebugInfo>(kotlin.Boolean){}[0]
 
     final fun toString(): kotlin/String // kotlinx.serialization.json/JsonConfiguration.toString|toString(){}[0]
 }

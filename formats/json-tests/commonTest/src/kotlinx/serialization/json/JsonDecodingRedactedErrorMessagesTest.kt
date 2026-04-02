@@ -11,7 +11,7 @@ import kotlinx.serialization.test.checkDecodingException
 import kotlin.test.Test
 
 class JsonDecodingRedactedErrorMessagesTest : JsonTestBase() {
-    val redacted = Json(default) { addInputsToExceptionMessages = false }
+    val redacted = Json(default) { exceptionsWithDebugInfo = false }
 
     @Test
     fun testPrimitiveInsteadOfObjectOrList() = parametrizedTest { mode ->

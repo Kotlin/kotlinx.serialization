@@ -57,7 +57,7 @@ internal fun AbstractJsonLexer.decodingExceptionOf(
 
 @OptIn(ExperimentalSerializationApi::class)
 private inline fun JsonConfiguration.ifDebugInput(block: () -> String): String? =
-    if (addInputsToExceptionMessages) block() else null
+    if (exceptionsWithDebugInfo) block() else null
 
 internal fun formatEncodingException(shortMessage: String, hint: String?): String {
     return shortMessage + if (hint.isNullOrBlank()) "" else "\n$hint"
