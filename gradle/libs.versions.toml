@@ -1,6 +1,6 @@
 [versions]
 kotlin = "2.3.0"
-kover = "0.8.2"
+kover = "0.9.8"
 dokka = "2.2.0-Beta"
 knit = "0.5.0"
 bcv = "0.18.1"
