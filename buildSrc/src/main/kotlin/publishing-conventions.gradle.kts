@@ -2,6 +2,7 @@ import groovy.util.*
 import org.gradle.jvm.tasks.Jar
 import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.tasks.*
+import java.nio.file.Paths
 
 /*
  * Copyright 2017-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
@@ -252,8 +253,14 @@ fun MavenPublication.signPublicationIfKeyPresent() {
 
 // Artifacts are published to a local repo, then all combined into a deployment bundle elsewhere
 fun RepositoryHandler.addPublishingRepository() {
+    val buildRepoLocationProperty = getSensitiveProperty("build.repo.path")
+    val buildRepoLocation: Any = if (buildRepoLocationProperty.isNullOrBlank()) {
+        project.rootProject.layout.buildDirectory.dir("repo")
+    } else {
+        Paths.get(buildRepoLocationProperty).toUri()
+    }
     maven {
-        maven(project.rootProject.layout.buildDirectory.dir("repo")) {
+        maven(buildRepoLocation) {
             name = "buildRepo"
         }
     }
