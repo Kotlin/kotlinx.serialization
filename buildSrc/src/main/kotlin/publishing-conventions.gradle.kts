@@ -111,13 +111,11 @@ interface LocalArtifactAttr : Named {
 }
 
 val testPublicationTask: TaskCollection<*> = tasks.named { name -> name == "publishAllPublicationsToTestRepository" }
-configurations.register("testPublication") {
-    isVisible = false
-    isCanBeResolved = false
+configurations.consumable("testPublication") {
     // this configuration produces modules that can be consumed by other projects
-    isCanBeConsumed = true
     attributes {
         attribute(Attribute.of("kotlinx.serialization.repository", String::class.java), "test")
+        attribute(Usage.USAGE_ATTRIBUTE, objects.named<Usage>("repo-testing"))
     }
     outgoing.artifact(testRepositoryDir) {
         builtBy(testPublicationTask)

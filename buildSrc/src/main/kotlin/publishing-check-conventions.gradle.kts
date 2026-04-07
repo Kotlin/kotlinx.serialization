@@ -2,23 +2,15 @@ object TestPublishing {
     const val configurationName = "testRepository"
 }
 
-val testRepositoryDependency = configurations.create(TestPublishing.configurationName) {
-    isVisible = true
-    isCanBeResolved = false
-    isCanBeConsumed = false
-}
+val testRepositoryDependency = configurations.dependencyScope(TestPublishing.configurationName)
 
 
-val testRepositories = configurations.create("testRepositories") {
-    isVisible = false
-    isCanBeResolved = true
-    // this config consumes modules from OTHER projects, and cannot be consumed by other projects
-    isCanBeConsumed = false
-
+val testRepositories = configurations.resolvable("testRepositories") {
     attributes {
         attribute(Attribute.of("kotlinx.serialization.repository", String::class.java), "test")
+        attribute(Usage.USAGE_ATTRIBUTE, objects.named<Usage>("repo-testing"))
     }
-    extendsFrom(testRepositoryDependency)
+    extendsFrom(testRepositoryDependency.get())
 }
 
 tasks.register<ArtifactsCheckTask>("checkArtifacts") {
