@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 💬 Kotlinlang Slack
+    url: https://surveys.jetbrains.com/s3/kotlin-slack-sign-up
+    about: Ask questions, share knowledge, and discuss kotlinx.serialization usage with the community
