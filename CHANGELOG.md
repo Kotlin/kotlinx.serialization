@@ -1,3 +1,31 @@
+1.11.0 / 2026-04-10
+==================
+
+This release is based on Kotlin 2.3.20 and provides new Json exceptions API and some bugfixes and improvements.
+
+## Expose Json exceptions structure
+
+To make working with exceptions easier and providing proper error codes in e.g., REST APIs,
+classes `JsonException`, `JsonDecodingException`, and `JsonEncodingException` are now public.
+They have relevant public properties, such as `shortMessage`, `path`, `offset`, and others.
+This API is currently experimental, and we're going to improve it further in the subsequent releases.
+See the linked issues for the details: [#1930](https://github.com/Kotlin/kotlinx.serialization/issues/1930), [#1877](https://github.com/Kotlin/kotlinx.serialization/issues/1877).
+
+## Ability to hide user input from exception messages for security/privacy reasons.
+
+Historically, exception messages in kotlinx.serialization often included the input Json itself for debuggability reason.
+Such behavior may pose additional challenges for logging, analytics, and other systems, since
+a system is not always allowed to store user data due to privacy/security reasons, which imposes additional sanitation logic.
+To address this issue, a new property `exceptionsWithDebugInfo` is added to `JsonConfiguration`.
+Disable it to hide user input from exception messages.
+IMPORTANT: This behavior will be enabled by default when this property becomes stable.
+See [#2590](https://github.com/Kotlin/kotlinx.serialization/issues/2590) for more details.
+
+## Bugfixes and improvements
+
+  * CBOR: Relax value range check when decoding numbers (#3167)
+  * Use a specialized writeDecimalLong method for IO stream integrations in Json (#3152)
+
 1.10.0 / 2026-01-21
 ==================
 
