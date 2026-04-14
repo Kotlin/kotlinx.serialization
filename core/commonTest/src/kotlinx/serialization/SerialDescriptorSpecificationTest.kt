@@ -136,7 +136,9 @@ class SerialDescriptorSpecificationTest {
         assertSame(Int.serializer().descriptor, descriptor.getElementDescriptor(1))
         assertFalse(descriptor.isElementOptional(0))
         assertFalse(descriptor.isElementOptional(1))
-        assertFailsWith<IllegalArgumentException> { descriptor.isElementOptional(-1) }
+        assertFailsWith<IndexOutOfBoundsException> { descriptor.isElementOptional(-1) }
+        assertFailsWith<IndexOutOfBoundsException> { descriptor.getElementName(-3) }
+        assertEquals(UNKNOWN_NAME, descriptor.getElementIndex("?"))
     }
 
     @Test
@@ -158,7 +160,9 @@ class SerialDescriptorSpecificationTest {
         assertFalse(descriptor.isElementOptional(1))
         assertFalse(descriptor.isElementOptional(2))
         assertFalse(descriptor.isElementOptional(3))
-        assertFailsWith<IllegalArgumentException> { descriptor.isElementOptional(-1) }
+        assertFailsWith<IndexOutOfBoundsException> { descriptor.isElementOptional(-1) }
+        assertFailsWith<IndexOutOfBoundsException> { descriptor.getElementName(-3) }
+        assertEquals(UNKNOWN_NAME, descriptor.getElementIndex("abc"))
     }
 
     @Serializable
