@@ -1451,6 +1451,8 @@ This lets the encoder encode values directly to the `DataOutput` stream:
     @ExperimentalSerializationApi
     inline fun <reified T> encodeTo(output: DataOutput, value: T) = encodeTo(output, serializer(), value)
     ```
+    {initial-collapse-state="collapsed" collapsible="true"  collapsed-title="override fun encodeByte(value: Byte) = output.writeByte(value.toInt())"}
+
 
 2. Implement the decode functions for each primitive type, such as `decodeInt()` or `decodeString()`.
 This lets the decoder decode values directly from the `DataInput` stream and reconstruct the original data structure:
@@ -1504,6 +1506,7 @@ This lets the decoder decode values directly from the `DataInput` stream and rec
             "{${it.toUByte().toString(16).padStart(2, '0').uppercase()}}"
     }
     ```
+    {initial-collapse-state="collapsed" collapsible="true"  collapsed-title="override fun decodeByte(): Byte = input.readByte()"}
 
 3. Use these classes to serialize and deserialize Kotlin objects in a binary format:
 
@@ -1529,6 +1532,7 @@ This lets the decoder decode values directly from the `DataInput` stream and rec
         // Project(name=kotlinx.serialization, language=Kotlin)
     }
     ```
+    {initial-collapse-state="collapsed" collapsible="true"  collapsed-title="encodeTo(DataOutputStream(output), data)"}
 
 In this example, the custom format encodes only the serialized values in binary form and decodes them back into a `Project` object.
 This makes it easier to adapt the format for cases where you need a compact representation and precise control over the binary encoding.
@@ -1586,33 +1590,33 @@ Let's look at an example of how to extend the [compact binary format example](#c
        }
    }
    ```
+   {initial-collapse-state="collapsed" collapsible="true"  collapsed-title="override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {"}
 
 3. Override the [`decodeSerializableValue()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-decoder/decode-serializable-value.html) function in the decoder to detect `ByteArray` values by descriptor and deserialize them with the matching compact size format:
 
-```kotlin
-// Handles ByteArray decoding by checking if the descriptor matches ByteArray
-    @Suppress("UNCHECKED_CAST")
-    override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>, previousValue: T?): T =
-        if (deserializer.descriptor == byteArraySerializer.descriptor)
-            decodeByteArray() as T
-        else
-            super.decodeSerializableValue(deserializer, previousValue)
-
-    // Decodes ByteArray data
-    private fun decodeByteArray(): ByteArray {
-        val bytes = ByteArray(decodeCompactSize())
-        input.readFully(bytes)
-        return bytes
-    }
-
-    // Decodes size efficiently using a compact format
-    private fun decodeCompactSize(): Int {
-        val byte = input.readByte().toInt() and 0xff
-        if (byte < 0xff) return byte
-        return input.readInt()
-    }
-}
-```
+   ```kotlin
+       @Suppress("UNCHECKED_CAST")
+       override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>, previousValue: T?): T =
+           if (deserializer.descriptor == byteArraySerializer.descriptor)
+               decodeByteArray() as T
+           else
+               super.decodeSerializableValue(deserializer, previousValue)
+   
+       // Decodes ByteArray data
+       private fun decodeByteArray(): ByteArray {
+           val bytes = ByteArray(decodeCompactSize())
+           input.readFully(bytes)
+           return bytes
+       }
+   
+       // Decodes size efficiently using a compact format
+       private fun decodeCompactSize(): Int {
+           val byte = input.readByte().toInt() and 0xff
+           if (byte < 0xff) return byte
+           return input.readInt()
+       }
+   ```
+   {initial-collapse-state="collapsed" collapsible="true" collapsed-title="override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>, previousValue: T?)"}
 
 4. Serialize and deserialize objects with the embedded `ByteArray` data:
 
@@ -1635,6 +1639,7 @@ Let's look at an example of how to extend the [compact binary format example](#c
        // Project(name=kotlinx.serialization, attachment=[10, 11, 12, 13])
    }
    ```
+   {initial-collapse-state="collapsed" collapsible="true" collapsed-title="data class Project(val name: String, val attachment: ByteArray)"}
 
 Here's the complete example that serializes and deserializes a class with a `ByteArray` property using the specialized encoding and decoding path:
 
