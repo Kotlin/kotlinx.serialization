@@ -899,6 +899,7 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 
+//sampleStart
 // Creates a custom encoder that stores serialized values in a list
 @ExperimentalSerializationApi
 class ListEncoder : AbstractEncoder() {
@@ -936,7 +937,9 @@ fun main() {
     println(encodeToList(data))
     // [kotlinx.serialization, kotlin, 9000]
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 The output shows that the encoder collects all serialized values into a flat list in serialization order.
 This can be useful when you need to process those values uniformly, for example to compute a hash or digest.
@@ -1032,6 +1035,7 @@ fun <T> encodeToList(serializer: SerializationStrategy<T>, value: T): List<Any> 
 @ExperimentalSerializationApi
 inline fun <reified T> encodeToList(value: T) = encodeToList(serializer(), value)
 
+//sampleStart
 // Creates a custom decoder that reads serialized values from a list
 @ExperimentalSerializationApi
 class ListDecoder(val list: ArrayDeque<Any>) : AbstractDecoder() {
@@ -1081,7 +1085,9 @@ fun main() {
     println(obj)
     // Project(name=kotlinx.serialization, owner=User(name=kotlin), votes=9000)
 }
+//sampleEnd
 ```
+{kotlin-runnable="true"}
 
 The output shows that the decoder reads the list back in serialization order and reconstructs the original object.
 
@@ -1143,14 +1149,15 @@ class ListDecoder(val list: ArrayDeque<Any>) : AbstractDecoder() {
         return elementIndex++
     }
 
+//sampleStart
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder =
-        ListDecoder(list) 
+        ListDecoder(list)
 
     // Enables sequential decoding for serializers that support it
     override fun decodeSequentially(): Boolean = true
 }
 
-
+//sampleEnd
 @ExperimentalSerializationApi
 fun <T> decodeFromList(list: List<Any>, deserializer: DeserializationStrategy<T>): T {
     val decoder = ListDecoder(ArrayDeque(list))
@@ -1178,8 +1185,7 @@ fun main() {
     // Project(name=kotlinx.serialization, owner=User(name=kotlin), votes=9000)
 }
 ```
-
-<!-- REMOVE AFTER REVIEW: A bit awkward that we don't have //sampleStart and //sampleEnd for non-runnable code snippets, but I still think it's better to show the entire code here (hopefully it'll get introduced soon) - please let me know what you think -->
+{kotlin-runnable="true"}
 
 In this example, `ListDecoder` overrides the `decodeSequentially()` function to return `true`.
 This lets supported serializers read values directly in declaration order instead of querying each element index one by one.
@@ -1214,9 +1220,11 @@ class ListEncoder : AbstractEncoder() {
         list.add(value)
     }
 
+//sampleStart
     // Stores the collection size before its elements
     override fun beginCollection(descriptor: SerialDescriptor, collectionSize: Int): CompositeEncoder {
         encodeInt(collectionSize)
+        // Returns the same encoder because no additional collection-specific state is required
         return this
     }
 }
@@ -1247,11 +1255,16 @@ class ListDecoder(val list: ArrayDeque<Any>, var elementsCount: Int = 0) : Abstr
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder =
         ListDecoder(list, descriptor.elementsCount)
 
+    // Signals that values are decoded in order because the collection size is known in advance
     override fun decodeSequentially(): Boolean = true
 
+
+    // Decodes and stores the collection size before reading the collection elements
     override fun decodeCollectionSize(descriptor: SerialDescriptor): Int =
         decodeInt().also { elementsCount = it }
 }
+
+//sampleEnd
 
 @ExperimentalSerializationApi
 fun <T> decodeFromList(list: List<Any>, deserializer: DeserializationStrategy<T>): T {
@@ -1280,6 +1293,7 @@ fun main() {
     // Project(name=kotlinx.serialization, owners=[User(name=kotlin), User(name=jetbrains)], votes=9000)
 }
 ```
+{kotlin-runnable="true"}
 
 In this example, the encoded list includes the collection size before the collection elements, so the decoder can correctly decode collections.
 
@@ -1318,7 +1332,8 @@ class ListEncoder : AbstractEncoder() {
         encodeInt(collectionSize)
         return this
     }
-
+   
+//sampleStart
     // Represents null values as NULL
     override fun encodeNull() = encodeValue("NULL")
 
@@ -1360,6 +1375,7 @@ class ListDecoder(val list: ArrayDeque<Any>, var elementsCount: Int = 0) : Abstr
     // Checks if the next value is "NULL" to determine whether the next nullable value is null
     override fun decodeNotNullMark(): Boolean = decodeString() != "NULL"
 }
+//sampleEnd
 
 @ExperimentalSerializationApi
 fun <T> decodeFromList(list: List<Any>, deserializer: DeserializationStrategy<T>): T {
@@ -1388,6 +1404,7 @@ fun main() {
     // Project(name=kotlinx.serialization, owner=User(name=kotlin), votes=null)
 }
 ```
+{kotlin-runnable="true"}
 
 In this example, the encoder writes `!!` before a non-null value and writes `NULL` for a `null` value.
 The decoder checks these markers to decide whether to decode a value or return `null`.
@@ -1785,6 +1802,8 @@ fun ByteArray.toAsciiHexString() = joinToString("") {
 data class Project(val name: String, val attachment: ByteArray)
 
 @OptIn(ExperimentalSerializationApi::class)
+
+//sampleStart
 fun main() {
     val data = Project("kotlinx.serialization", byteArrayOf(0x0A, 0x0B, 0x0C, 0x0D))
     val output = ByteArrayOutputStream()
@@ -1798,5 +1817,6 @@ fun main() {
     println(obj)
     // Project(name=kotlinx.serialization, attachment=[10, 11, 12, 13])
 }
+//sampleEnd
 ```
-{initial-collapse-state="collapsed" collapsible="true"  collapsed-title="Complete code example for format-specific ByteArray support"}
+{kotlin-runnable="true"}
