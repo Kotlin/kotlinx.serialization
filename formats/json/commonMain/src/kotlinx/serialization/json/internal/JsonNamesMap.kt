@@ -164,3 +164,67 @@ internal inline fun Json.tryCoerceValue(
 
 internal fun SerialDescriptor.ignoreUnknownKeys(json: Json): Boolean =
     json.configuration.ignoreUnknownKeys || annotations.any { it is JsonIgnoreUnknownKeys }
+
+internal val JsonExtraKeysIndexKey = DescriptorSchemaCache.Key<Int>()
+
+/**
+ * Returns the element index of the property annotated with [JsonExtraKeys],
+ * or -1 if no such property exists in this descriptor.
+ *
+ * Validates on first computation and throws [SerializationException] if:
+ *  - more than one property is annotated with [JsonExtraKeys];
+ *  - the annotated property is not of type `Map<String, JsonElement>`.
+ *
+ * The result is memoised in the per-[Json] [DescriptorSchemaCache].
+ */
+internal fun SerialDescriptor.jsonExtraKeysIndex(json: Json): Int =
+    json.schemaCache.getOrPut(this, JsonExtraKeysIndexKey) {
+        computeJsonExtraKeysIndex()
+    }
+
+private fun SerialDescriptor.computeJsonExtraKeysIndex(): Int {
+    var foundIndex = -1
+    var duplicates: MutableList<String>? = null
+    for (i in 0 until elementsCount) {
+        if (getElementAnnotations(i).any { it is JsonExtraKeys }) {
+            if (foundIndex == -1) {
+                foundIndex = i
+            } else {
+                val list = duplicates ?: mutableListOf(getElementName(foundIndex)).also { duplicates = it }
+                list.add(getElementName(i))
+            }
+        }
+    }
+    duplicates?.let {
+        throw SerializationException(
+            "Class '$serialName' has more than one property annotated with @JsonExtraKeys: " +
+                it.joinToString(", ") { name -> "'$name'" } +
+                ". At most one such property is allowed per class."
+        )
+    }
+    if (foundIndex == -1) return -1
+    validateJsonExtraKeysProperty(foundIndex)
+    return foundIndex
+}
+
+private fun SerialDescriptor.validateJsonExtraKeysProperty(index: Int) {
+    val propertyName = getElementName(index)
+    val elementDescriptor = getElementDescriptor(index)
+    val rejection = "Property '$propertyName' of '$serialName' is annotated with @JsonExtraKeys " +
+        "but its type is not 'Map<String, JsonElement>'"
+    if (elementDescriptor.kind != StructureKind.MAP) {
+        throw SerializationException("$rejection (kind is ${elementDescriptor.kind}).")
+    }
+    val keyDescriptor = elementDescriptor.getElementDescriptor(0)
+    if (keyDescriptor.kind != PrimitiveKind.STRING) {
+        throw SerializationException(
+            "$rejection: map key type must be String but was '${keyDescriptor.serialName}'."
+        )
+    }
+    val valueDescriptor = elementDescriptor.getElementDescriptor(1)
+    if (valueDescriptor != JsonElementSerializer.descriptor) {
+        throw SerializationException(
+            "$rejection: map value type must be JsonElement but was '${valueDescriptor.serialName}'."
+        )
+    }
+}
