@@ -1,0 +1,39 @@
+/*
+ * Copyright 2017-2026 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
+import org.gradle.api.Project
+import org.gradle.kotlin.dsl.the
+import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnLockMismatchReport
+
+const val DEFAULT_YARN_REGISTRY = "https://registry.yarnpkg.com"
+const val NPM_REGISTRY_CACHE = "https://cache-redirector.jetbrains.com/registry.npmjs.org"
+const val NODE_DIST_CACHE = "https://cache-redirector.jetbrains.com/nodejs.org/dist"
+const val YARN_DIST_CACHE = "https://cache-redirector.jetbrains.com/github.com/yarnpkg/yarn/releases/download"
+
+fun Project.configureJsCacheRedirector() {
+    rootProject.plugins.withType(org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin::class.java) {
+        rootProject.the<org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension>().restoreYarnLockTaskProvider.configure {
+            doLast {
+                // yarn 1.x doesn't and won't support overriding registry used in yarn.lock, so we need to replace it manually
+                // https://github.com/yarnpkg/yarn/issues/6436#issuecomment-426728911
+                val lockFile = outputFile.get()
+                lockFile.writeText(lockFile.readText().replace(DEFAULT_YARN_REGISTRY, NPM_REGISTRY_CACHE))
+            }
+        }
+    }
+
+    plugins.withType(org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin::class) {
+        extensions.configure(org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsEnvSpec::class.java) {
+            downloadBaseUrl.set(NODE_DIST_CACHE)
+        }
+    }
+
+    afterEvaluate {
+        rootProject.plugins.withType(org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin::class.java) {
+            rootProject.the<org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootEnvSpec>().downloadBaseUrl.set(YARN_DIST_CACHE)
+            rootProject.the<org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootEnvSpec>().yarnLockMismatchReport.set(YarnLockMismatchReport.WARNING)
+        }
+    }
+}
