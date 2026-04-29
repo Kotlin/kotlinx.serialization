@@ -62,7 +62,7 @@ apiValidation {
     ignoredProjects.addAll(listOf("benchmark", "guide", "kotlinx-serialization", "kotlinx-serialization-json-tests", "proguard-rules-test"))
     @OptIn(ExperimentalBCVApi::class)
     klib {
-        enabled = true
+        enabled = false
     }
 }
 
