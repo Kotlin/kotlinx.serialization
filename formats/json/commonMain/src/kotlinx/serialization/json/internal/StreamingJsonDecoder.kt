@@ -297,7 +297,8 @@ internal open class StreamingJsonDecoder(
             }
 
             if (isUnknown) { // slow-path for unknown keys handling
-                hasComma = handleUnknown(descriptor, key, extraKeysIndex)
+                handleUnknown(descriptor, key, extraKeysIndex)
+                hasComma = lexer.tryConsumeComma()
             }
         }
         if (hasComma && !json.configuration.allowTrailingComma) lexer.invalidTrailingComma()
@@ -309,7 +310,7 @@ internal open class StreamingJsonDecoder(
         return elementMarker?.nextUnmarkedIndex() ?: CompositeDecoder.DECODE_DONE
     }
 
-    private fun handleUnknown(descriptor: SerialDescriptor, key: String, extraKeysIndex: Int): Boolean {
+    private fun handleUnknown(descriptor: SerialDescriptor, key: String, extraKeysIndex: Int) {
         if (discriminatorHolder.trySkip(key)) {
             lexer.skipElement(configuration.isLenient)
         } else if (extraKeysIndex != -1) {
@@ -323,7 +324,6 @@ internal open class StreamingJsonDecoder(
             lexer.path.popDescriptor()
             lexer.failOnUnknownKey(key)
         }
-        return lexer.tryConsumeComma()
     }
 
     private fun decodeListIndex(): Int {
