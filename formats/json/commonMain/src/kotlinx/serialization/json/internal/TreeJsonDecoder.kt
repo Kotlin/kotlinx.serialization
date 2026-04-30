@@ -214,16 +214,21 @@ private open class JsonTreeDecoder(
     private var extraKeysIndex: Int = -1
     private var extraKeysEmitted: Boolean = false
 
-    override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+    private fun extraKeysIndexFor(descriptor: SerialDescriptor): Int {
         if (currentDescriptor !== descriptor) {
             currentDescriptor = descriptor
             extraKeysIndex = descriptor.jsonExtraKeysIndex(json)
             extraKeysEmitted = false
         }
+        return extraKeysIndex
+    }
+
+    override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+        val bucketIndex = extraKeysIndexFor(descriptor)
         while (position < descriptor.elementsCount) {
             val name = descriptor.getTag(position++)
             val index = position - 1
-            if (index == extraKeysIndex) {
+            if (index == bucketIndex) {
                 continue
             }
             forceNull = false
@@ -246,9 +251,9 @@ private open class JsonTreeDecoder(
                 return index
             }
         }
-        if (extraKeysIndex != -1 && !extraKeysEmitted) {
+        if (bucketIndex != -1 && !extraKeysEmitted) {
             extraKeysEmitted = true
-            return extraKeysIndex
+            return bucketIndex
         }
         return CompositeDecoder.DECODE_DONE
     }
@@ -317,7 +322,7 @@ private open class JsonTreeDecoder(
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
-        if (descriptor.ignoreUnknownKeys(json) || descriptor.kind is PolymorphicKind || descriptor.jsonExtraKeysIndex(json) != -1) return
+        if (descriptor.ignoreUnknownKeys(json) || descriptor.kind is PolymorphicKind || extraKeysIndexFor(descriptor) != -1) return
         // Validate keys
         val strategy = descriptor.namingStrategy(json)
 

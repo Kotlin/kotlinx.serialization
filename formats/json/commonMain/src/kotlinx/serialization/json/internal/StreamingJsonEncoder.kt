@@ -48,6 +48,21 @@ internal class StreamingJsonEncoder(
     private var activeDiscriminator: String? = null
     private val activeDiscriminatorStack = mutableListOf<String?>()
 
+    // Cache of the @JsonExtraKeys index for the most recently queried descriptor.
+    // The sentinel `lookupDescriptor !== descriptor` triggers a refresh when the
+    // descriptor changes. This avoids hitting the per-Json schema cache on every
+    // encoded element.
+    private var lookupDescriptor: SerialDescriptor? = null
+    private var cachedExtraKeysIndex: Int = -1
+
+    private fun extraKeysIndexFor(descriptor: SerialDescriptor): Int {
+        if (lookupDescriptor !== descriptor) {
+            lookupDescriptor = descriptor
+            cachedExtraKeysIndex = descriptor.jsonExtraKeysIndex(json)
+        }
+        return cachedExtraKeysIndex
+    }
+
     init {
         val i = mode.ordinal
         if (modeReuseCache != null) {
@@ -175,7 +190,7 @@ internal class StreamingJsonEncoder(
         serializer: SerializationStrategy<T>,
         value: T
     ) {
-        val extraKeysIndex = descriptor.jsonExtraKeysIndex(json)
+        val extraKeysIndex = extraKeysIndexFor(descriptor)
         if (extraKeysIndex == index) {
             @Suppress("UNCHECKED_CAST")
             val map = value as Map<String, JsonElement>
