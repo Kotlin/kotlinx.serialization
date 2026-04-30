@@ -197,9 +197,11 @@ internal fun SerialDescriptor.jsonExtraKeysIndex(json: Json): Int =
         json.schemaCache.getOrPut(this, JsonExtraKeysIndexKey) {
             computeJsonExtraKeysIndex()
         }
-    } catch (e: ArrayIndexOutOfBoundsException) {
-        // Defensive fallback for hand-rolled descriptors (e.g. external @Serializer)
-        // whose hashCode() crashes due to mismatched childSerializers array.
+    } catch (_: ArrayIndexOutOfBoundsException) {
+        // Some partially-customized descriptors (e.g. created via the @Serializer
+        // companion shortcut) have a broken hashCode() that throws AIOOBE.
+        // The library already documents this limitation around `useAlternativeNames`
+        // (see JsonCustomSerializersTest.kt). Fall back to uncached computation.
         computeJsonExtraKeysIndex()
     }
 
@@ -249,7 +251,7 @@ private fun SerialDescriptor.validateJsonExtraKeysProperty(index: Int) {
     val valueDescriptor = elementDescriptor.getElementDescriptor(1)
     // Strict identity check: we deliberately reject custom JsonElement
     // serializers because the streaming decoder synthesises a JsonObject
-    // and feeds it to the standard JsonElementSerializer (see ARCHITECTURE.md §8.3).
+    // and feeds it to the standard JsonElementSerializer.
     // Loosening this requires also routing the user's serializer through
     // the synthetic decode path.
     if (valueDescriptor != JsonElementSerializer.descriptor) {

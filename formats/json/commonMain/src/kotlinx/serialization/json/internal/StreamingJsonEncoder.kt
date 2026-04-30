@@ -190,36 +190,39 @@ internal class StreamingJsonEncoder(
         serializer: SerializationStrategy<T>,
         value: T
     ) {
-        val extraKeysIndex = extraKeysIndexFor(descriptor)
-        if (extraKeysIndex == index) {
-            @Suppress("UNCHECKED_CAST")
-            val map = value as Map<String, JsonElement>
-            val declaredNames = descriptor.getJsonDecodingNames(json)
-            val discriminator = activeDiscriminator
-            for ((k, v) in map) {
-                if (k in declaredNames) {
-                    throw JsonEncodingException(
-                        "@JsonExtraKeys map in '${descriptor.serialName}' contains key '$k' " +
-                            "which conflicts with a declared property name.",
-                        classSerialName = descriptor.serialName
-                    )
-                }
-                if (k == discriminator) {
-                    throw JsonEncodingException(
-                        "@JsonExtraKeys map in '${descriptor.serialName}' contains key '$k' " +
-                            "which conflicts with the active class discriminator '$discriminator'.",
-                        classSerialName = descriptor.serialName
-                    )
-                }
-                if (!composer.writingFirst) composer.print(COMMA)
-                composer.nextItem()
-                encodeString(k)
-                composer.print(COLON); composer.space()
-                encodeJsonElement(v)
-            }
+        // Bucket-spread only applies in OBJ mode. The descriptor-validation in
+        // JsonNamesMap.kt already filters out non-class descriptors, but the
+        // explicit mode check documents intent and is robust to future
+        // loosening of that validation.
+        if (mode != WriteMode.OBJ || extraKeysIndexFor(descriptor) != index) {
+            super.encodeSerializableElement(descriptor, index, serializer, value)
             return
         }
-        super.encodeSerializableElement(descriptor, index, serializer, value)
+        @Suppress("UNCHECKED_CAST")
+        val map = value as Map<String, JsonElement>
+        val declaredNames = descriptor.getJsonDecodingNames(json)
+        val discriminator = activeDiscriminator
+        for ((k, v) in map) {
+            if (k in declaredNames) {
+                throw JsonEncodingException(
+                    "@JsonExtraKeys map in '${descriptor.serialName}' contains key '$k' " +
+                        "which conflicts with a declared property name.",
+                    classSerialName = descriptor.serialName
+                )
+            }
+            if (k == discriminator) {
+                throw JsonEncodingException(
+                    "@JsonExtraKeys map in '${descriptor.serialName}' contains key '$k' " +
+                        "which conflicts with the active class discriminator '$discriminator'.",
+                    classSerialName = descriptor.serialName
+                )
+            }
+            if (!composer.writingFirst) composer.print(COMMA)
+            composer.nextItem()
+            encodeString(k)
+            composer.print(COLON); composer.space()
+            encodeJsonElement(v)
+        }
     }
 
     override fun <T : Any> encodeNullableSerializableElement(

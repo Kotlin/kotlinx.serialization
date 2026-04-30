@@ -52,21 +52,17 @@ internal open class StreamingJsonDecoder(
     // Lazy-initialised state for @JsonExtraKeys capture.
     // In the common case (no descriptor in this decoder's lifetime declares
     // @JsonExtraKeys) these stay null and pay no allocation cost.
-    private var extraKeysMap: MutableMap<SerialDescriptor, LinkedHashMap<String, JsonElement>>? = null
-    private var extraKeysEmittedMap: MutableMap<SerialDescriptor, Boolean>? = null
+    private var extraKeys: LinkedHashMap<String, JsonElement>? = null
+    private var extraKeysEmitted: Boolean = false
 
+    // Save/restore stack for @JsonExtraKeys state when the decoder reuses
+    // itself across same-mode nested objects (explicitNulls = true). Only
+    // populated when the parent descriptor actually declares @JsonExtraKeys.
     private data class ExtraKeysFrame(
-        val descriptor: SerialDescriptor,
         val map: LinkedHashMap<String, JsonElement>?,
-        val emitted: Boolean?
+        val emitted: Boolean
     )
     private var extraKeysSavedStack: MutableList<ExtraKeysFrame>? = null
-
-    private fun extraKeysMapMutable(): MutableMap<SerialDescriptor, LinkedHashMap<String, JsonElement>> =
-        extraKeysMap ?: mutableMapOf<SerialDescriptor, LinkedHashMap<String, JsonElement>>().also { extraKeysMap = it }
-
-    private fun extraKeysEmittedMapMutable(): MutableMap<SerialDescriptor, Boolean> =
-        extraKeysEmittedMap ?: mutableMapOf<SerialDescriptor, Boolean>().also { extraKeysEmittedMap = it }
 
     private fun extraKeysSavedStackMutable(): MutableList<ExtraKeysFrame> =
         extraKeysSavedStack ?: mutableListOf<ExtraKeysFrame>().also { extraKeysSavedStack = it }
@@ -81,11 +77,7 @@ internal open class StreamingJsonDecoder(
     private fun extraKeysIndexFor(descriptor: SerialDescriptor): Int {
         if (lookupDescriptor !== descriptor) {
             lookupDescriptor = descriptor
-            cachedExtraKeysIndex = try {
-                descriptor.jsonExtraKeysIndex(json)
-            } catch (_: ArrayIndexOutOfBoundsException) {
-                -1
-            }
+            cachedExtraKeysIndex = descriptor.jsonExtraKeysIndex(json)
         }
         return cachedExtraKeysIndex
     }
@@ -156,10 +148,11 @@ internal open class StreamingJsonDecoder(
             else -> if (mode == newMode && json.configuration.explicitNulls) {
                 val extraKeysIndex = extraKeysIndexFor(descriptor)
                 if (extraKeysIndex != -1) {
-                    // Only allocate the per-frame state when the bucket actually exists.
-                    val savedMap = try { extraKeysMap?.remove(descriptor) } catch (_: ArrayIndexOutOfBoundsException) { null }
-                    val savedEmitted = try { extraKeysEmittedMap?.remove(descriptor) } catch (_: ArrayIndexOutOfBoundsException) { null }
-                    extraKeysSavedStackMutable().add(ExtraKeysFrame(descriptor, savedMap, savedEmitted))
+                    // Save outer frame so a nested same-type object cannot leak
+                    // bucket state into its parent. Only paid when a bucket exists.
+                    extraKeysSavedStackMutable().add(ExtraKeysFrame(extraKeys, extraKeysEmitted))
+                    extraKeys = null
+                    extraKeysEmitted = false
                 }
                 this
             } else {
@@ -183,18 +176,8 @@ internal open class StreamingJsonDecoder(
         val savedStack = extraKeysSavedStack
         if (savedStack != null && savedStack.isNotEmpty()) {
             val last = savedStack.removeAt(savedStack.lastIndex)
-            if (last.descriptor == descriptor) {
-                if (last.map != null) {
-                    extraKeysMapMutable()[descriptor] = last.map
-                } else {
-                    extraKeysMap?.remove(descriptor)
-                }
-                if (last.emitted != null) {
-                    extraKeysEmittedMapMutable()[descriptor] = last.emitted
-                } else {
-                    extraKeysEmittedMap?.remove(descriptor)
-                }
-            }
+            extraKeys = last.map
+            extraKeysEmitted = last.emitted
         }
         // Then cleanup the path
         lexer.path.popDescriptor()
@@ -229,7 +212,7 @@ internal open class StreamingJsonDecoder(
     ): T {
         val extraKeysIndex = extraKeysIndexFor(descriptor)
         if (index == extraKeysIndex) {
-            val obj = JsonObject(extraKeysMap?.get(descriptor).orEmpty())
+            val obj = JsonObject(extraKeys.orEmpty())
             return readJson(json, obj, deserializer)
         }
         val isMapKey = mode == LexerMode.MAP && index and 1 == 0
@@ -319,12 +302,9 @@ internal open class StreamingJsonDecoder(
         }
         if (hasComma && !json.configuration.allowTrailingComma) lexer.invalidTrailingComma()
 
-        if (extraKeysIndex != -1) {
-            val emittedMap = extraKeysEmittedMapMutable()
-            if (emittedMap[descriptor] != true) {
-                emittedMap[descriptor] = true
-                return extraKeysIndex
-            }
+        if (extraKeysIndex != -1 && !extraKeysEmitted) {
+            extraKeysEmitted = true
+            return extraKeysIndex
         }
         return elementMarker?.nextUnmarkedIndex() ?: CompositeDecoder.DECODE_DONE
     }
@@ -333,7 +313,7 @@ internal open class StreamingJsonDecoder(
         if (discriminatorHolder.trySkip(key)) {
             lexer.skipElement(configuration.isLenient)
         } else if (extraKeysIndex != -1) {
-            val collector = extraKeysMapMutable().getOrPut(descriptor) { LinkedHashMap() }
+            val collector = extraKeys ?: LinkedHashMap<String, JsonElement>().also { extraKeys = it }
             collector[key] = JsonTreeReader(configuration, lexer).read()
         } else if (descriptor.ignoreUnknownKeys(json)) {
             lexer.skipElement(configuration.isLenient)

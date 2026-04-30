@@ -250,32 +250,36 @@ private open class JsonTreeEncoder(
         serializer: SerializationStrategy<T>,
         value: T
     ) {
-        val extraKeysIndex = extraKeysIndexFor(descriptor)
-        if (extraKeysIndex == index) {
-            @Suppress("UNCHECKED_CAST")
-            val map = value as Map<String, JsonElement>
-            val declaredNames = descriptor.getJsonDecodingNames(json)
-            val discriminator = activeDiscriminator
-            for ((k, v) in map) {
-                if (k in declaredNames) {
-                    throw JsonEncodingException(
-                        "@JsonExtraKeys map in '${descriptor.serialName}' contains key '$k' " +
-                            "which conflicts with a declared property name.",
-                        classSerialName = descriptor.serialName
-                    )
-                }
-                if (k == discriminator) {
-                    throw JsonEncodingException(
-                        "@JsonExtraKeys map in '${descriptor.serialName}' contains key '$k' " +
-                            "which conflicts with the active class discriminator '$discriminator'.",
-                        classSerialName = descriptor.serialName
-                    )
-                }
-                putElement(k, v)
-            }
+        // Bucket-spread only applies in CLASS mode. The descriptor-validation
+        // in JsonNamesMap.kt already filters out non-class descriptors, but
+        // the explicit kind check documents intent and is robust to future
+        // loosening of that validation. The check also stops the override
+        // firing for JsonTreeMapEncoder, which inherits this method.
+        if (descriptor.kind != StructureKind.CLASS || extraKeysIndexFor(descriptor) != index) {
+            super.encodeSerializableElement(descriptor, index, serializer, value)
             return
         }
-        super.encodeSerializableElement(descriptor, index, serializer, value)
+        @Suppress("UNCHECKED_CAST")
+        val map = value as Map<String, JsonElement>
+        val declaredNames = descriptor.getJsonDecodingNames(json)
+        val discriminator = activeDiscriminator
+        for ((k, v) in map) {
+            if (k in declaredNames) {
+                throw JsonEncodingException(
+                    "@JsonExtraKeys map in '${descriptor.serialName}' contains key '$k' " +
+                        "which conflicts with a declared property name.",
+                    classSerialName = descriptor.serialName
+                )
+            }
+            if (k == discriminator) {
+                throw JsonEncodingException(
+                    "@JsonExtraKeys map in '${descriptor.serialName}' contains key '$k' " +
+                        "which conflicts with the active class discriminator '$discriminator'.",
+                    classSerialName = descriptor.serialName
+                )
+            }
+            putElement(k, v)
+        }
     }
 
     override fun getCurrent(): JsonElement = JsonObject(content)
