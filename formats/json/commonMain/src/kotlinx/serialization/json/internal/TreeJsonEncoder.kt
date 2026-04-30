@@ -35,6 +35,7 @@ private sealed class AbstractJsonTreeEncoder(
 
     private var polymorphicDiscriminator: String? = null
     private var polymorphicSerialName: String? = null
+    internal var activeDiscriminator: String? = null
 
     override fun elementName(descriptor: SerialDescriptor, index: Int): String =
         descriptor.getJsonElementName(json, index)
@@ -168,6 +169,7 @@ private sealed class AbstractJsonTreeEncoder(
             } else {
                 encoder.putElement(discriminator, JsonPrimitive(polymorphicSerialName ?: descriptor.serialName))
             }
+            encoder.activeDiscriminator = discriminator
             polymorphicDiscriminator = null
             polymorphicSerialName = null
         }
@@ -225,6 +227,40 @@ private open class JsonTreeEncoder(
         if (value != null || configuration.explicitNulls) {
             super.encodeNullableSerializableElement(descriptor, index, serializer, value)
         }
+    }
+
+    override fun <T> encodeSerializableElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        serializer: SerializationStrategy<T>,
+        value: T
+    ) {
+        val extraKeysIndex = descriptor.jsonExtraKeysIndex(json)
+        if (extraKeysIndex == index) {
+            @Suppress("UNCHECKED_CAST")
+            val map = value as Map<String, JsonElement>
+            val declaredNames = descriptor.getJsonDecodingNames(json)
+            val discriminator = activeDiscriminator
+            for ((k, v) in map) {
+                if (k in declaredNames) {
+                    throw JsonEncodingException(
+                        "@JsonExtraKeys map in '${descriptor.serialName}' contains key '$k' " +
+                            "which conflicts with a declared property name.",
+                        classSerialName = descriptor.serialName
+                    )
+                }
+                if (k == discriminator) {
+                    throw JsonEncodingException(
+                        "@JsonExtraKeys map in '${descriptor.serialName}' contains key '$k' " +
+                            "which conflicts with the active class discriminator '$discriminator'.",
+                        classSerialName = descriptor.serialName
+                    )
+                }
+                putElement(k, v)
+            }
+            return
+        }
+        super.encodeSerializableElement(descriptor, index, serializer, value)
     }
 
     override fun getCurrent(): JsonElement = JsonObject(content)

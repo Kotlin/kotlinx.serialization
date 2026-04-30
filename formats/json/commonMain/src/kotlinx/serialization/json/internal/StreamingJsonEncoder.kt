@@ -45,6 +45,8 @@ internal class StreamingJsonEncoder(
     private var forceQuoting: Boolean = false
     private var polymorphicDiscriminator: String? = null
     private var polymorphicSerialName: String? = null
+    private var activeDiscriminator: String? = null
+    private val activeDiscriminatorStack = mutableListOf<String?>()
 
     init {
         val i = mode.ordinal
@@ -87,9 +89,15 @@ internal class StreamingJsonEncoder(
             composer.indent()
         }
 
+        if (mode == newMode) {
+            activeDiscriminatorStack.add(activeDiscriminator)
+            activeDiscriminator = null
+        }
+
         val discriminator = polymorphicDiscriminator
         if (discriminator != null) {
             encodeTypeInfo(discriminator, polymorphicSerialName ?: descriptor.serialName)
+            activeDiscriminator = discriminator
             polymorphicDiscriminator = null
             polymorphicSerialName = null
         }
@@ -98,7 +106,12 @@ internal class StreamingJsonEncoder(
             return this
         }
 
-        return modeReuseCache?.get(newMode.ordinal) ?: StreamingJsonEncoder(composer, json, newMode, modeReuseCache)
+        val cached = modeReuseCache?.get(newMode.ordinal)
+        if (cached != null) {
+            (cached as StreamingJsonEncoder).activeDiscriminator = null
+            return cached
+        }
+        return StreamingJsonEncoder(composer, json, newMode, modeReuseCache)
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
@@ -106,6 +119,9 @@ internal class StreamingJsonEncoder(
             composer.unIndent()
             composer.nextItemIfNotFirst()
             composer.print(mode.end)
+        }
+        if (activeDiscriminatorStack.isNotEmpty()) {
+            activeDiscriminator = activeDiscriminatorStack.removeAt(activeDiscriminatorStack.lastIndex)
         }
     }
 
@@ -151,6 +167,44 @@ internal class StreamingJsonEncoder(
             }
         }
         return true
+    }
+
+    override fun <T> encodeSerializableElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        serializer: SerializationStrategy<T>,
+        value: T
+    ) {
+        val extraKeysIndex = descriptor.jsonExtraKeysIndex(json)
+        if (extraKeysIndex == index) {
+            @Suppress("UNCHECKED_CAST")
+            val map = value as Map<String, JsonElement>
+            val declaredNames = descriptor.getJsonDecodingNames(json)
+            val discriminator = activeDiscriminator
+            for ((k, v) in map) {
+                if (k in declaredNames) {
+                    throw JsonEncodingException(
+                        "@JsonExtraKeys map in '${descriptor.serialName}' contains key '$k' " +
+                            "which conflicts with a declared property name.",
+                        classSerialName = descriptor.serialName
+                    )
+                }
+                if (k == discriminator) {
+                    throw JsonEncodingException(
+                        "@JsonExtraKeys map in '${descriptor.serialName}' contains key '$k' " +
+                            "which conflicts with the active class discriminator '$discriminator'.",
+                        classSerialName = descriptor.serialName
+                    )
+                }
+                if (!composer.writingFirst) composer.print(COMMA)
+                composer.nextItem()
+                encodeString(k)
+                composer.print(COLON); composer.space()
+                encodeJsonElement(v)
+            }
+            return
+        }
+        super.encodeSerializableElement(descriptor, index, serializer, value)
     }
 
     override fun <T : Any> encodeNullableSerializableElement(

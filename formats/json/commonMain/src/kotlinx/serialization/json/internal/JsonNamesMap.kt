@@ -79,6 +79,21 @@ internal fun SerialDescriptor.getJsonEncodedNames(json: Json): Set<String> {
     return if (strategy == null) jsonCachedSerialNames() else serializationNamesIndices(json, strategy).toSet()
 }
 
+// All JSON names that decode would resolve to a declared property, including @JsonNames aliases
+internal fun SerialDescriptor.getJsonDecodingNames(json: Json): Set<String> {
+    val strategy = namingStrategy(json)
+    return if (strategy == null && !json.configuration.useAlternativeNames) {
+        jsonCachedSerialNames()
+    } else {
+        val result = mutableSetOf<String>()
+        if (strategy == null) {
+            result.addAll(jsonCachedSerialNames())
+        }
+        result.addAll(json.deserializationNamesMap(this).keys)
+        result
+    }
+}
+
 internal fun SerialDescriptor.namingStrategy(json: Json) =
     if (kind == StructureKind.CLASS) json.configuration.namingStrategy else null
 
@@ -178,7 +193,13 @@ internal val JsonExtraKeysIndexKey = DescriptorSchemaCache.Key<Int>()
  * The result is memoised in the per-[Json] [DescriptorSchemaCache].
  */
 internal fun SerialDescriptor.jsonExtraKeysIndex(json: Json): Int =
-    json.schemaCache.getOrPut(this, JsonExtraKeysIndexKey) {
+    try {
+        json.schemaCache.getOrPut(this, JsonExtraKeysIndexKey) {
+            computeJsonExtraKeysIndex()
+        }
+    } catch (e: ArrayIndexOutOfBoundsException) {
+        // Defensive fallback for hand-rolled descriptors (e.g. external @Serializer)
+        // whose hashCode() crashes due to mismatched childSerializers array.
         computeJsonExtraKeysIndex()
     }
 
@@ -190,8 +211,12 @@ private fun SerialDescriptor.computeJsonExtraKeysIndex(): Int {
             if (foundIndex == -1) {
                 foundIndex = i
             } else {
-                val list = duplicates ?: mutableListOf(getElementName(foundIndex)).also { duplicates = it }
-                list.add(getElementName(i))
+                val list = duplicates
+                if (list == null) {
+                    duplicates = mutableListOf(getElementName(foundIndex), getElementName(i))
+                } else {
+                    list.add(getElementName(i))
+                }
             }
         }
     }
@@ -222,9 +247,19 @@ private fun SerialDescriptor.validateJsonExtraKeysProperty(index: Int) {
         )
     }
     val valueDescriptor = elementDescriptor.getElementDescriptor(1)
+    // Strict identity check: we deliberately reject custom JsonElement
+    // serializers because the streaming decoder synthesises a JsonObject
+    // and feeds it to the standard JsonElementSerializer (see ARCHITECTURE.md §8.3).
+    // Loosening this requires also routing the user's serializer through
+    // the synthetic decode path.
     if (valueDescriptor != JsonElementSerializer.descriptor) {
         throw SerializationException(
             "$rejection: map value type must be JsonElement but was '${valueDescriptor.serialName}'."
+        )
+    }
+    if (getElementAnnotations(index).any { it is JsonNames }) {
+        throw SerializationException(
+            "$rejection: @JsonNames is not allowed on a @JsonExtraKeys property."
         )
     }
 }

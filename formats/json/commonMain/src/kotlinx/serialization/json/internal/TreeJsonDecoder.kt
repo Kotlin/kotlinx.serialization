@@ -210,11 +210,22 @@ private open class JsonTreeDecoder(
 ) : AbstractJsonTreeDecoder(json, value, polymorphicDiscriminator) {
     private var position = 0
     private var forceNull: Boolean = false
+    private var currentDescriptor: SerialDescriptor? = null
+    private var extraKeysIndex: Int = -1
+    private var extraKeysEmitted: Boolean = false
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+        if (currentDescriptor !== descriptor) {
+            currentDescriptor = descriptor
+            extraKeysIndex = descriptor.jsonExtraKeysIndex(json)
+            extraKeysEmitted = false
+        }
         while (position < descriptor.elementsCount) {
             val name = descriptor.getTag(position++)
             val index = position - 1
+            if (index == extraKeysIndex) {
+                continue
+            }
             forceNull = false
 
             if (name in value || setForceNull(descriptor, index)) {
@@ -234,6 +245,10 @@ private open class JsonTreeDecoder(
 
                 return index
             }
+        }
+        if (extraKeysIndex != -1 && !extraKeysEmitted) {
+            extraKeysEmitted = true
+            return extraKeysIndex
         }
         return CompositeDecoder.DECODE_DONE
     }
@@ -272,7 +287,20 @@ private open class JsonTreeDecoder(
         return fallbackName ?: baseName
     }
 
-    override fun currentElement(tag: String): JsonElement = value.getValue(tag)
+    override fun currentElement(tag: String): JsonElement {
+        val descriptor = currentDescriptor
+        if (descriptor != null && extraKeysIndex != -1 && tag == descriptor.getJsonElementName(json, extraKeysIndex)) {
+            val captured = LinkedHashMap<String, JsonElement>()
+            for ((k, v) in value) {
+                val index = descriptor.getJsonNameIndex(json, k)
+                if ((index == CompositeDecoder.UNKNOWN_NAME || index == extraKeysIndex) && k != polymorphicDiscriminator) {
+                    captured[k] = v
+                }
+            }
+            return JsonObject(captured)
+        }
+        return value.getValue(tag)
+    }
 
     fun currentElementOrNull(tag: String): JsonElement? = value[tag]
 
@@ -289,7 +317,7 @@ private open class JsonTreeDecoder(
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
-        if (descriptor.ignoreUnknownKeys(json) || descriptor.kind is PolymorphicKind) return
+        if (descriptor.ignoreUnknownKeys(json) || descriptor.kind is PolymorphicKind || descriptor.jsonExtraKeysIndex(json) != -1) return
         // Validate keys
         val strategy = descriptor.namingStrategy(json)
 

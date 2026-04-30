@@ -294,6 +294,13 @@ public final synthetic class kotlinx/serialization/json/JsonIgnoreUnknownKeys$Im
 	public fun <init> ()V
 }
 
+public abstract interface annotation class kotlinx/serialization/json/JsonExtraKeys : java/lang/annotation/Annotation {
+}
+
+public final synthetic class kotlinx/serialization/json/JsonExtraKeys$Impl : kotlinx/serialization/json/JsonExtraKeys {
+	public fun <init> ()V
+}
+
 public final class kotlinx/serialization/json/JsonKt {
 	public static final fun Json (Lkotlinx/serialization/json/Json;Lkotlin/jvm/functions/Function1;)Lkotlinx/serialization/json/Json;
 	public static synthetic fun Json$default (Lkotlinx/serialization/json/Json;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/json/Json;

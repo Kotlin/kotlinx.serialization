@@ -48,6 +48,15 @@ internal open class StreamingJsonDecoder(
     private val configuration = json.configuration
 
     private val elementMarker: JsonElementMarker? = if (configuration.explicitNulls) null else JsonElementMarker(descriptor)
+    private val extraKeysMap = mutableMapOf<SerialDescriptor, LinkedHashMap<String, JsonElement>>()
+    private val extraKeysEmittedMap = mutableMapOf<SerialDescriptor, Boolean>()
+
+    private data class ExtraKeysFrame(
+        val descriptor: SerialDescriptor,
+        val map: LinkedHashMap<String, JsonElement>?,
+        val emitted: Boolean?
+    )
+    private val extraKeysSavedStack = mutableListOf<ExtraKeysFrame>()
 
     override fun decodeJsonElement(): JsonElement = JsonTreeReader(json.configuration, lexer).read()
 
@@ -113,6 +122,16 @@ internal open class StreamingJsonDecoder(
                 discriminatorHolder
             )
             else -> if (mode == newMode && json.configuration.explicitNulls) {
+                val extraKeysIndex = try {
+                    descriptor.jsonExtraKeysIndex(json)
+                } catch (_: ArrayIndexOutOfBoundsException) {
+                    -1
+                }
+                if (extraKeysIndex != -1) {
+                    val savedMap = try { extraKeysMap.remove(descriptor) } catch (_: ArrayIndexOutOfBoundsException) { null }
+                    val savedEmitted = try { extraKeysEmittedMap.remove(descriptor) } catch (_: ArrayIndexOutOfBoundsException) { null }
+                    extraKeysSavedStack.add(ExtraKeysFrame(descriptor, savedMap, savedEmitted))
+                }
                 this
             } else {
                 StreamingJsonDecoder(json, newMode, lexer, descriptor, discriminatorHolder)
@@ -130,6 +149,22 @@ internal open class StreamingJsonDecoder(
         if (lexer.tryConsumeComma() && !json.configuration.allowTrailingComma) lexer.invalidTrailingComma("")
         // First consume the object so we know it's correct
         lexer.consumeNextToken(mode.end)
+        // Restore saved extra keys state if it was saved due to decoder reuse
+        if (extraKeysSavedStack.isNotEmpty()) {
+            val last = extraKeysSavedStack.removeAt(extraKeysSavedStack.lastIndex)
+            if (last.descriptor == descriptor) {
+                if (last.map != null) {
+                    extraKeysMap[descriptor] = last.map
+                } else {
+                    extraKeysMap.remove(descriptor)
+                }
+                if (last.emitted != null) {
+                    extraKeysEmittedMap[descriptor] = last.emitted
+                } else {
+                    extraKeysEmittedMap.remove(descriptor)
+                }
+            }
+        }
         // Then cleanup the path
         lexer.path.popDescriptor()
     }
@@ -161,6 +196,11 @@ internal open class StreamingJsonDecoder(
         deserializer: DeserializationStrategy<T>,
         previousValue: T?
     ): T {
+        val extraKeysIndex = descriptor.jsonExtraKeysIndex(json)
+        if (index == extraKeysIndex) {
+            val obj = JsonObject(extraKeysMap[descriptor].orEmpty())
+            return readJson(json, obj, deserializer)
+        }
         val isMapKey = mode == LexerMode.MAP && index and 1 == 0
         // Reset previous key
         if (isMapKey) {
@@ -222,6 +262,7 @@ internal open class StreamingJsonDecoder(
     )
 
     private fun decodeObjectIndex(descriptor: SerialDescriptor): Int {
+        val extraKeysIndex = descriptor.jsonExtraKeysIndex(json)
         // hasComma checks are required to properly react on trailing commas
         var hasComma = lexer.tryConsumeComma()
         while (lexer.canConsumeValue()) { // TODO: consider merging comma consumption and this check
@@ -229,7 +270,7 @@ internal open class StreamingJsonDecoder(
             val key = decodeStringKey()
             lexer.consumeNextToken(COLON)
             val index = descriptor.getJsonNameIndex(json, key)
-            val isUnknown = if (index != UNKNOWN_NAME) {
+            val isUnknown = if (index != UNKNOWN_NAME && index != extraKeysIndex) {
                 if (configuration.coerceInputValues && coerceInputValue(descriptor, index)) {
                     hasComma = lexer.tryConsumeComma()
                     false // Known element, but coerced
@@ -238,20 +279,29 @@ internal open class StreamingJsonDecoder(
                     return index // Known element without coercing, return it
                 }
             } else {
-                true // unknown element
+                true // unknown element (or bucket's own key)
             }
 
             if (isUnknown) { // slow-path for unknown keys handling
-                hasComma = handleUnknown(descriptor, key)
+                hasComma = handleUnknown(descriptor, key, extraKeysIndex)
             }
         }
         if (hasComma && !json.configuration.allowTrailingComma) lexer.invalidTrailingComma()
 
+        if (extraKeysIndex != -1 && !extraKeysEmittedMap.getOrPut(descriptor) { false }) {
+            extraKeysEmittedMap[descriptor] = true
+            return extraKeysIndex
+        }
         return elementMarker?.nextUnmarkedIndex() ?: CompositeDecoder.DECODE_DONE
     }
 
-    private fun handleUnknown(descriptor: SerialDescriptor, key: String): Boolean {
-        if (descriptor.ignoreUnknownKeys(json) || discriminatorHolder.trySkip(key)) {
+    private fun handleUnknown(descriptor: SerialDescriptor, key: String, extraKeysIndex: Int): Boolean {
+        if (discriminatorHolder.trySkip(key)) {
+            lexer.skipElement(configuration.isLenient)
+        } else if (extraKeysIndex != -1) {
+            val collector = extraKeysMap.getOrPut(descriptor) { LinkedHashMap() }
+            collector[key] = JsonTreeReader(configuration, lexer).read()
+        } else if (descriptor.ignoreUnknownKeys(json)) {
             lexer.skipElement(configuration.isLenient)
         } else {
             // Since path is updated on key decoding, it ends with the key that was successfully decoded last,

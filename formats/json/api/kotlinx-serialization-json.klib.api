@@ -28,6 +28,10 @@ open annotation class kotlinx.serialization.json/JsonIgnoreUnknownKeys : kotlin/
     constructor <init>() // kotlinx.serialization.json/JsonIgnoreUnknownKeys.<init>|<init>(){}[0]
 }
 
+open annotation class kotlinx.serialization.json/JsonExtraKeys : kotlin/Annotation { // kotlinx.serialization.json/JsonExtraKeys|null[0]
+    constructor <init>() // kotlinx.serialization.json/JsonExtraKeys.<init>|<init>(){}[0]
+}
+
 open annotation class kotlinx.serialization.json/JsonNames : kotlin/Annotation { // kotlinx.serialization.json/JsonNames|null[0]
     constructor <init>(kotlin/Array<out kotlin/String>...) // kotlinx.serialization.json/JsonNames.<init>|<init>(kotlin.Array<out|kotlin.String>...){}[0]
 
