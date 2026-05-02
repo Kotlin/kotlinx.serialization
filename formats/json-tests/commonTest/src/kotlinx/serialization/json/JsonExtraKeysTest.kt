@@ -4,10 +4,20 @@
 
 package kotlinx.serialization.json
 
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.contextual
 import kotlinx.serialization.test.checkSerializationException
+import kotlin.jvm.JvmInline
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -265,5 +275,190 @@ class JsonExtraKeysTest : JsonTestBase() {
         val serialized = json.encodeToString(data, mode)
         val deserialized = json.decodeFromString<OuterWithNestedPoly>(serialized, mode)
         assertEquals(JsonPrimitive("foo"), deserialized.extras["type"])
+    }
+
+    // ---- bucket value types other than JsonElement ----
+
+    @Serializable
+    data class IntBucket(
+        val a: Int,
+        @JsonExtraKeys val extras: Map<String, Int> = emptyMap()
+    )
+
+    @Serializable
+    data class Inner(val name: String, val count: Int)
+
+    @Serializable
+    data class ClassBucket(
+        val a: Int,
+        @JsonExtraKeys val extras: Map<String, Inner> = emptyMap()
+    )
+
+    @Serializable
+    sealed class Shape
+
+    @Serializable
+    @SerialName("circle")
+    data class Circle(val radius: Double) : Shape()
+
+    @Serializable
+    @SerialName("square")
+    data class Square(val side: Double) : Shape()
+
+    @Serializable
+    data class ShapeBucket(
+        val a: Int,
+        @JsonExtraKeys val extras: Map<String, Shape> = emptyMap()
+    )
+
+    // Polymorphic outer with a bucket whose value type's property name collides
+    // with the outer's class discriminator ("type"). Inner's "type" field must
+    // be written inside the inner object — not be flagged as a bucket-key
+    // collision against the outer discriminator.
+    @Serializable
+    sealed class PolyOuter
+
+    @Serializable
+    data class ValueWithTypeProperty(val type: String, val payload: String)
+
+    @Serializable
+    @SerialName("polyOuter")
+    data class PolyOuterImpl(
+        val a: Int,
+        @JsonExtraKeys val extras: Map<String, ValueWithTypeProperty> = emptyMap()
+    ) : PolyOuter()
+
+    // Contextual value type — resolution at encode/decode time via SerializersModule.
+    data class ExternalValue(val text: String)
+
+    private object ExternalValueSerializer : KSerializer<ExternalValue> {
+        override val descriptor: SerialDescriptor =
+            PrimitiveSerialDescriptor("ExternalValue", PrimitiveKind.STRING)
+        override fun serialize(encoder: Encoder, value: ExternalValue) =
+            encoder.encodeString(value.text)
+        override fun deserialize(decoder: Decoder): ExternalValue =
+            ExternalValue(decoder.decodeString())
+    }
+
+    @Serializable
+    data class ContextualBucket(
+        val a: Int,
+        @JsonExtraKeys val extras: Map<String, @Contextual ExternalValue> = emptyMap()
+    )
+
+    // Inline String key — must be rejected by the strict identity check
+    // because the encode path casts each entry key to String.
+    @JvmInline
+    @Serializable
+    value class WrappedKey(val raw: String)
+
+    @Serializable
+    data class InlineKeyBucket(
+        val a: Int,
+        @JsonExtraKeys val extras: Map<WrappedKey, Int> = emptyMap()
+    )
+
+    @Test
+    fun testRoundTripMapStringInt() = parametrizedTest { mode ->
+        val input = """{"a":1,"x":10,"y":20}"""
+        val result = default.decodeFromString<IntBucket>(input, mode)
+        assertEquals(1, result.a)
+        assertEquals(10, result.extras["x"])
+        assertEquals(20, result.extras["y"])
+        val roundTrip = default.encodeToString(result, mode)
+        assertEquals(result, default.decodeFromString<IntBucket>(roundTrip, mode))
+    }
+
+    @Test
+    fun testRoundTripMapStringDataClass() = parametrizedTest { mode ->
+        val input = """{"a":1,"foo":{"name":"hello","count":3},"bar":{"name":"world","count":7}}"""
+        val result = default.decodeFromString<ClassBucket>(input, mode)
+        assertEquals(1, result.a)
+        assertEquals(Inner("hello", 3), result.extras["foo"])
+        assertEquals(Inner("world", 7), result.extras["bar"])
+        val roundTrip = default.encodeToString(result, mode)
+        assertEquals(result, default.decodeFromString<ClassBucket>(roundTrip, mode))
+    }
+
+    @Test
+    fun testRoundTripEmptyIntBucket() = parametrizedTest { mode ->
+        val input = """{"a":1}"""
+        val result = default.decodeFromString<IntBucket>(input, mode)
+        assertEquals(1, result.a)
+        assertEquals(emptyMap(), result.extras)
+        // Empty bucket: encode should not emit anything for `extras`.
+        val roundTrip = default.encodeToString(result, mode)
+        assertEquals(result, default.decodeFromString<IntBucket>(roundTrip, mode))
+    }
+
+    @Test
+    fun testTypeMismatchInBucketValueReportsError() = parametrizedTest { mode ->
+        val input = """{"a":1,"x":"not-an-int"}"""
+        assertFailsWith<SerializationException> {
+            default.decodeFromString<IntBucket>(input, mode)
+        }
+    }
+
+    @Test
+    fun testRoundTripMapStringPolymorphic() = parametrizedTest { mode ->
+        val data = ShapeBucket(
+            a = 1,
+            extras = mapOf(
+                "shape1" to Circle(radius = 2.5),
+                "shape2" to Square(side = 4.0)
+            )
+        )
+        val serialized = default.encodeToString(data, mode)
+        val restored = default.decodeFromString<ShapeBucket>(serialized, mode)
+        assertEquals(data, restored)
+    }
+
+    @Test
+    fun testInnerValuePropertyNamesDoNotClashWithOuterDiscriminator() = parametrizedTest { mode ->
+        // PolyOuterImpl's discriminator at outer level is "type". Inner value
+        // ValueWithTypeProperty also has a property named "type" — that lives
+        // inside the inner object's braces and must NOT be misinterpreted as
+        // a bucket-key collision.
+        val data: PolyOuter = PolyOuterImpl(
+            a = 1,
+            extras = mapOf("foo" to ValueWithTypeProperty(type = "X", payload = "Y"))
+        )
+        val serialized = default.encodeToString(PolyOuter.serializer(), data, mode)
+        val restored = default.decodeFromString(PolyOuter.serializer(), serialized, mode)
+        assertEquals(data, restored)
+    }
+
+    @Test
+    fun testRoundTripContextualValue() = parametrizedTest { mode ->
+        val json = Json(default) {
+            serializersModule = SerializersModule {
+                contextual(ExternalValue::class, ExternalValueSerializer)
+            }
+        }
+        val data = ContextualBucket(a = 1, extras = mapOf("foo" to ExternalValue("hello")))
+        val serialized = json.encodeToString(data, mode)
+        val restored = json.decodeFromString<ContextualBucket>(serialized, mode)
+        assertEquals(data, restored)
+    }
+
+    @Test
+    fun testCaptureWinsOverIgnoreUnknownKeysForIntBucket() = parametrizedTest { mode ->
+        // Capture wins over ignoreUnknownKeys = true for typed buckets,
+        // parity with the JsonElement case.
+        val json = Json(default) { ignoreUnknownKeys = true }
+        val input = """{"a":1,"x":42}"""
+        val result = json.decodeFromString<IntBucket>(input, mode)
+        assertEquals(1, result.a)
+        assertEquals(42, result.extras["x"])
+    }
+
+    @Test
+    fun testRejectInlineStringKey() {
+        // Inline value class wrapping String has STRING kind but a different
+        // runtime type — the strict identity check rejects it to avoid
+        // runtime cast failures in the encode wrapper.
+        assertFailsWith<SerializationException> {
+            default.decodeFromString<InlineKeyBucket>("""{"a":1}""")
+        }
     }
 }

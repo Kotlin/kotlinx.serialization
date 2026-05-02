@@ -6,6 +6,7 @@
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.internal.jsonCachedSerialNames
@@ -188,7 +189,7 @@ internal val JsonExtraKeysIndexKey = DescriptorSchemaCache.Key<Int>()
  *
  * Validates on first computation and throws [SerializationException] if:
  *  - more than one property is annotated with [JsonExtraKeys];
- *  - the annotated property is not of type `Map<String, JsonElement>`.
+ *  - the annotated property is not of type `Map<String, V>` (string-keyed map).
  *
  * The result is memoised in the per-[Json] [DescriptorSchemaCache].
  */
@@ -197,11 +198,14 @@ internal fun SerialDescriptor.jsonExtraKeysIndex(json: Json): Int =
         json.schemaCache.getOrPut(this, JsonExtraKeysIndexKey) {
             computeJsonExtraKeysIndex()
         }
-    } catch (_: ArrayIndexOutOfBoundsException) {
+    } catch (_: IndexOutOfBoundsException) {
         // Some partially-customized descriptors (e.g. created via the @Serializer
-        // companion shortcut) have a broken hashCode() that throws AIOOBE.
-        // The library already documents this limitation around `useAlternativeNames`
-        // (see JsonCustomSerializersTest.kt). Fall back to uncached computation.
+        // companion shortcut) have a broken hashCode() that throws an
+        // index-out-of-bounds exception. The library already documents this
+        // limitation around `useAlternativeNames` (see JsonCustomSerializersTest.kt).
+        // Fall back to uncached computation. We catch the parent type so the
+        // catch is portable across JVM (where the JDK throws AIOOBE) and
+        // Kotlin/Native (where AIOOBE is a deprecated alias for IOOBE).
         computeJsonExtraKeysIndex()
     }
 
@@ -238,25 +242,18 @@ private fun SerialDescriptor.validateJsonExtraKeysProperty(index: Int) {
     val propertyName = getElementName(index)
     val elementDescriptor = getElementDescriptor(index)
     val rejection = "Property '$propertyName' of '$serialName' is annotated with @JsonExtraKeys " +
-        "but its type is not 'Map<String, JsonElement>'"
+        "but its type is not 'Map<String, V>'"
     if (elementDescriptor.kind != StructureKind.MAP) {
         throw SerializationException("$rejection (kind is ${elementDescriptor.kind}).")
     }
     val keyDescriptor = elementDescriptor.getElementDescriptor(0)
-    if (keyDescriptor.kind != PrimitiveKind.STRING) {
+    // Strict identity check: the encode path iterates entries and casts each key
+    // to String. Inline value classes wrapping String have STRING kind but a
+    // different runtime type, so we reject anything but the standard String
+    // serializer's descriptor.
+    if (keyDescriptor !== String.serializer().descriptor) {
         throw SerializationException(
             "$rejection: map key type must be String but was '${keyDescriptor.serialName}'."
-        )
-    }
-    val valueDescriptor = elementDescriptor.getElementDescriptor(1)
-    // Strict identity check: we deliberately reject custom JsonElement
-    // serializers because the streaming decoder synthesises a JsonObject
-    // and feeds it to the standard JsonElementSerializer.
-    // Loosening this requires also routing the user's serializer through
-    // the synthetic decode path.
-    if (valueDescriptor != JsonElementSerializer.descriptor) {
-        throw SerializationException(
-            "$rejection: map value type must be JsonElement but was '${valueDescriptor.serialName}'."
         )
     }
     if (getElementAnnotations(index).any { it is JsonNames }) {

@@ -259,30 +259,68 @@ private open class JsonTreeEncoder(
             super.encodeSerializableElement(descriptor, index, serializer, value)
             return
         }
-        @Suppress("UNCHECKED_CAST")
-        val map = value as Map<String, JsonElement>
-        val declaredNames = descriptor.getJsonDecodingNames(json)
-        val discriminator = activeDiscriminator
-        for ((k, v) in map) {
-            if (k in declaredNames) {
-                throw JsonEncodingException(
-                    "@JsonExtraKeys map in '${descriptor.serialName}' contains key '$k' " +
-                        "which conflicts with a declared property name.",
-                    classSerialName = descriptor.serialName
-                )
-            }
-            if (k == discriminator) {
-                throw JsonEncodingException(
-                    "@JsonExtraKeys map in '${descriptor.serialName}' contains key '$k' " +
-                        "which conflicts with the active class discriminator '$discriminator'.",
-                    classSerialName = descriptor.serialName
-                )
-            }
-            putElement(k, v)
-        }
+        // Drive the user's MapSerializer through a wrapper that converts each
+        // value to a JsonElement via writeJson and merges it into this tree
+        // encoder's content map. Works for arbitrary V.
+        val wrapper = JsonExtraKeysSpreadingTreeEncoder(this, descriptor, activeDiscriminator, json)
+        serializer.serialize(wrapper, value)
     }
 
     override fun getCurrent(): JsonElement = JsonObject(content)
+}
+
+/**
+ * Tree-encoder counterpart to [JsonExtraKeysSpreadingEncoder]. Each entry's
+ * value is materialised to a [JsonElement] via [writeJson] and stored under
+ * the captured key on the parent tree encoder.
+ */
+private class JsonExtraKeysSpreadingTreeEncoder(
+    private val treeEncoder: JsonTreeEncoder,
+    private val parentDescriptor: SerialDescriptor,
+    private val activeDiscriminator: String?,
+    private val json: Json,
+) : AbstractEncoder() {
+
+    override val serializersModule: SerializersModule get() = json.serializersModule
+
+    private var pendingKey: String? = null
+    private val declaredNames: Set<String> = parentDescriptor.getJsonDecodingNames(json)
+
+    override fun <T> encodeSerializableElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        serializer: SerializationStrategy<T>,
+        value: T
+    ) {
+        if (index % 2 == 0) {
+            // Even index = key. Validation in JsonNamesMap guarantees the key
+            // serializer is exactly String.serializer(), so the runtime type
+            // is String.
+            pendingKey = value as String
+        } else {
+            val k = pendingKey!!
+            validateNoCollision(k)
+            treeEncoder.putElement(k, writeJson(json, value, serializer))
+            pendingKey = null
+        }
+    }
+
+    private fun validateNoCollision(k: String) {
+        if (k in declaredNames) {
+            throw JsonEncodingException(
+                "@JsonExtraKeys map in '${parentDescriptor.serialName}' contains key '$k' " +
+                    "which conflicts with a declared property name.",
+                classSerialName = parentDescriptor.serialName
+            )
+        }
+        if (k == activeDiscriminator) {
+            throw JsonEncodingException(
+                "@JsonExtraKeys map in '${parentDescriptor.serialName}' contains key '$k' " +
+                    "which conflicts with the active class discriminator '$activeDiscriminator'.",
+                classSerialName = parentDescriptor.serialName
+            )
+        }
+    }
 }
 
 private class JsonTreeMapEncoder(json: Json, nodeConsumer: (JsonElement) -> Unit) : JsonTreeEncoder(json, nodeConsumer) {

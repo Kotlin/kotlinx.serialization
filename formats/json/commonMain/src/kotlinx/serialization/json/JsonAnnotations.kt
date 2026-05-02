@@ -110,7 +110,12 @@ public annotation class JsonIgnoreUnknownKeys
  * Marks a property as the bucket that captures every JSON object key that
  * does not match any declared property of the enclosing class.
  *
- * The annotated property must be of type `Map<String, JsonElement>`.
+ * The annotated property must be of type `Map<String, V>`, where `V` is any
+ * `@Serializable` type or a contextually serializable type (resolved via the
+ * active [SerializersModule][kotlinx.serialization.modules.SerializersModule]).
+ * `V` can be a [JsonElement] (lossless capture), a primitive, an enum, a
+ * `@Serializable` class, or a polymorphic / sealed hierarchy.
+ *
  * Unknown keys are still resolved through [JsonNames] aliases and the active
  * [JsonNamingStrategy] first; only keys that remain unmatched after that
  * resolution are placed into the bucket. The class discriminator used during
@@ -126,23 +131,38 @@ public annotation class JsonIgnoreUnknownKeys
  * [JsonIgnoreUnknownKeys]: when this annotation is present on a property,
  * unknown keys are always captured rather than silently dropped or rejected.
  *
- * Example:
+ * Example with a typed value class:
  * ```
+ * @Serializable
+ * data class Response(val status: Int, val body: String)
+ *
  * @Serializable
  * data class Responses(
  *     val default: Response,
- *     @JsonExtraKeys val statuses: Map<String, JsonElement> = emptyMap()
+ *     @JsonExtraKeys val statuses: Map<String, Response> = emptyMap()
  * )
  *
- * val json = Json.decodeFromString<Responses>(
+ * val parsed = Json.decodeFromString<Responses>(
  *     """{"default": {...}, "200": {...}, "404": {...}}"""
  * )
- * // json.statuses == { "200" -> {...}, "404" -> {...} }
+ * // parsed.statuses == { "200" -> Response(...), "404" -> Response(...) }
  * ```
+ *
+ * Use `Map<String, JsonElement>` if the bucket's value shapes are heterogeneous
+ * or unknown ahead of time.
  *
  * Constraints validated lazily on first use, raising [SerializationException]:
  *  - at most one property per class may be annotated with [JsonExtraKeys];
- *  - the annotated property must be of type `Map<String, JsonElement>`.
+ *  - the annotated property must be of kind `Map<String, V>` and the key
+ *    serializer must be the standard [String] serializer (inline value classes
+ *    wrapping `String` are not accepted as the key type);
+ *  - the property must not also carry a [JsonNames] annotation.
+ *
+ * The bucket type must be the standard `kotlinx.serialization` `Map` serializer
+ * (the one synthesised by the compiler plugin or returned by `MapSerializer`).
+ * A hand-rolled `KSerializer<Map<String, V>>` that does not follow the
+ * alternating key/value index protocol is not supported and may fail at encode
+ * time.
  *
  * It is recommended to give the annotated property a default value of
  * `emptyMap()` so that it is optional in the input.
