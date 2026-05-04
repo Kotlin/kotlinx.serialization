@@ -9,6 +9,7 @@ package kotlinx.serialization.cbor
 import kotlinx.serialization.*
 import kotlinx.serialization.SimpleSealed.*
 import kotlinx.serialization.cbor.internal.*
+import kotlinx.serialization.descriptors.*
 import kotlin.test.*
 
 class CborDecoderTest {
@@ -47,6 +48,28 @@ class CborDecoderTest {
                 "a9646c6973748261616162686e756c6c61626c65f6636d6170a202f401f56169182a6a696e6e6572734c69737481a16161636b656b637374726d48656c6c6f2c20776f726c642165696e6e6572a16161636c6f6c6a62797465537472696e6742cafe6962797465417272617982383521"
             )
         )
+    }
+
+    @Test
+    fun testDecodeCollectionSize() {
+        fun decodeCollectionSize(data: String, descriptor: SerialDescriptor): Int {
+            val parser = CborParser(ByteArrayInput(data.hexToByteArray()), false)
+            val decoder = CborReader(Cbor, parser).beginStructure(descriptor)
+            return decoder.decodeCollectionSize(descriptor)
+        }
+
+        // Indefinite-length list
+        assertEquals(-1, decodeCollectionSize("9F010203FF", listSerialDescriptor<Int>()))
+        // Definite-length list
+        assertEquals(3, decodeCollectionSize("83010203", listSerialDescriptor<Int>()))
+        // Indefinite-length map
+        assertEquals(-1, decodeCollectionSize("BF016161026162FF", mapSerialDescriptor<Int, String>()))
+        // Definite-length map
+        assertEquals(2, decodeCollectionSize("A2016161026162", mapSerialDescriptor<Int, String>()))
+        // Decode object size
+        assertEquals(-1, decodeCollectionSize("BF61616474657374FF", Simple.serializer().descriptor))
+        // Decode object size when the definite-length encoding was used
+        assertEquals(-1, decodeCollectionSize("A161616474657374", Simple.serializer().descriptor))
     }
 
     @Test

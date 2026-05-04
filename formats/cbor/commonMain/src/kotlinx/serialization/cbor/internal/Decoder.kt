@@ -665,6 +665,9 @@ private class CborMapReader(cbor: Cbor, decoder: CborParser) : CborListReader(cb
     override fun skipBeginToken(objectTags: ULongArray?) =
         setSize(parser.startMap(tags?.let { if (objectTags == null) it else ulongArrayOf(*it, *objectTags) }
             ?: objectTags) * 2)
+
+    override fun decodeCollectionSize(descriptor: SerialDescriptor): Int =
+        if (finiteMode) size / 2 else -1
 }
 
 private open class CborListReader(cbor: Cbor, decoder: CborParser) : CborReader(cbor, decoder) {
@@ -673,6 +676,8 @@ private open class CborListReader(cbor: Cbor, decoder: CborParser) : CborReader(
     override fun skipBeginToken(objectTags: ULongArray?) =
         setSize(parser.startArray(tags?.let { if (objectTags == null) it else ulongArrayOf(*it, *objectTags) }
             ?: objectTags))
+
+    override fun decodeCollectionSize(descriptor: SerialDescriptor): Int = size
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         return if (!finiteMode && parser.isEnd() || (finiteMode && ind >= size)) CompositeDecoder.DECODE_DONE else
