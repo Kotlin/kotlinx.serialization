@@ -566,6 +566,7 @@ public final class kotlinx/serialization/encoding/EncodingKt {
 
 public abstract class kotlinx/serialization/internal/AbstractCollectionSerializer : kotlinx/serialization/KSerializer {
 	protected abstract fun builder ()Ljava/lang/Object;
+	protected fun builder (I)Ljava/lang/Object;
 	protected abstract fun builderSize (Ljava/lang/Object;)I
 	protected abstract fun checkCapacity (Ljava/lang/Object;I)V
 	protected abstract fun collectionIterator (Ljava/lang/Object;)Ljava/util/Iterator;
@@ -591,6 +592,7 @@ public abstract class kotlinx/serialization/internal/AbstractPolymorphicSerializ
 public final class kotlinx/serialization/internal/ArrayListSerializer : kotlinx/serialization/internal/CollectionSerializer {
 	public fun <init> (Lkotlinx/serialization/KSerializer;)V
 	public synthetic fun builder ()Ljava/lang/Object;
+	public synthetic fun builder (I)Ljava/lang/Object;
 	public synthetic fun builderSize (Ljava/lang/Object;)I
 	public synthetic fun checkCapacity (Ljava/lang/Object;I)V
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
@@ -783,6 +785,7 @@ public final class kotlinx/serialization/internal/GeneratedSerializer$DefaultImp
 public final class kotlinx/serialization/internal/HashMapSerializer : kotlinx/serialization/internal/MapLikeSerializer {
 	public fun <init> (Lkotlinx/serialization/KSerializer;Lkotlinx/serialization/KSerializer;)V
 	public synthetic fun builder ()Ljava/lang/Object;
+	public synthetic fun builder (I)Ljava/lang/Object;
 	public synthetic fun builderSize (Ljava/lang/Object;)I
 	public synthetic fun checkCapacity (Ljava/lang/Object;I)V
 	public synthetic fun collectionIterator (Ljava/lang/Object;)Ljava/util/Iterator;
@@ -796,6 +799,7 @@ public final class kotlinx/serialization/internal/HashMapSerializer : kotlinx/se
 public final class kotlinx/serialization/internal/HashSetSerializer : kotlinx/serialization/internal/CollectionSerializer {
 	public fun <init> (Lkotlinx/serialization/KSerializer;)V
 	public synthetic fun builder ()Ljava/lang/Object;
+	public synthetic fun builder (I)Ljava/lang/Object;
 	public synthetic fun builderSize (Ljava/lang/Object;)I
 	public synthetic fun checkCapacity (Ljava/lang/Object;I)V
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
@@ -866,6 +870,7 @@ public abstract class kotlinx/serialization/internal/KeyValueSerializer : kotlin
 public final class kotlinx/serialization/internal/LinkedHashMapSerializer : kotlinx/serialization/internal/MapLikeSerializer {
 	public fun <init> (Lkotlinx/serialization/KSerializer;Lkotlinx/serialization/KSerializer;)V
 	public synthetic fun builder ()Ljava/lang/Object;
+	public synthetic fun builder (I)Ljava/lang/Object;
 	public synthetic fun builderSize (Ljava/lang/Object;)I
 	public synthetic fun checkCapacity (Ljava/lang/Object;I)V
 	public synthetic fun collectionIterator (Ljava/lang/Object;)Ljava/util/Iterator;
@@ -879,6 +884,7 @@ public final class kotlinx/serialization/internal/LinkedHashMapSerializer : kotl
 public final class kotlinx/serialization/internal/LinkedHashSetSerializer : kotlinx/serialization/internal/CollectionSerializer {
 	public fun <init> (Lkotlinx/serialization/KSerializer;)V
 	public synthetic fun builder ()Ljava/lang/Object;
+	public synthetic fun builder (I)Ljava/lang/Object;
 	public synthetic fun builderSize (Ljava/lang/Object;)I
 	public synthetic fun checkCapacity (Ljava/lang/Object;I)V
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
@@ -1028,6 +1034,8 @@ public abstract class kotlinx/serialization/internal/PrimitiveArrayBuilder {
 public abstract class kotlinx/serialization/internal/PrimitiveArraySerializer : kotlinx/serialization/internal/CollectionLikeSerializer {
 	public synthetic fun builder ()Ljava/lang/Object;
 	protected final fun builder ()Lkotlinx/serialization/internal/PrimitiveArrayBuilder;
+	public synthetic fun builder (I)Ljava/lang/Object;
+	protected final fun builder (I)Lkotlinx/serialization/internal/PrimitiveArrayBuilder;
 	public synthetic fun builderSize (Ljava/lang/Object;)I
 	protected final fun builderSize (Lkotlinx/serialization/internal/PrimitiveArrayBuilder;)I
 	public synthetic fun checkCapacity (Ljava/lang/Object;I)V
@@ -1049,6 +1057,7 @@ public abstract class kotlinx/serialization/internal/PrimitiveArraySerializer : 
 public final class kotlinx/serialization/internal/ReferenceArraySerializer : kotlinx/serialization/internal/CollectionLikeSerializer {
 	public fun <init> (Lkotlin/reflect/KClass;Lkotlinx/serialization/KSerializer;)V
 	public synthetic fun builder ()Ljava/lang/Object;
+	public synthetic fun builder (I)Ljava/lang/Object;
 	public synthetic fun builderSize (Ljava/lang/Object;)I
 	public synthetic fun checkCapacity (Ljava/lang/Object;I)V
 	public synthetic fun collectionIterator (Ljava/lang/Object;)Ljava/util/Iterator;
