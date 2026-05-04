@@ -566,7 +566,7 @@ public final class kotlinx/serialization/encoding/EncodingKt {
 
 public abstract class kotlinx/serialization/internal/AbstractCollectionSerializer : kotlinx/serialization/KSerializer {
 	protected abstract fun builder ()Ljava/lang/Object;
-	protected fun builder (I)Ljava/lang/Object;
+	protected abstract fun builder (I)Ljava/lang/Object;
 	protected abstract fun builderSize (Ljava/lang/Object;)I
 	protected abstract fun checkCapacity (Ljava/lang/Object;I)V
 	protected abstract fun collectionIterator (Ljava/lang/Object;)Ljava/util/Iterator;
@@ -608,7 +608,7 @@ public final class kotlinx/serialization/internal/BooleanArrayBuilder : kotlinx/
 public final class kotlinx/serialization/internal/BooleanArraySerializer : kotlinx/serialization/internal/PrimitiveArraySerializer, kotlinx/serialization/KSerializer {
 	public static final field INSTANCE Lkotlinx/serialization/internal/BooleanArraySerializer;
 	public synthetic fun collectionSize (Ljava/lang/Object;)I
-	public synthetic fun empty ()Ljava/lang/Object;
+	public synthetic fun ofSize (I)Lkotlinx/serialization/internal/PrimitiveArrayBuilder;
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
 	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
@@ -631,7 +631,7 @@ public final class kotlinx/serialization/internal/ByteArrayBuilder : kotlinx/ser
 public final class kotlinx/serialization/internal/ByteArraySerializer : kotlinx/serialization/internal/PrimitiveArraySerializer, kotlinx/serialization/KSerializer {
 	public static final field INSTANCE Lkotlinx/serialization/internal/ByteArraySerializer;
 	public synthetic fun collectionSize (Ljava/lang/Object;)I
-	public synthetic fun empty ()Ljava/lang/Object;
+	public synthetic fun ofSize (I)Lkotlinx/serialization/internal/PrimitiveArrayBuilder;
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
 	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
@@ -654,7 +654,7 @@ public final class kotlinx/serialization/internal/CharArrayBuilder : kotlinx/ser
 public final class kotlinx/serialization/internal/CharArraySerializer : kotlinx/serialization/internal/PrimitiveArraySerializer, kotlinx/serialization/KSerializer {
 	public static final field INSTANCE Lkotlinx/serialization/internal/CharArraySerializer;
 	public synthetic fun collectionSize (Ljava/lang/Object;)I
-	public synthetic fun empty ()Ljava/lang/Object;
+	public synthetic fun ofSize (I)Lkotlinx/serialization/internal/PrimitiveArrayBuilder;
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
 	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
@@ -694,7 +694,7 @@ public final class kotlinx/serialization/internal/DoubleArrayBuilder : kotlinx/s
 public final class kotlinx/serialization/internal/DoubleArraySerializer : kotlinx/serialization/internal/PrimitiveArraySerializer, kotlinx/serialization/KSerializer {
 	public static final field INSTANCE Lkotlinx/serialization/internal/DoubleArraySerializer;
 	public synthetic fun collectionSize (Ljava/lang/Object;)I
-	public synthetic fun empty ()Ljava/lang/Object;
+	public synthetic fun ofSize (I)Lkotlinx/serialization/internal/PrimitiveArrayBuilder;
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
 	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
@@ -757,7 +757,7 @@ public final class kotlinx/serialization/internal/FloatArrayBuilder : kotlinx/se
 public final class kotlinx/serialization/internal/FloatArraySerializer : kotlinx/serialization/internal/PrimitiveArraySerializer, kotlinx/serialization/KSerializer {
 	public static final field INSTANCE Lkotlinx/serialization/internal/FloatArraySerializer;
 	public synthetic fun collectionSize (Ljava/lang/Object;)I
-	public synthetic fun empty ()Ljava/lang/Object;
+	public synthetic fun ofSize (I)Lkotlinx/serialization/internal/PrimitiveArrayBuilder;
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
 	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
@@ -835,7 +835,7 @@ public final class kotlinx/serialization/internal/IntArrayBuilder : kotlinx/seri
 public final class kotlinx/serialization/internal/IntArraySerializer : kotlinx/serialization/internal/PrimitiveArraySerializer, kotlinx/serialization/KSerializer {
 	public static final field INSTANCE Lkotlinx/serialization/internal/IntArraySerializer;
 	public synthetic fun collectionSize (Ljava/lang/Object;)I
-	public synthetic fun empty ()Ljava/lang/Object;
+	public synthetic fun ofSize (I)Lkotlinx/serialization/internal/PrimitiveArrayBuilder;
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
 	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
@@ -900,7 +900,7 @@ public final class kotlinx/serialization/internal/LongArrayBuilder : kotlinx/ser
 public final class kotlinx/serialization/internal/LongArraySerializer : kotlinx/serialization/internal/PrimitiveArraySerializer, kotlinx/serialization/KSerializer {
 	public static final field INSTANCE Lkotlinx/serialization/internal/LongArraySerializer;
 	public synthetic fun collectionSize (Ljava/lang/Object;)I
-	public synthetic fun empty ()Ljava/lang/Object;
+	public synthetic fun ofSize (I)Lkotlinx/serialization/internal/PrimitiveArrayBuilder;
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
 	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
@@ -1042,10 +1042,10 @@ public abstract class kotlinx/serialization/internal/PrimitiveArraySerializer : 
 	protected final fun checkCapacity (Lkotlinx/serialization/internal/PrimitiveArrayBuilder;I)V
 	protected final fun collectionIterator (Ljava/lang/Object;)Ljava/util/Iterator;
 	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	protected abstract fun empty ()Ljava/lang/Object;
 	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public synthetic fun insert (Ljava/lang/Object;ILjava/lang/Object;)V
 	protected final fun insert (Lkotlinx/serialization/internal/PrimitiveArrayBuilder;ILjava/lang/Object;)V
+	protected abstract fun ofSize (I)Lkotlinx/serialization/internal/PrimitiveArrayBuilder;
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
 	protected abstract fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
 	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
@@ -1082,7 +1082,7 @@ public final class kotlinx/serialization/internal/ShortArrayBuilder : kotlinx/se
 public final class kotlinx/serialization/internal/ShortArraySerializer : kotlinx/serialization/internal/PrimitiveArraySerializer, kotlinx/serialization/KSerializer {
 	public static final field INSTANCE Lkotlinx/serialization/internal/ShortArraySerializer;
 	public synthetic fun collectionSize (Ljava/lang/Object;)I
-	public synthetic fun empty ()Ljava/lang/Object;
+	public synthetic fun ofSize (I)Lkotlinx/serialization/internal/PrimitiveArrayBuilder;
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
 	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
@@ -1236,7 +1236,7 @@ public final class kotlinx/serialization/internal/UByteArrayBuilder : kotlinx/se
 public final class kotlinx/serialization/internal/UByteArraySerializer : kotlinx/serialization/internal/PrimitiveArraySerializer, kotlinx/serialization/KSerializer {
 	public static final field INSTANCE Lkotlinx/serialization/internal/UByteArraySerializer;
 	public synthetic fun collectionSize (Ljava/lang/Object;)I
-	public synthetic fun empty ()Ljava/lang/Object;
+	public synthetic fun ofSize (I)Lkotlinx/serialization/internal/PrimitiveArrayBuilder;
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
 	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
@@ -1259,7 +1259,7 @@ public final class kotlinx/serialization/internal/UIntArrayBuilder : kotlinx/ser
 public final class kotlinx/serialization/internal/UIntArraySerializer : kotlinx/serialization/internal/PrimitiveArraySerializer, kotlinx/serialization/KSerializer {
 	public static final field INSTANCE Lkotlinx/serialization/internal/UIntArraySerializer;
 	public synthetic fun collectionSize (Ljava/lang/Object;)I
-	public synthetic fun empty ()Ljava/lang/Object;
+	public synthetic fun ofSize (I)Lkotlinx/serialization/internal/PrimitiveArrayBuilder;
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
 	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
@@ -1282,7 +1282,7 @@ public final class kotlinx/serialization/internal/ULongArrayBuilder : kotlinx/se
 public final class kotlinx/serialization/internal/ULongArraySerializer : kotlinx/serialization/internal/PrimitiveArraySerializer, kotlinx/serialization/KSerializer {
 	public static final field INSTANCE Lkotlinx/serialization/internal/ULongArraySerializer;
 	public synthetic fun collectionSize (Ljava/lang/Object;)I
-	public synthetic fun empty ()Ljava/lang/Object;
+	public synthetic fun ofSize (I)Lkotlinx/serialization/internal/PrimitiveArrayBuilder;
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
 	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
@@ -1305,7 +1305,7 @@ public final class kotlinx/serialization/internal/UShortArrayBuilder : kotlinx/s
 public final class kotlinx/serialization/internal/UShortArraySerializer : kotlinx/serialization/internal/PrimitiveArraySerializer, kotlinx/serialization/KSerializer {
 	public static final field INSTANCE Lkotlinx/serialization/internal/UShortArraySerializer;
 	public synthetic fun collectionSize (Ljava/lang/Object;)I
-	public synthetic fun empty ()Ljava/lang/Object;
+	public synthetic fun ofSize (I)Lkotlinx/serialization/internal/PrimitiveArrayBuilder;
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
 	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;

@@ -307,7 +307,7 @@ abstract class <#A: kotlin/Any?, #B: kotlin/Any?, #C: kotlinx.serialization.inte
     final val descriptor // kotlinx.serialization.internal/PrimitiveArraySerializer.descriptor|{}descriptor[0]
         final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // kotlinx.serialization.internal/PrimitiveArraySerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
 
-    abstract fun empty(): #B // kotlinx.serialization.internal/PrimitiveArraySerializer.empty|empty(){}[0]
+    abstract fun ofSize(kotlin/Int): #C // kotlinx.serialization.internal/PrimitiveArraySerializer.ofSize|ofSize(kotlin.Int){}[0]
     abstract fun readElement(kotlinx.serialization.encoding/CompositeDecoder, kotlin/Int, #C, kotlin/Boolean) // kotlinx.serialization.internal/PrimitiveArraySerializer.readElement|readElement(kotlinx.serialization.encoding.CompositeDecoder;kotlin.Int;1:2;kotlin.Boolean){}[0]
     abstract fun writeContent(kotlinx.serialization.encoding/CompositeEncoder, #B, kotlin/Int) // kotlinx.serialization.internal/PrimitiveArraySerializer.writeContent|writeContent(kotlinx.serialization.encoding.CompositeEncoder;1:1;kotlin.Int){}[0]
     final fun (#B).collectionIterator(): kotlin.collections/Iterator<#A> // kotlinx.serialization.internal/PrimitiveArraySerializer.collectionIterator|collectionIterator@1:1(){}[0]
@@ -810,11 +810,11 @@ sealed class <#A: kotlin/Any?, #B: kotlin/Any?, #C: kotlin/Any?> kotlinx.seriali
     abstract fun (#C).checkCapacity(kotlin/Int) // kotlinx.serialization.internal/AbstractCollectionSerializer.checkCapacity|checkCapacity@1:2(kotlin.Int){}[0]
     abstract fun (#C).toResult(): #B // kotlinx.serialization.internal/AbstractCollectionSerializer.toResult|toResult@1:2(){}[0]
     abstract fun builder(): #C // kotlinx.serialization.internal/AbstractCollectionSerializer.builder|builder(){}[0]
+    abstract fun builder(kotlin/Int): #C // kotlinx.serialization.internal/AbstractCollectionSerializer.builder|builder(kotlin.Int){}[0]
     abstract fun readAll(kotlinx.serialization.encoding/CompositeDecoder, #C, kotlin/Int, kotlin/Int) // kotlinx.serialization.internal/AbstractCollectionSerializer.readAll|readAll(kotlinx.serialization.encoding.CompositeDecoder;1:2;kotlin.Int;kotlin.Int){}[0]
     abstract fun readElement(kotlinx.serialization.encoding/CompositeDecoder, kotlin/Int, #C, kotlin/Boolean = ...) // kotlinx.serialization.internal/AbstractCollectionSerializer.readElement|readElement(kotlinx.serialization.encoding.CompositeDecoder;kotlin.Int;1:2;kotlin.Boolean){}[0]
     abstract fun serialize(kotlinx.serialization.encoding/Encoder, #B) // kotlinx.serialization.internal/AbstractCollectionSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;1:1){}[0]
     final fun merge(kotlinx.serialization.encoding/Decoder, #B?): #B // kotlinx.serialization.internal/AbstractCollectionSerializer.merge|merge(kotlinx.serialization.encoding.Decoder;1:1?){}[0]
-    open fun builder(kotlin/Int): #C // kotlinx.serialization.internal/AbstractCollectionSerializer.builder|builder(kotlin.Int){}[0]
     open fun deserialize(kotlinx.serialization.encoding/Decoder): #B // kotlinx.serialization.internal/AbstractCollectionSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
 }
 

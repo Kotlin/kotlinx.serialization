@@ -15,10 +15,7 @@ public sealed class AbstractCollectionSerializer<Element, Collection, Builder> :
     protected abstract fun Collection.collectionSize(): Int
     protected abstract fun Collection.collectionIterator(): Iterator<Element>
     protected abstract fun builder(): Builder
-    protected open fun builder(initialCapacityHint: Int): Builder {
-        checkBuildersInitialCapacity(initialCapacityHint)
-        return builder()
-    }
+    protected abstract fun builder(initialCapacityHint: Int): Builder
     protected abstract fun Builder.builderSize(): Int
     protected abstract fun Builder.toResult(): Collection
     protected abstract fun Collection.toBuilder(): Builder
@@ -159,14 +156,13 @@ internal abstract class PrimitiveArraySerializer<Element, Array, Builder
     final override fun Builder.insert(index: Int, element: Element): Unit =
         error("This method lead to boxing and must not be used, use Builder.append instead")
 
-    final override fun builder(): Builder = empty().toBuilder()
+    final override fun builder(): Builder = builder(0)
     final override fun builder(initialCapacityHint: Int): Builder {
         checkBuildersInitialCapacity(initialCapacityHint)
-        // TODO: optimize creation of an empty array followed by its expansion
-        return builder().also { it.ensureCapacity(initialCapacityHint) }
+        return ofSize(initialCapacityHint)
     }
 
-    protected abstract fun empty(): Array
+    protected abstract fun ofSize(size: Int): Builder
 
     abstract override fun readElement(
         decoder: CompositeDecoder,
