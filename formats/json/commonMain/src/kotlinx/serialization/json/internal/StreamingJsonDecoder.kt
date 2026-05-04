@@ -305,7 +305,10 @@ internal open class StreamingJsonDecoder(
 
         if (extraKeysIndex != -1 && !extraKeysEmitted) {
             extraKeysEmitted = true
-            return extraKeysIndex
+            // When optional and nothing captured, fall through so the property keeps its declared default.
+            if (extraKeys != null || !descriptor.isElementOptional(extraKeysIndex)) {
+                return extraKeysIndex
+            }
         }
         return elementMarker?.nextUnmarkedIndex() ?: CompositeDecoder.DECODE_DONE
     }

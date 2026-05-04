@@ -213,12 +213,17 @@ private open class JsonTreeDecoder(
     private var currentDescriptor: SerialDescriptor? = null
     private var extraKeysIndex: Int = -1
     private var extraKeysEmitted: Boolean = false
+    // Built once in decodeElementIndex; read back by currentElement. Null when no bucket is emitted.
+    private var capturedExtras: JsonObject? = null
+    private var bucketTagName: String? = null
 
     private fun extraKeysIndexFor(descriptor: SerialDescriptor): Int {
         if (currentDescriptor !== descriptor) {
             currentDescriptor = descriptor
             extraKeysIndex = descriptor.jsonExtraKeysIndex(json)
             extraKeysEmitted = false
+            capturedExtras = null
+            bucketTagName = null
         }
         return extraKeysIndex
     }
@@ -253,9 +258,30 @@ private open class JsonTreeDecoder(
         }
         if (bucketIndex != -1 && !extraKeysEmitted) {
             extraKeysEmitted = true
+            val captured = computeCapturedExtras(descriptor, bucketIndex)
+            // When optional and nothing captured, skip the emit so the property keeps its declared default.
+            if (captured == null && descriptor.isElementOptional(bucketIndex)) {
+                return CompositeDecoder.DECODE_DONE
+            }
+            capturedExtras = JsonObject(captured ?: emptyMap())
+            bucketTagName = descriptor.getJsonElementName(json, bucketIndex)
             return bucketIndex
         }
         return CompositeDecoder.DECODE_DONE
+    }
+
+    private fun computeCapturedExtras(
+        descriptor: SerialDescriptor,
+        bucketIndex: Int
+    ): LinkedHashMap<String, JsonElement>? {
+        var captured: LinkedHashMap<String, JsonElement>? = null
+        for ((k, v) in value) {
+            val nameIndex = descriptor.getJsonNameIndex(json, k)
+            if ((nameIndex == CompositeDecoder.UNKNOWN_NAME || nameIndex == bucketIndex) && k != polymorphicDiscriminator) {
+                (captured ?: LinkedHashMap<String, JsonElement>().also { captured = it })[k] = v
+            }
+        }
+        return captured
     }
 
     private fun setForceNull(descriptor: SerialDescriptor, index: Int): Boolean {
@@ -293,16 +319,9 @@ private open class JsonTreeDecoder(
     }
 
     override fun currentElement(tag: String): JsonElement {
-        val descriptor = currentDescriptor
-        if (descriptor != null && extraKeysIndex != -1 && tag == descriptor.getJsonElementName(json, extraKeysIndex)) {
-            val captured = LinkedHashMap<String, JsonElement>()
-            for ((k, v) in value) {
-                val index = descriptor.getJsonNameIndex(json, k)
-                if ((index == CompositeDecoder.UNKNOWN_NAME || index == extraKeysIndex) && k != polymorphicDiscriminator) {
-                    captured[k] = v
-                }
-            }
-            return JsonObject(captured)
+        val cached = capturedExtras
+        if (cached != null && tag == bucketTagName) {
+            return cached
         }
         return value.getValue(tag)
     }
