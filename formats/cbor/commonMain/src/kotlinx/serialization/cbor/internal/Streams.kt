@@ -45,7 +45,7 @@ internal class ByteArrayOutput {
     private fun ensureCapacity(elementsToAppend: Int) {
         val requiredCapacityLong = position.toLong() + elementsToAppend.toLong()
         if (requiredCapacityLong > Int.MAX_VALUE) {
-            throw IllegalArgumentException("Required capacity exceeds maximum array size (Int.MAX_VALUE).")
+            throw SerializationException("Capacity required to hold a value serialized to CBOR ($requiredCapacityLong) exceeds maximum supported byte array length (${Int.MAX_VALUE}).")
         }
 
         val requiredCapacity = requiredCapacityLong.toInt()
