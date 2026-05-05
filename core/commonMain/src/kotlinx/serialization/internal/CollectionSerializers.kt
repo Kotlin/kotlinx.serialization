@@ -8,6 +8,7 @@ package kotlinx.serialization.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
+import kotlin.math.ceil
 import kotlin.reflect.*
 
 @InternalSerializationApi
@@ -280,7 +281,9 @@ internal class LinkedHashMapSerializer<K, V>(
     override fun builder(initialCapacityHint: Int): LinkedHashMap<K, V> {
         if (initialCapacityHint == -1) return LinkedHashMap()
         checkBuildersInitialCapacity(initialCapacityHint)
-        return LinkedHashMap(initialCapacityHint)
+        val loadFactor = 0.75f
+        val capacity = ceil(initialCapacityHint / loadFactor).toInt()
+        return LinkedHashMap(capacity, loadFactor)
     }
     override fun LinkedHashMap<K, V>.builderSize(): Int = size * 2
     override fun LinkedHashMap<K, V>.toResult(): Map<K, V> = this
@@ -300,7 +303,9 @@ internal class HashMapSerializer<K, V>(
     override fun builder(initialCapacityHint: Int): HashMap<K, V> {
         if (initialCapacityHint == -1) return HashMap()
         checkBuildersInitialCapacity(initialCapacityHint)
-        return HashMap(initialCapacityHint)
+        val loadFactor = 0.75f
+        val capacity = ceil(initialCapacityHint / loadFactor).toInt()
+        return HashMap(capacity, loadFactor)
     }
     override fun HashMap<K, V>.builderSize(): Int = size * 2
     override fun HashMap<K, V>.toResult(): Map<K, V> = this
