@@ -14,7 +14,6 @@ import kotlin.reflect.*
 public sealed class AbstractCollectionSerializer<Element, Collection, Builder> : KSerializer<Collection> {
     protected abstract fun Collection.collectionSize(): Int
     protected abstract fun Collection.collectionIterator(): Iterator<Element>
-    protected abstract fun builder(): Builder
     protected abstract fun builder(initialCapacityHint: Int): Builder
     protected abstract fun Builder.builderSize(): Int
     protected abstract fun Builder.toResult(): Collection
@@ -27,10 +26,10 @@ public sealed class AbstractCollectionSerializer<Element, Collection, Builder> :
     public fun merge(decoder: Decoder, previous: Collection?): Collection {
         val compositeDecoder = decoder.beginStructure(descriptor)
         val expectedSize = compositeDecoder.decodeCollectionSize(descriptor)
-        val builder = when {
-            previous != null -> previous.toBuilder().also { it.checkCapacity(expectedSize) }
-            expectedSize >= 0 -> builder(expectedSize)
-            else -> builder()
+        val builder = if (previous != null) {
+            previous.toBuilder().also { it.checkCapacity(expectedSize) }
+        } else {
+            builder(expectedSize)
         }
         val startIndex = builder.builderSize()
         if (compositeDecoder.decodeSequentially()) {
@@ -156,13 +155,14 @@ internal abstract class PrimitiveArraySerializer<Element, Array, Builder
     final override fun Builder.insert(index: Int, element: Element): Unit =
         error("This method lead to boxing and must not be used, use Builder.append instead")
 
-    final override fun builder(): Builder = builder(0)
     final override fun builder(initialCapacityHint: Int): Builder {
+        if (initialCapacityHint == -1) return ofUnknownSize()
         checkBuildersInitialCapacity(initialCapacityHint)
         return ofSize(initialCapacityHint)
     }
 
     protected abstract fun ofSize(size: Int): Builder
+    protected abstract fun ofUnknownSize(): Builder
 
     abstract override fun readElement(
         decoder: CompositeDecoder,
@@ -193,8 +193,8 @@ internal class ReferenceArraySerializer<ElementKlass : Any, Element : ElementKla
 
     override fun Array<Element>.collectionSize(): Int = size
     override fun Array<Element>.collectionIterator(): Iterator<Element> = iterator()
-    override fun builder(): ArrayList<Element> = arrayListOf()
     override fun builder(initialCapacityHint: Int): ArrayList<Element> {
+        if (initialCapacityHint == -1) return arrayListOf()
         checkBuildersInitialCapacity(initialCapacityHint)
         return ArrayList(initialCapacityHint)
     }
@@ -221,8 +221,8 @@ internal abstract class CollectionSerializer<E, C: Collection<E>, B>(element: KS
 internal class ArrayListSerializer<E>(element: KSerializer<E>) : CollectionSerializer<E, List<E>, ArrayList<E>>(element) {
     override val descriptor: SerialDescriptor = ArrayListClassDesc(element.descriptor)
 
-    override fun builder(): ArrayList<E> = arrayListOf()
     override fun builder(initialCapacityHint: Int): ArrayList<E> {
+        if (initialCapacityHint == -1) return arrayListOf()
         checkBuildersInitialCapacity(initialCapacityHint)
         return ArrayList(initialCapacityHint)
     }
@@ -239,8 +239,8 @@ internal class LinkedHashSetSerializer<E>(
 ) : CollectionSerializer<E, Set<E>, LinkedHashSet<E>>(eSerializer) {
     override val descriptor: SerialDescriptor = LinkedHashSetClassDesc(eSerializer.descriptor)
 
-    override fun builder(): LinkedHashSet<E> = linkedSetOf()
     override fun builder(initialCapacityHint: Int): LinkedHashSet<E> {
+        if (initialCapacityHint == -1) return linkedSetOf()
         checkBuildersInitialCapacity(initialCapacityHint)
         return LinkedHashSet(initialCapacityHint)
     }
@@ -257,8 +257,8 @@ internal class HashSetSerializer<E>(
 ) : CollectionSerializer<E, Set<E>, HashSet<E>>(eSerializer) {
     override val descriptor: SerialDescriptor = HashSetClassDesc(eSerializer.descriptor)
 
-    override fun builder(): HashSet<E> = HashSet()
     override fun builder(initialCapacityHint: Int): HashSet<E> {
+        if (initialCapacityHint == -1) return HashSet()
         checkBuildersInitialCapacity(initialCapacityHint)
         return HashSet(initialCapacityHint)
     }
@@ -277,8 +277,8 @@ internal class LinkedHashMapSerializer<K, V>(
     override val descriptor: SerialDescriptor = LinkedHashMapClassDesc(kSerializer.descriptor, vSerializer.descriptor)
     override fun Map<K, V>.collectionSize(): Int = size
     override fun Map<K, V>.collectionIterator(): Iterator<Map.Entry<K, V>> = iterator()
-    override fun builder(): LinkedHashMap<K, V> = LinkedHashMap()
     override fun builder(initialCapacityHint: Int): LinkedHashMap<K, V> {
+        if (initialCapacityHint == -1) return LinkedHashMap()
         checkBuildersInitialCapacity(initialCapacityHint)
         return LinkedHashMap(initialCapacityHint)
     }
@@ -297,8 +297,8 @@ internal class HashMapSerializer<K, V>(
     override val descriptor: SerialDescriptor = HashMapClassDesc(kSerializer.descriptor, vSerializer.descriptor)
     override fun Map<K, V>.collectionSize(): Int = size
     override fun Map<K, V>.collectionIterator(): Iterator<Map.Entry<K, V>> = iterator()
-    override fun builder(): HashMap<K, V> = HashMap()
     override fun builder(initialCapacityHint: Int): HashMap<K, V> {
+        if (initialCapacityHint == -1) return HashMap()
         checkBuildersInitialCapacity(initialCapacityHint)
         return HashMap(initialCapacityHint)
     }
