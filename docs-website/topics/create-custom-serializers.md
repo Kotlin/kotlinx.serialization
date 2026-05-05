@@ -634,6 +634,94 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
+### Encode default values in custom serializers
+<primary-label ref="experimental-general"/>
+
+Plugin-generated serializers check whether the encoder needs to encode values that are equal to their defaults.
+For example, in JSON, this is controlled by the [`encodeDefaults`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/encode-defaults.html) property.
+
+To achieve the same behavior in a custom serializer, use the [`shouldEncodeElementDefault()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-composite-encoder/should-encode-element-default.html) function with the serializer's `descriptor` and the index of the element you're encoding.
+
+> If a property is annotated with [`@EncodeDefault`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-encode-default/), plugin-generated serializers don't call `shouldEncodeElementDefault()`.
+>
+{style="note"}
+
+Here's an example where a custom serializer encodes default `Color` values when `encodeDefaults` is enabled:
+
+```kotlin
+// Imports declarations from the serialization library
+import kotlinx.serialization.*
+import kotlinx.serialization.encoding.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.json.*
+
+// Creates a custom serializer for the Color class with multiple properties
+object ColorAsObjectSerializer : KSerializer<Color> {
+    // Defines the schema for the Color class
+    override val descriptor: SerialDescriptor =
+        buildClassSerialDescriptor("my.app.Color") {
+            // Specifies each property with its type and name with the element() function
+            element<Int>("r")
+            element<Int>("g")
+            element<Int>("b")
+        }
+   
+//sampleStart
+    @OptIn(ExperimentalSerializationApi::class)
+    override fun serialize(encoder: Encoder, value: Color) =
+        encoder.encodeStructure(descriptor) {
+            val r = (value.rgb shr 16) and 0xff
+            val g = (value.rgb shr 8) and 0xff
+            val b = value.rgb and 0xff
+
+            // Encodes r if it differs from its default value,
+            // or if the encoder needs to encode the first element's default value
+            if (r != 0 || shouldEncodeElementDefault(descriptor, 0)) {
+                encodeIntElement(descriptor, 0, r)
+            }
+            if (g != 255 || shouldEncodeElementDefault(descriptor, 1)) {
+                encodeIntElement(descriptor, 1, g)
+            }
+            if (b != 0 || shouldEncodeElementDefault(descriptor, 2)) {
+                encodeIntElement(descriptor, 2, b)
+            }
+        }
+
+    // Deserializes the data back into a Color object
+    override fun deserialize(decoder: Decoder): Color =
+        decoder.decodeStructure(descriptor) {
+            var r = 0
+            var g = 255
+            var b = 0
+
+            while (true) {
+                when (val index = decodeElementIndex(descriptor)) {
+                    0 -> r = decodeIntElement(descriptor, 0)
+                    1 -> g = decodeIntElement(descriptor, 1)
+                    2 -> b = decodeIntElement(descriptor, 2)
+                    CompositeDecoder.DECODE_DONE -> break
+                    else -> error("Unexpected index: $index")
+                }
+            }
+            require(r in 0..255 && g in 0..255 && b in 0..255)
+            Color((r shl 16) or (g shl 8) or b)
+        }
+}
+
+// Specifies the custom serializer for Color
+@Serializable(ColorAsObjectSerializer::class)
+data class Color(val rgb: Int = 0x00ff00)
+
+fun main() {
+    val color = Color()
+    val stringWithDefaults = Json { encodeDefaults = true }.encodeToString(color)
+    println(stringWithDefaults)
+    // {"r":0,"g":255,"b":0}
+}
+//sampleEnd
+```
+{kotlin-runnable="true"}
+
 ### Optimize deserialization with sequential decoding
 <primary-label ref="experimental-general"/>
 
