@@ -40,4 +40,7 @@ open class CborCollectionsPreSizing {
 
     @Benchmark
     fun map(): Map<Int, Int> = cbor.decodeFromByteArray(encodedIntMap)
+
+    @Benchmark
+    fun list(): List<Int> = cbor.decodeFromByteArray(encodedIntArray)
 }
