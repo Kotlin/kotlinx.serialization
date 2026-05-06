@@ -243,7 +243,9 @@ internal class LinkedHashSetSerializer<E>(
     override fun builder(initialCapacityHint: Int): LinkedHashSet<E> {
         if (initialCapacityHint == -1) return linkedSetOf()
         checkBuildersInitialCapacity(initialCapacityHint)
-        return LinkedHashSet(initialCapacityHint)
+        val loadFactor = 0.75f
+        val capacity = estimateCapacityForHashMap(initialCapacityHint, loadFactor.toDouble())
+        return LinkedHashSet(capacity, loadFactor)
     }
     override fun LinkedHashSet<E>.builderSize(): Int = size
     override fun LinkedHashSet<E>.toResult(): Set<E> = this
@@ -261,7 +263,9 @@ internal class HashSetSerializer<E>(
     override fun builder(initialCapacityHint: Int): HashSet<E> {
         if (initialCapacityHint == -1) return HashSet()
         checkBuildersInitialCapacity(initialCapacityHint)
-        return HashSet(initialCapacityHint)
+        val loadFactor = 0.75f
+        val capacity = estimateCapacityForHashMap(initialCapacityHint, loadFactor.toDouble())
+        return HashSet(capacity, loadFactor)
     }
     override fun HashSet<E>.builderSize(): Int = size
     override fun HashSet<E>.toResult(): Set<E> = this
@@ -282,7 +286,7 @@ internal class LinkedHashMapSerializer<K, V>(
         if (initialCapacityHint == -1) return LinkedHashMap()
         checkBuildersInitialCapacity(initialCapacityHint)
         val loadFactor = 0.75f
-        val capacity = ceil(initialCapacityHint / loadFactor).toInt()
+        val capacity = estimateCapacityForHashMap(initialCapacityHint, loadFactor.toDouble())
         return LinkedHashMap(capacity, loadFactor)
     }
     override fun LinkedHashMap<K, V>.builderSize(): Int = size * 2
@@ -304,7 +308,7 @@ internal class HashMapSerializer<K, V>(
         if (initialCapacityHint == -1) return HashMap()
         checkBuildersInitialCapacity(initialCapacityHint)
         val loadFactor = 0.75f
-        val capacity = ceil(initialCapacityHint / loadFactor).toInt()
+        val capacity = estimateCapacityForHashMap(initialCapacityHint, loadFactor.toDouble())
         return HashMap(capacity, loadFactor)
     }
     override fun HashMap<K, V>.builderSize(): Int = size * 2
@@ -317,3 +321,6 @@ internal class HashMapSerializer<K, V>(
 private fun checkBuildersInitialCapacity(initialCapacityHint: Int) {
     require(initialCapacityHint >= 0) { "initialCapacityHint must be non-negative, but was $initialCapacityHint" }
 }
+
+private fun estimateCapacityForHashMap(requiredCapacity: Int, loadFactor: Double): Int =
+    ceil(requiredCapacity / loadFactor).toInt()
