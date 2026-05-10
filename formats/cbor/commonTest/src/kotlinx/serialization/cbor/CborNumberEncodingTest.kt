@@ -1,7 +1,9 @@
+@file:OptIn(ExperimentalUnsignedTypes::class)
+
 package kotlinx.serialization.cbor
 
-import kotlinx.serialization.decodeFromByteArray
-import kotlinx.serialization.encodeToByteArray
+import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -211,5 +213,14 @@ class CborNumberEncodingTest {
             expected = -4294967296,
             actual = Cbor.decodeFromByteArray(bytes),
         )
+    }
+
+    @Test
+    fun testEncodingUnsignedValuesAsPositiveInteger() {
+        assertEquals(expected = "18c8", actual = Cbor.encodeToHexString(UByte.serializer(), 200u))
+        assertEquals(expected = "197d00", actual = Cbor.encodeToHexString(UShort.serializer(), 32000u))
+        assertEquals(expected = "1a80000000", actual = Cbor.encodeToHexString(UInt.serializer(), 2147483648u))
+        assertEquals(expected = "1b8000000000000000", actual = Cbor.encodeToHexString(ULong.serializer(), 9223372036854775808uL))
+        assertEquals(expected = "9f18d0ff", actual = Cbor.encodeToHexString(UByteArraySerializer(), ubyteArrayOf(208u)))
     }
 }

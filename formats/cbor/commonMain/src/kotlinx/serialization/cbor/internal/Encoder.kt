@@ -115,6 +115,23 @@ internal sealed class CborWriter(
         getDestination().encodeString(enumDescriptor.getElementName(index))
     }
 
+    override fun encodeInline(descriptor: SerialDescriptor): Encoder =
+        if (descriptor.isUnsignedNumber) UnsignedNumberWriter() else super.encodeInline(descriptor)
+
+    private fun writeUnsigned(value: ULong) {
+        getDestination().encodeUnsignedNumber(value)
+    }
+
+    private inner class UnsignedNumberWriter : AbstractEncoder() {
+        override val serializersModule: SerializersModule
+            get() = this@CborWriter.serializersModule
+
+        override fun encodeByte(value: Byte) = writeUnsigned(value.toUByte().toULong())
+        override fun encodeShort(value: Short) = writeUnsigned(value.toUShort().toULong())
+        override fun encodeInt(value: Int) = writeUnsigned(value.toUInt().toULong())
+        override fun encodeLong(value: Long) = writeUnsigned(value.toULong())
+    }
+
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
         val destination = getDestination()
         isClass = descriptor.getElementDescriptor(index).kind == StructureKind.CLASS
@@ -249,6 +266,8 @@ internal fun ByteArrayOutput.writeByte(byteValue: Int) = write(byteValue)
 internal fun ByteArrayOutput.encodeBoolean(value: Boolean) = write(if (value) TRUE else FALSE)
 
 internal fun ByteArrayOutput.encodeNumber(value: Long) = write(composeNumber(value))
+
+internal fun ByteArrayOutput.encodeUnsignedNumber(value: ULong) = write(composePositive(value))
 
 internal fun ByteArrayOutput.encodeByteString(data: ByteArray) {
     this.encodeByteArray(data, HEADER_BYTE_STRING)
