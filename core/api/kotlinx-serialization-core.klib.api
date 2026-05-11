@@ -805,7 +805,7 @@ sealed class <#A: kotlin/Any?, #B: kotlin/Any?, #C: kotlin/Any?, #D: kotlin.coll
 sealed class <#A: kotlin/Any?, #B: kotlin/Any?, #C: kotlin/Any?> kotlinx.serialization.internal/AbstractCollectionSerializer : kotlinx.serialization/KSerializer<#B> { // kotlinx.serialization.internal/AbstractCollectionSerializer|null[0]
     abstract fun (#B).collectionIterator(): kotlin.collections/Iterator<#A> // kotlinx.serialization.internal/AbstractCollectionSerializer.collectionIterator|collectionIterator@1:1(){}[0]
     abstract fun (#B).collectionSize(): kotlin/Int // kotlinx.serialization.internal/AbstractCollectionSerializer.collectionSize|collectionSize@1:1(){}[0]
-    abstract fun (#B).toBuilder(): #C // kotlinx.serialization.internal/AbstractCollectionSerializer.toBuilder|toBuilder@1:1(){}[0]
+    abstract fun (#B).toBuilder(kotlin/Int): #C // kotlinx.serialization.internal/AbstractCollectionSerializer.toBuilder|toBuilder@1:1(kotlin.Int){}[0]
     abstract fun (#C).builderSize(): kotlin/Int // kotlinx.serialization.internal/AbstractCollectionSerializer.builderSize|builderSize@1:2(){}[0]
     abstract fun (#C).checkCapacity(kotlin/Int) // kotlinx.serialization.internal/AbstractCollectionSerializer.checkCapacity|checkCapacity@1:2(kotlin.Int){}[0]
     abstract fun (#C).toResult(): #B // kotlinx.serialization.internal/AbstractCollectionSerializer.toResult|toResult@1:2(){}[0]

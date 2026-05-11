@@ -576,7 +576,7 @@ public abstract class kotlinx/serialization/internal/AbstractCollectionSerialize
 	protected abstract fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
 	public static synthetic fun readElement$default (Lkotlinx/serialization/internal/AbstractCollectionSerializer;Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;ZILjava/lang/Object;)V
 	public abstract fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	protected abstract fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	protected abstract fun toBuilder (Ljava/lang/Object;I)Ljava/lang/Object;
 	protected abstract fun toResult (Ljava/lang/Object;)Ljava/lang/Object;
 }
 
@@ -595,7 +595,7 @@ public final class kotlinx/serialization/internal/ArrayListSerializer : kotlinx/
 	public synthetic fun checkCapacity (Ljava/lang/Object;I)V
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public synthetic fun insert (Ljava/lang/Object;ILjava/lang/Object;)V
-	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun toBuilder (Ljava/lang/Object;I)Ljava/lang/Object;
 	public synthetic fun toResult (Ljava/lang/Object;)Ljava/lang/Object;
 }
 
@@ -610,7 +610,7 @@ public final class kotlinx/serialization/internal/BooleanArraySerializer : kotli
 	public synthetic fun ofUnknownSize ()Lkotlinx/serialization/internal/PrimitiveArrayBuilder;
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
-	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun toBuilder (Ljava/lang/Object;I)Ljava/lang/Object;
 	public synthetic fun writeContent (Lkotlinx/serialization/encoding/CompositeEncoder;Ljava/lang/Object;I)V
 }
 
@@ -634,7 +634,7 @@ public final class kotlinx/serialization/internal/ByteArraySerializer : kotlinx/
 	public synthetic fun ofUnknownSize ()Lkotlinx/serialization/internal/PrimitiveArrayBuilder;
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
-	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun toBuilder (Ljava/lang/Object;I)Ljava/lang/Object;
 	public synthetic fun writeContent (Lkotlinx/serialization/encoding/CompositeEncoder;Ljava/lang/Object;I)V
 }
 
@@ -658,7 +658,7 @@ public final class kotlinx/serialization/internal/CharArraySerializer : kotlinx/
 	public synthetic fun ofUnknownSize ()Lkotlinx/serialization/internal/PrimitiveArrayBuilder;
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
-	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun toBuilder (Ljava/lang/Object;I)Ljava/lang/Object;
 	public synthetic fun writeContent (Lkotlinx/serialization/encoding/CompositeEncoder;Ljava/lang/Object;I)V
 }
 
@@ -699,7 +699,7 @@ public final class kotlinx/serialization/internal/DoubleArraySerializer : kotlin
 	public synthetic fun ofUnknownSize ()Lkotlinx/serialization/internal/PrimitiveArrayBuilder;
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
-	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun toBuilder (Ljava/lang/Object;I)Ljava/lang/Object;
 	public synthetic fun writeContent (Lkotlinx/serialization/encoding/CompositeEncoder;Ljava/lang/Object;I)V
 }
 
@@ -763,7 +763,7 @@ public final class kotlinx/serialization/internal/FloatArraySerializer : kotlinx
 	public synthetic fun ofUnknownSize ()Lkotlinx/serialization/internal/PrimitiveArrayBuilder;
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
-	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun toBuilder (Ljava/lang/Object;I)Ljava/lang/Object;
 	public synthetic fun writeContent (Lkotlinx/serialization/encoding/CompositeEncoder;Ljava/lang/Object;I)V
 }
 
@@ -794,7 +794,7 @@ public final class kotlinx/serialization/internal/HashMapSerializer : kotlinx/se
 	public synthetic fun collectionSize (Ljava/lang/Object;)I
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public synthetic fun insertKeyValuePair (Ljava/util/Map;ILjava/lang/Object;Ljava/lang/Object;)V
-	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun toBuilder (Ljava/lang/Object;I)Ljava/lang/Object;
 	public synthetic fun toResult (Ljava/lang/Object;)Ljava/lang/Object;
 }
 
@@ -805,7 +805,7 @@ public final class kotlinx/serialization/internal/HashSetSerializer : kotlinx/se
 	public synthetic fun checkCapacity (Ljava/lang/Object;I)V
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public synthetic fun insert (Ljava/lang/Object;ILjava/lang/Object;)V
-	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun toBuilder (Ljava/lang/Object;I)Ljava/lang/Object;
 	public synthetic fun toResult (Ljava/lang/Object;)Ljava/lang/Object;
 }
 
@@ -840,7 +840,7 @@ public final class kotlinx/serialization/internal/IntArraySerializer : kotlinx/s
 	public synthetic fun ofUnknownSize ()Lkotlinx/serialization/internal/PrimitiveArrayBuilder;
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
-	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun toBuilder (Ljava/lang/Object;I)Ljava/lang/Object;
 	public synthetic fun writeContent (Lkotlinx/serialization/encoding/CompositeEncoder;Ljava/lang/Object;I)V
 }
 
@@ -878,7 +878,7 @@ public final class kotlinx/serialization/internal/LinkedHashMapSerializer : kotl
 	public synthetic fun collectionSize (Ljava/lang/Object;)I
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public synthetic fun insertKeyValuePair (Ljava/util/Map;ILjava/lang/Object;Ljava/lang/Object;)V
-	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun toBuilder (Ljava/lang/Object;I)Ljava/lang/Object;
 	public synthetic fun toResult (Ljava/lang/Object;)Ljava/lang/Object;
 }
 
@@ -889,7 +889,7 @@ public final class kotlinx/serialization/internal/LinkedHashSetSerializer : kotl
 	public synthetic fun checkCapacity (Ljava/lang/Object;I)V
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public synthetic fun insert (Ljava/lang/Object;ILjava/lang/Object;)V
-	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun toBuilder (Ljava/lang/Object;I)Ljava/lang/Object;
 	public synthetic fun toResult (Ljava/lang/Object;)Ljava/lang/Object;
 }
 
@@ -904,7 +904,7 @@ public final class kotlinx/serialization/internal/LongArraySerializer : kotlinx/
 	public synthetic fun ofUnknownSize ()Lkotlinx/serialization/internal/PrimitiveArrayBuilder;
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
-	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun toBuilder (Ljava/lang/Object;I)Ljava/lang/Object;
 	public synthetic fun writeContent (Lkotlinx/serialization/encoding/CompositeEncoder;Ljava/lang/Object;I)V
 }
 
@@ -1063,7 +1063,7 @@ public final class kotlinx/serialization/internal/ReferenceArraySerializer : kot
 	public synthetic fun collectionSize (Ljava/lang/Object;)I
 	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public synthetic fun insert (Ljava/lang/Object;ILjava/lang/Object;)V
-	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun toBuilder (Ljava/lang/Object;I)Ljava/lang/Object;
 	public synthetic fun toResult (Ljava/lang/Object;)Ljava/lang/Object;
 }
 
@@ -1085,7 +1085,7 @@ public final class kotlinx/serialization/internal/ShortArraySerializer : kotlinx
 	public synthetic fun ofUnknownSize ()Lkotlinx/serialization/internal/PrimitiveArrayBuilder;
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
-	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun toBuilder (Ljava/lang/Object;I)Ljava/lang/Object;
 	public synthetic fun writeContent (Lkotlinx/serialization/encoding/CompositeEncoder;Ljava/lang/Object;I)V
 }
 
@@ -1240,7 +1240,7 @@ public final class kotlinx/serialization/internal/UByteArraySerializer : kotlinx
 	public synthetic fun ofUnknownSize ()Lkotlinx/serialization/internal/PrimitiveArrayBuilder;
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
-	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun toBuilder (Ljava/lang/Object;I)Ljava/lang/Object;
 	public synthetic fun writeContent (Lkotlinx/serialization/encoding/CompositeEncoder;Ljava/lang/Object;I)V
 }
 
@@ -1264,7 +1264,7 @@ public final class kotlinx/serialization/internal/UIntArraySerializer : kotlinx/
 	public synthetic fun ofUnknownSize ()Lkotlinx/serialization/internal/PrimitiveArrayBuilder;
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
-	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun toBuilder (Ljava/lang/Object;I)Ljava/lang/Object;
 	public synthetic fun writeContent (Lkotlinx/serialization/encoding/CompositeEncoder;Ljava/lang/Object;I)V
 }
 
@@ -1288,7 +1288,7 @@ public final class kotlinx/serialization/internal/ULongArraySerializer : kotlinx
 	public synthetic fun ofUnknownSize ()Lkotlinx/serialization/internal/PrimitiveArrayBuilder;
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
-	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun toBuilder (Ljava/lang/Object;I)Ljava/lang/Object;
 	public synthetic fun writeContent (Lkotlinx/serialization/encoding/CompositeEncoder;Ljava/lang/Object;I)V
 }
 
@@ -1312,7 +1312,7 @@ public final class kotlinx/serialization/internal/UShortArraySerializer : kotlin
 	public synthetic fun ofUnknownSize ()Lkotlinx/serialization/internal/PrimitiveArrayBuilder;
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILjava/lang/Object;Z)V
 	public synthetic fun readElement (Lkotlinx/serialization/encoding/CompositeDecoder;ILkotlinx/serialization/internal/PrimitiveArrayBuilder;Z)V
-	public synthetic fun toBuilder (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun toBuilder (Ljava/lang/Object;I)Ljava/lang/Object;
 	public synthetic fun writeContent (Lkotlinx/serialization/encoding/CompositeEncoder;Ljava/lang/Object;I)V
 }
 
