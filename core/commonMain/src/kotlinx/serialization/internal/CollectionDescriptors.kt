@@ -5,14 +5,14 @@ package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 
 internal sealed class ListLikeDescriptor(val elementDescriptor: SerialDescriptor) : SerialDescriptor {
     override val kind: SerialKind get() = StructureKind.LIST
     override val elementsCount: Int = 1
 
     override fun getElementName(index: Int): String = index.toString()
-    override fun getElementIndex(name: String): Int =
-        name.toIntOrNull() ?: throw IllegalArgumentException("$name is not a valid list index")
+    override fun getElementIndex(name: String): Int = name.toIntOrNull() ?: CompositeDecoder.UNKNOWN_NAME
 
     override fun isElementOptional(index: Int): Boolean {
         require(index >= 0) { "Illegal index $index, $serialName expects only non-negative indices"}
@@ -51,8 +51,7 @@ internal sealed class MapLikeDescriptor(
     override val kind: SerialKind get() = StructureKind.MAP
     override val elementsCount: Int = 2
     override fun getElementName(index: Int): String = index.toString()
-    override fun getElementIndex(name: String): Int =
-        name.toIntOrNull() ?: throw IllegalArgumentException("$name is not a valid map index")
+    override fun getElementIndex(name: String): Int = name.toIntOrNull() ?: CompositeDecoder.UNKNOWN_NAME
 
     override fun isElementOptional(index: Int): Boolean {
         require(index >= 0) { "Illegal index $index, $serialName expects only non-negative indices"}

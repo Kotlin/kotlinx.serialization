@@ -137,6 +137,8 @@ class SerialDescriptorSpecificationTest {
         assertFalse(descriptor.isElementOptional(0))
         assertFalse(descriptor.isElementOptional(1))
         assertFailsWith<IllegalArgumentException> { descriptor.isElementOptional(-1) }
+        assertEquals(0, descriptor.getElementIndex("0"))
+        assertEquals(UNKNOWN_NAME, descriptor.getElementIndex("key"))
     }
 
     @Test
@@ -159,6 +161,8 @@ class SerialDescriptorSpecificationTest {
         assertFalse(descriptor.isElementOptional(2))
         assertFalse(descriptor.isElementOptional(3))
         assertFailsWith<IllegalArgumentException> { descriptor.isElementOptional(-1) }
+        assertEquals(0, descriptor.getElementIndex("0"))
+        assertEquals(UNKNOWN_NAME, descriptor.getElementIndex("key"))
     }
 
     @Serializable
