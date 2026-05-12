@@ -222,5 +222,16 @@ class CborNumberEncodingTest {
         assertEquals(expected = "1a80000000", actual = Cbor.encodeToHexString(UInt.serializer(), 2147483648u))
         assertEquals(expected = "1b8000000000000000", actual = Cbor.encodeToHexString(ULong.serializer(), 9223372036854775808uL))
         assertEquals(expected = "9f18d0ff", actual = Cbor.encodeToHexString(UByteArraySerializer(), ubyteArrayOf(208u)))
+        assertEquals(expected = "9f198000ff", actual = Cbor.encodeToHexString(UShortArraySerializer(), ushortArrayOf(32768u)))
+        assertEquals(expected = "9f1a80000000ff", actual = Cbor.encodeToHexString(UIntArraySerializer(), uintArrayOf(2147483648u)))
+        assertEquals(expected = "9f1b8000000000000000ff", actual = Cbor.encodeToHexString(ULongArraySerializer(), ulongArrayOf(9223372036854775808uL)))
+    }
+
+    @Test
+    fun testDecodingLegacySignedEncodingOfUnsignedValues() {
+        assertEquals(expected = 200u, actual = Cbor.decodeFromHexString(UByte.serializer(), "3837"))
+        assertEquals(expected = 32768u, actual = Cbor.decodeFromHexString(UShort.serializer(), "397fff"))
+        assertEquals(expected = 2147483648u, actual = Cbor.decodeFromHexString(UInt.serializer(), "3a7fffffff"))
+        assertEquals(expected = 9223372036854775808uL, actual = Cbor.decodeFromHexString(ULong.serializer(), "3b7fffffffffffffff"))
     }
 }

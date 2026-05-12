@@ -116,21 +116,23 @@ internal sealed class CborWriter(
     }
 
     override fun encodeInline(descriptor: SerialDescriptor): Encoder =
-        if (descriptor.isUnsignedNumber) UnsignedNumberWriter() else super.encodeInline(descriptor)
-
-    private fun writeUnsigned(value: ULong) {
-        getDestination().encodeUnsignedNumber(value)
-    }
+        if (descriptor.isUnsignedNumber) unsignedNumberWriter else super.encodeInline(descriptor)
 
     private inner class UnsignedNumberWriter : AbstractEncoder() {
         override val serializersModule: SerializersModule
             get() = this@CborWriter.serializersModule
+
+        private fun writeUnsigned(value: ULong) {
+            getDestination().encodeUnsignedNumber(value)
+        }
 
         override fun encodeByte(value: Byte) = writeUnsigned(value.toUByte().toULong())
         override fun encodeShort(value: Short) = writeUnsigned(value.toUShort().toULong())
         override fun encodeInt(value: Int) = writeUnsigned(value.toUInt().toULong())
         override fun encodeLong(value: Long) = writeUnsigned(value.toULong())
     }
+
+    private val unsignedNumberWriter = UnsignedNumberWriter()
 
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
         val destination = getDestination()

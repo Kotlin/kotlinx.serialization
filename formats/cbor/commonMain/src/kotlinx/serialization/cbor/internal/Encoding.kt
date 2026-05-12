@@ -60,11 +60,12 @@ internal fun SerialDescriptor.isInlineByteString(): Boolean {
     return isInline && isByteString(0)
 }
 
+// kotlinx-serialization-json keeps the same set in StreamingJsonEncoder; keep both in sync.
 private val unsignedNumberDescriptors = setOf(
-    UByte.serializer().descriptor,
-    UShort.serializer().descriptor,
     UInt.serializer().descriptor,
     ULong.serializer().descriptor,
+    UByte.serializer().descriptor,
+    UShort.serializer().descriptor,
 )
 
 internal val SerialDescriptor.isUnsignedNumber: Boolean
