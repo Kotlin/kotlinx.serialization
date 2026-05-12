@@ -8,6 +8,7 @@ import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 val serialization_version = property("mainLibVersion") as String
+val isKotlinUserProjectsBuild = providers.gradleProperty("kotlin_additional_cli_options").isPresent
 
 // Versions substituted in settings.gradle.kts
 plugins {
@@ -49,11 +50,15 @@ kotlin {
         nodejs()
     }
     jvm()
-    @Suppress("DEPRECATION", "DEPRECATION_ERROR")
-    macosX64()
+    disabledInAggregateBuild {
+        @Suppress("DEPRECATION", "DEPRECATION_ERROR")
+        macosX64()
+    }
     macosArm64()
     linuxX64()
-    mingwX64()
+    disabledInAggregateBuild {
+        mingwX64()
+    }
 
     sourceSets {
         all {
@@ -162,4 +167,10 @@ dependencies {
 
 tasks.withType<KotlinNpmInstallTask>().configureEach {
     args.add("--ignore-engines")
+}
+
+fun disabledInAggregateBuild(configure: () -> Unit) {
+    if (!isKotlinUserProjectsBuild) {
+        configure()
+    }
 }
