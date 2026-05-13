@@ -32,6 +32,8 @@ internal sealed class CborWriter(
 
     protected var encodeByteArrayAsByteString = false
 
+    protected var encodeNumberAsUnsigned = false
+
     class Data(val bytes: ByteArrayOutput, var elementCount: Int)
 
     protected abstract fun getDestination(): ByteArrayOutput
@@ -79,21 +81,41 @@ internal sealed class CborWriter(
 
 
     override fun encodeByte(value: Byte) {
-        getDestination().encodeNumber(value.toLong())
+        if (encodeNumberAsUnsigned) {
+            encodeNumberAsUnsigned = false
+            getDestination().encodeUnsignedNumber(value.toUByte().toULong())
+        } else {
+            getDestination().encodeNumber(value.toLong())
+        }
     }
 
 
     override fun encodeShort(value: Short) {
-        getDestination().encodeNumber(value.toLong())
+        if (encodeNumberAsUnsigned) {
+            encodeNumberAsUnsigned = false
+            getDestination().encodeUnsignedNumber(value.toUShort().toULong())
+        } else {
+            getDestination().encodeNumber(value.toLong())
+        }
     }
 
     override fun encodeInt(value: Int) {
-        getDestination().encodeNumber(value.toLong())
+        if (encodeNumberAsUnsigned) {
+            encodeNumberAsUnsigned = false
+            getDestination().encodeUnsignedNumber(value.toUInt().toULong())
+        } else {
+            getDestination().encodeNumber(value.toLong())
+        }
     }
 
 
     override fun encodeLong(value: Long) {
-        getDestination().encodeNumber(value)
+        if (encodeNumberAsUnsigned) {
+            encodeNumberAsUnsigned = false
+            getDestination().encodeUnsignedNumber(value.toULong())
+        } else {
+            getDestination().encodeNumber(value)
+        }
     }
 
 
@@ -115,24 +137,10 @@ internal sealed class CborWriter(
         getDestination().encodeString(enumDescriptor.getElementName(index))
     }
 
-    override fun encodeInline(descriptor: SerialDescriptor): Encoder =
-        if (descriptor.isUnsignedNumber) unsignedNumberWriter else super.encodeInline(descriptor)
-
-    private inner class UnsignedNumberWriter : AbstractEncoder() {
-        override val serializersModule: SerializersModule
-            get() = this@CborWriter.serializersModule
-
-        private fun writeUnsigned(value: ULong) {
-            getDestination().encodeUnsignedNumber(value)
-        }
-
-        override fun encodeByte(value: Byte) = writeUnsigned(value.toUByte().toULong())
-        override fun encodeShort(value: Short) = writeUnsigned(value.toUShort().toULong())
-        override fun encodeInt(value: Int) = writeUnsigned(value.toUInt().toULong())
-        override fun encodeLong(value: Long) = writeUnsigned(value.toULong())
+    override fun encodeInline(descriptor: SerialDescriptor): Encoder {
+        encodeNumberAsUnsigned = descriptor.isUnsignedNumber
+        return this
     }
-
-    private val unsignedNumberWriter = UnsignedNumberWriter()
 
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
         val destination = getDestination()
