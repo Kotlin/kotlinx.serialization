@@ -10,6 +10,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.cbor.*
 import org.openjdk.jmh.annotations.*
+import org.openjdk.jmh.infra.Blackhole
 import java.util.concurrent.*
 
 @Serializable
@@ -27,21 +28,24 @@ data class UnsignedScalars(
 @State(Scope.Benchmark)
 @Fork(1)
 open class CborUnsignedBenchmark {
-    private val scalars = UnsignedScalars(200u, 32000u, 2147483648u, 9223372036854775808uL)
-    private val array = UIntArray(64) { it.toUInt() }
+    val scalars = UnsignedScalars(200u, 32000u, 2147483648u, 9223372036854775808uL)
+    val scalarBytes: ByteArray = Cbor.encodeToByteArray(UnsignedScalars.serializer(), scalars)
 
-    private val scalarBytes = Cbor.encodeToByteArray(UnsignedScalars.serializer(), scalars)
-    private val arrayBytes = Cbor.encodeToByteArray(UIntArraySerializer(), array)
-
-    @Benchmark
-    fun encodeScalars() = Cbor.encodeToByteArray(UnsignedScalars.serializer(), scalars)
+    // Held as Any so JMH's bytecode generator does not reject the inline-class getter name.
+    val array: Any = UIntArray(64) { it.toUInt() }
+    val arrayBytes: ByteArray = Cbor.encodeToByteArray(UIntArraySerializer(), array as UIntArray)
 
     @Benchmark
-    fun decodeScalars() = Cbor.decodeFromByteArray(UnsignedScalars.serializer(), scalarBytes)
+    fun encodeScalars(): ByteArray = Cbor.encodeToByteArray(UnsignedScalars.serializer(), scalars)
 
     @Benchmark
-    fun encodeArray() = Cbor.encodeToByteArray(UIntArraySerializer(), array)
+    fun decodeScalars(): UnsignedScalars = Cbor.decodeFromByteArray(UnsignedScalars.serializer(), scalarBytes)
 
     @Benchmark
-    fun decodeArray() = Cbor.decodeFromByteArray(UIntArraySerializer(), arrayBytes)
+    fun encodeArray(): ByteArray = Cbor.encodeToByteArray(UIntArraySerializer(), array as UIntArray)
+
+    @Benchmark
+    fun decodeArray(bh: Blackhole) {
+        bh.consume(Cbor.decodeFromByteArray(UIntArraySerializer(), arrayBytes))
+    }
 }
