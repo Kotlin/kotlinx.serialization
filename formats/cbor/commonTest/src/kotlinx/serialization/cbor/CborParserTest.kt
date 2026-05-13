@@ -896,6 +896,41 @@ class CborParserTest {
             assertFailsWith<CborDecodingException> { skipElement() }
         }
     }
+
+    @Test
+    fun testDetailedExceptionMessages() {
+        fun failsWith(data: String, message: String, block: CborParser.() -> Any?) {
+            withParser(data) {
+                val exception = assertFailsWith<CborDecodingException> {
+                    val _ = block()
+                }
+                assertEquals(message, exception.message)
+            }
+        }
+
+        failsWith("FF", "Expected start of string, but found FF (simple value - break for indefinite length items)") { nextString() }
+        failsWith("E0", "Expected start of string, but found E0 (simple value - 0)") { nextString() }
+        failsWith("F4", "Expected start of string, but found F4 (simple value - false)") { nextString() }
+        failsWith("F5", "Expected start of string, but found F5 (simple value - true)") { nextString() }
+        failsWith("F6", "Expected start of string, but found F6 (simple value - null)") { nextString() }
+        failsWith("F7", "Expected start of string, but found F7 (simple value - undefined)") { nextString() }
+
+        failsWith("F90000", "Expected start of string, but found F9 (simple value - half-precision floating point number)") { nextString() }
+        failsWith("FA00000000", "Expected start of string, but found FA (simple value - single-precision floating point number)") { nextString() }
+        failsWith("FB00000000", "Expected start of string, but found FB (simple value - double-precision floating point number)") { nextString() }
+        failsWith("FC", "Expected start of string, but found FC (simple value - reserved)") { nextString() }
+
+        failsWith("00", "Expected start of string, but found 00 (unsigned integer)") { nextString() }
+        failsWith("20", "Expected start of string, but found 20 (negative integer)") { nextString() }
+        failsWith("8100", "Expected start of string, but found 81 (array)") { nextString() }
+        failsWith("A10001", "Expected start of string, but found A1 (map)") { nextString() }
+        failsWith("6173", "Expected an unsigned or negative integer, but found 61 (string)") { nextNumber() }
+        failsWith("4100", "Expected an unsigned or negative integer, but found 41 (byte string)") { nextNumber() }
+
+        failsWith("00", "Expected float header, but found 00 (unsigned integer)") { nextFloat() }
+        failsWith("00", "Expected null value (000000f6) or empty map (000000a0), but found 00 (unsigned integer)") { nextNull() }
+        failsWith("00", "Expected boolean value, but found 00 (unsigned integer)") { nextBoolean() }
+    }
 }
 
 

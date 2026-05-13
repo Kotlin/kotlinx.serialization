@@ -637,18 +637,6 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
     }
 }
 
-private val Int.majorTypeName: String
-    get() = when (this and MAJOR_TYPE_MASK) {
-        HEADER_BYTE_STRING -> "byte string"
-        HEADER_STRING -> "string"
-        HEADER_ARRAY -> "array"
-        HEADER_MAP -> "map"
-        HEADER_TAG -> "tag"
-        HEADER_POSITIVE.toInt() -> "unsigned integer"
-        HEADER_NEGATIVE.toInt() -> "negative integer"
-        else -> "<unknown>"
-    }
-
 private fun Iterable<ByteArray>.flatten(): ByteArray {
     val output = ByteArray(sumOf { it.size })
     var position = 0
