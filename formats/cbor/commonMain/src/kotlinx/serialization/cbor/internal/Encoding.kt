@@ -103,7 +103,6 @@ internal val Int.majorTypeName: String
 // See https://datatracker.ietf.org/doc/html/rfc8949#section-3.3
 private val Int.simpleValueKindName: String
     get() = when (this) {
-        in 0..19 -> "$this"
         20 -> "false"
         21 -> "true"
         22 -> "null"
@@ -112,8 +111,7 @@ private val Int.simpleValueKindName: String
         25 -> "half-precision floating point number"
         26 -> "single-precision floating point number"
         27 -> "double-precision floating point number"
-        in 28..29 -> "reserved"
+        in 28..30 -> "reserved"
         31 -> "break for indefinite length items"
-        //in 24..31 -> "reserved"
         else -> "unassigned"
     }

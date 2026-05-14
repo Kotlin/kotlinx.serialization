@@ -909,7 +909,7 @@ class CborParserTest {
         }
 
         failsWith("FF", "Expected start of string, but found FF (simple value - break for indefinite length items)") { nextString() }
-        failsWith("E0", "Expected start of string, but found E0 (simple value - 0)") { nextString() }
+        failsWith("E0", "Expected start of string, but found E0 (simple value - unassigned)") { nextString() }
         failsWith("F4", "Expected start of string, but found F4 (simple value - false)") { nextString() }
         failsWith("F5", "Expected start of string, but found F5 (simple value - true)") { nextString() }
         failsWith("F6", "Expected start of string, but found F6 (simple value - null)") { nextString() }
