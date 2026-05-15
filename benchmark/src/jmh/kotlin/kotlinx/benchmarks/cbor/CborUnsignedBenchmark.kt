@@ -31,9 +31,8 @@ open class CborUnsignedBenchmark {
     val scalars = UnsignedScalars(200u, 32000u, 2147483648u, 9223372036854775808uL)
     val scalarBytes: ByteArray = Cbor.encodeToByteArray(UnsignedScalars.serializer(), scalars)
 
-    // Held as Any so JMH's bytecode generator does not reject the inline-class getter name.
-    val array: Any = UIntArray(64) { it.toUInt() }
-    val arrayBytes: ByteArray = Cbor.encodeToByteArray(UIntArraySerializer(), array as UIntArray)
+    val array: UIntArray = UIntArray(64) { it.toUInt() }
+    val arrayBytes: ByteArray = Cbor.encodeToByteArray(UIntArraySerializer(), array)
 
     @Benchmark
     fun encodeScalars(): ByteArray = Cbor.encodeToByteArray(UnsignedScalars.serializer(), scalars)
@@ -42,7 +41,7 @@ open class CborUnsignedBenchmark {
     fun decodeScalars(): UnsignedScalars = Cbor.decodeFromByteArray(UnsignedScalars.serializer(), scalarBytes)
 
     @Benchmark
-    fun encodeArray(): ByteArray = Cbor.encodeToByteArray(UIntArraySerializer(), array as UIntArray)
+    fun encodeArray(): ByteArray = Cbor.encodeToByteArray(UIntArraySerializer(), array)
 
     @Benchmark
     fun decodeArray(bh: Blackhole) {
