@@ -80,13 +80,6 @@ public final class kotlinx/serialization/protobuf/ProtoUnknownFieldHolderKt {
 	public static final fun merge (Lkotlinx/serialization/protobuf/ProtoUnknownFieldHolder;Lkotlinx/serialization/protobuf/ProtoUnknownFieldHolder;)Lkotlinx/serialization/protobuf/ProtoUnknownFieldHolder;
 }
 
-public abstract interface annotation class kotlinx/serialization/protobuf/ProtoUnknownFields : java/lang/annotation/Annotation {
-}
-
-public final synthetic class kotlinx/serialization/protobuf/ProtoUnknownFields$Impl : kotlinx/serialization/protobuf/ProtoUnknownFields {
-	public fun <init> ()V
-}
-
 public final class kotlinx/serialization/protobuf/schema/ProtoBufSchemaGenerator {
 	public static final field INSTANCE Lkotlinx/serialization/protobuf/schema/ProtoBufSchemaGenerator;
 	public final fun generateSchemaText (Ljava/util/List;Ljava/lang/String;Ljava/util/Map;)Ljava/lang/String;

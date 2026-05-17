@@ -28,10 +28,6 @@ open annotation class kotlinx.serialization.protobuf/ProtoType : kotlin/Annotati
         final fun <get-type>(): kotlinx.serialization.protobuf/ProtoIntegerType // kotlinx.serialization.protobuf/ProtoType.type.<get-type>|<get-type>(){}[0]
 }
 
-open annotation class kotlinx.serialization.protobuf/ProtoUnknownFields : kotlin/Annotation { // kotlinx.serialization.protobuf/ProtoUnknownFields|null[0]
-    constructor <init>() // kotlinx.serialization.protobuf/ProtoUnknownFields.<init>|<init>(){}[0]
-}
-
 final enum class kotlinx.serialization.protobuf/ProtoIntegerType : kotlin/Enum<kotlinx.serialization.protobuf/ProtoIntegerType> { // kotlinx.serialization.protobuf/ProtoIntegerType|null[0]
     enum entry DEFAULT // kotlinx.serialization.protobuf/ProtoIntegerType.DEFAULT|null[0]
     enum entry FIXED // kotlinx.serialization.protobuf/ProtoIntegerType.FIXED|null[0]
