@@ -44,7 +44,7 @@ class ProtobufUnknownFieldsTest {
     @Serializable
     data class DataWithUnknownFields(
         val a: Int,
-        @ProtoUnknownFields val unknownFields: ProtoUnknownFieldHolder
+        val unknownFields: ProtoUnknownFieldHolder
     )
 
     @Test
@@ -94,8 +94,8 @@ class ProtobufUnknownFieldsTest {
     @Serializable
     data class DataWithMultipleUnknownFields(
         val a: Int,
-        @ProtoUnknownFields val unknownFields: ProtoUnknownFieldHolder,
-        @ProtoUnknownFields val unknownFields2: ProtoUnknownFieldHolder
+        val unknownFields: ProtoUnknownFieldHolder,
+        val unknownFields2: ProtoUnknownFieldHolder
     )
 
     @Test
@@ -113,7 +113,7 @@ class ProtobufUnknownFieldsTest {
     data class DataWithStaggeredFields(
         @ProtoNumber(2)
         val b: String,
-        @ProtoUnknownFields val unknownFields: ProtoUnknownFieldHolder,
+        val unknownFields: ProtoUnknownFieldHolder,
         @ProtoNumber(4)
         val d: List<Int>
     )
@@ -140,13 +140,13 @@ class ProtobufUnknownFieldsTest {
     }
 
     @Serializable
-    data class TotalKnownData(@ProtoUnknownFields val fields: ProtoUnknownFieldHolder = ProtoUnknownFieldHolder.Empty)
+    data class TotalKnownData(val fields: ProtoUnknownFieldHolder = ProtoUnknownFieldHolder.Empty)
 
     @Serializable
     data class NestedUnknownData(
         val a: Int,
         @ProtoNumber(5) val inner: TotalKnownData,
-        @ProtoUnknownFields val unknown: ProtoUnknownFieldHolder
+        val unknown: ProtoUnknownFieldHolder
     )
 
     @Test
@@ -173,7 +173,7 @@ class ProtobufUnknownFieldsTest {
         override val descriptor: SerialDescriptor
             get() = buildClassSerialDescriptor("CustomData") {
                 element<Int>("a", annotations = listOf(ProtoNumber(1)))
-                element<ProtoUnknownFieldHolder>("unknownFields", annotations = listOf(ProtoUnknownFields()))
+                element<ProtoUnknownFieldHolder>("unknownFields")
             }
 
         override fun deserialize(decoder: Decoder): DataWithUnknownFields {
@@ -225,38 +225,13 @@ class ProtobufUnknownFieldsTest {
     @Serializable
     data class DataWithWrongTypeUnknownFields(
         val a: Int,
-        @ProtoUnknownFields val unknownFields: Map<Int, ByteArray>,
+        val unknownFields: Map<Int, ByteArray>,
     )
-
-    @Test
-    fun testCannotDecodeWrongTypeUnknownFields() {
-        assertFailsWithMessage<IllegalArgumentException>(
-            "ProtoUnknownFields is only allowed on property with type kotlinx.serialization.protobuf.ProtoUnknownFieldHolder with its original serializer. kotlin.collections.LinkedHashMap(PrimitiveDescriptor(kotlin.Int), kotlin.ByteArray(PrimitiveDescriptor(kotlin.Byte))) is rejected."
-        ) {
-            ProtoBuf.decodeFromHexString(DataWithWrongTypeUnknownFields.serializer(), "")
-        }
-    }
-
-    @Serializable
-    data class DataWithMissingUnknownFields(
-        val a: Int,
-        val unknownFields: ProtoUnknownFieldHolder = ProtoUnknownFieldHolder.Empty
-    )
-
-    @Test
-    fun testCannotEncodeMissingAnnotationUnknownFields() {
-        val data = BuildData(42, "42", byteArrayOf(42), listOf(42), InnerData("42", 42, listOf("42")))
-        val encoded = ProtoBuf.encodeToByteArray(BuildData.serializer(), data)
-        val decoded = ProtoBuf.decodeFromByteArray(DataWithMissingUnknownFields.serializer(), encoded)
-        assertFailsWith<IllegalArgumentException> {
-            ProtoBuf.encodeToByteArray(DataWithMissingUnknownFields.serializer(), decoded)
-        }
-    }
 
     @Serializable
     data class DataWithNullableUnknownFields(
         @ProtoNumber(1) val a: Int,
-        @ProtoUnknownFields val unknownFields: ProtoUnknownFieldHolder? = null
+        val unknownFields: ProtoUnknownFieldHolder? = null
     )
 
     @Test
@@ -282,7 +257,7 @@ class ProtobufUnknownFieldsTest {
     @Serializable
     data class TestFewerOneOf(
         @ProtoOneOf val oneOf: OneOf? = null,
-        @ProtoUnknownFields val unknownFields: ProtoUnknownFieldHolder = ProtoUnknownFieldHolder.Empty
+        val unknownFields: ProtoUnknownFieldHolder = ProtoUnknownFieldHolder.Empty
     )
 
     @Serializable
@@ -322,7 +297,7 @@ class ProtobufUnknownFieldsTest {
     @Serializable
     data class DataWithUnknownLargeNumbers(
         @ProtoNumber(1) val smallNumber: Int,
-        @ProtoUnknownFields val unknownFields: ProtoUnknownFieldHolder = ProtoUnknownFieldHolder.Empty
+        val unknownFields: ProtoUnknownFieldHolder = ProtoUnknownFieldHolder.Empty
     )
 
     private fun assertRoundTripWithLargeNumbers(smallNumber: Int, hugeFieldNumber: Int) {
@@ -363,7 +338,7 @@ class ProtobufUnknownFieldsTest {
     // --- Tests for all wire types with extreme values ---
 
     @Serializable
-    data class OnlyKnownId(@ProtoNumber(1) val id: Int = 0, @ProtoUnknownFields val unknown: ProtoUnknownFieldHolder = ProtoUnknownFieldHolder.Empty)
+    data class OnlyKnownId(@ProtoNumber(1) val id: Int = 0, val unknown: ProtoUnknownFieldHolder = ProtoUnknownFieldHolder.Empty)
 
     /**
      * Helper: encode [full] with its serializer, decode as [OnlyKnownId] (field 1 known, rest unknown),

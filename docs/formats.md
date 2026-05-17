@@ -661,7 +661,7 @@ import kotlinx.serialization.protobuf.*
 @Serializable
 data class Data(
     @ProtoNumber(1) val name: String,
-    @ProtoUnknownFields val unknownFields: ProtoUnknownFieldHolder = ProtoUnknownFieldHolder.Empty
+    val unknownFields: ProtoUnknownFieldHolder = ProtoUnknownFieldHolder.Empty
 )
 
 @OptIn(ExperimentalSerializationApi::class)

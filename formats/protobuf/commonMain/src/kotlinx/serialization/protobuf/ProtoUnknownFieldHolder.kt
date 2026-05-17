@@ -19,8 +19,6 @@ public class ProtoUnknownFieldHolder internal constructor(
     public companion object {
         /**
          * An empty [ProtoUnknownFieldHolder] instance.
-         *
-         * Useful as a default value for [ProtoUnknownFields] properties.
          */
         public val Empty: ProtoUnknownFieldHolder = ProtoUnknownFieldHolder(emptyList())
     }

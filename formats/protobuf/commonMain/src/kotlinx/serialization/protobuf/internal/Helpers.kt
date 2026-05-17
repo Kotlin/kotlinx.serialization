@@ -104,7 +104,6 @@ internal fun SerialDescriptor.extractParameters(index: Int): ProtoDesc {
     var format: ProtoIntegerType = ProtoIntegerType.DEFAULT
     var protoPacked = false
     var isOneOf = false
-    var isUnknown = false
 
     for (i in annotations.indices) { // Allocation-friendly loop
         val annotation = annotations[i]
@@ -117,8 +116,6 @@ internal fun SerialDescriptor.extractParameters(index: Int): ProtoDesc {
             protoPacked = true
         } else if (annotation is ProtoOneOf) {
             isOneOf = true
-        } else if (annotation is ProtoUnknownFields) {
-            isUnknown = true
         }
     }
     if (isOneOf) {
@@ -127,7 +124,7 @@ internal fun SerialDescriptor.extractParameters(index: Int): ProtoDesc {
         // See [kotlinx.serialization.protobuf.internal.ProtobufDecoder.decodeElementIndex] for detail
         protoId = index + 1
     }
-    return ProtoDesc(protoId, format, protoPacked, isOneOf, isUnknown)
+    return ProtoDesc(protoId, format, protoPacked, isOneOf, this.getElementDescriptor(index).isUnknownFieldsDescriptor)
 }
 
 /**
@@ -142,9 +139,6 @@ internal fun extractProtoId(descriptor: SerialDescriptor, index: Int, zeroBasedD
         if (annotation is ProtoOneOf) {
             // Fast return for one of field
             return ID_HOLDER_ONE_OF
-        } else if (annotation is ProtoUnknownFields) {
-            // Fast return for unknown fields holder
-            return ID_HOLDER_UNKNOWN_FIELDS
         } else if (annotation is ProtoNumber) {
             result = annotation.number
             // 0 or negative numbers are acceptable for enums
@@ -153,8 +147,14 @@ internal fun extractProtoId(descriptor: SerialDescriptor, index: Int, zeroBasedD
             }
         }
     }
+    if (descriptor.getElementDescriptor(index).isUnknownFieldsDescriptor) {
+        return ID_HOLDER_UNKNOWN_FIELDS
+    }
     return result
 }
+
+internal val SerialDescriptor.isUnknownFieldsDescriptor: Boolean
+    get() = this.nullable == ProtoUnknownFieldHolderSerializer.descriptor.nullable
 
 private fun checkFieldNumber(fieldNumber: Int, propertyIndex: Int, descriptor: SerialDescriptor) {
     if (fieldNumber <= 0) {
