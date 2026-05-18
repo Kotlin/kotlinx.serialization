@@ -139,6 +139,7 @@ class SerialDescriptorSpecificationTest {
         assertFailsWith<IndexOutOfBoundsException> { descriptor.isElementOptional(-1) }
         assertFailsWith<IndexOutOfBoundsException> { descriptor.getElementName(-3) }
         assertEquals(UNKNOWN_NAME, descriptor.getElementIndex("?"))
+        assertEquals(UNKNOWN_NAME, descriptor.getElementIndex("-10"))
     }
 
     @Test
@@ -163,6 +164,7 @@ class SerialDescriptorSpecificationTest {
         assertFailsWith<IndexOutOfBoundsException> { descriptor.isElementOptional(-1) }
         assertFailsWith<IndexOutOfBoundsException> { descriptor.getElementName(-3) }
         assertEquals(UNKNOWN_NAME, descriptor.getElementIndex("abc"))
+        assertEquals(UNKNOWN_NAME, descriptor.getElementIndex("-10"))
     }
 
     @Serializable
