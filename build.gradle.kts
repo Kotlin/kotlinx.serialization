@@ -170,3 +170,5 @@ val documentedSubprojects
         "kotlinx-serialization-hocon",
         "kotlinx-serialization-protobuf"
     )
+
+project.configureJsCacheRedirector()
