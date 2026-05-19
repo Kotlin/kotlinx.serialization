@@ -735,6 +735,24 @@ class CborElementTest {
         assertEquals(element, cbor.decodeFromByteArray<CborElement>(bytes))
     }
 
+    @OptIn(ExperimentalSerializationApi::class, ExperimentalUnsignedTypes::class)
+    @Test
+    fun testEncodeCborElementWritesTaggedElements() {
+        val element = CborMap(
+            mapOf(
+                CborString("undefined") to CborUndefined(1uL),
+                CborString("positive") to CborInteger(ULong.MAX_VALUE, isPositive = true, tags = ulongArrayOf(2uL)),
+                CborString("negative") to CborInteger(ULong.MAX_VALUE, isPositive = false, tags = ulongArrayOf(3uL)),
+                CborString("bytes") to CborByteString(byteArrayOf(0xca.toByte(), 0xfe.toByte()), 4uL),
+                CborString("array") to CborArray(listOf(CborNull(5uL)), 6uL),
+            ),
+            7uL
+        )
+
+        val bytes = cbor.encodeToByteArray(CborElement.serializer(), element)
+        assertEquals(element, cbor.decodeFromByteArray(CborElement.serializer(), bytes))
+    }
+
     @OptIn(ExperimentalUnsignedTypes::class)
     @Test
     fun testTagsPreservedWhenDecodingTypedElements() {

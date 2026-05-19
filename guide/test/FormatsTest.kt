@@ -31,7 +31,7 @@ class FormatsTest {
     @Test
     fun testExampleFormats03() {
         captureOutput("ExampleFormats03") { example.exampleFormats03.main() }.verifyOutputLines(
-            "CborMap(tags=[], content={CborString(tags=[], value=bytes)=CborByteString(tags=[], value=h'666f6f)})"
+            "CborMap(tags=[], content={CborString(tags=[], value=bytes)=CborByteString(tags=[], bytes=h'666f6f)})"
         )
     }
 

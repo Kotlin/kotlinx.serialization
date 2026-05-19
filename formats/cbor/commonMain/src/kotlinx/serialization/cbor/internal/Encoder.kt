@@ -26,7 +26,7 @@ private fun Stack.peek() = last()
 // Split implementation to optimize base case
 internal sealed class CborWriter(
     override val cbor: Cbor,
-) : AbstractEncoder(), CborEncoder {
+) : AbstractEncoder(), CborEncoder, CborWriterInterface {
 
     private var tagsMustBeFollowedByDataItem: Boolean = false
 
@@ -147,6 +147,9 @@ internal sealed class CborWriter(
         onDataItemEncoded()
         getDestination().encodeNumber(value)
     }
+
+    final override fun encodeRawNumber(value: Long) = encodeLong(value)
+
     override fun encodeNegative(value: ULong) {
         onDataItemEncoded()
         getDestination().encodeNegative(value)
