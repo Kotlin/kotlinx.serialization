@@ -63,32 +63,7 @@ public sealed class CborElement(
 @ExperimentalSerializationApi
 public sealed class CborPrimitive(
     tags: ULongArray = EMPTY_TAGS
-) : CborElement(tags) {
-    protected abstract val value: Any
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is CborPrimitive) return false
-        if (!super.equals(other)) return false
-
-        if (value != other.value) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + value.hashCode()
-        return result
-    }
-
-    override fun toString(): String {
-        return "${this::class.simpleName}(" +
-            "tags=${tags.joinToString(prefix = "[", postfix = "]")}, " +
-            "value=$value" +
-            ")"
-    }
-}
+) : CborElement(tags)
 
 /**
  * Class representing either:
@@ -100,12 +75,10 @@ public sealed class CborPrimitive(
 @Serializable(with = CborIntSerializer::class)
 @ExperimentalSerializationApi
 public class CborInteger(
-    absoluteValue: ULong,
+    public val absoluteValue: ULong,
     public val isPositive: Boolean,
     vararg tags: ULong
 ) : CborPrimitive(tags) {
-    public override val value: ULong = absoluteValue
-
     init {
         if (!isPositive) require(absoluteValue > 0uL) { "Illegal absolute value $absoluteValue for a negative number." }
     }
@@ -115,6 +88,7 @@ public class CborInteger(
         if (other !is CborInteger) return false
         if (!super.equals(other)) return false
 
+        if (absoluteValue != other.absoluteValue) return false
         if (isPositive != other.isPositive) return false
 
         return true
@@ -122,17 +96,18 @@ public class CborInteger(
 
     override fun hashCode(): Int {
         var result = super.hashCode()
+        result = 31 * result + absoluteValue.hashCode()
         result = 31 * result + isPositive.hashCode()
         return result
     }
 
     override fun toString(): String {
         return "CborInt(tags=${tags.joinToString(prefix = "[", postfix = "]")}, " +
-            "value=" + when (isPositive) {
+            "absoluteValue=" + when (isPositive) {
            true -> ""
            false -> "-"
         } +
-            value +
+            absoluteValue +
             ")"
     }
 }
@@ -174,11 +149,11 @@ public val CborInteger.longOrNull: Long?
     get() {
         val max = Long.MAX_VALUE.toULong()
         return if (isPositive) {
-            if (value <= max) value.toLong() else null
+            if (absoluteValue <= max) absoluteValue.toLong() else null
         } else {
             when {
-                value <= max -> -value.toLong()
-                value == max + 1uL -> Long.MIN_VALUE
+                absoluteValue <= max -> -absoluteValue.toLong()
+                absoluteValue == max + 1uL -> Long.MIN_VALUE
                 else -> null
             }
         }
@@ -244,9 +219,25 @@ public val CborInteger.byteOrNull: Byte?
 @Serializable(with = CborFloatSerializer::class)
 @ExperimentalSerializationApi
 public class CborFloat(
-    public override val value: Double,
+    public val value: Double,
     vararg tags: ULong
-) : CborPrimitive(tags)
+) : CborPrimitive(tags) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CborFloat) return false
+        if (!super.equals(other)) return false
+        return value.equals(other.value)
+    }
+
+    override fun hashCode(): Int = 31 * super.hashCode() + value.hashCode()
+
+    override fun toString(): String {
+        return "CborFloat(" +
+            "tags=${tags.joinToString(prefix = "[", postfix = "]")}, " +
+            "value=$value" +
+            ")"
+    }
+}
 
 /**
  * Class representing CBOR string value.
@@ -254,9 +245,25 @@ public class CborFloat(
 @Serializable(with = CborStringSerializer::class)
 @ExperimentalSerializationApi
 public class CborString(
-    public override val value: String,
+    public val value: String,
     vararg tags: ULong
-) : CborPrimitive(tags)
+) : CborPrimitive(tags) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CborString) return false
+        if (!super.equals(other)) return false
+        return value == other.value
+    }
+
+    override fun hashCode(): Int = 31 * super.hashCode() + value.hashCode()
+
+    override fun toString(): String {
+        return "CborString(" +
+            "tags=${tags.joinToString(prefix = "[", postfix = "]")}, " +
+            "value=$value" +
+            ")"
+    }
+}
 
 /**
  * Class representing CBOR boolean value.
@@ -264,9 +271,25 @@ public class CborString(
 @Serializable(with = CborBooleanSerializer::class)
 @ExperimentalSerializationApi
 public class CborBoolean(
-    public override val value: Boolean,
+    public val value: Boolean,
     vararg tags: ULong
-) : CborPrimitive(tags)
+) : CborPrimitive(tags) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CborBoolean) return false
+        if (!super.equals(other)) return false
+        return value == other.value
+    }
+
+    override fun hashCode(): Int = 31 * super.hashCode() + value.hashCode()
+
+    override fun toString(): String {
+        return "CborBoolean(" +
+            "tags=${tags.joinToString(prefix = "[", postfix = "]")}, " +
+            "value=$value" +
+            ")"
+    }
+}
 
 /**
  * Class representing CBOR byte string value.
@@ -274,28 +297,35 @@ public class CborBoolean(
 @Serializable(with = CborByteStringSerializer::class)
 @ExperimentalSerializationApi
 public class CborByteString(
-    public override val value: ByteArray,
+    private val bytes: ByteArray,
     vararg tags: ULong
 ) : CborPrimitive(tags) {
+    /**
+     * Returns a copy of this CBOR byte string contents.
+     */
+    public fun toByteArray(): ByteArray = bytes.copyOf()
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is CborByteString) return false
         if (!tags.contentEquals(other.tags)) return false
-        return value.contentEquals(other.value)
+        return bytes.contentEquals(other.bytes)
     }
 
     override fun hashCode(): Int {
         var result = tags.contentHashCode()
-        result = 31 * result + (value.contentHashCode())
+        result = 31 * result + (bytes.contentHashCode())
         return result
     }
 
     override fun toString(): String {
         return "CborByteString(" +
             "tags=${tags.joinToString(prefix = "[", postfix = "]")}, " +
-            "value=h'${value.toHexString()}" +
+            "bytes=h'${bytes.toHexString()}" +
             ")"
     }
+
+    internal fun getBytes(): ByteArray = bytes
 }
 
 /**
@@ -304,7 +334,17 @@ public class CborByteString(
 @Serializable(with = CborNullSerializer::class)
 @ExperimentalSerializationApi
 public class CborNull(vararg tags: ULong) : CborPrimitive(tags) {
-    public override val value: Unit = Unit
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CborNull) return false
+        return super.equals(other)
+    }
+
+    override fun hashCode(): Int = CborNull::class.hashCode() * 31 + super.hashCode()
+
+    override fun toString(): String {
+        return "CborNull(tags=${tags.joinToString(prefix = "[", postfix = "]")})"
+    }
 }
 
 /**
@@ -313,7 +353,17 @@ public class CborNull(vararg tags: ULong) : CborPrimitive(tags) {
 @Serializable(with = CborUndefinedSerializer::class)
 @ExperimentalSerializationApi
 public class CborUndefined(vararg tags: ULong) : CborPrimitive(tags) {
-    public override val value: Unit = Unit
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CborUndefined) return false
+        return super.equals(other)
+    }
+
+    override fun hashCode(): Int = CborUndefined::class.hashCode() * 31 + super.hashCode()
+
+    override fun toString(): String {
+        return "CborUndefined(tags=${tags.joinToString(prefix = "[", postfix = "]")})"
+    }
 }
 
 /**

@@ -22,7 +22,7 @@ class CborElementTest {
         val configured = Cbor { alwaysUseByteString = true }
         val element = configured.encodeToCborElement(byteArrayOf(1, 2, 3))
         assertTrue(element is CborByteString)
-        assertTrue(element.value.contentEquals(byteArrayOf(1, 2, 3)))
+        assertTrue(element.toByteArray().contentEquals(byteArrayOf(1, 2, 3)))
         assertTrue(configured.decodeFromCborElement<ByteArray>(element).contentEquals(byteArrayOf(1, 2, 3)))
     }
 
@@ -63,7 +63,7 @@ class CborElementTest {
         val numberBytes = cbor.encodeToByteArray(numberElement)
         val decodedNumber = cbor.decodeFromByteArray<CborElement>(numberBytes)
         assertEquals(numberElement, decodedNumber)
-        assertEquals(42u, (decodedNumber as CborInteger).value)
+        assertEquals(42uL, (decodedNumber as CborInteger).absoluteValue)
     }
 
     @Test
@@ -71,33 +71,33 @@ class CborElementTest {
         val numberElement = CborInteger(0uL)
         assertEquals(numberElement, CborInteger(0))
         assertEquals(numberElement.isPositive, true)
-        assertEquals(numberElement.value, 0uL)
+        assertEquals(numberElement.absoluteValue, 0uL)
         val numberBytes = cbor.encodeToByteArray(numberElement)
         val decodedNumber = cbor.decodeFromByteArray<CborElement>(numberBytes)
         assertEquals(numberElement, decodedNumber)
-        assertEquals(0uL, (decodedNumber as CborInteger).value)
+        assertEquals(0uL, (decodedNumber as CborInteger).absoluteValue)
     }
 
     @Test
     fun testCborNumberMax() {
         val numberElement = CborInteger(ULong.MAX_VALUE)
         assertEquals(numberElement.isPositive, true)
-        assertEquals(numberElement.value, ULong.MAX_VALUE)
+        assertEquals(numberElement.absoluteValue, ULong.MAX_VALUE)
         val numberBytes = cbor.encodeToByteArray(numberElement)
         val decodedNumber = cbor.decodeFromByteArray<CborElement>(numberBytes)
         assertEquals(numberElement, decodedNumber)
-        assertEquals(ULong.MAX_VALUE, (decodedNumber as CborInteger).value)
+        assertEquals(ULong.MAX_VALUE, (decodedNumber as CborInteger).absoluteValue)
     }
 
     @Test
     fun testCborNumberMaxHalv() {
         val numberElement = CborInteger(Long.MAX_VALUE)
         assertEquals(numberElement.isPositive, true)
-        assertEquals(numberElement.value, Long.MAX_VALUE.toULong())
+        assertEquals(numberElement.absoluteValue, Long.MAX_VALUE.toULong())
         val numberBytes = cbor.encodeToByteArray(numberElement)
         val decodedNumber = cbor.decodeFromByteArray<CborElement>(numberBytes)
         assertEquals(numberElement, decodedNumber)
-        assertEquals(Long.MAX_VALUE.toULong(), (decodedNumber as CborInteger).value)
+        assertEquals(Long.MAX_VALUE.toULong(), (decodedNumber as CborInteger).absoluteValue)
     }
 
 
@@ -105,11 +105,11 @@ class CborElementTest {
     fun testCborNumberMin() {
         val numberElement = CborInteger(ULong.MAX_VALUE, isPositive = false)
         assertEquals(numberElement.isPositive, false)
-        assertEquals(numberElement.value, ULong.MAX_VALUE)
+        assertEquals(numberElement.absoluteValue, ULong.MAX_VALUE)
         val numberBytes = cbor.encodeToByteArray(numberElement)
         val decodedNumber = cbor.decodeFromByteArray<CborElement>(numberBytes)
         assertEquals(numberElement, decodedNumber)
-        assertEquals(ULong.MAX_VALUE, (decodedNumber as CborInteger).value)
+        assertEquals(ULong.MAX_VALUE, (decodedNumber as CborInteger).absoluteValue)
 
         assertNull(numberElement.longOrNull)
         assertFailsWith<ArithmeticException> { numberElement.long }
@@ -121,11 +121,11 @@ class CborElementTest {
     fun testCborNumberMinHalv() {
         val numberElement = CborInteger(Long.MAX_VALUE.toULong(), isPositive = false)
         assertEquals(numberElement.isPositive, false)
-        assertEquals(numberElement.value, Long.MAX_VALUE.toULong())
+        assertEquals(numberElement.absoluteValue, Long.MAX_VALUE.toULong())
         val numberBytes = cbor.encodeToByteArray(numberElement)
         val decodedNumber = cbor.decodeFromByteArray<CborElement>(numberBytes)
         assertEquals(numberElement, decodedNumber)
-        assertEquals(Long.MAX_VALUE.toULong(), (decodedNumber as CborInteger).value)
+        assertEquals(Long.MAX_VALUE.toULong(), (decodedNumber as CborInteger).absoluteValue)
 
         val long = cbor.decodeFromCborElement<Long>(numberElement)
 
@@ -166,7 +166,7 @@ class CborElementTest {
         val byteStringBytes = cbor.encodeToByteArray(byteStringElement)
         val decodedByteString = cbor.decodeFromByteArray<CborElement>(byteStringBytes)
         assertEquals(byteStringElement, decodedByteString)
-        assertTrue((decodedByteString as CborByteString).value.contentEquals(byteArray))
+        assertTrue((decodedByteString as CborByteString).toByteArray().contentEquals(byteArray))
     }
 
     @Test
@@ -188,7 +188,7 @@ class CborElementTest {
 
         // Verify individual elements
         assertTrue(decodedList[0] is CborInteger)
-        assertEquals(1u, (decodedList[0] as CborInteger).value)
+        assertEquals(1uL, (decodedList[0] as CborInteger).absoluteValue)
 
         assertTrue(decodedList[1] is CborString)
         assertEquals("two", (decodedList[1] as CborString).value)
@@ -225,7 +225,7 @@ class CborElementTest {
         assertTrue(decodedMap.containsKey(CborString("key1")))
         val value1 = decodedMap[CborString("key1")]
         assertTrue(value1 is CborInteger)
-        assertEquals(42u, (value1 as CborInteger).value)
+        assertEquals(42uL, (value1 as CborInteger).absoluteValue)
 
         assertTrue(decodedMap.containsKey(CborString("key2")))
         val value2 = decodedMap[CborString("key2")]
@@ -284,7 +284,7 @@ class CborElementTest {
         assertEquals(5, primitivesValue.size)
 
         assertTrue(primitivesValue[0] is CborInteger)
-        assertEquals(123u, (primitivesValue[0] as CborInteger).value)
+        assertEquals(123uL, (primitivesValue[0] as CborInteger).absoluteValue)
 
         assertTrue(primitivesValue[1] is CborString)
         assertEquals("text", (primitivesValue[1] as CborString).value)
@@ -293,7 +293,7 @@ class CborElementTest {
         assertEquals(false, (primitivesValue[2] as CborBoolean).value)
 
         assertTrue(primitivesValue[3] is CborByteString)
-        assertTrue((primitivesValue[3] as CborByteString).value.contentEquals(byteArrayOf(10, 20, 30)))
+        assertTrue((primitivesValue[3] as CborByteString).toByteArray().contentEquals(byteArrayOf(10, 20, 30)))
 
         assertTrue(primitivesValue[4] is CborNull)
 
@@ -312,10 +312,10 @@ class CborElementTest {
         assertEquals(2, innerValue.size)
 
         assertTrue(innerValue[0] is CborInteger)
-        assertEquals(1u, (innerValue[0] as CborInteger).value)
+        assertEquals(1uL, (innerValue[0] as CborInteger).absoluteValue)
 
         assertTrue(innerValue[1] is CborInteger)
-        assertEquals(2u, (innerValue[1] as CborInteger).value)
+        assertEquals(2uL, (innerValue[1] as CborInteger).absoluteValue)
 
         // Verify the empty list
         assertTrue(nestedValue.containsKey(CborString("empty")))
@@ -330,7 +330,7 @@ class CborElementTest {
     fun testDecodePositiveInt() {
         // Test data from CborParserTest.testParseIntegers
         val element = cbor.decodeFromHexString<CborElement>("0C") as CborInteger
-        assertEquals(12u, element.value)
+        assertEquals(12uL, element.absoluteValue)
     }
 
     @Test
@@ -365,7 +365,7 @@ class CborElementTest {
         assertTrue(element is CborByteString)
         val byteString = element as CborByteString
         val expectedBytes = HexConverter.parseHexBinary("aabbccddeeff99")
-        assertTrue(byteString.value.contentEquals(expectedBytes))
+        assertTrue(byteString.toByteArray().contentEquals(expectedBytes))
     }
 
     @Test
@@ -375,9 +375,9 @@ class CborElementTest {
         assertTrue(element is CborArray)
         val list = element as CborArray
         assertEquals(3, list.size)
-        assertEquals(1u, (list[0] as CborInteger).value)
-        assertEquals(255u, (list[1] as CborInteger).value)
-        assertEquals(65536u, (list[2] as CborInteger).value)
+        assertEquals(1uL, (list[0] as CborInteger).absoluteValue)
+        assertEquals(255uL, (list[1] as CborInteger).absoluteValue)
+        assertEquals(65536uL, (list[2] as CborInteger).absoluteValue)
     }
 
     @Test
@@ -403,7 +403,7 @@ class CborElementTest {
         // Check the byte string
         val byteString = map[CborString("a")] as CborByteString
         val expectedBytes = HexConverter.parseHexBinary("cafe010203")
-        assertTrue(byteString.value.contentEquals(expectedBytes))
+        assertTrue(byteString.toByteArray().contentEquals(expectedBytes))
 
         // Check the text string
         assertEquals(CborString("Hello world"), map[CborString("b")])

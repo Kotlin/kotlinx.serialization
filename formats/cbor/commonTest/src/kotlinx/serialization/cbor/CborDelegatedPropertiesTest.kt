@@ -74,9 +74,9 @@ class CborDelegatedPropertiesTest {
                 for ((key, value) in map.entries) {
                     val mappedKey = when (key) {
                         is CborInteger -> when {
-                            key.isPositive && key.value == NAME_LABEL.toULong() -> CborString(NAME_SPEC.name, *NAME_SPEC.keyTags)
-                            key.isPositive && key.value == AGE_LABEL.toULong() -> CborString(AGE_SPEC.name, *AGE_SPEC.keyTags)
-                            key.isPositive && key.value == GENDER_LABEL.toULong() -> CborString(GENDER_SPEC.name, *GENDER_SPEC.keyTags)
+                            key.isPositive && key.absoluteValue == NAME_LABEL.toULong() -> CborString(NAME_SPEC.name, *NAME_SPEC.keyTags)
+                            key.isPositive && key.absoluteValue == AGE_LABEL.toULong() -> CborString(AGE_SPEC.name, *AGE_SPEC.keyTags)
+                            key.isPositive && key.absoluteValue == GENDER_LABEL.toULong() -> CborString(GENDER_SPEC.name, *GENDER_SPEC.keyTags)
                             else -> key
                         }
 

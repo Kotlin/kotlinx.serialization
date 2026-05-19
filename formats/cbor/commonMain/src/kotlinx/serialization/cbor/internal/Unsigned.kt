@@ -72,7 +72,7 @@ internal class UnsignedInlineDecoder(
                 if (!integer.isPositive) {
                     throw CborDecodingException("Expected unsigned integer, got $integer")
                 }
-                integer.value.toLong()
+                integer.absoluteValue.toLong()
             }
 
             is CborParser -> {

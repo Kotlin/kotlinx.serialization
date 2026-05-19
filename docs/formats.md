@@ -16,7 +16,6 @@ stable, these are currently experimental features of Kotlin Serialization.
   * [Definite vs. Indefinite Length Encoding](#definite-vs-indefinite-length-encoding)
   * [Tags and Labels](#tags-and-labels)
   * [Arrays](#arrays)
-  * [Nullability of Properties](#nullability-of-properties)
   * [Custom CBOR-specific Serializers](#custom-cbor-specific-serializers)
   * [CBOR Elements](#cbor-elements)
     * [Encoding from/to `CborElement`](#encoding-fromto-cborelement)
@@ -349,7 +348,7 @@ fun main() {
 The above snippet will print the following diagnostic notation
 
 ```text
-CborMap(tags=[], content={CborString(tags=[], value=bytes)=CborByteString(tags=[], value=h'666f6f)})
+CborMap(tags=[], content={CborString(tags=[], value=bytes)=CborByteString(tags=[], bytes=h'666f6f)})
 ```
 
 #### Tagging `CborElement`s
@@ -394,7 +393,7 @@ Decoding it results in the following CborElement (shown in manually formatted di
 CborMap(tags=[], content={  
     CborString(tags=[],   value=a) = CborPositiveInt( tags=[12],     value=268435455),  
     CborString(tags=[34], value=b) = CborNegativeInt( tags=[],       value=-1),  
-    CborString(tags=[56], value=c) = CborByteString(  tags=[78],     value=h'cafe),  
+    CborString(tags=[56], value=c) = CborByteString(  tags=[78],     bytes=h'cafe),
     CborString(tags=[],   value=d) = CborString(      tags=[90, 12], value=Hello World)  
 })
 ```
@@ -412,14 +411,13 @@ A [CborElement] class has three direct subtypes, closely following CBOR grammar:
 
 * [CborPrimitive] represents primitive CBOR elements, such as string, integer, float, boolean, and null.
   CBOR byte strings are also treated as primitives.
-  Each primitive has a [value][CborPrimitive.value]. Depending on the concrete type of the primitive, it maps
-  to corresponding Kotlin Types such as `String`, `Long`, `Double`, etc.
+  Concrete primitive types expose dedicated accessors where their CBOR content maps cleanly to Kotlin values.
   Note that Cbor discriminates between positive ("unsigned") and negative ("signed") integers!  
   `CborPrimitive` is itself an umbrella type (a sealed class) for the following concrete primitives:
   * [CborNull] mapping to a Kotlin `null`
   * [CborBoolean] mapping to a Kotlin `Boolean`
   * [CborInt] represents signed CBOR integer (major type 1 encompassing `-2^64..-1`) and unsigned CBOR integer (major type 0 encompassing `0..2^64-1`).  
-  Since this exceeds the range of Kotlin's built-in `Long` type, CborInt consists of `sign` (set to `CborInt.Sing.POSITIVE`, `CborInt.Sing.NEGATIVE`, or `CborInt.Sing.ZERO`) and `value` representing the absolute value as an `ULong`. It also features a `toLong()` function, albeit incurring possible truncation for negative values exceeding `Long.MIN_VALUE`.
+  Since this exceeds the range of Kotlin's built-in `Long` type, CborInt consists of `isPositive` and `absoluteValue` representing the absolute value as an `ULong`. It also features `long`, `int`, `short`, and `byte` conversion properties that throw when the value cannot be represented in the requested Kotlin type.
   * [CborString] maps to a Kotlin `String`
   * [CborFloat] maps to Kotlin `Double`
   * [CborByteString] maps to a Kotlin `ByteArray` and is used to encode them as CBOR byte string (in contrast to a list
@@ -1794,7 +1792,6 @@ This chapter concludes [Kotlin Serialization Guide](serialization-guide.md).
 [CborPrimitive]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-primitive/index.html
 [CborNull]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-null/index.html
 [CborBoolean]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-boolean/index.html
-[CborInt]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-int.html
 [CborString]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-string/index.html
 [CborFloat]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-float/index.html
 [CborByteString]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-byte-string/index.html

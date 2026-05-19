@@ -69,8 +69,10 @@ public final class kotlinx/serialization/cbor/CborArray$Companion {
 public final class kotlinx/serialization/cbor/CborBoolean : kotlinx/serialization/cbor/CborPrimitive {
 	public static final field Companion Lkotlinx/serialization/cbor/CborBoolean$Companion;
 	public synthetic fun <init> (Z[JLkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public fun getValue ()Ljava/lang/Boolean;
-	public synthetic fun getValue ()Ljava/lang/Object;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
 }
 
 public final class kotlinx/serialization/cbor/CborBoolean$Companion {
@@ -108,9 +110,8 @@ public final class kotlinx/serialization/cbor/CborByteString : kotlinx/serializa
 	public static final field Companion Lkotlinx/serialization/cbor/CborByteString$Companion;
 	public synthetic fun <init> ([B[JLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun equals (Ljava/lang/Object;)Z
-	public synthetic fun getValue ()Ljava/lang/Object;
-	public fun getValue ()[B
 	public fun hashCode ()I
+	public final fun toByteArray ()[B
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -190,8 +191,10 @@ public final class kotlinx/serialization/cbor/CborEncoder$DefaultImpls {
 public final class kotlinx/serialization/cbor/CborFloat : kotlinx/serialization/cbor/CborPrimitive {
 	public static final field Companion Lkotlinx/serialization/cbor/CborFloat$Companion;
 	public synthetic fun <init> (D[JLkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public fun getValue ()Ljava/lang/Double;
-	public synthetic fun getValue ()Ljava/lang/Object;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()D
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
 }
 
 public final class kotlinx/serialization/cbor/CborFloat$Companion {
@@ -202,8 +205,7 @@ public final class kotlinx/serialization/cbor/CborInteger : kotlinx/serializatio
 	public static final field Companion Lkotlinx/serialization/cbor/CborInteger$Companion;
 	public synthetic fun <init> (JZ[JLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun equals (Ljava/lang/Object;)Z
-	public synthetic fun getValue ()Ljava/lang/Object;
-	public fun getValue-s-VKNKU ()J
+	public final fun getAbsoluteValue-s-VKNKU ()J
 	public fun hashCode ()I
 	public final fun isPositive ()Z
 	public fun toString ()Ljava/lang/String;
@@ -286,8 +288,9 @@ public final class kotlinx/serialization/cbor/CborMap$Companion {
 public final class kotlinx/serialization/cbor/CborNull : kotlinx/serialization/cbor/CborPrimitive {
 	public static final field Companion Lkotlinx/serialization/cbor/CborNull$Companion;
 	public synthetic fun <init> ([JLkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun getValue ()Ljava/lang/Object;
-	public fun getValue ()Lkotlin/Unit;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
 }
 
 public final class kotlinx/serialization/cbor/CborNull$Companion {
@@ -305,10 +308,6 @@ public abstract class kotlinx/serialization/cbor/CborPrimitive : kotlinx/seriali
 	public static final field Companion Lkotlinx/serialization/cbor/CborPrimitive$Companion;
 	public synthetic fun <init> ([JILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> ([JLkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public fun equals (Ljava/lang/Object;)Z
-	protected abstract fun getValue ()Ljava/lang/Object;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
 }
 
 public final class kotlinx/serialization/cbor/CborPrimitive$Companion {
@@ -318,8 +317,10 @@ public final class kotlinx/serialization/cbor/CborPrimitive$Companion {
 public final class kotlinx/serialization/cbor/CborString : kotlinx/serialization/cbor/CborPrimitive {
 	public static final field Companion Lkotlinx/serialization/cbor/CborString$Companion;
 	public synthetic fun <init> (Ljava/lang/String;[JLkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun getValue ()Ljava/lang/Object;
-	public fun getValue ()Ljava/lang/String;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
 }
 
 public final class kotlinx/serialization/cbor/CborString$Companion {
@@ -350,8 +351,9 @@ public final class kotlinx/serialization/cbor/CborTag {
 public final class kotlinx/serialization/cbor/CborUndefined : kotlinx/serialization/cbor/CborPrimitive {
 	public static final field Companion Lkotlinx/serialization/cbor/CborUndefined$Companion;
 	public synthetic fun <init> ([JLkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun getValue ()Ljava/lang/Object;
-	public fun getValue ()Lkotlin/Unit;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
 }
 
 public final class kotlinx/serialization/cbor/CborUndefined$Companion {

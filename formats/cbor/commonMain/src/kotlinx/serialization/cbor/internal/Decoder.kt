@@ -812,7 +812,7 @@ internal class StructuredCborParser(internal val element: CborElement, private v
         if (layer.current !is CborByteString) {
             throw CborDecodingException("Expected byte string, got ${layer.current::class.simpleName}")
         }
-        return (layer.current as CborByteString).value
+        return (layer.current as CborByteString).toByteArray() //do we want to copy here?
     }
 
     override fun nextDouble(tags: ULongArray?): Double {

@@ -15,7 +15,7 @@ class CborUnsignedInteroperabilityTest {
         val element = Cbor.decodeFromHexString<CborElement>(canonicalUnsigned200)
         val asInteger = element as? CborInteger ?: fail("Expected CborInteger, got ${element::class}")
         assertTrue(asInteger.isPositive)
-        assertEquals(200uL, asInteger.value)
+        assertEquals(200uL, asInteger.absoluteValue)
 
         assertEquals(200u.toUByte(), Cbor.decodeFromHexString<UByte>(canonicalUnsigned200))
         assertEquals(canonicalUnsigned200, Cbor.encodeToHexString(200u.toUByte()))
