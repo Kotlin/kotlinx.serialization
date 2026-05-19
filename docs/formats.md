@@ -314,11 +314,6 @@ When annotated with `@CborObjectAsArray`, serialization of the same object will 
 ```
 This may be used to encode COSE structures, see [RFC 9052 2. Basic COSE Structure](https://www.rfc-editor.org/rfc/rfc9052#section-2).
 
-### Nullability of Properties
-Some standards, like COSE, tend to encode the absence of a complex property as an empty map (because the complex property itself
-consists only of nullable properties). This cannot be modelled elegantly, such that the null-safety of Kotlin can be leveraged.
-To work around this, complex nullable properties can be annotated with [`@CborNullAsEmptyMap`](CborNullAsEmptyMap.kt), to emulate this behaviour.
-
 ### Custom CBOR-specific Serializers
 Cbor encoders and decoders implement the interfaces [CborEncoder](CborEncoder.kt) and [CborDecoder](CborDecoder.kt), respectively.
 These interfaces contain a single property, `cbor`, exposing the current CBOR serialization configuration.

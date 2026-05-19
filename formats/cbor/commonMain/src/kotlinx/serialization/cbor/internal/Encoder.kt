@@ -63,8 +63,6 @@ internal sealed class CborWriter(
         getDestination().encodeUndefined()
     }
 
-    protected var encodeNullAsEmptyMap = false
-
     protected var encodeByteArrayAsByteString = false
 
     class Data(val bytes: ByteArrayOutput, var elementCount: Int)
@@ -167,8 +165,7 @@ internal sealed class CborWriter(
 
     override fun encodeNull() {
         onDataItemEncoded()
-        if (encodeNullAsEmptyMap) getDestination().encodeEmptyMap()
-        else getDestination().encodeNull()
+        getDestination().encodeNull()
     }
 
     @OptIn(ExperimentalSerializationApi::class) // KT-46731
@@ -182,7 +179,6 @@ internal sealed class CborWriter(
 
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
         val destination = getDestination()
-        encodeNullAsEmptyMap = descriptor.getElementAnnotations(index).find { it is CborNullAsEmptyMap } != null
         encodeByteArrayAsByteString = descriptor.isByteString(index)
 
         val name = descriptor.getElementName(index)
@@ -347,8 +343,6 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
 
 
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
-        encodeNullAsEmptyMap = descriptor.getElementAnnotations(index).find { it is CborNullAsEmptyMap } != null
-
         encodeByteArrayAsByteString = descriptor.isByteString(index)
         //TODO check if cborelement and be done
         val name = descriptor.getElementName(index)
@@ -450,11 +444,7 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
     override fun encodeNull() {
         onDataItemEncoded()
         val tags = takePendingValueTags()
-        currentElement += if (encodeNullAsEmptyMap) CborMap(
-            mapOf(),
-            tags = tags
-        )
-        else CborNull(tags = tags)
+        currentElement += CborNull(tags = tags)
     }
 
     override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) {

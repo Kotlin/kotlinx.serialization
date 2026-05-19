@@ -17,10 +17,6 @@ open annotation class kotlinx.serialization.cbor/CborLabel : kotlin/Annotation {
         final fun <get-label>(): kotlin/Long // kotlinx.serialization.cbor/CborLabel.label.<get-label>|<get-label>(){}[0]
 }
 
-open annotation class kotlinx.serialization.cbor/CborNullAsEmptyMap : kotlin/Annotation { // kotlinx.serialization.cbor/CborNullAsEmptyMap|null[0]
-    constructor <init>() // kotlinx.serialization.cbor/CborNullAsEmptyMap.<init>|<init>(){}[0]
-}
-
 open annotation class kotlinx.serialization.cbor/CborObjectAsArray : kotlin/Annotation { // kotlinx.serialization.cbor/CborObjectAsArray|null[0]
     constructor <init>() // kotlinx.serialization.cbor/CborObjectAsArray.<init>|<init>(){}[0]
 }
@@ -377,7 +373,7 @@ final val kotlinx.serialization.cbor/shortOrNull // kotlinx.serialization.cbor/s
     final fun (kotlinx.serialization.cbor/CborInteger).<get-shortOrNull>(): kotlin/Short? // kotlinx.serialization.cbor/shortOrNull.<get-shortOrNull>|<get-shortOrNull>@kotlinx.serialization.cbor.CborInteger(){}[0]
 
 final fun kotlinx.serialization.cbor/Cbor(kotlinx.serialization.cbor/Cbor = ..., kotlin/Function1<kotlinx.serialization.cbor/CborBuilder, kotlin/Unit>): kotlinx.serialization.cbor/Cbor // kotlinx.serialization.cbor/Cbor|Cbor(kotlinx.serialization.cbor.Cbor;kotlin.Function1<kotlinx.serialization.cbor.CborBuilder,kotlin.Unit>){}[0]
-final fun kotlinx.serialization.cbor/CborInt(kotlin/Long, kotlin/ULongArray...): kotlinx.serialization.cbor/CborInteger // kotlinx.serialization.cbor/CborInt|CborInt(kotlin.Long;kotlin.ULongArray...){}[0]
-final fun kotlinx.serialization.cbor/CborInt(kotlin/ULong, kotlin/ULongArray...): kotlinx.serialization.cbor/CborInteger // kotlinx.serialization.cbor/CborInt|CborInt(kotlin.ULong;kotlin.ULongArray...){}[0]
+final fun kotlinx.serialization.cbor/CborInteger(kotlin/Long, kotlin/ULongArray...): kotlinx.serialization.cbor/CborInteger // kotlinx.serialization.cbor/CborInteger|CborInteger(kotlin.Long;kotlin.ULongArray...){}[0]
+final fun kotlinx.serialization.cbor/CborInteger(kotlin/ULong, kotlin/ULongArray...): kotlinx.serialization.cbor/CborInteger // kotlinx.serialization.cbor/CborInteger|CborInteger(kotlin.ULong;kotlin.ULongArray...){}[0]
 final inline fun <#A: reified kotlin/Any?> (kotlinx.serialization.cbor/Cbor).kotlinx.serialization.cbor/decodeFromCborElement(kotlinx.serialization.cbor/CborElement): #A // kotlinx.serialization.cbor/decodeFromCborElement|decodeFromCborElement@kotlinx.serialization.cbor.Cbor(kotlinx.serialization.cbor.CborElement){0§<kotlin.Any?>}[0]
 final inline fun <#A: reified kotlin/Any?> (kotlinx.serialization.cbor/Cbor).kotlinx.serialization.cbor/encodeToCborElement(#A): kotlinx.serialization.cbor/CborElement // kotlinx.serialization.cbor/encodeToCborElement|encodeToCborElement@kotlinx.serialization.cbor.Cbor(0:0){0§<kotlin.Any?>}[0]
