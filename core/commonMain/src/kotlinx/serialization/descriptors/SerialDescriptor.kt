@@ -68,7 +68,7 @@ import kotlinx.serialization.encoding.*
  * In practice, for regular classes it is allowed to invoke `getElement*(index)` methods
  * with an index from `0` to [elementsCount] range and the element at the particular index corresponds to the
  * serializable property at the given position.
- * For collections and maps, index parameter for `getElement*(index)` methods is effectively bounded
+ * For collections and maps, index parameter for `getElement*(index)` methods should be non-negative and is effectively bounded
  * by the maximal number of collection/map elements.
  *
  * ### Thread-safety and mutability
@@ -319,6 +319,8 @@ public interface SerialDescriptor {
      * userDescriptor.getElementIndex("alias") // Returns 1
      * userDescriptor.getElementIndex("lastName") // Returns CompositeDecoder.UNKNOWN_NAME = -3
      * ```
+     *
+     * @throws IllegalStateException if the current descriptor does not support children elements (e.g. is a primitive)
      */
     public fun getElementIndex(name: String): Int
 
