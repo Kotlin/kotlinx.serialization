@@ -76,10 +76,6 @@ public final class kotlinx/serialization/protobuf/ProtoUnknownFieldHolder$Compan
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class kotlinx/serialization/protobuf/ProtoUnknownFieldHolderKt {
-	public static final fun merge (Lkotlinx/serialization/protobuf/ProtoUnknownFieldHolder;Lkotlinx/serialization/protobuf/ProtoUnknownFieldHolder;)Lkotlinx/serialization/protobuf/ProtoUnknownFieldHolder;
-}
-
 public final class kotlinx/serialization/protobuf/schema/ProtoBufSchemaGenerator {
 	public static final field INSTANCE Lkotlinx/serialization/protobuf/schema/ProtoBufSchemaGenerator;
 	public final fun generateSchemaText (Ljava/util/List;Ljava/lang/String;Ljava/util/Map;)Ljava/lang/String;
