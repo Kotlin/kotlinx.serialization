@@ -24,4 +24,5 @@ internal sealed interface CborWriterInterface {
 
     // Tag writing
     fun encodeTags(tags: ULongArray)
+    fun encodeElementTags(tags: ULongArray)
 }

@@ -22,6 +22,8 @@ private fun Stack.push(value: CborWriter.Data) = add(value)
 private fun Stack.pop() = removeLast()
 private fun Stack.peek() = last()
 
+private enum class RawElementTagPosition { KEY, VALUE }
+
 // Writes class as map [fieldName, fieldValue]
 // Split implementation to optimize base case
 internal sealed class CborWriter(
@@ -29,6 +31,7 @@ internal sealed class CborWriter(
 ) : AbstractEncoder(), CborEncoder, CborWriterInterface {
 
     private var tagsMustBeFollowedByDataItem: Boolean = false
+    private var rawElementTagPosition: RawElementTagPosition = RawElementTagPosition.VALUE
 
     protected fun onDataItemEncoded() {
         tagsMustBeFollowedByDataItem = false
@@ -49,6 +52,23 @@ internal sealed class CborWriter(
     final override fun encodeTags(tags: ULongArray) {
         if (tags.isNotEmpty()) tagsMustBeFollowedByDataItem = true
         encodeTagsImpl(tags)
+    }
+
+    final override fun encodeElementTags(tags: ULongArray) {
+        when (rawElementTagPosition) {
+            RawElementTagPosition.KEY -> if (cbor.configuration.encodeKeyTags) encodeTags(tags)
+            RawElementTagPosition.VALUE -> if (cbor.configuration.encodeValueTags) encodeTags(tags)
+        }
+        rawElementTagPosition = RawElementTagPosition.VALUE
+    }
+
+    protected fun setRawElementTagPosition(descriptor: SerialDescriptor, index: Int) {
+        rawElementTagPosition =
+            if (!descriptor.hasArrayTag() && descriptor.kind == StructureKind.MAP && index % 2 == 0) {
+                RawElementTagPosition.KEY
+            } else {
+                RawElementTagPosition.VALUE
+            }
     }
 
     protected abstract fun encodeTagsImpl(tags: ULongArray)
@@ -181,6 +201,8 @@ internal sealed class CborWriter(
     }
 
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
+        descriptor.throwIfCborElementHasIncompatibleAnnotations(index)
+        setRawElementTagPosition(descriptor, index)
         val destination = getDestination()
         encodeByteArrayAsByteString = descriptor.isByteString(index)
 
@@ -346,6 +368,8 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
 
 
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
+        descriptor.throwIfCborElementHasIncompatibleAnnotations(index)
+        setRawElementTagPosition(descriptor, index)
         encodeByteArrayAsByteString = descriptor.isByteString(index)
         //TODO check if cborelement and be done
         val name = descriptor.getElementName(index)

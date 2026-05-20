@@ -83,3 +83,41 @@ internal inline fun <reified A : Annotation> SerialDescriptor.findAnnotation(ele
 internal fun SerialDescriptor.getObjectTags(): ULongArray? {
     return annotations.filterIsInstance<ObjectTags>().firstOrNull()?.tags
 }
+
+internal fun SerialDescriptor.isCborElementDescriptor(): Boolean =
+    serialName.removeSuffix("?") in cborElementSerialNames
+
+private val cborElementSerialNames = setOf(
+    "kotlinx.serialization.cbor.CborElement",
+    "kotlinx.serialization.cbor.CborPrimitive",
+    "kotlinx.serialization.cbor.CborNull",
+    "kotlinx.serialization.cbor.CborUndefined",
+    "kotlinx.serialization.cbor.CborString",
+    "kotlinx.serialization.cbor.CborBoolean",
+    "kotlinx.serialization.cbor.CborByteString",
+    "kotlinx.serialization.cbor.CborMap",
+    "kotlinx.serialization.cbor.CborArray",
+    "kotlinx.serialization.cbor.CborDouble",
+    "kotlinx.serialization.cbor.CborInt",
+)
+
+internal fun SerialDescriptor.throwIfCborElementHasIncompatibleAnnotations(index: Int) {
+    val elementDescriptor = getElementDescriptor(index)
+    if (!elementDescriptor.isCborElementDescriptor()) return
+
+    if (getKeyTags(index) != null) {
+        throw SerializationException(
+            "KeyTags cannot be represented by a CborElement value; model the containing CborMap key directly if tagged keys are required."
+        )
+    }
+    if (getValueTags(index) != null || elementDescriptor.getObjectTags() != null) {
+        throw SerializationException(
+            "CBOR tag annotations cannot be applied to CborElement properties; add tags to the CborElement instance directly."
+        )
+    }
+    if (getCborLabel(index) != null) {
+        throw SerializationException(
+            "CborLabel cannot be represented by a CborElement value; model the containing CborMap key directly if numeric labels are required."
+        )
+    }
+}

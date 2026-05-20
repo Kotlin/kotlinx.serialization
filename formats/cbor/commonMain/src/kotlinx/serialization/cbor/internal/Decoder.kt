@@ -84,6 +84,7 @@ internal open class CborReader(override val cbor: Cbor, internal val parser: Cbo
                 if (index == CompositeDecoder.UNKNOWN_NAME) {
                     parser.skipElement(tags)
                 } else {
+                    descriptor.throwIfCborElementHasIncompatibleAnnotations(index)
                     verifyKeyTags(descriptor, index, tags)
                     knownIndex = index
                     break
@@ -95,6 +96,7 @@ internal open class CborReader(override val cbor: Cbor, internal val parser: Cbo
             val (elemName, tags) = decodeElementNameWithTags(descriptor)
             readProperties++
             descriptor.getElementIndexOrThrow(elemName).also { index ->
+                descriptor.throwIfCborElementHasIncompatibleAnnotations(index)
                 verifyKeyTags(descriptor, index, tags)
             }
         }
