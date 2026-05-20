@@ -383,9 +383,12 @@ internal open class ProtobufDecoder(
         require(currentTagOrDefault != MISSING_TAG) {
             "Cannot deserialize directly to kotlinx.serialization.protobuf.ProtoUnknownFieldHolder."
         }
-        val serializer = ProtoFieldSerializer
         val restoredTag = index2IdMap?.get(unknownHolderIndex)?.let { currentTag.overrideId(it) } ?: currentTag
-        return previous.merge(serializer.deserialize(this, restoredTag))
+        val rawFieldBytes = readRawFieldBytes(this, restoredTag)
+        val newBytes = previous?.fields?.let {
+            it + rawFieldBytes
+        } ?: rawFieldBytes
+        return ProtoUnknownFieldHolder(newBytes)
     }
 
     internal fun decodeRawElement(): ByteArray {

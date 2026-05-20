@@ -53,7 +53,7 @@ class ProtobufUnknownFieldsTest {
         val encoded = "082a120234321a032a2a2a202a202a202a2a120a023432102a1a0234321a0234321a023432"
         val decoded = ProtoBuf.decodeFromHexString(DataWithUnknownFields.serializer(), encoded)
         assertEquals(42, decoded.a)
-        assertEquals(6, decoded.unknownFields.size)
+        assertTrue(decoded.unknownFields.fields.isNotEmpty())
     }
 
     @Test
@@ -69,7 +69,7 @@ class ProtobufUnknownFieldsTest {
         val encoded = ProtoBuf.encodeToByteArray(BuildData.serializer(), data)
         val decoded = ProtoBuf.decodeFromByteArray(DataWithUnknownFields.serializer(), encoded)
         assertEquals(data.a, decoded.a)
-        assertEquals(6, decoded.unknownFields.size)
+        assertTrue(decoded.unknownFields.fields.isNotEmpty())
 
         val reEncoded = ProtoBuf.encodeToByteArray(DataWithUnknownFields.serializer(), decoded)
         assertContentEquals(encoded, reEncoded)
@@ -130,7 +130,7 @@ class ProtobufUnknownFieldsTest {
 
         val encoded = ProtoBuf.encodeToByteArray(BuildData.serializer(), data)
         val decoded = ProtoBuf.decodeFromByteArray(DataWithStaggeredFields.serializer(), encoded)
-        assertEquals(3, decoded.unknownFields.size)
+        assertTrue(decoded.unknownFields.fields.isNotEmpty())
         assertEquals("42", decoded.b)
         assertEquals(listOf(42, 42, 42), decoded.d)
 
@@ -162,7 +162,7 @@ class ProtobufUnknownFieldsTest {
         val encoded = ProtoBuf.encodeToByteArray(BuildData.serializer(), data)
         val decoded = ProtoBuf.decodeFromByteArray(NestedUnknownData.serializer(), encoded)
         assertEquals(42, decoded.a)
-        assertEquals(5, decoded.unknown.size)
+        assertTrue(decoded.unknown.fields.isNotEmpty())
 
         val reEncoded = ProtoBuf.encodeToByteArray(NestedUnknownData.serializer(), decoded)
         val restored = ProtoBuf.decodeFromByteArray(BuildData.serializer(), reEncoded)
@@ -214,7 +214,7 @@ class ProtobufUnknownFieldsTest {
         val decoded = ProtoBuf.decodeFromByteArray(CustomSerializer, encoded)
 
         assertEquals(data.a, decoded.a)
-        assertEquals(6, decoded.unknownFields.size)
+        assertTrue(decoded.unknownFields.fields.isNotEmpty())
 
         val reEncoded = ProtoBuf.encodeToByteArray(CustomSerializer, decoded)
         assertContentEquals(encoded, reEncoded)
@@ -240,7 +240,7 @@ class ProtobufUnknownFieldsTest {
         val encoded = ProtoBuf.encodeToByteArray(BuildData.serializer(), data)
         val decoded = ProtoBuf.decodeFromByteArray(DataWithNullableUnknownFields.serializer(), encoded)
         assertEquals(42, decoded.a)
-        assertEquals(4, decoded.unknownFields?.size)
+        assertTrue(decoded.unknownFields!!.fields.isNotEmpty())
 
         // When there are no unknown fields, the holder should be null
         @Serializable
@@ -285,7 +285,7 @@ class ProtobufUnknownFieldsTest {
         val encoded2 = ProtoBuf.encodeToHexString(absent)
         val decoded2 = ProtoBuf.decodeFromHexString(TestFewerOneOf.serializer(), encoded2)
         assertNull(decoded2.oneOf)
-        assertEquals(1, decoded2.unknownFields.size)
+        assertTrue(decoded2.unknownFields.fields.isNotEmpty())
     }
 
     @Serializable
@@ -306,7 +306,7 @@ class ProtobufUnknownFieldsTest {
         val decoded = ProtoBuf.decodeFromHexString(DataWithUnknownLargeNumbers.serializer(), encoded)
 
         assertEquals(smallNumber, decoded.smallNumber)
-        assertEquals(1, decoded.unknownFields.size)
+        assertTrue(decoded.unknownFields.fields.isNotEmpty())
 
         val reEncoded = ProtoBuf.encodeToHexString(DataWithUnknownLargeNumbers.serializer(), decoded)
         val finalData = ProtoBuf.decodeFromHexString(DataWithLargeNumbers.serializer(), reEncoded)

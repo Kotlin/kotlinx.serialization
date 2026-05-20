@@ -151,16 +151,8 @@ internal open class ProtobufEncoder(
         else -> serializer.serialize(this, value)
     }
 
-    internal fun encodeRawElement(id: Int, wireType: ProtoWireType, data: ByteArray) {
-        when(wireType) {
-            ProtoWireType.INVALID -> {}
-            ProtoWireType.VARINT,
-            ProtoWireType.i64,
-            ProtoWireType.i32 -> {
-                writer.writeRawBytes(data, wireType.wireIntWithTag(id))
-            }
-            ProtoWireType.SIZE_DELIMITED -> writer.writeBytes(data, id)
-        }
+    internal fun writeRawBytes(bytes: ByteArray) {
+        writer.writeRawBytes(bytes)
     }
 
     private fun serializeByteArray(value: ByteArray) {

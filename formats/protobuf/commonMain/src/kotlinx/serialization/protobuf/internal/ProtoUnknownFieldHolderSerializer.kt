@@ -11,15 +11,13 @@ import kotlinx.serialization.encoding.*
 import kotlinx.serialization.protobuf.*
 
 internal object ProtoUnknownFieldHolderSerializer : KSerializer<ProtoUnknownFieldHolder> {
-    internal val fieldsSerializer = ProtoFieldSerializer
-
     override val descriptor: SerialDescriptor
-        get() = UnknownFieldsDescriptor(fieldsSerializer.descriptor)
+        get() = UnknownFieldsDescriptor(ByteArraySerializer().descriptor)
 
     override fun deserialize(decoder: Decoder): ProtoUnknownFieldHolder {
         if (decoder is ProtobufDecoder) {
             return decoder.decodeStructure(descriptor) {
-                ProtoUnknownFieldHolder(fieldsSerializer.deserializeComposite(this))
+                ProtoUnknownFieldHolder(readRawFieldBytes(this))
             }
         }
         return ProtoUnknownFieldHolder.Empty
@@ -27,53 +25,44 @@ internal object ProtoUnknownFieldHolderSerializer : KSerializer<ProtoUnknownFiel
 
     override fun serialize(encoder: Encoder, value: ProtoUnknownFieldHolder) {
         if (encoder is ProtobufEncoder) {
-            value.fields.forEach {
-                fieldsSerializer.serialize(encoder, it)
-            }
+            encoder.writeRawBytes(value.fields)
         }
     }
 }
 
-internal object ProtoFieldSerializer : KSerializer<ProtoField> {
-    private val delegate = ByteArraySerializer()
+/**
+ * Reads the complete wire format bytes (tag + value) for the current field
+ * from [decoder]. The [currentTag] provides the proto id for the unknown field.
+ */
+internal fun readRawFieldBytes(decoder: ProtobufDecoder, currentTag: ProtoDesc): ByteArray {
+    if (currentTag == MISSING_TAG) return ByteArray(0)
+    val id = currentTag.protoId
+    val wireType = decoder.currentType
+    val valueBytes = decoder.decodeRawElement()
 
-    override val descriptor: SerialDescriptor
-        get() = UnknownFieldsDescriptor(delegate.descriptor)
-
-    fun deserializeComposite(compositeDecoder: CompositeDecoder): ProtoField {
-        if (compositeDecoder is ProtobufDecoder) {
-            return deserialize(compositeDecoder)
+    val output = ByteArrayOutput()
+    val writer = ProtobufWriter(output)
+    when (wireType) {
+        ProtoWireType.VARINT, ProtoWireType.i64, ProtoWireType.i32 -> {
+            writer.writeRawBytes(valueBytes, wireType.wireIntWithTag(id))
         }
-        return ProtoField.Empty
-    }
-
-    override fun deserialize(decoder: Decoder): ProtoField {
-        if (decoder is ProtobufDecoder) {
-            return deserialize(decoder, decoder.currentTag)
+        ProtoWireType.SIZE_DELIMITED -> {
+            writer.writeBytes(valueBytes, id)
         }
-        return ProtoField.Empty
+        ProtoWireType.INVALID -> {}
     }
+    return output.toByteArray()
+}
 
-    internal fun deserialize(protobufDecoder: ProtobufDecoder, currentTag: ProtoDesc): ProtoField {
-        if (currentTag != MISSING_TAG) {
-            val id = currentTag.protoId
-            val type = protobufDecoder.currentType
-            val data = protobufDecoder.decodeRawElement()
-            val field = ProtoField(
-                id = id,
-                wireType = type,
-                data = data,
-            )
-            return field
-        }
-        return ProtoField.Empty
+/**
+ * Reads the complete wire format bytes (tag + value) for the current field
+ * from [compositeDecoder] using its current tag.
+ */
+internal fun readRawFieldBytes(compositeDecoder: CompositeDecoder): ByteArray {
+    if (compositeDecoder is ProtobufDecoder) {
+        return readRawFieldBytes(compositeDecoder, compositeDecoder.currentTag)
     }
-
-    override fun serialize(encoder: Encoder, value: ProtoField) {
-        if (encoder is ProtobufEncoder) {
-            encoder.encodeRawElement(value.id, value.wireType, value.data)
-        }
-    }
+    return ByteArray(0)
 }
 
 internal class UnknownFieldsDescriptor(private val original: SerialDescriptor) : SerialDescriptor by original {

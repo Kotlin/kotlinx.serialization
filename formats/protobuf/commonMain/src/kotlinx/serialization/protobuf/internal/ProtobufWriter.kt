@@ -82,6 +82,10 @@ internal class ProtobufWriter(private val out: ByteArrayOutput) {
         out.write(data)
     }
 
+    fun writeRawBytes(bytes: ByteArray) {
+        out.write(bytes)
+    }
+
     private fun ByteArrayOutput.encode32(
         number: Int,
         format: ProtoIntegerType = ProtoIntegerType.DEFAULT
