@@ -756,10 +756,10 @@ class ProtobufOneOfTest {
     @Serializable
     class EmptyBox {
         override fun equals(other: Any?): Boolean =
-            this === other || javaClass == other?.javaClass
+            this === other || (other != null && this::class == other::class)
 
         override fun hashCode(): Int =
-            javaClass.hashCode()
+            this::class.hashCode()
     }
 
     @Test
