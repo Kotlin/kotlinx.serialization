@@ -26,9 +26,12 @@ pluginManagement {
 
         // kotlin-dev with space redirector
         maven("https://redirector.kotlinlang.org/maven/dev")
-
-        gradlePluginPortal()
-        mavenCentral()
+        // Cache redirector for gradlePluginPortal
+        maven("https://cache-redirector.jetbrains.com/plugins.gradle.org/m2")
+        // gradlePluginPortal()
+        // Cache redirector for mavenCentral
+        maven("https://cache-redirector.jetbrains.com/repo.maven.apache.org/maven2")
+        // mavenCentral()
         mavenLocal()
     }
 }

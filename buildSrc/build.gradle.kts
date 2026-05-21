@@ -26,7 +26,9 @@ repositories {
         maven("https://oss.sonatype.org/content/repositories/snapshots")
     }
 
-    mavenCentral()
+    // cache redirector for mavenCentral
+    maven("https://cache-redirector.jetbrains.com/repo.maven.apache.org/maven2")
+    //mavenCentral()
     maven("https://redirector.kotlinlang.org/maven/dev")
 }
 
