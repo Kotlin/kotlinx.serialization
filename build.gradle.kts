@@ -20,7 +20,9 @@ plugins {
 }
 
 repositories {
-    mavenCentral()
+    // cache redirector for mavenCentral
+    maven("https://cache-redirector.jetbrains.com/repo.maven.apache.org/maven2")
+    // mavenCentral()
     maven("https://redirector.kotlinlang.org/maven/dev")
 }
 
@@ -52,7 +54,9 @@ allprojects {
         }
     }
     repositories {
-        mavenCentral()
+        // cache redirector for mavenCentral
+        maven("https://cache-redirector.jetbrains.com/repo.maven.apache.org/maven2")
+        // mavenCentral()
         maven("https://redirector.kotlinlang.org/maven/dev")
     }
 }

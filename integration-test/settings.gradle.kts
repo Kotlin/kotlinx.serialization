@@ -15,8 +15,11 @@ pluginManagement {
     }
 
     repositories {
-        mavenCentral()
-        maven("https://plugins.gradle.org/m2/")
+        // cache redirector for mavenCentral
+        maven("https://cache-redirector.jetbrains.com/repo.maven.apache.org/maven2")
+        // mavenCentral()
+        maven("https://cache-redirector.jetbrains.com/plugins.gradle.org/m2")
+        // maven("https://plugins.gradle.org/m2/")
         maven("https://redirector.kotlinlang.org/maven/dev")
         mavenLocal()
     }

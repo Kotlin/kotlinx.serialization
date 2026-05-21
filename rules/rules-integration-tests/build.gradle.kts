@@ -7,7 +7,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
  */
 buildscript {
     repositories {
-        mavenCentral()
+        // cache redirector for mavenCentral
+        maven("https://cache-redirector.jetbrains.com/repo.maven.apache.org/maven2")
+        // mavenCentral()
         // Using Google Cloud Storage, see: https://r8.googlesource.com/r8#obtaining-prebuilts
         maven("https://storage.googleapis.com/r8-releases/raw")
     }
