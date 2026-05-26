@@ -276,7 +276,7 @@ internal fun Decoder.asCborDecoder(): CborDecoder = this as? CborDecoder
 
 /*need to expose writer to access raw CBOR token operations*/
 @IgnorableReturnValue
-internal fun Encoder.asCborWriter() = this as? CborWriterInterface
+internal fun Encoder.asCborWriter() = this as? CborWriter
     ?: throw IllegalStateException(
         "This serializer can be used only with Cbor format. " +
             "Expected Encoder to provide a CborWriterInterface, got ${this::class}"

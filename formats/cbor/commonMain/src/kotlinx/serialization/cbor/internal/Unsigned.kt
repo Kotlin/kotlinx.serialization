@@ -4,12 +4,11 @@ package kotlinx.serialization.cbor.internal
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.cbor.CborInteger
-import kotlinx.serialization.cbor.longOrNull
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
 internal class UnsignedInlineEncoder(
-    private val delegate: CborWriter,
+    private val delegate: AbstractCborWriter,
 ) : Encoder by delegate {
     override fun encodeByte(value: Byte) {
         delegate.encodePositive(value.toUByte().toULong())
@@ -75,7 +74,7 @@ internal class UnsignedInlineDecoder(
                 integer.absoluteValue.toLong()
             }
 
-            is CborParser -> {
+            is CborParserImpl -> {
                 parser.processTags(tags)
                 val header = parser.curByte
                 if ((header and MAJOR_TYPE_MASK) != HEADER_POSITIVE.toInt()) {

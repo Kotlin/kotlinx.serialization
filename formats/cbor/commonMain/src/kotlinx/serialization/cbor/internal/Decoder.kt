@@ -12,12 +12,12 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 
-internal open class CborReader(override val cbor: Cbor, internal val parser: CborParserInterface) : AbstractDecoder(),
+internal open class CborReader(override val cbor: Cbor, internal val parser: CborParser) : AbstractDecoder(),
     CborDecoder {
 
     override fun decodeCborElement(): CborElement =
         when (parser) {
-            is CborParser -> CborTreeReader(cbor.configuration, parser).read()
+            is CborParserImpl -> CborTreeReader(cbor.configuration, parser).read()
             is StructuredCborParser -> parser.layer.current
         }
 
@@ -47,7 +47,7 @@ internal open class CborReader(override val cbor: Cbor, internal val parser: Cbo
             "kotlin.UShort",
             "kotlin.UInt",
             "kotlin.ULong",
-            -> UnsignedInlineDecoder(this)
+                -> UnsignedInlineDecoder(this)
             else -> super.decodeInline(descriptor)
         }
     }
@@ -164,9 +164,12 @@ internal open class CborReader(override val cbor: Cbor, internal val parser: Cbo
     }
 
     override fun decodeByte() = nextNumberWithinRange(Byte.MIN_VALUE.toLong(), Byte.MAX_VALUE.toLong(), "Byte").toByte()
-    override fun decodeShort() = nextNumberWithinRange(Short.MIN_VALUE.toLong(), Short.MAX_VALUE.toLong(), "Short").toShort()
+    override fun decodeShort() =
+        nextNumberWithinRange(Short.MIN_VALUE.toLong(), Short.MAX_VALUE.toLong(), "Short").toShort()
+
     override fun decodeChar() =
         nextNumberWithinRange(Char.MIN_VALUE.code.toLong(), Char.MAX_VALUE.code.toLong(), "Char").toInt().toChar()
+
     override fun decodeInt() = nextNumberWithinRange(Int.MIN_VALUE.toLong(), Int.MAX_VALUE.toLong(), "Int").toInt()
     override fun decodeLong() = parser.nextNumber(tags)
 
@@ -187,8 +190,7 @@ internal open class CborReader(override val cbor: Cbor, internal val parser: Cbo
 
 }
 
-internal class CborParser(private val input: ByteArrayInput, private val verifyObjectTags: Boolean) :
-    CborParserInterface {
+internal class CborParserImpl(private val input: ByteArrayInput, private val verifyObjectTags: Boolean) : CborParser {
     private var curByteOrEof: Int = -1
 
     internal val curByte: Int
@@ -596,16 +598,23 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
 
         return when (majorType) {
             HEADER_BYTE_STRING, HEADER_STRING, HEADER_ARRAY ->
-                readUnsignedIntegerIgnoringMajorType { "${majorType.majorTypeName} length" }.asSizedElementLength(majorType)
+                readUnsignedIntegerIgnoringMajorType { "${majorType.majorTypeName} length" }.asSizedElementLength(
+                    majorType
+                )
+
             HEADER_MAP ->
-                readUnsignedIntegerIgnoringMajorType { "map length" }.asSizedElementLength(majorType, Int.MAX_VALUE / 2) * 2
+                readUnsignedIntegerIgnoringMajorType { "map length" }.asSizedElementLength(
+                    majorType,
+                    Int.MAX_VALUE / 2
+                ) * 2
+
             else -> when (additionalInformation) {
                 24 -> 1
                 25 -> 2
                 26 -> 4
                 27 -> 8
                 else -> 0
-                }
+            }
         }
     }
 
@@ -719,11 +728,11 @@ internal class PeekingIterator private constructor(
 }
 
 /**
- * CBOR parser that operates on [CborElement] instead of bytes. Closely mirrors the behaviour of [CborParser], so the
+ * CBOR parser that operates on [CborElement] instead of bytes. Closely mirrors the behaviour of [CborParserImpl], so the
  * [CborDecoder] can remain largely unchanged.
  */
 internal class StructuredCborParser(internal val element: CborElement, private val verifyObjectTags: Boolean) :
-    CborParserInterface {
+    CborParser {
 
     internal var layer: PeekingIterator = PeekingIterator(element)
         private set
@@ -841,6 +850,7 @@ internal class StructuredCborParser(internal val element: CborElement, private v
                 key.longOrNull ?: throw CborDecodingException("$key cannot be represented as Long"),
                 tags
             )
+
             else -> throw CborDecodingException("Expected string or number key, got ${key::class.simpleName}")
         }
     }
@@ -888,13 +898,13 @@ internal class StructuredCborParser(internal val element: CborElement, private v
 }
 
 
-private class CborMapReader(cbor: Cbor, decoder: CborParserInterface) : CborArrayReader(cbor, decoder) {
+private class CborMapReader(cbor: Cbor, decoder: CborParser) : CborArrayReader(cbor, decoder) {
     override fun skipBeginToken(objectTags: ULongArray?) =
         setSize(parser.startMap(tags?.let { if (objectTags == null) it else ulongArrayOf(*it, *objectTags) }
             ?: objectTags) * 2)
 }
 
-private open class CborArrayReader(cbor: Cbor, decoder: CborParserInterface) : CborReader(cbor, decoder) {
+private open class CborArrayReader(cbor: Cbor, decoder: CborParser) : CborReader(cbor, decoder) {
     private var ind = 0
 
     override fun skipBeginToken(objectTags: ULongArray?) =

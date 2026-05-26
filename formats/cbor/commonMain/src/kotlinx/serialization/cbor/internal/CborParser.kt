@@ -7,7 +7,7 @@ import kotlinx.serialization.*
 /**
  * Common interface for CBOR parsers that can read CBOR data from different sources.
  */
-internal sealed interface CborParserInterface {
+internal sealed interface CborParser {
     // Basic state checks
     fun isNull(): Boolean
     fun isEnd(): Boolean

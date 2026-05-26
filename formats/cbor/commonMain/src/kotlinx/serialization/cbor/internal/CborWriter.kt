@@ -7,7 +7,7 @@ import kotlinx.serialization.*
 /**
  * Common interface for CBOR writers that can emit CBOR data to different destinations.
  */
-internal sealed interface CborWriterInterface {
+internal sealed interface CborWriter {
     // Collection operations are represented by Encoder.beginStructure/endStructure.
 
     // Value writing operations

@@ -15,10 +15,10 @@ import kotlin.experimental.*
 
 
 //value classes are only inlined on the JVM, so we use a typealias and extensions instead
-private typealias Stack = MutableList<CborWriter.Data>
+private typealias Stack = MutableList<AbstractCborWriter.Data>
 
-private fun Stack(initial: CborWriter.Data): Stack = mutableListOf(initial)
-private fun Stack.push(value: CborWriter.Data) = add(value)
+private fun Stack(initial: AbstractCborWriter.Data): Stack = mutableListOf(initial)
+private fun Stack.push(value: AbstractCborWriter.Data) = add(value)
 private fun Stack.pop() = removeLast()
 private fun Stack.peek() = last()
 
@@ -26,9 +26,9 @@ private enum class RawElementTagPosition { KEY, VALUE }
 
 // Writes class as map [fieldName, fieldValue]
 // Split implementation to optimize base case
-internal sealed class CborWriter(
+internal sealed class AbstractCborWriter(
     override val cbor: Cbor,
-) : AbstractEncoder(), CborEncoder, CborWriterInterface {
+) : AbstractEncoder(), CborEncoder, CborWriter {
 
     private var tagsMustBeFollowedByDataItem: Boolean = false
     private var rawElementTagPosition: RawElementTagPosition = RawElementTagPosition.VALUE
@@ -232,7 +232,7 @@ internal sealed class CborWriter(
 }
 
 // optimized indefinite length encoder
-internal class IndefiniteLengthCborWriter(cbor: Cbor, private val output: ByteArrayOutput) : CborWriter(
+internal class IndefiniteLengthCborWriter(cbor: Cbor, private val output: ByteArrayOutput) : AbstractCborWriter(
     cbor
 ) {
 
@@ -269,7 +269,7 @@ internal class IndefiniteLengthCborWriter(cbor: Cbor, private val output: ByteAr
 }
 
 // optimized indefinite length encoder
-internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
+internal class StructuredCborWriter(cbor: Cbor) : AbstractCborWriter(cbor) {
 
     /**
      * Tags and values are "written", i.e. recorded/prepared for encoding separately. Hence, we need a helper that allows
@@ -485,7 +485,7 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
 }
 
 //optimized definite length encoder
-internal class DefiniteLengthCborWriter(cbor: Cbor, output: ByteArrayOutput) : CborWriter(cbor) {
+internal class DefiniteLengthCborWriter(cbor: Cbor, output: ByteArrayOutput) : AbstractCborWriter(cbor) {
 
     private val structureStack = Stack(Data(output, -1))
     override fun getDestination(): ByteArrayOutput =
