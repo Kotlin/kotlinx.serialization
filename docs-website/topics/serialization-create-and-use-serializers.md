@@ -908,9 +908,6 @@ fun main() {
 You can apply custom serializers to your own classes and to third-party types.
 Third-party types, such as [java.util.Date](https://docs.oracle.com/javase/8/docs/api/java/util/Date.html), can't be directly annotated with [`@Serializable`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/) because their source code can't be modified.
 
-The following sections use `java.util.Date` as an example and show different ways to apply a custom serializer.
-The goal is to serialize `Date` values as the number of milliseconds since the Unix epoch.
-
 ### Pass a serializer manually
 
 To serialize a third-party type such as `Date`, create a custom serializer and pass it explicitly to overloads of functions such as [`Json.encodeToString()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/encode-to-string.html) and [`Json.decodeFromString()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/decode-from-string.html):
