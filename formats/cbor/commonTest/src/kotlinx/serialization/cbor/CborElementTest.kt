@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalSerializationApi::class)
+
 package kotlinx.serialization.cbor
 
 import kotlinx.serialization.*
@@ -8,16 +10,14 @@ class CborElementTest {
 
     private val cbor = Cbor {}
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Test
+        @Test
     fun testEncodeToCborElementRootPrimitiveInt() {
         val element = cbor.encodeToCborElement(42)
         assertEquals(CborInteger(42), element)
         assertEquals(42, cbor.decodeFromCborElement<Int>(element))
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Test
+        @Test
     fun testEncodeToCborElementRootPrimitiveByteArrayAlwaysUseByteString() {
         val configured = Cbor { alwaysUseByteString = true }
         val element = configured.encodeToCborElement(byteArrayOf(1, 2, 3))
@@ -32,16 +32,14 @@ class CborElementTest {
     @Serializable
     private data class Wrapper(val datum: Wrapped?)
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Test
+        @Test
     fun testEncodeDecodeNullableClassViaCborElement() {
         val wrapper = Wrapper(null)
         val element = cbor.encodeToCborElement(wrapper)
         assertEquals(wrapper, cbor.decodeFromCborElement<Wrapper>(element))
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Test
+        @Test
     fun testEncodeDecodeRootListViaCborElement() {
         val value = listOf(1, 2, 3)
         val element = cbor.encodeToCborElement(value)
@@ -614,8 +612,7 @@ class CborElementTest {
 
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Test
+        @Test
     fun testCborElementWithValueTagsFails() {
         val cbor = Cbor { encodeValueTags = true }
         val message = assertFailsWith<SerializationException> {
@@ -635,8 +632,7 @@ class CborElementTest {
         )
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Test
+        @Test
     fun testCborElementWithKeyTagsFails() {
         val cbor = Cbor { encodeKeyTags = true }
         val message = assertFailsWith<SerializationException> {
@@ -656,8 +652,7 @@ class CborElementTest {
         )
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Test
+        @Test
     fun testConcreteCborElementWithValueTagsFails() {
         val cbor = Cbor { encodeValueTags = true }
         val message = assertFailsWith<SerializationException> {
@@ -669,8 +664,7 @@ class CborElementTest {
         )
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Test
+        @Test
     fun testTaggedCborElementPropertyDecodingFails() {
         val hex = cbor.encodeToHexString(CborMap(mapOf(CborString("cborElement") to CborBoolean(false))))
         val message = assertFailsWith<SerializationException> {
@@ -682,8 +676,7 @@ class CborElementTest {
         )
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Test
+        @Test
     fun testKeyTaggedCborElementPropertyDecodingFails() {
         val hex = cbor.encodeToHexString(CborMap(mapOf(CborString("cborElement") to CborBoolean(false))))
         val message = assertFailsWith<SerializationException> {
@@ -695,8 +688,7 @@ class CborElementTest {
         )
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Test
+        @Test
     fun testConcreteCborElementPropertyDecodingFails() {
         val hex = cbor.encodeToHexString(CborMap(mapOf(CborString("cborElement") to CborInteger(1))))
         val message = assertFailsWith<SerializationException> {
@@ -708,8 +700,7 @@ class CborElementTest {
         )
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Test
+        @Test
     fun testCborElementTagsRemainAllowed() {
         val cbor = Cbor { encodeValueTags = true }
         val element = CborBoolean(false, 2337u)
@@ -718,8 +709,7 @@ class CborElementTest {
         assertEquals(obj, cbor.decodeFromHexString(MixedUntaggedElement.serializer(), hex))
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Test
+        @Test
     fun testTaggedCborMapKeyRemainsAllowed() {
         val cbor = Cbor { encodeKeyTags = true }
         val element = CborMap(mapOf(CborString("key", 42u) to CborBoolean(true)))
@@ -759,8 +749,7 @@ class CborElementTest {
         assertEquals(element, cbor.decodeFromByteArray(CborElement.serializer(), bytes))
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Test
+        @Test
     fun testRootCborElementTagsRespectEncodeValueTags() {
         val element = CborBoolean(false, 1u)
 
@@ -768,8 +757,7 @@ class CborElementTest {
         assertEquals("c1f4", Cbor { encodeValueTags = true }.encodeToHexString(CborElement.serializer(), element))
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Test
+        @Test
     fun testArrayCborElementTagsRespectEncodeValueTags() {
         val element = CborArray(listOf(CborBoolean(false, 1u)))
 
@@ -780,8 +768,7 @@ class CborElementTest {
         )
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Test
+        @Test
     fun testMapCborElementTagsRespectKeyAndValueSwitches() {
         val element = CborMap(mapOf(CborString("k", 1u) to CborBoolean(false, 2u)))
 
@@ -803,8 +790,7 @@ class CborElementTest {
         )
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Test
+        @Test
     fun testNestedCborElementTagsRespectLocalPosition() {
         val element = CborMap(
             mapOf(
@@ -832,8 +818,7 @@ class CborElementTest {
         )
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Test
+        @Test
     fun testCborMapTagsRespectPositionWhenUsedAsMapKey() {
         val element = CborMap(mapOf(CborMap(emptyMap(), 1u) to CborBoolean(true, 2u)))
 
@@ -855,8 +840,7 @@ class CborElementTest {
         )
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Test
+        @Test
     fun testEncodeToCborElementRespectsRawElementTagSwitches() {
         val element = CborMap(mapOf(CborString("k", 1u) to CborBoolean(false, 2u)), 3u)
 
@@ -881,8 +865,7 @@ class CborElementTest {
         )
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Test
+        @Test
     fun testAllRootCborElementKindsRespectEncodeValueTags() {
         val elements = listOf(
             CborNull(1u) to CborNull(),
@@ -912,8 +895,7 @@ class CborElementTest {
         }
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Test
+        @Test
     fun testAllRawCborElementMapKeyKindsRespectEncodeKeyTags() {
         val taggedKeys = listOf(
             CborString("text", 1u) to CborString("text"),
@@ -939,8 +921,7 @@ class CborElementTest {
         )
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Test
+        @Test
     fun testGenericSerializableRawCborElementRespectsNestedTagSwitches() {
         val element = CborMap(mapOf(CborString("k", 1u) to CborBoolean(false, 2u)), 3u)
         val box = GenericBox<CborElement>(element)
@@ -966,8 +947,7 @@ class CborElementTest {
         )
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Test
+        @Test
     fun testGenericSerializableRawCborElementListAndMapRespectTagSwitches() {
         val listBox = GenericListBox<CborElement>(listOf(CborString("v", 1u)))
         val listSerializer = GenericListBox.serializer(CborElement.serializer())
@@ -1000,8 +980,7 @@ class CborElementTest {
         )
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Test
+        @Test
     fun testGenericSerializableConcreteCborElementSubtypesRespectTagSwitches() {
         val mapBox = GenericBox(CborMap(mapOf(CborString("k", 1u) to CborString("v", 2u)), 3u))
         val mapSerializer = GenericBox.serializer(CborMap.serializer())
@@ -1051,8 +1030,7 @@ class CborElementTest {
         )
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Test
+        @Test
     fun testCborLabelOnCborElementPropertyFails() {
         val box = LabelledRawElementBox(CborString("x"))
         val cbor = Cbor {
@@ -1086,8 +1064,7 @@ class CborElementTest {
         )
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Test
+        @Test
     fun testCborLabelOnConcreteCborElementPropertyFails() {
         val message = assertFailsWith<SerializationException> {
             cbor.encodeToByteArray(LabelledRawIntegerBox.serializer(), LabelledRawIntegerBox(CborInteger(1)))
@@ -1098,8 +1075,7 @@ class CborElementTest {
         )
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Test
+        @Test
     fun testRawCborMapNumericKeyRemainsAllowed() {
         val element = CborMap(mapOf(CborInteger(1) to CborString("x")))
         val encoded = cbor.encodeToByteArray(CborElement.serializer(), element)
@@ -1110,8 +1086,7 @@ class CborElementTest {
         )
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Test
+        @Test
     fun testCborLabelDoesNotMakeTaggedCborElementPropertyAllowed() {
         val valueMessage = assertFailsWith<SerializationException> {
             cbor.encodeToByteArray(LabelledValueTaggedElement.serializer(), LabelledValueTaggedElement(CborBoolean(false)))
@@ -1130,8 +1105,7 @@ class CborElementTest {
         )
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Test
+        @Test
     fun testDecodingRawCborElementPreservesTagsIndependentOfEncodeSwitches() {
         assertEquals(CborBoolean(false, 1u), cbor.decodeFromHexString(CborElement.serializer(), "c1f4"))
         assertEquals(
@@ -1140,8 +1114,7 @@ class CborElementTest {
         )
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
-    @Test
+        @Test
     fun testConcreteCborElementSerializersRespectRawTagSwitches() {
         val string = CborString("v", 1u)
         assertEquals(CborString("v"), cbor.decodeFromByteArray(CborString.serializer(), cbor.encodeToByteArray(string)))

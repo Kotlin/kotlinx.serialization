@@ -311,7 +311,10 @@ internal class StructuredCborWriter(cbor: Cbor) : CborWriter(cbor) {
                 tags = tags
             )
 
-            is Root -> elements.first().also { it.tags += tags }
+            is Root -> elements.first().also {
+                @OptIn(DelicateCborApi::class)
+                it.rawTags += tags
+            }
 
         }
     }

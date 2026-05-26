@@ -132,7 +132,8 @@ internal open class CborReader(override val cbor: Cbor, internal val parser: Cbo
         return if (deserializer is CborSerializer) {
             val collectedTags = parser.processTags(tags) ?: EMPTY_TAGS
             deserializer.deserialize(this).also { value ->
-                (value as? CborElement)?.tags = collectedTags
+                @OptIn(DelicateCborApi::class)
+                (value as? CborElement)?.rawTags = collectedTags
             }
         } else if ((decodeByteArrayAsByteString || cbor.configuration.alwaysUseByteString)
             && deserializer.descriptor == ByteArraySerializer().descriptor
@@ -814,7 +815,8 @@ internal class StructuredCborParser(internal val element: CborElement, private v
         if (layer.current !is CborByteString) {
             throw CborDecodingException("Expected byte string, got ${layer.current::class.simpleName}")
         }
-        return (layer.current as CborByteString).toByteArray() //do we want to copy here?
+        @OptIn(DelicateCborApi::class)
+        return (layer.current as CborByteString).bytes //should be safe not to copy here, right?!
     }
 
     override fun nextDouble(tags: ULongArray?): Double {
@@ -858,7 +860,8 @@ internal class StructuredCborParser(internal val element: CborElement, private v
         // if we're at a primitive, we only process tags
 
         // Store collected tags for verification
-        val collectedTags = if (layer.current.tags.isEmpty()) null else layer.current.tags
+        @OptIn(DelicateCborApi::class)
+        val collectedTags = if (layer.current.rawTags.isEmpty()) null else layer.current.rawTags
 
         // Verify tags if needed
         if (verifyObjectTags) {

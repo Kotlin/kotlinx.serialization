@@ -61,7 +61,8 @@ class CborDelegatedPropertiesTest {
             keyTags: ULongArray = ulongArrayOf(),
             valueTags: ULongArray = ulongArrayOf(),
         ) {
-            content[CborString(key, *keyTags)] = value.also { it.tags += valueTags }
+            @OptIn(DelicateCborApi::class)
+            content[CborString(key, *keyTags)] = value.also { it.rawTags += valueTags }
         }
 
         fun remove(key: String, keyTags: ULongArray = ulongArrayOf()) {
@@ -84,7 +85,8 @@ class CborDelegatedPropertiesTest {
                     }
                     content[mappedKey] = value
                 }
-                return MapBackedPerson(content, backing = CborMap(content, *map.tags))
+                @OptIn(DelicateCborApi::class)
+                return MapBackedPerson(content, backing = CborMap(content, *map.rawTags))
             }
         }
 
@@ -186,7 +188,8 @@ class CborDelegatedPropertiesTest {
 
                 out[if (label == null) key else CborInteger(label)] = v
             }
-            cborEncoder.encodeCborElement(CborMap(out, *value.backing.tags))
+            @OptIn(DelicateCborApi::class)
+            cborEncoder.encodeCborElement(CborMap(out, *value.backing.rawTags))
         }
 
         override fun deserialize(decoder: Decoder): MapBackedPerson {
