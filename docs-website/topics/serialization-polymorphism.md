@@ -30,8 +30,8 @@ fun main() {
     // Serializes only properties defined in the static type
     println(Json.encodeToString(data))
     // {"name":"kotlinx.coroutines"}
-//sampleEnd
 }
+//sampleEnd
 ```
 {kotlin-runnable="true"}
 
@@ -519,7 +519,7 @@ fun main() {
 Interfaces and abstract classes use polymorphic serialization by default.
 
 To serialize a property with a non-serializable type, such as `Any`,
-or when the property's type is an open class, annotate the property with [`@Polymorphic`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-polymorphic/).
+or when the property's type is an `open` class, annotate the property with [`@Polymorphic`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-polymorphic/).
 
 This applies `PolymorphicSerializer` to the property.
 
@@ -597,7 +597,6 @@ class Data(val project: Project)
 
 fun main() {
     val project = OwnedProject("kotlinx.coroutines", "kotlin")
-    
 
     val data = Data(project)
     println(format.encodeToString(data))
