@@ -61,7 +61,7 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-For generic types, you can also provide one `KSerializer` argument for each type parameter when calling the generated `.serializer()` function:
+For generic classes, if you want to use the generated `.serializer()` function, provide one `KSerializer` argument for each type parameter:
 
 ```kotlin
 // Imports declarations from the serialization library
@@ -402,8 +402,8 @@ private class ColorSurrogate(val r: Int, val g: Int, val b: Int) {
 }
 ```
 
-Similarly to [delegating serialization to another serializer](#delegate-serialization-to-another-serializer), the custom serializer converts
-the original class to another representation, but here it reuses the structure of the automatically generated `SerialDescriptor` instead of requiring you to create one manually.
+Similarly to [delegating serialization to another serializer](#delegate-serialization-to-another-serializer), the custom serializer converts the original class to
+another representation and wraps that representation's automatically generated `SerialDescriptor`.
 
 > Surrogate classes define a `SerialDescriptor` with their own `serialName`. 
 > You can reuse the structure of the surrogate class's `SerialDescriptor`, but not its `serialName`, because each `SerialDescriptor` must have a unique `serialName`.
@@ -512,7 +512,6 @@ To create a custom composite serializer:
    The [`SerialKind`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.descriptors/-serial-kind/) of the serializer's `descriptor` determines what each `element()` represents.
    In a class `descriptor`, an `element()` represents a property, while in an enum `descriptor`, an `element()` represents constants such as `RED` or `GREEN`:
 
-
    ```kotlin
    override val descriptor: SerialDescriptor =
        buildClassSerialDescriptor("com.example.Type") {
@@ -535,7 +534,7 @@ To create a custom composite serializer:
 5. Implement the `deserialize()` function using the [`decodeStructure()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/decode-structure.html) DSL.
    Inside its block, the lambda receiver is a [`CompositeDecoder`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-composite-decoder/), which you use to call functions like [`decodeIntElement()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-composite-decoder/decode-int-element.html) to decode each property.
 
-   Most formats allow encoded data in an arbitrary order, which can differ from the order of elements in the serializer's `descriptor`.
+   Most formats allow data to be encoded in an arbitrary order, which can differ from the order of elements in the serializer's `descriptor`.
    Use the [`decodeElementIndex()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-composite-decoder/decode-element-index.html) function to identify which `element()` to decode.
    It returns [`CompositeDecoder.DECODE_DONE`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-composite-decoder/-companion/-d-e-c-o-d-e_-d-o-n-e.html) when no more elements are left, which you use to stop decoding the current structure:
 
@@ -910,7 +909,9 @@ Third-party types, such as [java.util.Date](https://docs.oracle.com/javase/8/doc
 
 ### Pass a serializer manually
 
-To serialize a third-party type such as `Date`, create a custom serializer and pass it explicitly to overloads of functions such as [`Json.encodeToString()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/encode-to-string.html) and [`Json.decodeFromString()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/decode-from-string.html):
+To serialize a type with a custom serializer, create one and pass it explicitly to overloads of functions such as [`Json.encodeToString()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/encode-to-string.html) and [`Json.decodeFromString()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/decode-from-string.html).
+
+Here's an example that serializes `Date` values as the number of milliseconds since the Unix epoch:
 
 ```kotlin
 // Imports the necessary libraries
@@ -941,7 +942,7 @@ fun main() {
 
 ### Specify a serializer on a property
 
-When a third-party type is used as a property in a serializable class, specify its serializer on that property with the `@Serializable` annotation:
+When a type is used as a property in a serializable class, specify its custom serializer on that property with the `@Serializable` annotation:
 
 ```kotlin
 // Imports the necessary libraries
