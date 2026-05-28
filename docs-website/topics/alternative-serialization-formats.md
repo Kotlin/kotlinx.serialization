@@ -223,8 +223,8 @@ Here's an example:
 @Serializable
 @CborArray
 data class DataClass(
-val alg: Int,
-val kid: String?
+    val alg: Int,
+    val kid: String?
 )
  
 Cbor.encodeToByteArray(DataClass(alg = -7, kid = null))
@@ -446,7 +446,7 @@ Field #3: 1A String Length = 6, Hex = 06, UTF8 = "Kotlin"
 
 ProtoBuf encodes integer properties using varint encoding by default.
 
-To use a different integer encoding for a property, apply the the [`@ProtoType`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-type/) annotation with a [`ProtoIntegerType`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-integer-type/) value.
+To use a different integer encoding for a property, apply the [`@ProtoType`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-type/) annotation with a [`ProtoIntegerType`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-integer-type/) value.
 This annotation affects `Byte`, `Short`, `Int`, `Long`, and `Char` properties.
 
 The `ProtoIntegerType` enum supports three options:
@@ -592,7 +592,7 @@ fun main() {
         DataRepeated(listOf(1, 2, 3))
     )
     println(repeated.toAsciiHexString())
-    // {08}{01}{08}{02}{08}{03}}
+    // {08}{01}{08}{02}{08}{03}
 
     println(ProtoBuf.decodeFromByteArray(DataRepeated.serializer(), packed))
     // DataRepeated(values=[1, 2, 3])
@@ -841,6 +841,8 @@ The `AbstractEncoder` class provides default implementations for most of the enc
 which delegate to the [`encodeValue(value: Any)`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-abstract-encoder/encode-value.html) function.
 This means that by overriding the `encodeValue()` function, you can create a basic, functional custom format with minimal effort.
 
+The following sections use these APIs to create a custom format that encodes values into a list, decodes values from that list, and then adds sequential decoding, collection support, and null support.
+
 ### Create a basic encoder
 
 To build a custom `Encoder` in Kotlin serialization, you can extend the `AbstractEncoder` class.
@@ -878,7 +880,7 @@ To create a basic encoder:
     }
     ```
 
-4. Add an inline overload to make serialization easier to call:
+4. Add an inline overload that uses `serializer()` with a reified type parameter, so callers don't need to pass the serializer explicitly:
 
     ```kotlin
     @ExperimentalSerializationApi
@@ -899,7 +901,6 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 
-//sampleStart
 // Creates a custom encoder that stores serialized values in a list
 @ExperimentalSerializationApi
 class ListEncoder : AbstractEncoder() {
@@ -937,7 +938,6 @@ fun main() {
     println(encodeToList(data))
     // [kotlinx.serialization, kotlin, 9000]
 }
-//sampleEnd
 ```
 {kotlin-runnable="true"}
 
@@ -976,8 +976,11 @@ To create a basic decoder:
             return elementIndex++
         }
     ```
+   
+   This format deserializes values in serialization order, so you can use a simple `elementIndex` counter to track progress.
+   More complex formats often need additional logic to find the next decoded element:
 
-4. Override the [`beginStructure()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-abstract-decoder/begin-structure.html) function to create a new decoder for each nested structure:
+4. Override the [`beginStructure()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-abstract-decoder/begin-structure.html) function to create a new decoder for each nested structure, so each recursively decoded structure keeps its own `elementIndex` state:
 
     ```kotlin
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder =
@@ -1036,7 +1039,7 @@ fun <T> encodeToList(serializer: SerializationStrategy<T>, value: T): List<Any> 
 inline fun <reified T> encodeToList(value: T) = encodeToList(serializer(), value)
 
 //sampleStart
-// Creates a custom decoder that reads serialized values from a list
+// Creates a custom decoder that decodes serialized values from a list
 @ExperimentalSerializationApi
 class ListDecoder(val list: ArrayDeque<Any>) : AbstractDecoder() {
     private var elementIndex = 0
@@ -1093,13 +1096,7 @@ The output shows that the decoder reads the list back in serialization order and
 
 The `decodeElementIndex()` function reports which property comes next, and the `beginStructure()` function creates a new decoder state for nested objects.
 
-### Optimize custom encoders and decoders
-
-The following sections build on the `ListEncoder` and `ListDecoder` implementations introduced in the [Create a basic encoder](#create-a-basic-encoder) and [Create a basic decoder](#create-a-basic-decoder) sections.
-
-These improvements make the examples more robust and better suited for more complex data structures.
-
-#### Optimize with sequential decoding
+### Optimize with sequential decoding
 
 If your format always stores values in declaration order, you can optimize decoding with the [`decodeSequentially()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-composite-decoder/decode-sequentially.html) function.
 
@@ -1136,6 +1133,7 @@ fun <T> encodeToList(serializer: SerializationStrategy<T>, value: T): List<Any> 
 @ExperimentalSerializationApi
 inline fun <reified T> encodeToList(value: T) = encodeToList(serializer(), value)
 
+//sampleStart
 @ExperimentalSerializationApi
 class ListDecoder(val list: ArrayDeque<Any>) : AbstractDecoder() {
     private var elementIndex = 0
@@ -1148,8 +1146,7 @@ class ListDecoder(val list: ArrayDeque<Any>) : AbstractDecoder() {
         if (elementIndex == descriptor.elementsCount) return CompositeDecoder.DECODE_DONE
         return elementIndex++
     }
-
-//sampleStart
+   
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder =
         ListDecoder(list)
 
@@ -1190,7 +1187,7 @@ fun main() {
 In this example, `ListDecoder` overrides the `decodeSequentially()` function to return `true`.
 This lets supported serializers read values directly in declaration order instead of querying each element index one by one.
 
-#### Add collection support
+### Add collection support
 
 A basic custom format can encode collection elements one by one, but decoding also needs to know how many elements belong to the collection.
 
@@ -1199,7 +1196,7 @@ To support collections in a custom format, encode the collection size along with
 1. Implement the [`beginCollection()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-encoder/begin-collection.html) function in the encoder to handle the collection size.
 2. Return the encoder instance from the `beginCollection()` function if the encoder doesn't need extra collection-specific state.
 3. Implement the [`decodeCollectionSize()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-composite-decoder/decode-collection-size.html) function in the decoder to decode and store the collection size during deserialization.
-4. Return `true` from the `decodeSequentially()` function returns `true` if the format stores collection size in advance and values are read in order.
+4. Return `true` from the `decodeSequentially()` function if the format stores collection size in advance and values are read in order.
 
 Here's a complete example that adds collection support to `ListEncoder`:
 
@@ -1211,6 +1208,32 @@ import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 
 @ExperimentalSerializationApi
+fun <T> encodeToList(serializer: SerializationStrategy<T>, value: T): List<Any> {
+   val encoder = ListEncoder()
+   encoder.encodeSerializableValue(serializer, value)
+   return encoder.list
+}
+
+@ExperimentalSerializationApi
+inline fun <reified T> encodeToList(value: T) = encodeToList(serializer(), value)
+
+@ExperimentalSerializationApi
+fun <T> decodeFromList(list: List<Any>, deserializer: DeserializationStrategy<T>): T {
+   val decoder = ListDecoder(ArrayDeque(list))
+   return decoder.decodeSerializableValue(deserializer)
+}
+
+@ExperimentalSerializationApi
+inline fun <reified T> decodeFromList(list: List<Any>): T = decodeFromList(list, serializer())
+
+@Serializable
+data class Project(val name: String, val owners: List<User>, val votes: Int)
+
+@Serializable
+data class User(val name: String)
+
+//sampleStart
+@ExperimentalSerializationApi
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
 
@@ -1219,8 +1242,7 @@ class ListEncoder : AbstractEncoder() {
     override fun encodeValue(value: Any) {
         list.add(value)
     }
-
-//sampleStart
+   
     // Stores the collection size before its elements
     override fun beginCollection(descriptor: SerialDescriptor, collectionSize: Int): CompositeEncoder {
         encodeInt(collectionSize)
@@ -1228,16 +1250,6 @@ class ListEncoder : AbstractEncoder() {
         return this
     }
 }
-
-@ExperimentalSerializationApi
-fun <T> encodeToList(serializer: SerializationStrategy<T>, value: T): List<Any> {
-    val encoder = ListEncoder()
-    encoder.encodeSerializableValue(serializer, value)
-    return encoder.list
-}
-
-@ExperimentalSerializationApi
-inline fun <reified T> encodeToList(value: T) = encodeToList(serializer(), value)
 
 @ExperimentalSerializationApi
 class ListDecoder(val list: ArrayDeque<Any>, var elementsCount: Int = 0) : AbstractDecoder() {
@@ -1264,23 +1276,6 @@ class ListDecoder(val list: ArrayDeque<Any>, var elementsCount: Int = 0) : Abstr
         decodeInt().also { elementsCount = it }
 }
 
-//sampleEnd
-
-@ExperimentalSerializationApi
-fun <T> decodeFromList(list: List<Any>, deserializer: DeserializationStrategy<T>): T {
-    val decoder = ListDecoder(ArrayDeque(list))
-    return decoder.decodeSerializableValue(deserializer)
-}
-
-@ExperimentalSerializationApi
-inline fun <reified T> decodeFromList(list: List<Any>): T = decodeFromList(list, serializer())
-
-@Serializable
-data class Project(val name: String, val owners: List<User>, val votes: Int)
-
-@Serializable
-data class User(val name: String)
-
 @OptIn(ExperimentalSerializationApi::class)
 fun main() {
     val data = Project("kotlinx.serialization",  listOf(User("kotlin"), User("jetbrains")), 9000)
@@ -1292,12 +1287,13 @@ fun main() {
     println(obj)
     // Project(name=kotlinx.serialization, owners=[User(name=kotlin), User(name=jetbrains)], votes=9000)
 }
+//sampleEnd
 ```
 {kotlin-runnable="true"}
 
 In this example, the encoded list includes the collection size before the collection elements, so the decoder can correctly decode collections.
 
-#### Add null support
+### Add null support
 
 To support null values in a custom format, you need a way to distinguish `null` from a regular value.
 
@@ -1319,6 +1315,32 @@ import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 
 @ExperimentalSerializationApi
+fun <T> encodeToList(serializer: SerializationStrategy<T>, value: T): List<Any> {
+   val encoder = ListEncoder()
+   encoder.encodeSerializableValue(serializer, value)
+   return encoder.list
+}
+
+@ExperimentalSerializationApi
+inline fun <reified T> encodeToList(value: T) = encodeToList(serializer(), value)
+
+@ExperimentalSerializationApi
+fun <T> decodeFromList(list: List<Any>, deserializer: DeserializationStrategy<T>): T {
+   val decoder = ListDecoder(ArrayDeque(list))
+   return decoder.decodeSerializableValue(deserializer)
+}
+
+@ExperimentalSerializationApi
+inline fun <reified T> decodeFromList(list: List<Any>): T = decodeFromList(list, serializer())
+
+@Serializable
+data class Project(val name: String, val owner: User?, val votes: Int?)
+
+@Serializable
+data class User(val name: String)
+
+//sampleStart
+@ExperimentalSerializationApi
 class ListEncoder : AbstractEncoder() {
     val list = mutableListOf<Any>()
 
@@ -1332,24 +1354,13 @@ class ListEncoder : AbstractEncoder() {
         encodeInt(collectionSize)
         return this
     }
-   
-//sampleStart
+
     // Represents null values as NULL
     override fun encodeNull() = encodeValue("NULL")
 
     // Represents non-null values with "!!"
     override fun encodeNotNullMark() = encodeValue("!!")
 }
-
-@ExperimentalSerializationApi
-fun <T> encodeToList(serializer: SerializationStrategy<T>, value: T): List<Any> {
-    val encoder = ListEncoder()
-    encoder.encodeSerializableValue(serializer, value)
-    return encoder.list
-}
-
-@ExperimentalSerializationApi
-inline fun <reified T> encodeToList(value: T) = encodeToList(serializer(), value)
 
 @ExperimentalSerializationApi
 class ListDecoder(val list: ArrayDeque<Any>, var elementsCount: Int = 0) : AbstractDecoder() {
@@ -1375,22 +1386,6 @@ class ListDecoder(val list: ArrayDeque<Any>, var elementsCount: Int = 0) : Abstr
     // Checks if the next value is "NULL" to determine whether the next nullable value is null
     override fun decodeNotNullMark(): Boolean = decodeString() != "NULL"
 }
-//sampleEnd
-
-@ExperimentalSerializationApi
-fun <T> decodeFromList(list: List<Any>, deserializer: DeserializationStrategy<T>): T {
-    val decoder = ListDecoder(ArrayDeque(list))
-    return decoder.decodeSerializableValue(deserializer)
-}
-
-@ExperimentalSerializationApi
-inline fun <reified T> decodeFromList(list: List<Any>): T = decodeFromList(list, serializer())
-
-@Serializable
-data class Project(val name: String, val owner: User?, val votes: Int?)
-
-@Serializable
-data class User(val name: String)
 
 @OptIn(ExperimentalSerializationApi::class)
 fun main() {
@@ -1403,6 +1398,7 @@ fun main() {
     println(obj)
     // Project(name=kotlinx.serialization, owner=User(name=kotlin), votes=null)
 }
+//sampleEnd
 ```
 {kotlin-runnable="true"}
 
@@ -1426,6 +1422,37 @@ Let's look at an example of how to turn the `ListEncoder` and `ListDecoder` impl
 This lets the encoder encode values directly to the `DataOutput` stream:
     
     ```kotlin
+        override fun encodeBoolean(value: Boolean) = output.writeByte(if (value) 1 else 0)
+        override fun encodeByte(value: Byte) = output.writeByte(value.toInt())
+        override fun encodeShort(value: Short) = output.writeShort(value.toInt())
+        override fun encodeInt(value: Int) = output.writeInt(value)
+        override fun encodeLong(value: Long) = output.writeLong(value)
+        override fun encodeFloat(value: Float) = output.writeFloat(value)
+        override fun encodeDouble(value: Double) = output.writeDouble(value)
+        override fun encodeChar(value: Char) = output.writeChar(value.code)
+        override fun encodeString(value: String) = output.writeUTF(value)
+        override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) = output.writeInt(index)
+    ```
+
+2. Implement the decode functions for each primitive type, such as `decodeInt()` or `decodeString()`.
+This lets the decoder decode values directly from the `DataInput` stream and reconstruct the original data structure:
+    
+    ```kotlin
+        override fun decodeBoolean(): Boolean = input.readByte().toInt() != 0
+        override fun decodeByte(): Byte = input.readByte()
+        override fun decodeShort(): Short = input.readShort()
+        override fun decodeInt(): Int = input.readInt()
+        override fun decodeLong(): Long = input.readLong()
+        override fun decodeFloat(): Float = input.readFloat()
+        override fun decodeDouble(): Double = input.readDouble()
+        override fun decodeChar(): Char = input.readChar()
+        override fun decodeString(): String = input.readUTF()
+        override fun decodeEnum(enumDescriptor: SerialDescriptor): Int = input.readInt()
+    ```
+
+3. Use these classes to serialize and deserialize Kotlin objects in a binary format:
+
+    ```kotlin
     // Imports declarations from the serialization library
     import kotlinx.serialization.*
     import kotlinx.serialization.Serializable
@@ -1433,11 +1460,11 @@ This lets the encoder encode values directly to the `DataOutput` stream:
     import kotlinx.serialization.encoding.*
     import kotlinx.serialization.modules.*
     import java.io.*
-    
+
     @ExperimentalSerializationApi
     class DataOutputEncoder(val output: DataOutput) : AbstractEncoder() {
         override val serializersModule: SerializersModule = EmptySerializersModule()
-    
+
         // Encodes primitive values directly in binary form
         override fun encodeBoolean(value: Boolean) = output.writeByte(if (value) 1 else 0)
         override fun encodeByte(value: Byte) = output.writeByte(value.toInt())
@@ -1449,37 +1476,30 @@ This lets the encoder encode values directly to the `DataOutput` stream:
         override fun encodeChar(value: Char) = output.writeChar(value.code)
         override fun encodeString(value: String) = output.writeUTF(value)
         override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) = output.writeInt(index)
-    
+
         override fun beginCollection(descriptor: SerialDescriptor, collectionSize: Int): CompositeEncoder {
             encodeInt(collectionSize)
             return this
         }
-    
+
         override fun encodeNull() = encodeBoolean(false)
         override fun encodeNotNullMark() = encodeBoolean(true)
     }
-    
+   
     @ExperimentalSerializationApi
     fun <T> encodeTo(output: DataOutput, serializer: SerializationStrategy<T>, value: T) {
         val encoder = DataOutputEncoder(output)
         encoder.encodeSerializableValue(serializer, value)
     }
-    
+   
     @ExperimentalSerializationApi
     inline fun <reified T> encodeTo(output: DataOutput, value: T) = encodeTo(output, serializer(), value)
-    ```
-    {initial-collapse-state="collapsed" collapsible="true"  collapsed-title="override fun encodeByte(value: Byte) = output.writeByte(value.toInt())"}
 
-
-2. Implement the decode functions for each primitive type, such as `decodeInt()` or `decodeString()`.
-This lets the decoder decode values directly from the `DataInput` stream and reconstruct the original data structure:
-    
-    ```kotlin 
     @ExperimentalSerializationApi
     class DataInputDecoder(val input: DataInput, var elementsCount: Int = 0) : AbstractDecoder() {
         private var elementIndex = 0
         override val serializersModule: SerializersModule = EmptySerializersModule()
-        
+    
         // Decodes primitive values directly from binary form
         override fun decodeBoolean(): Boolean = input.readByte().toInt() != 0
         override fun decodeByte(): Byte = input.readByte()
@@ -1491,53 +1511,47 @@ This lets the decoder decode values directly from the `DataInput` stream and rec
         override fun decodeChar(): Char = input.readChar()
         override fun decodeString(): String = input.readUTF()
         override fun decodeEnum(enumDescriptor: SerialDescriptor): Int = input.readInt()
-    
+
         override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
             if (elementIndex == elementsCount) return CompositeDecoder.DECODE_DONE
             return elementIndex++
         }
-    
+
         override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder =
             DataInputDecoder(input, descriptor.elementsCount)
-    
+ 
         override fun decodeSequentially(): Boolean = true
-    
+  
         override fun decodeCollectionSize(descriptor: SerialDescriptor): Int =
             decodeInt().also { elementsCount = it }
-    
+ 
         override fun decodeNotNullMark(): Boolean = decodeBoolean()
     }
-    
-    
+   
     @ExperimentalSerializationApi
     fun <T> decodeFrom(input: DataInput, deserializer: DeserializationStrategy<T>): T {
         val decoder = DataInputDecoder(input)
         return decoder.decodeSerializableValue(deserializer)
     }
-    
+
     @ExperimentalSerializationApi
     inline fun <reified T> decodeFrom(input: DataInput): T = decodeFrom(input, serializer())
-    
+   
     fun ByteArray.toAsciiHexString() = joinToString("") {
         if (it in 32..127) it.toInt().toChar().toString() else
             "{${it.toUByte().toString(16).padStart(2, '0').uppercase()}}"
     }
-    ```
-    {initial-collapse-state="collapsed" collapsible="true"  collapsed-title="override fun decodeByte(): Byte = input.readByte()"}
-
-3. Use these classes to serialize and deserialize Kotlin objects in a binary format:
-
-    ```kotlin    
+    //sampleStart
     @Serializable
     data class Project(val name: String, val language: String)
-    
+
     @OptIn(ExperimentalSerializationApi::class)
     fun main() {
         val data = Project("kotlinx.serialization", "Kotlin")
         // Encodes the object to the custom binary format
         val output = ByteArrayOutputStream()
         encodeTo(DataOutputStream(output), data)
-        
+
         val bytes = output.toByteArray()
         println(bytes.toAsciiHexString())
         // {00}{15}kotlinx.serialization{00}{06}Kotlin
@@ -1548,8 +1562,9 @@ This lets the decoder decode values directly from the `DataInput` stream and rec
         println(obj)
         // Project(name=kotlinx.serialization, language=Kotlin)
     }
+    //sampleEnd
     ```
-    {initial-collapse-state="collapsed" collapsible="true"  collapsed-title="encodeTo(DataOutputStream(output), data)"}
+    {kotlin-runnable="true"}
 
 In this example, the custom format encodes only the serialized values in binary form and decodes them back into a `Project` object.
 This makes it easier to adapt the format for cases where you need a compact representation and precise control over the binary encoding.
@@ -1558,7 +1573,7 @@ This makes it easier to adapt the format for cases where you need a compact repr
 
 A custom format can provide support for types that don't map directly to the standard primitive encoding functions.
 
-To do add this support, override the `encodeSerializableValue()` function in the encoder and the `decodeSerializableValue()` in the decoder.
+To add this support, override the `encodeSerializableValue()` function in the encoder and the `decodeSerializableValue()` function in the decoder.
 This lets you [define a custom serialization](create-custom-serializers.md) logic for format-specific types,
 while maintaining efficient handling and flexibility for non-standard data representations.
 
@@ -1567,47 +1582,42 @@ This preserves the declared serialized form, even when a type uses a custom seri
 
 Let's look at an example of how to extend the [compact binary format example](#create-a-compact-binary-format) with specialized support for the type `ByteArray`:
 
-1. Define a serializer for the format-specific type, so the encoder can detect it by descriptor: 
+1. Obtain a serializer for the format-specific type, so the encoder can detect it by descriptor: 
 
     ```kotlin
     private val byteArraySerializer = serializer<ByteArray>()
     ```   
 
-    > You can also use the built-in [`ByteArraySerializer()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.builtins/-byte-array-serializer.html) function for similar result.
+    > You can also use the built-in [`ByteArraySerializer()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.builtins/-byte-array-serializer.html) function for a similar result.
     >
     {style="tip"}
 
 2. Override the `encodeSerializableValue()` function in the encoder to detect `ByteArray` values by descriptor and use a specialized encoding path.
-   Then define helper functions to encode the byte array and represent sizes up to 254 bytes in a single byte:
+   Then define helper functions to encode the byte array:
 
    ```kotlin
-   @ExperimentalSerializationApi
-   class DataOutputEncoder(val output: DataOutput) : AbstractEncoder() {
-       override val serializersModule: SerializersModule = EmptySerializersModule()
+   override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
+       if (serializer.descriptor == byteArraySerializer.descriptor)
+           encodeByteArray(value as ByteArray)
+       else
+           super.encodeSerializableValue(serializer, value)
+   }
    
-       override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
-           if (serializer.descriptor == byteArraySerializer.descriptor)
-               encodeByteArray(value as ByteArray)
-           else
-               super.encodeSerializableValue(serializer, value)
-       }
+   private fun encodeByteArray(bytes: ByteArray) {
+       encodeCompactSize(bytes.size)
+       output.write(bytes)
+   }
    
-       private fun encodeByteArray(bytes: ByteArray) {
-           encodeCompactSize(bytes.size)
-           output.write(bytes)
-       }
-   
-       private fun encodeCompactSize(value: Int) {
-           if (value < 0xff) {
-               output.writeByte(value)
-           } else {
-               output.writeByte(0xff)
-               output.writeInt(value)
-           }
+   // Encodes sizes up to 254 in a single byte
+   private fun encodeCompactSize(value: Int) {
+       if (value < 0xff) {
+           output.writeByte(value)
+       } else {
+           output.writeByte(0xff)
+           output.writeInt(value)
        }
    }
    ```
-   {initial-collapse-state="collapsed" collapsible="true"  collapsed-title="override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {"}
 
 3. Override the [`decodeSerializableValue()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-decoder/decode-serializable-value.html) function in the decoder to detect `ByteArray` values by descriptor and deserialize them with the matching compact size format:
 
@@ -1633,7 +1643,7 @@ Let's look at an example of how to extend the [compact binary format example](#c
            return input.readInt()
        }
    ```
-   {initial-collapse-state="collapsed" collapsible="true" collapsed-title="override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>, previousValue: T?)"}
+   {collapsible="true" default-state="expanded" collapsed-title="override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>, previousValue: T?)"}
 
 4. Serialize and deserialize objects with the embedded `ByteArray` data:
 
@@ -1656,7 +1666,7 @@ Let's look at an example of how to extend the [compact binary format example](#c
        // Project(name=kotlinx.serialization, attachment=[10, 11, 12, 13])
    }
    ```
-   {initial-collapse-state="collapsed" collapsible="true" collapsed-title="data class Project(val name: String, val attachment: ByteArray)"}
+   {collapsible="true" default-state="expanded" collapsed-title="data class Project(val name: String, val attachment: ByteArray)"}
 
 Here's the complete example that serializes and deserializes a class with a `ByteArray` property using the specialized encoding and decoding path:
 
