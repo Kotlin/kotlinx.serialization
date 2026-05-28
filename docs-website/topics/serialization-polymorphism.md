@@ -566,7 +566,7 @@ fun main() {
 
 ### Serialize open classes polymorphically
 
-To serialize an open class polymorphically, annotate it with both `@Serializable` and `@Polymorphic`:
+To serialize an `open` class polymorphically, annotate it with both `@Serializable` and `@Polymorphic`:
 
 ```kotlin
 // Imports declarations from the serialization library
