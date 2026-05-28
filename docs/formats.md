@@ -22,6 +22,7 @@ stable, these are currently experimental features of Kotlin Serialization.
   * [Integer types](#integer-types)
   * [Lists as repeated fields](#lists-as-repeated-fields)
   * [Packed fields](#packed-fields)
+  * [Default values](#default-values)
   * [Oneof field (experimental)](#oneof-field-experimental)
     * [Usage](#usage)
     * [Alternative](#alternative)
@@ -537,6 +538,29 @@ Per the standard packed fields can only be used on primitive numeric types. The 
 
 Per the [format description](https://developers.google.com/protocol-buffers/docs/encoding#packed) the parser ignores
 the annotation, but rather reads list in either packed or repeated format.
+
+### Default values
+
+In Protocol Buffers, fields have implicit default values when they are not present in the encoded data.
+According to the [proto2 default value specification](https://protobuf.dev/programming-guides/proto2/#default), 
+these default values are type-specific:
+
+| Code type               | Recommanded default value                                           | Acceptable default value                                            |
+| ----------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Int, Long, Uint, Ulong  | 0                                                                   |                                                                     |
+| Float, Double           | 0.0                                                                 |                                                                     |
+| String                  | ""                                                                  |                                                                     |
+| ByteArray               | empty                                                               |                                                                     |
+| Boolean                 | false                                                               |                                                                     |
+| Enum                    | Enum instance stands for 0                                          | `null`                                                              |
+| Array, Map              | Empty or `null`                                                     |                                                                     |
+| Optional Messages       | null                                                                | Default instance with all fields assigned with valid default values |
+| Required Messages       | Default instance with all fields assigned with valid default values |                                                                     |
+| Field with `@ProtoOneOf`| Always use `null` as default                                        |                                                                     |
+
+Protocol Buffers uses a compact binary encoding where fields set to their type's default value are completely omitted from the wire format. This is a fundamental design principle for efficiency. When decoding, if a field is missing from the binary data, the decoder automatically assigns the type's default value.
+
+If you use a custom default value in Kotlin (e.g., `val timeout: Int = 30` instead of `0`), you create a mismatch between Kotlin's expectations and ProtoBuf's behavior. The encoder will include the field in the output when the value equals your custom default (since `30 != 0`), but if that field is missing from data encoded elsewhere, the decoder will assign `0` (the type default), not `30`. This creates data inconsistency and unpredictable behavior.
 
 ### Oneof field (experimental)
 

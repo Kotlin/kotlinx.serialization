@@ -160,6 +160,7 @@ Once the project is set up, we can start serializing some classes.
   * <a name='integer-types'></a>[Integer types](formats.md#integer-types)
   * <a name='lists-as-repeated-fields'></a>[Lists as repeated fields](formats.md#lists-as-repeated-fields)
   * <a name='packed-fields'></a>[Packed fields](formats.md#packed-fields)
+  * <a name='default-values'></a>[Default values](formats.md#default-values)
   * <a name='oneof-field-experimental'></a>[Oneof field (experimental)](formats.md#oneof-field-experimental)
     * <a name='usage'></a>[Usage](formats.md#usage)
     * <a name='alternative'></a>[Alternative](formats.md#alternative)

@@ -716,4 +716,123 @@ class ProtobufOneOfTest {
             ProtoBuf.decodeFromHexString<Outer>("082a")
         }
     }
+
+    @Serializable
+    data class MessageWithOneOf(
+        @ProtoOneOf val ofValue: OfValue?,
+        @ProtoNumber(100) val name: String = "",
+    ) {
+        @Serializable
+        sealed interface OfValue {
+            @Serializable
+            data class StringValue(
+                @ProtoNumber(1) val value: String = "",
+            ) : OfValue
+
+            @Serializable
+            data class IntValue(
+                @ProtoNumber(2) val value: Int = 0,
+            ) : OfValue
+
+            @Serializable
+            data class EmptyValue(
+                @ProtoNumber(3) val value: EmptyBox = EmptyBox(),
+            ) : OfValue
+
+            @Serializable
+            @JvmInline
+            value class InlineIntValue(
+                @ProtoNumber(4) val value: Int = 0,
+            ) : OfValue
+
+            @Serializable
+            @JvmInline
+            value class InlineStringValue(
+                @ProtoNumber(5) val value: String = "",
+            ) : OfValue
+        }
+    }
+
+    @Serializable
+    class EmptyBox {
+        override fun equals(other: Any?): Boolean =
+            this === other || (other != null && this::class == other::class)
+
+        override fun hashCode(): Int =
+            this::class.hashCode()
+    }
+
+    @Test
+    fun testOneOfWithDefaultValues() {
+        // Test with null (no value set) - only name field is encoded
+        val messageWithNull = MessageWithOneOf(null, "test")
+        val hexNull = ProtoBuf.encodeToHexString(messageWithNull)
+        /**
+         * 100:LEN {"test"}
+         */
+        assertEquals("a2060474657374", hexNull)
+        val decodedNull = ProtoBuf.decodeFromHexString<MessageWithOneOf>(hexNull)
+        assertEquals(null, decodedNull.ofValue)
+        assertEquals("test", decodedNull.name)
+
+        // Test with non-default value - should work
+        val messageWithNonDefault = MessageWithOneOf(MessageWithOneOf.OfValue.IntValue(42))
+        val hexNonDefault = ProtoBuf.encodeToHexString(messageWithNonDefault)
+        /**
+         * 2:VARINT 42
+         */
+        assertEquals("102a", hexNonDefault)
+        val decodedNonDefault = ProtoBuf.decodeFromHexString<MessageWithOneOf>(hexNonDefault)
+        assertEquals(MessageWithOneOf.OfValue.IntValue(42), decodedNonDefault.ofValue)
+
+        // Test with default int value (0) - should preserve the type
+        val messageWithDefaultInt = MessageWithOneOf(MessageWithOneOf.OfValue.IntValue(0))
+        val hexDefaultInt = ProtoBuf.encodeToHexString(messageWithDefaultInt)
+        /**
+         * 2:VARINT 0
+         */
+        assertEquals("1000", hexDefaultInt)
+        val decodedDefaultInt = ProtoBuf.decodeFromHexString<MessageWithOneOf>(hexDefaultInt)
+        assertEquals(MessageWithOneOf.OfValue.IntValue(0), decodedDefaultInt.ofValue)
+
+        // Test with default string value ("") - should preserve the type
+        val messageWithDefaultString = MessageWithOneOf(MessageWithOneOf.OfValue.StringValue(""))
+        val hexDefaultString = ProtoBuf.encodeToHexString(messageWithDefaultString)
+        /**
+         * 1:LEN {""}
+         */
+        assertEquals("0a00", hexDefaultString)
+        val decodedDefaultString = ProtoBuf.decodeFromHexString<MessageWithOneOf>(hexDefaultString)
+        assertEquals(MessageWithOneOf.OfValue.StringValue(""), decodedDefaultString.ofValue)
+
+        // Test with empty class - should preserve the type
+        val messageWithEmpty = MessageWithOneOf(MessageWithOneOf.OfValue.EmptyValue(EmptyBox()))
+        val hexEmpty = ProtoBuf.encodeToHexString(messageWithEmpty)
+        /**
+         * 3:LEN {}
+         */
+        assertEquals("1a00", hexEmpty)
+        val decodedEmpty = ProtoBuf.decodeFromHexString<MessageWithOneOf>(hexEmpty)
+        assertEquals(MessageWithOneOf.OfValue.EmptyValue(EmptyBox()), decodedEmpty.ofValue)
+
+        // Test with inline value class - default int (0)
+        val messageWithInlineInt = MessageWithOneOf(MessageWithOneOf.OfValue.InlineIntValue(0))
+        val hexInlineInt = ProtoBuf.encodeToHexString(messageWithInlineInt)
+        /**
+         * 4:VARINT 0
+         */
+        assertEquals("2000", hexInlineInt)
+        val decodedInlineInt = ProtoBuf.decodeFromHexString<MessageWithOneOf>(hexInlineInt)
+        assertEquals(MessageWithOneOf.OfValue.InlineIntValue(0), decodedInlineInt.ofValue)
+
+        // Test with inline value class - default string ("")
+        val messageWithInlineString = MessageWithOneOf(MessageWithOneOf.OfValue.InlineStringValue(""))
+        val hexInlineString = ProtoBuf.encodeToHexString(messageWithInlineString)
+        /**
+         * 5:LEN {""}
+         */
+        assertEquals("2a00", hexInlineString)
+        val decodedInlineString = ProtoBuf.decodeFromHexString<MessageWithOneOf>(hexInlineString)
+        assertEquals(MessageWithOneOf.OfValue.InlineStringValue(""), decodedInlineString.ofValue)
+    }
 }
