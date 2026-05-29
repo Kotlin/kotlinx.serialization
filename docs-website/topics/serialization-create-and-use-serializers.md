@@ -1190,7 +1190,7 @@ fun main() {
 To serialize generic classes contextually, you can register a function in the `SerializersModule`.
 This function receives the serializers for the generic type arguments and creates the corresponding serializer at runtime.
 
-You can't use a single serializer instance for generic classes because [generic type arguments can vary](third-party-classes.md#specify-a-custom-serializer-for-generic-types).
+You can't use a single serializer instance for generic classes because [generic type arguments can vary](#create-a-custom-serializer-for-generic-types).
 For example, the following approach only works for `Box<Int>`, but not for other types like `Box<String>`:
 
 ```kotlin
