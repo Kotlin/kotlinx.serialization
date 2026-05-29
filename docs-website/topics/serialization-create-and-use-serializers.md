@@ -980,7 +980,7 @@ fun main() {
 ### Specify a serializer on a type
 
 You can also apply the `@Serializable` annotation directly to a type.
-You can use this to specify a serializer for a third-party type when it's used as a generic type argument, for example in `List<Date>`:
+You can use this to specify a custom serializer for a type when it's used as a generic type argument, for example in `List<Date>`:
 
 ```kotlin
 // Imports the necessary libraries
@@ -1218,6 +1218,5 @@ val correctModule = SerializersModule {
 
 ## What's next
 
-* Learn how to [serialize third-party classes](third-party-classes.md) with custom serializers.
 * Discover how to [transform JSON structure](serialization-transform-json.md) by modifying the JSON element tree instead of creating a custom serializer.
 * Learn about [alternative and custom serialization formats](alternative-serialization-formats.md) to implement format-specific representations for your data.
