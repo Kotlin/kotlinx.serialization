@@ -1,8 +1,10 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2026 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 pluginManagement {
+    includeBuild("build-settings-logic")
+
     repositories {
         /**
          * Overrides for Teamcity 'K2 User Projects' + 'Aggregate build / Kotlinx libraries compilation' configuration:
@@ -34,6 +36,7 @@ pluginManagement {
 }
 
 plugins {
+    id("serialization-cache-redirector")
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.5.0"
 }
 

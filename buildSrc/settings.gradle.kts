@@ -1,9 +1,13 @@
+/*
+ * Copyright 2017-2026 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 import java.io.*
 import java.util.*
 
-/*
- * Copyright 2017-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
- */
+pluginManagement {
+    includeBuild("../build-settings-logic")
+}
 
 dependencyResolutionManagement {
     versionCatalogs {
@@ -16,6 +20,10 @@ dependencyResolutionManagement {
             }
         }
     }
+}
+
+plugins {
+    id("serialization-cache-redirector")
 }
 
 fun overriddenKotlinVersion(): String? {

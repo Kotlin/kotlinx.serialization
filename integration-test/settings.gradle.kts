@@ -1,4 +1,6 @@
 pluginManagement {
+    includeBuild("../build-settings-logic")
+
     resolutionStrategy {
         val mainKotlinVersion: String by settings
         eachPlugin {
@@ -20,6 +22,10 @@ pluginManagement {
         maven("https://redirector.kotlinlang.org/maven/dev")
         mavenLocal()
     }
+}
+
+plugins {
+    id("serialization-cache-redirector")
 }
 
 rootProject.name = "kotlinx-serialization-integration-test"
