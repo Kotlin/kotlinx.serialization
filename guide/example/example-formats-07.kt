@@ -9,16 +9,19 @@ fun ByteArray.toAsciiHexString() = joinToString("") {
         "{${it.toUByte().toString(16).padStart(2, '0').uppercase()}}"
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class Data(
-    val a: List<Int> = emptyList(),
-    val b: List<Int> = emptyList()
+class Data(
+    @ProtoType(ProtoIntegerType.DEFAULT)
+    val a: Int,
+    @ProtoType(ProtoIntegerType.SIGNED)
+    val b: Int,
+    @ProtoType(ProtoIntegerType.FIXED)
+    val c: Int
 )
 
 @OptIn(ExperimentalSerializationApi::class)
 fun main() {
-    val data = Data(listOf(1, 2, 3), listOf())
-    val bytes = ProtoBuf.encodeToByteArray(data)
-    println(bytes.toAsciiHexString())
-    println(ProtoBuf.decodeFromByteArray<Data>(bytes))
+    val data = Data(1, -2, 3) 
+    println(ProtoBuf.encodeToByteArray(data).toAsciiHexString())
 }

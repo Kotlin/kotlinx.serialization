@@ -342,18 +342,28 @@ It is also possible to encode arbitrary serializable structures to a `CborElemen
 Since these operations use the same code paths as regular serialization (but with specialized serializers), the config flags
 behave as expected:
 
+<!--- INCLUDE
+import kotlinx.serialization.*
+import kotlinx.serialization.cbor.*
+-->
+
 ```kotlin
+@OptIn(ExperimentalSerializationApi::class)
 fun main() {
     val element: CborElement = Cbor.decodeFromHexString("a165627974657343666f6f")
     println(element)
 }
 ```
 
+> You can get the full code [here](../guide/example/example-formats-04.kt).
+
 The above snippet will print the following diagnostic notation
 
 ```text
 CborMap(tags=[], content={CborString(tags=[], value=bytes)=CborByteString(tags=[], bytes=h'666f6f)})
 ```
+
+<!--- TEST -->
 
 #### Tagging `CborElement`s
 
@@ -370,8 +380,6 @@ directly. For that reason, `@KeyTags`, `@ValueTags`, and `@CborLabel` cannot be 
 properties. Put value tags on the `CborElement.tags` array directly, and model tagged or numeric keys as [CborMap]
 keys such as `CborString("key", 42u)` or `CborInteger(1)`.
 For example, take the following structure (represented in diagnostic notation):
-
-<!--- TEST -->
 
 ```hexdump
 bf                                 # map(*)
@@ -484,7 +492,7 @@ fun main() {
 }
 ```                                  
 
-> You can get the full code [here](../guide/example/example-formats-04.kt).
+> You can get the full code [here](../guide/example/example-formats-05.kt).
 
 ```text 
 {0A}{15}kotlinx.serialization{12}{06}Kotlin
@@ -536,7 +544,7 @@ fun main() {
 }
 ```                                  
 
-> You can get the full code [here](../guide/example/example-formats-05.kt).
+> You can get the full code [here](../guide/example/example-formats-06.kt).
 
 We see in the output that the number for the first property `name` did not change (as it is numbered from one by default),
 but it did change for the `language` property. 
@@ -589,7 +597,7 @@ fun main() {
 }
 ```                   
 
-> You can get the full code [here](../guide/example/example-formats-06.kt).
+> You can get the full code [here](../guide/example/example-formats-07.kt).
 
 * The [default][ProtoIntegerType.DEFAULT] is a varint encoding (`intXX`) that is optimized for 
   small non-negative numbers. The value of `1` is encoded in one byte `01`. 
@@ -647,7 +655,7 @@ fun main() {
 }
 ```                   
 
-> You can get the full code [here](../guide/example/example-formats-07.kt).
+> You can get the full code [here](../guide/example/example-formats-08.kt).
 
 ```text 
 {08}{01}{08}{02}{08}{03}
@@ -757,7 +765,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-formats-08.kt).
+> You can get the full code [here](../guide/example/example-formats-09.kt).
 
 ```text
 0a03546f6d1203313233
@@ -831,7 +839,7 @@ fun main() {
   println(schemas)
 }
 ```
-> You can get the full code [here](../guide/example/example-formats-09.kt).
+> You can get the full code [here](../guide/example/example-formats-10.kt).
 
 Which would output as follows.
 
@@ -839,7 +847,7 @@ Which would output as follows.
 syntax = "proto2";
 
 
-// serial name 'example.exampleFormats09.SampleData'
+// serial name 'example.exampleFormats10.SampleData'
 message SampleData {
   required int64 amount = 1;
   optional string description = 2;
@@ -884,7 +892,7 @@ fun main() {
 }
 ```      
 
-> You can get the full code [here](../guide/example/example-formats-10.kt).
+> You can get the full code [here](../guide/example/example-formats-11.kt).
 
 The resulting map has dot-separated keys representing keys of the nested objects.
 
@@ -969,7 +977,7 @@ fun main() {
 }
 ```                                    
 
-> You can get the full code [here](../guide/example/example-formats-11.kt).
+> You can get the full code [here](../guide/example/example-formats-12.kt).
 
 As a result, we got all the primitive values in our object graph visited and put into a list
 in _serial_ order.
@@ -1078,7 +1086,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-formats-12.kt).
+> You can get the full code [here](../guide/example/example-formats-13.kt).
 
 Now we can convert a list of primitives back to an object tree.
 
@@ -1176,7 +1184,7 @@ fun main() {
 }
 -->
 
-> You can get the full code [here](../guide/example/example-formats-13.kt).
+> You can get the full code [here](../guide/example/example-formats-14.kt).
 
 <!--- TEST 
 [kotlinx.serialization, kotlin, 9000]
@@ -1290,7 +1298,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-formats-14.kt).
+> You can get the full code [here](../guide/example/example-formats-15.kt).
 
 We see the size of the list added to the result, letting the decoder know where to stop. 
 
@@ -1409,7 +1417,7 @@ fun main() {
 
 ```
 
-> You can get the full code [here](../guide/example/example-formats-15.kt).
+> You can get the full code [here](../guide/example/example-formats-16.kt).
 
 In the output we see how not-null`!!` and `NULL` marks are used.
 
@@ -1544,7 +1552,7 @@ fun main() {
 }
 ```
               
-> You can get the full code [here](../guide/example/example-formats-16.kt).
+> You can get the full code [here](../guide/example/example-formats-17.kt).
 
 As we can see, the result is a dense binary format that only contains the data that is being serialized. 
 It can be easily tweaked for any kind of domain-specific compact encoding.
@@ -1745,7 +1753,7 @@ fun main() {
 }
 ```
               
-> You can get the full code [here](../guide/example/example-formats-17.kt).
+> You can get the full code [here](../guide/example/example-formats-18.kt).
 
 As we can see, our custom byte array format is being used, with the compact encoding of its size in one byte. 
 
@@ -1830,6 +1838,7 @@ This chapter concludes [Kotlin Serialization Guide](serialization-guide.md).
 [ByteString]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-byte-string/index.html
 [CborElement]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-element/index.html
 [Cbor.encodeToCborElement]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/encode-to-cbor-element.html
+[CborMap]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-map/index.html
 [CborPrimitive]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-primitive/index.html
 [CborNull]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-null/index.html
 [CborUndefined]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-undefined/index.html
@@ -1839,6 +1848,5 @@ This chapter concludes [Kotlin Serialization Guide](serialization-guide.md).
 [CborFloat]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-float/index.html
 [CborByteString]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-byte-string/index.html
 [CborArray]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-array/index.html
-[CborMap]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-map/index.html
 
 <!--- END -->

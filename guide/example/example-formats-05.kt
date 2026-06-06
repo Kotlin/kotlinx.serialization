@@ -9,14 +9,8 @@ fun ByteArray.toAsciiHexString() = joinToString("") {
         "{${it.toUByte().toString(16).padStart(2, '0').uppercase()}}"
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class Project(
-    @ProtoNumber(1)
-    val name: String, 
-    @ProtoNumber(3)
-    val language: String
-)
+data class Project(val name: String, val language: String)
 
 @OptIn(ExperimentalSerializationApi::class)
 fun main() {
