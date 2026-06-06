@@ -151,6 +151,13 @@ enum EnumWithProtoNumber {
   FIVE = 5;
 }
 
+// serial name 'kotlinx.serialization.protobuf.schema.GenerationTest.InlineClassesInCollections'
+message InlineClassesInCollections {
+  repeated int32 list = 1;
+  repeated int32 array = 2;
+  map<string, int32> map = 3;
+}
+
 enum OverriddenEnumName {
   FIRST = 0;
   OverriddenElementName = 1;

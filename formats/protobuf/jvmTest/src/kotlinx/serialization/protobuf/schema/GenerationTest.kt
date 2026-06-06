@@ -26,6 +26,7 @@ internal val commonClasses = listOf(
     GenerationTest.NullableNestedCollections::class,
     GenerationTest.OptionalCollections::class,
     GenerationTest.EnumWithProtoNumber::class,
+    GenerationTest.InlineClassesInCollections::class,
 )
 
 class GenerationTest {
@@ -202,6 +203,13 @@ class GenerationTest {
         @ProtoNumber(5)
         FIVE,
     }
+
+    @Serializable
+    class InlineClassesInCollections(
+        val list: List<WrappedUInt>,
+        val array: Array<WrappedUInt>,
+        val map: Map<String, WrappedUInt>,
+    )
 
     @Test
     fun testIndividuals() {

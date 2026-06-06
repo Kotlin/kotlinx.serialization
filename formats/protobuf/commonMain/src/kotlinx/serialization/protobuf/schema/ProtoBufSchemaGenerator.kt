@@ -270,10 +270,7 @@ public object ProtoBufSchemaGenerator {
         inOneOfStruct: Boolean = false,
         indent: Int = 1,
     ): List<TypeDefinition> {
-        var unwrappedFieldDescriptor = fieldDescriptor
-        while (unwrappedFieldDescriptor.isInline) {
-            unwrappedFieldDescriptor = unwrappedFieldDescriptor.getElementDescriptor(0)
-        }
+        val unwrappedFieldDescriptor = fieldDescriptor.unwrapInlineType()
 
         val nestedTypes: List<TypeDefinition>
         val typeName: String = when {
@@ -320,7 +317,7 @@ public object ProtoBufSchemaGenerator {
     private fun StringBuilder.generateMapType(messageType: TypeDefinition, index: Int): List<TypeDefinition> {
         val messageDescriptor = messageType.descriptor
         val mapDescriptor = messageDescriptor.getElementDescriptor(index)
-        val originalMapValueDescriptor = mapDescriptor.getElementDescriptor(1)
+        val originalMapValueDescriptor = mapDescriptor.getElementDescriptor(1).unwrapInlineType()
         val valueType = if (originalMapValueDescriptor.isProtobufCollection) {
             createNestedCollectionType(messageType, index, originalMapValueDescriptor, "nested collection in map value")
         } else {
@@ -347,7 +344,7 @@ public object ProtoBufSchemaGenerator {
     private fun StringBuilder.generateListType(messageType: TypeDefinition, index: Int): List<TypeDefinition> {
         val messageDescriptor = messageType.descriptor
         val collectionDescriptor = messageDescriptor.getElementDescriptor(index)
-        val originalElementDescriptor = collectionDescriptor.getElementDescriptor(0)
+        val originalElementDescriptor = collectionDescriptor.getElementDescriptor(0).unwrapInlineType()
         val elementType = if (collectionDescriptor.kind == StructureKind.LIST) {
             if (originalElementDescriptor.isProtobufCollection) {
                 createNestedCollectionType(messageType, index, originalElementDescriptor, "nested collection in list")
@@ -458,6 +455,14 @@ public object ProtoBufSchemaGenerator {
 
     private fun SerialDescriptor.isChildOneOfMessage(index: Int): Boolean =
         this.getElementDescriptor(index).isSealedPolymorphic && this.getElementAnnotations(index).any { it is ProtoOneOf }
+
+    private fun SerialDescriptor.unwrapInlineType(): SerialDescriptor {
+        var descriptor = this
+        while (descriptor.isInline) {
+            descriptor = descriptor.getElementDescriptor(0)
+        }
+        return descriptor
+    }
 
     private fun SerialDescriptor.protobufTypeName(annotations: List<Annotation> = emptyList()): String {
         return if (isProtobufScalar) {
