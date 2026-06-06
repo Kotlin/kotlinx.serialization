@@ -11,7 +11,7 @@ import kotlinx.serialization.*
  * Example usage:
  *
  * ```
- * @CborArray
+ * @CborObjectAsArray
  * @Serializable
  * data class DataClass(
  *     val alg: Int,
@@ -36,4 +36,4 @@ import kotlinx.serialization.*
 @SerialInfo
 @Target(AnnotationTarget.CLASS)
 @ExperimentalSerializationApi
-public annotation class CborArray
+public annotation class CborObjectAsArray

@@ -10,7 +10,7 @@ class CborArrayTest {
     fun writeReadVerifyArraySize1() {
         /**
          * 81    # array(1)
-         *    26 # negative(6)
+         *    26 # negative(-7)
          */
         val referenceHexString = "8126"
         val reference = ClassAs1Array(alg = -7)
@@ -18,6 +18,10 @@ class CborArrayTest {
         val cbor = Cbor.CoseCompliant
         assertEquals(referenceHexString, cbor.encodeToHexString(ClassAs1Array.serializer(), reference))
         assertEquals(reference, cbor.decodeFromHexString(ClassAs1Array.serializer(), referenceHexString))
+
+        val struct = cbor.encodeToCborElement(ClassAs1Array.serializer(), reference)
+        assertEquals(reference, cbor.decodeFromCborElement(ClassAs1Array.serializer(), struct))
+        assertEquals(referenceHexString, cbor.encodeToHexString(CborElement.serializer(), struct))
     }
 
     @Test
@@ -35,6 +39,10 @@ class CborArrayTest {
         val cbor = Cbor.CoseCompliant
         assertEquals(referenceHexString, cbor.encodeToHexString(ClassAs2Array.serializer(), reference))
         assertEquals(reference, cbor.decodeFromHexString(ClassAs2Array.serializer(), referenceHexString))
+
+        val struct = cbor.encodeToCborElement(ClassAs2Array.serializer(), reference)
+        assertEquals(reference, cbor.decodeFromCborElement(ClassAs2Array.serializer(), struct))
+        assertEquals(referenceHexString, cbor.encodeToHexString(CborElement.serializer(), struct))
     }
 
     @Test
@@ -45,15 +53,19 @@ class CborArrayTest {
          *    63        # text(3)
          *       626172 # "bar"
          *    F6        # primitive(22)
-         *    A0        # map(0)
+         *    F6        # primitive(22)
          */
-        val referenceHexString = "842663626172f6a0"
+        val referenceHexString = "842663626172f6f6"
         val reference = ClassAs4ArrayNullable(alg = -7, kid = "bar", iv = null, array = null)
 
         val cbor = Cbor.CoseCompliant
 
         assertEquals(referenceHexString, cbor.encodeToHexString(ClassAs4ArrayNullable.serializer(), reference))
         assertEquals(reference, cbor.decodeFromHexString(ClassAs4ArrayNullable.serializer(), referenceHexString))
+
+        val struct = cbor.encodeToCborElement(ClassAs4ArrayNullable.serializer(), reference)
+        assertEquals(reference, cbor.decodeFromCborElement(ClassAs4ArrayNullable.serializer(), struct))
+        assertEquals(referenceHexString, cbor.encodeToHexString(CborElement.serializer(), struct))
     }
 
     @Test
@@ -75,12 +87,10 @@ class CborArrayTest {
         assertEquals(referenceHexString, cbor.encodeToHexString(ClassWithArray.serializer(), reference))
         assertEquals(reference, cbor.decodeFromHexString(ClassWithArray.serializer(), referenceHexString))
 
-        println(
-            cbor.encodeToHexString(
-                DoubleTaggedClassWithArray.serializer(),
-                DoubleTaggedClassWithArray(array = ClassAs2Array(alg = -7, kid = "bar"))
-            )
-        )
+
+        val struct = cbor.encodeToCborElement(ClassWithArray.serializer(), reference)
+        assertEquals(reference, cbor.decodeFromCborElement(ClassWithArray.serializer(), struct))
+        assertEquals(referenceHexString, cbor.encodeToHexString(CborElement.serializer(), struct))
     }
 
 
@@ -103,16 +113,22 @@ class CborArrayTest {
         val cbor = Cbor.CoseCompliant
         assertEquals(referenceHexString, cbor.encodeToHexString(DoubleTaggedClassWithArray.serializer(), reference))
         assertEquals(reference, cbor.decodeFromHexString(DoubleTaggedClassWithArray.serializer(), referenceHexString))
+
+        val struct = cbor.encodeToCborElement(DoubleTaggedClassWithArray.serializer(), reference)
+        val structFromHex = cbor.decodeFromHexString(CborElement.serializer(), referenceHexString)
+        assertEquals(structFromHex, struct)
+        assertEquals(reference, cbor.decodeFromCborElement(DoubleTaggedClassWithArray.serializer(), struct))
+        assertEquals(referenceHexString, cbor.encodeToHexString(CborElement.serializer(), struct))
     }
 
-    @CborArray
+    @CborObjectAsArray
     @Serializable
     data class ClassAs1Array(
         @SerialName("alg")
         val alg: Int,
     )
 
-    @CborArray
+    @CborObjectAsArray
     @ObjectTags(8U)
     @Serializable
     data class ClassAs2Array(
@@ -122,7 +138,7 @@ class CborArrayTest {
         val kid: String,
     )
 
-    @CborArray
+    @CborObjectAsArray
     @Serializable
     data class ClassAs4ArrayNullable(
         @SerialName("alg")
@@ -176,4 +192,3 @@ class CborArrayTest {
         val array: ClassAs2Array,
     )
 }
-

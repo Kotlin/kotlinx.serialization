@@ -17,6 +17,11 @@ stable, these are currently experimental features of Kotlin Serialization.
   * [Tags and Labels](#tags-and-labels)
   * [Arrays](#arrays)
   * [Custom CBOR-specific Serializers](#custom-cbor-specific-serializers)
+  * [CBOR Elements](#cbor-elements)
+    * [Encoding from/to `CborElement`](#encoding-fromto-cborelement)
+    * [Tagging `CborElement`s](#tagging-cborelements)
+      * [Caution](#caution)
+    * [Types of CBOR Elements](#types-of-cbor-elements)
 * [ProtoBuf (experimental)](#protobuf-experimental)
   * [Field numbers](#field-numbers)
   * [Integer types](#integer-types)
@@ -300,7 +305,7 @@ A2           # map(2)
    F6        # primitive(22)
 ```
 
-When annotated with `@CborArray`, serialization of the same object will produce a Cbor array: bytes `0x8226F6`, or in diagnostic notation:
+When annotated with `@CborObjectAsArray`, serialization of the same object will produce a Cbor array: bytes `0x8226F6`, or in diagnostic notation:
 
 ```
 82    # array(2)
@@ -309,12 +314,138 @@ When annotated with `@CborArray`, serialization of the same object will produce 
 ```
 This may be used to encode COSE structures, see [RFC 9052 2. Basic COSE Structure](https://www.rfc-editor.org/rfc/rfc9052#section-2).
 
-
 ### Custom CBOR-specific Serializers
 Cbor encoders and decoders implement the interfaces [CborEncoder](CborEncoder.kt) and [CborDecoder](CborDecoder.kt), respectively.
-These interfaces contain a single property, `cbor`, exposing the current CBOR serialization configuration.
-This enables custom cbor-specific serializers to reuse the current `Cbor` instance to produce embedded byte arrays or
-react to configuration settings such as `preferCborLabelsOverNames` or `useDefiniteLengthEncoding`, for example.
+These interfaces expose the current CBOR serialization configuration through the `cbor` property.
+In addition, [CborEncoder](CborEncoder.kt) can encode a complete [CborElement] with `encodeCborElement`, and
+[CborDecoder](CborDecoder.kt) can decode the next data item as a [CborElement] with `decodeCborElement`.
+This enables custom cbor-specific serializers to reuse the current `Cbor` instance to produce embedded byte arrays,
+encode or decode a whole CBOR subtree, or react to configuration settings such as `preferCborLabelsOverNames` or
+`useDefiniteLengthEncoding`, for example.
+
+
+### CBOR Elements
+
+Aside from direct conversions between bytearray and CBOR objects, Kotlin serialization offers APIs that allow
+other ways of working with CBOR in the code. For example, you might need to tweak the data before it can parse
+or otherwise work with such unstructured data that it does not readily fit into the typesafe world of Kotlin
+serialization.
+
+The main concept in this part of the library is [CborElement]. Read on to learn what you can do with it.
+
+#### Encoding from/to `CborElement`
+
+Bytes can be decoded into an instance of `CborElement` with the [Cbor.decodeFromByteArray] function by either manually
+specifying `CborElement.serializer()` or specifying [CborElement] as generic type parameter.  
+It is also possible to encode arbitrary serializable structures to a `CborElement` through [Cbor.encodeToCborElement].
+
+Since these operations use the same code paths as regular serialization (but with specialized serializers), the config flags
+behave as expected:
+
+```kotlin
+fun main() {
+    val element: CborElement = Cbor.decodeFromHexString("a165627974657343666f6f")
+    println(element)
+}
+```
+
+The above snippet will print the following diagnostic notation
+
+```text
+CborMap(tags=[], content={CborString(tags=[], value=bytes)=CborByteString(tags=[], bytes=h'666f6f)})
+```
+
+#### Tagging `CborElement`s
+
+Every CborElement—whether it is used as a property, a value inside a collection, or even a complex key inside a map
+(which is perfectly legal in CBOR)—supports tags. Tags can be specified by passing them as vararg parameters upon
+CborElement creation.
+
+When encoding raw [CborElement] instances, the usual tag configuration switches still apply. Tags on a root element,
+on an array item, or on a map value are encoded only when `encodeValueTags` is enabled. Tags on a map key are encoded
+only when `encodeKeyTags` is enabled. Decoding a [CborElement] always preserves tags present in the input.
+
+Tag and label annotations describe properties of serializable classes, while [CborElement] already models CBOR data
+directly. For that reason, `@KeyTags`, `@ValueTags`, and `@CborLabel` cannot be applied to [CborElement]-typed
+properties. Put value tags on the `CborElement.tags` array directly, and model tagged or numeric keys as [CborMap]
+keys such as `CborString("key", 42u)` or `CborInteger(1)`.
+For example, take the following structure (represented in diagnostic notation):
+
+<!--- TEST -->
+
+```hexdump
+bf                                 # map(*)
+   61                              #   text(1)
+      61                           #     "a"
+   cc                              #   tag(12)
+      1a 0fffffff                  #     unsigned(268,435,455)
+   d8 22                           #   base64 encoded text, tag(34)
+      61                           #     text(1)
+         62                        #       "b"
+                                   #     invalid length at 0 for base64
+   20                              #   negative(-1)
+   d8 38                           #   tag(56)
+      61                           #     text(1)
+         63                        #       "c"
+   d8 4e                           #   typed array of i32, little endian, twos-complement, tag(78)
+      42                           #     bytes(2)
+         cafe                      #       "\xca\xfe"
+                                   #     invalid data length for typed array
+   61                              #   text(1)
+      64                           #     "d"
+   d8 5a                           #   tag(90)
+      cc                           #     tag(12)
+         6b                        #       text(11)
+            48656c6c6f20576f726c64 #         "Hello World"
+   ff                              #   break
+```
+
+Decoding it results in the following CborElement (shown in manually formatted diagnostic notation):
+
+```
+CborMap(tags=[], content={
+    CborString(tags=[],   value=a) = CborInt(tags=[12],         absoluteValue = 268435455   ),
+    CborString(tags=[34], value=b) = CborInt(tags=[],           absoluteValue = -1          ),
+    CborString(tags=[56], value=c) = CborByteString(tags=[78],  bytes         = h'cafe      ),
+    CborString(tags=[],   value=d) = CborString(tags=[90, 12],  value         = Hello World )
+})
+```
+
+##### Caution
+
+Tags are properties of `CborElement`s, and it is possible to mix arbitrary serializable values with `CborElement`s that
+contain tags inside a serializable structure. Be aware that raw `CborElement.tags` are controlled by `encodeKeyTags` or
+`encodeValueTags` depending on the element position. If the matching switch is disabled, encoded output omits those tags,
+and decoding that output will produce an otherwise equal [CborElement] without the omitted tags.
+
+#### Types of CBOR Elements
+
+A [CborElement] class has three direct subtypes, closely following CBOR grammar:
+
+* [CborPrimitive] represents primitive CBOR elements, such as string, integer, float, boolean, and null.
+  CBOR byte strings are also treated as primitives.
+  [CborElement] and [CborPrimitive] do not expose a generic `value` property. Concrete primitive types expose dedicated
+  accessors where their CBOR content maps cleanly to Kotlin values.
+  Note that Cbor discriminates between positive ("unsigned") and negative ("signed") integers!  
+  `CborPrimitive` is itself an umbrella type (a sealed class) for the following concrete primitives:
+  * [CborNull] mapping to a Kotlin `null`
+  * [CborUndefined] mapping to CBOR `undefined`
+  * [CborBoolean] mapping to a Kotlin `Boolean`
+  * [CborInteger] represents signed CBOR integer (major type 1 encompassing `-2^64..-1`) and unsigned CBOR integer (major
+    type 0 encompassing `0..2^64-1`). Since this exceeds the range of Kotlin's built-in `Long` type, CborInteger features
+    `isPositive` and `absoluteValue` representing the absolute value as an `ULong`.
+    It also features `long`, `int`, `short`, and `byte` conversion properties that throw when the value cannot be
+    represented in the requested Kotlin type.
+  * [CborString] maps to a Kotlin `String`
+  * [CborFloat] maps to Kotlin `Double`
+  * [CborByteString] maps to a Kotlin `ByteArray` and is used to encode them as CBOR byte string (in contrast to a list
+    of individual bytes)
+
+* [CborArray] represents a CBOR array. It is a Kotlin `List` of `CborElement` items.
+
+* [CborMap] represents a CBOR map/object. It is a Kotlin `Map` from `CborElement` keys to `CborElement` values.
+  This is typically the result of serializing an arbitrary 
+
 
 ## ProtoBuf (experimental)
 
@@ -1697,5 +1828,17 @@ This chapter concludes [Kotlin Serialization Guide](serialization-guide.md).
 [Cbor.decodeFromByteArray]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor/decode-from-byte-array.html
 [CborBuilder.ignoreUnknownKeys]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-builder/ignore-unknown-keys.html
 [ByteString]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-byte-string/index.html
+[CborElement]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-element/index.html
+[Cbor.encodeToCborElement]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/encode-to-cbor-element.html
+[CborPrimitive]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-primitive/index.html
+[CborNull]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-null/index.html
+[CborUndefined]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-undefined/index.html
+[CborBoolean]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-boolean/index.html
+[CborInteger]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-integer/index.html
+[CborString]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-string/index.html
+[CborFloat]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-float/index.html
+[CborByteString]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-byte-string/index.html
+[CborArray]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-array/index.html
+[CborMap]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-map/index.html
 
 <!--- END -->
