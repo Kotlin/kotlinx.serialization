@@ -21,6 +21,10 @@ open annotation class kotlinx.serialization.cbor/CborObjectAsArray : kotlin/Anno
     constructor <init>() // kotlinx.serialization.cbor/CborObjectAsArray.<init>|<init>(){}[0]
 }
 
+open annotation class kotlinx.serialization.cbor/DelicateCborApi : kotlin/Annotation { // kotlinx.serialization.cbor/DelicateCborApi|null[0]
+    constructor <init>() // kotlinx.serialization.cbor/DelicateCborApi.<init>|<init>(){}[0]
+}
+
 open annotation class kotlinx.serialization.cbor/KeyTags : kotlin/Annotation { // kotlinx.serialization.cbor/KeyTags|null[0]
     constructor <init>(kotlin/ULongArray...) // kotlinx.serialization.cbor/KeyTags.<init>|<init>(kotlin.ULongArray...){}[0]
 
@@ -57,7 +61,10 @@ abstract interface kotlinx.serialization.cbor/CborEncoder : kotlinx.serializatio
 }
 
 final class kotlinx.serialization.cbor/CborArray : kotlin.collections/List<kotlinx.serialization.cbor/CborElement>, kotlinx.serialization.cbor/CborElement { // kotlinx.serialization.cbor/CborArray|null[0]
+    constructor <init>(kotlin.collections/List<kotlinx.serialization.cbor/CborElement>, kotlin.collections/List<kotlin/ULong>) // kotlinx.serialization.cbor/CborArray.<init>|<init>(kotlin.collections.List<kotlinx.serialization.cbor.CborElement>;kotlin.collections.List<kotlin.ULong>){}[0]
     constructor <init>(kotlin.collections/List<kotlinx.serialization.cbor/CborElement>, kotlin/ULongArray...) // kotlinx.serialization.cbor/CborArray.<init>|<init>(kotlin.collections.List<kotlinx.serialization.cbor.CborElement>;kotlin.ULongArray...){}[0]
+    constructor <init>(kotlin/Array<kotlinx.serialization.cbor/CborElement>, kotlin.collections/List<kotlin/ULong>) // kotlinx.serialization.cbor/CborArray.<init>|<init>(kotlin.Array<kotlinx.serialization.cbor.CborElement>;kotlin.collections.List<kotlin.ULong>){}[0]
+    constructor <init>(kotlin/Array<kotlinx.serialization.cbor/CborElement>, kotlin/ULongArray...) // kotlinx.serialization.cbor/CborArray.<init>|<init>(kotlin.Array<kotlinx.serialization.cbor.CborElement>;kotlin.ULongArray...){}[0]
 
     final val size // kotlinx.serialization.cbor/CborArray.size|{}size[0]
         final fun <get-size>(): kotlin/Int // kotlinx.serialization.cbor/CborArray.size.<get-size>|<get-size>(){}[0]
@@ -85,7 +92,10 @@ final class kotlinx.serialization.cbor/CborArray : kotlin.collections/List<kotli
 }
 
 final class kotlinx.serialization.cbor/CborBoolean : kotlinx.serialization.cbor/CborPrimitive { // kotlinx.serialization.cbor/CborBoolean|null[0]
+    constructor <init>(kotlin/Boolean, kotlin.collections/List<kotlin/ULong>) // kotlinx.serialization.cbor/CborBoolean.<init>|<init>(kotlin.Boolean;kotlin.collections.List<kotlin.ULong>){}[0]
     constructor <init>(kotlin/Boolean, kotlin/ULongArray...) // kotlinx.serialization.cbor/CborBoolean.<init>|<init>(kotlin.Boolean;kotlin.ULongArray...){}[0]
+    constructor <init>(kotlinx.serialization.cbor/CborBoolean, kotlin.collections/List<kotlin/ULong>) // kotlinx.serialization.cbor/CborBoolean.<init>|<init>(kotlinx.serialization.cbor.CborBoolean;kotlin.collections.List<kotlin.ULong>){}[0]
+    constructor <init>(kotlinx.serialization.cbor/CborBoolean, kotlin/ULongArray...) // kotlinx.serialization.cbor/CborBoolean.<init>|<init>(kotlinx.serialization.cbor.CborBoolean;kotlin.ULongArray...){}[0]
 
     final val value // kotlinx.serialization.cbor/CborBoolean.value|{}value[0]
         final fun <get-value>(): kotlin/Boolean // kotlinx.serialization.cbor/CborBoolean.value.<get-value>|<get-value>(){}[0]
@@ -139,7 +149,11 @@ final class kotlinx.serialization.cbor/CborBuilder { // kotlinx.serialization.cb
 }
 
 final class kotlinx.serialization.cbor/CborByteString : kotlinx.serialization.cbor/CborPrimitive { // kotlinx.serialization.cbor/CborByteString|null[0]
+    constructor <init>(kotlin/ByteArray, kotlin.collections/List<kotlin/ULong>) // kotlinx.serialization.cbor/CborByteString.<init>|<init>(kotlin.ByteArray;kotlin.collections.List<kotlin.ULong>){}[0]
     constructor <init>(kotlin/ByteArray, kotlin/ULongArray...) // kotlinx.serialization.cbor/CborByteString.<init>|<init>(kotlin.ByteArray;kotlin.ULongArray...){}[0]
+
+    final val bytes // kotlinx.serialization.cbor/CborByteString.bytes|{}bytes[0]
+        final fun <get-bytes>(): kotlin/ByteArray // kotlinx.serialization.cbor/CborByteString.bytes.<get-bytes>|<get-bytes>(){}[0]
 
     final fun equals(kotlin/Any?): kotlin/Boolean // kotlinx.serialization.cbor/CborByteString.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // kotlinx.serialization.cbor/CborByteString.hashCode|hashCode(){}[0]
@@ -211,6 +225,7 @@ final class kotlinx.serialization.cbor/CborInteger : kotlinx.serialization.cbor/
 }
 
 final class kotlinx.serialization.cbor/CborMap : kotlin.collections/Map<kotlinx.serialization.cbor/CborElement, kotlinx.serialization.cbor/CborElement>, kotlinx.serialization.cbor/CborElement { // kotlinx.serialization.cbor/CborMap|null[0]
+    constructor <init>(kotlin.collections/Map<kotlinx.serialization.cbor/CborElement, kotlinx.serialization.cbor/CborElement>, kotlin.collections/List<kotlin/ULong>) // kotlinx.serialization.cbor/CborMap.<init>|<init>(kotlin.collections.Map<kotlinx.serialization.cbor.CborElement,kotlinx.serialization.cbor.CborElement>;kotlin.collections.List<kotlin.ULong>){}[0]
     constructor <init>(kotlin.collections/Map<kotlinx.serialization.cbor/CborElement, kotlinx.serialization.cbor/CborElement>, kotlin/ULongArray...) // kotlinx.serialization.cbor/CborMap.<init>|<init>(kotlin.collections.Map<kotlinx.serialization.cbor.CborElement,kotlinx.serialization.cbor.CborElement>;kotlin.ULongArray...){}[0]
 
     final val entries // kotlinx.serialization.cbor/CborMap.entries|{}entries[0]
@@ -237,6 +252,10 @@ final class kotlinx.serialization.cbor/CborMap : kotlin.collections/Map<kotlinx.
     final fun toString(): kotlin/String // kotlinx.serialization.cbor/CborMap.toString|toString(){}[0]
 
     final object Companion { // kotlinx.serialization.cbor/CborMap.Companion|null[0]
+        final fun invoke(kotlin.collections/Map<kotlin/Long, kotlinx.serialization.cbor/CborElement>, kotlin.collections/List<kotlin/ULong>): kotlinx.serialization.cbor/CborMap // kotlinx.serialization.cbor/CborMap.Companion.invoke|invoke(kotlin.collections.Map<kotlin.Long,kotlinx.serialization.cbor.CborElement>;kotlin.collections.List<kotlin.ULong>){}[0]
+        final fun invoke(kotlin.collections/Map<kotlin/Long, kotlinx.serialization.cbor/CborElement>, kotlin/ULongArray...): kotlinx.serialization.cbor/CborMap // kotlinx.serialization.cbor/CborMap.Companion.invoke|invoke(kotlin.collections.Map<kotlin.Long,kotlinx.serialization.cbor.CborElement>;kotlin.ULongArray...){}[0]
+        final fun invoke(kotlin.collections/Map<kotlin/String, kotlinx.serialization.cbor/CborElement>, kotlin.collections/List<kotlin/ULong>): kotlinx.serialization.cbor/CborMap // kotlinx.serialization.cbor/CborMap.Companion.invoke|invoke(kotlin.collections.Map<kotlin.String,kotlinx.serialization.cbor.CborElement>;kotlin.collections.List<kotlin.ULong>){}[0]
+        final fun invoke(kotlin.collections/Map<kotlin/String, kotlinx.serialization.cbor/CborElement>, kotlin/ULongArray...): kotlinx.serialization.cbor/CborMap // kotlinx.serialization.cbor/CborMap.Companion.invoke|invoke(kotlin.collections.Map<kotlin.String,kotlinx.serialization.cbor.CborElement>;kotlin.ULongArray...){}[0]
         final fun serializer(): kotlinx.serialization/KSerializer<kotlinx.serialization.cbor/CborMap> // kotlinx.serialization.cbor/CborMap.Companion.serializer|serializer(){}[0]
     }
 
@@ -245,6 +264,7 @@ final class kotlinx.serialization.cbor/CborMap : kotlin.collections/Map<kotlinx.
 }
 
 final class kotlinx.serialization.cbor/CborNull : kotlinx.serialization.cbor/CborPrimitive { // kotlinx.serialization.cbor/CborNull|null[0]
+    constructor <init>(kotlin.collections/List<kotlin/ULong>) // kotlinx.serialization.cbor/CborNull.<init>|<init>(kotlin.collections.List<kotlin.ULong>){}[0]
     constructor <init>(kotlin/ULongArray...) // kotlinx.serialization.cbor/CborNull.<init>|<init>(kotlin.ULongArray...){}[0]
 
     final fun equals(kotlin/Any?): kotlin/Boolean // kotlinx.serialization.cbor/CborNull.equals|equals(kotlin.Any?){}[0]
@@ -272,6 +292,7 @@ final class kotlinx.serialization.cbor/CborString : kotlinx.serialization.cbor/C
 }
 
 final class kotlinx.serialization.cbor/CborUndefined : kotlinx.serialization.cbor/CborPrimitive { // kotlinx.serialization.cbor/CborUndefined|null[0]
+    constructor <init>(kotlin.collections/List<kotlin/ULong>) // kotlinx.serialization.cbor/CborUndefined.<init>|<init>(kotlin.collections.List<kotlin.ULong>){}[0]
     constructor <init>(kotlin/ULongArray...) // kotlinx.serialization.cbor/CborUndefined.<init>|<init>(kotlin.ULongArray...){}[0]
 
     final fun equals(kotlin/Any?): kotlin/Boolean // kotlinx.serialization.cbor/CborUndefined.equals|equals(kotlin.Any?){}[0]
@@ -301,8 +322,8 @@ sealed class kotlinx.serialization.cbor/Cbor : kotlinx.serialization/BinaryForma
 }
 
 sealed class kotlinx.serialization.cbor/CborElement { // kotlinx.serialization.cbor/CborElement|null[0]
-    final var tags // kotlinx.serialization.cbor/CborElement.tags|{}tags[0]
-        final fun <get-tags>(): kotlin/ULongArray // kotlinx.serialization.cbor/CborElement.tags.<get-tags>|<get-tags>(){}[0]
+    final val tags // kotlinx.serialization.cbor/CborElement.tags|{}tags[0]
+        final fun <get-tags>(): kotlin.collections/List<kotlin/ULong> // kotlinx.serialization.cbor/CborElement.tags.<get-tags>|<get-tags>(){}[0]
 
     open fun equals(kotlin/Any?): kotlin/Boolean // kotlinx.serialization.cbor/CborElement.equals|equals(kotlin.Any?){}[0]
     open fun hashCode(): kotlin/Int // kotlinx.serialization.cbor/CborElement.hashCode|hashCode(){}[0]
@@ -372,6 +393,41 @@ final val kotlinx.serialization.cbor/short // kotlinx.serialization.cbor/short|@
 final val kotlinx.serialization.cbor/shortOrNull // kotlinx.serialization.cbor/shortOrNull|@kotlinx.serialization.cbor.CborInteger{}shortOrNull[0]
     final fun (kotlinx.serialization.cbor/CborInteger).<get-shortOrNull>(): kotlin/Short? // kotlinx.serialization.cbor/shortOrNull.<get-shortOrNull>|<get-shortOrNull>@kotlinx.serialization.cbor.CborInteger(){}[0]
 
+final fun (kotlinx.serialization.cbor/CborArray).kotlinx.serialization.cbor/copy(kotlin.collections/List<kotlinx.serialization.cbor/CborElement>): kotlinx.serialization.cbor/CborArray // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborArray(kotlin.collections.List<kotlinx.serialization.cbor.CborElement>){}[0]
+final fun (kotlinx.serialization.cbor/CborArray).kotlinx.serialization.cbor/copy(kotlin.collections/List<kotlinx.serialization.cbor/CborElement>, kotlin.collections/List<kotlin/ULong>): kotlinx.serialization.cbor/CborArray // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborArray(kotlin.collections.List<kotlinx.serialization.cbor.CborElement>;kotlin.collections.List<kotlin.ULong>){}[0]
+final fun (kotlinx.serialization.cbor/CborArray).kotlinx.serialization.cbor/copy(kotlin.collections/List<kotlinx.serialization.cbor/CborElement>, kotlin/ULongArray...): kotlinx.serialization.cbor/CborArray // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborArray(kotlin.collections.List<kotlinx.serialization.cbor.CborElement>;kotlin.ULongArray...){}[0]
+final fun (kotlinx.serialization.cbor/CborArray).kotlinx.serialization.cbor/copy(kotlin/Array<kotlinx.serialization.cbor/CborElement>): kotlinx.serialization.cbor/CborArray // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborArray(kotlin.Array<kotlinx.serialization.cbor.CborElement>){}[0]
+final fun (kotlinx.serialization.cbor/CborArray).kotlinx.serialization.cbor/copy(kotlin/Array<kotlinx.serialization.cbor/CborElement>, kotlin.collections/List<kotlin/ULong>): kotlinx.serialization.cbor/CborArray // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborArray(kotlin.Array<kotlinx.serialization.cbor.CborElement>;kotlin.collections.List<kotlin.ULong>){}[0]
+final fun (kotlinx.serialization.cbor/CborArray).kotlinx.serialization.cbor/copy(kotlin/Array<kotlinx.serialization.cbor/CborElement>, kotlin/ULongArray...): kotlinx.serialization.cbor/CborArray // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborArray(kotlin.Array<kotlinx.serialization.cbor.CborElement>;kotlin.ULongArray...){}[0]
+final fun (kotlinx.serialization.cbor/CborBoolean).kotlinx.serialization.cbor/copy(kotlin/Boolean): kotlinx.serialization.cbor/CborBoolean // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborBoolean(kotlin.Boolean){}[0]
+final fun (kotlinx.serialization.cbor/CborBoolean).kotlinx.serialization.cbor/copy(kotlin/Boolean, kotlin.collections/List<kotlin/ULong>): kotlinx.serialization.cbor/CborBoolean // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborBoolean(kotlin.Boolean;kotlin.collections.List<kotlin.ULong>){}[0]
+final fun (kotlinx.serialization.cbor/CborBoolean).kotlinx.serialization.cbor/copy(kotlin/Boolean, kotlin/ULongArray...): kotlinx.serialization.cbor/CborBoolean // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborBoolean(kotlin.Boolean;kotlin.ULongArray...){}[0]
+final fun (kotlinx.serialization.cbor/CborByteString).kotlinx.serialization.cbor/copy(kotlin/ByteArray): kotlinx.serialization.cbor/CborByteString // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborByteString(kotlin.ByteArray){}[0]
+final fun (kotlinx.serialization.cbor/CborByteString).kotlinx.serialization.cbor/copy(kotlin/ByteArray, kotlin.collections/List<kotlin/ULong>): kotlinx.serialization.cbor/CborByteString // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborByteString(kotlin.ByteArray;kotlin.collections.List<kotlin.ULong>){}[0]
+final fun (kotlinx.serialization.cbor/CborByteString).kotlinx.serialization.cbor/copy(kotlin/ByteArray, kotlin/ULongArray...): kotlinx.serialization.cbor/CborByteString // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborByteString(kotlin.ByteArray;kotlin.ULongArray...){}[0]
+final fun (kotlinx.serialization.cbor/CborFloat).kotlinx.serialization.cbor/copy(kotlin/Double): kotlinx.serialization.cbor/CborFloat // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborFloat(kotlin.Double){}[0]
+final fun (kotlinx.serialization.cbor/CborFloat).kotlinx.serialization.cbor/copy(kotlin/Double, kotlin.collections/List<kotlin/ULong>): kotlinx.serialization.cbor/CborFloat // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborFloat(kotlin.Double;kotlin.collections.List<kotlin.ULong>){}[0]
+final fun (kotlinx.serialization.cbor/CborFloat).kotlinx.serialization.cbor/copy(kotlin/Double, kotlin/ULongArray...): kotlinx.serialization.cbor/CborFloat // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborFloat(kotlin.Double;kotlin.ULongArray...){}[0]
+final fun (kotlinx.serialization.cbor/CborInteger).kotlinx.serialization.cbor/copy(kotlin/Long): kotlinx.serialization.cbor/CborInteger // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborInteger(kotlin.Long){}[0]
+final fun (kotlinx.serialization.cbor/CborInteger).kotlinx.serialization.cbor/copy(kotlin/Long, kotlin.collections/List<kotlin/ULong>): kotlinx.serialization.cbor/CborInteger // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborInteger(kotlin.Long;kotlin.collections.List<kotlin.ULong>){}[0]
+final fun (kotlinx.serialization.cbor/CborInteger).kotlinx.serialization.cbor/copy(kotlin/Long, kotlin/ULongArray...): kotlinx.serialization.cbor/CborInteger // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborInteger(kotlin.Long;kotlin.ULongArray...){}[0]
+final fun (kotlinx.serialization.cbor/CborInteger).kotlinx.serialization.cbor/copy(kotlin/ULong, kotlin/Boolean): kotlinx.serialization.cbor/CborInteger // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborInteger(kotlin.ULong;kotlin.Boolean){}[0]
+final fun (kotlinx.serialization.cbor/CborInteger).kotlinx.serialization.cbor/copy(kotlin/ULong, kotlin/Boolean, kotlin.collections/List<kotlin/ULong>): kotlinx.serialization.cbor/CborInteger // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborInteger(kotlin.ULong;kotlin.Boolean;kotlin.collections.List<kotlin.ULong>){}[0]
+final fun (kotlinx.serialization.cbor/CborInteger).kotlinx.serialization.cbor/copy(kotlin/ULong, kotlin/Boolean, kotlin/ULongArray...): kotlinx.serialization.cbor/CborInteger // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborInteger(kotlin.ULong;kotlin.Boolean;kotlin.ULongArray...){}[0]
+final fun (kotlinx.serialization.cbor/CborMap).kotlinx.serialization.cbor/copy(kotlin.collections/Map<kotlin/Long, kotlinx.serialization.cbor/CborElement>): kotlinx.serialization.cbor/CborMap // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborMap(kotlin.collections.Map<kotlin.Long,kotlinx.serialization.cbor.CborElement>){}[0]
+final fun (kotlinx.serialization.cbor/CborMap).kotlinx.serialization.cbor/copy(kotlin.collections/Map<kotlin/Long, kotlinx.serialization.cbor/CborElement>, kotlin.collections/List<kotlin/ULong>): kotlinx.serialization.cbor/CborMap // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborMap(kotlin.collections.Map<kotlin.Long,kotlinx.serialization.cbor.CborElement>;kotlin.collections.List<kotlin.ULong>){}[0]
+final fun (kotlinx.serialization.cbor/CborMap).kotlinx.serialization.cbor/copy(kotlin.collections/Map<kotlin/Long, kotlinx.serialization.cbor/CborElement>, kotlin/ULongArray...): kotlinx.serialization.cbor/CborMap // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborMap(kotlin.collections.Map<kotlin.Long,kotlinx.serialization.cbor.CborElement>;kotlin.ULongArray...){}[0]
+final fun (kotlinx.serialization.cbor/CborMap).kotlinx.serialization.cbor/copy(kotlin.collections/Map<kotlin/String, kotlinx.serialization.cbor/CborElement>): kotlinx.serialization.cbor/CborMap // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborMap(kotlin.collections.Map<kotlin.String,kotlinx.serialization.cbor.CborElement>){}[0]
+final fun (kotlinx.serialization.cbor/CborMap).kotlinx.serialization.cbor/copy(kotlin.collections/Map<kotlin/String, kotlinx.serialization.cbor/CborElement>, kotlin.collections/List<kotlin/ULong>): kotlinx.serialization.cbor/CborMap // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborMap(kotlin.collections.Map<kotlin.String,kotlinx.serialization.cbor.CborElement>;kotlin.collections.List<kotlin.ULong>){}[0]
+final fun (kotlinx.serialization.cbor/CborMap).kotlinx.serialization.cbor/copy(kotlin.collections/Map<kotlin/String, kotlinx.serialization.cbor/CborElement>, kotlin/ULongArray...): kotlinx.serialization.cbor/CborMap // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborMap(kotlin.collections.Map<kotlin.String,kotlinx.serialization.cbor.CborElement>;kotlin.ULongArray...){}[0]
+final fun (kotlinx.serialization.cbor/CborMap).kotlinx.serialization.cbor/copy(kotlin.collections/Map<kotlinx.serialization.cbor/CborElement, kotlinx.serialization.cbor/CborElement>): kotlinx.serialization.cbor/CborMap // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborMap(kotlin.collections.Map<kotlinx.serialization.cbor.CborElement,kotlinx.serialization.cbor.CborElement>){}[0]
+final fun (kotlinx.serialization.cbor/CborMap).kotlinx.serialization.cbor/copy(kotlin.collections/Map<kotlinx.serialization.cbor/CborElement, kotlinx.serialization.cbor/CborElement>, kotlin.collections/List<kotlin/ULong>): kotlinx.serialization.cbor/CborMap // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborMap(kotlin.collections.Map<kotlinx.serialization.cbor.CborElement,kotlinx.serialization.cbor.CborElement>;kotlin.collections.List<kotlin.ULong>){}[0]
+final fun (kotlinx.serialization.cbor/CborMap).kotlinx.serialization.cbor/copy(kotlin.collections/Map<kotlinx.serialization.cbor/CborElement, kotlinx.serialization.cbor/CborElement>, kotlin/ULongArray...): kotlinx.serialization.cbor/CborMap // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborMap(kotlin.collections.Map<kotlinx.serialization.cbor.CborElement,kotlinx.serialization.cbor.CborElement>;kotlin.ULongArray...){}[0]
+final fun (kotlinx.serialization.cbor/CborString).kotlinx.serialization.cbor/copy(kotlin/String): kotlinx.serialization.cbor/CborString // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborString(kotlin.String){}[0]
+final fun (kotlinx.serialization.cbor/CborString).kotlinx.serialization.cbor/copy(kotlin/String, kotlin.collections/List<kotlin/ULong>): kotlinx.serialization.cbor/CborString // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborString(kotlin.String;kotlin.collections.List<kotlin.ULong>){}[0]
+final fun (kotlinx.serialization.cbor/CborString).kotlinx.serialization.cbor/copy(kotlin/String, kotlin/ULongArray...): kotlinx.serialization.cbor/CborString // kotlinx.serialization.cbor/copy|copy@kotlinx.serialization.cbor.CborString(kotlin.String;kotlin.ULongArray...){}[0]
+final fun <#A: kotlinx.serialization.cbor/CborElement> (#A).kotlinx.serialization.cbor/copy(kotlin/ULongArray...): #A // kotlinx.serialization.cbor/copy|copy@0:0(kotlin.ULongArray...){0§<kotlinx.serialization.cbor.CborElement>}[0]
+final fun <#A: kotlinx.serialization.cbor/CborPrimitive> (#A).kotlinx.serialization.cbor/copy(kotlin.collections/List<kotlin/ULong>): #A // kotlinx.serialization.cbor/copy|copy@0:0(kotlin.collections.List<kotlin.ULong>){0§<kotlinx.serialization.cbor.CborPrimitive>}[0]
 final fun kotlinx.serialization.cbor/Cbor(kotlinx.serialization.cbor/Cbor = ..., kotlin/Function1<kotlinx.serialization.cbor/CborBuilder, kotlin/Unit>): kotlinx.serialization.cbor/Cbor // kotlinx.serialization.cbor/Cbor|Cbor(kotlinx.serialization.cbor.Cbor;kotlin.Function1<kotlinx.serialization.cbor.CborBuilder,kotlin.Unit>){}[0]
 final fun kotlinx.serialization.cbor/CborInteger(kotlin/Long, kotlin/ULongArray...): kotlinx.serialization.cbor/CborInteger // kotlinx.serialization.cbor/CborInteger|CborInteger(kotlin.Long;kotlin.ULongArray...){}[0]
 final fun kotlinx.serialization.cbor/CborInteger(kotlin/ULong, kotlin/ULongArray...): kotlinx.serialization.cbor/CborInteger // kotlinx.serialization.cbor/CborInteger|CborInteger(kotlin.ULong;kotlin.ULongArray...){}[0]
