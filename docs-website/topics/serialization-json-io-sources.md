@@ -119,10 +119,10 @@ To use the extension functions with `kotlinx-io` or Okio types, add the correspo
 #### Add dependencies for `kotlinx-io`
 
 <tabs>
-<tab id="kotlin-io" title="Gradle Kotlin">
+<tab id="kotlin-io" title="Gradle">
 
 ```kotlin
-// build.gradle.kts
+// build.gradle(.kts)
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-io:%serializationVersion%")
     implementation("org.jetbrains.kotlinx:kotlinx-io-core:%kotlinxIoVersion%")
@@ -130,17 +130,7 @@ dependencies {
 ```
 
 </tab>
-<tab id="groovy-io" title="Gradle Groovy">
 
-```groovy
-// build.gradle
-dependencies {
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json-io:%serializationVersion%"
-    implementation "org.jetbrains.kotlinx:kotlinx-io-core:%kotlinxIoVersion%"
-}
-```
-
-</tab>
 <tab id="maven-io" title="Maven">
 
 ```xml
@@ -164,24 +154,13 @@ dependencies {
 #### Add dependencies for Okio
 
 <tabs>
-<tab id="kotlin" title="Gradle Kotlin">
+<tab id="kotlin" title="Gradle">
 
 ```kotlin
-// build.gradle.kts
+// build.gradle(.kts)
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-okio:%serializationVersion%")
     implementation("com.squareup.okio:okio:%okioVersion%")
-}
-```
-
-</tab>
-<tab id="groovy" title="Gradle Groovy">
-
-```groovy
-// build.gradle
-dependencies {
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json-okio:%serializationVersion%"
-    implementation "com.squareup.okio:okio:%okioVersion%"
 }
 ```
 

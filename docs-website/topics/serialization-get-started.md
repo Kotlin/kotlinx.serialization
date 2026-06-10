@@ -29,7 +29,7 @@ dependencies {
 ```groovy
 // build.gradle
 plugins {
-   id 'org.jetbrains.kotlin.plugin.serialization' version '%kotlinVersion%'  
+    id 'org.jetbrains.kotlin.plugin.serialization' version '%kotlinVersion%'  
 }
 
 dependencies {
