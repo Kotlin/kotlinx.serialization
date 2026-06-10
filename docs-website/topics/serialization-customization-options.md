@@ -76,7 +76,7 @@ fun main() {
 {kotlin-runnable="true" id="serialize-class-references-example"}
 
 > To reference non-serializable classes, annotate the corresponding properties with [`@Transient`](#exclude-properties-with-the-transient-annotation), or
-> provide a [custom serializer](create-custom-serializers.md) for them.
+> provide a [custom serializer](serialization-create-and-use-serializers.md) for them.
 >
 {style="tip"}
 
@@ -237,7 +237,7 @@ fun main() {
 
 > If you need to handle `null` values from third-party JSON, you can [coerce them to a default value](serialization-json-configuration.md#coerce-input-values).
 > 
-> You can also [omit explicit `null` values](serialization-json-configuration#omit-explicit-nulls) from the encoded JSON with the `explicitNulls` property.
+> You can also [omit explicit `null` values](serialization-json-configuration.md#omit-explicit-nulls) from the encoded JSON with the `explicitNulls` property.
 >
 {style="tip"}
 
@@ -516,4 +516,4 @@ fun main() {
 ## What's next
 
 * Explore more complex JSON serialization scenarios in the [JSON serialization overview](configure-json-serialization.md).
-* Learn how to define and customize your own serializers in [Create custom serializers](serialization-custom-serializers.md).
+* Learn how to obtain generated serializers, create custom serializers, and apply serializers in [Create and use serializers](serialization-create-and-use-serializers.md).

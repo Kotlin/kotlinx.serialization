@@ -17,7 +17,7 @@ It walks you through adding the Kotlin serialization library to your project and
 ## Kotlin serialization libraries
 
 Kotlin serialization offers support for all platforms, including JVM, JavaScript, and Native.
-You can use the same [dependency declaration](serialization-get-started.md#add-plugins-and-dependencies-for-kotlin-serialization) regardless of the target platform.
+You can use the same [dependency declaration](serialization-get-started.md#add-plugins-and-dependencies) regardless of the target platform.
 
 Kotlin serialization supports various serialization formats, such as JSON, CBOR, and Protocol buffers through different serialization format libraries.
 These libraries build on the core `kotlinx.serialization` library.
@@ -55,7 +55,7 @@ For more details about JSON serialization, see [JSON serialization overview](con
 
 There are also community-maintained libraries that support more serialization formats, such as [YAML](https://yaml.org/) or [Apache Avro](https://avro.apache.org/).
 
-You can find out more about experimental serialization formats in [Alternative and custom serialization formats](alternative-serialization-formats.md).
+You can find out more about experimental serialization formats in [Alternative and custom formats](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/formats.md).
 
 ## Supported serialization types
 
@@ -71,5 +71,6 @@ For more information, see [Serialize classes](serialization-customization-option
 * See how the Kotlin serialization library processes [primitives, collections, and other built-in types](serialization-serialize-builtin-types.md)
 * Explore more complex JSON serialization scenarios in the [JSON serialization overview](configure-json-serialization.md).
 * Dive into [Serialize classes](serialization-customization-options.md) to learn how to serialize classes and modify the default behavior of the `@Serializable` annotation.
-* Learn how to define and customize your own serializers in [Create custom serializers](serialization-custom-serializers.md).
+* Learn how to obtain generated serializers, create custom serializers, and apply serializers in [Create and use serializers](serialization-create-and-use-serializers.md).
 * See how to serialize different types through a shared base type in [Serialize polymorphic classes](serialization-polymorphism.md).
+* Explore experimental serialization formats, including CBOR, ProtoBuf, and Properties, and learn how to create custom formats in [Alternative and custom formats](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/formats.md).

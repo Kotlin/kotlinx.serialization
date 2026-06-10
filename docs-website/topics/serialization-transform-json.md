@@ -1,11 +1,11 @@
 [//]: # (title: Transform JSON structure)
 <primary-label ref="advanced"/>
 
-To control the structure and content of the JSON generated during serialization, you can create [custom serializers](create-custom-serializers.md).
+To control the structure and content of the JSON generated during serialization, you can create [custom serializers](serialization-create-and-use-serializers.md#create-custom-serializers).
 For smaller adjustments, such as wrapping values or unwrapping arrays, the [`JsonTransformingSerializer`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-transforming-serializer/) class provides a simpler way to modify JSON by working directly with the JSON element tree instead of using the [`Encoder`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-encoder/)
 or [`Decoder`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx.serialization-core/kotlinx.serialization.encoding/-decoder/) manually.
 
-> These sections are based on concepts explained in [Create custom serializers](create-custom-serializers.md).
+> These sections are based on concepts explained in [Create and use serializers](serialization-create-and-use-serializers.md).
 > If you're not familiar with custom serializers, we recommend reading that page first.
 >
 {style="note"}
@@ -156,7 +156,7 @@ fun main() {
 {kotlin-runnable="true"}
 
 > When serializing an object directly, you need to explicitly pass the custom serializer to the `encodeToString()`
-> function to ensure that the custom serialization logic is applied. For more information, see the [Pass serializers manually](third-party-classes.md#pass-serializers-manually) section.
+> function to ensure that the custom serialization logic is applied. For more information, see [Pass serializers manually](serialization-create-and-use-serializers.md#pass-a-serializer-manually).
 >
 {style="note"}
 
@@ -474,4 +474,4 @@ In this example, the preserved JSON properties remain at the same level within t
 ## What's next
 
 * Learn how to [serialize polymorphic classes](serialization-polymorphism.md) and handle objects of various types within a shared hierarchy.
-* Discover [other serialization formats](alternative-serialization-formats.md), such as CBOR and ProtoBuf.
+* Discover [other serialization formats](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/formats.md), such as CBOR and ProtoBuf.

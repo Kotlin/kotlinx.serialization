@@ -109,7 +109,7 @@ fun main() {
 {kotlin-runnable="true" id="serialize-long-as-string"}
 
 > You can also specify serializers like `LongAsStringSerializer` for all properties in a file.
-> For more information, see [Specify serializers for a file](third-party-classes.md#specify-serializers-for-a-file).
+> For more information, see [Specify serializers for a file](serialization-create-and-use-serializers.md#specify-a-serializer-for-a-file).
 >
 {style="tip"}
 
@@ -293,7 +293,7 @@ In JSON, maps are represented as objects. Since JSON object keys are always stri
 Other formats, such as CBOR, support maps with non-primitive keys and preserve them as such.
 
 > JSON doesn't natively support complex or composite keys.
-> To encode structured objects as map keys, see [Encode structured map keys](serialization-json-configuration.md#encode-structured-map-keys).
+> To encode structured objects as map keys, see [Allow structured map keys](serialization-json-configuration.md#allow-structured-map-keys).
 >
 {style="note"}
 
@@ -358,7 +358,7 @@ fun main() {
 ```
 {kotlin-runnable="true" id="serialize-singleton"}
 
-> You can use serialized singleton objects in [closed polymorphic hierarchies](serialization-polymorphism.md#serialize-objects-in-sealed-hierarchies)
+> You can use serialized singleton objects in [closed polymorphic hierarchies](serialization-polymorphism.md#serialize-closed-polymorphic-classes)
 > to represent cases without additional fields.
 >
 {style="tip"}
@@ -404,7 +404,7 @@ fun main() {
 
 The [`Nothing`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-nothing.html) type is serializable by default.
 It has no instances, so encoding or decoding it throws an exception.
-Use `Nothing` when a type is syntactically required, but not involved in serialization, like in [polymorphic classes with generic base types](serialization-polymorphism.md#serialize-polymorphic-types-with-generic-base-types):
+Use `Nothing` when a type is syntactically required, but not involved in serialization, like in a [polymorphic hierarchy with a generic base type](serialization-polymorphism.md#serialize-generic-subtypes-in-a-polymorphic-hierarchy):
 
 ```kotlin
 import kotlinx.serialization.*
