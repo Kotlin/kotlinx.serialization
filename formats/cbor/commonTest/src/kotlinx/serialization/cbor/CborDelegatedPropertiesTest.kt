@@ -157,7 +157,29 @@ class CborDelegatedPropertiesTest {
         val label: Long?,
         val keyTags: ULongArray = ulongArrayOf(),
         val valueTags: ULongArray = ulongArrayOf(),
-    )
+    ) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as FieldSpec
+
+            if (label != other.label) return false
+            if (name != other.name) return false
+            if (!keyTags.contentEquals(other.keyTags)) return false
+            if (!valueTags.contentEquals(other.valueTags)) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = label.hashCode()
+            result = 31 * result + name.hashCode()
+            result = 31 * result + keyTags.contentHashCode()
+            result = 31 * result + valueTags.contentHashCode()
+            return result
+        }
+    }
 
     private object MapBackedPersonSerializer : KSerializer<MapBackedPerson> {
         override val descriptor: SerialDescriptor = buildClassSerialDescriptor("MapBackedPerson")

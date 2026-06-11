@@ -1,18 +1,11 @@
 package kotlinx.serialization.cbor
 
-import kotlinx.serialization.DeserializationStrategy
-import kotlinx.serialization.SerializationStrategy
-import kotlinx.serialization.cbor.internal.CborDecodingException
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.CompositeDecoder
-import kotlinx.serialization.encoding.CompositeEncoder
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.modules.EmptySerializersModule
-import kotlinx.serialization.modules.SerializersModule
-import kotlin.test.Test
-import kotlin.test.assertFailsWith
-import kotlin.test.assertTrue
+import kotlinx.serialization.*
+import kotlinx.serialization.cbor.internal.*
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
+import kotlinx.serialization.modules.*
+import kotlin.test.*
 
 class CborElementSerializerBehaviorTest {
 

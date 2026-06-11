@@ -122,7 +122,6 @@ public class CborInteger(
  * depending on whether a positive or a negative number was passed.
  * If you want to create a negative number exceeding [Long.MIN_VALUE], manually specify sign: `CborInt(ULong.MAX_VALUE, isPositive = false)`.
  */
-@Suppress("FunctionName")
 public fun CborInteger(value: Long, vararg tags: ULong): CborInteger =
     if (value >= 0L) CborInteger(value.toULong(), isPositive = true, tags = tags)
     else CborInteger(ULong.MAX_VALUE - value.toULong() + 1uL, isPositive = false, tags = tags)
@@ -130,7 +129,6 @@ public fun CborInteger(value: Long, vararg tags: ULong): CborInteger =
 /**
  * Creates an unsigned CBOR integer (major type 0).
  */
-@Suppress("FunctionName")
 public fun CborInteger(value: ULong, vararg tags: ULong): CborInteger =
     CborInteger(value, isPositive = true, tags = tags)
 
