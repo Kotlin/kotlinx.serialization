@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalSerializationApi::class)
+@file:OptIn(ExperimentalSerializationApi::class, ExperimentalUnsignedTypes::class)
 
 package kotlinx.serialization.cbor
 
@@ -21,8 +21,8 @@ class CborElementTest {
     fun testEncodeToCborElementRootPrimitiveByteArrayAlwaysUseByteString() {
         val configured = Cbor { alwaysUseByteString = true }
         val element = configured.encodeToCborElement(byteArrayOf(1, 2, 3))
-        assertTrue(element is CborByteString)
-        assertTrue(element.toByteArray().contentEquals(byteArrayOf(1, 2, 3)))
+        assertIs<CborByteString>(element)
+        assertContentEquals(byteArrayOf(1, 2, 3), element.toByteArray())
         assertTrue(configured.decodeFromCborElement<ByteArray>(element).contentEquals(byteArrayOf(1, 2, 3)))
     }
 
@@ -43,7 +43,7 @@ class CborElementTest {
     fun testEncodeDecodeRootListViaCborElement() {
         val value = listOf(1, 2, 3)
         val element = cbor.encodeToCborElement(value)
-        assertTrue(element is CborArray)
+        assertIs<CborArray>(element)
         assertEquals(value, cbor.decodeFromCborElement<List<Int>>(element))
     }
 
@@ -68,8 +68,8 @@ class CborElementTest {
     fun testCborNumberZero() {
         val numberElement = CborInteger(0uL)
         assertEquals(numberElement, CborInteger(0))
-        assertEquals(numberElement.isPositive, true)
-        assertEquals(numberElement.absoluteValue, 0uL)
+        assertEquals(true, numberElement.isPositive)
+        assertEquals(0uL, numberElement.absoluteValue)
         val numberBytes = cbor.encodeToByteArray(numberElement)
         val decodedNumber = cbor.decodeFromByteArray<CborElement>(numberBytes)
         assertEquals(numberElement, decodedNumber)
@@ -79,8 +79,8 @@ class CborElementTest {
     @Test
     fun testCborNumberMax() {
         val numberElement = CborInteger(ULong.MAX_VALUE)
-        assertEquals(numberElement.isPositive, true)
-        assertEquals(numberElement.absoluteValue, ULong.MAX_VALUE)
+        assertEquals(true, numberElement.isPositive)
+        assertEquals(ULong.MAX_VALUE, numberElement.absoluteValue)
         val numberBytes = cbor.encodeToByteArray(numberElement)
         val decodedNumber = cbor.decodeFromByteArray<CborElement>(numberBytes)
         assertEquals(numberElement, decodedNumber)
@@ -88,10 +88,10 @@ class CborElementTest {
     }
 
     @Test
-    fun testCborNumberMaxHalv() {
+    fun testCborNumberMaxHalf() {
         val numberElement = CborInteger(Long.MAX_VALUE)
-        assertEquals(numberElement.isPositive, true)
-        assertEquals(numberElement.absoluteValue, Long.MAX_VALUE.toULong())
+        assertEquals(true, numberElement.isPositive)
+        assertEquals(Long.MAX_VALUE.toULong(), numberElement.absoluteValue)
         val numberBytes = cbor.encodeToByteArray(numberElement)
         val decodedNumber = cbor.decodeFromByteArray<CborElement>(numberBytes)
         assertEquals(numberElement, decodedNumber)
@@ -102,8 +102,8 @@ class CborElementTest {
     @Test
     fun testCborNumberMin() {
         val numberElement = CborInteger(ULong.MAX_VALUE, isPositive = false)
-        assertEquals(numberElement.isPositive, false)
-        assertEquals(numberElement.absoluteValue, ULong.MAX_VALUE)
+        assertEquals(false, numberElement.isPositive)
+        assertEquals(ULong.MAX_VALUE, numberElement.absoluteValue)
         val numberBytes = cbor.encodeToByteArray(numberElement)
         val decodedNumber = cbor.decodeFromByteArray<CborElement>(numberBytes)
         assertEquals(numberElement, decodedNumber)
@@ -116,10 +116,10 @@ class CborElementTest {
 
 
     @Test
-    fun testCborNumberMinHalv() {
+    fun testCborNumberMinHalf() {
         val numberElement = CborInteger(Long.MAX_VALUE.toULong(), isPositive = false)
-        assertEquals(numberElement.isPositive, false)
-        assertEquals(numberElement.absoluteValue, Long.MAX_VALUE.toULong())
+        assertEquals(false, numberElement.isPositive)
+        assertEquals(Long.MAX_VALUE.toULong(), numberElement.absoluteValue)
         val numberBytes = cbor.encodeToByteArray(numberElement)
         val decodedNumber = cbor.decodeFromByteArray<CborElement>(numberBytes)
         assertEquals(numberElement, decodedNumber)
@@ -163,7 +163,7 @@ class CborElementTest {
         val byteStringBytes = cbor.encodeToByteArray(byteStringElement)
         val decodedByteString = cbor.decodeFromByteArray<CborElement>(byteStringBytes)
         assertEquals(byteStringElement, decodedByteString)
-        assertTrue((decodedByteString as CborByteString).toByteArray().contentEquals(byteArray))
+        assertContentEquals(byteArray, (decodedByteString as CborByteString).toByteArray())
     }
 
     @Test
@@ -180,20 +180,20 @@ class CborElementTest {
         val decodedList = cbor.decodeFromByteArray<CborElement>(listBytes)
 
         // Verify the type and size
-        assertTrue(decodedList is CborArray)
+        assertIs<CborArray>(decodedList)
         assertEquals(4, decodedList.size)
 
         // Verify individual elements
-        assertTrue(decodedList[0] is CborInteger)
+        assertIs<CborInteger>(decodedList[0])
         assertEquals(1uL, (decodedList[0] as CborInteger).absoluteValue)
 
-        assertTrue(decodedList[1] is CborString)
+        assertIs<CborString>(decodedList[1])
         assertEquals("two", (decodedList[1] as CborString).value)
 
-        assertTrue(decodedList[2] is CborBoolean)
+        assertIs<CborBoolean>(decodedList[2])
         assertEquals(true, (decodedList[2] as CborBoolean).value)
 
-        assertTrue(decodedList[3] is CborNull)
+        assertIs<CborNull>(decodedList[3])
     }
 
     @Test
@@ -210,33 +210,33 @@ class CborElementTest {
 
         val output = ByteArrayOutput()
         IndefiniteLengthCborWriter(cbor, output).encodeCborElement(mapElement)
-        assertEquals(mapBytes.toHexString(), output.toByteArray().toHexString())
+        assertContentEquals(mapBytes, output.toByteArray())
 
         val decodedMap = cbor.decodeFromByteArray<CborElement>(mapBytes)
 
         // Verify the type and size
-        assertTrue(decodedMap is CborMap)
+        assertIs<CborMap>(decodedMap)
         assertEquals(4, decodedMap.size)
 
         // Verify individual entries
         assertTrue(decodedMap.containsKey(CborString("key1")))
         val value1 = decodedMap[CborString("key1")]
-        assertTrue(value1 is CborInteger)
-        assertEquals(42uL, (value1 as CborInteger).absoluteValue)
+        assertIs<CborInteger>(value1)
+        assertEquals(42uL, value1.absoluteValue)
 
         assertTrue(decodedMap.containsKey(CborString("key2")))
         val value2 = decodedMap[CborString("key2")]
-        assertTrue(value2 is CborString)
-        assertEquals("value", (value2 as CborString).value)
+        assertIs<CborString>(value2)
+        assertEquals("value", value2.value)
 
         assertTrue(decodedMap.containsKey(CborInteger(3u)))
         val value3 = decodedMap[CborInteger(3u)]
-        assertTrue(value3 is CborBoolean)
-        assertEquals(true, (value3 as CborBoolean).value)
+        assertIs<CborBoolean>(value3)
+        assertTrue(value3.value)
 
         assertTrue(decodedMap.containsKey(CborNull()))
         val value4 = decodedMap[CborNull()]
-        assertTrue(value4 is CborNull)
+        assertIs<CborNull>(value4)
     }
 
     @Test
@@ -271,56 +271,55 @@ class CborElementTest {
         val decodedComplex = cbor.decodeFromByteArray<CborElement>(complexBytes)
 
         // Verify the type
-        assertTrue(decodedComplex is CborMap)
+        assertIs<CborMap>(decodedComplex)
 
         // Verify the primitives list
         assertTrue(decodedComplex.containsKey(CborString("primitives")))
         val primitivesValue = decodedComplex[CborString("primitives")]
-        assertTrue(primitivesValue is CborArray)
+        assertIs<CborArray>(primitivesValue)
 
         assertEquals(5, primitivesValue.size)
 
-        assertTrue(primitivesValue[0] is CborInteger)
+        assertIs<CborInteger>(primitivesValue[0])
         assertEquals(123uL, (primitivesValue[0] as CborInteger).absoluteValue)
 
-        assertTrue(primitivesValue[1] is CborString)
+        assertIs<CborString>(primitivesValue[1])
         assertEquals("text", (primitivesValue[1] as CborString).value)
 
-        assertTrue(primitivesValue[2] is CborBoolean)
+        assertIs<CborBoolean>(primitivesValue[2])
         assertEquals(false, (primitivesValue[2] as CborBoolean).value)
 
-        assertTrue(primitivesValue[3] is CborByteString)
-        assertTrue((primitivesValue[3] as CborByteString).toByteArray().contentEquals(byteArrayOf(10, 20, 30)))
+        assertIs<CborByteString>(primitivesValue[3])
+        assertContentEquals(byteArrayOf(10, 20, 30), (primitivesValue[3] as CborByteString).toByteArray())
 
-        assertTrue(primitivesValue[4] is CborNull)
+        assertIs<CborNull>(primitivesValue[4])
 
         // Verify the nested map
         assertTrue(decodedComplex.containsKey(CborString("nested")))
         val nestedValue = decodedComplex[CborString("nested")]
-        assertTrue(nestedValue is CborMap)
+        assertIs<CborMap>(nestedValue)
 
         assertEquals(2, nestedValue.size)
 
         // Verify the inner list
         assertTrue(nestedValue.containsKey(CborString("inner")))
         val innerValue = nestedValue[CborString("inner")]
-        assertTrue(innerValue is CborArray)
+        assertIs<CborArray>(innerValue)
 
         assertEquals(2, innerValue.size)
 
-        assertTrue(innerValue[0] is CborInteger)
+        assertIs<CborInteger>(innerValue[0])
         assertEquals(1uL, (innerValue[0] as CborInteger).absoluteValue)
 
-        assertTrue(innerValue[1] is CborInteger)
+        assertIs<CborInteger>(innerValue[1])
         assertEquals(2uL, (innerValue[1] as CborInteger).absoluteValue)
 
         // Verify the empty list
         assertTrue(nestedValue.containsKey(CborString("empty")))
         val emptyValue = nestedValue[CborString("empty")]
-        assertTrue(emptyValue is CborArray)
-        val empty = emptyValue
+        assertIs<CborArray>(emptyValue)
 
-        assertEquals(0, empty.size)
+        assertEquals(0, emptyValue.size)
     }
 
     @Test
@@ -334,12 +333,12 @@ class CborElementTest {
     fun testDecodeStrings() {
         // Test data from CborParserTest.testParseStrings
         val element = cbor.decodeFromHexString<CborElement>("6568656C6C6F")
-        assertTrue(element is CborString)
+        assertIs<CborString>(element)
         assertEquals("hello", element.value)
 
         val longStringElement =
             cbor.decodeFromHexString<CborElement>("7828737472696E672074686174206973206C6F6E676572207468616E2032332063686172616374657273")
-        assertTrue(longStringElement is CborString)
+        assertIs<CborString>(longStringElement)
         assertEquals("string that is longer than 23 characters", longStringElement.value)
     }
 
@@ -347,11 +346,11 @@ class CborElementTest {
     fun testDecodeFloatingPoint() {
         // Test data from CborParserTest.testParseDoubles
         val doubleElement = cbor.decodeFromHexString<CborElement>("fb7e37e43c8800759c")
-        assertTrue(doubleElement is CborFloat)
+        assertIs<CborFloat>(doubleElement)
         assertEquals(1e+300, doubleElement.value)
 
         val floatElement = cbor.decodeFromHexString<CborElement>("fa47c35000")
-        assertTrue(floatElement is CborFloat)
+        assertIs<CborFloat>(floatElement)
         assertEquals(100000.0f, floatElement.value.toFloat())
     }
 
@@ -359,33 +358,30 @@ class CborElementTest {
     fun testDecodeByteString() {
         // Test data from CborParserTest.testRfc7049IndefiniteByteStringExample
         val element = cbor.decodeFromHexString<CborElement>("5F44aabbccdd43eeff99FF")
-        assertTrue(element is CborByteString)
-        val byteString = element as CborByteString
+        assertIs<CborByteString>(element)
         val expectedBytes = HexConverter.parseHexBinary("aabbccddeeff99")
-        assertTrue(byteString.toByteArray().contentEquals(expectedBytes))
+        assertContentEquals(expectedBytes, element.toByteArray())
     }
 
     @Test
     fun testDecodeArray() {
         // Test data from CborParserTest.testSkipCollections
         val element = cbor.decodeFromHexString<CborElement>("830118ff1a00010000")
-        assertTrue(element is CborArray)
-        val list = element as CborArray
-        assertEquals(3, list.size)
-        assertEquals(1uL, (list[0] as CborInteger).absoluteValue)
-        assertEquals(255uL, (list[1] as CborInteger).absoluteValue)
-        assertEquals(65536uL, (list[2] as CborInteger).absoluteValue)
+        assertIs<CborArray>(element)
+        assertEquals(3, element.size)
+        assertEquals(1uL, (element[0] as CborInteger).absoluteValue)
+        assertEquals(255uL, (element[1] as CborInteger).absoluteValue)
+        assertEquals(65536uL, (element[2] as CborInteger).absoluteValue)
     }
 
     @Test
     fun testDecodeMap() {
         // Test data from CborParserTest.testSkipCollections
         val element = cbor.decodeFromHexString<CborElement>("a26178676b6f746c696e7861796d73657269616c697a6174696f6e")
-        assertTrue(element is CborMap)
-        val map = element as CborMap
-        assertEquals(2, map.size)
-        assertEquals(CborString("kotlinx"), map[CborString("x")])
-        assertEquals(CborString("serialization"), map[CborString("y")])
+        assertIs<CborMap>(element)
+        assertEquals(2, element.size)
+        assertEquals(CborString("kotlinx"), element[CborString("x")])
+        assertEquals(CborString("serialization"), element[CborString("y")])
     }
 
     @Test
@@ -393,33 +389,31 @@ class CborElementTest {
         // Test data from CborParserTest.testSkipIndefiniteLength
         val element =
             cbor.decodeFromHexString<CborElement>("a461615f42cafe43010203ff61627f6648656c6c6f2065776f726c64ff61639f676b6f746c696e786d73657269616c697a6174696f6eff6164bf613101613202613303ff")
-        assertTrue(element is CborMap)
-        val map = element as CborMap
-        assertEquals(4, map.size)
+        assertIs<CborMap>(element)
+        assertEquals(4, element.size)
 
         // Check the byte string
-        val byteString = map[CborString("a")] as CborByteString
+        val byteString = element[CborString("a")] as CborByteString
         val expectedBytes = HexConverter.parseHexBinary("cafe010203")
-        assertTrue(byteString.toByteArray().contentEquals(expectedBytes))
+        assertContentEquals(expectedBytes, byteString.toByteArray())
 
         // Check the text string
-        assertEquals(CborString("Hello world"), map[CborString("b")])
+        assertEquals(CborString("Hello world"), element[CborString("b")])
 
         // Check the array
-        val array = map[CborString("c")] as CborArray
+        val array = element[CborString("c")] as CborArray
         assertEquals(2, array.size)
         assertEquals(CborString("kotlinx"), array[0])
         assertEquals(CborString("serialization"), array[1])
 
         // Check the nested map
-        val nestedMap = map[CborString("d")] as CborMap
+        val nestedMap = element[CborString("d")] as CborMap
         assertEquals(3, nestedMap.size)
         assertEquals(CborInteger(1u), nestedMap[CborString("1")])
         assertEquals(CborInteger(2u), nestedMap[CborString("2")])
         assertEquals(CborInteger(3u), nestedMap[CborString("3")])
     }
 
-    @OptIn(ExperimentalStdlibApi::class)
     @Test
     fun testTagsRoundTrip() {
         val cbor = Cbor { encodeValueTags = true }
@@ -428,11 +422,10 @@ class CborElementTest {
 
         // Encode and decode
         val bytes = cbor.encodeToByteArray(originalElement)
-        println(bytes.toHexString())
         val decodedElement = cbor.decodeFromByteArray<CborElement>(bytes)
 
         // Verify the value and tags
-        assertTrue(decodedElement is CborString)
+        assertIs<CborString>(decodedElement)
         assertEquals("Hello, tagged world!", decodedElement.value)
         assertEquals(1, decodedElement.tags.size)
         assertEquals(42u, decodedElement.tags.first())
@@ -547,6 +540,7 @@ class CborElementTest {
                 assertEquals(hex, cbor.encodeToHexString(obj))
                 assertEquals(hex, cbor.encodeToHexString(struct))
                 assertEquals(struct, cbor.decodeFromHexString<CborElement>(hex))
+                // TODO
                 //we have an ambiguity here (null vs. CborNull), so we cannot compare for equality with the object
                 //assertEquals(obj, cbor.decodeFromCbor(struct))
                 //assertEquals(obj, cbor.decodeFromHexString(hex))
@@ -614,89 +608,73 @@ class CborElementTest {
     @Test
     fun testCborElementWithValueTagsFails() {
         val cbor = Cbor { encodeValueTags = true }
-        val message = assertFailsWith<SerializationException> {
+        assertFailsWithMessage<SerializationException>(
+            "CBOR tag annotations cannot be applied to CborElement properties; add tags to the CborElement instance directly."
+        ) {
             cbor.encodeToByteArray(MixedValueTaggedElement.serializer(), MixedValueTaggedElement(CborBoolean(false)))
-        }.message
-        assertEquals(
-            "CBOR tag annotations cannot be applied to CborElement properties; add tags to the CborElement instance directly.",
-            message
-        )
+        }
 
-        val structuredMessage = assertFailsWith<SerializationException> {
+        assertFailsWithMessage<SerializationException>(
+            "CBOR tag annotations cannot be applied to CborElement properties; add tags to the CborElement instance directly."
+        ) {
             cbor.encodeToCborElement(MixedValueTaggedElement.serializer(), MixedValueTaggedElement(CborBoolean(false)))
-        }.message
-        assertEquals(
-            "CBOR tag annotations cannot be applied to CborElement properties; add tags to the CborElement instance directly.",
-            structuredMessage
-        )
+        }
     }
 
     @Test
     fun testCborElementWithKeyTagsFails() {
         val cbor = Cbor { encodeKeyTags = true }
-        val message = assertFailsWith<SerializationException> {
+        assertFailsWithMessage<SerializationException>(
+            "KeyTags cannot be represented by a CborElement value; model the containing CborMap key directly if tagged keys are required.",
+        ) {
             cbor.encodeToByteArray(MixedKeyTaggedElement.serializer(), MixedKeyTaggedElement(CborBoolean(false)))
-        }.message
-        assertEquals(
-            "KeyTags cannot be represented by a CborElement value; model the containing CborMap key directly if tagged keys are required.",
-            message
-        )
+        }
 
-        val structuredMessage = assertFailsWith<SerializationException> {
+        assertFailsWith<SerializationException>(
+            "KeyTags cannot be represented by a CborElement value; model the containing CborMap key directly if tagged keys are required."
+        ) {
             cbor.encodeToCborElement(MixedKeyTaggedElement.serializer(), MixedKeyTaggedElement(CborBoolean(false)))
-        }.message
-        assertEquals(
-            "KeyTags cannot be represented by a CborElement value; model the containing CborMap key directly if tagged keys are required.",
-            structuredMessage
-        )
+        }
     }
 
     @Test
     fun testConcreteCborElementWithValueTagsFails() {
         val cbor = Cbor { encodeValueTags = true }
-        val message = assertFailsWith<SerializationException> {
+        assertFailsWithMessage<SerializationException>(
+            "CBOR tag annotations cannot be applied to CborElement properties; add tags to the CborElement instance directly."
+        ) {
             cbor.encodeToByteArray(MixedValueTaggedInteger.serializer(), MixedValueTaggedInteger(CborInteger(1)))
-        }.message
-        assertEquals(
-            "CBOR tag annotations cannot be applied to CborElement properties; add tags to the CborElement instance directly.",
-            message
-        )
+        }
     }
 
     @Test
     fun testTaggedCborElementPropertyDecodingFails() {
         val hex = cbor.encodeToHexString(CborMap(mapOf(CborString("cborElement") to CborBoolean(false))))
-        val message = assertFailsWith<SerializationException> {
+        assertFailsWithMessage<SerializationException>(
+            "CBOR tag annotations cannot be applied to CborElement properties; add tags to the CborElement instance directly."
+        ) {
             cbor.decodeFromHexString(MixedValueTaggedElement.serializer(), hex)
-        }.message
-        assertEquals(
-            "CBOR tag annotations cannot be applied to CborElement properties; add tags to the CborElement instance directly.",
-            message
-        )
+        }
     }
 
     @Test
     fun testKeyTaggedCborElementPropertyDecodingFails() {
         val hex = cbor.encodeToHexString(CborMap(mapOf(CborString("cborElement") to CborBoolean(false))))
-        val message = assertFailsWith<SerializationException> {
+        assertFailsWithMessage<SerializationException>(
+            "KeyTags cannot be represented by a CborElement value; model the containing CborMap key directly if tagged keys are required."
+        ) {
             cbor.decodeFromHexString(MixedKeyTaggedElement.serializer(), hex)
-        }.message
-        assertEquals(
-            "KeyTags cannot be represented by a CborElement value; model the containing CborMap key directly if tagged keys are required.",
-            message
-        )
+        }
     }
 
     @Test
     fun testConcreteCborElementPropertyDecodingFails() {
         val hex = cbor.encodeToHexString(CborMap(mapOf(CborString("cborElement") to CborInteger(1))))
-        val message = assertFailsWith<SerializationException> {
+        assertFailsWithMessage<SerializationException>(
+            "CBOR tag annotations cannot be applied to CborElement properties; add tags to the CborElement instance directly."
+        ) {
             cbor.decodeFromHexString(MixedValueTaggedInteger.serializer(), hex)
-        }.message
-        assertEquals(
-            "CBOR tag annotations cannot be applied to CborElement properties; add tags to the CborElement instance directly.",
-            message
-        )
+        }
     }
 
     @Test
@@ -716,7 +694,6 @@ class CborElementTest {
         assertEquals(element, cbor.decodeFromHexString(CborElement.serializer(), hex))
     }
 
-    @OptIn(ExperimentalUnsignedTypes::class)
     @Test
     fun testCborUndefinedRoundTrip() {
         val cbor = Cbor { encodeValueTags = true }
@@ -1041,43 +1018,35 @@ class CborElementTest {
             encodeValueTags = true
         }
 
-        val encodeMessage = assertFailsWith<SerializationException> {
+        assertFailsWithMessage<SerializationException>(
+            "CborLabel cannot be represented by a CborElement value; model the containing CborMap key directly if numeric labels are required."
+        ) {
             cbor.encodeToByteArray(LabelledRawElementBox.serializer(), box)
-        }.message
-        assertEquals(
-            "CborLabel cannot be represented by a CborElement value; model the containing CborMap key directly if numeric labels are required.",
-            encodeMessage
-        )
+        }
 
-        val structuredMessage = assertFailsWith<SerializationException> {
+        assertFailsWithMessage<SerializationException>(
+            "CborLabel cannot be represented by a CborElement value; model the containing CborMap key directly if numeric labels are required."
+        ) {
             cbor.encodeToCborElement(LabelledRawElementBox.serializer(), box)
-        }.message
-        assertEquals(
-            "CborLabel cannot be represented by a CborElement value; model the containing CborMap key directly if numeric labels are required.",
-            structuredMessage
-        )
+        }
 
-        val decodeMessage = assertFailsWith<SerializationException> {
+        assertFailsWithMessage<SerializationException>(
+            "CborLabel cannot be represented by a CborElement value; model the containing CborMap key directly if numeric labels are required."
+        ) {
             cbor.decodeFromCborElement(
                 LabelledRawElementBox.serializer(),
                 CborMap(mapOf(CborInteger(1) to CborString("x")))
             )
-        }.message
-        assertEquals(
-            "CborLabel cannot be represented by a CborElement value; model the containing CborMap key directly if numeric labels are required.",
-            decodeMessage
-        )
+        }
     }
 
     @Test
     fun testCborLabelOnConcreteCborElementPropertyFails() {
-        val message = assertFailsWith<SerializationException> {
+        assertFailsWithMessage<SerializationException>(
+            "CborLabel cannot be represented by a CborElement value; model the containing CborMap key directly if numeric labels are required."
+        ) {
             cbor.encodeToByteArray(LabelledRawIntegerBox.serializer(), LabelledRawIntegerBox(CborInteger(1)))
-        }.message
-        assertEquals(
-            "CborLabel cannot be represented by a CborElement value; model the containing CborMap key directly if numeric labels are required.",
-            message
-        )
+        }
     }
 
     @Test
@@ -1093,24 +1062,20 @@ class CborElementTest {
 
     @Test
     fun testCborLabelDoesNotMakeTaggedCborElementPropertyAllowed() {
-        val valueMessage = assertFailsWith<SerializationException> {
+        assertFailsWithMessage<SerializationException>(
+            "CBOR tag annotations cannot be applied to CborElement properties; add tags to the CborElement instance directly."
+        ) {
             cbor.encodeToByteArray(
                 LabelledValueTaggedElement.serializer(),
                 LabelledValueTaggedElement(CborBoolean(false))
             )
-        }.message
-        assertEquals(
-            "CBOR tag annotations cannot be applied to CborElement properties; add tags to the CborElement instance directly.",
-            valueMessage
-        )
+        }
 
-        val keyMessage = assertFailsWith<SerializationException> {
+        assertFailsWith<SerializationException>(
+            "KeyTags cannot be represented by a CborElement value; model the containing CborMap key directly if tagged keys are required."
+        ) {
             cbor.encodeToByteArray(LabelledKeyTaggedElement.serializer(), LabelledKeyTaggedElement(CborBoolean(false)))
-        }.message
-        assertEquals(
-            "KeyTags cannot be represented by a CborElement value; model the containing CborMap key directly if tagged keys are required.",
-            keyMessage
-        )
+        }
     }
 
     @Test
@@ -1148,7 +1113,6 @@ class CborElementTest {
         )
     }
 
-    @OptIn(ExperimentalUnsignedTypes::class)
     @Test
     fun testTagsPreservedWhenDecodingTypedElements() {
         val cbor = Cbor { encodeValueTags = true }

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUnsignedTypes::class)
+
 package kotlinx.serialization.cbor
 
 import kotlinx.serialization.*
@@ -41,7 +43,7 @@ class CborElementSerializerBehaviorTest {
         override fun decodeInt(): Int = error("unused")
         override fun decodeLong(): Long = error("unused")
         override fun decodeNotNullMark(): Boolean = error("unused")
-        override fun decodeNull(): Nothing? = error("unused")
+        override fun decodeNull(): Nothing = error("unused")
         override fun decodeShort(): Short = error("unused")
         override fun decodeString(): String = error("unused")
         override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T = error("unused")
@@ -52,7 +54,7 @@ class CborElementSerializerBehaviorTest {
         val ex = assertFailsWith<IllegalStateException> {
             CborElement.serializer().serialize(NonCborEncoder, CborInteger(1))
         }
-        assertTrue(ex.message?.contains("This serializer can be used only with Cbor format") == true)
+        assertContains(ex.message!!, "This serializer can be used only with Cbor format")
     }
 
     @Test
@@ -60,7 +62,7 @@ class CborElementSerializerBehaviorTest {
         val ex = assertFailsWith<IllegalStateException> {
             CborElement.serializer().deserialize(NonCborDecoder)
         }
-        assertTrue(ex.message?.contains("This serializer can be used only with Cbor format") == true)
+        assertContains(ex.message!!, "This serializer can be used only with Cbor format")
     }
 
     @Test
@@ -91,7 +93,7 @@ class CborElementSerializerBehaviorTest {
     fun structuredByteStringDecodesToByteArray() {
         val cbor = Cbor { alwaysUseByteString = true }
         val element = cbor.encodeToCborElement(byteArrayOf(1, 2, 3))
-        assertTrue(element is CborByteString)
+        assertIs<CborByteString>(element)
         assertTrue(cbor.decodeFromCborElement<ByteArray>(element).contentEquals(byteArrayOf(1, 2, 3)))
     }
 }
