@@ -77,7 +77,7 @@ internal class UnsignedInlineDecoder(
                 integer.absoluteValue.toLong()
             }
 
-            is CborParserImpl -> {
+            is StreamingCborParser -> {
                 parser.processTags(tags)
                 val header = parser.curByte
                 if ((header and MAJOR_TYPE_MASK) != HEADER_POSITIVE.toInt()) {

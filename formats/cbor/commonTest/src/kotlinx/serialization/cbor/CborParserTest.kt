@@ -12,9 +12,9 @@ import kotlin.test.*
 
 class CborParserTest {
 
-    private fun withParser(input: String, block: CborParserImpl.() -> Unit) {
+    private fun withParser(input: String, block: StreamingCborParser.() -> Unit) {
         val bytes = HexConverter.parseHexBinary(input.uppercase())
-        CborParserImpl(ByteArrayInput(bytes), false).block()
+        StreamingCborParser(ByteArrayInput(bytes), false).block()
     }
 
     @Test
@@ -48,7 +48,7 @@ class CborParserTest {
     // See https://datatracker.ietf.org/doc/html/rfc8949#section-3.3
     @Test
     fun testUnsupportedSimpleValueEncodings() {
-        fun CborParserImpl.tryReadAllSimpleValues() {
+        fun StreamingCborParser.tryReadAllSimpleValues() {
             assertFailsWith<CborDecodingException> { nextBoolean() }
             assertFailsWith<CborDecodingException> { nextNull() }
             assertFailsWith<CborDecodingException> { nextFloat() }
@@ -899,28 +899,28 @@ class CborParserTest {
 }
 
 
-private fun CborParserImpl.nextNumber(tag: ULong): Long = nextNumber(ulongArrayOf(tag))
+private fun StreamingCborParser.nextNumber(tag: ULong): Long = nextNumber(ulongArrayOf(tag))
 
-private fun CborParserImpl.nextDouble(tag: ULong) = nextDouble(ulongArrayOf(tag))
+private fun StreamingCborParser.nextDouble(tag: ULong) = nextDouble(ulongArrayOf(tag))
 
-private fun CborParserImpl.nextString(tag: ULong) = nextString(ulongArrayOf(tag))
+private fun StreamingCborParser.nextString(tag: ULong) = nextString(ulongArrayOf(tag))
 
-private fun CborParserImpl.startArray(tag: ULong): Int = startArray(ulongArrayOf(tag))
+private fun StreamingCborParser.startArray(tag: ULong): Int = startArray(ulongArrayOf(tag))
 
-private fun CborParserImpl.startMap(tag: ULong) = startMap(ulongArrayOf(tag))
+private fun StreamingCborParser.startMap(tag: ULong) = startMap(ulongArrayOf(tag))
 
-private fun CborParserImpl.skipElement(singleTag: ULong) = skipElement(ulongArrayOf(singleTag))
+private fun StreamingCborParser.skipElement(singleTag: ULong) = skipElement(ulongArrayOf(singleTag))
 
-private fun CborParserImpl.skipElement() = skipElement(null)
+private fun StreamingCborParser.skipElement() = skipElement(null)
 
-private fun CborParserImpl.expect(expected: String, tag: ULong? = null) {
+private fun StreamingCborParser.expect(expected: String, tag: ULong? = null) {
     assertEquals(expected, actual = nextString(tag?.let { ulongArrayOf(it) }), "string")
 }
 
-private fun CborParserImpl.expectMap(size: Int, tag: ULong? = null) {
+private fun StreamingCborParser.expectMap(size: Int, tag: ULong? = null) {
     assertEquals(size, actual = startMap(tag?.let { ulongArrayOf(it) }), "map size")
 }
 
-private fun CborParserImpl.expectEof() {
+private fun StreamingCborParser.expectEof() {
     assertTrue(isEof(), "Expected EOF.")
 }

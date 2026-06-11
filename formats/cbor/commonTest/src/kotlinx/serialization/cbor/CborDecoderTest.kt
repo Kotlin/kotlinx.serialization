@@ -78,7 +78,7 @@ class CborDecoderTest {
     @Test
     fun testDecodeCollectionSize() {
         fun decodeCollectionSize(data: String, descriptor: SerialDescriptor): Int {
-            val parser = CborParserImpl(ByteArrayInput(data.hexToByteArray()), false)
+            val parser = StreamingCborParser(ByteArrayInput(data.hexToByteArray()), false)
             val decoder = CborReader(Cbor, parser).beginStructure(descriptor)
             return decoder.decodeCollectionSize(descriptor)
         }

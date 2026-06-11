@@ -17,7 +17,7 @@ internal open class CborReader(override val cbor: Cbor, internal val parser: Cbo
 
     override fun decodeCborElement(): CborElement =
         when (parser) {
-            is CborParserImpl -> CborTreeReader(cbor.configuration, parser).read()
+            is StreamingCborParser -> CborTreeReader(cbor.configuration, parser).read()
             is StructuredCborParser -> parser.layer.current
         }
 
@@ -208,7 +208,10 @@ internal open class CborReader(override val cbor: Cbor, internal val parser: Cbo
 
 }
 
-internal class CborParserImpl(private val input: ByteArrayInput, private val verifyObjectTags: Boolean) : CborParser {
+/**
+ * Parses CBOR data items from a CBOR-encoded byte sequence.
+ */
+internal class StreamingCborParser(private val input: ByteArrayInput, private val verifyObjectTags: Boolean) : CborParser {
     private var curByteOrEof: Int = -1
 
     internal val curByte: Int
@@ -746,7 +749,8 @@ internal class PeekingIterator private constructor(
 }
 
 /**
- * CBOR parser that operates on [CborElement] instead of bytes. Closely mirrors the behaviour of [CborParserImpl], so the
+ * CBOR parser that operates on [CborElement] instead of bytes.
+ * Closely mirrors the behaviour of [StreamingCborParser], so the
  * [CborDecoder] can remain largely unchanged.
  */
 internal class StructuredCborParser(internal val element: CborElement, private val verifyObjectTags: Boolean) :
