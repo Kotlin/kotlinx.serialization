@@ -640,12 +640,12 @@ private fun encodeToByteArray(value: ULong, bytes: Int, tag: Byte): ByteArray {
 private fun composeNegative(value: Long): ByteArray {
     val aVal = if (value == Long.MIN_VALUE) Long.MAX_VALUE else -1 - value
     val data = composePositive(aVal.toULong())
-    data[0] = data[0] or HEADER_NEGATIVE
+    data[0] = data[0] or HEADER_NEGATIVE.toByte()
     return data
 }
 
 private fun composeNegativeULong(value: ULong): ByteArray {
     val data = composePositive(value-1uL)
-    data[0] = data[0] or HEADER_NEGATIVE
+    data[0] = data[0] or HEADER_NEGATIVE.toByte()
     return data
 }

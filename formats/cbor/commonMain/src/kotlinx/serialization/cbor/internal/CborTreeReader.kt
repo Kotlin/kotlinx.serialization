@@ -25,52 +25,52 @@ internal class CborTreeReader(
         // Read any tags before the actual value
         val tags = readTags()
 
-        val result = when (parser.curByte shr 5) { // Get major type from the first 3 bits
-            0 -> { // Major type 0: unsigned integer
+        if (parser.isEof()) throw CborDecodingException("Unexpected EOF")
+
+        val majorType = parser.curByte and MAJOR_TYPE_MASK
+        val result = when (majorType) { // Get major type from the first 3 bits
+            HEADER_POSITIVE -> { // Major type 0: unsigned integer
                 val value = parser.nextULong()
                 CborInteger(value, isPositive = true, tags = tags)
             }
 
-            1 -> { // Major type 1: negative integer
+            HEADER_NEGATIVE -> { // Major type 1: negative integer
                 val value = parser.nextULong() + 1uL
                 CborInteger(value, isPositive = false, tags = tags)
             }
 
-            2 -> { // Major type 2: byte string
+            HEADER_BYTE_STRING -> { // Major type 2: byte string
                 CborByteString(parser.nextByteString(), tags = tags)
             }
 
-            3 -> { // Major type 3: text string
+            HEADER_STRING -> { // Major type 3: text string
                 CborString(parser.nextString(), tags = tags)
             }
 
-            4 -> { // Major type 4: array
+            HEADER_ARRAY -> { // Major type 4: array
                 readArray(tags)
             }
 
-            5 -> { // Major type 5: map
+            HEADER_MAP -> { // Major type 5: map
                 readMap(tags)
             }
 
-            7 -> { // Major type 7: simple/float/break
+            HEADER_SIMPLE -> { // Major type 7: simple/float/break
                 when (parser.curByte) {
-                    0xF4 -> {
+                    FALSE, TRUE -> {
                         CborBoolean(parser.nextBoolean(null), tags = tags)
                     }
 
-                    0xF5 -> {
-                        CborBoolean(parser.nextBoolean(null), tags = tags)
-                    }
-
-                    0xF6 -> {
+                    NULL -> {
                         parser.nextNull(null)
                         CborNull(tags = tags)
                     }
 
-                    0xF7 -> {
+                    UNDEFINED -> {
                         parser.skipElement(null)
                         CborUndefined(tags = tags)
                     }
+
                     // Half/Float32/Float64
                     NEXT_HALF, NEXT_FLOAT, NEXT_DOUBLE -> CborFloat(parser.nextDouble(null), tags = tags)
                     else -> throw CborDecodingException(
@@ -81,8 +81,7 @@ internal class CborTreeReader(
 
             else -> {
                 val errByte = parser.curByte shr 5
-                throw if (errByte == -1) CborDecodingException("Unexpected EOF")
-                else CborDecodingException("Invalid CBOR major type: $errByte")
+                throw CborDecodingException("Invalid CBOR major type: $errByte")
             }
         }
         return result
@@ -93,10 +92,10 @@ internal class CborTreeReader(
      * @return An array of tags, possibly empty
      */
     private fun readTags(): ULongArray {
-        if ((parser.curByte shr 5) != 6) return EMPTY_TAGS
+        if (parser.curByte and MAJOR_TYPE_MASK != HEADER_TAG) return EMPTY_TAGS
 
         val tags = mutableListOf<ULong>()
-        while ((parser.curByte shr 5) == 6) { // Major type 6: tag
+        while ((parser.curByte and MAJOR_TYPE_MASK) == HEADER_TAG) { // Major type 6: tag
             tags.add(parser.nextTag())
         }
         return tags.toULongArray()

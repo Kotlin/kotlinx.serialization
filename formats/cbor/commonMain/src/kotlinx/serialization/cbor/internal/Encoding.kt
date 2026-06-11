@@ -30,11 +30,12 @@ internal const val ADDITIONAL_INFO_MASK: Int = 0b000_11111
 
 internal const val HEADER_BYTE_STRING: Int = 0b010_00000
 internal const val HEADER_STRING: Int = 0b011_00000
-internal const val HEADER_POSITIVE: Byte = 0b000_00000
-internal const val HEADER_NEGATIVE: Byte = 0b001_00000
+internal const val HEADER_POSITIVE: Int = 0b000_00000
+internal const val HEADER_NEGATIVE: Int = 0b001_00000
 internal const val HEADER_ARRAY: Int = 0b100_00000
 internal const val HEADER_MAP: Int = 0b101_00000
 internal const val HEADER_TAG: Int = 0b110_00000
+internal const val HEADER_SIMPLE: Int = 0b111_00000
 
 /** Value to represent an indefinite length CBOR item within a "length stack". */
 internal const val LENGTH_STACK_INDEFINITE = -1

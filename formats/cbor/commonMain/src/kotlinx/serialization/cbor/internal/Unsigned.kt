@@ -80,7 +80,7 @@ internal class UnsignedInlineDecoder(
             is StreamingCborParser -> {
                 parser.processTags(tags)
                 val header = parser.curByte
-                if ((header and MAJOR_TYPE_MASK) != HEADER_POSITIVE.toInt()) {
+                if ((header and MAJOR_TYPE_MASK) != HEADER_POSITIVE) {
                     throw CborDecodingException("unsigned integer", header)
                 }
                 parser.nextULong(null).toLong()

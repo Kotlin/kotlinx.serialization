@@ -378,7 +378,7 @@ internal class StreamingCborParser(private val input: ByteArrayInput, private va
                     // the expected tags. (yes this could co somewhere else, but putting it here groups the code nicely
                     // into if-else branches.
                     if ((collectedTags.size < it.size) || (collectedTags.subList(0, it.size) != it.asList())) {
-                        throw CborDecodingException("CBOR tags $collectedTags do not start with specified tags $it")
+                        throw CborDecodingException("CBOR tags $collectedTags do not start with specified tags ${it.contentToString()}")
                     }
                 }
             }
@@ -439,10 +439,10 @@ internal class StreamingCborParser(private val input: ByteArrayInput, private va
     private fun readNumber(): Long {
         val headerByte = peekCurByteOrFail()
         val majorType = headerByte and MAJOR_TYPE_MASK
-        if (majorType != HEADER_NEGATIVE.toInt() && majorType != HEADER_POSITIVE.toInt()) {
+        if (majorType != HEADER_NEGATIVE && majorType != HEADER_POSITIVE) {
             throw CborDecodingException("an unsigned or negative integer", headerByte)
         }
-        val negative = majorType == HEADER_NEGATIVE.toInt()
+        val negative = majorType == HEADER_NEGATIVE
         val unsignedValue = readUnsignedIntegerIgnoringMajorType { majorType.majorTypeName }
         return if (negative) -(unsignedValue + 1) else unsignedValue
     }
@@ -702,8 +702,8 @@ private val Int.majorTypeName: String
         HEADER_ARRAY -> "array"
         HEADER_MAP -> "map"
         HEADER_TAG -> "tag"
-        HEADER_POSITIVE.toInt() -> "unsigned integer"
-        HEADER_NEGATIVE.toInt() -> "negative integer"
+        HEADER_POSITIVE -> "unsigned integer"
+        HEADER_NEGATIVE -> "negative integer"
         else -> "<unknown>"
     }
 
