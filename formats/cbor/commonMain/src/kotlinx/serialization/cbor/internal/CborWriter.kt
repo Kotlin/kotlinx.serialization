@@ -1,8 +1,4 @@
-@file:OptIn(ExperimentalSerializationApi::class, ExperimentalUnsignedTypes::class)
-
 package kotlinx.serialization.cbor.internal
-
-import kotlinx.serialization.*
 
 /**
  * Common interface for CBOR writers that can emit CBOR data to different destinations.
@@ -23,6 +19,8 @@ internal sealed interface CborWriter {
     fun encodeUndefined()
 
     // Tag writing
+    @OptIn(ExperimentalUnsignedTypes::class)
     fun encodeTags(tags: ULongArray)
+    @OptIn(ExperimentalUnsignedTypes::class)
     fun encodeElementTags(tags: ULongArray)
 }

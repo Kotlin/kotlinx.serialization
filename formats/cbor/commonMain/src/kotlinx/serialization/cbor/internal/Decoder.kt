@@ -54,7 +54,6 @@ internal open class CborReader(override val cbor: Cbor, internal val parser: Cbo
 
     protected open fun skipBeginToken(objectTags: ULongArray?) = setSize(parser.startMap(objectTags))
 
-    @OptIn(ExperimentalSerializationApi::class)
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
         val re = if (descriptor.hasArrayTag()) {
             CborArrayReader(cbor, parser)
@@ -991,13 +990,11 @@ private fun floatFromHalfBits(bits: Short): Float {
 }
 
 
-@OptIn(ExperimentalSerializationApi::class)
 private fun SerialDescriptor.getElementNameForCborLabel(label: Long): String? {
     return elementNames.firstOrNull { getCborLabel(getElementIndex(it)) == label }
 }
 
 
-@OptIn(ExperimentalSerializationApi::class)
 private fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
     val index = getElementIndex(name)
     if (index == CompositeDecoder.UNKNOWN_NAME)

@@ -60,21 +60,16 @@ internal fun SerialDescriptor.isInlineByteString(): Boolean {
     return isInline && isByteString(0)
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 internal fun SerialDescriptor.getValueTags(index: Int): ULongArray? = findAnnotation<ValueTags>(index)?.tags
 
-@OptIn(ExperimentalSerializationApi::class)
 internal fun SerialDescriptor.getKeyTags(index: Int): ULongArray? = findAnnotation<KeyTags>(index)?.tags
 
-@OptIn(ExperimentalSerializationApi::class)
 internal fun SerialDescriptor.getCborLabel(index: Int): Long? = findAnnotation<CborLabel>(index)?.label
 
-@OptIn(ExperimentalSerializationApi::class)
 internal fun SerialDescriptor.hasArrayTag(): Boolean {
     return annotations.any { it is CborObjectAsArray }
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 internal inline fun <reified A : Annotation> SerialDescriptor.findAnnotation(elementIndex: Int): A? =
     getElementAnnotations(elementIndex).firstOrNull { it is A } as A?
 

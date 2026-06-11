@@ -54,6 +54,7 @@ internal object CborElementSerializer : KSerializer<CborElement>, CborSerializer
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [CborPrimitive].
  * It can only be used by with [Cbor] format an its input ([CborDecoder] and [CborEncoder]).
  */
+@OptIn(ExperimentalSerializationApi::class)
 internal object CborPrimitiveSerializer : KSerializer<CborPrimitive>, CborSerializer {
     override val descriptor: SerialDescriptor =
         buildSerialDescriptor("kotlinx.serialization.cbor.CborPrimitive", PolymorphicKind.SEALED)
@@ -99,6 +100,7 @@ internal object CborNullSerializer : KSerializer<CborNull>, CborSerializer {
     }
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 internal object CborUndefinedSerializer : KSerializer<CborUndefined>, CborSerializer {
     override val descriptor: SerialDescriptor =
         buildSerialDescriptor("kotlinx.serialization.cbor.CborUndefined", SerialKind.ENUM)
@@ -116,7 +118,7 @@ internal object CborUndefinedSerializer : KSerializer<CborUndefined>, CborSerial
     }
 }
 
-
+@OptIn(ExperimentalSerializationApi::class)
 internal object CborIntSerializer : KSerializer<CborInteger>, CborSerializer {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("kotlinx.serialization.cbor.CborInt", PrimitiveKind.LONG)
@@ -139,6 +141,7 @@ internal object CborIntSerializer : KSerializer<CborInteger>, CborSerializer {
     }
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 internal object CborFloatSerializer : KSerializer<CborFloat>, CborSerializer {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("kotlinx.serialization.cbor.CborDouble", PrimitiveKind.DOUBLE)
@@ -160,6 +163,7 @@ internal object CborFloatSerializer : KSerializer<CborFloat>, CborSerializer {
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [CborString].
  * It can only be used by with [Cbor] format an its input ([CborDecoder] and [CborEncoder]).
  */
+@OptIn(ExperimentalSerializationApi::class)
 internal object CborStringSerializer : KSerializer<CborString>, CborSerializer {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("kotlinx.serialization.cbor.CborString", PrimitiveKind.STRING)
@@ -182,6 +186,7 @@ internal object CborStringSerializer : KSerializer<CborString>, CborSerializer {
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [CborBoolean].
  * It can only be used by with [Cbor] format an its input ([CborDecoder] and [CborEncoder]).
  */
+@OptIn(ExperimentalSerializationApi::class)
 internal object CborBooleanSerializer : KSerializer<CborBoolean>, CborSerializer {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("kotlinx.serialization.cbor.CborBoolean", PrimitiveKind.BOOLEAN)
@@ -204,6 +209,7 @@ internal object CborBooleanSerializer : KSerializer<CborBoolean>, CborSerializer
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [CborByteString].
  * It can only be used by with [Cbor] format and its input ([CborDecoder] and [CborEncoder]).
  */
+@OptIn(ExperimentalSerializationApi::class)
 internal object CborByteStringSerializer : KSerializer<CborByteString>, CborSerializer {
     override val descriptor: SerialDescriptor =
         SerialDescriptor("kotlinx.serialization.cbor.CborByteString", ByteArraySerializer().descriptor)
@@ -226,6 +232,7 @@ internal object CborByteStringSerializer : KSerializer<CborByteString>, CborSeri
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [CborMap].
  * It can only be used by with [Cbor] format and its input ([CborDecoder] and [CborEncoder]).
  */
+@OptIn(ExperimentalSerializationApi::class)
 internal object CborMapSerializer : KSerializer<CborMap>, CborSerializer {
     override val descriptor: SerialDescriptor =
         SerialDescriptor(
@@ -250,6 +257,7 @@ internal object CborMapSerializer : KSerializer<CborMap>, CborSerializer {
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [CborArray].
  * It can only be used by with [Cbor] format an its input ([CborDecoder] and [CborEncoder]).
  */
+@OptIn(ExperimentalSerializationApi::class)
 internal object CborArraySerializer : KSerializer<CborArray>, CborSerializer {
     override val descriptor: SerialDescriptor =
         SerialDescriptor(
@@ -270,7 +278,7 @@ internal object CborArraySerializer : KSerializer<CborArray>, CborSerializer {
     }
 }
 
-
+@ExperimentalSerializationApi
 internal fun Decoder.asCborDecoder(): CborDecoder = this as? CborDecoder
     ?: throw IllegalStateException(
         "This serializer can be used only with Cbor format. " +
@@ -289,7 +297,6 @@ internal fun Encoder.asCborWriter() = this as? CborWriter
  * Returns serial descriptor that delegates all the calls to descriptor returned by [deferred] block.
  * Used to resolve cyclic dependencies between recursive serializable structures.
  */
-@OptIn(ExperimentalSerializationApi::class)
 private fun defer(deferred: () -> SerialDescriptor): SerialDescriptor = object : SerialDescriptor {
     private val original: SerialDescriptor by lazy(deferred)
 

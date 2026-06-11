@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUnsignedTypes::class)
+
 package kotlinx.serialization.cbor
 
 import kotlin.test.*
