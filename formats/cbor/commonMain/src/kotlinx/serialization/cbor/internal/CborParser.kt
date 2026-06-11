@@ -1,8 +1,9 @@
-@file:OptIn(ExperimentalSerializationApi::class, ExperimentalUnsignedTypes::class)
+/*
+ * Copyright 2017-2026 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+@file:OptIn(ExperimentalUnsignedTypes::class)
 
 package kotlinx.serialization.cbor.internal
-
-import kotlinx.serialization.*
 
 /**
  * Common interface for CBOR parsers that can read CBOR data from different sources.
