@@ -52,7 +52,7 @@ internal object CborElementSerializer : KSerializer<CborElement>, CborSerializer
 
 /**
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [CborPrimitive].
- * It can only be used by with [Cbor] format an its input ([CborDecoder] and [CborEncoder]).
+ * It can only be used by with [Cbor] format and its input ([CborDecoder] and [CborEncoder]).
  */
 @OptIn(ExperimentalSerializationApi::class)
 internal object CborPrimitiveSerializer : KSerializer<CborPrimitive>, CborSerializer {
@@ -80,7 +80,7 @@ internal object CborPrimitiveSerializer : KSerializer<CborPrimitive>, CborSerial
 
 /**
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [CborNull].
- * It can only be used by with [Cbor] format an its input ([CborDecoder] and [CborEncoder]).
+ * It can only be used by with [Cbor] format and its input ([CborDecoder] and [CborEncoder]).
  */
 internal object CborNullSerializer : KSerializer<CborNull>, CborSerializer {
 
@@ -161,7 +161,7 @@ internal object CborFloatSerializer : KSerializer<CborFloat>, CborSerializer {
 
 /**
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [CborString].
- * It can only be used by with [Cbor] format an its input ([CborDecoder] and [CborEncoder]).
+ * It can only be used by with [Cbor] format and its input ([CborDecoder] and [CborEncoder]).
  */
 @OptIn(ExperimentalSerializationApi::class)
 internal object CborStringSerializer : KSerializer<CborString>, CborSerializer {
@@ -184,7 +184,7 @@ internal object CborStringSerializer : KSerializer<CborString>, CborSerializer {
 
 /**
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [CborBoolean].
- * It can only be used by with [Cbor] format an its input ([CborDecoder] and [CborEncoder]).
+ * It can only be used by with [Cbor] format and its input ([CborDecoder] and [CborEncoder]).
  */
 @OptIn(ExperimentalSerializationApi::class)
 internal object CborBooleanSerializer : KSerializer<CborBoolean>, CborSerializer {
@@ -255,7 +255,7 @@ internal object CborMapSerializer : KSerializer<CborMap>, CborSerializer {
 
 /**
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [CborArray].
- * It can only be used by with [Cbor] format an its input ([CborDecoder] and [CborEncoder]).
+ * It can only be used by with [Cbor] format and its input ([CborDecoder] and [CborEncoder]).
  */
 @OptIn(ExperimentalSerializationApi::class)
 internal object CborArraySerializer : KSerializer<CborArray>, CborSerializer {
