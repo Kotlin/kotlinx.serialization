@@ -1219,4 +1219,4 @@ val correctModule = SerializersModule {
 ## What's next
 
 * Discover how to [transform JSON structure](serialization-transform-json.md) by modifying the JSON element tree instead of creating a custom serializer.
-* Learn about [alternative and custom serialization formats](alternative-serialization-formats.md) to implement format-specific representations for your data.
+* Learn about [alternative and custom serialization formats](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/formats.md) to implement format-specific representations for your data.
