@@ -1,6 +1,6 @@
 [//]: # (title: Create and use serializers)
 
-A serializer defines the structure of a Kotlin type in its serialized form, while formats such as JSON control how that structure is encoded.
+A serializer defines the structure of a Kotlin type in its serialized form, while format implementations such as `Json` control how that structure is encoded.
 
 ![Diagram where a Kotlin value is serialized by a serializer into a sequence of primitives, encoded by a format into encoded data, decoded back into a sequence of primitives, and deserialized by a serializer into a Kotlin value](serialization-encoding.svg){width="700"}
 
@@ -19,7 +19,6 @@ You can use a serializer directly with functions such as `Json.encodeToString()`
 Here's an example that defines a `Color` class with a single integer property and inspects the structure of its serialized form:
 
 ```kotlin
-// Imports declarations from the serialization library
 import kotlinx.serialization.*
 
 //sampleStart
@@ -29,6 +28,7 @@ data class Color(val rgb: Int)
 fun main() {
     // Retrieves the generated serializer for the Color class
     val colorSerializer: KSerializer<Color> = Color.serializer()
+
     println(colorSerializer.descriptor)
     // Color(rgb: kotlin.Int)
 }
@@ -43,7 +43,6 @@ fun main() {
 You can use the top-level `serializer<T>()` function to obtain a serializer for any type, including parameterized ones:
 
 ```kotlin
-// Imports declarations from the serialization library
 import kotlinx.serialization.*
 
 //sampleStart
@@ -54,6 +53,7 @@ class Color(val rgb: Int)
 fun main() {
     // Retrieves the serializer for the Map<String, Color>
     val stringToColorMapSerializer: KSerializer<Map<String, Color>> = serializer()
+
     println(stringToColorMapSerializer.descriptor)
     // kotlin.collections.LinkedHashMap(PrimitiveDescriptor(kotlin.String), Color(rgb: kotlin.Int))
 }
@@ -64,7 +64,6 @@ fun main() {
 For generic classes, if you want to use the generated `.serializer()` function, provide one `KSerializer` argument for each type parameter:
 
 ```kotlin
-// Imports declarations from the serialization library
 import kotlinx.serialization.*
 
 //sampleStart
@@ -79,12 +78,15 @@ class Box<T>(val contents: T)
 fun main() {
     // Calls .serializer() using a KSerializer for the type parameter
     val boxedColorSerializer = Box.serializer(Color.serializer())
+
     println(boxedColorSerializer.descriptor)
     // Box(contents: Color)
 }
 //sampleEnd
 ```
 {kotlin-runnable="true"}
+
+### Obtain serializers for collection types
 
 Unlike classes annotated with `@Serializable`, collection types like `List<T>` don't have a generated `.serializer()` function.
 
@@ -94,7 +96,6 @@ and specify serializers for the collection's type parameters.
 Here's an example that uses the `ListSerializer()` function to create a serializer for `List<String>`:
 
 ```kotlin
-// Imports declarations from the serialization library
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 
@@ -160,7 +161,8 @@ To create a custom primitive serializer:
     ```kotlin
     override fun deserialize(decoder: Decoder): Type {
         val decodedValue: String = decoder.decodeString()
-        return // convert decodedValue back to Type
+        // Converts decodedValue back to Type
+        return ...
     }
    ```
 
@@ -174,7 +176,6 @@ To create a custom primitive serializer:
 Here's an example for a custom primitive serializer that serializes `Color` as a hexadecimal string:
 
 ```kotlin
-// Imports declarations from the serialization library
 import kotlinx.serialization.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.descriptors.*
@@ -212,11 +213,13 @@ fun main() {
     val color = Color(0x00FF00)
     // Serializes a Color value to JSON
     val jsonString = Json.encodeToString(color)
+
     println(jsonString)
     // "00ff00"
 
     // Deserializes the JSON string into a Color value
     val deserializedColor = Json.decodeFromString<Color>(jsonString)
+
     println(deserializedColor.rgb)
     // 65280
 }
@@ -235,7 +238,6 @@ Choose a Kotlin Base64 encoder that matches the expected variant, such as [`Base
 Here's an example that serializes a `ByteArray` as a Base64 string with `Base64.Default` in JSON format:
 
 ```kotlin
-// Imports declarations from the serialization library
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.encoding.Encoder
@@ -298,11 +300,13 @@ fun main() {
 
     // Serializes Value to JSON
     val encoded = Json.encodeToString(value)
+
     println(encoded)
     // {"base64Input":"UE5HX0lNQUdFX0RBVEE="}
 
     // Deserializes JSON back into Value
     val decoded = Json.decodeFromString<Value>(encoded)
+
     println(decoded.base64Input.decodeToString())
     // PNG_IMAGE_DATA
 }
@@ -315,22 +319,21 @@ fun main() {
 You can serialize a class as another type by delegating the serialization logic to the serializer for that type.
 For example, you can use this approach to serialize a class as a non-primitive type, such as an `IntArray`.
 
-To delegate serialization, create a custom serializer that defines a property for the serializer of the delegated type and override the following:
+To delegate serialization, create a custom serializer that defines a property for the serializer of the delegated type:
 
-1. The `descriptor` property to wrap the delegated serializer's `descriptor`.
+1. Override the `descriptor` property to wrap the delegated serializer's `descriptor`.
 
     > When you delegate serialization, you can't use the original class `descriptor` or the delegated type's `descriptor` directly.
     > Instead, create a new `descriptor` that reuses the delegated serializer's structure.
     > 
     {style="note"}
 
-2. The `serialize()` function to convert an instance of your class to the delegated type and use [`encoder.encodeSerializableValue()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-encoder/encode-serializable-value.html) function to encode it with the delegated serializer.
-3. The `deserialize()` function to use the [`decoder.decodeSerializableValue()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-decoder/decode-serializable-value.html) function with the delegated serializer to decode the value and convert it back into an instance of your class.
+2. Override the `serialize()` function to convert an instance of your class to the delegated type and use [`encoder.encodeSerializableValue()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-encoder/encode-serializable-value.html) function to encode it with the delegated serializer.
+3. Override the `deserialize()` function to use the [`decoder.decodeSerializableValue()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.encoding/-decoder/decode-serializable-value.html) function with the delegated serializer to decode the value and convert it back into an instance of your class.
 
 Here's an example that serializes a `Color` class as an `IntArray` by delegating the serialization logic to `IntArraySerializer`:
 
 ```kotlin
-// Imports declarations from the serialization library
 import kotlinx.serialization.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.descriptors.*
@@ -365,6 +368,7 @@ class Color(val rgb: Int)
 
 fun main() {
     val green = Color(0x00ff00)
+
     println(Json.encodeToString(green))
     // [0,255,0]
 }
@@ -374,16 +378,20 @@ fun main() {
 
 While using the array representation isn't conventional in JSON, it can reduce the size of serialized data when used with a `ByteArray` and a binary format.
 
-> For more information on how non-JSON serialization formats treat arrays, see [Alternative and custom serialization formats](alternative-serialization-formats.md).
+> For more information on how non-JSON serialization formats treat arrays, see [Alternative and custom serialization formats](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/formats.md).
 > 
 {style="tip"}
 
 ### Serialize classes with a surrogate class
 
-You can use a _surrogate class_ when you want to change how a class is serialized without modifying the original class or [creating a composite serializer](#create-a-custom-composite-serializer).
-A surrogate class is a class that matches the serialized form of another class.
+You can use a _surrogate class_ when you want to:
 
-Surrogate classes are useful when the serialized form needs validation before creating the original class or when direct serialization doesn't fit the class's rules.
+* Change how a class is serialized without modifying the class itself.
+* Avoid [creating a composite serializer](#create-a-custom-composite-serializer).
+* Validate the serialized form before creating the original class.
+* Handle cases where direct serialization doesn't fit the class's rules.
+
+A surrogate class is a class that matches the serialized form of another class.
 
 You can make surrogate classes [`private`](visibility-modifiers.md#class-members), and use an `init` block to enforce constraints on the serial representation of the class.
 You can also [define a custom serial name](serialization-customization-options.md#customize-serial-names) to keep the serialized type name unchanged.
@@ -432,7 +440,6 @@ object ColorSerializer : KSerializer<Color> {
 Finally, specify the custom serializer for the class:
 
 ```kotlin
-// Imports declarations from the serialization library
 import kotlinx.serialization.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.descriptors.*
@@ -475,6 +482,7 @@ class Color(val rgb: Int)
 
 fun main() {
     val green = Color(0x00ff00)
+
     println(Json.encodeToString(green))
     // {"r":0,"g":255,"b":0}
 }
@@ -486,8 +494,8 @@ fun main() {
 
 You can use composite serializers to represent complex data structures, such as classes with multiple properties.
 
-Compared to using a [surrogate class](#serialize-classes-with-a-surrogate-class), a custom composite serializer lets you define the serialized structure of the original class directly without an additional conversion step. 
-This can also improve performance in some cases.
+Compared to using a [surrogate class](#serialize-classes-with-a-surrogate-class), a custom composite serializer lets you define the serialized structure of the original class directly without an additional conversion step.
+This can also improve performance in some cases, but requires writing more of the serialization logic manually.
 
 To create a custom composite serializer:
 
@@ -568,7 +576,6 @@ To create a custom composite serializer:
 Let's look at an example of how to serialize a `Color` class with multiple properties:
 
 ```kotlin
-// Imports declarations from the serialization library
 import kotlinx.serialization.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.descriptors.*
@@ -624,8 +631,10 @@ data class Color(val rgb: Int)
 fun main() {
     val color = Color(0x00ff00)
     val string = Json.encodeToString(color)
+
     println(string)
     // {"r":0,"g":255,"b":0}
+
     require(Json.decodeFromString<Color>(string) == color)
 }
 //sampleEnd
@@ -646,7 +655,6 @@ To achieve the same behavior in a custom serializer, use the [`shouldEncodeEleme
 Here's an example where a custom serializer encodes default `Color` values when `encodeDefaults` is enabled:
 
 ```kotlin
-// Imports declarations from the serialization library
 import kotlinx.serialization.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.descriptors.*
@@ -711,6 +719,7 @@ data class Color(val rgb: Int = 0x00ff00)
 fun main() {
     val color = Color()
     val stringWithDefaults = Json { encodeDefaults = true }.encodeToString(color)
+   
     println(stringWithDefaults)
     // {"r":0,"g":255,"b":0}
 }
@@ -733,7 +742,6 @@ Handle that case separately to skip the more complex logic of decoding individua
 Here's an example that uses `decodeSequentially()` to optimize deserialization when possible:
 
 ```kotlin
-// Imports declarations from the serialization library
 import kotlinx.serialization.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.descriptors.*
@@ -790,8 +798,10 @@ data class Color(val rgb: Int)
 fun main() {
     val color = Color(0x00ff00)
     val string = Json.encodeToString(color)
+
     println(string)
     // {"r":0,"g":255,"b":0}
+
     require(Json.decodeFromString<Color>(string) == color)
 }
 ```
@@ -806,7 +816,6 @@ You can delegate the serialization logic for each type parameter to the correspo
 Let's look at an example using a generic `Box<T>` class:
 
 ```kotlin
-// Imports declarations from the serialization library
 import kotlinx.serialization.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.descriptors.*
@@ -833,8 +842,10 @@ data class Project(val name: String)
 fun main() {
     val box = Box(Project("kotlinx.serialization"))
     val string = Json.encodeToString(box)
+
     println(string)
     // {"name":"kotlinx.serialization"}
+
     println(Json.decodeFromString<Box<Project>>(string))
     // Box(contents=Project(name=kotlinx.serialization))
 }
@@ -861,7 +872,6 @@ This can also be useful when using a `JsonTransformingSerializer` to [adjust the
 Here's an example that uses both a custom serializer and the plugin-generated serializer:
 
 ```kotlin
-// Imports declarations from the serialization library
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.encoding.*
@@ -889,6 +899,7 @@ class Color(val rgb: Int)
 
 fun main() {
     val green = Color(0x00ff00)
+
     // Uses the custom serializer
     println(Json.encodeToString(green))
     // "00ff00"
@@ -909,12 +920,11 @@ Third-party types, such as [java.util.Date](https://docs.oracle.com/javase/8/doc
 
 ### Pass a serializer manually
 
-To serialize a type with a custom serializer, create one and pass it explicitly to overloads of functions such as [`Json.encodeToString()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/encode-to-string.html) and [`Json.decodeFromString()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/decode-from-string.html).
+To serialize a type with a custom serializer, create the serializer and pass it explicitly to overloads of functions such as [`Json.encodeToString()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/encode-to-string.html) and [`Json.decodeFromString()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/decode-from-string.html).
 
 Here's an example that serializes `Date` values as the number of milliseconds since the Unix epoch:
 
 ```kotlin
-// Imports the necessary libraries
 import kotlinx.serialization.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.descriptors.*
@@ -932,6 +942,7 @@ object DateAsLongSerializer : KSerializer<Date> {
 
 fun main() {
     val kotlin10ReleaseDate = SimpleDateFormat("yyyy-MM-ddX").parse("2016-02-15+00") 
+
     // Serializes Date as a Long in milliseconds
     println(Json.encodeToString(DateAsLongSerializer, kotlin10ReleaseDate))    
     // 1455494400000
@@ -945,7 +956,6 @@ fun main() {
 When a type is used as a property in a serializable class, specify its custom serializer on that property with the `@Serializable` annotation:
 
 ```kotlin
-// Imports the necessary libraries
 import kotlinx.serialization.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.descriptors.*
@@ -970,6 +980,7 @@ class ProgrammingLanguage(
 
 fun main() {
     val data = ProgrammingLanguage("Kotlin", SimpleDateFormat("yyyy-MM-ddX").parse("2016-02-15+00"))
+
     println(Json.encodeToString(data))
     // {"name":"Kotlin","stableReleaseDate":1455494400000}
 }
@@ -983,7 +994,6 @@ You can also apply the `@Serializable` annotation directly to a type.
 You can use this to specify a custom serializer for a type when it's used as a generic type argument, for example in `List<Date>`:
 
 ```kotlin
-// Imports the necessary libraries
 import kotlinx.serialization.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.descriptors.*
@@ -1008,7 +1018,8 @@ class ProgrammingLanguage(
 fun main() {
     val df = SimpleDateFormat("yyyy-MM-ddX")
     val data = ProgrammingLanguage("Kotlin", listOf(df.parse("2023-07-06+00"), df.parse("2023-04-25+00"), df.parse("2022-12-28+00")))
-    println(Json.encodeToString(data))
+ 
+   println(Json.encodeToString(data))
     // {"name":"Kotlin","releaseDates":[1688601600000,1682380800000,1672185600000]}
 }
 //sampleEnd
@@ -1023,13 +1034,15 @@ To apply a serializer to all properties of a given type in a source file, add th
 @file:UseSerializers(DateAsLongSerializer::class)
 ```
 
+This applies the `DateAsLongSerializer` to all instances of that type within the file,
+so you don't need to annotate each property separately.
+
 Here's an example:
 
 ```kotlin
 // Applies the custom serializer to all properties of that type in the file
 @file:UseSerializers(DateAsLongSerializer::class)
 
-// Imports the necessary libraries
 import kotlinx.serialization.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.descriptors.*
@@ -1049,14 +1062,12 @@ class ProgrammingLanguage(val name: String, val stableReleaseDate: Date)
 
 fun main() {
     val data = ProgrammingLanguage("Kotlin", SimpleDateFormat("yyyy-MM-ddX").parse("2016-02-15+00"))
-    println(Json.encodeToString(data))
+ 
+   println(Json.encodeToString(data))
     // {"name":"Kotlin","stableReleaseDate":1455494400000}
 }
 ```
 {kotlin-runnable="true"}
-
-This applies the `DateAsLongSerializer` to all instances of that type within the file,
-so you don't need to annotate each property separately.
 
 ### Specify serializers with type aliases
 
@@ -1070,7 +1081,6 @@ This lets you reuse the annotated type without adding the `@Serializable` annota
 Here's an example of using `typealias` to apply `DateAsLongSerializer` and `DateAsSimpleTextSerializer` to `Date`:
 
 ```kotlin
-// Imports the necessary libraries
 import kotlinx.serialization.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.descriptors.*
@@ -1079,12 +1089,13 @@ import java.util.Date
 import java.text.SimpleDateFormat
 import java.util.TimeZone
 
+//sampleStart
 object DateAsLongSerializer : KSerializer<Date> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("my.app.DateAsLong", PrimitiveKind.LONG)
     override fun serialize(encoder: Encoder, value: Date) = encoder.encodeLong(value.time)
     override fun deserialize(decoder: Decoder): Date = Date(decoder.decodeLong())
 }
-//sampleStart
+
 // Defines a serializer that encodes Date as a formatted string (yyyy-MM-dd)
 object DateAsSimpleTextSerializer: KSerializer<Date> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("my.app.DateAsSimpleText", PrimitiveKind.LONG)
@@ -1108,6 +1119,7 @@ class ProgrammingLanguage(val stableReleaseDate: DateAsText, val lastReleaseTime
 fun main() {
     val format = SimpleDateFormat("yyyy-MM-ddX")
     val data = ProgrammingLanguage(format.parse("2016-02-15+00"), format.parse("2022-07-07+00"))
+
     println(Json.encodeToString(data))
     // {"stableReleaseDate":"2016-02-15","lastReleaseTimestamp":1657152000000}
 }
@@ -1120,7 +1132,7 @@ fun main() {
 By default, serialization strategies are defined at compile time.
 _Contextual serialization_ allows you to adjust the serialization strategy for specific types at runtime, even when they're nested deep within an object tree.
 
-You can use contextual serialization to serialize `java.util.Date` in JSON format either as an ISO 8601 `String` or as a `Long`, depending on the protocol version being used.
+For example, you can use contextual serialization to serialize `java.util.Date` in JSON format either as an ISO 8601 `String` or as a `Long`, depending on the protocol version being used.
 This approach is supported by the built-in [`ContextualSerializer`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-contextual-serializer/) class.
 
 Contextual serialization selects a custom serializer for a type at runtime from a `SerializersModule`.
@@ -1144,7 +1156,6 @@ To implement contextual serialization:
 Here's an example:
 
 ```kotlin
-// Imports declarations from the serialization library
 import kotlinx.serialization.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.descriptors.*
@@ -1178,7 +1189,8 @@ val format = Json { serializersModule = module }
 
 fun main() {
     val data = ProgrammingLanguage("Kotlin", SimpleDateFormat("yyyy-MM-ddX").parse("2016-02-15+00"))
-    println(format.encodeToString(data))
+ 
+   println(format.encodeToString(data))
     // {"name":"Kotlin","stableReleaseDate":1455494400000}
 }
 //sampleEnd
