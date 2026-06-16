@@ -54,8 +54,8 @@ fun main() {
     // Retrieves the serializer for the Map<String, Color>
     val stringToColorMapSerializer: KSerializer<Map<String, Color>> = serializer()
 
+    // Prints: kotlin.collections.LinkedHashMap(PrimitiveDescriptor(kotlin.String), Color(rgb: kotlin.Int))
     println(stringToColorMapSerializer.descriptor)
-    // kotlin.collections.LinkedHashMap(PrimitiveDescriptor(kotlin.String), Color(rgb: kotlin.Int))
 }
 //sampleEnd
 ```
