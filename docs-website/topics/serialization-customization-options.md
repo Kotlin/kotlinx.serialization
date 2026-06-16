@@ -515,5 +515,5 @@ fun main() {
 
 ## What's next
 
-* Explore more complex JSON serialization scenarios in the [JSON serialization overview](configure-json-serialization.md).
+* Explore more complex JSON serialization scenarios in the [JSON serialization overview](serialization-configure-json-serialization.md).
 * Learn how to obtain generated serializers, create custom serializers, and apply serializers in [Create and use serializers](serialization-create-and-use-serializers.md).

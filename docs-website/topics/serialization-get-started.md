@@ -278,4 +278,4 @@ Congratulations! You have successfully serialized an object to JSON and deserial
 
 * Learn how to serialize basic types such as primitives and strings, as well as certain standard library classes, in [Serialize built-in types](serialization-serialize-builtin-types.md).
 * Discover how to customize class serialization and adjust the default behavior of the `@Serializable` annotation in [Serialize classes](serialization-customization-options.md).
-* Dive deeper into handling JSON data and configuring JSON serialization in the [JSON serialization overview](configure-json-serialization.md).
+* Dive deeper into handling JSON data and configuring JSON serialization in the [JSON serialization overview](serialization-configure-json-serialization.md).

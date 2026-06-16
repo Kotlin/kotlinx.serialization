@@ -51,7 +51,7 @@ You can find the latest release versions on [GitHub](https://github.com/Kotlin/k
 | [Properties](https://en.wikipedia.org/wiki/.properties) | [`kotlinx-serialization-properties`](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md#properties) | All supported platforms | Experimental |
 
 All serialization format libraries, except for the JSON serialization library (`kotlinx-serialization-json`), are [Experimental](components-stability.md). Their APIs might change at any time.
-For more details about JSON serialization, see [JSON serialization overview](configure-json-serialization.md).
+For more details about JSON serialization, see [JSON serialization overview](serialization-configure-json-serialization.md).
 
 There are also community-maintained libraries that support more serialization formats, such as [YAML](https://yaml.org/) or [Apache Avro](https://avro.apache.org/).
 
@@ -69,7 +69,7 @@ For more information, see [Serialize classes](serialization-customization-option
 
 * Learn the basics of Kotlin serialization in the [Get started with serialization tutorial](serialization-get-started.md).
 * See how the Kotlin serialization library processes [primitives, collections, and other built-in types](serialization-serialize-builtin-types.md)
-* Explore more complex JSON serialization scenarios in the [JSON serialization overview](configure-json-serialization.md).
+* Explore more complex JSON serialization scenarios in the [JSON serialization overview](serialization-configure-json-serialization.md).
 * Dive into [Serialize classes](serialization-customization-options.md) to learn how to serialize classes and modify the default behavior of the `@Serializable` annotation.
 * Learn how to obtain generated serializers, create custom serializers, and apply serializers in [Create and use serializers](serialization-create-and-use-serializers.md).
 * See how to serialize different types through a shared base type in [Serialize polymorphic classes](serialization-polymorphism.md).

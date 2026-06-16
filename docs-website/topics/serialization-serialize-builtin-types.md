@@ -382,7 +382,7 @@ fun main() {
 ```
 {kotlin-runnable="true" id="serialize-duration"}
 
-Starting with Kotlin 2.2.0, you can serialize Kotlin's [`Instant`](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.time/-instant/) type
+You can also serialize Kotlin's [`Instant`](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.time/-instant/) type
 as a string representing a point in time using the ISO-8601-1 format:
 
 ```kotlin
@@ -429,5 +429,5 @@ fun main() {
 ## What's next
 
 * Dive into [Serialize classes](serialization-customization-options.md) to learn how to serialize classes and how to modify the default behavior of the `@Serializable` annotation.
-* To explore more complex JSON serialization scenarios, see [JSON serialization overview](configure-json-serialization.md).
+* To explore more complex JSON serialization scenarios, see [JSON serialization overview](serialization-configure-json-serialization.md).
 * Learn more about polymorphism and serializing different types through a shared base in [Serialize polymorphic classes](serialization-polymorphism.md).
