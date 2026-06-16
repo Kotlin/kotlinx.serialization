@@ -384,14 +384,12 @@ While using the array representation isn't conventional in JSON, it can reduce t
 
 ### Serialize classes with a surrogate class
 
-You can use a _surrogate class_ when you want to:
+You can use a _surrogate class_, a class that matches the serialized form of another class, when you want to:
 
 * Change how a class is serialized without modifying the class itself.
 * Avoid [creating a composite serializer](#create-a-custom-composite-serializer).
 * Validate the serialized form before creating the original class.
 * Handle cases where direct serialization doesn't fit the class's rules.
-
-A surrogate class is a class that matches the serialized form of another class.
 
 You can make surrogate classes [`private`](visibility-modifiers.md#class-members), and use an `init` block to enforce constraints on the serial representation of the class.
 You can also [define a custom serial name](serialization-customization-options.md#customize-serial-names) to keep the serialized type name unchanged.
@@ -425,11 +423,13 @@ object ColorSerializer : KSerializer<Color> {
     // The serialNames of descriptors must be unique
     override val descriptor: SerialDescriptor = SerialDescriptor("my.app.Color", ColorSurrogate.serializer().descriptor)
 
+    // Converts the original class to the surrogate representation
     override fun serialize(encoder: Encoder, value: Color) {
         val surrogate = ColorSurrogate((value.rgb shr 16) and 0xff, (value.rgb shr 8) and 0xff, value.rgb and 0xff)
         encoder.encodeSerializableValue(ColorSurrogate.serializer(), surrogate)
     }
 
+    // Converts the surrogate representation back to the original class
     override fun deserialize(decoder: Decoder): Color {
         val surrogate = decoder.decodeSerializableValue(ColorSurrogate.serializer())
         return Color((surrogate.r shl 16) or (surrogate.g shl 8) or surrogate.b)
@@ -555,7 +555,7 @@ To create a custom composite serializer:
            // Uses decodeElementIndex to ensure correct decoding regardless of order
            while (true) {
                when (val index = decodeElementIndex(descriptor)) {
-                   0 -> first = decodeIntElement(descriptor, 0)
+                   0 -> first = decodeStringElement(descriptor, 0)
                    1 -> second = decodeIntElement(descriptor, 1)
                    CompositeDecoder.DECODE_DONE -> break
                    else -> error("Unexpected index: $index")

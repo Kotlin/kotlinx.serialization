@@ -3,7 +3,7 @@
 <instance-profile id="serialization" name="Serialization" start-page="serialization.md">
     <snippet id="serialization">
         <toc-element topic="serialization.md" toc-title="Introduction"/>
-        <toc-element toc-title="Get started">
+        <toc-element toc-title="Serialization basics">
             <toc-element topic="serialization-get-started.md"/>
             <toc-element topic="serialization-serialize-builtin-types.md"/>
             <toc-element topic="serialization-customization-options.md"/>
