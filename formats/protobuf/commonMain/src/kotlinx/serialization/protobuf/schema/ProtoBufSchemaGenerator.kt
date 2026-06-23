@@ -180,7 +180,7 @@ public object ProtoBufSchemaGenerator {
         usedNumbers: MutableSet<Int>,
         counts: Int = parentType.descriptor.elementsCount,
         getAnnotations: (Int) -> List<Annotation> = { parentType.descriptor.getElementAnnotations(it) },
-        getChildType: (Int) -> TypeDefinition = { parentType.descriptor.getElementDescriptor(it).let(::TypeDefinition) },
+        getChildType: (Int) -> TypeDefinition = { parentType.descriptor.getElementDescriptor(it).flatInlineClasses().let(::TypeDefinition) },
         getChildNumber: (Int) -> Int = { parentType.descriptor.getElementAnnotations(it).filterIsInstance<ProtoNumber>().singleOrNull()?.number ?: (it + 1) },
         getChildName: (Int) -> String = { parentType.descriptor.getElementName(it) },
         inOneOfStruct: Boolean = false,
@@ -214,7 +214,7 @@ public object ProtoBufSchemaGenerator {
                         usedNumbers = usedNumbers,
                         counts = desc.elementsCount,
                         getAnnotations = { desc.annotations },
-                        getChildType = { desc.elementDescriptors.single().let(::TypeDefinition) },
+                        getChildType = { desc.elementDescriptors.single().flatInlineClasses().let(::TypeDefinition) },
                         getChildNumber = { desc.getElementAnnotations(0).filterIsInstance<ProtoNumber>().singleOrNull()?.number ?: (it + 1) },
                         getChildName = { desc.getElementName(0) },
                         inOneOfStruct = true,
@@ -270,10 +270,7 @@ public object ProtoBufSchemaGenerator {
         inOneOfStruct: Boolean = false,
         indent: Int = 1,
     ): List<TypeDefinition> {
-        var unwrappedFieldDescriptor = fieldDescriptor
-        while (unwrappedFieldDescriptor.isInline) {
-            unwrappedFieldDescriptor = unwrappedFieldDescriptor.getElementDescriptor(0)
-        }
+        val unwrappedFieldDescriptor = fieldDescriptor.flatInlineClasses()
 
         val nestedTypes: List<TypeDefinition>
         val typeName: String = when {
@@ -347,7 +344,7 @@ public object ProtoBufSchemaGenerator {
     private fun StringBuilder.generateListType(messageType: TypeDefinition, index: Int): List<TypeDefinition> {
         val messageDescriptor = messageType.descriptor
         val collectionDescriptor = messageDescriptor.getElementDescriptor(index)
-        val originalElementDescriptor = collectionDescriptor.getElementDescriptor(0)
+        val originalElementDescriptor = collectionDescriptor.getElementDescriptor(0).flatInlineClasses()
         val elementType = if (collectionDescriptor.kind == StructureKind.LIST) {
             if (originalElementDescriptor.isProtobufCollection) {
                 createNestedCollectionType(messageType, index, originalElementDescriptor, "nested collection in list")
@@ -592,6 +589,14 @@ public object ProtoBufSchemaGenerator {
 
     private fun removeLineBreaks(text: String): String {
         return text.replace('\n', ' ').replace('\r', ' ')
+    }
+
+    private fun SerialDescriptor.flatInlineClasses(): SerialDescriptor {
+        var flat = this
+        while (flat.isInline) {
+            flat = flat.getElementDescriptor(0)
+        }
+        return flat
     }
 
     private val IDENTIFIER_REGEX = Regex("[A-Za-z][A-Za-z0-9_]*")
