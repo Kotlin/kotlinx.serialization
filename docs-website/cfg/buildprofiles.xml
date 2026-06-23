@@ -4,6 +4,7 @@
     <variables>
         <enable-browser-edits>true</enable-browser-edits>
         <browser-edits-url>https://github.com/Kotlin/kotlinx.serialization/blob/doc-restructuring-master/docs-website/</browser-edits-url>
+        <automaticLinkSummaries>false</automaticLinkSummaries>
         <allow-indexable-eaps>true</allow-indexable-eaps>
     </variables>
     <build-profile product="serialization"/>

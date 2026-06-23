@@ -4,10 +4,8 @@
     <snippet id="serialization">
         <toc-element topic="serialization.md" toc-title="Introduction"/>
         <toc-element topic="serialization-get-started.md"/>
-        <toc-element toc-title="Serialization basics">
-            <toc-element topic="serialization-serialize-builtin-types.md"/>
-            <toc-element topic="serialization-customization-options.md"/>
-        </toc-element>
+        <toc-element topic="serialization-serialize-builtin-types.md"/>
+        <toc-element topic="serialization-customization-options.md"/>
         <toc-element toc-title="Configure JSON serialization">
             <toc-element topic="serialization-configure-json-serialization.md" toc-title="Overview"/>
             <toc-element topic="serialization-json-configuration.md"/>
