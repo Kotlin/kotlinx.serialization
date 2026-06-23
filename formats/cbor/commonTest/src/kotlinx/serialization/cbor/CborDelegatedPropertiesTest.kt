@@ -20,7 +20,7 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.assertIs
 
 class CborDelegatedPropertiesTest {
 
@@ -157,7 +157,29 @@ class CborDelegatedPropertiesTest {
         val label: Long?,
         val keyTags: ULongArray = ulongArrayOf(),
         val valueTags: ULongArray = ulongArrayOf(),
-    )
+    ) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as FieldSpec
+
+            if (label != other.label) return false
+            if (name != other.name) return false
+            if (!keyTags.contentEquals(other.keyTags)) return false
+            if (!valueTags.contentEquals(other.valueTags)) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = label.hashCode()
+            result = 31 * result + name.hashCode()
+            result = 31 * result + keyTags.contentHashCode()
+            result = 31 * result + valueTags.contentHashCode()
+            return result
+        }
+    }
 
     private object MapBackedPersonSerializer : KSerializer<MapBackedPerson> {
         override val descriptor: SerialDescriptor = buildClassSerialDescriptor("MapBackedPerson")
@@ -228,7 +250,7 @@ class CborDelegatedPropertiesTest {
             person.put("country", CborString("AT"))
         }
         val element = cbor.encodeToCborElement(MapBackedPersonSerializer, value)
-        assertTrue(element is CborMap)
+        assertIs<CborMap>(element)
         val decoded = cbor.decodeFromCborElement(MapBackedPersonSerializer, element)
         assertEquals(value, decoded)
         assertEquals("female", decoded.gender)
@@ -244,7 +266,7 @@ class CborDelegatedPropertiesTest {
         }
 
         val element = cbor.encodeToCborElement(MapBackedPersonSerializer, value)
-        assertTrue(element is CborMap)
+        assertIs<CborMap>(element)
         assertEquals(CborString("Ada"), element.getValue(NAME_LABEL))
         assertEquals(CborInteger(42), element.getValue(AGE_LABEL))
         assertEquals(CborString("female"), element.getValue(GENDER_LABEL))
@@ -256,6 +278,6 @@ class CborDelegatedPropertiesTest {
         assertEquals(42, decoded.age)
         assertEquals("female", decoded.gender)
         assertEquals(CborString("AT"), decoded.backing["country"])
-        assertTrue(decoded.backing["name"] is CborString)
+        assertIs<CborString>(decoded.backing["name"])
     }
 }

@@ -1,3 +1,6 @@
+/*
+ * Copyright 2017-2026 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
 @file:OptIn(ExperimentalSerializationApi::class, ExperimentalUnsignedTypes::class)
 
 package kotlinx.serialization.cbor.internal
@@ -74,10 +77,10 @@ internal class UnsignedInlineDecoder(
                 integer.absoluteValue.toLong()
             }
 
-            is CborParserImpl -> {
+            is StreamingCborParser -> {
                 parser.processTags(tags)
                 val header = parser.curByte
-                if ((header and MAJOR_TYPE_MASK) != HEADER_POSITIVE.toInt()) {
+                if ((header and MAJOR_TYPE_MASK) != HEADER_POSITIVE) {
                     throw CborDecodingException("unsigned integer", header)
                 }
                 parser.nextULong(null).toLong()

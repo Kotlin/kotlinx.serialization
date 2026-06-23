@@ -1,5 +1,5 @@
 @file:Suppress("unused")
-@file:OptIn(ExperimentalUnsignedTypes::class, DelicateCborApi::class, ExperimentalSerializationApi::class)
+@file:OptIn(ExperimentalUnsignedTypes::class, DelicateCborApi::class)
 
 package kotlinx.serialization.cbor
 
@@ -20,6 +20,7 @@ internal val EMPTY_TAGS: ULongArray = ULongArray(0)
  *
  * The whole hierarchy is [serializable][Serializable] only by [Cbor] format.
  */
+@ExperimentalSerializationApi
 @Serializable(with = CborElementSerializer::class)
 public sealed class CborElement(
     /**
@@ -63,6 +64,7 @@ public sealed class CborElement(
  * Class representing CBOR primitive value.
  * CBOR primitives include numbers, strings, booleans, byte arrays and special null value [CborNull].
  */
+@ExperimentalSerializationApi
 @Serializable(with = CborPrimitiveSerializer::class)
 public sealed class CborPrimitive(
     tags: ULongArray = EMPTY_TAGS
@@ -75,6 +77,7 @@ public sealed class CborPrimitive(
  *
  * depending on the value of [isPositive]. Note that [absoluteValue] **must not be** `0` when [isPositive] is set to `false`.
  */
+@ExperimentalSerializationApi
 @Serializable(with = CborIntSerializer::class)
 public class CborInteger(
     public val absoluteValue: ULong,
@@ -122,7 +125,7 @@ public class CborInteger(
  * depending on whether a positive or a negative number was passed.
  * If you want to create a negative number exceeding [Long.MIN_VALUE], manually specify sign: `CborInt(ULong.MAX_VALUE, isPositive = false)`.
  */
-@Suppress("FunctionName")
+@ExperimentalSerializationApi
 public fun CborInteger(value: Long, vararg tags: ULong): CborInteger =
     if (value >= 0L) CborInteger(value.toULong(), isPositive = true, tags = tags)
     else CborInteger(ULong.MAX_VALUE - value.toULong() + 1uL, isPositive = false, tags = tags)
@@ -130,19 +133,21 @@ public fun CborInteger(value: Long, vararg tags: ULong): CborInteger =
 /**
  * Creates an unsigned CBOR integer (major type 0).
  */
-@Suppress("FunctionName")
+@ExperimentalSerializationApi
 public fun CborInteger(value: ULong, vararg tags: ULong): CborInteger =
     CborInteger(value, isPositive = true, tags = tags)
 
 /**
  * Converts this integer to [Long], throwing if it cannot be represented as [Long].
  */
+@ExperimentalSerializationApi
 public val CborInteger.long: Long
     get() = longOrNull ?: throw ArithmeticException("$this cannot be represented as Long")
 
 /**
  * Converts this integer to [Long], or returns `null` if it cannot be represented as [Long].
  */
+@ExperimentalSerializationApi
 public val CborInteger.longOrNull: Long?
     get() {
         val max = Long.MAX_VALUE.toULong()
@@ -160,12 +165,14 @@ public val CborInteger.longOrNull: Long?
 /**
  * Converts this integer to [Int], throwing if it cannot be represented as [Int].
  */
+@ExperimentalSerializationApi
 public val CborInteger.int: Int
     get() = intOrNull ?: throw ArithmeticException("$this cannot be represented as Int")
 
 /**
  * Converts this integer to [Int], or returns `null` if it cannot be represented as [Int].
  */
+@ExperimentalSerializationApi
 public val CborInteger.intOrNull: Int?
     get() {
         val longValue = longOrNull ?: return null
@@ -176,12 +183,14 @@ public val CborInteger.intOrNull: Int?
 /**
  * Converts this integer to [Short], throwing if it cannot be represented as [Short].
  */
+@ExperimentalSerializationApi
 public val CborInteger.short: Short
     get() = shortOrNull ?: throw ArithmeticException("$this cannot be represented as Short")
 
 /**
  * Converts this integer to [Short], or returns `null` if it cannot be represented as [Short].
  */
+@ExperimentalSerializationApi
 public val CborInteger.shortOrNull: Short?
     get() {
         val longValue = longOrNull ?: return null
@@ -192,12 +201,14 @@ public val CborInteger.shortOrNull: Short?
 /**
  * Converts this integer to [Byte], throwing if it cannot be represented as [Byte].
  */
+@ExperimentalSerializationApi
 public val CborInteger.byte: Byte
     get() = byteOrNull ?: throw ArithmeticException("$this cannot be represented as Byte")
 
 /**
  * Converts this integer to [Byte], or returns `null` if it cannot be represented as [Byte].
  */
+@ExperimentalSerializationApi
 public val CborInteger.byteOrNull: Byte?
     get() {
         val longValue = longOrNull ?: return null
@@ -208,6 +219,7 @@ public val CborInteger.byteOrNull: Byte?
 /**
  * Class representing CBOR floating point value (major type 7).
  */
+@ExperimentalSerializationApi
 @Serializable(with = CborFloatSerializer::class)
 public class CborFloat(
     public val value: Double,
@@ -233,6 +245,7 @@ public class CborFloat(
 /**
  * Class representing CBOR string value.
  */
+@ExperimentalSerializationApi
 @Serializable(with = CborStringSerializer::class)
 public class CborString(
     public val value: String,
@@ -258,6 +271,7 @@ public class CborString(
 /**
  * Class representing CBOR boolean value.
  */
+@ExperimentalSerializationApi
 @Serializable(with = CborBooleanSerializer::class)
 public class CborBoolean(
     public val value: Boolean,
@@ -295,6 +309,7 @@ public class CborBoolean(
 /**
  * Class representing CBOR byte string value.
  */
+@ExperimentalSerializationApi
 @Serializable(with = CborByteStringSerializer::class)
 public class CborByteString(
     bytes: ByteArray,
@@ -337,6 +352,7 @@ public class CborByteString(
 /**
  * Class representing CBOR `null` value
  */
+@ExperimentalSerializationApi
 @Serializable(with = CborNullSerializer::class)
 public class CborNull(vararg tags: ULong) : CborPrimitive(tags) {
 
@@ -358,6 +374,7 @@ public class CborNull(vararg tags: ULong) : CborPrimitive(tags) {
 /**
  * Class representing CBOR `undefined` value
  */
+@ExperimentalSerializationApi
 @Serializable(with = CborUndefinedSerializer::class)
 public class CborUndefined(vararg tags: ULong) : CborPrimitive(tags) {
 
@@ -382,6 +399,7 @@ public class CborUndefined(vararg tags: ULong) : CborPrimitive(tags) {
  * Since this class also implements [Map] interface, you can use
  * traditional methods like [Map.get] or [Map.getValue] to obtain CBOR elements.
  */
+@ExperimentalSerializationApi
 @Serializable(with = CborMapSerializer::class)
 public class CborMap(
     private val content: Map<CborElement, CborElement>,
@@ -442,6 +460,7 @@ public class CborMap(
  * Since this class also implements [List] interface, you can use
  * traditional methods like [List.get] or [List.size] to obtain CBOR elements.
  */
+@ExperimentalSerializationApi
 @Serializable(with = CborArraySerializer::class)
 public class CborArray(
     private val content: List<CborElement>,
@@ -469,7 +488,7 @@ public class CborArray(
 /**
  * Creates a copy of this [CborPrimitive] with the specified [tags], discarding any existing tags.
  */
-@OptIn(ExperimentalSerializationApi::class)
+@ExperimentalSerializationApi
 @Suppress("UNCHECKED_CAST")
 public fun <T : CborElement> T.copy(vararg tags: ULong): T =
     when (this) {
@@ -487,62 +506,80 @@ public fun <T : CborElement> T.copy(vararg tags: ULong): T =
 /**
  * Creates a copy of this [CborPrimitive] with the specified [tags], discarding any existing tags.
  */
-@OptIn(ExperimentalSerializationApi::class)
+@ExperimentalSerializationApi
 public fun <T : CborPrimitive> T.copy(tags: List<ULong>): T = copy(*tags.toULongArray())
 
 
 /*START BOOLEAN*/
 /** Creates copy of this [CborBoolean] with the specified [value], copying all tags.*/
+@ExperimentalSerializationApi
 public fun CborBoolean.copy(value: Boolean): CborBoolean = CborBoolean(value, *(rawTags.copyOf()))
 /** Creates copy of this [CborBoolean] with the specified [value] and [tags].*/
+@ExperimentalSerializationApi
 public fun CborBoolean.copy(value: Boolean, vararg tags: ULong): CborBoolean = CborBoolean(value, *tags)
 /** Creates copy of this [CborBoolean] with the specified [value] and [tags].*/
+@ExperimentalSerializationApi
 public fun CborBoolean.copy(value: Boolean, tags: List<ULong>): CborBoolean = copy(value, *tags.toULongArray())
 /*END BOOLEAN*/
 
 /*START INTEGER*/
 /** Creates copy of this [CborInteger] with the specified [value], copying all tags.*/
+@ExperimentalSerializationApi
 public fun CborInteger.copy(value: Long): CborInteger = CborInteger(value, *(rawTags.copyOf()))
 /** Creates copy of this [CborInteger] with the specified [value] and [tags].*/
+@ExperimentalSerializationApi
 public fun CborInteger.copy(value: Long, vararg tags: ULong): CborInteger = CborInteger(value, *tags)
 /** Creates copy of this [CborInteger] with the specified [value] and [tags].*/
+@ExperimentalSerializationApi
 public fun CborInteger.copy(value: Long, tags: List<ULong>): CborInteger = copy(value, *tags.toULongArray())
 
 /** Creates copy of this [CborInteger] with the specified [absoluteValue] and [isPositive], copying all tags.*/
+@ExperimentalSerializationApi
 public fun CborInteger.copy(absoluteValue: ULong, isPositive: Boolean): CborInteger =
     CborInteger(absoluteValue, isPositive, *(rawTags.copyOf()))
 /** Creates copy of this [CborInteger] with the specified [absoluteValue], [isPositive] and [tags].*/
+@ExperimentalSerializationApi
 public fun CborInteger.copy(absoluteValue: ULong, isPositive: Boolean, vararg tags: ULong): CborInteger =
     CborInteger(absoluteValue, isPositive, *tags)
 /** Creates copy of this [CborInteger] with the specified [absoluteValue], [isPositive] and [tags].*/
+@ExperimentalSerializationApi
 public fun CborInteger.copy(absoluteValue: ULong, isPositive: Boolean, tags: List<ULong>): CborInteger =
     copy(absoluteValue, isPositive, *tags.toULongArray())
 /*END INTEGER*/
 
 /*START FLOAT*/
 /** Creates copy of this [CborFloat] with the specified [value], copying all tags.*/
+@ExperimentalSerializationApi
 public fun CborFloat.copy(value: Double): CborFloat = CborFloat(value, *(rawTags.copyOf()))
 /** Creates copy of this [CborFloat] with the specified [value] and [tags].*/
+@ExperimentalSerializationApi
 public fun CborFloat.copy(value: Double, vararg tags: ULong): CborFloat = CborFloat(value, *tags)
 /** Creates copy of this [CborFloat] with the specified [value] and [tags].*/
+@ExperimentalSerializationApi
 public fun CborFloat.copy(value: Double, tags: List<ULong>): CborFloat = copy(value, *tags.toULongArray())
 /*END FLOAT*/
 
 /*START STRING*/
 /** Creates copy of this [CborString] with the specified [value], copying all tags.*/
+@ExperimentalSerializationApi
 public fun CborString.copy(value: String): CborString = CborString(value, *(rawTags.copyOf()))
 /** Creates copy of this [CborString] with the specified [value] and [tags].*/
+@ExperimentalSerializationApi
 public fun CborString.copy(value: String, vararg tags: ULong): CborString = CborString(value, *tags)
 /** Creates copy of this [CborString] with the specified [value] and [tags].*/
+@ExperimentalSerializationApi
 public fun CborString.copy(value: String, tags: List<ULong>): CborString = copy(value, *tags.toULongArray())
 /*END STRING*/
 
 /*START BYTE STRING*/
 /** Creates copy of this [CborByteString] with the specified [bytes], copying all tags.*/
+@ExperimentalSerializationApi
 public fun CborByteString.copy(bytes: ByteArray): CborByteString = CborByteString(bytes, *(rawTags.copyOf()))
 /** Creates copy of this [CborByteString] with the specified [bytes] and [tags].*/
+@ExperimentalSerializationApi
 public fun CborByteString.copy(bytes: ByteArray, vararg tags: ULong): CborByteString = CborByteString(bytes, *tags)
 /** Creates copy of this [CborByteString] with the specified [bytes] and [tags].*/
+@ExperimentalSerializationApi
 public fun CborByteString.copy(bytes: ByteArray, tags: List<ULong>): CborByteString =
     copy(bytes, *tags.toULongArray())
 /*END BYTE STRING*/
@@ -550,39 +587,48 @@ public fun CborByteString.copy(bytes: ByteArray, tags: List<ULong>): CborByteStr
 
 /*START MAP*/
 /** Creates copy of this [CborMap] with the specified [content], copying all tags.*/
+@ExperimentalSerializationApi
 public fun CborMap.copy(content: Map<CborElement, CborElement>): CborMap = CborMap(content, *(rawTags.copyOf()))
 /** Creates copy of this [CborMap] with the specified [content] and [tags].*/
+@ExperimentalSerializationApi
 public fun CborMap.copy(content: Map<CborElement, CborElement>, vararg tags: ULong): CborMap = CborMap(content, *tags)
 /** Creates copy of this [CborMap] with the specified [content] and [tags].*/
+@ExperimentalSerializationApi
 public fun CborMap.copy(content: Map<CborElement, CborElement>, tags: List<ULong>): CborMap =
     copy(content, *tags.toULongArray())
 
 /** Creates copy of this [CborMap] with the specified [content], copying all tags.*/
+@ExperimentalSerializationApi
 @JvmName("copyStringMap")
 public fun CborMap.copy(content: Map<String, CborElement>): CborMap =
     CborMap(content.mapKeys { (k, _) -> CborString(k) }, *(rawTags.copyOf()))
 
 /** Creates copy of this [CborMap] with the specified [content] and [tags].*/
+@ExperimentalSerializationApi
 @JvmName("copyStringMapVarargs")
 public fun CborMap.copy(content: Map<String, CborElement>, vararg tags: ULong): CborMap =
     CborMap(content.mapKeys { (k, _) -> CborString(k) }, *tags)
 
 /** Creates copy of this [CborMap] with the specified [content] and [tags].*/
+@ExperimentalSerializationApi
 @JvmName("copyStringMapList")
 public fun CborMap.copy(content: Map<String, CborElement>, tags: List<ULong>): CborMap =
     copy(content, *tags.toULongArray())
 
 /** Creates copy of this [CborMap] with the specified [content], copying all tags.*/
+@ExperimentalSerializationApi
 @JvmName("copyLongMap")
 public fun CborMap.copy(content: Map<Long, CborElement>): CborMap =
     CborMap(content.mapKeys { (k, _) -> CborInteger(k) }, *(rawTags.copyOf()))
 
 /** Creates copy of this [CborMap] with the specified [content] and [tags].*/
+@ExperimentalSerializationApi
 @JvmName("copyLongMapVarargs")
 public fun CborMap.copy(content: Map<Long, CborElement>, vararg tags: ULong): CborMap =
     CborMap(content.mapKeys { (k, _) -> CborInteger(k) }, *tags)
 
 /** Creates copy of this [CborMap] with the specified [content] and [tags].*/
+@ExperimentalSerializationApi
 @JvmName("copyLongMapList")
 public fun CborMap.copy(content: Map<Long, CborElement>, tags: List<ULong>): CborMap =
     copy(content, *tags.toULongArray())
@@ -591,18 +637,24 @@ public fun CborMap.copy(content: Map<Long, CborElement>, tags: List<ULong>): Cbo
 
 /*START ARRAY*/
 /** Creates copy of this [CborArray] with the specified [content], copying all tags.*/
+@ExperimentalSerializationApi
 public fun CborArray.copy(content: List<CborElement>): CborArray = CborArray(content, *(rawTags.copyOf()))
 /** Creates copy of this [CborArray] with the specified [content] and [tags].*/
+@ExperimentalSerializationApi
 public fun CborArray.copy(content: List<CborElement>, vararg tags: ULong): CborArray = CborArray(content, *tags)
 /** Creates copy of this [CborArray] with the specified [content] and [tags].*/
+@ExperimentalSerializationApi
 public fun CborArray.copy(content: List<CborElement>, tags: List<ULong>): CborArray =
     copy(content, *tags.toULongArray())
 
 /** Creates copy of this [CborArray] with the specified [content], copying all tags.*/
+@ExperimentalSerializationApi
 public fun CborArray.copy(content: Array<CborElement>): CborArray = CborArray(content, *(rawTags.copyOf()))
 /** Creates copy of this [CborArray] with the specified [content] and [tags].*/
+@ExperimentalSerializationApi
 public fun CborArray.copy(content: Array<CborElement>, vararg tags: ULong): CborArray = CborArray(content, *tags)
 /** Creates copy of this [CborArray] with the specified [content] and [tags].*/
+@ExperimentalSerializationApi
 public fun CborArray.copy(content: Array<CborElement>, tags: List<ULong>): CborArray =
     copy(content, *tags.toULongArray())
 /*END ARRAY*/

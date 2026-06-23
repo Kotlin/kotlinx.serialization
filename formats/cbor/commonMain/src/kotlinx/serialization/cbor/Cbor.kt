@@ -86,7 +86,7 @@ public sealed class Cbor(
 
     override fun <T> decodeFromByteArray(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T {
         val stream = ByteArrayInput(bytes)
-        val reader = CborReader(this, CborParserImpl(stream, configuration.verifyObjectTags))
+        val reader = CborReader(this, StreamingCborParser(stream, configuration.verifyObjectTags))
         val result = reader.decodeSerializableValue(deserializer)
         if (stream.availableBytes > 0) {
             throw CborDecodingException(

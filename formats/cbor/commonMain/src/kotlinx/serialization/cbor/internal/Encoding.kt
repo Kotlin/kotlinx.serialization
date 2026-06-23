@@ -30,11 +30,12 @@ internal const val ADDITIONAL_INFO_MASK: Int = 0b000_11111
 
 internal const val HEADER_BYTE_STRING: Int = 0b010_00000
 internal const val HEADER_STRING: Int = 0b011_00000
-internal const val HEADER_POSITIVE: Byte = 0b000_00000
-internal const val HEADER_NEGATIVE: Byte = 0b001_00000
+internal const val HEADER_POSITIVE: Int = 0b000_00000
+internal const val HEADER_NEGATIVE: Int = 0b001_00000
 internal const val HEADER_ARRAY: Int = 0b100_00000
 internal const val HEADER_MAP: Int = 0b101_00000
 internal const val HEADER_TAG: Int = 0b110_00000
+internal const val HEADER_SIMPLE: Int = 0b111_00000
 
 /** Value to represent an indefinite length CBOR item within a "length stack". */
 internal const val LENGTH_STACK_INDEFINITE = -1
@@ -60,21 +61,16 @@ internal fun SerialDescriptor.isInlineByteString(): Boolean {
     return isInline && isByteString(0)
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 internal fun SerialDescriptor.getValueTags(index: Int): ULongArray? = findAnnotation<ValueTags>(index)?.tags
 
-@OptIn(ExperimentalSerializationApi::class)
 internal fun SerialDescriptor.getKeyTags(index: Int): ULongArray? = findAnnotation<KeyTags>(index)?.tags
 
-@OptIn(ExperimentalSerializationApi::class)
 internal fun SerialDescriptor.getCborLabel(index: Int): Long? = findAnnotation<CborLabel>(index)?.label
 
-@OptIn(ExperimentalSerializationApi::class)
 internal fun SerialDescriptor.hasArrayTag(): Boolean {
     return annotations.any { it is CborObjectAsArray }
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 internal inline fun <reified A : Annotation> SerialDescriptor.findAnnotation(elementIndex: Int): A? =
     getElementAnnotations(elementIndex).firstOrNull { it is A } as A?
 

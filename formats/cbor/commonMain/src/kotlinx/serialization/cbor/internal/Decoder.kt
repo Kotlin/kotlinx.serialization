@@ -17,7 +17,7 @@ internal open class CborReader(override val cbor: Cbor, internal val parser: Cbo
 
     override fun decodeCborElement(): CborElement =
         when (parser) {
-            is CborParserImpl -> CborTreeReader(cbor.configuration, parser).read()
+            is StreamingCborParser -> CborTreeReader(cbor.configuration, parser).read()
             is StructuredCborParser -> parser.layer.current
         }
 
@@ -54,7 +54,6 @@ internal open class CborReader(override val cbor: Cbor, internal val parser: Cbo
 
     protected open fun skipBeginToken(objectTags: ULongArray?) = setSize(parser.startMap(objectTags))
 
-    @OptIn(ExperimentalSerializationApi::class)
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
         val re = if (descriptor.hasArrayTag()) {
             CborArrayReader(cbor, parser)
@@ -209,7 +208,10 @@ internal open class CborReader(override val cbor: Cbor, internal val parser: Cbo
 
 }
 
-internal class CborParserImpl(private val input: ByteArrayInput, private val verifyObjectTags: Boolean) : CborParser {
+/**
+ * Parses CBOR data items from a CBOR-encoded byte sequence.
+ */
+internal class StreamingCborParser(private val input: ByteArrayInput, private val verifyObjectTags: Boolean) : CborParser {
     private var curByteOrEof: Int = -1
 
     internal val curByte: Int
@@ -376,7 +378,7 @@ internal class CborParserImpl(private val input: ByteArrayInput, private val ver
                     // the expected tags. (yes this could co somewhere else, but putting it here groups the code nicely
                     // into if-else branches.
                     if ((collectedTags.size < it.size) || (collectedTags.subList(0, it.size) != it.asList())) {
-                        throw CborDecodingException("CBOR tags $collectedTags do not start with specified tags $it")
+                        throw CborDecodingException("CBOR tags $collectedTags do not start with specified tags ${it.contentToString()}")
                     }
                 }
             }
@@ -437,10 +439,10 @@ internal class CborParserImpl(private val input: ByteArrayInput, private val ver
     private fun readNumber(): Long {
         val headerByte = peekCurByteOrFail()
         val majorType = headerByte and MAJOR_TYPE_MASK
-        if (majorType != HEADER_NEGATIVE.toInt() && majorType != HEADER_POSITIVE.toInt()) {
+        if (majorType != HEADER_NEGATIVE && majorType != HEADER_POSITIVE) {
             throw CborDecodingException("an unsigned or negative integer", headerByte)
         }
-        val negative = majorType == HEADER_NEGATIVE.toInt()
+        val negative = majorType == HEADER_NEGATIVE
         val unsignedValue = readUnsignedIntegerIgnoringMajorType { majorType.majorTypeName }
         return if (negative) -(unsignedValue + 1) else unsignedValue
     }
@@ -700,8 +702,8 @@ private val Int.majorTypeName: String
         HEADER_ARRAY -> "array"
         HEADER_MAP -> "map"
         HEADER_TAG -> "tag"
-        HEADER_POSITIVE.toInt() -> "unsigned integer"
-        HEADER_NEGATIVE.toInt() -> "negative integer"
+        HEADER_POSITIVE -> "unsigned integer"
+        HEADER_NEGATIVE -> "negative integer"
         else -> "<unknown>"
     }
 
@@ -747,7 +749,8 @@ internal class PeekingIterator private constructor(
 }
 
 /**
- * CBOR parser that operates on [CborElement] instead of bytes. Closely mirrors the behaviour of [CborParserImpl], so the
+ * CBOR parser that operates on [CborElement] instead of bytes.
+ * Closely mirrors the behaviour of [StreamingCborParser], so the
  * [CborDecoder] can remain largely unchanged.
  */
 internal class StructuredCborParser(internal val element: CborElement, private val verifyObjectTags: Boolean) :
@@ -991,13 +994,11 @@ private fun floatFromHalfBits(bits: Short): Float {
 }
 
 
-@OptIn(ExperimentalSerializationApi::class)
 private fun SerialDescriptor.getElementNameForCborLabel(label: Long): String? {
     return elementNames.firstOrNull { getCborLabel(getElementIndex(it)) == label }
 }
 
 
-@OptIn(ExperimentalSerializationApi::class)
 private fun SerialDescriptor.getElementIndexOrThrow(name: String): Int {
     val index = getElementIndex(name)
     if (index == CompositeDecoder.UNKNOWN_NAME)
