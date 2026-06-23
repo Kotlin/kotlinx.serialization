@@ -257,11 +257,9 @@ fun main() {
 ```
 {kotlin-runnable="true" id="serialize-set"}
 
-> By default, you can deserialize sets with duplicate entries.
+> By default, you can deserialize sets with duplicate entries. The behavior for handling duplicates is implementation-defined.
 > 
 {style="tip"}
-
-<!-- The behavior for handling duplicates is implementation-defined. -->
 
 #### Serialize maps
 
