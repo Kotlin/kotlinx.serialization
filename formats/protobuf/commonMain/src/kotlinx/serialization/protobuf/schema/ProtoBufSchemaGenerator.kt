@@ -180,7 +180,7 @@ public object ProtoBufSchemaGenerator {
         usedNumbers: MutableSet<Int>,
         counts: Int = parentType.descriptor.elementsCount,
         getAnnotations: (Int) -> List<Annotation> = { parentType.descriptor.getElementAnnotations(it) },
-        getChildType: (Int) -> TypeDefinition = { parentType.descriptor.getElementDescriptor(it).flatInlineClasses().let(::TypeDefinition) },
+        getChildType: (Int) -> TypeDefinition = { parentType.descriptor.getElementDescriptor(it).let(::TypeDefinition) },
         getChildNumber: (Int) -> Int = { parentType.descriptor.getElementAnnotations(it).filterIsInstance<ProtoNumber>().singleOrNull()?.number ?: (it + 1) },
         getChildName: (Int) -> String = { parentType.descriptor.getElementName(it) },
         inOneOfStruct: Boolean = false,
@@ -193,8 +193,7 @@ public object ProtoBufSchemaGenerator {
                     "name '${messageDescriptor.serialName}'"
             }
 
-            val fieldType = getChildType(index)
-            val fieldDescriptor = fieldType.descriptor
+            val fieldDescriptor = getChildType(index).descriptor.flatInlineClasses()
 
             val number = getChildNumber(index)
             if (messageDescriptor.isChildOneOfMessage(index)) {
@@ -214,7 +213,7 @@ public object ProtoBufSchemaGenerator {
                         usedNumbers = usedNumbers,
                         counts = desc.elementsCount,
                         getAnnotations = { desc.annotations },
-                        getChildType = { desc.elementDescriptors.single().flatInlineClasses().let(::TypeDefinition) },
+                        getChildType = { desc.elementDescriptors.single().let(::TypeDefinition) },
                         getChildNumber = { desc.getElementAnnotations(0).filterIsInstance<ProtoNumber>().singleOrNull()?.number ?: (it + 1) },
                         getChildName = { desc.getElementName(0) },
                         inOneOfStruct = true,
@@ -228,7 +227,7 @@ public object ProtoBufSchemaGenerator {
 
                 nestedTypes += when {
                     fieldDescriptor.isProtobufNamedType -> generateNamedType(
-                        fieldDescriptor = messageDescriptor.getElementDescriptor(index),
+                        fieldDescriptor = messageDescriptor.getElementDescriptor(index).flatInlineClasses(),
                         annotations = messageDescriptor.getElementAnnotations(index),
                         isSealedPolymorphic = messageDescriptor.isSealedPolymorphic && index == 1,
                         isOptional = messageDescriptor.isElementOptional(index),
@@ -253,7 +252,7 @@ public object ProtoBufSchemaGenerator {
                 when {
                     !isPackRequested ||
                         !isList || // ignore as packed only meaningful on repeated types
-                        !fieldDescriptor.getElementDescriptor(0).isPackable // Ignore if the type is not allowed to be packed
+                        !fieldDescriptor.collectionElement.isPackable // Ignore if the type is not allowed to be packed
                     -> appendLine(';')
 
                     else -> appendLine(" [packed=true];")
@@ -270,31 +269,29 @@ public object ProtoBufSchemaGenerator {
         inOneOfStruct: Boolean = false,
         indent: Int = 1,
     ): List<TypeDefinition> {
-        val unwrappedFieldDescriptor = fieldDescriptor.flatInlineClasses()
-
         val nestedTypes: List<TypeDefinition>
         val typeName: String = when {
             isSealedPolymorphic -> {
                 append(" ".repeat(indent * 2)).appendLine("// decoded as message with one of these types:")
-                nestedTypes = unwrappedFieldDescriptor.elementDescriptors.map { TypeDefinition(it) }.toList()
+                nestedTypes = fieldDescriptor.elementDescriptors.map { TypeDefinition(it) }.toList()
                 nestedTypes.forEachIndexed { _, childType ->
                     append(" ".repeat(indent * 2)).append("//   message ").append(childType.descriptor.messageOrEnumName).append(", serial name '")
                         .append(removeLineBreaks(childType.descriptor.serialName)).appendLine('\'')
                 }
-                unwrappedFieldDescriptor.scalarTypeName()
+                fieldDescriptor.scalarTypeName()
             }
-            unwrappedFieldDescriptor.isProtobufScalar -> {
+            fieldDescriptor.isProtobufScalar -> {
                 nestedTypes = emptyList()
-                unwrappedFieldDescriptor.scalarTypeName(annotations)
+                fieldDescriptor.scalarTypeName(annotations)
             }
-            unwrappedFieldDescriptor.isOpenPolymorphic -> {
+            fieldDescriptor.isOpenPolymorphic -> {
                 nestedTypes = listOf(SyntheticPolymorphicType)
                 SyntheticPolymorphicType.descriptor.serialName
             }
             else -> {
                 // enum or regular message
-                nestedTypes = listOf(TypeDefinition(unwrappedFieldDescriptor))
-                unwrappedFieldDescriptor.messageOrEnumName
+                nestedTypes = listOf(TypeDefinition(fieldDescriptor))
+                fieldDescriptor.messageOrEnumName
             }
         }
 
@@ -317,7 +314,7 @@ public object ProtoBufSchemaGenerator {
     private fun StringBuilder.generateMapType(messageType: TypeDefinition, index: Int): List<TypeDefinition> {
         val messageDescriptor = messageType.descriptor
         val mapDescriptor = messageDescriptor.getElementDescriptor(index)
-        val originalMapValueDescriptor = mapDescriptor.getElementDescriptor(1)
+        val originalMapValueDescriptor = mapDescriptor.mapValue
         val valueType = if (originalMapValueDescriptor.isProtobufCollection) {
             createNestedCollectionType(messageType, index, originalMapValueDescriptor, "nested collection in map value")
         } else {
@@ -330,7 +327,7 @@ public object ProtoBufSchemaGenerator {
         }
         generateCollectionAbsenceComment(messageDescriptor, mapDescriptor, index)
 
-        val keyTypeName = mapDescriptor.getElementDescriptor(0).scalarTypeName(mapDescriptor.getElementAnnotations(0))
+        val keyTypeName = mapDescriptor.mapKey.scalarTypeName(mapDescriptor.getElementAnnotations(0))
         val valueTypeName = valueDescriptor.protobufTypeName(mapDescriptor.getElementAnnotations(1))
         append("  map<").append(keyTypeName).append(", ").append(valueTypeName).append(">")
 
@@ -344,7 +341,7 @@ public object ProtoBufSchemaGenerator {
     private fun StringBuilder.generateListType(messageType: TypeDefinition, index: Int): List<TypeDefinition> {
         val messageDescriptor = messageType.descriptor
         val collectionDescriptor = messageDescriptor.getElementDescriptor(index)
-        val originalElementDescriptor = collectionDescriptor.getElementDescriptor(0).flatInlineClasses()
+        val originalElementDescriptor = collectionDescriptor.collectionElement
         val elementType = if (collectionDescriptor.kind == StructureKind.LIST) {
             if (originalElementDescriptor.isProtobufCollection) {
                 createNestedCollectionType(messageType, index, originalElementDescriptor, "nested collection in list")
@@ -424,7 +421,7 @@ public object ProtoBufSchemaGenerator {
 
     private val SerialDescriptor.isProtobufScalar: Boolean
         get() = (kind is PrimitiveKind)
-                || (kind is StructureKind.LIST && getElementDescriptor(0).kind === PrimitiveKind.BYTE)
+                || (kind is StructureKind.LIST && collectionElement.kind === PrimitiveKind.BYTE)
                 || kind == SerialKind.CONTEXTUAL
 
     private val SerialDescriptor.isProtobufMessageOrEnum: Boolean
@@ -437,11 +434,11 @@ public object ProtoBufSchemaGenerator {
         get() = isProtobufRepeated || isProtobufMap
 
     private val SerialDescriptor.isProtobufRepeated: Boolean
-        get() = (kind == StructureKind.LIST && getElementDescriptor(0).kind != PrimitiveKind.BYTE)
-                || (kind == StructureKind.MAP && !getElementDescriptor(0).isValidMapKey)
+        get() = (kind == StructureKind.LIST && mapKey.kind != PrimitiveKind.BYTE)
+                || (kind == StructureKind.MAP && !mapKey.isValidMapKey)
 
     private val SerialDescriptor.isProtobufMap: Boolean
-        get() = kind == StructureKind.MAP && getElementDescriptor(0).isValidMapKey
+        get() = kind == StructureKind.MAP && mapKey.isValidMapKey
 
     private val SerialDescriptor.isProtobufEnum: Boolean
         get() = kind == SerialKind.ENUM
@@ -474,7 +471,7 @@ public object ProtoBufSchemaGenerator {
             return "bytes"
         }
 
-        if (kind is StructureKind.LIST && getElementDescriptor(0).kind == PrimitiveKind.BYTE) {
+        if (kind is StructureKind.LIST && collectionElement.kind == PrimitiveKind.BYTE) {
             return "bytes"
         }
 
@@ -518,11 +515,9 @@ public object ProtoBufSchemaGenerator {
         "polymorphic types"
     )
 
-    private class NotNullSerialDescriptor(val original: SerialDescriptor) : SerialDescriptor by original {
-        override val isNullable = false
-    }
+    private class NullableSerialDescriptor(val original: SerialDescriptor, override val isNullable: Boolean) : SerialDescriptor by original
 
-    private val SerialDescriptor.notNull get() = NotNullSerialDescriptor(this)
+    private val SerialDescriptor.notNull get() = NullableSerialDescriptor(this, false)
 
     private fun StringBuilder.generateCollectionAbsenceComment(
         messageDescriptor: SerialDescriptor,
@@ -550,8 +545,8 @@ public object ProtoBufSchemaGenerator {
 
         val wrapperName = "${messageName}_${fieldName}"
         val wrapperDescriptor = buildClassSerialDescriptor(wrapperName) {
-            element("key", fieldDescriptor.getElementDescriptor(0).notNull)
-            element("value", fieldDescriptor.getElementDescriptor(1).notNull)
+            element("key", fieldDescriptor.mapKey.notNull)
+            element("value", fieldDescriptor.mapValue.notNull)
         }
 
         return TypeDefinition(
@@ -591,12 +586,25 @@ public object ProtoBufSchemaGenerator {
         return text.replace('\n', ' ').replace('\r', ' ')
     }
 
+    private val SerialDescriptor.collectionElement: SerialDescriptor
+        get() = getElementDescriptor(0).flatInlineClasses()
+
+    private val SerialDescriptor.mapKey: SerialDescriptor
+        get() = getElementDescriptor(0).flatInlineClasses()
+
+    private val SerialDescriptor.mapValue: SerialDescriptor
+        get() = getElementDescriptor(1).flatInlineClasses()
+
     private fun SerialDescriptor.flatInlineClasses(): SerialDescriptor {
+        var isNullable = isNullable
         var flat = this
         while (flat.isInline) {
             flat = flat.getElementDescriptor(0)
+            isNullable = isNullable || flat.isNullable
         }
-        return flat
+
+        // target nullability is the aggregation of all flatten inline classes nullability
+        return NullableSerialDescriptor(flat, isNullable)
     }
 
     private val IDENTIFIER_REGEX = Regex("[A-Za-z][A-Za-z0-9_]*")
