@@ -48,7 +48,7 @@ internal enum class ProtoWireType(val typeId: Int) {
 internal const val ID_HOLDER_ONE_OF = -2
 internal const val ID_HOLDER_UNKNOWN_FIELDS = -3
 
-internal const val INDEX_NOT_EXISTSED = -1
+internal const val INDEX_NOT_EXISTED = -1
 
 private const val UNKNOWN_FIELD_MASK = 1L shl 37
 private const val ONEOFMASK = 1L shl 36

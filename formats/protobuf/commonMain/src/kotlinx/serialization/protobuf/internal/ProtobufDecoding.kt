@@ -32,7 +32,7 @@ internal open class ProtobufDecoder(
     // These kind of elements in certain index may refer to different proto id in runtime.
     private var index2IdMap: MutableMap<Int, Int>? = null
 
-    private var unknownHolderIndex: Int = INDEX_NOT_EXISTSED
+    private var unknownHolderIndex: Int = INDEX_NOT_EXISTED
 
     private var nullValue: Boolean = false
     private val elementMarker = ElementMarker(descriptor, ::readIfAbsent)
@@ -55,7 +55,7 @@ internal open class ProtobufDecoder(
              * Initialize all elements, because there will always be one extra element as arrays are numbered from 0
              * but in protobuf field number starts from 1.
              */
-            val cache = IntArray(elements + 1) { INDEX_NOT_EXISTSED }
+            val cache = IntArray(elements + 1) { INDEX_NOT_EXISTED }
             for (i in 0 until elements) {
                 val protoId = extractProtoId(descriptor, i, false)
                 // If any element is marked as ProtoOneOf or Unknown field holder,
@@ -87,7 +87,7 @@ internal open class ProtobufDecoder(
                     mapSize ++
                 }
                 ID_HOLDER_UNKNOWN_FIELDS -> {
-                    require(unknownHolderIndex == INDEX_NOT_EXISTSED) {
+                    require(unknownHolderIndex == INDEX_NOT_EXISTED) {
                         "Only one unknown fields holder is allowed in a message, but get ${descriptor.getElementName(i)} and ${descriptor.getElementName(unknownHolderIndex)}"
                     }
                     mapSize ++
@@ -111,7 +111,7 @@ internal open class ProtobufDecoder(
     private fun getIndexByNum(protoNum: Int): Int {
         val array = indexCache
         if (array != null) {
-            return array.getOrElse(protoNum) { INDEX_NOT_EXISTSED }
+            return array.getOrElse(protoNum) { INDEX_NOT_EXISTED }
         }
         return getIndexByNumSlowPath(protoNum)
     }
@@ -335,7 +335,7 @@ internal open class ProtobufDecoder(
                     throw SerializationException("0 is not allowed as the protobuf field number in ${descriptor.serialName}, the input bytes may have been corrupted")
                 }
                 val index = getIndexByNum(protoId)
-                if (index == INDEX_NOT_EXISTSED) { // not found
+                if (index == INDEX_NOT_EXISTED) { // not found
                     reader.skipElement()
                 } else {
                     val tag = descriptor.extractParameters(index)
