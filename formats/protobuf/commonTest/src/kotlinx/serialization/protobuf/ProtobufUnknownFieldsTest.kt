@@ -493,4 +493,19 @@ class ProtobufUnknownFieldsTest {
             EmbeddedMessageData.serializer()
         )
     }
+
+    @Test
+    fun testDeserializeUnknownHolderDirectly() {
+        val data = BuildData(
+            42,
+            "42",
+            byteArrayOf(42, 42, 42),
+            listOf(42, 42, 42),
+            InnerData("42", 42, listOf("42", "42", "42"))
+        )
+        val byte = ProtoBuf.encodeToByteArray(data)
+        assertFailsWith<IllegalArgumentException> {
+            ProtoBuf.decodeFromByteArray<ProtoUnknownFieldHolder>(byte)
+        }
+    }
 }

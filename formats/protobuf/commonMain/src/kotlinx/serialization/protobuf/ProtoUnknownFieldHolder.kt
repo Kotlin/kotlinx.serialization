@@ -8,9 +8,10 @@ import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.internal.*
 
 /**
- * Represents a protobuf message.
+ * Represents a thin wrapper over fields in a protobuf message.
  *
- * Especially used as a holder of unknown proto fields in an arbitrary protobuf message.
+ * Used to store unknown proto fields in a concrete class,
+ * but do not deserialize byte array to this type directly.
  */
 @Serializable(with = ProtoUnknownFieldHolderSerializer::class)
 public class ProtoUnknownFieldHolder internal constructor(
