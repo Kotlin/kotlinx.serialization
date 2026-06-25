@@ -88,7 +88,7 @@ internal open class ProtobufDecoder(
                 }
                 ID_HOLDER_UNKNOWN_FIELDS -> {
                     require(unknownHolderIndex == INDEX_NOT_EXISTED) {
-                        "Only one unknown fields holder is allowed in a message, but get ${descriptor.getElementName(i)} and ${descriptor.getElementName(unknownHolderIndex)}"
+                        "Only one unknown fields holder is allowed in a message, but two properties have ProtoUnknownFieldHolder type: ${descriptor.getElementName(i)} and ${descriptor.getElementName(unknownHolderIndex)}"
                     }
                     mapSize ++
                     unknownHolderIndex = i

@@ -103,7 +103,7 @@ class ProtobufUnknownFieldsTest {
         val data = BuildData(42, "42", byteArrayOf(42), listOf(42), InnerData("42", 42, listOf("42")))
         val encoded = ProtoBuf.encodeToHexString(BuildData.serializer(), data)
         assertFailsWithMessage<IllegalArgumentException>(
-            "Only one unknown fields holder is allowed in a message, but get unknownFields2 and unknownFields"
+            "Only one unknown fields holder is allowed in a message, but two properties have ProtoUnknownFieldHolder type: unknownFields2 and unknownFields"
         ) {
             ProtoBuf.decodeFromHexString(DataWithMultipleUnknownFields.serializer(), encoded)
         }
