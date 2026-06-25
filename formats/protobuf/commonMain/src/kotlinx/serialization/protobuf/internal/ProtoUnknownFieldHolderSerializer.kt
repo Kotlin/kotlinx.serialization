@@ -11,8 +11,7 @@ import kotlinx.serialization.encoding.*
 import kotlinx.serialization.protobuf.*
 
 internal object ProtoUnknownFieldHolderSerializer : KSerializer<ProtoUnknownFieldHolder> {
-    override val descriptor: SerialDescriptor
-        get() = UnknownFieldsDescriptor(ByteArraySerializer().descriptor)
+    override val descriptor: SerialDescriptor = UnknownFieldsDescriptor(ByteArraySerializer().descriptor)
 
     override fun deserialize(decoder: Decoder): ProtoUnknownFieldHolder {
         if (decoder is ProtobufDecoder) {
