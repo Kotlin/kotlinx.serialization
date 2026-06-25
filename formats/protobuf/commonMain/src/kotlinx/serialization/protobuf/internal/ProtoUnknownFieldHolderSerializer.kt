@@ -35,7 +35,7 @@ internal object ProtoUnknownFieldHolderSerializer : KSerializer<ProtoUnknownFiel
  * from [decoder]. The [currentTag] provides the proto id for the unknown field.
  */
 internal fun readRawFieldBytes(decoder: ProtobufDecoder, currentTag: ProtoDesc): ByteArray {
-    if (currentTag == MISSING_TAG) return ByteArray(0)
+    if (currentTag == MISSING_TAG) throw IllegalStateException("No valid proto tag while reading raw field bytes.")
     val id = currentTag.protoId
     val wireType = decoder.currentType
     val valueBytes = decoder.decodeRawElement()
@@ -62,7 +62,7 @@ internal fun readRawFieldBytes(compositeDecoder: CompositeDecoder): ByteArray {
     if (compositeDecoder is ProtobufDecoder) {
         return readRawFieldBytes(compositeDecoder, compositeDecoder.currentTag)
     }
-    return ByteArray(0)
+    throw ClassCastException("Calling readRawFieldBytes is supported only for ProtobufDecoder")
 }
 
 internal class UnknownFieldsDescriptor(private val original: SerialDescriptor) : SerialDescriptor by original {
