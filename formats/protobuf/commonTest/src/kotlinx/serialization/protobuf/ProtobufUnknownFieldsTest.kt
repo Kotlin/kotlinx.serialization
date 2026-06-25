@@ -224,12 +224,6 @@ class ProtobufUnknownFieldsTest {
     }
 
     @Serializable
-    data class DataWithWrongTypeUnknownFields(
-        val a: Int,
-        val unknownFields: Map<Int, ByteArray>,
-    )
-
-    @Serializable
     data class DataWithNullableUnknownFields(
         @ProtoNumber(1) val a: Int,
         val unknownFields: ProtoUnknownFieldHolder? = null
@@ -268,10 +262,6 @@ class ProtobufUnknownFieldsTest {
             @ProtoNumber(1) val a: String
         ) : OneOf
 
-        @Serializable
-        data class B(
-            @ProtoNumber(2) val b: Long
-        ) : OneOf
     }
 
     @Test
