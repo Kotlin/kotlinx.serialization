@@ -24,7 +24,9 @@ internal object ProtoUnknownFieldHolderSerializer : KSerializer<ProtoUnknownFiel
 
     override fun serialize(encoder: Encoder, value: ProtoUnknownFieldHolder) {
         if (encoder is ProtobufEncoder) {
-            encoder.writeRawBytes(value.fields)
+            value.fields.forEach { field ->
+                encoder.writeRawBytes(field)
+            }
         }
     }
 }

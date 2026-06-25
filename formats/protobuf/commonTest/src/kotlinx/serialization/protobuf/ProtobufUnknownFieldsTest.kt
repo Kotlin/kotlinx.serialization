@@ -270,7 +270,7 @@ class ProtobufUnknownFieldsTest {
         val encoded = ProtoBuf.encodeToHexString(present)
         val decoded = ProtoBuf.decodeFromHexString(TestFewerOneOf.serializer(), encoded)
         assertEquals(OneOf.A("test"), decoded.oneOf)
-        assertEquals(0, decoded.unknownFields.size)
+        assertEquals(0, decoded.unknownFields.contentSize)
 
         val absent = ToBuildOneOf(c = InnerData("test", 42, listOf("test")))
         val encoded2 = ProtoBuf.encodeToHexString(absent)
@@ -501,5 +501,23 @@ class ProtobufUnknownFieldsTest {
         assertFailsWith<IllegalArgumentException> {
             ProtoBuf.decodeFromByteArray<ProtoUnknownFieldHolder>(byte)
         }
+    }
+
+    @Serializable
+    data class ManyFieldData(val a: Int, val b: Int = 0, val c: Int = 0, val d: Int = 0)
+
+    @Test
+    fun testUnknownFieldCount() {
+        val data1 = ManyFieldData(1, 1)
+        assertEquals(1, convertToDataWithUnknownFields(data1).unknownFields.size)
+        val data2 = ManyFieldData(1, 1, 1)
+        assertEquals(2, convertToDataWithUnknownFields(data2).unknownFields.size)
+        val data3 = ManyFieldData(1, 1, 1, 1)
+        assertEquals(3, convertToDataWithUnknownFields(data3).unknownFields.size)
+    }
+
+    private inline fun <reified T> convertToDataWithUnknownFields(data: T): DataWithUnknownFields {
+        val b = ProtoBuf.encodeToByteArray(data)
+        return ProtoBuf.decodeFromByteArray(b)
     }
 }
