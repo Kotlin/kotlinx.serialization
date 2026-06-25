@@ -9,7 +9,7 @@ import kotlin.jvm.JvmInline
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class InlinedClassesTest {
+class InlinedClassesSchemaTest {
     @Serializable
     class SimpleClass
 
@@ -21,6 +21,14 @@ class InlinedClassesTest {
     @Serializable
     value class WrappedUInt(val i: UInt)
 
+
+    @JvmInline
+    @Serializable
+    value class DeepWrappedUInt(val wrapped: WrappedUInt)
+
+    @Serializable
+    class DeepWrappedUIntHolder(val x: DeepWrappedUInt)
+
     @Serializable
     class SingleHolder(val uint: List<WrappedUInt>, val simple: List<WrappedSimpleClass>)
 
@@ -29,13 +37,13 @@ class InlinedClassesTest {
 
 
     @Serializable
-    class DeepMapHolder(val uint: List<Map<List<WrappedUInt>, WrappedSimpleClass>>, val simple: List<Map<List<WrappedSimpleClass>, WrappedUInt>>)
+    class NestedGenericMapHolder(val uint: List<Map<List<WrappedUInt>, WrappedSimpleClass>>, val simple: List<Map<List<WrappedSimpleClass>, WrappedUInt>>)
 
     @Serializable
     class ProtobufMapHolder(val uint: Map<WrappedUInt, WrappedSimpleClass>, val simple: Map<WrappedSimpleClass, WrappedUInt>, val long: Map<Long, WrappedUInt>)
 
     @Serializable
-    class DoubleHolder(val uint: List<List<WrappedUInt>>, val simple: List<List<WrappedSimpleClass>>)
+    class NestedGenericsHolder(val uint: List<List<WrappedUInt>>, val simple: List<List<WrappedSimpleClass>>)
 
     @Serializable
     class OptionalHolder(val uint: WrappedUInt? = null, val simple: WrappedSimpleClass? = null)
@@ -44,11 +52,12 @@ class InlinedClassesTest {
     fun testInlined() {
         val generated = ProtoBufSchemaGenerator.generateSchemaText(listOf(
             SingleHolder.serializer().descriptor,
-            DoubleHolder.serializer().descriptor,
+            NestedGenericsHolder.serializer().descriptor,
             MapHolder.serializer().descriptor,
-            DeepMapHolder.serializer().descriptor,
+            NestedGenericMapHolder.serializer().descriptor,
             ProtobufMapHolder.serializer().descriptor,
             OptionalHolder.serializer().descriptor,
+            DeepWrappedUIntHolder.serializer().descriptor
         ))
 
         assertEquals(SCHEMA_TEXT, generated)
@@ -59,38 +68,38 @@ class InlinedClassesTest {
         syntax = "proto2";
 
 
-        // serial name 'kotlinx.serialization.protobuf.schema.InlinedClassesTest.SingleHolder'
+        // serial name 'kotlinx.serialization.protobuf.schema.InlinedClassesSchemaTest.SingleHolder'
         message SingleHolder {
           repeated int32 uint = 1;
           repeated SimpleClass simple = 2;
         }
 
-        // serial name 'kotlinx.serialization.protobuf.schema.InlinedClassesTest.DoubleHolder'
-        message DoubleHolder {
-          repeated DoubleHolder_uint uint = 1;
-          repeated DoubleHolder_simple simple = 2;
+        // serial name 'kotlinx.serialization.protobuf.schema.InlinedClassesSchemaTest.NestedGenericsHolder'
+        message NestedGenericsHolder {
+          repeated NestedGenericsHolder_uint uint = 1;
+          repeated NestedGenericsHolder_simple simple = 2;
         }
 
-        // serial name 'kotlinx.serialization.protobuf.schema.InlinedClassesTest.MapHolder'
+        // serial name 'kotlinx.serialization.protobuf.schema.InlinedClassesSchemaTest.MapHolder'
         message MapHolder {
           map<int32, SimpleClass> uint = 1;
           repeated MapHolder_simple simple = 2;
         }
 
-        // serial name 'kotlinx.serialization.protobuf.schema.InlinedClassesTest.DeepMapHolder'
-        message DeepMapHolder {
-          repeated DeepMapHolder_uint uint = 1;
-          repeated DeepMapHolder_simple simple = 2;
+        // serial name 'kotlinx.serialization.protobuf.schema.InlinedClassesSchemaTest.NestedGenericMapHolder'
+        message NestedGenericMapHolder {
+          repeated NestedGenericMapHolder_uint uint = 1;
+          repeated NestedGenericMapHolder_simple simple = 2;
         }
 
-        // serial name 'kotlinx.serialization.protobuf.schema.InlinedClassesTest.ProtobufMapHolder'
+        // serial name 'kotlinx.serialization.protobuf.schema.InlinedClassesSchemaTest.ProtobufMapHolder'
         message ProtobufMapHolder {
           map<int32, SimpleClass> uint = 1;
           repeated ProtobufMapHolder_simple simple = 2;
           map<int64, int32> long = 3;
         }
 
-        // serial name 'kotlinx.serialization.protobuf.schema.InlinedClassesTest.OptionalHolder'
+        // serial name 'kotlinx.serialization.protobuf.schema.InlinedClassesSchemaTest.OptionalHolder'
         message OptionalHolder {
           // WARNING: a default value decoded when value is missing
           optional int32 uint = 1;
@@ -98,19 +107,24 @@ class InlinedClassesTest {
           optional SimpleClass simple = 2;
         }
 
-        // serial name 'kotlinx.serialization.protobuf.schema.InlinedClassesTest.SimpleClass'
+        // serial name 'kotlinx.serialization.protobuf.schema.InlinedClassesSchemaTest.DeepWrappedUIntHolder'
+        message DeepWrappedUIntHolder {
+          required int32 x = 1;
+        }
+
+        // serial name 'kotlinx.serialization.protobuf.schema.InlinedClassesSchemaTest.SimpleClass'
         message SimpleClass {
         }
 
         // This message was generated to support nested collection in list and does not present in Kotlin.
-        // Containing message 'DoubleHolder', field 'uint'
-        message DoubleHolder_uint {
+        // Containing message 'NestedGenericsHolder', field 'uint'
+        message NestedGenericsHolder_uint {
           repeated int32 value = 1;
         }
 
         // This message was generated to support nested collection in list and does not present in Kotlin.
-        // Containing message 'DoubleHolder', field 'simple'
-        message DoubleHolder_simple {
+        // Containing message 'NestedGenericsHolder', field 'simple'
+        message NestedGenericsHolder_simple {
           repeated SimpleClass value = 1;
         }
 
@@ -122,15 +136,15 @@ class InlinedClassesTest {
         }
 
         // This message was generated to support nested collection in list and does not present in Kotlin.
-        // Containing message 'DeepMapHolder', field 'uint'
-        message DeepMapHolder_uint {
-          repeated DeepMapHolder_uint_value value = 1;
+        // Containing message 'NestedGenericMapHolder', field 'uint'
+        message NestedGenericMapHolder_uint {
+          repeated NestedGenericMapHolder_uint_value value = 1;
         }
 
         // This message was generated to support nested collection in list and does not present in Kotlin.
-        // Containing message 'DeepMapHolder', field 'simple'
-        message DeepMapHolder_simple {
-          repeated DeepMapHolder_simple_value value = 1;
+        // Containing message 'NestedGenericMapHolder', field 'simple'
+        message NestedGenericMapHolder_simple {
+          repeated NestedGenericMapHolder_simple_value value = 1;
         }
 
         // This message was generated to support legacy map and does not present in Kotlin.
@@ -141,15 +155,15 @@ class InlinedClassesTest {
         }
 
         // This message was generated to support legacy map and does not present in Kotlin.
-        // Containing message 'DeepMapHolder', field 'uint'
-        message DeepMapHolder_uint_value {
+        // Containing message 'NestedGenericMapHolder', field 'uint'
+        message NestedGenericMapHolder_uint_value {
           repeated int32 key = 1;
           required SimpleClass value = 2;
         }
 
         // This message was generated to support legacy map and does not present in Kotlin.
-        // Containing message 'DeepMapHolder', field 'simple'
-        message DeepMapHolder_simple_value {
+        // Containing message 'NestedGenericMapHolder', field 'simple'
+        message NestedGenericMapHolder_simple_value {
           repeated SimpleClass key = 1;
           required int32 value = 2;
         }
