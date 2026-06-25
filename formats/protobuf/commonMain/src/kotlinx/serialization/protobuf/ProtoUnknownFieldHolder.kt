@@ -53,5 +53,9 @@ public class ProtoUnknownFieldHolder internal constructor(
 
         return fields.contentEquals(other.fields)
     }
+
+    override fun toString(): String {
+        return "ProtoUnknownFieldHolder(size=$size)"
+    }
 }
 
