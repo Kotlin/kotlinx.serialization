@@ -7,6 +7,7 @@ package kotlinx.serialization.protobuf
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
+import kotlinx.serialization.test.isJvm
 import kotlin.test.*
 
 class ProtobufUnknownFieldsTest {
@@ -409,12 +410,15 @@ class ProtobufUnknownFieldsTest {
     @Test
     fun testUnknownFloat() {
         assertUnknownFieldRoundTrip(FloatData(1, 0.0f), FloatData.serializer())
-        assertUnknownFieldRoundTrip(FloatData(1, -1.0f), FloatData.serializer())
-        assertUnknownFieldRoundTrip(FloatData(1, Float.MIN_VALUE), FloatData.serializer())
-        assertUnknownFieldRoundTrip(FloatData(1, Float.MAX_VALUE), FloatData.serializer())
-        assertUnknownFieldRoundTrip(FloatData(1, Float.NaN), FloatData.serializer())
-        assertUnknownFieldRoundTrip(FloatData(1, Float.POSITIVE_INFINITY), FloatData.serializer())
-        assertUnknownFieldRoundTrip(FloatData(1, Float.NEGATIVE_INFINITY), FloatData.serializer())
+        assertUnknownFieldRoundTrip(FloatData(2, -1.0f), FloatData.serializer())
+        if (isJvm()) {
+            // Only test special float value in jvm like how Json format do
+            assertUnknownFieldRoundTrip(FloatData(3, Float.MIN_VALUE), FloatData.serializer())
+            assertUnknownFieldRoundTrip(FloatData(4, Float.MAX_VALUE), FloatData.serializer())
+            assertUnknownFieldRoundTrip(FloatData(5, Float.NaN), FloatData.serializer())
+            assertUnknownFieldRoundTrip(FloatData(6, Float.POSITIVE_INFINITY), FloatData.serializer())
+            assertUnknownFieldRoundTrip(FloatData(7, Float.NEGATIVE_INFINITY), FloatData.serializer())
+        }
     }
 
     // -- i64 wire type (fixed64) --
