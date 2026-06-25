@@ -143,7 +143,7 @@ internal open class ProtobufEncoder(
         serializer is MapLikeSerializer<*, *, *, *> -> {
             serializeMap(serializer as SerializationStrategy<T>, value)
         }
-        serializer == ProtoUnknownFieldHolderSerializer -> {
+        serializer.descriptor == ProtoUnknownFieldHolderSerializer.descriptor -> {
             serializeUnknownFields(serializer as ProtoUnknownFieldHolderSerializer, value as ProtoUnknownFieldHolder)
         }
         serializer.descriptor == ByteArraySerializer().descriptor -> serializeByteArray(value as ByteArray)

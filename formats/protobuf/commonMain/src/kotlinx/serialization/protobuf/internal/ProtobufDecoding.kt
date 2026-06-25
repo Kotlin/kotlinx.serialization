@@ -270,7 +270,7 @@ internal open class ProtobufDecoder(
             deserializer.descriptor == UByteArraySerializer().descriptor -> deserializeByteArray((previousValue as UByteArray?)?.asByteArray()).asUByteArray() as T
             deserializer is AbstractCollectionSerializer<*, *, *> ->
                 (deserializer as AbstractCollectionSerializer<*, T, *>).merge(this, previousValue)
-            deserializer == ProtoUnknownFieldHolderSerializer -> {
+            deserializer.descriptor == ProtoUnknownFieldHolderSerializer.descriptor -> {
                 decodeUnknownFields(previousValue as? ProtoUnknownFieldHolder) as T
             }
 
