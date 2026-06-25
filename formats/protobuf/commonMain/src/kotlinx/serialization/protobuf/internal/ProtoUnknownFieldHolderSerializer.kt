@@ -11,7 +11,10 @@ import kotlinx.serialization.encoding.*
 import kotlinx.serialization.protobuf.*
 
 internal object ProtoUnknownFieldHolderSerializer : KSerializer<ProtoUnknownFieldHolder> {
-    override val descriptor: SerialDescriptor = UnknownFieldsDescriptor(ByteArraySerializer().descriptor)
+    override val descriptor: SerialDescriptor = SerialDescriptor(
+        "kotlinx.serialization.protobuf.ProtoUnknownFieldHolder",
+        ByteArraySerializer().descriptor,
+    )
 
     override fun deserialize(decoder: Decoder): ProtoUnknownFieldHolder {
         if (decoder is ProtobufDecoder) {
@@ -47,9 +50,11 @@ internal fun readRawFieldBytes(decoder: ProtobufDecoder, currentTag: ProtoDesc):
         ProtoWireType.VARINT, ProtoWireType.i64, ProtoWireType.i32 -> {
             writer.writeRawBytes(valueBytes, wireType.wireIntWithTag(id))
         }
+
         ProtoWireType.SIZE_DELIMITED -> {
             writer.writeBytes(valueBytes, id)
         }
+
         ProtoWireType.INVALID -> {}
     }
     return output.toByteArray()
@@ -64,17 +69,4 @@ internal fun readRawFieldBytes(compositeDecoder: CompositeDecoder): ByteArray {
         return readRawFieldBytes(compositeDecoder, compositeDecoder.currentTag)
     }
     throw ClassCastException("Calling readRawFieldBytes is supported only for ProtobufDecoder")
-}
-
-internal class UnknownFieldsDescriptor(private val original: SerialDescriptor) : SerialDescriptor by original {
-    override val serialName: String
-        get() = "UnknownProtoFieldsHolder[${original.serialName}]"
-
-    override fun equals(other: Any?): Boolean {
-        return other is UnknownFieldsDescriptor && other.original == original
-    }
-
-    override fun hashCode(): Int {
-        return original.hashCode()
-    }
 }
