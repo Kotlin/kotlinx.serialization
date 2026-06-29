@@ -19,3 +19,15 @@ val Project.overriddenLanguageVersion : String?
 
 val Project.teamcityInteractionEnabled : Boolean
     get() = !hasProperty("no_teamcity_interaction") && !hasProperty("build_snapshot_up")
+
+// Property so cli-compiler-options can reference it
+const val KOTLIN_ADDITIONAL_CLI_OPTIONS_PROPERTY = "kotlin_additional_cli_options"
+
+val Project.isKotlinUserProjectsBuild: Boolean
+    get() = providers.gradleProperty(KOTLIN_ADDITIONAL_CLI_OPTIONS_PROPERTY).isPresent
+
+fun Project.disabledInAggregateBuild(configure: () -> Unit) {
+    if (!isKotlinUserProjectsBuild) {
+        configure()
+    }
+}

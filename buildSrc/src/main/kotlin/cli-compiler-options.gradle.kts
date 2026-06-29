@@ -15,7 +15,7 @@ import kotlin.collections.joinToString
  */
 
 // Used only for User Projects TeamCity configurations, no IDE there
-val kotlinAdditionalCliOptions = providers.gradleProperty("kotlin_additional_cli_options")
+val kotlinAdditionalCliOptions = providers.gradleProperty(KOTLIN_ADDITIONAL_CLI_OPTIONS_PROPERTY)
     .orNull?.let { options ->
         options.removeSurrounding("\"").split(" ").filter { it.isNotBlank() }
     }

@@ -23,36 +23,42 @@ kotlin {
     // Tier 2
     linuxX64()
     linuxArm64()
-    watchosSimulatorArm64()
+    disabledInAggregateBuild {
+        watchosSimulatorArm64()
+    }
     watchosArm32()
     watchosArm64()
-    tvosSimulatorArm64()
+    disabledInAggregateBuild {
+        tvosSimulatorArm64()
+    }
     tvosArm64()
     iosArm64()
 
-    // Tier 3
-    mingwX64()
-    iosX64()
-    watchosDeviceArm64()
-    // https://github.com/square/okio/issues/1242#issuecomment-1759357336
-    if (doesNotDependOnOkio(project)) {
-        androidNativeArm32()
-        androidNativeArm64()
-        androidNativeX86()
-        androidNativeX64()
+    disabledInAggregateBuild {
+        // Tier 3
+        mingwX64()
+        iosX64()
+        watchosDeviceArm64()
+        // https://github.com/square/okio/issues/1242#issuecomment-1759357336
+        if (doesNotDependOnOkio(project)) {
+            androidNativeArm32()
+            androidNativeArm64()
+            androidNativeX86()
+            androidNativeX64()
 
-        // Deprecated, but not removed
-        @Suppress("DEPRECATION")
-        linuxArm32Hfp()
+            // Deprecated, but not removed
+            @Suppress("DEPRECATION")
+            linuxArm32Hfp()
+        }
+
+        // Deprecated
+        @Suppress("DEPRECATION", "DEPRECATION_ERROR")
+        macosX64()
+        @Suppress("DEPRECATION", "DEPRECATION_ERROR")
+        watchosX64()
+        @Suppress("DEPRECATION", "DEPRECATION_ERROR")
+        tvosX64()
     }
-
-    // Deprecated
-    @Suppress("DEPRECATION", "DEPRECATION_ERROR")
-    macosX64()
-    @Suppress("DEPRECATION", "DEPRECATION_ERROR")
-    watchosX64()
-    @Suppress("DEPRECATION", "DEPRECATION_ERROR")
-    tvosX64()
 
     // setup tests running in RELEASE mode
     targets.withType<KotlinNativeTarget>().configureEach {
