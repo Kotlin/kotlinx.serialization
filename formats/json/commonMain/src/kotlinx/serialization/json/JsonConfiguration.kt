@@ -29,7 +29,6 @@ public class JsonConfiguration @OptIn(ExperimentalSerializationApi::class) inter
     public val classDiscriminator: String = "type",
     public val allowSpecialFloatingPointValues: Boolean = false,
     public val useAlternativeNames: Boolean = true,
-    @ExperimentalSerializationApi
     public val namingStrategy: JsonNamingStrategy? = null,
     public val decodeEnumsCaseInsensitive: Boolean = false,
     public val allowTrailingComma: Boolean = false,
