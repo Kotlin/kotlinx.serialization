@@ -99,7 +99,6 @@ public fun serializer(type: KType): KSerializer<Any?> = EmptySerializersModule()
  * @throws SerializationException if [kClass] is a `kotlin.Array`
  * @throws SerializationException if size of [typeArgumentsSerializers] does not match the expected generic parameters count
  */
-@ExperimentalSerializationApi
 public fun serializer(
     kClass: KClass<*>,
     typeArgumentsSerializers: List<KSerializer<*>>,
@@ -177,7 +176,6 @@ public fun SerializersModule.serializer(type: KType): KSerializer<Any?> =
  * @throws SerializationException if [kClass] is a `kotlin.Array`
  * @throws SerializationException if size of [typeArgumentsSerializers] does not match the expected generic parameters count
  */
-@ExperimentalSerializationApi
 public fun SerializersModule.serializer(
     kClass: KClass<*>,
     typeArgumentsSerializers: List<KSerializer<*>>,
