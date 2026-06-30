@@ -150,7 +150,6 @@ public class JsonArrayBuilder @PublishedApi internal constructor() {
      * @return `true` if the list was changed as the result of the operation.
      */
     @IgnorableReturnValue
-    @ExperimentalSerializationApi
     public fun addAll(elements: Collection<JsonElement>): Boolean =
         content.addAll(elements)
 
@@ -216,7 +215,6 @@ public fun JsonArrayBuilder.addJsonArray(builderAction: JsonArrayBuilder.() -> U
  */
 @IgnorableReturnValue
 @JvmName("addAllStrings")
-@ExperimentalSerializationApi
 public fun JsonArrayBuilder.addAll(values: Collection<String?>): Boolean =
     addAll(values.map(::JsonPrimitive))
 
@@ -227,7 +225,6 @@ public fun JsonArrayBuilder.addAll(values: Collection<String?>): Boolean =
  */
 @IgnorableReturnValue
 @JvmName("addAllBooleans")
-@ExperimentalSerializationApi
 public fun JsonArrayBuilder.addAll(values: Collection<Boolean?>): Boolean =
     addAll(values.map(::JsonPrimitive))
 
@@ -238,7 +235,6 @@ public fun JsonArrayBuilder.addAll(values: Collection<Boolean?>): Boolean =
  */
 @IgnorableReturnValue
 @JvmName("addAllNumbers")
-@ExperimentalSerializationApi
 public fun JsonArrayBuilder.addAll(values: Collection<Number?>): Boolean =
     addAll(values.map(::JsonPrimitive))
 

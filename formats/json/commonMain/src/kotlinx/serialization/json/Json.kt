@@ -560,7 +560,6 @@ public class JsonBuilder internal constructor(json: Json) {
      *
      * This strategy is applied for all entities that have [StructureKind.CLASS].
      */
-    @ExperimentalSerializationApi
     public var namingStrategy: JsonNamingStrategy? = json.configuration.namingStrategy
 
     /**

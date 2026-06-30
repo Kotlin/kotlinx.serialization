@@ -344,7 +344,6 @@ public annotation class Polymorphic
  *
  * A compiler version `2.0.20` or higher is required.
  */
-@ExperimentalSerializationApi
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 public annotation class KeepGeneratedSerializer

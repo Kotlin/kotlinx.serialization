@@ -37,8 +37,14 @@ import kotlin.reflect.*
  * If type of the property marked with `@Contextual` is `@Serializable` by itself, the plugin-generated serializer is
  * used as a fallback if no serializers associated with a given type is registered in the module.
  * The fallback serializer is determined by the static type of the property, not by its actual type.
+ *
+ * @param serializableClass A class this serializer is intended for. Used to look up a runtime-defined serializer in a [SerializersModule].
+ * @param fallbackSerializer Serializer to use if no serializer associated with a given type is registered in the [SerializersModule].
+ * @param typeArgumentsSerializers If [serializableClass] is a parameterized type, this array should contain serializers for its type arguments.
+ *
+ * @see SerializersModule.getContextual
+ * @see SerializersModuleBuilder.contextual
  */
-@ExperimentalSerializationApi
 public class ContextualSerializer<T : Any>(
     private val serializableClass: KClass<T>,
     private val fallbackSerializer: KSerializer<T>?,
