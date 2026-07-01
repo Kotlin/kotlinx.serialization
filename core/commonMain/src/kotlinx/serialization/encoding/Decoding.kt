@@ -261,7 +261,7 @@ public interface Decoder {
      * Decodes the nullable value of type [T] by delegating the decoding process to the given [deserializer].
      */
     @ExperimentalSerializationApi
-    public fun <T : Any> decodeNullableSerializableValue(deserializer: DeserializationStrategy<T?>): T? = decodeIfNullable(deserializer) {
+    public fun <T : Any> decodeNullableSerializableValue(deserializer: DeserializationStrategy<T>): T? = decodeIfNullable(deserializer) {
         decodeSerializableValue(deserializer)
     }
 }
@@ -556,7 +556,7 @@ public interface CompositeDecoder {
     public fun <T : Any> decodeNullableSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
-        deserializer: DeserializationStrategy<T?>,
+        deserializer: DeserializationStrategy<T>,
         previousValue: T? = null
     ): T?
 }

@@ -84,7 +84,7 @@ internal abstract class ProtobufTaggedDecoder : ProtobufTaggedBase(), Decoder, C
     final override fun <T : Any> decodeNullableSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
-        deserializer: DeserializationStrategy<T?>,
+        deserializer: DeserializationStrategy<T>,
         previousValue: T?
     ): T? = tagBlock(descriptor.getTag(index)) {
         if (decodeNotNullMark()) {

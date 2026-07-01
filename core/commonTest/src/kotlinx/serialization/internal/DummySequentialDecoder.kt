@@ -61,5 +61,5 @@ class DummySequentialDecoder(
 
     override fun decodeInlineElement(descriptor: SerialDescriptor, index: Int): Decoder = notImplemented()
     override fun <T : Any?> decodeSerializableElement(descriptor: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T>, previousValue: T?): T = decodeSerializableValue(deserializer)
-    override fun <T : Any> decodeNullableSerializableElement(descriptor: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T?>, previousValue: T?): T? = notImplemented()
+    override fun <T : Any> decodeNullableSerializableElement(descriptor: SerialDescriptor, index: Int, deserializer: DeserializationStrategy<T>, previousValue: T?): T? = notImplemented()
 }

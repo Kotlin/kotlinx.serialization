@@ -282,7 +282,7 @@ public abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
     final override fun <T : Any> decodeNullableSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
-        deserializer: DeserializationStrategy<T?>,
+        deserializer: DeserializationStrategy<T>,
         previousValue: T?
     ): T? = tagBlock(descriptor.getTag(index)) {
         decodeIfNullable(deserializer) {

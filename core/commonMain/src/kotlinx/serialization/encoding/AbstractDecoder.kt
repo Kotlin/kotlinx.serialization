@@ -72,7 +72,7 @@ public abstract class AbstractDecoder : Decoder, CompositeDecoder {
     final override fun <T : Any> decodeNullableSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
-        deserializer: DeserializationStrategy<T?>,
+        deserializer: DeserializationStrategy<T>,
         previousValue: T?
     ): T? = decodeIfNullable(deserializer) {
         decodeSerializableValue(deserializer, previousValue)
