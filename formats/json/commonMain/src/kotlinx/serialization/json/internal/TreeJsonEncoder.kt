@@ -35,6 +35,9 @@ private sealed class AbstractJsonTreeEncoder(
 
     private var polymorphicDiscriminator: String? = null
     private var polymorphicSerialName: String? = null
+
+    // The discriminator written into this encoder's object, if any. Used by
+    // @JsonExtraKeys write-back to detect key collisions with the discriminator.
     internal var activeDiscriminator: String? = null
 
     override fun elementName(descriptor: SerialDescriptor, index: Int): String =
@@ -233,12 +236,23 @@ private open class JsonTreeEncoder(
         content[key] = element
     }
 
+    // State for @JsonExtraKeys write-back. Unlike the streaming encoder, a tree
+    // encoder instance corresponds to exactly one JSON object, so no
+    // save/restore stack is needed.
+    private var pendingExtraKeys: Map<String, JsonElement>? = null
+    private var pendingBucketDescriptor: SerialDescriptor? = null
+
     override fun <T : Any> encodeNullableSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
         serializer: SerializationStrategy<T>,
         value: T?
     ) {
+        if (isExtraKeysBucket(descriptor, index)) {
+            @Suppress("UNCHECKED_CAST")
+            stashExtraKeys(descriptor, value as Map<String, JsonElement>?)
+            return
+        }
         if (value != null || configuration.explicitNulls) {
             super.encodeNullableSerializableElement(descriptor, index, serializer, value)
         }
@@ -250,76 +264,52 @@ private open class JsonTreeEncoder(
         serializer: SerializationStrategy<T>,
         value: T
     ) {
-        // Bucket-spread only applies in CLASS mode. The descriptor-validation
-        // in JsonNamesMap.kt already filters out non-class descriptors, but
-        // the explicit kind check documents intent and is robust to future
-        // loosening of that validation. The check also stops the override
-        // firing for JsonTreeMapEncoder, which inherits this method.
-        if (descriptor.kind != StructureKind.CLASS || extraKeysIndexFor(descriptor) != index) {
-            super.encodeSerializableElement(descriptor, index, serializer, value)
+        if (isExtraKeysBucket(descriptor, index)) {
+            @Suppress("UNCHECKED_CAST")
+            stashExtraKeys(descriptor, value as Map<String, JsonElement>)
             return
         }
-        // Drive the user's MapSerializer through a wrapper that converts each
-        // value to a JsonElement via writeJson and merges it into this tree
-        // encoder's content map. Works for arbitrary V.
-        val wrapper = JsonExtraKeysSpreadingTreeEncoder(this, descriptor, activeDiscriminator, json)
-        serializer.serialize(wrapper, value)
+        super.encodeSerializableElement(descriptor, index, serializer, value)
     }
 
-    override fun getCurrent(): JsonElement = JsonObject(content)
-}
+    // The @JsonExtraKeys bucket is not written as a regular property: it is
+    // stashed and spread as the last members of this object in getCurrent().
+    // The kind check stops the stash firing for JsonTreeMapEncoder, which
+    // inherits these methods.
+    private fun isExtraKeysBucket(descriptor: SerialDescriptor, index: Int): Boolean =
+        descriptor.kind == StructureKind.CLASS && extraKeysIndexFor(descriptor) == index
 
-/**
- * Tree-encoder counterpart to [JsonExtraKeysSpreadingEncoder]. Each entry's
- * value is materialised to a [JsonElement] via [writeJson] and stored under
- * the captured key on the parent tree encoder.
- */
-private class JsonExtraKeysSpreadingTreeEncoder(
-    private val treeEncoder: JsonTreeEncoder,
-    private val parentDescriptor: SerialDescriptor,
-    private val activeDiscriminator: String?,
-    private val json: Json,
-) : AbstractEncoder() {
-
-    override val serializersModule: SerializersModule get() = json.serializersModule
-
-    private var pendingKey: String? = null
-    private val declaredNames: Set<String> = parentDescriptor.getJsonDecodingNames(json)
-
-    override fun <T> encodeSerializableElement(
-        descriptor: SerialDescriptor,
-        index: Int,
-        serializer: SerializationStrategy<T>,
-        value: T
-    ) {
-        if (index % 2 == 0) {
-            // Even index = key. Validation in JsonNamesMap guarantees the key
-            // serializer is exactly String.serializer(), so the runtime type
-            // is String.
-            pendingKey = value as String
-        } else {
-            val k = pendingKey!!
-            validateNoCollision(k)
-            treeEncoder.putElement(k, writeJson(json, value, serializer))
-            pendingKey = null
-        }
+    private fun stashExtraKeys(descriptor: SerialDescriptor, extras: Map<String, JsonElement>?) {
+        pendingExtraKeys = extras
+        pendingBucketDescriptor = descriptor
     }
 
-    private fun validateNoCollision(k: String) {
-        if (k in declaredNames) {
-            throw JsonEncodingException(
-                "@JsonExtraKeys map in '${parentDescriptor.serialName}' contains key '$k' " +
-                    "which conflicts with a declared property name.",
-                classSerialName = parentDescriptor.serialName
-            )
+    override fun getCurrent(): JsonElement {
+        val extras = pendingExtraKeys
+        val descriptor = pendingBucketDescriptor
+        if (extras != null && descriptor != null) {
+            pendingExtraKeys = null
+            pendingBucketDescriptor = null
+            val collisionNames = descriptor.jsonExtraKeysCollisionNames(json, extraKeysIndexFor(descriptor))
+            for ((key, element) in extras) {
+                if (key in collisionNames) {
+                    throw JsonEncodingException(
+                        "@JsonExtraKeys property of '${descriptor.serialName}' contains key '$key' " +
+                            "which conflicts with a declared property name.",
+                        classSerialName = descriptor.serialName
+                    )
+                }
+                if (key == activeDiscriminator) {
+                    throw JsonEncodingException(
+                        "@JsonExtraKeys property of '${descriptor.serialName}' contains key '$key' " +
+                            "which conflicts with the class discriminator.",
+                        classSerialName = descriptor.serialName
+                    )
+                }
+                content[key] = element
+            }
         }
-        if (k == activeDiscriminator) {
-            throw JsonEncodingException(
-                "@JsonExtraKeys map in '${parentDescriptor.serialName}' contains key '$k' " +
-                    "which conflicts with the active class discriminator '$activeDiscriminator'.",
-                classSerialName = parentDescriptor.serialName
-            )
-        }
+        return JsonObject(content)
     }
 }
 

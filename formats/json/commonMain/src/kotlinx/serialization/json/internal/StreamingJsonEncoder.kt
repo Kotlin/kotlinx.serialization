@@ -45,8 +45,6 @@ internal class StreamingJsonEncoder(
     private var forceQuoting: Boolean = false
     private var polymorphicDiscriminator: String? = null
     private var polymorphicSerialName: String? = null
-    private var activeDiscriminator: String? = null
-    private val activeDiscriminatorStack = mutableListOf<String?>()
 
     // Cache of the @JsonExtraKeys index for the most recently queried descriptor.
     // The sentinel `lookupDescriptor !== descriptor` triggers a refresh when the
@@ -61,6 +59,64 @@ internal class StreamingJsonEncoder(
             cachedExtraKeysIndex = descriptor.jsonExtraKeysIndex(json)
         }
         return cachedExtraKeysIndex
+    }
+
+    // State for @JsonExtraKeys write-back. The bucket value is stashed when its
+    // element comes through encodeSerializableElement and written out as the
+    // last members of the enclosing JSON object in endStructure. Because this
+    // encoder instance is reused across same-mode nested structures
+    // (modeReuseCache), the state is saved/restored via a stack — but only for
+    // descriptors that actually declare a bucket, so bucket-free encoding pays
+    // nothing beyond the extraKeysIndexFor check in beginStructure.
+    private var pendingExtraKeys: Map<String, JsonElement>? = null
+    private var pendingDiscriminator: String? = null
+
+    private class ExtraKeysFrame(val extras: Map<String, JsonElement>?, val discriminator: String?)
+
+    private var extraKeysStack: MutableList<ExtraKeysFrame>? = null
+
+    private fun pushExtraKeysFrame(discriminator: String?) {
+        val stack = extraKeysStack ?: mutableListOf<ExtraKeysFrame>().also { extraKeysStack = it }
+        stack.add(ExtraKeysFrame(pendingExtraKeys, pendingDiscriminator))
+        pendingExtraKeys = null
+        pendingDiscriminator = discriminator
+    }
+
+    private fun flushExtraKeys(descriptor: SerialDescriptor, bucketIndex: Int) {
+        val extras = pendingExtraKeys
+        if (extras != null && extras.isNotEmpty()) {
+            val collisionNames = descriptor.jsonExtraKeysCollisionNames(json, bucketIndex)
+            for ((key, element) in extras) {
+                validateNoExtraKeyCollision(descriptor, key, collisionNames)
+                if (!composer.writingFirst) composer.print(COMMA)
+                composer.nextItem()
+                encodeString(key)
+                composer.print(COLON)
+                composer.space()
+                encodeSerializableValue(JsonElementSerializer, element)
+            }
+        }
+        val stack = extraKeysStack!!
+        val frame = stack.removeAt(stack.lastIndex)
+        pendingExtraKeys = frame.extras
+        pendingDiscriminator = frame.discriminator
+    }
+
+    private fun validateNoExtraKeyCollision(descriptor: SerialDescriptor, key: String, collisionNames: Set<String>) {
+        if (key in collisionNames) {
+            throw JsonEncodingException(
+                "@JsonExtraKeys property of '${descriptor.serialName}' contains key '$key' " +
+                    "which conflicts with a declared property name.",
+                classSerialName = descriptor.serialName
+            )
+        }
+        if (key == pendingDiscriminator) {
+            throw JsonEncodingException(
+                "@JsonExtraKeys property of '${descriptor.serialName}' contains key '$key' " +
+                    "which conflicts with the class discriminator.",
+                classSerialName = descriptor.serialName
+            )
+        }
     }
 
     init {
@@ -104,39 +160,33 @@ internal class StreamingJsonEncoder(
             composer.indent()
         }
 
-        if (mode == newMode) {
-            activeDiscriminatorStack.add(activeDiscriminator)
-            activeDiscriminator = null
-        }
-
         val discriminator = polymorphicDiscriminator
         if (discriminator != null) {
             encodeTypeInfo(discriminator, polymorphicSerialName ?: descriptor.serialName)
-            activeDiscriminator = discriminator
             polymorphicDiscriminator = null
             polymorphicSerialName = null
         }
 
-        if (mode == newMode) {
-            return this
+        val result = if (mode == newMode) {
+            this
+        } else {
+            (modeReuseCache?.get(newMode.ordinal) ?: StreamingJsonEncoder(composer, json, newMode, modeReuseCache))
         }
-
-        val cached = modeReuseCache?.get(newMode.ordinal)
-        if (cached != null) {
-            (cached as StreamingJsonEncoder).activeDiscriminator = null
-            return cached
+        if (newMode == WriteMode.OBJ && extraKeysIndexFor(descriptor) != -1) {
+            (result as StreamingJsonEncoder).pushExtraKeysFrame(discriminator)
         }
-        return StreamingJsonEncoder(composer, json, newMode, modeReuseCache)
+        return result
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
+        if (mode == WriteMode.OBJ) {
+            val bucketIndex = extraKeysIndexFor(descriptor)
+            if (bucketIndex != -1) flushExtraKeys(descriptor, bucketIndex)
+        }
         if (mode.end != INVALID) {
             composer.unIndent()
             composer.nextItemIfNotFirst()
             composer.print(mode.end)
-        }
-        if (activeDiscriminatorStack.isNotEmpty()) {
-            activeDiscriminator = activeDiscriminatorStack.removeAt(activeDiscriminatorStack.lastIndex)
         }
     }
 
@@ -190,22 +240,20 @@ internal class StreamingJsonEncoder(
         serializer: SerializationStrategy<T>,
         value: T
     ) {
-        // Bucket-spread only applies in OBJ mode. The descriptor-validation in
-        // JsonNamesMap.kt already filters out non-class descriptors, but the
-        // explicit mode check documents intent and is robust to future
-        // loosening of that validation.
-        if (mode != WriteMode.OBJ || extraKeysIndexFor(descriptor) != index) {
-            super.encodeSerializableElement(descriptor, index, serializer, value)
+        // The @JsonExtraKeys bucket is not written as a regular property: it is
+        // stashed here and spread as the last members of the enclosing object
+        // in endStructure. The check lives here rather than in encodeElement
+        // because a bucket is always a Map and can only arrive through this
+        // method — primitive properties never pay for it. The mode check
+        // short-circuits map/list entries before the descriptor lookup.
+        if (mode == WriteMode.OBJ && extraKeysIndexFor(descriptor) == index) {
+            // Validation in JsonNamesMap guarantees the declared type is
+            // JsonObject or Map<String, JsonElement>.
+            @Suppress("UNCHECKED_CAST")
+            pendingExtraKeys = value as Map<String, JsonElement>
             return
         }
-        // Drive the user's MapSerializer through a wrapper that intercepts the
-        // alternating key/value calls and emits each entry as a sibling pair of
-        // the parent JSON object. This works for arbitrary V: the wrapper
-        // delegates value-encoding to the parent encoder via encodeSerializableValue,
-        // which preserves polymorphic-discriminator routing and the JsonElement
-        // short-circuit.
-        val wrapper = JsonExtraKeysSpreadingEncoder(this, composer, descriptor, activeDiscriminator, json)
-        serializer.serialize(wrapper, value)
+        super.encodeSerializableElement(descriptor, index, serializer, value)
     }
 
     override fun <T : Any> encodeNullableSerializableElement(
@@ -214,6 +262,11 @@ internal class StreamingJsonEncoder(
         serializer: SerializationStrategy<T>,
         value: T?
     ) {
+        if (mode == WriteMode.OBJ && extraKeysIndexFor(descriptor) == index) {
+            @Suppress("UNCHECKED_CAST")
+            pendingExtraKeys = value as Map<String, JsonElement>?
+            return
+        }
         if (value != null || configuration.explicitNulls) {
             super.encodeNullableSerializableElement(descriptor, index, serializer, value)
         }
@@ -283,71 +336,5 @@ internal class StreamingJsonEncoder(
 
     override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) {
         encodeString(enumDescriptor.getElementName(index))
-    }
-}
-
-/**
- * Encoder driven by the user's `MapSerializer<String, V>` to spread bucket
- * entries as sibling key/value pairs of the parent JSON object.
- *
- * Extends [AbstractEncoder] so unexpected primitive calls fail loud via the
- * default `encodeValue` (a non-standard custom map serializer that doesn't
- * follow the alternating key/value protocol is unsupported by design).
- */
-@OptIn(ExperimentalSerializationApi::class)
-private class JsonExtraKeysSpreadingEncoder(
-    private val parent: StreamingJsonEncoder,
-    private val composer: Composer,
-    private val parentDescriptor: SerialDescriptor,
-    private val activeDiscriminator: String?,
-    private val json: Json,
-) : AbstractEncoder() {
-
-    override val serializersModule: SerializersModule get() = parent.serializersModule
-
-    private var pendingKey: String? = null
-    private val declaredNames: Set<String> = parentDescriptor.getJsonDecodingNames(json)
-
-    override fun <T> encodeSerializableElement(
-        descriptor: SerialDescriptor,
-        index: Int,
-        serializer: SerializationStrategy<T>,
-        value: T
-    ) {
-        if (index % 2 == 0) {
-            // Even index = key. Validation in JsonNamesMap guarantees the key
-            // serializer is exactly String.serializer(), so the runtime type
-            // is String.
-            pendingKey = value as String
-        } else {
-            val k = pendingKey!!
-            validateNoCollision(k)
-            if (!composer.writingFirst) composer.print(COMMA)
-            composer.nextItem()
-            parent.encodeString(k)
-            composer.print(COLON); composer.space()
-            // Route value-encoding through the parent's encodeSerializableValue
-            // so polymorphic-discriminator setup and the JsonElement short-circuit
-            // both apply.
-            parent.encodeSerializableValue(serializer, value)
-            pendingKey = null
-        }
-    }
-
-    private fun validateNoCollision(k: String) {
-        if (k in declaredNames) {
-            throw JsonEncodingException(
-                "@JsonExtraKeys map in '${parentDescriptor.serialName}' contains key '$k' " +
-                    "which conflicts with a declared property name.",
-                classSerialName = parentDescriptor.serialName
-            )
-        }
-        if (k == activeDiscriminator) {
-            throw JsonEncodingException(
-                "@JsonExtraKeys map in '${parentDescriptor.serialName}' contains key '$k' " +
-                    "which conflicts with the active class discriminator '$activeDiscriminator'.",
-                classSerialName = parentDescriptor.serialName
-            )
-        }
     }
 }

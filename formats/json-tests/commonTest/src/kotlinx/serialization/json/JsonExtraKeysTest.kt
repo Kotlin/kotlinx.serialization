@@ -4,18 +4,9 @@
 
 package kotlinx.serialization.json
 
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.contextual
 import kotlinx.serialization.test.checkSerializationException
 import kotlin.jvm.JvmInline
 import kotlin.test.Test
@@ -112,9 +103,11 @@ class JsonExtraKeysTest : JsonTestBase() {
         assertEquals(JsonObject(mapOf("x" to JsonPrimitive(true))), result.extras["d"])
         assertEquals(JsonNull, result.extras["e"])
 
-        val roundTrip = json.encodeToString(result, mode)
-        val result2 = json.decodeFromString<Basic>(roundTrip, mode)
-        assertEquals(result, result2)
+        // Write-back: captured entries are emitted after regular properties,
+        // reproducing the original document exactly.
+        val encoded = json.encodeToString(result, mode)
+        assertEquals(input, encoded)
+        assertEquals(result, json.decodeFromString<Basic>(encoded, mode))
     }
 
     @Test
@@ -190,6 +183,18 @@ class JsonExtraKeysTest : JsonTestBase() {
         val result = json.decodeFromString<Basic>(input, mode)
         assertEquals(1, result.a)
         assertEquals(JsonPrimitive(42), result.extras["extras"])
+        // The bucket's own property name is never written by encode, so a
+        // captured key equal to it is not a collision and round-trips exactly.
+        val encoded = json.encodeToString(result, mode)
+        assertEquals(input, encoded)
+        assertEquals(result, json.decodeFromString<Basic>(encoded, mode))
+    }
+
+    @Test
+    fun testEncodeWritesExtrasLast() = parametrizedTest { mode ->
+        val json = Json(default) { encodeDefaults = true }
+        val data = Basic(a = 1, extras = mapOf("z" to JsonPrimitive(2), "y" to JsonPrimitive(3)))
+        assertEquals("""{"a":1,"z":2,"y":3}""", json.encodeToString(data, mode))
     }
 
     @Test
@@ -210,7 +215,18 @@ class JsonExtraKeysTest : JsonTestBase() {
         checkSerializationException({
             json.encodeToString(Base.serializer(), data, mode)
         }) { msg ->
-            assertContains(msg, "conflicts with the active class discriminator")
+            assertContains(msg, "conflicts with the class discriminator")
+        }
+    }
+
+    @Test
+    fun testEncodeCollisionAliasName() = parametrizedTest { mode ->
+        val json = Json(default) { encodeDefaults = true }
+        val data = WithAlias(a = 1, b = "value", extras = mapOf("b_alias" to JsonPrimitive("conflict")))
+        checkSerializationException({
+            json.encodeToString(data, mode)
+        }) { msg ->
+            assertContains(msg, "conflicts with a declared property name")
         }
     }
 
@@ -256,98 +272,36 @@ class JsonExtraKeysTest : JsonTestBase() {
     }
 
     @Test
-    fun testEncodeCollisionAliasName() = parametrizedTest { mode ->
-        val json = Json(default) { encodeDefaults = true }
-        val data = WithAlias(a = 1, b = "value", extras = mapOf("b_alias" to JsonPrimitive("conflict")))
-        checkSerializationException({
-            json.encodeToString(data, mode)
-        }) { msg ->
-            assertContains(msg, "conflicts with a declared property name")
-        }
-    }
-
-    @Test
     fun testOuterBucketAfterNestedPolymorphic() = parametrizedTest { mode ->
         val json = Json(default) { encodeDefaults = true }
-        val data = OuterWithNestedPoly(base = Derived(a = 1), extras = mapOf("type" to JsonPrimitive("foo")))
         // "type" is the discriminator of Derived, but OuterWithNestedPoly is not polymorphic,
-        // so its extras may legally contain "type".
-        val serialized = json.encodeToString(data, mode)
-        val deserialized = json.decodeFromString<OuterWithNestedPoly>(serialized, mode)
-        assertEquals(JsonPrimitive("foo"), deserialized.extras["type"])
+        // so a top-level "type" key is a regular unknown key and lands in the outer bucket.
+        // On encode, the nested Derived's discriminator must not be misattributed
+        // to the outer object's bucket validation.
+        val input = """{"base":{"type":"derived","a":1},"type":"foo"}"""
+        val result = json.decodeFromString<OuterWithNestedPoly>(input, mode)
+        assertEquals(Derived(a = 1), result.base)
+        assertEquals(JsonPrimitive("foo"), result.extras["type"])
+        assertEquals(input, json.encodeToString(result, mode))
     }
 
-    // ---- bucket value types other than JsonElement ----
+    // ---- JsonObject-typed bucket and rejected declarations ----
 
+    @Serializable
+    data class ObjectBucket(
+        val a: Int,
+        @JsonExtraKeys val extras: JsonObject = JsonObject(emptyMap())
+    )
+
+    // Typed values are not supported: the bucket must hold raw JsonElements.
     @Serializable
     data class IntBucket(
         val a: Int,
         @JsonExtraKeys val extras: Map<String, Int> = emptyMap()
     )
 
-    @Serializable
-    data class Inner(val name: String, val count: Int)
-
-    @Serializable
-    data class ClassBucket(
-        val a: Int,
-        @JsonExtraKeys val extras: Map<String, Inner> = emptyMap()
-    )
-
-    @Serializable
-    sealed class Shape
-
-    @Serializable
-    @SerialName("circle")
-    data class Circle(val radius: Double) : Shape()
-
-    @Serializable
-    @SerialName("square")
-    data class Square(val side: Double) : Shape()
-
-    @Serializable
-    data class ShapeBucket(
-        val a: Int,
-        @JsonExtraKeys val extras: Map<String, Shape> = emptyMap()
-    )
-
-    // Polymorphic outer with a bucket whose value type's property name collides
-    // with the outer's class discriminator ("type"). Inner's "type" field must
-    // be written inside the inner object — not be flagged as a bucket-key
-    // collision against the outer discriminator.
-    @Serializable
-    sealed class PolyOuter
-
-    @Serializable
-    data class ValueWithTypeProperty(val type: String, val payload: String)
-
-    @Serializable
-    @SerialName("polyOuter")
-    data class PolyOuterImpl(
-        val a: Int,
-        @JsonExtraKeys val extras: Map<String, ValueWithTypeProperty> = emptyMap()
-    ) : PolyOuter()
-
-    // Contextual value type — resolution at encode/decode time via SerializersModule.
-    data class ExternalValue(val text: String)
-
-    private object ExternalValueSerializer : KSerializer<ExternalValue> {
-        override val descriptor: SerialDescriptor =
-            PrimitiveSerialDescriptor("ExternalValue", PrimitiveKind.STRING)
-        override fun serialize(encoder: Encoder, value: ExternalValue) =
-            encoder.encodeString(value.text)
-        override fun deserialize(decoder: Decoder): ExternalValue =
-            ExternalValue(decoder.decodeString())
-    }
-
-    @Serializable
-    data class ContextualBucket(
-        val a: Int,
-        @JsonExtraKeys val extras: Map<String, @Contextual ExternalValue> = emptyMap()
-    )
-
-    // Inline String key — must be rejected by the strict identity check
-    // because the encode path casts each entry key to String.
+    // Inline String key — rejected by the strict identity check: bucket keys
+    // must be plain String.
     @JvmInline
     @Serializable
     value class WrappedKey(val raw: String)
@@ -355,108 +309,40 @@ class JsonExtraKeysTest : JsonTestBase() {
     @Serializable
     data class InlineKeyBucket(
         val a: Int,
-        @JsonExtraKeys val extras: Map<WrappedKey, Int> = emptyMap()
+        @JsonExtraKeys val extras: Map<WrappedKey, JsonElement> = emptyMap()
     )
 
     @Test
-    fun testRoundTripMapStringInt() = parametrizedTest { mode ->
-        val input = """{"a":1,"x":10,"y":20}"""
-        val result = default.decodeFromString<IntBucket>(input, mode)
+    fun testJsonObjectTypedBucket() = parametrizedTest { mode ->
+        val input = """{"a":1,"x":10,"y":"s"}"""
+        val result = default.decodeFromString<ObjectBucket>(input, mode)
         assertEquals(1, result.a)
-        assertEquals(10, result.extras["x"])
-        assertEquals(20, result.extras["y"])
-        val roundTrip = default.encodeToString(result, mode)
-        assertEquals(result, default.decodeFromString<IntBucket>(roundTrip, mode))
+        assertEquals(JsonPrimitive(10), result.extras["x"])
+        assertEquals(JsonPrimitive("s"), result.extras["y"])
+        assertEquals(input, default.encodeToString(result, mode))
     }
 
     @Test
-    fun testRoundTripMapStringDataClass() = parametrizedTest { mode ->
-        val input = """{"a":1,"foo":{"name":"hello","count":3},"bar":{"name":"world","count":7}}"""
-        val result = default.decodeFromString<ClassBucket>(input, mode)
-        assertEquals(1, result.a)
-        assertEquals(Inner("hello", 3), result.extras["foo"])
-        assertEquals(Inner("world", 7), result.extras["bar"])
-        val roundTrip = default.encodeToString(result, mode)
-        assertEquals(result, default.decodeFromString<ClassBucket>(roundTrip, mode))
-    }
-
-    @Test
-    fun testRoundTripEmptyIntBucket() = parametrizedTest { mode ->
+    fun testRoundTripEmptyObjectBucket() = parametrizedTest { mode ->
         val input = """{"a":1}"""
-        val result = default.decodeFromString<IntBucket>(input, mode)
+        val result = default.decodeFromString<ObjectBucket>(input, mode)
         assertEquals(1, result.a)
-        assertEquals(emptyMap(), result.extras)
-        // Empty bucket: encode should not emit anything for `extras`.
+        assertEquals(JsonObject(emptyMap()), result.extras)
         val roundTrip = default.encodeToString(result, mode)
-        assertEquals(result, default.decodeFromString<IntBucket>(roundTrip, mode))
+        assertEquals(result, default.decodeFromString<ObjectBucket>(roundTrip, mode))
     }
 
     @Test
-    fun testTypeMismatchInBucketValueReportsError() = parametrizedTest { mode ->
-        val input = """{"a":1,"x":"not-an-int"}"""
+    fun testRejectTypedValues() {
         assertFailsWith<SerializationException> {
-            default.decodeFromString<IntBucket>(input, mode)
+            default.decodeFromString<IntBucket>("""{"a":1}""")
         }
-    }
-
-    @Test
-    fun testRoundTripMapStringPolymorphic() = parametrizedTest { mode ->
-        val data = ShapeBucket(
-            a = 1,
-            extras = mapOf(
-                "shape1" to Circle(radius = 2.5),
-                "shape2" to Square(side = 4.0)
-            )
-        )
-        val serialized = default.encodeToString(data, mode)
-        val restored = default.decodeFromString<ShapeBucket>(serialized, mode)
-        assertEquals(data, restored)
-    }
-
-    @Test
-    fun testInnerValuePropertyNamesDoNotClashWithOuterDiscriminator() = parametrizedTest { mode ->
-        // PolyOuterImpl's discriminator at outer level is "type". Inner value
-        // ValueWithTypeProperty also has a property named "type" — that lives
-        // inside the inner object's braces and must NOT be misinterpreted as
-        // a bucket-key collision.
-        val data: PolyOuter = PolyOuterImpl(
-            a = 1,
-            extras = mapOf("foo" to ValueWithTypeProperty(type = "X", payload = "Y"))
-        )
-        val serialized = default.encodeToString(PolyOuter.serializer(), data, mode)
-        val restored = default.decodeFromString(PolyOuter.serializer(), serialized, mode)
-        assertEquals(data, restored)
-    }
-
-    @Test
-    fun testRoundTripContextualValue() = parametrizedTest { mode ->
-        val json = Json(default) {
-            serializersModule = SerializersModule {
-                contextual(ExternalValue::class, ExternalValueSerializer)
-            }
-        }
-        val data = ContextualBucket(a = 1, extras = mapOf("foo" to ExternalValue("hello")))
-        val serialized = json.encodeToString(data, mode)
-        val restored = json.decodeFromString<ContextualBucket>(serialized, mode)
-        assertEquals(data, restored)
-    }
-
-    @Test
-    fun testCaptureWinsOverIgnoreUnknownKeysForIntBucket() = parametrizedTest { mode ->
-        // Capture wins over ignoreUnknownKeys = true for typed buckets,
-        // parity with the JsonElement case.
-        val json = Json(default) { ignoreUnknownKeys = true }
-        val input = """{"a":1,"x":42}"""
-        val result = json.decodeFromString<IntBucket>(input, mode)
-        assertEquals(1, result.a)
-        assertEquals(42, result.extras["x"])
     }
 
     @Test
     fun testRejectInlineStringKey() {
         // Inline value class wrapping String has STRING kind but a different
-        // runtime type — the strict identity check rejects it to avoid
-        // runtime cast failures in the encode wrapper.
+        // runtime type — the strict identity check rejects it.
         assertFailsWith<SerializationException> {
             default.decodeFromString<InlineKeyBucket>("""{"a":1}""")
         }

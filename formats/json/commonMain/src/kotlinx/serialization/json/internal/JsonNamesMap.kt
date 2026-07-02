@@ -80,21 +80,6 @@ internal fun SerialDescriptor.getJsonEncodedNames(json: Json): Set<String> {
     return if (strategy == null) jsonCachedSerialNames() else serializationNamesIndices(json, strategy).toSet()
 }
 
-// All JSON names that decode would resolve to a declared property, including @JsonNames aliases
-internal fun SerialDescriptor.getJsonDecodingNames(json: Json): Set<String> {
-    val strategy = namingStrategy(json)
-    return if (strategy == null && !json.configuration.useAlternativeNames) {
-        jsonCachedSerialNames()
-    } else {
-        val result = mutableSetOf<String>()
-        if (strategy == null) {
-            result.addAll(jsonCachedSerialNames())
-        }
-        result.addAll(json.deserializationNamesMap(this).keys)
-        result
-    }
-}
-
 internal fun SerialDescriptor.namingStrategy(json: Json) =
     if (kind == StructureKind.CLASS) json.configuration.namingStrategy else null
 
@@ -189,7 +174,7 @@ internal val JsonExtraKeysIndexKey = DescriptorSchemaCache.Key<Int>()
  *
  * Validates on first computation and throws [SerializationException] if:
  *  - more than one property is annotated with [JsonExtraKeys];
- *  - the annotated property is not of type `Map<String, V>` (string-keyed map).
+ *  - the annotated property is not of type `JsonObject` / `Map<String, JsonElement>`.
  *
  * The result is memoised in the per-[Json] [DescriptorSchemaCache].
  */
@@ -242,18 +227,24 @@ private fun SerialDescriptor.validateJsonExtraKeysProperty(index: Int) {
     val propertyName = getElementName(index)
     val elementDescriptor = getElementDescriptor(index)
     val rejection = "Property '$propertyName' of '$serialName' is annotated with @JsonExtraKeys " +
-        "but its type is not 'Map<String, V>'"
+        "but its type is not 'JsonObject' or 'Map<String, JsonElement>'"
     if (elementDescriptor.kind != StructureKind.MAP) {
         throw SerializationException("$rejection (kind is ${elementDescriptor.kind}).")
     }
-    val keyDescriptor = elementDescriptor.getElementDescriptor(0)
-    // Strict identity check: the encode path iterates entries and casts each key
-    // to String. Inline value classes wrapping String have STRING kind but a
-    // different runtime type, so we reject anything but the standard String
-    // serializer's descriptor.
-    if (keyDescriptor !== String.serializer().descriptor) {
+    // Strict identity checks: bucket keys are JSON object member names and
+    // values must be opaque JsonElements. Both JsonObject's descriptor and the
+    // one produced by MapSerializer(String.serializer(), JsonElement.serializer())
+    // delegate to the same element descriptors, so identity comparison accepts
+    // exactly the two supported declarations and nothing else (e.g. inline
+    // value classes wrapping String, or typed/nullable values).
+    if (elementDescriptor.getElementDescriptor(0) !== String.serializer().descriptor) {
         throw SerializationException(
-            "$rejection: map key type must be String but was '${keyDescriptor.serialName}'."
+            "$rejection: map key type must be String but was '${elementDescriptor.getElementDescriptor(0).serialName}'."
+        )
+    }
+    if (elementDescriptor.getElementDescriptor(1) !== JsonElementSerializer.descriptor) {
+        throw SerializationException(
+            "$rejection: map value type must be JsonElement but was '${elementDescriptor.getElementDescriptor(1).serialName}'."
         )
     }
     if (getElementAnnotations(index).any { it is JsonNames }) {
@@ -262,3 +253,34 @@ private fun SerialDescriptor.validateJsonExtraKeysProperty(index: Int) {
         )
     }
 }
+
+internal val JsonExtraKeysCollisionNamesKey = DescriptorSchemaCache.Key<Set<String>>()
+
+/**
+ * Names that a [JsonExtraKeys] bucket is not allowed to contain when written
+ * back during encoding: every JSON name that decoding would resolve to a
+ * declared property (serial names, [JsonNames] aliases and naming-strategy
+ * forms) — except names resolving to the bucket itself, which decoding
+ * captures into the bucket and which therefore round-trip safely.
+ *
+ * Memoised in the per-[Json] [DescriptorSchemaCache].
+ */
+internal fun SerialDescriptor.jsonExtraKeysCollisionNames(json: Json, bucketIndex: Int): Set<String> =
+    json.schemaCache.getOrPut(this, JsonExtraKeysCollisionNamesKey) {
+        // Mirrors the name-resolution rules of decoding: serial names are
+        // recognized only without a naming strategy, and @JsonNames aliases
+        // (from deserializationNamesMap) only when useAlternativeNames is on.
+        val strategy = namingStrategy(json)
+        val result = mutableSetOf<String>()
+        if (strategy == null) {
+            for (i in 0 until elementsCount) {
+                if (i != bucketIndex) result.add(getElementName(i))
+            }
+        }
+        if (strategy != null || json.configuration.useAlternativeNames) {
+            for ((name, index) in json.deserializationNamesMap(this)) {
+                if (index != bucketIndex) result.add(name)
+            }
+        }
+        result
+    }
