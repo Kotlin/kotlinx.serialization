@@ -348,3 +348,9 @@ public annotation class Polymorphic
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 public annotation class KeepGeneratedSerializer
+
+// TEMPORARY — throwaway change to verify that a fork PR triggers CI on TeamCity.
+// Real (non-comment) code below so the diff can't be treated as docs-only.
+// PR will be closed and this discarded once the build is queued. — DmitryNekrasov
+@Suppress("unused")
+private const val CI_FORK_TRIGGER_MARKER: String = "ci-fork-trigger-test"
