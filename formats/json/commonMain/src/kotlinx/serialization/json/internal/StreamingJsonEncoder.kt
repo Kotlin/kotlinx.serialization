@@ -54,6 +54,9 @@ internal class StreamingJsonEncoder(
     private var cachedExtraKeysIndex: Int = -1
 
     private fun extraKeysIndexFor(descriptor: SerialDescriptor): Int {
+        // Flag check first: when the feature is disabled this is a single
+        // predictable branch, before any cache machinery is touched.
+        if (!configuration.useExtraKeys) return -1
         if (lookupDescriptor !== descriptor) {
             lookupDescriptor = descriptor
             cachedExtraKeysIndex = descriptor.jsonExtraKeysIndex(json)

@@ -218,6 +218,9 @@ private open class JsonTreeDecoder(
     private var bucketTagName: String? = null
 
     private fun extraKeysIndexFor(descriptor: SerialDescriptor): Int {
+        // Flag check first: when the feature is disabled this is a single
+        // predictable branch, before any cache machinery is touched.
+        if (!configuration.useExtraKeys) return -1
         if (currentDescriptor !== descriptor) {
             currentDescriptor = descriptor
             extraKeysIndex = descriptor.jsonExtraKeysIndex(json)

@@ -131,6 +131,10 @@ public annotation class JsonIgnoreUnknownKeys
  * [JsonIgnoreUnknownKeys]: when this annotation is present on a property,
  * unknown keys are always captured rather than silently dropped or rejected.
  *
+ * Processing of this annotation must be enabled with the
+ * [JsonBuilder.useExtraKeys] flag (`false` by default); without it, the
+ * annotated property behaves as a regular property.
+ *
  * Example:
  * ```
  * @Serializable
@@ -139,11 +143,12 @@ public annotation class JsonIgnoreUnknownKeys
  *     @JsonExtraKeys val extras: JsonObject = JsonObject(emptyMap())
  * )
  *
- * val parsed = Json.decodeFromString<Project>(
+ * val json = Json { useExtraKeys = true }
+ * val parsed = json.decodeFromString<Project>(
  *     """{"name":"kotlinx.serialization","stars":9000,"forks":500}"""
  * )
  * // parsed.extras == {"stars": 9000, "forks": 500}
- * // Json.encodeToString(parsed) reproduces the original JSON
+ * // json.encodeToString(parsed) reproduces the original JSON
  * ```
  *
  * Constraints validated lazily on first use, raising [SerializationException]:

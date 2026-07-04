@@ -170,7 +170,8 @@ internal val JsonExtraKeysIndexKey = DescriptorSchemaCache.Key<Int>()
 
 /**
  * Returns the element index of the property annotated with [JsonExtraKeys],
- * or -1 if no such property exists in this descriptor.
+ * or -1 if no such property exists in this descriptor or the feature is
+ * disabled via [JsonBuilder.useExtraKeys].
  *
  * Validates on first computation and throws [SerializationException] if:
  *  - more than one property is annotated with [JsonExtraKeys];
@@ -178,21 +179,27 @@ internal val JsonExtraKeysIndexKey = DescriptorSchemaCache.Key<Int>()
  *
  * The result is memoised in the per-[Json] [DescriptorSchemaCache].
  */
-internal fun SerialDescriptor.jsonExtraKeysIndex(json: Json): Int =
-    try {
+internal fun SerialDescriptor.jsonExtraKeysIndex(json: Json): Int {
+    if (!json.configuration.useExtraKeys) return -1
+    return try {
         json.schemaCache.getOrPut(this, JsonExtraKeysIndexKey) {
             computeJsonExtraKeysIndex()
         }
     } catch (_: IndexOutOfBoundsException) {
         // Some partially-customized descriptors (e.g. created via the @Serializer
         // companion shortcut) have a broken hashCode() that throws an
-        // index-out-of-bounds exception. The library already documents this
-        // limitation around `useAlternativeNames` (see JsonCustomSerializersTest.kt).
-        // Fall back to uncached computation. We catch the parent type so the
-        // catch is portable across JVM (where the JDK throws AIOOBE) and
-        // Kotlin/Native (where AIOOBE is a deprecated alias for IOOBE).
+        // index-out-of-bounds exception when the schema cache hashes them.
+        // Unlike useAlternativeNames — which touches hashCode only on the
+        // unknown-key slow path and documents `useAlternativeNames = false` as
+        // the remedy — this lookup runs eagerly for every class descriptor, so
+        // without this fallback the mere presence of such a descriptor would
+        // break on upgrade even when @JsonExtraKeys is not used at all
+        // (see JsonCustomSerializersTest). Fall back to uncached computation.
+        // The parent exception type is caught for portability: the JDK throws
+        // AIOOBE, while on Kotlin/Native AIOOBE is a deprecated alias of IOOBE.
         computeJsonExtraKeysIndex()
     }
+}
 
 private fun SerialDescriptor.computeJsonExtraKeysIndex(): Int {
     var foundIndex = -1

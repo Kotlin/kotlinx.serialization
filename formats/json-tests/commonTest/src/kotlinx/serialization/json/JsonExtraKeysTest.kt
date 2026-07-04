@@ -17,6 +17,9 @@ import kotlin.test.assertNull
 
 class JsonExtraKeysTest : JsonTestBase() {
 
+    // @JsonExtraKeys processing is off by default and must be enabled explicitly.
+    private val extraJson = Json(default) { useExtraKeys = true }
+
     @Serializable
     data class Basic(
         val a: Int,
@@ -80,6 +83,16 @@ class JsonExtraKeysTest : JsonTestBase() {
     data class TwoSiblings(val first: Basic, val second: Basic)
 
     @Serializable
+    data class PlainChild(val x: Int)
+
+    @Serializable
+    data class BucketWithPlainChild(
+        val a: Int,
+        val child: PlainChild,
+        @JsonExtraKeys val extras: Map<String, JsonElement> = emptyMap()
+    )
+
+    @Serializable
     data class RecursiveNode(
         val value: Int,
         val child: RecursiveNode? = null,
@@ -94,7 +107,7 @@ class JsonExtraKeysTest : JsonTestBase() {
 
     @Test
     fun testBasicCapture() = parametrizedTest { mode ->
-        val json = Json(default) { encodeDefaults = true }
+        val json = Json(extraJson) { encodeDefaults = true }
         val input = """{"a":1,"b":"text","c":[1,2],"d":{"x":true},"e":null}"""
         val result = json.decodeFromString<Basic>(input, mode)
         assertEquals(1, result.a)
@@ -112,7 +125,7 @@ class JsonExtraKeysTest : JsonTestBase() {
 
     @Test
     fun testCaptureWinsOverIgnoreUnknownKeys() = parametrizedTest { mode ->
-        val json = Json(default) { ignoreUnknownKeys = true; encodeDefaults = true }
+        val json = Json(extraJson) { ignoreUnknownKeys = true; encodeDefaults = true }
         val input = """{"a":1,"unknown":42}"""
         val result = json.decodeFromString<Basic>(input, mode)
         assertEquals(1, result.a)
@@ -121,7 +134,7 @@ class JsonExtraKeysTest : JsonTestBase() {
 
     @Test
     fun testCaptureWinsOverAnnotation() = parametrizedTest { mode ->
-        val json = Json(default) { encodeDefaults = true }
+        val json = Json(extraJson) { encodeDefaults = true }
         val input = """{"a":1,"unknown":42}"""
         val result = json.decodeFromString<IgnoresUnknown>(input, mode)
         assertEquals(1, result.a)
@@ -130,7 +143,7 @@ class JsonExtraKeysTest : JsonTestBase() {
 
     @Test
     fun testJsonNamesInteraction() = parametrizedTest { mode ->
-        val json = Json(default) { encodeDefaults = true }
+        val json = Json(extraJson) { encodeDefaults = true }
         val input = """{"a":1,"b_alias":"value","unknown":42}"""
         val result = json.decodeFromString<WithAlias>(input, mode)
         assertEquals(1, result.a)
@@ -140,7 +153,7 @@ class JsonExtraKeysTest : JsonTestBase() {
 
     @Test
     fun testNamingStrategy() = parametrizedTest { mode ->
-        val json = Json(default) { namingStrategy = JsonNamingStrategy.SnakeCase; encodeDefaults = true }
+        val json = Json(extraJson) { namingStrategy = JsonNamingStrategy.SnakeCase; encodeDefaults = true }
         val input = """{"some_value":1,"some_other":42}"""
         val result = json.decodeFromString<WithNaming>(input, mode)
         assertEquals(1, result.someValue)
@@ -149,7 +162,7 @@ class JsonExtraKeysTest : JsonTestBase() {
 
     @Test
     fun testRejectJsonNamesOnBucket() {
-        val json = Json(default) { encodeDefaults = true }
+        val json = Json(extraJson) { encodeDefaults = true }
         assertFailsWith<SerializationException> {
             json.decodeFromString<BadBucket>("""{"a":1}""")
         }
@@ -157,7 +170,7 @@ class JsonExtraKeysTest : JsonTestBase() {
 
     @Test
     fun testExplicitNullsFalse() = parametrizedTest { mode ->
-        val json = Json(default) { explicitNulls = false; encodeDefaults = true }
+        val json = Json(extraJson) { explicitNulls = false; encodeDefaults = true }
         val input = """{"a":1,"unknown":42}"""
         val result = json.decodeFromString<WithNullable>(input, mode)
         assertEquals(1, result.a)
@@ -167,7 +180,7 @@ class JsonExtraKeysTest : JsonTestBase() {
 
     @Test
     fun testDiscriminatorExcluded() = parametrizedTest { mode ->
-        val json = Json(default) { encodeDefaults = true }
+        val json = Json(extraJson) { encodeDefaults = true }
         val input = """{"base":{"type":"derived","a":1,"unknown":42}}"""
         val result = json.decodeFromString<Wrapper>(input, mode)
         val derived = result.base as Derived
@@ -178,7 +191,7 @@ class JsonExtraKeysTest : JsonTestBase() {
 
     @Test
     fun testBucketOwnNameCaptured() = parametrizedTest { mode ->
-        val json = Json(default) { encodeDefaults = true }
+        val json = Json(extraJson) { encodeDefaults = true }
         val input = """{"a":1,"extras":42}"""
         val result = json.decodeFromString<Basic>(input, mode)
         assertEquals(1, result.a)
@@ -192,14 +205,14 @@ class JsonExtraKeysTest : JsonTestBase() {
 
     @Test
     fun testEncodeWritesExtrasLast() = parametrizedTest { mode ->
-        val json = Json(default) { encodeDefaults = true }
+        val json = Json(extraJson) { encodeDefaults = true }
         val data = Basic(a = 1, extras = mapOf("z" to JsonPrimitive(2), "y" to JsonPrimitive(3)))
         assertEquals("""{"a":1,"z":2,"y":3}""", json.encodeToString(data, mode))
     }
 
     @Test
     fun testEncodeCollisionDeclaredName() = parametrizedTest { mode ->
-        val json = Json(default) { encodeDefaults = true }
+        val json = Json(extraJson) { encodeDefaults = true }
         val data = Basic(a = 1, extras = mapOf("a" to JsonPrimitive(2)))
         checkSerializationException({
             json.encodeToString(data, mode)
@@ -210,7 +223,7 @@ class JsonExtraKeysTest : JsonTestBase() {
 
     @Test
     fun testEncodeCollisionDiscriminator() = parametrizedTest { mode ->
-        val json = Json(default) { encodeDefaults = true }
+        val json = Json(extraJson) { encodeDefaults = true }
         val data: Base = Derived(a = 1, extras = mapOf("type" to JsonPrimitive("foo")))
         checkSerializationException({
             json.encodeToString(Base.serializer(), data, mode)
@@ -221,7 +234,7 @@ class JsonExtraKeysTest : JsonTestBase() {
 
     @Test
     fun testEncodeCollisionAliasName() = parametrizedTest { mode ->
-        val json = Json(default) { encodeDefaults = true }
+        val json = Json(extraJson) { encodeDefaults = true }
         val data = WithAlias(a = 1, b = "value", extras = mapOf("b_alias" to JsonPrimitive("conflict")))
         checkSerializationException({
             json.encodeToString(data, mode)
@@ -232,7 +245,7 @@ class JsonExtraKeysTest : JsonTestBase() {
 
     @Test
     fun testNonOptionalBucketNoExtras() = parametrizedTest { mode ->
-        val json = Json(default) { encodeDefaults = true }
+        val json = Json(extraJson) { encodeDefaults = true }
         val input = """{"a":1}"""
         val result = json.decodeFromString<NonOptionalBucket>(input, mode)
         assertEquals(1, result.a)
@@ -241,7 +254,7 @@ class JsonExtraKeysTest : JsonTestBase() {
 
     @Test
     fun testNamingStrategyEncodeCollision() = parametrizedTest { mode ->
-        val json = Json(default) { namingStrategy = JsonNamingStrategy.SnakeCase; encodeDefaults = true }
+        val json = Json(extraJson) { namingStrategy = JsonNamingStrategy.SnakeCase; encodeDefaults = true }
         val data = WithNaming(someValue = 1, extras = mapOf("some_value" to JsonPrimitive(2)))
         checkSerializationException({
             json.encodeToString(data, mode)
@@ -252,7 +265,7 @@ class JsonExtraKeysTest : JsonTestBase() {
 
     @Test
     fun testSiblingSameTypeBuckets() = parametrizedTest { mode ->
-        val json = Json(default) { encodeDefaults = true }
+        val json = Json(extraJson) { encodeDefaults = true }
         val input = """{"first":{"a":1,"x":10},"second":{"a":2,"y":20}}"""
         val result = json.decodeFromString<TwoSiblings>(input, mode)
         assertEquals(1, result.first.a)
@@ -262,8 +275,21 @@ class JsonExtraKeysTest : JsonTestBase() {
     }
 
     @Test
+    fun testCaptureSurvivesNestedPlainObject() = parametrizedTest { mode ->
+        val json = Json(extraJson) { encodeDefaults = true }
+        // Keys captured before a nested bucket-less object must survive the
+        // nested object's endStructure (decoder instance reuse).
+        val input = """{"u1":1,"a":1,"child":{"x":2},"u2":2}"""
+        val result = json.decodeFromString<BucketWithPlainChild>(input, mode)
+        assertEquals(1, result.a)
+        assertEquals(PlainChild(2), result.child)
+        assertEquals(JsonPrimitive(1), result.extras["u1"])
+        assertEquals(JsonPrimitive(2), result.extras["u2"])
+    }
+
+    @Test
     fun testNestedSameDescriptorDecode() = parametrizedTest { mode ->
-        val json = Json(default) { encodeDefaults = true }
+        val json = Json(extraJson) { encodeDefaults = true }
         val input = """{"value":1,"child":{"value":2,"inner":"in"},"outer":"out"}"""
         val result = json.decodeFromString<RecursiveNode>(input, mode)
         assertEquals(1, result.value)
@@ -273,7 +299,7 @@ class JsonExtraKeysTest : JsonTestBase() {
 
     @Test
     fun testOuterBucketAfterNestedPolymorphic() = parametrizedTest { mode ->
-        val json = Json(default) { encodeDefaults = true }
+        val json = Json(extraJson) { encodeDefaults = true }
         // "type" is the discriminator of Derived, but OuterWithNestedPoly is not polymorphic,
         // so a top-level "type" key is a regular unknown key and lands in the outer bucket.
         // On encode, the nested Derived's discriminator must not be misattributed
@@ -315,28 +341,59 @@ class JsonExtraKeysTest : JsonTestBase() {
     @Test
     fun testJsonObjectTypedBucket() = parametrizedTest { mode ->
         val input = """{"a":1,"x":10,"y":"s"}"""
-        val result = default.decodeFromString<ObjectBucket>(input, mode)
+        val result = extraJson.decodeFromString<ObjectBucket>(input, mode)
         assertEquals(1, result.a)
         assertEquals(JsonPrimitive(10), result.extras["x"])
         assertEquals(JsonPrimitive("s"), result.extras["y"])
-        assertEquals(input, default.encodeToString(result, mode))
+        assertEquals(input, extraJson.encodeToString(result, mode))
     }
 
     @Test
     fun testRoundTripEmptyObjectBucket() = parametrizedTest { mode ->
         val input = """{"a":1}"""
-        val result = default.decodeFromString<ObjectBucket>(input, mode)
+        val result = extraJson.decodeFromString<ObjectBucket>(input, mode)
         assertEquals(1, result.a)
         assertEquals(JsonObject(emptyMap()), result.extras)
-        val roundTrip = default.encodeToString(result, mode)
-        assertEquals(result, default.decodeFromString<ObjectBucket>(roundTrip, mode))
+        val roundTrip = extraJson.encodeToString(result, mode)
+        assertEquals(result, extraJson.decodeFromString<ObjectBucket>(roundTrip, mode))
     }
 
     @Test
     fun testRejectTypedValues() {
         assertFailsWith<SerializationException> {
-            default.decodeFromString<IntBucket>("""{"a":1}""")
+            extraJson.decodeFromString<IntBucket>("""{"a":1}""")
         }
+    }
+
+    @Test
+    fun testFlagOffAnnotationIgnored() = parametrizedTest { mode ->
+        val json = Json(extraJson) { useExtraKeys = false; encodeDefaults = true }
+        // The bucket behaves as a regular property: read from and written
+        // under its own name, no capture.
+        val input = """{"a":1,"extras":{"x":10}}"""
+        val result = json.decodeFromString<Basic>(input, mode)
+        assertEquals(1, result.a)
+        assertEquals(JsonPrimitive(10), result.extras["x"])
+        assertEquals(input, json.encodeToString(result, mode))
+    }
+
+    @Test
+    fun testFlagOffUnknownKeysRejected() = parametrizedTest { mode ->
+        val json = Json(extraJson) { useExtraKeys = false }
+        // Without capture, unknown keys fall back to default handling.
+        assertFailsWith<SerializationException> {
+            json.decodeFromString<Basic>("""{"a":1,"unknown":42}""", mode)
+        }
+    }
+
+    @Test
+    fun testFlagOffValidationSkipped() = parametrizedTest { mode ->
+        // With the flag off, even invalid bucket declarations are usable as
+        // plain properties — validation never runs.
+        val json = Json(extraJson) { useExtraKeys = false }
+        val result = json.decodeFromString<IntBucket>("""{"a":1,"extras":{"x":10}}""", mode)
+        assertEquals(1, result.a)
+        assertEquals(10, result.extras["x"])
     }
 
     @Test
@@ -344,7 +401,7 @@ class JsonExtraKeysTest : JsonTestBase() {
         // Inline value class wrapping String has STRING kind but a different
         // runtime type — the strict identity check rejects it.
         assertFailsWith<SerializationException> {
-            default.decodeFromString<InlineKeyBucket>("""{"a":1}""")
+            extraJson.decodeFromString<InlineKeyBucket>("""{"a":1}""")
         }
     }
 }
