@@ -34,13 +34,36 @@ internal open class PluginGeneratedSerialDescriptor(
     // Cache child serializers, they are not cached by the implementation for nullable types
     private val childSerializers: Array<KSerializer<*>> by lazy(LazyThreadSafetyMode.PUBLICATION) { generatedSerializer?.childSerializers() ?: EMPTY_SERIALIZER_ARRAY }
 
+    // Descriptors created without a generated serializer (e.g. via the `@Serializer(forClass = ...)`
+    // companion shortcut) have no child serializers, so getElementDescriptor is unusable and
+    // identity operations (equals/hashCode/toString) must not rely on element descriptors.
+    private val isIncomplete: Boolean
+        get() = childSerializers.size < elementsCount
+
     // Lazy because of JS specific initialization order (#789)
     internal val typeParameterDescriptors: Array<SerialDescriptor> by lazy(LazyThreadSafetyMode.PUBLICATION) {
         generatedSerializer?.typeParametersSerializers()?.map { it.descriptor }.compactArray()
     }
 
     // Can be without synchronization but Native will likely break due to freezing
-    private val _hashCode: Int by lazy(LazyThreadSafetyMode.PUBLICATION) { hashCodeImpl(typeParameterDescriptors) }
+    private val _hashCode: Int by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        if (isIncomplete) incompleteHashCode() else hashCodeImpl(typeParameterDescriptors)
+    }
+
+    // Identity based on data that is always available: serial name, type parameters,
+    // kind and element names. Kept distinct from equals of complete descriptors
+    // (mixed comparisons are never equal), so the equals/hashCode contract holds.
+    private fun incompleteHashCode(): Int {
+        var result = serialName.hashCode()
+        result = 31 * result + typeParameterDescriptors.contentHashCode()
+        result = 31 * result + kind.hashCode()
+        var namesHash = 1
+        for (i in 0 until elementsCount) {
+            namesHash = 31 * namesHash + names[i].hashCode()
+        }
+        result = 31 * result + namesHash
+        return result
+    }
 
     public fun addElement(name: String, isOptional: Boolean = false) {
         names[++added] = name
@@ -89,13 +112,40 @@ internal open class PluginGeneratedSerialDescriptor(
         return indices
     }
 
-    override fun equals(other: Any?): Boolean = equalsImpl(other) { otherDescriptor ->
-        typeParameterDescriptors.contentEquals(otherDescriptor.typeParameterDescriptors)
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is PluginGeneratedSerialDescriptor) return false
+        if (serialName != other.serialName) return false
+        if (!typeParameterDescriptors.contentEquals(other.typeParameterDescriptors)) return false
+        if (elementsCount != other.elementsCount) return false
+        val incomplete = isIncomplete
+        // Complete and incomplete descriptors are never equal: their hash codes are
+        // computed from different data, and they describe differently-constructed
+        // serializers. (Mixed comparison used to throw, so nothing relied on it.)
+        if (incomplete != other.isIncomplete) return false
+        if (incomplete) {
+            if (kind != other.kind) return false
+            for (index in 0 until elementsCount) {
+                if (getElementName(index) != other.getElementName(index)) return false
+            }
+            return true
+        }
+        for (index in 0 until elementsCount) {
+            if (getElementDescriptor(index).serialName != other.getElementDescriptor(index).serialName) return false
+            if (getElementDescriptor(index).kind != other.getElementDescriptor(index).kind) return false
+        }
+        return true
     }
 
     override fun hashCode(): Int = _hashCode
 
-    override fun toString(): String = toStringImpl()
+    override fun toString(): String {
+        return if (isIncomplete) {
+            (0 until elementsCount).joinToString(", ", "$serialName(", ")") { getElementName(it) }
+        } else {
+            toStringImpl()
+        }
+    }
 }
 
 @OptIn(ExperimentalSerializationApi::class)
