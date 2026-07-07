@@ -16,5 +16,5 @@ internal interface PolymorphicJsonDecoder : JsonDecoder {
     /**
      * A discriminator of the current [JsonDecoder].
      */
-    val discriminator:String?
+    val discriminator: String?
 }

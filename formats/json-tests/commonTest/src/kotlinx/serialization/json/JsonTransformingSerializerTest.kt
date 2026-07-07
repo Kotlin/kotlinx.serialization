@@ -141,7 +141,7 @@ class JsonTransformingSerializerTest : JsonTestBase() {
     fun testPolymorphicExampleCanBeParsed() {
         val baseExample: BaseExample = SubExample("str1")
         val polymorphicInput = Json.encodeToString(baseExample)
-        assertEquals(baseExample, Json.decodeFromString(polymorphicInput))
+        assertJsonFormAndRestored(BaseExample.serializer(), baseExample, polymorphicInput)
     }
 
     @Serializable
@@ -174,7 +174,7 @@ class JsonTransformingSerializerTest : JsonTestBase() {
         )
 
         val polymorphicInput = Json.encodeToString(root)
-        assertEquals(root, Json.decodeFromString(polymorphicInput))
+        assertJsonFormAndRestored(NestedBaseExample.serializer(), root, polymorphicInput, Json)
     }
 
     @Serializable(SubExample2.PolymorphicSerializer::class)
