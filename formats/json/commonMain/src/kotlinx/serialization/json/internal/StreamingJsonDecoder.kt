@@ -24,7 +24,7 @@ internal open class StreamingJsonDecoder(
     @JvmField internal val lexer: AbstractJsonLexer,
     descriptor: SerialDescriptor,
     discriminatorHolder: DiscriminatorHolder?
-) : JsonDecoder, ChunkedDecoder, AbstractDecoder() {
+) : PolymorphicJsonDecoder, ChunkedDecoder, AbstractDecoder() {
 
     // A mutable reference to the discriminator that have to be skipped when in optimistic phase
     // of polymorphic serialization, see `decodeSerializableValue`
@@ -41,6 +41,8 @@ internal open class StreamingJsonDecoder(
 
 
     override val serializersModule: SerializersModule = json.serializersModule
+    override val discriminator: String?
+        get() = discriminatorHolder?.discriminatorToSkip
     private var currentIndex = -1
     private var discriminatorHolder: DiscriminatorHolder? = discriminatorHolder
     private val configuration = json.configuration

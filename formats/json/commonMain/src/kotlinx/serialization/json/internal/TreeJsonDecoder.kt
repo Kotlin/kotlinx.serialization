@@ -16,9 +16,15 @@ import kotlinx.serialization.modules.*
 import kotlin.jvm.*
 
 @JsonFriendModuleApi
-public fun <T> readJson(json: Json, element: JsonElement, deserializer: DeserializationStrategy<T>): T {
+public fun <T> readJson(
+    json: Json,
+    element: JsonElement,
+    deserializer: DeserializationStrategy<T>,
+    previousDecoder: JsonDecoder? = null
+): T {
+    val discriminator = (previousDecoder as? PolymorphicJsonDecoder)?.discriminator
     val input = when (element) {
-        is JsonObject -> JsonTreeDecoder(json, element)
+        is JsonObject -> JsonTreeDecoder(json, element, discriminator)
         is JsonArray -> JsonTreeListDecoder(json, element)
         is JsonLiteral, JsonNull -> JsonPrimitiveDecoder(json, element as JsonPrimitive)
     }
@@ -37,10 +43,13 @@ private sealed class AbstractJsonTreeDecoder(
     override val json: Json,
     open val value: JsonElement,
     protected val polymorphicDiscriminator: String? = null
-) : NamedValueDecoder(), JsonDecoder {
+) : NamedValueDecoder(), PolymorphicJsonDecoder {
 
     override val serializersModule: SerializersModule
         get() = json.serializersModule
+
+    override val discriminator: String?
+        get() = polymorphicDiscriminator
 
     @JvmField
     protected val configuration = json.configuration
