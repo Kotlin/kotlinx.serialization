@@ -186,16 +186,9 @@ public inline fun <reified T> serialDescriptor(): SerialDescriptor = serializer<
  */
 public fun serialDescriptor(type: KType): SerialDescriptor = serializer(type).descriptor
 
-/* The rest of the functions intentionally left experimental for later stabilization
- It is unclear whether they should be left as-is,
- or moved to ClassSerialDescriptorBuilder (because this is the main place for them to be used),
- or simply deprecated in favor of ListSerializer(Element.serializer()).descriptor
-*/
-
 /**
  * Creates a descriptor for the type `List<T>` where `T` is the type associated with [elementDescriptor].
  */
-@ExperimentalSerializationApi
 public fun listSerialDescriptor(elementDescriptor: SerialDescriptor): SerialDescriptor {
     return ArrayListClassDesc(elementDescriptor)
 }
@@ -203,7 +196,6 @@ public fun listSerialDescriptor(elementDescriptor: SerialDescriptor): SerialDesc
 /**
  * Creates a descriptor for the type `List<T>`.
  */
-@ExperimentalSerializationApi
 public inline fun <reified T> listSerialDescriptor(): SerialDescriptor {
     return listSerialDescriptor(serializer<T>().descriptor)
 }
@@ -212,7 +204,6 @@ public inline fun <reified T> listSerialDescriptor(): SerialDescriptor {
  * Creates a descriptor for the type `Map<K, V>` where `K` and `V` are types
  * associated with [keyDescriptor] and [valueDescriptor] respectively.
  */
-@ExperimentalSerializationApi
 public fun mapSerialDescriptor(
     keyDescriptor: SerialDescriptor,
     valueDescriptor: SerialDescriptor
@@ -223,7 +214,6 @@ public fun mapSerialDescriptor(
 /**
  * Creates a descriptor for the type `Map<K, V>`.
  */
-@ExperimentalSerializationApi
 public inline fun <reified K, reified V> mapSerialDescriptor(): SerialDescriptor {
     return mapSerialDescriptor(serializer<K>().descriptor, serializer<V>().descriptor)
 }
@@ -231,7 +221,6 @@ public inline fun <reified K, reified V> mapSerialDescriptor(): SerialDescriptor
 /**
  * Creates a descriptor for the type `Set<T>` where `T` is the type associated with [elementDescriptor].
  */
-@ExperimentalSerializationApi
 public fun setSerialDescriptor(elementDescriptor: SerialDescriptor): SerialDescriptor {
     return HashSetClassDesc(elementDescriptor)
 }
@@ -239,7 +228,6 @@ public fun setSerialDescriptor(elementDescriptor: SerialDescriptor): SerialDescr
 /**
  * Creates a descriptor for the type `Set<T>`.
  */
-@ExperimentalSerializationApi
 public inline fun <reified T> setSerialDescriptor(): SerialDescriptor {
     return setSerialDescriptor(serializer<T>().descriptor)
 }
@@ -262,12 +250,12 @@ public val SerialDescriptor.nullable: SerialDescriptor
  * Otherwise, returns `this`.
  *
  * It may return a nullable descriptor
- * if `this` descriptor has been created manually as nullable by directly implementing SerialDescriptor interface.
+ * if `this` descriptor has been created manually as nullable by directly implementing [SerialDescriptor] interface.
+ * However, direct implementations of [SerialDescriptor] are discouraged and should not be encountered in practice.
  *
  * @see SerialDescriptor.nullable
  * @see KSerializer.nullable
  */
-@ExperimentalSerializationApi
 public val SerialDescriptor.nonNullOriginal: SerialDescriptor
     get() = when (this) {
         is SerialDescriptorForNullable -> original
@@ -293,14 +281,12 @@ public class ClassSerialDescriptorBuilder internal constructor(
      * support nullable types, meaning that it should declare nullable type
      * in its [KSerializer] type parameter and handle nulls during encoding and decoding.
      */
-    @ExperimentalSerializationApi
-    @Deprecated("isNullable inside buildSerialDescriptor is deprecated. Please use SerialDescriptor.nullable extension on a builder result.", level = DeprecationLevel.ERROR)
+    @Deprecated("isNullable inside buildSerialDescriptor is deprecated. Please use SerialDescriptor.nullable extension on a builder result.", level = DeprecationLevel.HIDDEN)
     public var isNullable: Boolean = false
 
     /**
      * [Serial][SerialInfo] annotations on a target type.
      */
-    @ExperimentalSerializationApi
     public var annotations: List<Annotation> = emptyList()
 
     internal val elementNames: MutableList<String> = ArrayList()

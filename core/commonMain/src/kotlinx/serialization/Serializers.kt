@@ -99,7 +99,6 @@ public fun serializer(type: KType): KSerializer<Any?> = EmptySerializersModule()
  * @throws SerializationException if [kClass] is a `kotlin.Array`
  * @throws SerializationException if size of [typeArgumentsSerializers] does not match the expected generic parameters count
  */
-@ExperimentalSerializationApi
 public fun serializer(
     kClass: KClass<*>,
     typeArgumentsSerializers: List<KSerializer<*>>,
@@ -177,7 +176,6 @@ public fun SerializersModule.serializer(type: KType): KSerializer<Any?> =
  * @throws SerializationException if [kClass] is a `kotlin.Array`
  * @throws SerializationException if size of [typeArgumentsSerializers] does not match the expected generic parameters count
  */
-@ExperimentalSerializationApi
 public fun SerializersModule.serializer(
     kClass: KClass<*>,
     typeArgumentsSerializers: List<KSerializer<*>>,
@@ -408,14 +406,12 @@ internal fun noCompiledSerializer(forClass: String): KSerializer<*> =
     throw SerializationException(notRegisteredMessage(forClass))
 
 // Used when compiler intrinsic is inserted
-@OptIn(ExperimentalSerializationApi::class)
 @Suppress("unused")
 @PublishedApi
 internal fun noCompiledSerializer(module: SerializersModule, kClass: KClass<*>): KSerializer<*> {
     return module.getContextual(kClass) ?: kClass.serializerNotRegistered()
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 @Suppress("unused")
 @PublishedApi
 internal fun noCompiledSerializer(
@@ -433,14 +429,12 @@ internal fun noCompiledSerializer(
  * If no request KClass is an interface, plugin performs call to [moduleThenPolymorphic] to achieve special behavior for interface serializers.
  * (They are only serializers that have module priority over default [PolymorphicSerializer]).
  */
-@OptIn(ExperimentalSerializationApi::class)
 @Suppress("unused")
 @PublishedApi
 internal fun moduleThenPolymorphic(module: SerializersModule, kClass: KClass<*>): KSerializer<*> {
     return module.getContextual(kClass) ?: PolymorphicSerializer(kClass)
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 @Suppress("unused")
 @PublishedApi
 internal fun moduleThenPolymorphic(module: SerializersModule, kClass: KClass<*>, argSerializers: Array<KSerializer<*>>): KSerializer<*> {
