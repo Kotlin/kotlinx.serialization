@@ -27,6 +27,9 @@ public sealed class AbstractCollectionSerializer<Element, Collection, Builder> :
     public fun merge(decoder: Decoder, previous: Collection?): Collection {
         val compositeDecoder = decoder.beginStructure(descriptor)
         val expectedSize = compositeDecoder.decodeCollectionSize(descriptor)
+        require(expectedSize >= -1) {
+            "Decoded collection size should be either non-negative, or -1 (meaning, unknown). Was: $expectedSize"
+        }
         val builder = if (previous != null) {
             previous.toBuilder(expectedSize)
         } else {
@@ -158,7 +161,6 @@ internal abstract class PrimitiveArraySerializer<Element, Array, Builder
 
     final override fun builder(initialCapacityHint: Int): Builder {
         if (initialCapacityHint == -1) return ofUnknownSize()
-        checkBuildersInitialCapacity(initialCapacityHint)
         return ofSize(initialCapacityHint)
     }
 
@@ -196,7 +198,6 @@ internal class ReferenceArraySerializer<ElementKlass : Any, Element : ElementKla
     override fun Array<Element>.collectionIterator(): Iterator<Element> = iterator()
     override fun builder(initialCapacityHint: Int): ArrayList<Element> {
         if (initialCapacityHint == -1) return arrayListOf()
-        checkBuildersInitialCapacity(initialCapacityHint)
         return ArrayList(initialCapacityHint)
     }
     override fun ArrayList<Element>.builderSize(): Int = size
@@ -205,9 +206,8 @@ internal class ReferenceArraySerializer<ElementKlass : Any, Element : ElementKla
     override fun ArrayList<Element>.toResult(): Array<Element> = toNativeArrayImpl<ElementKlass, Element>(kClass)
 
     override fun Array<Element>.toBuilder(expectedAdditionalSize: Int): ArrayList<Element> {
-        checkBuildersInitialCapacity(expectedAdditionalSize)
         val expectedCapacity = size + expectedAdditionalSize.coerceAtLeast(0)
-        return ArrayList<Element>(expectedAdditionalSize).also { it.addAll(this) }
+        return ArrayList<Element>(expectedCapacity).also { it.addAll(this) }
     }
 
     override fun ArrayList<Element>.checkCapacity(size: Int): Unit = ensureCapacity(size)
@@ -229,13 +229,11 @@ internal class ArrayListSerializer<E>(element: KSerializer<E>) : CollectionSeria
 
     override fun builder(initialCapacityHint: Int): ArrayList<E> {
         if (initialCapacityHint == -1) return arrayListOf()
-        checkBuildersInitialCapacity(initialCapacityHint)
         return ArrayList(initialCapacityHint)
     }
     override fun ArrayList<E>.builderSize(): Int = size
     override fun ArrayList<E>.toResult(): List<E> = this
     override fun List<E>.toBuilder(expectedAdditionalSize: Int): ArrayList<E> {
-        if (expectedAdditionalSize != -1) checkBuildersInitialCapacity(expectedAdditionalSize)
         if (this is ArrayList) {
             if (expectedAdditionalSize == -1) return this
             return this.also { it.ensureCapacity(size + expectedAdditionalSize) }
@@ -255,7 +253,6 @@ internal class LinkedHashSetSerializer<E>(
 
     override fun builder(initialCapacityHint: Int): LinkedHashSet<E> {
         if (initialCapacityHint == -1) return linkedSetOf()
-        checkBuildersInitialCapacity(initialCapacityHint)
         return newLinkedHashSet(initialCapacityHint)
     }
     override fun LinkedHashSet<E>.builderSize(): Int = size
@@ -263,7 +260,6 @@ internal class LinkedHashSetSerializer<E>(
     override fun Set<E>.toBuilder(expectedAdditionalSize: Int): LinkedHashSet<E> {
         if (this is LinkedHashSet<E>) return this
         if (expectedAdditionalSize == -1) return LinkedHashSet(this)
-        checkBuildersInitialCapacity(expectedAdditionalSize)
         return newLinkedHashSet<E>(size + expectedAdditionalSize).also { it.addAll(this) }
     }
 
@@ -279,7 +275,6 @@ internal class HashSetSerializer<E>(
 
     override fun builder(initialCapacityHint: Int): HashSet<E> {
         if (initialCapacityHint == -1) return HashSet()
-        checkBuildersInitialCapacity(initialCapacityHint)
         return newHashSet(initialCapacityHint)
     }
     override fun HashSet<E>.builderSize(): Int = size
@@ -287,7 +282,6 @@ internal class HashSetSerializer<E>(
     override fun Set<E>.toBuilder(expectedAdditionalSize: Int): HashSet<E> {
         if (this is HashSet<E>) return this
         if (expectedAdditionalSize == -1) return HashSet(this)
-        checkBuildersInitialCapacity(expectedAdditionalSize)
         return newHashSet<E>(size + expectedAdditionalSize).also { it.addAll(this) }
     }
     override fun HashSet<E>.checkCapacity(size: Int) {}
@@ -304,7 +298,6 @@ internal class LinkedHashMapSerializer<K, V>(
     override fun Map<K, V>.collectionIterator(): Iterator<Map.Entry<K, V>> = iterator()
     override fun builder(initialCapacityHint: Int): LinkedHashMap<K, V> {
         if (initialCapacityHint == -1) return LinkedHashMap()
-        checkBuildersInitialCapacity(initialCapacityHint)
         return newLinkedHashMap(initialCapacityHint)
     }
     override fun LinkedHashMap<K, V>.builderSize(): Int = size * 2
@@ -312,7 +305,6 @@ internal class LinkedHashMapSerializer<K, V>(
     override fun Map<K, V>.toBuilder(expectedAdditionalSize: Int): LinkedHashMap<K, V> {
         if (this is LinkedHashMap<K, V>) return this
         if (expectedAdditionalSize == -1) return LinkedHashMap(this)
-        checkBuildersInitialCapacity(expectedAdditionalSize)
         return newLinkedHashMap<K, V>(size + expectedAdditionalSize).also { it.putAll(this) }
     }
 
@@ -330,7 +322,6 @@ internal class HashMapSerializer<K, V>(
     override fun Map<K, V>.collectionIterator(): Iterator<Map.Entry<K, V>> = iterator()
     override fun builder(initialCapacityHint: Int): HashMap<K, V> {
         if (initialCapacityHint == -1) return HashMap()
-        checkBuildersInitialCapacity(initialCapacityHint)
         return newHashMap(initialCapacityHint)
     }
     override fun HashMap<K, V>.builderSize(): Int = size * 2
@@ -338,16 +329,11 @@ internal class HashMapSerializer<K, V>(
     override fun Map<K, V>.toBuilder(expectedAdditionalSize: Int): HashMap<K, V> {
         if (this is HashMap<K, V>) return this
         if (expectedAdditionalSize == -1) return HashMap(this)
-        checkBuildersInitialCapacity(expectedAdditionalSize)
         return newHashMap<K, V>(size + expectedAdditionalSize).also { it.putAll(this) }
     }
 
     override fun HashMap<K, V>.checkCapacity(size: Int) {}
     override fun HashMap<K, V>.insertKeyValuePair(index: Int, key: K, value: V): Unit = set(key, value)
-}
-
-internal fun checkBuildersInitialCapacity(initialCapacityHint: Int) {
-    require(initialCapacityHint >= 0) { "builder's initial capacity must be non-negative, but was $initialCapacityHint" }
 }
 
 private fun estimateCapacityForHashMap(requiredCapacity: Int, loadFactor: Double): Int =

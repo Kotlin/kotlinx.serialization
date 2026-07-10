@@ -23,7 +23,6 @@ internal object ByteArraySerializer : KSerializer<ByteArray>,
     override fun ByteArray.collectionSize(): Int = size
     override fun ByteArray.toBuilder(expectedAdditionalSize: Int): ByteArrayBuilder {
         if (expectedAdditionalSize == -1) return ByteArrayBuilder(this)
-        checkBuildersInitialCapacity(expectedAdditionalSize)
         return ByteArrayBuilder(this.copyOf(size + expectedAdditionalSize), size)
     }
     override fun ofSize(size: Int): ByteArrayBuilder = ByteArrayBuilder(size)
@@ -81,7 +80,6 @@ internal object ShortArraySerializer : KSerializer<ShortArray>,
     override fun ShortArray.collectionSize(): Int = size
     override fun ShortArray.toBuilder(expectedAdditionalSize: Int): ShortArrayBuilder {
         if (expectedAdditionalSize == -1) return ShortArrayBuilder(this)
-        checkBuildersInitialCapacity(expectedAdditionalSize)
         return ShortArrayBuilder(this.copyOf(size + expectedAdditionalSize), size)
     }
 
@@ -138,7 +136,6 @@ internal object IntArraySerializer : KSerializer<IntArray>,
     override fun IntArray.collectionSize(): Int = size
     override fun IntArray.toBuilder(expectedAdditionalSize: Int): IntArrayBuilder {
         if (expectedAdditionalSize == -1) return IntArrayBuilder(this)
-        checkBuildersInitialCapacity(expectedAdditionalSize)
         return IntArrayBuilder(this.copyOf(size + expectedAdditionalSize), size)
     }
 
@@ -195,7 +192,6 @@ internal object LongArraySerializer : KSerializer<LongArray>,
     override fun LongArray.collectionSize(): Int = size
     override fun LongArray.toBuilder(expectedAdditionalSize: Int): LongArrayBuilder {
         if (expectedAdditionalSize == -1) return LongArrayBuilder(this)
-        checkBuildersInitialCapacity(expectedAdditionalSize)
         return LongArrayBuilder(this.copyOf(size + expectedAdditionalSize), size)
     }
     override fun ofSize(size: Int): LongArrayBuilder = LongArrayBuilder(size)
@@ -252,7 +248,6 @@ internal object FloatArraySerializer : KSerializer<FloatArray>,
     override fun FloatArray.collectionSize(): Int = size
     override fun FloatArray.toBuilder(expectedAdditionalSize: Int): FloatArrayBuilder {
         if (expectedAdditionalSize == -1) return FloatArrayBuilder(this)
-        checkBuildersInitialCapacity(expectedAdditionalSize)
         return FloatArrayBuilder(this.copyOf(size + expectedAdditionalSize), size)
     }
     override fun ofSize(size: Int): FloatArrayBuilder = FloatArrayBuilder(size)
@@ -308,7 +303,6 @@ internal object DoubleArraySerializer : KSerializer<DoubleArray>,
     override fun DoubleArray.collectionSize(): Int = size
     override fun DoubleArray.toBuilder(expectedAdditionalSize: Int): DoubleArrayBuilder {
         if (expectedAdditionalSize == -1) return DoubleArrayBuilder(this)
-        checkBuildersInitialCapacity(expectedAdditionalSize)
         return DoubleArrayBuilder(this.copyOf(size + expectedAdditionalSize), size)
     }
     override fun ofSize(size: Int): DoubleArrayBuilder = DoubleArrayBuilder(size)
@@ -364,7 +358,6 @@ internal object CharArraySerializer : KSerializer<CharArray>,
     override fun CharArray.collectionSize(): Int = size
     override fun CharArray.toBuilder(expectedAdditionalSize: Int): CharArrayBuilder {
         if (expectedAdditionalSize == -1) return CharArrayBuilder(this)
-        checkBuildersInitialCapacity(expectedAdditionalSize)
         return CharArrayBuilder(this.copyOf(size + expectedAdditionalSize), size)
     }
     override fun ofSize(size: Int): CharArrayBuilder = CharArrayBuilder(size)
@@ -418,7 +411,6 @@ internal object BooleanArraySerializer : KSerializer<BooleanArray>,
     override fun BooleanArray.collectionSize(): Int = size
     override fun BooleanArray.toBuilder(expectedAdditionalSize: Int): BooleanArrayBuilder {
         if (expectedAdditionalSize == -1) return BooleanArrayBuilder(this)
-        checkBuildersInitialCapacity(expectedAdditionalSize)
         return BooleanArrayBuilder(this.copyOf(size + expectedAdditionalSize), size)
     }
     override fun ofSize(size: Int): BooleanArrayBuilder = BooleanArrayBuilder(size)
@@ -478,7 +470,6 @@ internal object UByteArraySerializer : KSerializer<UByteArray>,
     override fun UByteArray.collectionSize(): Int = size
     override fun UByteArray.toBuilder(expectedAdditionalSize: Int): UByteArrayBuilder {
         if (expectedAdditionalSize == -1) return UByteArrayBuilder(this)
-        checkBuildersInitialCapacity(expectedAdditionalSize)
         return UByteArrayBuilder(this.copyOf(size + expectedAdditionalSize), size)
     }
     override fun ofSize(size: Int): UByteArrayBuilder = UByteArrayBuilder(size)
@@ -536,7 +527,6 @@ internal object UShortArraySerializer : KSerializer<UShortArray>,
     override fun UShortArray.collectionSize(): Int = size
     override fun UShortArray.toBuilder(expectedAdditionalSize: Int): UShortArrayBuilder {
         if (expectedAdditionalSize == -1) return UShortArrayBuilder(this)
-        checkBuildersInitialCapacity(expectedAdditionalSize)
         return UShortArrayBuilder(this.copyOf(size + expectedAdditionalSize), size)
     }
     override fun ofSize(size: Int): UShortArrayBuilder = UShortArrayBuilder(size)
@@ -594,7 +584,6 @@ internal object UIntArraySerializer : KSerializer<UIntArray>,
     override fun UIntArray.collectionSize(): Int = size
     override fun UIntArray.toBuilder(expectedAdditionalSize: Int): UIntArrayBuilder {
         if (expectedAdditionalSize == -1) return UIntArrayBuilder(this)
-        checkBuildersInitialCapacity(expectedAdditionalSize)
         return UIntArrayBuilder(this.copyOf(size + expectedAdditionalSize), size)
     }
     override fun ofSize(size: Int): UIntArrayBuilder = UIntArrayBuilder(size)
@@ -652,7 +641,6 @@ internal object ULongArraySerializer : KSerializer<ULongArray>,
     override fun ULongArray.collectionSize(): Int = size
     override fun ULongArray.toBuilder(expectedAdditionalSize: Int): ULongArrayBuilder {
         if (expectedAdditionalSize == -1) return ULongArrayBuilder(this)
-        checkBuildersInitialCapacity(expectedAdditionalSize)
         return ULongArrayBuilder(this.copyOf(size + expectedAdditionalSize), size)
     }
     override fun ofSize(size: Int): ULongArrayBuilder = ULongArrayBuilder(size)
