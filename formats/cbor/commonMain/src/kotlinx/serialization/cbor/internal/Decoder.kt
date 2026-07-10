@@ -352,7 +352,7 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
             readByte()
             return Triple(ans, null, collectedTags)
         } else {
-            val res = readUnsignedIntegerIgnoringMajorType { majorType.majorTypeName }
+            val res = readNumber()
             readByte()
             return Triple(null, res, collectedTags)
         }
