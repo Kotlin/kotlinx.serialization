@@ -38,7 +38,7 @@ open class TreeJsonNamesBenchmark {
         val f27: String? = null, val f28: String? = null, val f29: String? = null
     )
 
-    private val default = Json                              // useAlternativeNames = true (default)
+    private val default = Json // useAlternativeNames = true (default)
     private val noAltNames = Json { useAlternativeNames = false }
 
     private val sparse = """{"f00":"a","f07":"b","f13":"c","f21":"d","f29":"e"}"""
