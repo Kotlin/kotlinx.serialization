@@ -35,6 +35,13 @@ class JsonNamesTest : JsonTestBase() {
         @JsonNames("_foo") val foo: String
     )
 
+    @Serializable
+    data class NoAlternativeNames(
+        val a: String? = null,
+        val b: String? = null,
+        val c: String? = null
+    )
+
     private val inputString1 = """{"foo":"foo"}"""
     private val inputString2 = """{"_foo":"foo"}"""
 
@@ -99,6 +106,19 @@ class JsonNamesTest : JsonTestBase() {
                     jsonTestingMode = streaming
                 )
             }
+        }
+    }
+
+    @Test
+    fun testDecodesSparseObjectWithoutAlternativeNames() = parametrizedTest { mode ->
+        val decoded = Json.decodeFromString(NoAlternativeNames.serializer(), """{"b":"x"}""", mode)
+        assertEquals(NoAlternativeNames(a = null, b = "x", c = null), decoded)
+    }
+
+    @Test
+    fun testRejectsUnknownKeyWithoutAlternativeNames() = parametrizedTest { mode ->
+        assertFailsWithMessage<SerializationException>("Encountered an unknown key 'z'") {
+            Json.decodeFromString(NoAlternativeNames.serializer(), """{"b":"x","z":1}""", mode)
         }
     }
 }

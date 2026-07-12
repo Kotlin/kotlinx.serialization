@@ -210,6 +210,19 @@ private open class JsonTreeDecoder(
 ) : AbstractJsonTreeDecoder(json, value, polymorphicDiscriminator) {
     private var position = 0
     private var forceNull: Boolean = false
+    private var alternativeNamesResolved = false
+    private var hasAlternativeNames = false
+
+    private fun hasAlternativeNames(descriptor: SerialDescriptor): Boolean {
+        if (!alternativeNamesResolved) {
+            // Read the cache directly. deserializationNamesMap() makes a throwaway object on every
+            // call, even when the answer is already cached (#3193)
+            hasAlternativeNames = (json.schemaCache[descriptor, JsonDeserializationNamesKey]
+                ?: json.deserializationNamesMap(descriptor)).isNotEmpty()
+            alternativeNamesResolved = true
+        }
+        return hasAlternativeNames
+    }
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         while (position < descriptor.elementsCount) {
@@ -252,7 +265,7 @@ private open class JsonTreeDecoder(
         val strategy = descriptor.namingStrategy(json)
         val baseName = descriptor.getElementName(index)
         if (strategy == null) {
-            if (!configuration.useAlternativeNames) return baseName
+            if (!configuration.useAlternativeNames || !hasAlternativeNames(descriptor)) return baseName
             // Fast path, do not go through ConcurrentHashMap.get
             // Note, it blocks ability to detect collisions between the primary name and alternate,
             // but it eliminates a significant performance penalty (about -15% without this optimization)
@@ -295,9 +308,9 @@ private open class JsonTreeDecoder(
 
         @Suppress("DEPRECATION_ERROR")
         val names: Set<String> = when {
-            strategy == null && !configuration.useAlternativeNames -> descriptor.jsonCachedSerialNames()
             strategy != null -> json.deserializationNamesMap(descriptor).keys
-            else -> descriptor.jsonCachedSerialNames() + json.schemaCache[descriptor, JsonDeserializationNamesKey]?.keys.orEmpty()
+            !configuration.useAlternativeNames || !hasAlternativeNames(descriptor) -> descriptor.jsonCachedSerialNames()
+            else -> descriptor.jsonCachedSerialNames() + json.deserializationNamesMap(descriptor).keys
         }
 
         for (key in value.keys) {
