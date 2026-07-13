@@ -11,6 +11,7 @@ import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 
+// kotlinx-serialization-cbor keeps the same set in its Encoding.kt; keep both in sync.
 private val unsignedNumberDescriptors = setOf(
     UInt.serializer().descriptor,
     ULong.serializer().descriptor,

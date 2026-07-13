@@ -6,6 +6,7 @@
 package kotlinx.serialization.cbor.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.cbor.*
 import kotlinx.serialization.descriptors.*
 
@@ -59,6 +60,17 @@ internal fun SerialDescriptor.isInlineByteString(): Boolean {
     // inline item classes should only have 1 item
     return isInline && isByteString(0)
 }
+
+// kotlinx-serialization-json keeps the same set in StreamingJsonEncoder; keep both in sync.
+private val unsignedNumberDescriptors = setOf(
+    UInt.serializer().descriptor,
+    ULong.serializer().descriptor,
+    UByte.serializer().descriptor,
+    UShort.serializer().descriptor,
+)
+
+internal val SerialDescriptor.isUnsignedNumber: Boolean
+    get() = isInline && this in unsignedNumberDescriptors
 
 @OptIn(ExperimentalSerializationApi::class)
 internal fun SerialDescriptor.getValueTags(index: Int): ULongArray? = findAnnotation<ValueTags>(index)?.tags
