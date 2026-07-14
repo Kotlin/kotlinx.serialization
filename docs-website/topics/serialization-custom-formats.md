@@ -1092,6 +1092,44 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
+### Define a format-specific `@Serializable` annotation
+
+You can use the [`@MetaSerializable`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-meta-serializable/) annotation to define a format-specific `@Serializable` annotation.
+Add the format-specific annotation to a class instead of `@Serializable` to make the class serializable and include the annotation data in the generated serial descriptor.
+
+Here's an example that defines a `@BinarySerializable` annotation:
+
+```kotlin
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.MetaSerializable
+
+//sampleStart
+@OptIn(ExperimentalSerializationApi::class)
+// Defines a format-specific annotation that makes annotated classes serializable
+@MetaSerializable
+@Target(AnnotationTarget.CLASS)
+annotation class BinarySerializable(val typeId: Int)
+
+@BinarySerializable(typeId = 1)
+data class Project(val name: String, val language: String)
+
+@OptIn(ExperimentalSerializationApi::class)
+fun main() {
+    val descriptor = Project.serializer().descriptor
+
+    // Retrieves the class identifier from the annotation in the serial descriptor
+    val typeId = descriptor.annotations
+        .filterIsInstance<BinarySerializable>()
+        .first()
+        .typeId
+
+    println(typeId)
+    // 1
+}
+//sampleEnd
+```
+{kotlin-runnable="true"}
+
 ## What's next
 
 * Learn how to serialize data in [CBOR format](serialization-cbor.md).
