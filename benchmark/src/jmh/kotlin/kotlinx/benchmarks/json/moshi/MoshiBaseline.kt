@@ -4,15 +4,14 @@
 
 package kotlinx.benchmarks.json.moshi
 
-
+import benchmarks.model.DefaultPixelEvent
+import benchmarks.model.pixelEvent
 import com.squareup.moshi.*
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import benchmarks.model.*import kotlinx.serialization.json.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.okio.*
 import okio.*
 import org.openjdk.jmh.annotations.*
-import java.io.*
 import java.util.concurrent.*
 
 
@@ -40,6 +39,8 @@ import java.util.concurrent.*
 @Fork(1)
 open class MoshiBaseline {
 
+    protected open val input: DefaultPixelEvent = pixelEvent
+
     private val moshi = Moshi.Builder()
         .add(KotlinJsonAdapterFactory())
         .build()
@@ -48,18 +49,27 @@ open class MoshiBaseline {
 
     private val devNullSink = blackholeSink().buffer()
 
-    private val source = Buffer().writeUtf8(pixelEventJson)
+    private lateinit var value: DefaultPixelEvent
+    private lateinit var jsonString: String
+    private lateinit var source: Buffer
+
+    @Setup
+    fun setUp() {
+        value = input
+        jsonString = Json.encodeToString(DefaultPixelEvent.serializer(), value)
+        source = Buffer().writeUtf8(jsonString)
+    }
 
     // Moshi
 
     @Benchmark
-    fun moshiToString(): String = jsonAdapter.toJson(pixelEvent)
+    fun moshiToString(): String = jsonAdapter.toJson(value)
 
     @Benchmark
-    fun moshiToOkio() = jsonAdapter.toJson(devNullSink, pixelEvent)
+    fun moshiToOkio() = jsonAdapter.toJson(devNullSink, value)
 
     @Benchmark
-    fun moshiFromString(): DefaultPixelEvent = jsonAdapter.fromJson(pixelEventJson)!!
+    fun moshiFromString(): DefaultPixelEvent = jsonAdapter.fromJson(jsonString)!!
 
     @Benchmark
     fun moshiFromSource(): DefaultPixelEvent = jsonAdapter.fromJson(source.copy())!!
@@ -67,13 +77,13 @@ open class MoshiBaseline {
     // Kx
 
     @Benchmark
-    fun kotlinToString(): String = Json.encodeToString(DefaultPixelEvent.serializer(), pixelEvent)
+    fun kotlinToString(): String = Json.encodeToString(DefaultPixelEvent.serializer(), value)
 
     @Benchmark
-    fun kotlinToOkio() = Json.encodeToBufferedSink(DefaultPixelEvent.serializer(), pixelEvent, devNullSink)
+    fun kotlinToOkio() = Json.encodeToBufferedSink(DefaultPixelEvent.serializer(), value, devNullSink)
 
     @Benchmark
-    fun kotlinFromString(): DefaultPixelEvent = Json.decodeFromString(DefaultPixelEvent.serializer(), pixelEventJson)
+    fun kotlinFromString(): DefaultPixelEvent = Json.decodeFromString(DefaultPixelEvent.serializer(), jsonString)
 
     @Benchmark
     fun kotlinFromSource(): DefaultPixelEvent = Json.decodeFromBufferedSource(DefaultPixelEvent.serializer(), source.copy())
