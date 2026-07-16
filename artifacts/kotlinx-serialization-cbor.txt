@@ -18,7 +18,6 @@ org.jetbrains.kotlinx:kotlinx-serialization-cbor-tvossimulatorarm64/.klib,.modul
 org.jetbrains.kotlinx:kotlinx-serialization-cbor-tvosx64/.klib,.module,.pom,javadoc.jar,metadata.jar,sources.jar
 org.jetbrains.kotlinx:kotlinx-serialization-cbor-wasm-js/.klib,.module,.pom,javadoc.jar,sources.jar
 org.jetbrains.kotlinx:kotlinx-serialization-cbor-wasm-wasi/.klib,.module,.pom,javadoc.jar,sources.jar
-org.jetbrains.kotlinx:kotlinx-serialization-cbor-watchosarm32/.klib,.module,.pom,javadoc.jar,metadata.jar,sources.jar
 org.jetbrains.kotlinx:kotlinx-serialization-cbor-watchosarm64/.klib,.module,.pom,javadoc.jar,metadata.jar,sources.jar
 org.jetbrains.kotlinx:kotlinx-serialization-cbor-watchosdevicearm64/.klib,.module,.pom,javadoc.jar,metadata.jar,sources.jar
 org.jetbrains.kotlinx:kotlinx-serialization-cbor-watchossimulatorarm64/.klib,.module,.pom,javadoc.jar,metadata.jar,sources.jar

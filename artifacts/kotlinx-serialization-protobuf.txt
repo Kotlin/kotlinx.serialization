@@ -18,7 +18,6 @@ org.jetbrains.kotlinx:kotlinx-serialization-protobuf-tvossimulatorarm64/.klib,.m
 org.jetbrains.kotlinx:kotlinx-serialization-protobuf-tvosx64/.klib,.module,.pom,javadoc.jar,metadata.jar,sources.jar
 org.jetbrains.kotlinx:kotlinx-serialization-protobuf-wasm-js/.klib,.module,.pom,javadoc.jar,sources.jar
 org.jetbrains.kotlinx:kotlinx-serialization-protobuf-wasm-wasi/.klib,.module,.pom,javadoc.jar,sources.jar
-org.jetbrains.kotlinx:kotlinx-serialization-protobuf-watchosarm32/.klib,.module,.pom,javadoc.jar,metadata.jar,sources.jar
 org.jetbrains.kotlinx:kotlinx-serialization-protobuf-watchosarm64/.klib,.module,.pom,javadoc.jar,metadata.jar,sources.jar
 org.jetbrains.kotlinx:kotlinx-serialization-protobuf-watchosdevicearm64/.klib,.module,.pom,javadoc.jar,metadata.jar,sources.jar
 org.jetbrains.kotlinx:kotlinx-serialization-protobuf-watchossimulatorarm64/.klib,.module,.pom,javadoc.jar,metadata.jar,sources.jar
