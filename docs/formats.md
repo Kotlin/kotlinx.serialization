@@ -649,7 +649,7 @@ You may keep updating your schema by adding new fields, but you may not want to 
 
 Kotlin Serialization `ProtoBuf` format supports preserving unknown fields, as described in the [Protocol Buffer-Unknown Fields](https://protobuf.dev/programming-guides/proto3/#unknowns).
 
-To keep the unknown fields, add a property in type `ProtoUnknownFieldHolder` with default value `null` or `ProtoUnknownFieldHolder.Empty` to your data class.
+To keep the unknown fields, add a property of type `ProtoUnknownFieldHolder` with default value `null` or `ProtoUnknownFieldHolder.Empty` to your data class.
 
 <!--- INCLUDE
 import kotlinx.serialization.*
