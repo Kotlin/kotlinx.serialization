@@ -50,6 +50,8 @@ final class kotlinx.serialization.protobuf/ProtoBufBuilder { // kotlinx.serializ
 }
 
 final class kotlinx.serialization.protobuf/ProtoUnknownFieldHolder { // kotlinx.serialization.protobuf/ProtoUnknownFieldHolder|null[0]
+    final val fields // kotlinx.serialization.protobuf/ProtoUnknownFieldHolder.fields|{}fields[0]
+        final fun <get-fields>(): kotlin/ByteArray // kotlinx.serialization.protobuf/ProtoUnknownFieldHolder.fields.<get-fields>|<get-fields>(){}[0]
     final val size // kotlinx.serialization.protobuf/ProtoUnknownFieldHolder.size|{}size[0]
         final fun <get-size>(): kotlin/Int // kotlinx.serialization.protobuf/ProtoUnknownFieldHolder.size.<get-size>|<get-size>(){}[0]
 
@@ -57,6 +59,7 @@ final class kotlinx.serialization.protobuf/ProtoUnknownFieldHolder { // kotlinx.
     final fun hashCode(): kotlin/Int // kotlinx.serialization.protobuf/ProtoUnknownFieldHolder.hashCode|hashCode(){}[0]
     final fun merge(kotlinx.serialization.protobuf/ProtoUnknownFieldHolder): kotlinx.serialization.protobuf/ProtoUnknownFieldHolder // kotlinx.serialization.protobuf/ProtoUnknownFieldHolder.merge|merge(kotlinx.serialization.protobuf.ProtoUnknownFieldHolder){}[0]
     final fun plus(kotlinx.serialization.protobuf/ProtoUnknownFieldHolder): kotlinx.serialization.protobuf/ProtoUnknownFieldHolder // kotlinx.serialization.protobuf/ProtoUnknownFieldHolder.plus|plus(kotlinx.serialization.protobuf.ProtoUnknownFieldHolder){}[0]
+    final fun toString(): kotlin/String // kotlinx.serialization.protobuf/ProtoUnknownFieldHolder.toString|toString(){}[0]
 
     final object Companion { // kotlinx.serialization.protobuf/ProtoUnknownFieldHolder.Companion|null[0]
         final val Empty // kotlinx.serialization.protobuf/ProtoUnknownFieldHolder.Companion.Empty|{}Empty[0]

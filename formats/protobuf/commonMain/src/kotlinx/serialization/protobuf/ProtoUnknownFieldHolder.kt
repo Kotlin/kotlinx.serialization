@@ -12,10 +12,12 @@ import kotlinx.serialization.protobuf.internal.*
  *
  * Used to store unknown proto fields in a concrete class,
  * but do not deserialize byte array to this type directly.
+ *
+ * @property fields All the unknown fields held by this holder.
  */
 @Serializable(with = ProtoUnknownFieldHolderSerializer::class)
 public class ProtoUnknownFieldHolder internal constructor(
-    internal val fields: ByteArray
+    public val fields: ByteArray
 ) {
     public companion object {
         /**

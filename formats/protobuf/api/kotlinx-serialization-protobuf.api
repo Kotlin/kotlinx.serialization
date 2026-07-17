@@ -65,10 +65,12 @@ public final synthetic class kotlinx/serialization/protobuf/ProtoType$Impl : kot
 public final class kotlinx/serialization/protobuf/ProtoUnknownFieldHolder {
 	public static final field Companion Lkotlinx/serialization/protobuf/ProtoUnknownFieldHolder$Companion;
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFields ()[B
 	public final fun getSize ()I
 	public fun hashCode ()I
 	public final fun merge (Lkotlinx/serialization/protobuf/ProtoUnknownFieldHolder;)Lkotlinx/serialization/protobuf/ProtoUnknownFieldHolder;
 	public final fun plus (Lkotlinx/serialization/protobuf/ProtoUnknownFieldHolder;)Lkotlinx/serialization/protobuf/ProtoUnknownFieldHolder;
+	public fun toString ()Ljava/lang/String;
 }
 
 public final class kotlinx/serialization/protobuf/ProtoUnknownFieldHolder$Companion {
