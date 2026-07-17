@@ -12,30 +12,20 @@ import kotlinx.serialization.protobuf.internal.*
  *
  * Used to store unknown proto fields in a concrete class,
  * but do not deserialize byte array to this type directly.
- *
- * @property fields The list of unknown fields held by this holder,
- * each item presents for one top level field with its tagged raw byte array.
  */
 @Serializable(with = ProtoUnknownFieldHolderSerializer::class)
 public class ProtoUnknownFieldHolder internal constructor(
-    public val fields: List<ByteArray>
+    internal val fields: ByteArray
 ) {
     public companion object {
         /**
          * An empty [ProtoUnknownFieldHolder] instance.
          */
-        public val Empty: ProtoUnknownFieldHolder = ProtoUnknownFieldHolder(emptyList())
+        public val Empty: ProtoUnknownFieldHolder = ProtoUnknownFieldHolder(ByteArray(0))
     }
 
-    public constructor(vararg fields: ByteArray) : this(listOf(*fields))
-
     /**
-     * Number of overall bytes holding in this holder.
-     */
-    public val contentSize: Int get() = fields.sumOf { it.size }
-
-    /**
-     * Number of unknown fields holding in this holder.
+     * Number of bytes holding in the message.
      */
     public val size: Int get() = fields.size
 
@@ -51,8 +41,21 @@ public class ProtoUnknownFieldHolder internal constructor(
         return ProtoUnknownFieldHolder(fields + other.fields)
     }
 
+    override fun hashCode(): Int {
+        return fields.contentHashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as ProtoUnknownFieldHolder
+
+        return fields.contentEquals(other.fields)
+    }
+
     override fun toString(): String {
-        return "ProtoUnknownFieldHolder(contentSize=$contentSize, size=$size)"
+        return "ProtoUnknownFieldHolder(size=$size)"
     }
 }
 

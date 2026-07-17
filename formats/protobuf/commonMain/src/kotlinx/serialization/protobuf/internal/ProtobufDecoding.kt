@@ -387,7 +387,7 @@ internal open class ProtobufDecoder(
         val rawFieldBytes = readRawFieldBytes(this, restoredTag)
         val newBytes = previous?.fields?.let {
             it + rawFieldBytes
-        } ?: listOf(rawFieldBytes)
+        } ?: rawFieldBytes
         return ProtoUnknownFieldHolder(newBytes)
     }
 
