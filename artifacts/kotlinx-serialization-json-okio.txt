@@ -13,7 +13,6 @@ org.jetbrains.kotlinx:kotlinx-serialization-json-okio-tvossimulatorarm64/.klib,.
 org.jetbrains.kotlinx:kotlinx-serialization-json-okio-tvosx64/.klib,.module,.pom,javadoc.jar,metadata.jar,sources.jar
 org.jetbrains.kotlinx:kotlinx-serialization-json-okio-wasm-js/.klib,.module,.pom,javadoc.jar,sources.jar
 org.jetbrains.kotlinx:kotlinx-serialization-json-okio-wasm-wasi/.klib,.module,.pom,javadoc.jar,sources.jar
-org.jetbrains.kotlinx:kotlinx-serialization-json-okio-watchosarm32/.klib,.module,.pom,javadoc.jar,metadata.jar,sources.jar
 org.jetbrains.kotlinx:kotlinx-serialization-json-okio-watchosarm64/.klib,.module,.pom,javadoc.jar,metadata.jar,sources.jar
 org.jetbrains.kotlinx:kotlinx-serialization-json-okio-watchosdevicearm64/.klib,.module,.pom,javadoc.jar,metadata.jar,sources.jar
 org.jetbrains.kotlinx:kotlinx-serialization-json-okio-watchossimulatorarm64/.klib,.module,.pom,javadoc.jar,metadata.jar,sources.jar
