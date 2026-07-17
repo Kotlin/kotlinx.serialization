@@ -8,7 +8,10 @@ import benchmarks.model.DefaultPixelEvent
 import benchmarks.model.pixelEvent
 import com.squareup.moshi.*
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import kotlinx.io.writeString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.io.decodeFromSource
+import kotlinx.serialization.json.io.encodeToSink
 import kotlinx.serialization.json.okio.*
 import okio.*
 import org.openjdk.jmh.annotations.*
@@ -17,7 +20,7 @@ import java.util.concurrent.*
 
 /**
  * Note: these benchmarks were not checked to compare anything meaningful.
- * It's just a baseline to simplify Moshi configuration for a more intricated comparisons.
+ * It's just a baseline to simplify Moshi configuration for more intricate comparisons.
  * // M3, 1.7.1, Corretto 17.0.7
  *
  * Benchmark                        Mode  Cnt     Score    Error   Units
@@ -52,12 +55,14 @@ open class MoshiBaseline {
     private lateinit var value: DefaultPixelEvent
     private lateinit var jsonString: String
     private lateinit var source: Buffer
+    private lateinit var kxIoSource: kotlinx.io.Buffer
 
     @Setup
     fun setUp() {
         value = input
         jsonString = Json.encodeToString(DefaultPixelEvent.serializer(), value)
         source = Buffer().writeUtf8(jsonString)
+        kxIoSource = kotlinx.io.Buffer().also { it.writeString(jsonString) }
     }
 
     // Moshi
@@ -87,4 +92,7 @@ open class MoshiBaseline {
 
     @Benchmark
     fun kotlinFromSource(): DefaultPixelEvent = Json.decodeFromBufferedSource(DefaultPixelEvent.serializer(), source.copy())
+
+    @Benchmark
+    fun kotlinFromKxSource(): DefaultPixelEvent = Json.decodeFromSource(DefaultPixelEvent.serializer(), kxIoSource.copy())
 }
