@@ -33,8 +33,6 @@ internal class JsonToOkioStreamWriter(private val sink: BufferedSink) : Internal
     }
 }
 
-// Max value for a code  point placed in one Char
-private const val SINGLE_CHAR_MAX_CODEPOINT = Char.MAX_VALUE.code
 // Value added to the high UTF-16 surrogate after shifting
 private const val HIGH_SURROGATE_HEADER = 0xd800 - (0x010000 ushr 10)
 // Value added to the low UTF-16 surrogate after masking
