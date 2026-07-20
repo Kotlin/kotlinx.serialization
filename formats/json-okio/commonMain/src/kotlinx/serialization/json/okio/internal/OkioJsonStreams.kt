@@ -41,20 +41,21 @@ private const val LOW_SURROGATE_HEADER = 0xdc00
 internal class OkioSerialReader(private val source: BufferedSource) : InternalJsonReader {
     private val cursor = Buffer.UnsafeCursor()
     // When the last (count'th) byte is a high surrogate, we save it here and merge with the low one on the next read()
-    private var bufferedChar: Char? = null
+    // \u0000 is a placeholder for "no high surrogate stored"
+    private var bufferedChar: Char = '\u0000'
 
     final override fun read(buffer: CharArray, bufferOffset: Int, count: Int): Int {
         var written = 0
-        bufferedChar?.let {
-            buffer[bufferOffset] = it
-            bufferedChar = null
+         if (bufferedChar != '\u0000') {
+            buffer[bufferOffset] = bufferedChar
+            bufferedChar = '\u0000'
             written++
         }
 
         while (written < count) {
             val remaining = count - written
             // Nothing left, bail out
-            if (!source.request(1)) break
+            if (source.exhausted()) break
 
             var asciiRead = 0
             source.buffer.readUnsafe(cursor)
