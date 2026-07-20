@@ -8,7 +8,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.test.*
 import kotlin.test.*
 
-class JsonModesTest : JsonTestBase() {
+class LexerModesTest : JsonTestBase() {
 
     @Test
     fun testNan() = parametrizedTest(lenient) {

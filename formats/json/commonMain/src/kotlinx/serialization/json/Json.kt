@@ -145,7 +145,7 @@ public sealed class Json(
      */
     public final override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, @FormatLanguage("json", "", "") string: String): T {
         val lexer = StringJsonLexer(this, string)
-        val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer, deserializer.descriptor, null)
+        val input = StreamingJsonDecoder(this, LexerMode.OBJ, lexer, deserializer.descriptor, null)
         val result = input.decodeSerializableValue(deserializer)
         lexer.expectEof()
         return result
