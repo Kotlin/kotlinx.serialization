@@ -120,7 +120,7 @@ public sealed class Json(
      * @throws [SerializationException] if the given value cannot be serialized to JSON.
      */
     public final override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
-        val result = JsonToStringWriter()
+        val result = StringJsonWriter()
         try {
             encodeByWriter(this@Json, result, serializer, value)
             return result.toString()

@@ -8,7 +8,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.DecodeSequenceMode
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.internal.*
-import kotlinx.serialization.json.okio.internal.JsonToOkioStreamWriter
+import kotlinx.serialization.json.okio.internal.OkioJsonWriter
 import kotlinx.serialization.json.internal.decodeToSequenceByReader
 import kotlinx.serialization.json.okio.internal.OkioReader
 import okio.*
@@ -25,7 +25,7 @@ public fun <T> Json.encodeToBufferedSink(
     value: T,
     sink: BufferedSink
 ) {
-    val writer = JsonToOkioStreamWriter(sink)
+    val writer = OkioJsonWriter(sink)
     try {
         encodeByWriter(this, writer, serializer, value)
     } finally {

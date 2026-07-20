@@ -10,7 +10,7 @@ import kotlinx.serialization.json.internal.*
 
 private const val QUOTE_CODE = '"'.code
 
-internal class JsonToIoStreamWriter(private val sink: Sink) : InternalJsonWriter {
+internal class KxIoJsonWriter(private val sink: Sink) : InternalJsonWriter {
 
     override fun writeLong(value: Long) {
         sink.writeDecimalLong(value)
