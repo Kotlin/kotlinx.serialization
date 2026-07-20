@@ -20,7 +20,7 @@ import kotlin.jvm.*
 @OptIn(ExperimentalSerializationApi::class)
 internal open class StreamingJsonDecoder(
     final override val json: Json,
-    private val mode: WriteMode,
+    private val mode: LexerMode,
     @JvmField internal val lexer: AbstractJsonLexer,
     descriptor: SerialDescriptor,
     discriminatorHolder: DiscriminatorHolder?
@@ -99,13 +99,13 @@ internal open class StreamingJsonDecoder(
     }
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
-        val newMode = json.switchMode(descriptor)
+        val newMode = json.modeFor(descriptor)
         lexer.path.pushDescriptor(descriptor)
         lexer.consumeNextToken(newMode.begin)
         checkLeadingComma()
         return when (newMode) {
             // In fact resets current index that these modes rely on
-            WriteMode.LIST, WriteMode.MAP, WriteMode.POLY_OBJ -> StreamingJsonDecoder(
+            LexerMode.LIST, LexerMode.MAP, LexerMode.POLY_OBJ -> StreamingJsonDecoder(
                 json,
                 newMode,
                 lexer,
@@ -161,7 +161,7 @@ internal open class StreamingJsonDecoder(
         deserializer: DeserializationStrategy<T>,
         previousValue: T?
     ): T {
-        val isMapKey = mode == WriteMode.MAP && index and 1 == 0
+        val isMapKey = mode == LexerMode.MAP && index and 1 == 0
         // Reset previous key
         if (isMapKey) {
             lexer.path.resetCurrentMapKey()
@@ -177,12 +177,12 @@ internal open class StreamingJsonDecoder(
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         val index = when (mode) {
-            WriteMode.OBJ -> decodeObjectIndex(descriptor)
-            WriteMode.MAP -> decodeMapIndex()
+            LexerMode.OBJ -> decodeObjectIndex(descriptor)
+            LexerMode.MAP -> decodeMapIndex()
             else -> decodeListIndex() // Both for LIST and default polymorphic
         }
         // The element of the next index that will be decoded
-        if (mode != WriteMode.MAP) {
+        if (mode != LexerMode.MAP) {
             lexer.path.updateDescriptorIndex(index)
         }
         return index
@@ -363,7 +363,7 @@ public fun <T> decodeStringToJsonTree(
     source: String
 ): JsonElement {
     val lexer = StringJsonLexer(json, source)
-    val input = StreamingJsonDecoder(json, WriteMode.OBJ, lexer, deserializer.descriptor, null)
+    val input = StreamingJsonDecoder(json, LexerMode.OBJ, lexer, deserializer.descriptor, null)
     val tree = input.decodeJsonElement()
     lexer.expectEof()
     return tree

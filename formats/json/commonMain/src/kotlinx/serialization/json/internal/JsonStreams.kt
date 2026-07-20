@@ -41,8 +41,8 @@ public interface InternalJsonReader {
 public fun <T> encodeByWriter(json: Json, writer: InternalJsonWriter, serializer: SerializationStrategy<T>, value: T) {
     val encoder = StreamingJsonEncoder(
         writer, json,
-        WriteMode.OBJ,
-        arrayOfNulls(WriteMode.entries.size)
+        LexerMode.OBJ,
+        arrayOfNulls(LexerMode.entries.size)
     )
     encoder.encodeSerializableValue(serializer, value)
 }
@@ -55,7 +55,7 @@ public fun <T> decodeByReader(
 ): T {
     val lexer = BufferedJsonLexer(json, reader)
     try {
-        val input = StreamingJsonDecoder(json, WriteMode.OBJ, lexer, deserializer.descriptor, null)
+        val input = StreamingJsonDecoder(json, LexerMode.OBJ, lexer, deserializer.descriptor, null)
         val result = input.decodeSerializableValue(deserializer)
         lexer.expectEof()
         return result
