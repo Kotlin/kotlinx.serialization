@@ -38,7 +38,7 @@ private const val HIGH_SURROGATE_HEADER = 0xd800 - (0x010000 ushr 10)
 // Value added to the low UTF-16 surrogate after masking
 private const val LOW_SURROGATE_HEADER = 0xdc00
 
-internal class OkioSerialReader(private val source: BufferedSource) : InternalJsonReader {
+internal class OkioReader(private val source: BufferedSource) : InternalJsonReader {
     private val cursor = Buffer.UnsafeCursor()
     // When the last (count'th) byte is a high surrogate, we save it here and merge with the low one on the next read()
     // \u0000 is a placeholder for "no high surrogate stored"

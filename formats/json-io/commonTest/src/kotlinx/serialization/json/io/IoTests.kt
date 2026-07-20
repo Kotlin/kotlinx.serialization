@@ -25,7 +25,7 @@ class IoTests {
 
         val buffer = Buffer()
         buffer.writeString(text)
-        val reader = IoSerialReader(buffer)
+        val reader = KxIoReader(buffer)
 
         val readArray = CharArray(2)
         assertEquals(1, reader.read(readArray, 0, 1) )

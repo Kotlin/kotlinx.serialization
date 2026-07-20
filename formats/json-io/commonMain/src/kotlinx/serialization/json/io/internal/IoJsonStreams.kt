@@ -41,7 +41,7 @@ private const val HIGH_SURROGATE_HEADER = 0xd800 - (0x010000 ushr 10)
 private const val LOW_SURROGATE_HEADER = 0xdc00
 
 @OptIn(UnsafeIoApi::class, InternalIoApi::class)
-internal class IoSerialReader(private val source: Source) : InternalJsonReader {
+internal class KxIoReader(private val source: Source) : InternalJsonReader {
     // When the last (count'th) byte is a high surrogate, we save it here and merge with the low one on the next read()
     // \u0000 is a placeholder for "no high surrogate stored"
     private var bufferedChar: Char = '\u0000'
