@@ -25,7 +25,7 @@ class OkioTests {
 
         val buffer = Buffer()
         buffer.writeUtf8(text)
-        val reader = OkioSerialReader(buffer)
+        val reader = OkioReader(buffer)
 
         val readArray = CharArray(2)
         assertEquals(1, reader.read(readArray, 0, 1) )

@@ -257,7 +257,7 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : Intern
     }
 }
 
-internal class JavaStreamSerialReader(stream: InputStream) : InternalJsonReader {
+internal class Utf8InputStreamReader(stream: InputStream) : InternalJsonReader {
     // NB: not closed on purpose, it is the responsibility of the caller
     private val reader = CharsetReader(stream, Charsets.UTF_8)
 

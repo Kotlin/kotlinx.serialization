@@ -10,7 +10,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.json.io.internal.JsonToIoStreamWriter
 import kotlinx.serialization.json.internal.decodeToSequenceByReader
-import kotlinx.serialization.json.io.internal.IoSerialReader
+import kotlinx.serialization.json.io.internal.KxIoReader
 import kotlinx.io.*
 
 /**
@@ -60,7 +60,7 @@ public fun <T> Json.decodeFromSource(
     deserializer: DeserializationStrategy<T>,
     source: Source
 ): T {
-    return decodeByReader(this, deserializer, IoSerialReader(source))
+    return decodeByReader(this, deserializer, KxIoReader(source))
 }
 
 /**
@@ -99,7 +99,7 @@ public fun <T> Json.decodeSourceToSequence(
     deserializer: DeserializationStrategy<T>,
     format: DecodeSequenceMode = DecodeSequenceMode.AUTO_DETECT
 ): Sequence<T> {
-    return decodeToSequenceByReader(this, IoSerialReader(source), deserializer, format)
+    return decodeToSequenceByReader(this, KxIoReader(source), deserializer, format)
 }
 
 /**
