@@ -95,7 +95,7 @@ internal class StringJsonLexerWithComments(source: String, configuration: JsonCo
     }
 }
 
-internal class ReaderJsonLexerWithComments(reader: InternalJsonReader, buffer: CharArray, configuration: JsonConfiguration): ReaderJsonLexer(reader, buffer, configuration) {
+internal class BufferedJsonLexerWithComments(reader: InternalJsonReader, buffer: CharArray, configuration: JsonConfiguration): BufferedJsonLexer(reader, buffer, configuration) {
     override fun consumeNextToken(expected: Char) {
         ensureHaveChars()
         val source = source

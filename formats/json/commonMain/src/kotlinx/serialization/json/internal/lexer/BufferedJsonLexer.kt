@@ -35,15 +35,15 @@ internal class ArrayAsSequence(internal val buffer: CharArray) : CharSequence {
     override fun toString(): String = substring(0, length)
 }
 
-internal fun ReaderJsonLexer(json: Json, reader: InternalJsonReader, buffer: CharArray = CharArrayPoolBatchSize.take()) =
+internal fun BufferedJsonLexer(json: Json, reader: InternalJsonReader, buffer: CharArray = CharArrayPoolBatchSize.take()) =
     if (!json.configuration.allowComments)
-        ReaderJsonLexer(reader, buffer, json.configuration)
+        BufferedJsonLexer(reader, buffer, json.configuration)
     else
-        ReaderJsonLexerWithComments(reader, buffer, json.configuration)
+        BufferedJsonLexerWithComments(reader, buffer, json.configuration)
 
-internal open class ReaderJsonLexer(
-    val reader: InternalJsonReader,
-    val buffer: CharArray = CharArrayPoolBatchSize.take(),
+internal open class BufferedJsonLexer(
+    private val reader: InternalJsonReader,
+    private val buffer: CharArray = CharArrayPoolBatchSize.take(),
     configuration: JsonConfiguration
 ) : AbstractJsonLexer(configuration) {
 
