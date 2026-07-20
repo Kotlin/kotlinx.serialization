@@ -9,7 +9,7 @@ import okio.*
 
 private const val QUOTE_CODE = '"'.code
 
-internal class JsonToOkioStreamWriter(private val sink: BufferedSink) : InternalJsonWriter {
+internal class OkioJsonWriter(private val sink: BufferedSink) : InternalJsonWriter {
     override fun writeLong(value: Long) {
         sink.writeDecimalLong(value)
     }

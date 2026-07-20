@@ -20,7 +20,7 @@ public fun <T> Json.encodeToStream(
     value: T,
     stream: OutputStream
 ) {
-    val writer = JsonToJavaStreamWriter(stream)
+    val writer = OutputStreamJsonWriter(stream)
     try {
         encodeByWriter(this, writer, serializer, value)
     } finally {
