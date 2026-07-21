@@ -47,12 +47,13 @@ internal open class StreamingJsonDecoder(
     private var discriminatorHolder: DiscriminatorHolder? = discriminatorHolder
     private val configuration = json.configuration
 
-    private val elementMarker: JsonElementMarker? = if (configuration.explicitNulls) null else JsonElementMarker(descriptor)
+    private val elementMarker: JsonElementMarker? =
+        if (configuration.explicitNulls) null else JsonElementMarker(descriptor)
 
     override fun decodeJsonElement(): JsonElement = JsonTreeReader(json.configuration, lexer).read()
 
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
-        try {
+        return withExceptionHandling(path = lexer.path::getPath, input = lexer::source) {
             /*
              * This is an optimized path over decodeSerializableValuePolymorphic(deserializer):
              * dSVP reads the very next JSON tree into a memory as JsonElement and then runs TreeJsonDecoder over it
@@ -78,23 +79,17 @@ internal open class StreamingJsonDecoder(
 
             @Suppress("UNCHECKED_CAST")
             val actualSerializer = try {
-                    deserializer.findPolymorphicSerializer(this, type)
-                } catch (it: SerializationException) { // Wrap SerializationException into JsonDecodingException to preserve position, path, and input.
-                    // Split multiline message from private core function:
-                    // core/commonMain/src/kotlinx/serialization/internal/AbstractPolymorphicSerializer.kt:102
-                    val message = it.message!!.substringBefore('\n').removeSuffix(".")
-                    val hint = it.message!!.substringAfter('\n', missingDelimiterValue = "")
-                    lexer.fail(message, hint = hint)
-                } as DeserializationStrategy<T>
+                deserializer.findPolymorphicSerializer(this, type)
+            } catch (it: SerializationException) { // Wrap SerializationException into JsonDecodingException to preserve position, path, and input.
+                // Split multiline message from private core function:
+                // core/commonMain/src/kotlinx/serialization/internal/AbstractPolymorphicSerializer.kt:102
+                val message = it.message!!.substringBefore('\n').removeSuffix(".")
+                val hint = it.message!!.substringAfter('\n', missingDelimiterValue = "")
+                lexer.fail(message, hint = hint)
+            } as DeserializationStrategy<T>
 
             discriminatorHolder = DiscriminatorHolder(discriminator)
-            return actualSerializer.deserialize(this)
-
-        } catch (e: MissingFieldException) {
-            // Add "at path" if and only if we've just caught an exception and it hasn't been augmented yet
-            if (e.message!!.contains("at path")) throw e
-            // NB: we could've use some additional flag marker or augment the stacktrace, but it seemed to be as too much of a burden
-            throw missingFieldExceptionWithNewMessage(e, e.message + " at path: " + lexer.path.getPath())
+            actualSerializer.deserialize(this)
         }
     }
 
@@ -112,6 +107,7 @@ internal open class StreamingJsonDecoder(
                 descriptor,
                 discriminatorHolder
             )
+
             else -> if (mode == newMode && json.configuration.explicitNulls) {
                 this
             } else {

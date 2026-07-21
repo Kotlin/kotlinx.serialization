@@ -281,7 +281,7 @@ public final class kotlinx/serialization/json/JsonEncodingException : kotlinx/se
 }
 
 public abstract class kotlinx/serialization/json/JsonException : kotlinx/serialization/SerializationException {
-	public synthetic fun <init> (Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public abstract fun getHint ()Ljava/lang/String;
 	public fun getMessage ()Ljava/lang/String;
 	public abstract fun getShortMessage ()Ljava/lang/String;
