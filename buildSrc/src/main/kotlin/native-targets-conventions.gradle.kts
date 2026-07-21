@@ -34,11 +34,17 @@ kotlin {
     mingwX64()
     iosX64()
     watchosDeviceArm64()
+
+    // Deprecated
     // https://github.com/square/okio/issues/1242#issuecomment-1759357336
     if (doesNotDependOnOkio(project)) {
+        @Suppress("DEPRECATION", "DEPRECATION_ERROR")
         androidNativeArm32()
+        @Suppress("DEPRECATION", "DEPRECATION_ERROR")
         androidNativeArm64()
+        @Suppress("DEPRECATION", "DEPRECATION_ERROR")
         androidNativeX86()
+        @Suppress("DEPRECATION", "DEPRECATION_ERROR")
         androidNativeX64()
 
         // Deprecated, but not removed
@@ -46,7 +52,6 @@ kotlin {
         linuxArm32Hfp()
     }
 
-    // Deprecated
     @Suppress("DEPRECATION", "DEPRECATION_ERROR")
     macosX64()
     @Suppress("DEPRECATION", "DEPRECATION_ERROR")
