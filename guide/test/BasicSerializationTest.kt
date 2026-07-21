@@ -44,7 +44,7 @@ class BasicSerializationTest {
     @Test
     fun testExampleClasses03() {
         captureOutput("ExampleClasses03") { example.exampleClasses03.main() }.verifyOutputLinesStart(
-            "Exception in thread \"main\" java.lang.IllegalArgumentException: name cannot be empty"
+            "Exception in thread \"main\" kotlinx.serialization.json.JsonDecodingException: Deserializer caused 'name cannot be empty' exception in the decoder at path: $"
         )
     }
 

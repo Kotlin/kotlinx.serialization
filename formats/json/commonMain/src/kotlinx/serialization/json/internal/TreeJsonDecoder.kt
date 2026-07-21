@@ -61,7 +61,7 @@ private sealed class AbstractJsonTreeDecoder(
     override fun decodeJsonElement(): JsonElement = currentObject()
 
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
-        return decodeSerializableValuePolymorphic(deserializer, ::renderTagStack)
+        return withExceptionHandling(path = ::renderTagStack, input = currentObject()::toString) { decodeSerializableValuePolymorphic(deserializer, ::renderTagStack) }
     }
 
     override fun composeName(parentName: String, childName: String): String = childName
