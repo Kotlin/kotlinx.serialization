@@ -38,6 +38,10 @@ kotlin {
     // Deprecated
     // https://github.com/square/okio/issues/1242#issuecomment-1759357336
     if (doesNotDependOnOkio(project)) {
+        // Deprecated for removal: see KT-86581
+        // kotlin 2.5.0 - deprecated warning
+        // kotlin 2.5.20 - deprecated error
+        // kotlin 2.6.0 - removed
         @Suppress("DEPRECATION", "DEPRECATION_ERROR")
         androidNativeArm32()
         @Suppress("DEPRECATION", "DEPRECATION_ERROR")
@@ -52,6 +56,8 @@ kotlin {
         linuxArm32Hfp()
     }
 
+    // Deprecated for removal: see KT-78660
+    // timeline: unknown, for additional information see the ticket 
     @Suppress("DEPRECATION", "DEPRECATION_ERROR")
     macosX64()
     @Suppress("DEPRECATION", "DEPRECATION_ERROR")
