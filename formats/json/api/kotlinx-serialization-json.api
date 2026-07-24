@@ -439,13 +439,6 @@ public abstract interface class kotlinx/serialization/json/internal/InternalJson
 	public abstract fun read ([CII)I
 }
 
-public abstract class kotlinx/serialization/json/internal/InternalJsonReaderCodePointImpl : kotlinx/serialization/json/internal/InternalJsonReader {
-	public fun <init> ()V
-	public abstract fun exhausted ()Z
-	public abstract fun nextCodePoint ()I
-	public final fun read ([CII)I
-}
-
 public abstract interface class kotlinx/serialization/json/internal/InternalJsonWriter {
 	public static final field Companion Lkotlinx/serialization/json/internal/InternalJsonWriter$Companion;
 	public abstract fun release ()V
@@ -475,7 +468,8 @@ public final class kotlinx/serialization/json/internal/StringOpsKt {
 }
 
 public final class kotlinx/serialization/json/internal/TreeJsonDecoderKt {
-	public static final fun readJson (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/json/JsonElement;Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	public static final fun readJson (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/json/JsonElement;Lkotlinx/serialization/DeserializationStrategy;Lkotlinx/serialization/json/JsonDecoder;)Ljava/lang/Object;
+	public static synthetic fun readJson$default (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/json/JsonElement;Lkotlinx/serialization/DeserializationStrategy;Lkotlinx/serialization/json/JsonDecoder;ILjava/lang/Object;)Ljava/lang/Object;
 }
 
 public final class kotlinx/serialization/json/internal/TreeJsonEncoderKt {

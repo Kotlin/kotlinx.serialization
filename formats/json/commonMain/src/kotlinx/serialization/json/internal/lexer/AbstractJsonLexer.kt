@@ -139,7 +139,7 @@ internal fun escapeToChar(c: Int): Char = if (c < ESC2C_MAX) ESCAPE_2_CHAR[c] el
 /**
  * The base class that reads the JSON from the given char sequence source.
  * It has two implementations: one over the raw [String] instance, [StringJsonLexer],
- * and one over an arbitrary stream of data, [ReaderJsonLexer] (JVM-only).
+ * and one over an arbitrary stream of data, [BufferedJsonLexer] (JVM-only).
  *
  * [AbstractJsonLexer] contains base implementation for cold or not performance-sensitive
  * methods on top of [CharSequence], but [StringJsonLexer] overrides some

@@ -404,7 +404,7 @@ internal class StreamingCborParser(private val input: ByteArrayInput, private va
             readByte()
             Triple(ans, null, collectedTags)
         } else {
-            val res = readUnsignedIntegerIgnoringMajorType { majorType.majorTypeName }
+            val res = readNumber()
             readByte()
             Triple(null, res, collectedTags)
         }
@@ -694,18 +694,6 @@ internal class StreamingCborParser(private val input: ByteArrayInput, private va
         return tag
     }
 }
-
-private val Int.majorTypeName: String
-    get() = when (this and MAJOR_TYPE_MASK) {
-        HEADER_BYTE_STRING -> "byte string"
-        HEADER_STRING -> "string"
-        HEADER_ARRAY -> "array"
-        HEADER_MAP -> "map"
-        HEADER_TAG -> "tag"
-        HEADER_POSITIVE -> "unsigned integer"
-        HEADER_NEGATIVE -> "negative integer"
-        else -> "<unknown>"
-    }
 
 private fun Iterable<ByteArray>.flatten(): ByteArray {
     val output = ByteArray(sumOf { it.size })

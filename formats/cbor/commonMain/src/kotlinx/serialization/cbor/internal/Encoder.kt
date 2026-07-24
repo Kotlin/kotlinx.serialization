@@ -85,6 +85,8 @@ internal sealed class AbstractCborWriter(
 
     protected var encodeByteArrayAsByteString = false
 
+    protected var encodeNumberAsUnsigned = false
+
     class Data(val bytes: ByteArrayOutput, var elementCount: Int)
 
     protected abstract fun getDestination(): ByteArrayOutput
@@ -148,24 +150,44 @@ internal sealed class AbstractCborWriter(
 
     override fun encodeByte(value: Byte) {
         onDataItemEncoded()
-        getDestination().encodeNumber(value.toLong())
+        if (encodeNumberAsUnsigned) {
+            encodeNumberAsUnsigned = false
+            getDestination().encodeUnsignedNumber(value.toUByte().toULong())
+        } else {
+            getDestination().encodeNumber(value.toLong())
+        }
     }
 
 
     override fun encodeShort(value: Short) {
         onDataItemEncoded()
-        getDestination().encodeNumber(value.toLong())
+        if (encodeNumberAsUnsigned) {
+            encodeNumberAsUnsigned = false
+            getDestination().encodeUnsignedNumber(value.toUShort().toULong())
+        } else {
+            getDestination().encodeNumber(value.toLong())
+        }
     }
 
     override fun encodeInt(value: Int) {
         onDataItemEncoded()
-        getDestination().encodeNumber(value.toLong())
+        if (encodeNumberAsUnsigned) {
+            encodeNumberAsUnsigned = false
+            getDestination().encodeUnsignedNumber(value.toUInt().toULong())
+        } else {
+            getDestination().encodeNumber(value.toLong())
+        }
     }
 
 
     override fun encodeLong(value: Long) {
         onDataItemEncoded()
-        getDestination().encodeNumber(value)
+        if (encodeNumberAsUnsigned) {
+            encodeNumberAsUnsigned = false
+            getDestination().encodeUnsignedNumber(value.toULong())
+        } else {
+            getDestination().encodeNumber(value)
+        }
     }
 
     final override fun encodeRawNumber(value: Long) = encodeLong(value)
@@ -198,6 +220,11 @@ internal sealed class AbstractCborWriter(
     ) {
         onDataItemEncoded()
         getDestination().encodeString(enumDescriptor.getElementName(index))
+    }
+
+    override fun encodeInline(descriptor: SerialDescriptor): Encoder {
+        encodeNumberAsUnsigned = descriptor.isUnsignedNumber
+        return this
     }
 
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
@@ -561,7 +588,10 @@ internal fun ByteArrayOutput.encodeBoolean(value: Boolean) = write(if (value) TR
 
 internal fun ByteArrayOutput.encodeNumber(value: Long) = write(composeNumber(value))
 
+internal fun ByteArrayOutput.encodeUnsignedNumber(value: ULong) = write(composePositive(value))
+
 internal fun ByteArrayOutput.encodeNegative(value: ULong) = write(composeNegativeULong(value))
+
 internal fun ByteArrayOutput.encodePositive(value: ULong) = write(composePositive(value))
 
 internal fun ByteArrayOutput.encodeByteString(data: ByteArray) {

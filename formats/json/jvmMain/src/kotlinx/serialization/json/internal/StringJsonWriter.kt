@@ -5,8 +5,8 @@ package kotlinx.serialization.json.internal
  *
  * ## Implementation note
  *
- * In order to encode a single string, it should be processed symbol-per-symbol,
- * in order to detect and escape unicode symbols.
+ * To encode a single string, it should be processed symbol-per-symbol,
+ * so it's possible to properly detect and escape unicode symbols.
  *
  * Doing naively, it drastically slows down strings processing due to factors:
  * * Byte-by-byte copying that does not leverage optimized array copying
@@ -25,7 +25,7 @@ package kotlinx.serialization.json.internal
  * 3) We pool char arrays in order to save excess resizes, allocations
  *    and nulls-out of arrays.
  */
-internal actual class JsonToStringWriter : InternalJsonWriter {
+internal actual class StringJsonWriter : InternalJsonWriter {
     private var array: CharArray = CharArrayPool.take()
     private var size = 0
 

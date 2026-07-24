@@ -11,6 +11,7 @@ import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 
+// kotlinx-serialization-cbor keeps the same set in its Encoding.kt; keep both in sync.
 private val unsignedNumberDescriptors = setOf(
     UInt.serializer().descriptor,
     ULong.serializer().descriptor,
@@ -28,12 +29,12 @@ internal val SerialDescriptor.isUnquotedLiteral: Boolean
 internal class StreamingJsonEncoder(
     private val composer: Composer,
     override val json: Json,
-    private val mode: WriteMode,
+    private val mode: LexerMode,
     private val modeReuseCache: Array<JsonEncoder?>?
 ) : JsonEncoder, AbstractEncoder() {
 
     internal constructor(
-        output: InternalJsonWriter, json: Json, mode: WriteMode,
+        output: InternalJsonWriter, json: Json, mode: LexerMode,
         modeReuseCache: Array<JsonEncoder?>
     ) : this(Composer(output, json), json, mode, modeReuseCache)
 
@@ -80,7 +81,7 @@ internal class StreamingJsonEncoder(
     }
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
-        val newMode = json.switchMode(descriptor)
+        val newMode = json.modeFor(descriptor)
         if (newMode.begin != INVALID) { // entry
             composer.print(newMode.begin)
             composer.indent()
@@ -110,12 +111,12 @@ internal class StreamingJsonEncoder(
 
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
         when (mode) {
-            WriteMode.LIST -> {
+            LexerMode.LIST -> {
                 if (!composer.writingFirst)
                     composer.print(COMMA)
                 composer.nextItem()
             }
-            WriteMode.MAP -> {
+            LexerMode.MAP -> {
                 if (!composer.writingFirst) {
                     forceQuoting = if (index % 2 == 0) {
                         composer.print(COMMA)
@@ -131,7 +132,7 @@ internal class StreamingJsonEncoder(
                     composer.nextItem()
                 }
             }
-            WriteMode.POLY_OBJ -> {
+            LexerMode.POLY_OBJ -> {
                 if (index == 0)
                     forceQuoting = true
                 if (index == 1) {

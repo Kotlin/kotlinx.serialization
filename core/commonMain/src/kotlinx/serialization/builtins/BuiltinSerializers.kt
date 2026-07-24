@@ -80,7 +80,6 @@ public fun ByteArraySerializer(): KSerializer<ByteArray> = ByteArraySerializer
  * Returns serializer for [UByteArray] with [descriptor][SerialDescriptor] of [StructureKind.LIST] kind.
  * Each element of the array is serialized one by one with [UByte.Companion.serializer].
  */
-@ExperimentalSerializationApi
 @ExperimentalUnsignedTypes
 public fun UByteArraySerializer(): KSerializer<UByteArray> = UByteArraySerializer
 
@@ -99,7 +98,6 @@ public fun ShortArraySerializer(): KSerializer<ShortArray> = ShortArraySerialize
  * Returns serializer for [UShortArray] with [descriptor][SerialDescriptor] of [StructureKind.LIST] kind.
  * Each element of the array is serialized one by one with [UShort.Companion.serializer].
  */
-@ExperimentalSerializationApi
 @ExperimentalUnsignedTypes
 public fun UShortArraySerializer(): KSerializer<UShortArray> = UShortArraySerializer
 
@@ -118,7 +116,6 @@ public fun IntArraySerializer(): KSerializer<IntArray> = IntArraySerializer
  * Returns serializer for [UIntArray] with [descriptor][SerialDescriptor] of [StructureKind.LIST] kind.
  * Each element of the array is serialized one by one with [UInt.Companion.serializer].
  */
-@ExperimentalSerializationApi
 @ExperimentalUnsignedTypes
 public fun UIntArraySerializer(): KSerializer<UIntArray> = UIntArraySerializer
 
@@ -137,7 +134,6 @@ public fun LongArraySerializer(): KSerializer<LongArray> = LongArraySerializer
  * Returns serializer for [ULongArray] with [descriptor][SerialDescriptor] of [StructureKind.LIST] kind.
  * Each element of the array is serialized one by one with [ULong.Companion.serializer].
  */
-@ExperimentalSerializationApi
 @ExperimentalUnsignedTypes
 public fun ULongArraySerializer(): KSerializer<ULongArray> = ULongArraySerializer
 
@@ -190,7 +186,6 @@ public fun String.Companion.serializer(): KSerializer<String> = StringSerializer
  * Each element of the array is serialized with the given [elementSerializer].
  */
 @Suppress("UNCHECKED_CAST")
-@ExperimentalSerializationApi
 public inline fun <reified T : Any, reified E : T?> ArraySerializer(elementSerializer: KSerializer<E>): KSerializer<Array<E>> =
     ArraySerializer<T, E>(T::class, elementSerializer)
 
@@ -198,7 +193,6 @@ public inline fun <reified T : Any, reified E : T?> ArraySerializer(elementSeria
  * Returns serializer for reference [Array] of type [E] with [descriptor][SerialDescriptor] of [StructureKind.LIST] kind.
  * Each element of the array is serialized with the given [elementSerializer].
  */
-@ExperimentalSerializationApi
 public fun <T : Any, E : T?> ArraySerializer(
     kClass: KClass<T>,
     elementSerializer: KSerializer<E>
@@ -291,5 +285,4 @@ public fun Uuid.Companion.serializer(): KSerializer<Uuid> = UuidSerializer
  *
  * It is used as a dummy in case it is necessary to pass a type to a parameterized class. At the same time, it is expected that this generic type will not participate in serialization.
  */
-@ExperimentalSerializationApi
 public fun NothingSerializer(): KSerializer<Nothing> = NothingSerializer

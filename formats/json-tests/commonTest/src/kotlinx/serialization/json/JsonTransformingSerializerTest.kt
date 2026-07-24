@@ -6,6 +6,7 @@ package kotlinx.serialization.json
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
+import kotlinx.serialization.test.assertFailsWithSerialMessage
 import kotlin.test.*
 
 class JsonTransformingSerializerTest : JsonTestBase() {
@@ -122,5 +123,78 @@ class JsonTransformingSerializerTest : JsonTestBase() {
         val nullInput = """{"stringData":{"data":null}}"""
         assertJsonFormAndRestored(NullableStringDataHolder.serializer(), NullableStringDataHolder(StringData("str1")), normalInput)
         assertJsonFormAndRestored(NullableStringDataHolder.serializer(), NullableStringDataHolder(null), nullInput)
+    }
+
+    @Serializable
+    sealed class BaseExample
+
+    @Serializable(SubExample.PolymorphicSerializer::class)
+    @KeepGeneratedSerializer
+    @SerialName("Sub")
+    data class SubExample(
+        val data: String
+    ) : BaseExample() {
+        object PolymorphicSerializer : JsonTransformingSerializer<SubExample>(generatedSerializer())
+    }
+
+    @Test
+    fun testPolymorphicExampleCanBeParsed() {
+        val baseExample: BaseExample = SubExample("str1")
+        val polymorphicInput = Json.encodeToString(baseExample)
+        assertJsonFormAndRestored(BaseExample.serializer(), baseExample, polymorphicInput)
+    }
+
+    @Serializable
+    sealed class NestedBaseExample
+
+    @Serializable
+    @SerialName("leaf")
+    data class LeafSubExample(val value: String) : NestedBaseExample()
+
+    @Serializable(CompositeSubExample.PolymorphicSerializer::class)
+    @KeepGeneratedSerializer
+    @SerialName("composite")
+    data class CompositeSubExample(
+        val name: String,
+        val children: List<NestedBaseExample>,
+        val metadata: NestedBaseExample? = null
+    ) : NestedBaseExample() {
+        object PolymorphicSerializer : JsonTransformingSerializer<CompositeSubExample>(generatedSerializer())
+    }
+
+    @Test
+    fun testNestedPolymorphicExampleCanBeParsed() {
+        val root: NestedBaseExample = CompositeSubExample(
+            name = "root",
+            children = listOf(
+                LeafSubExample("child1"),
+                CompositeSubExample("sub-root", listOf(LeafSubExample("grand-child")))
+            ),
+            metadata = LeafSubExample("meta-info")
+        )
+
+        val polymorphicInput = Json.encodeToString(root)
+        assertJsonFormAndRestored(NestedBaseExample.serializer(), root, polymorphicInput, Json)
+    }
+
+    @Serializable(SubExample2.PolymorphicSerializer::class)
+    @KeepGeneratedSerializer
+    @SerialName("Sub")
+    data class SubExample2(
+        val data: String
+    ) {
+        object PolymorphicSerializer : JsonTransformingSerializer<SubExample2>(generatedSerializer())
+    }
+
+    @Test
+    fun testNonPolymorphicExampleShouldNotBeParsed() {
+        val input = """{"type":"Sub","data":"str1"}"""
+        val nonPolymorphicInput = Json { ignoreUnknownKeys = false }
+        assertFailsWithSerialMessage(
+            "JsonDecodingException",
+            "Encountered an unknown key 'type'"
+        ) {
+            nonPolymorphicInput.decodeFromString<SubExample2>(input)
+        }
     }
 }

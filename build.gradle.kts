@@ -13,7 +13,6 @@ plugins {
     id("org.jetbrains.kotlinx.binary-compatibility-validator")
     id("org.jetbrains.dokka")
     id("benchmark-conventions")
-    id("publishing-check-conventions")
     id("kover-conventions")
 
     alias(libs.plugins.serialization) apply false
@@ -103,8 +102,6 @@ val mergeProject = project
 
 subprojects {
     if (name in unpublishedProjects) return@subprojects
-    apply(plugin = "publishing-conventions")
-    mergeProject.dependencies.add(Publishing_check_conventions_gradle.TestPublishing.configurationName, this)
 }
 
 // == animalsniffer setup ==

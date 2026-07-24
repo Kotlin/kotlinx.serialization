@@ -6,6 +6,7 @@
 package kotlinx.serialization.cbor.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.cbor.*
 import kotlinx.serialization.descriptors.*
 
@@ -35,7 +36,7 @@ internal const val HEADER_NEGATIVE: Int = 0b001_00000
 internal const val HEADER_ARRAY: Int = 0b100_00000
 internal const val HEADER_MAP: Int = 0b101_00000
 internal const val HEADER_TAG: Int = 0b110_00000
-internal const val HEADER_SIMPLE: Int = 0b111_00000
+internal const val HEADER_FP_AND_SIMPLE: Int = 0b111_00000
 
 /** Value to represent an indefinite length CBOR item within a "length stack". */
 internal const val LENGTH_STACK_INDEFINITE = -1
@@ -61,6 +62,18 @@ internal fun SerialDescriptor.isInlineByteString(): Boolean {
     return isInline && isByteString(0)
 }
 
+// kotlinx-serialization-json keeps the same set in StreamingJsonEncoder; keep both in sync.
+private val unsignedNumberDescriptors = setOf(
+    UInt.serializer().descriptor,
+    ULong.serializer().descriptor,
+    UByte.serializer().descriptor,
+    UShort.serializer().descriptor,
+)
+
+internal val SerialDescriptor.isUnsignedNumber: Boolean
+    get() = isInline && this in unsignedNumberDescriptors
+
+@OptIn(ExperimentalSerializationApi::class)
 internal fun SerialDescriptor.getValueTags(index: Int): ULongArray? = findAnnotation<ValueTags>(index)?.tags
 
 internal fun SerialDescriptor.getKeyTags(index: Int): ULongArray? = findAnnotation<KeyTags>(index)?.tags
@@ -79,6 +92,38 @@ internal inline fun <reified A : Annotation> SerialDescriptor.findAnnotation(ele
 internal fun SerialDescriptor.getObjectTags(): ULongArray? {
     return annotations.filterIsInstance<ObjectTags>().firstOrNull()?.tags
 }
+
+internal val Int.majorTypeName: String
+    get() = when (this and MAJOR_TYPE_MASK) {
+        HEADER_BYTE_STRING -> "byte string"
+        HEADER_STRING -> "string"
+        HEADER_ARRAY -> "array"
+        HEADER_MAP -> "map"
+        HEADER_TAG -> "tag"
+        HEADER_POSITIVE.toInt() -> "unsigned integer"
+        HEADER_NEGATIVE.toInt() -> "negative integer"
+        HEADER_FP_AND_SIMPLE -> {
+            val value = this and ADDITIONAL_INFO_MASK
+            "simple value - ${value.simpleValueKindName}"
+        }
+        else -> throw UnsupportedOperationException("Unreachable")
+    }
+
+// See https://datatracker.ietf.org/doc/html/rfc8949#section-3.3
+private val Int.simpleValueKindName: String
+    get() = when (this) {
+        20 -> "false"
+        21 -> "true"
+        22 -> "null"
+        23 -> "undefined"
+        24 -> "value 32..255 in the next byte"
+        25 -> "half-precision floating point number"
+        26 -> "single-precision floating point number"
+        27 -> "double-precision floating point number"
+        in 28..30 -> "reserved"
+        31 -> "break for indefinite length items"
+        else -> "unassigned"
+    }
 
 internal fun SerialDescriptor.isCborElementDescriptor(): Boolean =
     serialName.removeSuffix("?") in cborElementSerialNames

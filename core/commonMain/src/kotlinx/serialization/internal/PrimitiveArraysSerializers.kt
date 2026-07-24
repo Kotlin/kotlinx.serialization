@@ -419,7 +419,6 @@ internal class BooleanArrayBuilder internal constructor(
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
 @PublishedApi
-@ExperimentalSerializationApi
 @ExperimentalUnsignedTypes
 internal object UByteArraySerializer : KSerializer<UByteArray>,
     PrimitiveArraySerializer<UByte, UByteArray, UByteArrayBuilder>(UByte.serializer()) {
@@ -439,7 +438,6 @@ internal object UByteArraySerializer : KSerializer<UByteArray>,
 }
 
 @PublishedApi
-@ExperimentalSerializationApi
 @ExperimentalUnsignedTypes
 internal class UByteArrayBuilder internal constructor(
     bufferWithData: UByteArray
@@ -473,7 +471,6 @@ internal class UByteArrayBuilder internal constructor(
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
 @PublishedApi
-@ExperimentalSerializationApi
 @ExperimentalUnsignedTypes
 internal object UShortArraySerializer : KSerializer<UShortArray>,
     PrimitiveArraySerializer<UShort, UShortArray, UShortArrayBuilder>(UShort.serializer()) {
@@ -493,7 +490,6 @@ internal object UShortArraySerializer : KSerializer<UShortArray>,
 }
 
 @PublishedApi
-@ExperimentalSerializationApi
 @ExperimentalUnsignedTypes
 internal class UShortArrayBuilder internal constructor(
     bufferWithData: UShortArray
@@ -527,7 +523,6 @@ internal class UShortArrayBuilder internal constructor(
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
 @PublishedApi
-@ExperimentalSerializationApi
 @ExperimentalUnsignedTypes
 internal object UIntArraySerializer : KSerializer<UIntArray>,
     PrimitiveArraySerializer<UInt, UIntArray, UIntArrayBuilder>(UInt.serializer()) {
@@ -547,7 +542,6 @@ internal object UIntArraySerializer : KSerializer<UIntArray>,
 }
 
 @PublishedApi
-@ExperimentalSerializationApi
 @ExperimentalUnsignedTypes
 internal class UIntArrayBuilder internal constructor(
     bufferWithData: UIntArray
@@ -581,7 +575,6 @@ internal class UIntArrayBuilder internal constructor(
  * unless format's Encoder/Decoder have special handling for this serializer.
  */
 @PublishedApi
-@ExperimentalSerializationApi
 @ExperimentalUnsignedTypes
 internal object ULongArraySerializer : KSerializer<ULongArray>,
     PrimitiveArraySerializer<ULong, ULongArray, ULongArrayBuilder>(ULong.serializer()) {
@@ -601,7 +594,6 @@ internal object ULongArraySerializer : KSerializer<ULongArray>,
 }
 
 @PublishedApi
-@ExperimentalSerializationApi
 @ExperimentalUnsignedTypes
 internal class ULongArrayBuilder internal constructor(
     bufferWithData: ULongArray
@@ -627,4 +619,3 @@ internal class ULongArrayBuilder internal constructor(
 
     override fun build() = buffer.copyOf(position)
 }
-
