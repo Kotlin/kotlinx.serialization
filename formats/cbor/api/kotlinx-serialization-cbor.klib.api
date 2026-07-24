@@ -388,6 +388,8 @@ final val kotlinx.serialization.cbor/long // kotlinx.serialization.cbor/long|@ko
     final fun (kotlinx.serialization.cbor/CborInteger).<get-long>(): kotlin/Long // kotlinx.serialization.cbor/long.<get-long>|<get-long>@kotlinx.serialization.cbor.CborInteger(){}[0]
 final val kotlinx.serialization.cbor/longOrNull // kotlinx.serialization.cbor/longOrNull|@kotlinx.serialization.cbor.CborInteger{}longOrNull[0]
     final fun (kotlinx.serialization.cbor/CborInteger).<get-longOrNull>(): kotlin/Long? // kotlinx.serialization.cbor/longOrNull.<get-longOrNull>|<get-longOrNull>@kotlinx.serialization.cbor.CborInteger(){}[0]
+final val kotlinx.serialization.cbor/longWithOverflow // kotlinx.serialization.cbor/longWithOverflow|@kotlinx.serialization.cbor.CborInteger{}longWithOverflow[0]
+    final fun (kotlinx.serialization.cbor/CborInteger).<get-longWithOverflow>(): kotlin/Long // kotlinx.serialization.cbor/longWithOverflow.<get-longWithOverflow>|<get-longWithOverflow>@kotlinx.serialization.cbor.CborInteger(){}[0]
 final val kotlinx.serialization.cbor/short // kotlinx.serialization.cbor/short|@kotlinx.serialization.cbor.CborInteger{}short[0]
     final fun (kotlinx.serialization.cbor/CborInteger).<get-short>(): kotlin/Short // kotlinx.serialization.cbor/short.<get-short>|<get-short>@kotlinx.serialization.cbor.CborInteger(){}[0]
 final val kotlinx.serialization.cbor/shortOrNull // kotlinx.serialization.cbor/shortOrNull|@kotlinx.serialization.cbor.CborInteger{}shortOrNull[0]

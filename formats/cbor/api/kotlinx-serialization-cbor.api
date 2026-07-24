@@ -209,6 +209,7 @@ public final class kotlinx/serialization/cbor/CborElementKt {
 	public static final fun getIntOrNull (Lkotlinx/serialization/cbor/CborInteger;)Ljava/lang/Integer;
 	public static final fun getLong (Lkotlinx/serialization/cbor/CborInteger;)J
 	public static final fun getLongOrNull (Lkotlinx/serialization/cbor/CborInteger;)Ljava/lang/Long;
+	public static final fun getLongWithOverflow (Lkotlinx/serialization/cbor/CborInteger;)J
 	public static final fun getShort (Lkotlinx/serialization/cbor/CborInteger;)S
 	public static final fun getShortOrNull (Lkotlinx/serialization/cbor/CborInteger;)Ljava/lang/Short;
 }

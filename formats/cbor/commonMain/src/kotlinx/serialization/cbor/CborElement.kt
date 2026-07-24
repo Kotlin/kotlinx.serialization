@@ -162,6 +162,14 @@ public val CborInteger.longOrNull: Long?
         }
     }
 
+@ExperimentalSerializationApi
+public val CborInteger.longWithOverflow: Long
+    get() = if (isPositive) {
+        absoluteValue.toLong()
+    } else {
+        -(absoluteValue.toLong())
+    }
+
 /**
  * Converts this integer to [Int], throwing if it cannot be represented as [Int].
  */

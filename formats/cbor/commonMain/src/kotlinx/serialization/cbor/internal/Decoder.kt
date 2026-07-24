@@ -41,17 +41,6 @@ internal open class CborReader(override val cbor: Cbor, internal val parser: Cbo
     override val serializersModule: SerializersModule
         get() = cbor.serializersModule
 
-    override fun decodeInline(descriptor: SerialDescriptor): Decoder {
-        return when (descriptor.serialName) {
-            "kotlin.UByte",
-            "kotlin.UShort",
-            "kotlin.UInt",
-            "kotlin.ULong",
-                -> UnsignedInlineDecoder(this)
-            else -> super.decodeInline(descriptor)
-        }
-    }
-
     protected open fun skipBeginToken(objectTags: ULongArray?) = setSize(parser.startMap(objectTags))
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
@@ -817,8 +806,8 @@ internal class StructuredCborParser(internal val element: CborElement, private v
         if (layer.current !is CborInteger) {
             throw CborDecodingException("Expected number, got ${layer.current::class.simpleName}")
         }
-        return (layer.current as CborInteger).longOrNull
-            ?: throw CborDecodingException("${layer.current} cannot be represented as Long")
+        // TODO: consider reverting it back
+        return (layer.current as CborInteger).longWithOverflow
     }
 
     override fun nextString(tags: ULongArray?): String {

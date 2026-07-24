@@ -111,6 +111,7 @@ internal sealed class AbstractCborWriter(
     override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean =
         cbor.configuration.encodeDefaults
 
+    /*
     override fun encodeInline(descriptor: SerialDescriptor): Encoder {
         return when (descriptor.serialName) {
             "kotlin.UByte",
@@ -121,6 +122,7 @@ internal sealed class AbstractCborWriter(
             else -> super.encodeInline(descriptor)
         }
     }
+     */
 
     protected abstract fun incrementChildren()
 

@@ -55,7 +55,7 @@ internal class CborTreeReader(
                 readMap(tags)
             }
 
-            HEADER_SIMPLE -> { // Major type 7: simple/float/break
+            HEADER_FP_AND_SIMPLE -> { // Major type 7: simple/float/break
                 when (parser.curByte) {
                     FALSE, TRUE -> {
                         CborBoolean(parser.nextBoolean(null), tags = tags)

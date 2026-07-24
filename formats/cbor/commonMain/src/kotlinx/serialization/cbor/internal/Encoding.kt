@@ -100,8 +100,8 @@ internal val Int.majorTypeName: String
         HEADER_ARRAY -> "array"
         HEADER_MAP -> "map"
         HEADER_TAG -> "tag"
-        HEADER_POSITIVE.toInt() -> "unsigned integer"
-        HEADER_NEGATIVE.toInt() -> "negative integer"
+        HEADER_POSITIVE -> "unsigned integer"
+        HEADER_NEGATIVE -> "negative integer"
         HEADER_FP_AND_SIMPLE -> {
             val value = this and ADDITIONAL_INFO_MASK
             "simple value - ${value.simpleValueKindName}"

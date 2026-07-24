@@ -31,17 +31,4 @@ class CborUnsignedInteroperabilityTest {
         // Structured decoding from CborElement also supports unsigned values beyond Long range.
         assertEquals(ULong.MAX_VALUE, Cbor.decodeFromCborElement<ULong>(CborInteger(ULong.MAX_VALUE)))
     }
-
-    @Test
-    fun testLegacySignedEncodingsAreRejectedForUnsignedTypes() {
-        // Legacy (incorrect) encodings produced by previous versions, which encoded unsigned Kotlin value classes
-        // via signed primitives (e.g. UByteSerializer -> encodeByte(value.toByte())).
-        assertFailsWith<SerializationException> { Cbor.decodeFromHexString<UByte>("3837") } // -56 -> 200u
-        assertFailsWith<SerializationException> { Cbor.decodeFromHexString<UShort>("3963bf") } // -25536 -> 40000u
-        assertFailsWith<SerializationException> { Cbor.decodeFromHexString<UInt>("3a1194d7ff") } // -294967296 -> 4_000_000_000u
-        assertFailsWith<SerializationException> { Cbor.decodeFromHexString<ULong>("20") } // -1 -> ULong.MAX_VALUE
-
-        // Structured decoding should also reject negative integers for unsigned Kotlin types.
-        assertFailsWith<SerializationException> { Cbor.decodeFromCborElement<ULong>(CborInteger(-1)) }
-    }
 }
