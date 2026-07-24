@@ -85,9 +85,12 @@ public class CborInteger(
     vararg tags: ULong
 ) : CborPrimitive(tags) {
     init {
-        if (!isPositive) require(absoluteValue > 0uL) { "Illegal absolute value $absoluteValue for a negative number." }
+        require(isPositive || absoluteValue.toLong() != 0L) {
+            "Illegal absolute value $absoluteValue for a negative number."
+        }
     }
 
+    @SuppressAnimalSniffer // Long.compareUnsigned
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is CborInteger) return false
@@ -99,6 +102,7 @@ public class CborInteger(
         return true
     }
 
+    @SuppressAnimalSniffer // Boolean.hashCode
     override fun hashCode(): Int {
         var result = super.hashCode()
         result = 31 * result + absoluteValue.hashCode()
@@ -148,6 +152,7 @@ public val CborInteger.long: Long
  * Converts this integer to [Long], or returns `null` if it cannot be represented as [Long].
  */
 @ExperimentalSerializationApi
+@get:SuppressAnimalSniffer // Long.compareUnsigned
 public val CborInteger.longOrNull: Long?
     get() {
         val max = Long.MAX_VALUE.toULong()
@@ -240,6 +245,7 @@ public class CborFloat(
         return value.equals(other.value)
     }
 
+    @SuppressAnimalSniffer // Double.hashCode
     override fun hashCode(): Int = 31 * super.hashCode() + value.hashCode()
 
     override fun toString(): String {
@@ -304,6 +310,7 @@ public class CborBoolean(
         return value == other.value
     }
 
+    @SuppressAnimalSniffer // Boolean.hashCode
     override fun hashCode(): Int = 31 * super.hashCode() + value.hashCode()
 
     override fun toString(): String {

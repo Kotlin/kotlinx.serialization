@@ -10,5 +10,5 @@ package kotlinx.serialization.cbor.internal
  * available in Android API, but can be desugared by R8.
  */
 @Retention(AnnotationRetention.BINARY)
-@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
 internal annotation class SuppressAnimalSniffer
