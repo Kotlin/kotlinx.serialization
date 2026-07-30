@@ -301,7 +301,6 @@ Therefore, make sure your decoder also supports regular decoding with the `decod
 Here's how to apply this optimization to the custom `ListDecoder`:
 
 ```kotlin
-// Imports declarations from the serialization library
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
