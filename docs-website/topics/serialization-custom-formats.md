@@ -9,7 +9,7 @@ Kotlin serialization also provides experimental support for the [CBOR](serializa
 These experimental format implementations are production-quality, but future releases may introduce changes to their default serialization behavior.
 They may also have format-specific limitations or restrictions on how they represent Kotlin data.
 
-If none of these formats fit your use case, you can [create a custom format](#create-custom-formats) to control how values and structures are encoded and decoded.
+If none of these formats fit your use case, you can create a custom format to control how values and structures are encoded and decoded.
 
 ## Create custom formats
 
@@ -31,7 +31,7 @@ The following sections use these APIs to create a custom format that encodes val
 
 ### Create a basic encoder
 
-To build a custom `Encoder`, you can extend the `AbstractEncoder` class.
+To build a custom encoder, you can extend the `AbstractEncoder` class.
 This allows you to override the default implementations instead of implementing the `Encoder` and `CompositeEncoder` interfaces from scratch.
 
 To create a basic encoder:
@@ -131,7 +131,7 @@ This can be useful when you need to process those values uniformly, for example 
 
 ### Create a basic decoder
 
-To build a custom `Decoder` in Kotlin serialization, you can extend the `AbstractDecoder` class.
+To build a custom decoder, you can extend the `AbstractDecoder` class.
 This allows you to override the default implementations instead of implementing the `Decoder` and `CompositeDecoder` interfaces from scratch.
 
 To create a basic decoder:
@@ -550,7 +550,7 @@ class ListEncoder : AbstractEncoder() {
     // Represents null values as NULL
     override fun encodeNull() = encodeValue("NULL")
 
-    // Marks the value as non-null with "!!"
+    // Marks a value as non-null with "!!"
     override fun encodeNotNullMark() = encodeValue("!!")
 }
 
