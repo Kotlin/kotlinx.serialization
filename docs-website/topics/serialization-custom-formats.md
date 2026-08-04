@@ -4,7 +4,7 @@
 [//]: # (description: Learn how to create custom formats for Kotlin serialization, including encoders, decoders, sequential decoding, and support for format-specific types.)
 
 JSON is currently the only stable format in Kotlin serialization.
-Kotlin serialization also provides experimental support for the [CBOR](serialization-cbor.md) and [ProtoBuf](serialization-protobuf.md) binary formats, as well as the [`Properties`](serialization-properties-format.md) format for representing classes as flat maps with `String` keys.
+Kotlin serialization also provides experimental support for the [CBOR](serialization-cbor.md) and [ProtoBuf](serialization-protobuf.md) binary formats, as well as the [`Properties`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-properties/kotlinx.serialization.properties/-properties/) format for representing classes as flat maps with `String` keys.
 
 These experimental format implementations are production-quality, but future releases may introduce changes to their default serialization behavior.
 They may also have format-specific limitations or restrictions on how they represent Kotlin data.

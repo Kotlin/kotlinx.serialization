@@ -22,7 +22,6 @@
         </toc-element>
         <toc-element toc-title="Alternative and custom serialization formats">
             <toc-element topic="serialization-custom-formats.md"/>
-            <toc-element topic="serialization-properties-format.md"/>
             <toc-element topic="serialization-cbor.md"/>
             <toc-element topic="serialization-protobuf.md"/>
         </toc-element>
