@@ -175,14 +175,14 @@ internal class StreamingJsonEncoder(
         } else {
             (modeReuseCache?.get(newMode.ordinal) ?: StreamingJsonEncoder(composer, json, newMode, modeReuseCache))
         }
-        if (newMode == WriteMode.OBJ && extraKeysIndexFor(descriptor) != -1) {
+        if (newMode == LexerMode.OBJ && extraKeysIndexFor(descriptor) != -1) {
             (result as StreamingJsonEncoder).pushExtraKeysFrame(discriminator)
         }
         return result
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
-        if (mode == WriteMode.OBJ) {
+        if (mode == LexerMode.OBJ) {
             val bucketIndex = extraKeysIndexFor(descriptor)
             if (bucketIndex != -1) flushExtraKeys(descriptor, bucketIndex)
         }
@@ -249,7 +249,7 @@ internal class StreamingJsonEncoder(
         // because a bucket is always a Map and can only arrive through this
         // method — primitive properties never pay for it. The mode check
         // short-circuits map/list entries before the descriptor lookup.
-        if (mode == WriteMode.OBJ && extraKeysIndexFor(descriptor) == index) {
+        if (mode == LexerMode.OBJ && extraKeysIndexFor(descriptor) == index) {
             // Validation in JsonNamesMap guarantees the declared type is
             // JsonObject or Map<String, JsonElement>.
             @Suppress("UNCHECKED_CAST")
@@ -265,7 +265,7 @@ internal class StreamingJsonEncoder(
         serializer: SerializationStrategy<T>,
         value: T?
     ) {
-        if (mode == WriteMode.OBJ && extraKeysIndexFor(descriptor) == index) {
+        if (mode == LexerMode.OBJ && extraKeysIndexFor(descriptor) == index) {
             @Suppress("UNCHECKED_CAST")
             pendingExtraKeys = value as Map<String, JsonElement>?
             return
