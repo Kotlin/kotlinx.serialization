@@ -291,6 +291,9 @@ internal open class StreamingJsonDecoder(
         // Dispatch once per element-index request: classes without a
         // @JsonExtraKeys bucket (the overwhelming majority) run a loop that is
         // identical to the pre-feature code and carry no bucket bookkeeping.
+        // The flag check is inlined here so the disabled path branches straight
+        // into the no-bucket loop without calling into the cache machinery.
+        if (!configuration.useExtraKeys) return decodeObjectIndexNoBucket(descriptor)
         val extraKeysIndex = extraKeysIndexFor(descriptor)
         if (extraKeysIndex == -1) return decodeObjectIndexNoBucket(descriptor)
         return decodeObjectIndexWithBucket(descriptor, extraKeysIndex)
