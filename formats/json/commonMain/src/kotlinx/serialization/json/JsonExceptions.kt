@@ -86,5 +86,6 @@ public class JsonDecodingException @Deprecated(
 public class JsonEncodingException internal constructor(
     public override val shortMessage: String,
     public val classSerialName: String? = null,
-    public override val hint: String? = null
-) : JsonException(formatEncodingException(shortMessage, hint), null)
+    public override val hint: String? = null,
+    cause: Throwable? = null
+) : JsonException(formatEncodingException(shortMessage, hint), cause)
