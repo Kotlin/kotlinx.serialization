@@ -78,15 +78,12 @@ internal open class StreamingJsonDecoder(
                 return decodeSerializableValuePolymorphic<T>(deserializer as DeserializationStrategy<T>) { lexer.path.getPath() }
 
             @Suppress("UNCHECKED_CAST")
-            val actualSerializer = try {
-                deserializer.findPolymorphicSerializer(this, type)
-            } catch (it: SerializationException) { // Wrap SerializationException into JsonDecodingException to preserve position, path, and input.
-                // Split multiline message from private core function:
-                // core/commonMain/src/kotlinx/serialization/internal/AbstractPolymorphicSerializer.kt:102
-                val message = it.message!!.substringBefore('\n').removeSuffix(".")
-                val hint = it.message!!.substringAfter('\n', missingDelimiterValue = "")
+            val actualSerializer = deserializer.findPolymorphicSerializerOrNull(this, type) as? DeserializationStrategy<T>
+
+            if (actualSerializer == null) {
+                val (message, hint) = subtypeNotRegisteredMessageJson(type, deserializer.baseClass)
                 lexer.fail(message, hint = hint)
-            } as DeserializationStrategy<T>
+            }
 
             discriminatorHolder = DiscriminatorHolder(discriminator)
             actualSerializer.deserialize(this)
