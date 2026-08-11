@@ -23,7 +23,7 @@ class PolymorphismTest {
     @Test
     fun testExamplePoly03() {
         captureOutput("ExamplePoly03") { example.examplePoly03.main() }.verifyOutputLinesStart(
-            "Exception in thread \"main\" kotlinx.serialization.SerializationException: Serializer for subclass 'OwnedProject' is not found in the polymorphic scope of 'Project'.",
+            "Exception in thread \"main\" kotlinx.serialization.json.JsonEncodingException: Serializer for subclass 'OwnedProject' is not found in the polymorphic scope of 'Project'",
             "Check if class with serial name 'OwnedProject' exists and serializer is registered in a corresponding SerializersModule.",
             "To be registered automatically, class 'OwnedProject' has to be '@Serializable', and the base class 'Project' has to be sealed and '@Serializable'."
         )

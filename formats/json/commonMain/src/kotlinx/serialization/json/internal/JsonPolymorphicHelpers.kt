@@ -9,6 +9,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
+import kotlin.reflect.KClass
 
 @Suppress("UNCHECKED_CAST")
 internal inline fun <T> JsonEncoder.encodePolymorphically(
@@ -34,7 +35,11 @@ internal inline fun <T> JsonEncoder.encodePolymorphically(
     val actualSerializer: SerializationStrategy<T> = if (isPolymorphicSerializer) {
         val casted = serializer as AbstractPolymorphicSerializer<Any>
         requireNotNull(value) { "Value for serializer ${serializer.descriptor} should always be non-null. Please report issue to the kotlinx.serialization tracker." }
-        val actual = casted.findPolymorphicSerializer(this, value)
+        val actual = casted.findPolymorphicSerializerOrNull(this, value) ?: throw run {
+            val subClassName = value::class.simpleName ?: value::class.toString()
+            val (message, hint) = subtypeNotRegisteredMessageJson(subClassName, casted.baseClass)
+            JsonEncodingException(message, subClassName, hint)
+        }
         actual as SerializationStrategy<T>
     } else serializer
 
@@ -75,7 +80,10 @@ internal fun checkKind(kind: SerialKind) {
     if (kind is PolymorphicKind) error("Actual serializer for polymorphic cannot be polymorphic itself")
 }
 
-internal inline fun <T> JsonDecoder.decodeSerializableValuePolymorphic(deserializer: DeserializationStrategy<T>, path: () -> String): T {
+internal inline fun <T> JsonDecoder.decodeSerializableValuePolymorphic(
+    deserializer: DeserializationStrategy<T>,
+    path: () -> String
+): T {
     // NB: changes in this method should be reflected in StreamingJsonDecoder#decodeSerializableValue
     if (deserializer !is AbstractPolymorphicSerializer<*> || json.configuration.useArrayPolymorphism) {
         return deserializer.deserialize(this)
@@ -83,14 +91,16 @@ internal inline fun <T> JsonDecoder.decodeSerializableValuePolymorphic(deseriali
     val discriminator = deserializer.descriptor.classDiscriminator(json)
 
     val jsonTree = cast<JsonObject>(decodeJsonElement(), deserializer.descriptor.serialName, path)
-    val type = jsonTree[discriminator]?.jsonPrimitive?.contentOrNull // differentiate between `"type":"null"` and `"type":null`.
+    val type =
+        jsonTree[discriminator]?.jsonPrimitive?.contentOrNull // differentiate between `"type":"null"` and `"type":null`.
+
     @Suppress("UNCHECKED_CAST")
     val actualSerializer =
-        try {
-            deserializer.findPolymorphicSerializer(this, type)
-        } catch (it: SerializationException) { //  Wrap SerializationException into JsonDecodingException to preserve input
-            throw decodingExceptionOf(it.message!!) { jsonTree.toString() }
-        } as DeserializationStrategy<T>
+        deserializer.findPolymorphicSerializerOrNull(this, type) as? DeserializationStrategy<T>
+    if (actualSerializer == null) {
+        val (message, hint) = subtypeNotRegisteredMessageJson(type, deserializer.baseClass)
+        throw decodingExceptionOf(message, path(), hint) { jsonTree.toString() }
+    }
     return json.readPolymorphicJson(discriminator, jsonTree, actualSerializer)
 }
 
@@ -110,4 +120,16 @@ internal fun throwJsonElementPolymorphicException(serialName: String?, element: 
         hint = "Make sure that its JsonTransformingSerializer returns JsonObject, so class discriminator can be added to it.",
         classSerialName = serialName
     )
+}
+
+// When editing these messages, make sure to update AbstractPolymorphicSerializer#throwSubtypeNotRegistered as well.
+internal fun subtypeNotRegisteredMessageJson(subClassName: String?, baseClass: KClass<*>): Pair<String, String?> {
+    val scope = "in the polymorphic scope of '${baseClass.simpleName}'"
+    return if (subClassName == null) {
+        "Class discriminator was missing and no default serializers were registered $scope" to null
+    } else {
+        "Serializer for subclass '$subClassName' is not found $scope" to
+            "Check if class with serial name '$subClassName' exists and serializer is registered in a corresponding SerializersModule.\n" +
+            "To be registered automatically, class '$subClassName' has to be '@Serializable', and the base class '${baseClass.simpleName}' has to be sealed and '@Serializable'."
+    }
 }
