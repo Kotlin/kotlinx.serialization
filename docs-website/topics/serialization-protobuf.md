@@ -48,7 +48,6 @@ To serialize objects with ProtoBuf, use the
 [`ProtoBuf`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-buf/) class with the [`.encodeToByteArray()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-buf/encode-to-byte-array.html) and the [`.decodeFromByteArray()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-buf/decode-from-byte-array.html) functions:
 
 ```kotlin
-// Imports declarations from the serialization library
 import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.*
 
@@ -97,7 +96,6 @@ This is useful if you plan to reorder properties, and it aligns with Protobuf's 
 Here's an example:
 
 ```kotlin
-// Imports declarations from the serialization library
 import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.*
 
@@ -170,7 +168,6 @@ The `ProtoIntegerType` enum supports three options:
 The following example shows all three supported options:
 
 ```kotlin
-// Imports declarations from the serialization library
 import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.*
 
@@ -202,51 +199,6 @@ fun main() {
     // {08}{01}{10}{03}{1D}{03}{00}{00}{00}
 }
 ```
-
-<!-- REMOVE AFTER REVIEW: Like with CBOR examples, I felt like we have shown enough times how it looks in ProtoBuf hex notation so I removed that part to keep it a bit more concise. -->
-
-## Encode empty lists in ProtoBuf
-
-In ProtoBuf, lists and other collections are encoded as *repeated fields*, where each element is written as a separate entry for the same field number.
-When Kotlin serialization encodes an empty list with ProtoBuf, it writes no entries for that field.
-This makes an empty collection indistinguishable from a missing field during deserialization.
-
-To deserialize an empty collection correctly, specify `emptyList()` as the default value for collection and map properties.
-
-Here's an example:
-
-```kotlin
-// Imports declarations from the serialization library
-import kotlinx.serialization.*
-import kotlinx.serialization.protobuf.*
-
-fun ByteArray.toAsciiHexString() = joinToString("") {
-    if (it in 32..127) it.toInt().toChar().toString() else
-        "{${it.toUByte().toString(16).padStart(2, '0').uppercase()}}"
-}
-
-@Serializable
-data class Data(
-    // Sets an empty list as the default value for lists a and b
-    val a: List<Int> = emptyList(),
-    val b: List<Int> = emptyList()
-)
-
-@OptIn(ExperimentalSerializationApi::class)
-fun main() {
-    val data = Data(listOf(1, 2, 3), listOf())
-    val bytes = ProtoBuf.encodeToByteArray(data)
-
-    println(bytes.toAsciiHexString())
-    // {08}{01}{08}{02}{08}{03}
-
-    println(ProtoBuf.decodeFromByteArray<Data>(bytes))
-    // Data(a=[1, 2, 3], b=[])
-}
-```
-
-In this example, the list `a` contains three elements, which are encoded in the output, while the list `b` is empty.
-The `emptyList()` default lets Kotlin serialization decode `b` as an empty list instead of treating it as a missing field.
 
 ## Encode numeric collections as packed fields
 
@@ -307,8 +259,6 @@ fun main() {
 }
 ```
 
-<!-- REMOVE AFTER REVIEW: I wanted to add an example here as well, please let me know if this works -->
-
 ## Represent `oneof` fields
 
 A [`oneof`](https://protobuf.dev/programming-guides/proto2/#oneof) field defines a group of fields where only one value can be set at a time.
@@ -329,18 +279,74 @@ message Data {
 
 To represent this message in Kotlin:
 
-1. Define a class for the entire message.
-2. Add a property of the polymorphic type to the class. Annotate this property with [`@ProtoOneOf`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-one-of/).
-3. Create a `sealed interface` or `abstract class` to represent the fields inside the `oneof` declaration.
-4. Create a subclass for each field in the `oneof` declaration. Each subclass must have a single property for that field.
-5. Annotate these properties with `@ProtoNumber` using the field numbers from the `oneof` declaration.
+1. Create a `sealed interface` or `abstract class` to represent the fields inside the `oneof` declaration:
+
+    ```kotlin
+    @Serializable
+    sealed interface IPhoneType
+    ```
+
+2. Define a class for the entire message. Add a `name` property and annotate it with `@ProtoNumber(1)`.
+Add a `phone` property of the polymorphic `IPhoneType` and annotate it with [`@ProtoOneOf`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-one-of/):
+
+    ```kotlin
+    @Serializable
+    data class Data(
+        @ProtoNumber(1)
+        val name: String,
+    
+        @ProtoOneOf
+        val phone: IPhoneType?,
+    )
+    ```
+
+3. Create a subclass for each field in the `oneof` declaration. Each subclass can be a value class or a data class and must have a single property for that field:
+
+    ```kotlin
+    @Serializable
+    @JvmInline
+    value class HomePhone(
+        val number: String
+    ) : IPhoneType
+    
+    @Serializable
+    data class WorkPhone(
+        val number: String
+    ) : IPhoneType
+    ```
+   
+4. Annotate each subclass property with `@ProtoNumber` using the field number from the `oneof` declaration:
+
+    ```kotlin
+    @Serializable
+    @JvmInline
+    value class HomePhone(
+        @ProtoNumber(2) val number: String
+    ) : IPhoneType
+    
+    @Serializable
+    data class WorkPhone(
+        @ProtoNumber(3) val number: String
+    ) : IPhoneType
+    ```
 
 Here's a more detailed example where `oneof` is used to store either a home phone or a work phone:
 
 ```kotlin
-// Imports declarations from the serialization library
 import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.*
+
+// Represents the oneof group
+@Serializable
+sealed interface IPhoneType
+
+// Represents the home_phone field
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable @JvmInline value class HomePhone(@ProtoNumber(2) val number: String): IPhoneType
+
+// Represents the work_phone field as a data class
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable data class WorkPhone(@ProtoNumber(3) val number: String): IPhoneType
 
 // Defines the data class with a oneof property
 @OptIn(ExperimentalSerializationApi::class)
@@ -352,17 +358,6 @@ data class Data(
     // Maps the polymorphic property to the oneof declaration
     @ProtoOneOf val phone: IPhoneType?,
 )
-
-// Represents the oneof group
-@Serializable sealed interface IPhoneType
-
-// Represents the home_phone field
-@OptIn(ExperimentalSerializationApi::class)
-@Serializable @JvmInline value class HomePhone(@ProtoNumber(2) val number: String): IPhoneType
-
-// Represents the work_phone field
-@OptIn(ExperimentalSerializationApi::class)
-@Serializable data class WorkPhone(@ProtoNumber(3) val number: String): IPhoneType
 
 @OptIn(ExperimentalSerializationApi::class)
 fun main() {
@@ -413,15 +408,13 @@ However, it doesn't enforce exclusivity between `homeNumber` and `workNumber` du
 If both fields have values, the serialized output may not match the original `oneof` schema,
 and another ProtoBuf parser may keep only the last field it reads.
 
-<!-- REMOVE AFTER REVIEW: I'm not sure I understand the original meaning, so I slightly rewritten this one based on my understanding. "....if an instance of Data2 has both (or none).. " If I understand correctly, if both are null simply nothing is set, if one is null other is set value it works, and if both are set there is a mismatched schema (if not true we can simply add if both are null to the above explanation) --> 
-
 ## Generate a ProtoBuf schema
 
 Typically, working with ProtoBuf involves using a `.proto` file and a code generator to create code for serialization and deserialization.
 However, with Kotlin serialization, you can use Kotlin classes annotated with `@Serializable` as the source for the schema, making `.proto` files optional.
 
 This approach simplifies the process when all the code involved is written in Kotlin,
-interoperability with other languages often still requires a `.proto` schema.
+but interoperability with other languages often still requires a `.proto` schema.
 
 To generate this schema, use the [`ProtoBufSchemaGenerator`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf.schema/-proto-buf-schema-generator/).
 It generates a Proto2-compatible schema from one or more `SerialDescriptor` instances.
@@ -431,7 +424,6 @@ This gives you a `.proto` schema that you can use with other ProtoBuf tools.
 Here's an example that generates a `.proto` schema from a Kotlin data class:
 
 ```kotlin
-// Imports declarations from the serialization library
 import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.*
 import kotlinx.serialization.protobuf.schema.ProtoBufSchemaGenerator
