@@ -61,6 +61,8 @@ internal class JsonPath(private val configuration: JsonConfiguration) {
         indicies[currentDepth] = index
     }
 
+    fun currentDescriptorIndex(): Int = if (currentDepth == -1) -1 else indicies[currentDepth]
+
     /*
      * For maps we cannot use indicies and should use the key as an element of the path instead.
      * The key can be even an object (e.g. in a case of 'allowStructuredMapKeys') where
