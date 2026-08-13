@@ -33,6 +33,7 @@ data class LargeBinaryData(val binaryData: ByteArray) {
 @Serializable
 data class ClassWithBinaryDataField(val binaryField: LargeBinaryData)
 
+@Suppress("DEPRECATION")
 object LargeBase64StringSerializer : KSerializer<LargeBinaryData> {
     private val b64Decoder: Base64.Decoder = Base64.getDecoder()
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("LargeStringContent", PrimitiveKind.STRING)

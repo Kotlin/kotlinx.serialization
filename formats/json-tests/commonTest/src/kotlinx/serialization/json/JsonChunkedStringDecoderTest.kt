@@ -14,7 +14,7 @@ data class LargeStringData(val largeString: String)
 @Serializable
 data class ClassWithLargeStringDataField(val largeStringField: LargeStringData)
 
-
+@Suppress("DEPRECATION")
 object LargeStringSerializer : KSerializer<LargeStringData> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("LargeStringContent", PrimitiveKind.STRING)
 
