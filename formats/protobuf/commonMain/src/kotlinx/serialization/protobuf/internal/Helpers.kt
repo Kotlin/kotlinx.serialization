@@ -129,7 +129,8 @@ internal fun SerialDescriptor.extractParameters(index: Int): ProtoDesc {
 
 /**
  * Get the proto id from the descriptor of [index] element,
- * or return [ID_HOLDER_ONE_OF] if such element is marked with [ProtoOneOf]
+ * or [ID_HOLDER_ONE_OF] if such element is marked with [ProtoOneOf],
+ * or [ID_HOLDER_UNKNOWN_FIELDS] if such element is [ProtoUnknownFieldHolder].
  */
 internal fun extractProtoId(descriptor: SerialDescriptor, index: Int, zeroBasedDefault: Boolean): Int {
     val annotations = descriptor.getElementAnnotations(index)
