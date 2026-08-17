@@ -175,7 +175,7 @@ object Java9Modularity {
 
             val taskKotlinLanguageVersion = compilerOptions.languageVersion.orElse(KotlinVersion.DEFAULT)
             @OptIn(InternalKotlinGradlePluginApi::class)
-            @Suppress("DEPRECATION")
+            @Suppress("DEPRECATION", "DEPRECATION_ERROR")
             if (taskKotlinLanguageVersion.get() < KotlinVersion.KOTLIN_2_0) {
                 // part of work-around for https://youtrack.jetbrains.com/issue/KT-60541
                 @Suppress("INVISIBLE_MEMBER")
