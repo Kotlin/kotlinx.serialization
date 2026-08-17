@@ -647,7 +647,7 @@ But please note that there are no exclusivity checks. This means that if an inst
 
 You may keep updating your schema by adding new fields, but you may not want to break compatibility with the old data.
 
-Kotlin Serialization `ProtoBuf` format supports preserving unknown fields, as described in the [Protocol Buffer-Unknown Fields](https://protobuf.dev/programming-guides/proto3/#unknowns).
+Kotlin Serialization `ProtoBuf` format supports preserving unknown fields, as described in the [Protocol Buffer - Unknown Fields](https://protobuf.dev/programming-guides/proto3/#unknowns).
 
 To keep the unknown fields, add a property of type `ProtoUnknownFieldHolder` with default value `null` or `ProtoUnknownFieldHolder.Empty` to your data class.
 
