@@ -17,20 +17,35 @@ internal object ProtoUnknownFieldHolderSerializer : KSerializer<ProtoUnknownFiel
     )
 
     override fun deserialize(decoder: Decoder): ProtoUnknownFieldHolder {
-        if (decoder is ProtobufDecoder) {
-            return decoder.decodeStructure(descriptor) {
-                ProtoUnknownFieldHolder(readRawFieldBytes(this))
+        return decoder.asProtobufDecoder().decodeStructure(descriptor) {
+            this.asProtobufDecoder().let {
+                ProtoUnknownFieldHolder(readRawFieldBytes(it, it.currentTag))
             }
         }
-        return ProtoUnknownFieldHolder.Empty
     }
 
     override fun serialize(encoder: Encoder, value: ProtoUnknownFieldHolder) {
-        if (encoder is ProtobufEncoder) {
-            encoder.writeRawBytes(value.fields)
-        }
+        encoder.asProtobufEncoder().writeRawBytes(value.fields)
     }
 }
+
+private fun Decoder.asProtobufDecoder(): ProtobufDecoder = this as? ProtobufDecoder
+    ?: throw IllegalStateException(
+        "This serializer can be used only with Protobuf format." +
+            "Expected Decoder to be ProtobufDecoder, got ${this::class}"
+    )
+
+private fun CompositeDecoder.asProtobufDecoder(): ProtobufDecoder = this as? ProtobufDecoder
+    ?: throw IllegalStateException(
+        "This serializer can be used only with Protobuf format." +
+            "Expected Decoder to be ProtobufDecoder, got ${this::class}"
+    )
+
+private fun Encoder.asProtobufEncoder() = this as? ProtobufEncoder
+    ?: throw IllegalStateException(
+        "This serializer can be used only with Protobuf format." +
+            "Expected Encoder to be ProtobufEncoder, got ${this::class}"
+    )
 
 /**
  * Reads the complete wire format bytes (tag + value) for the current field
@@ -56,15 +71,4 @@ internal fun readRawFieldBytes(decoder: ProtobufDecoder, currentTag: ProtoDesc):
         ProtoWireType.INVALID -> {}
     }
     return output.toByteArray()
-}
-
-/**
- * Reads the complete wire format bytes (tag + value) for the current field
- * from [compositeDecoder] using its current tag.
- */
-internal fun readRawFieldBytes(compositeDecoder: CompositeDecoder): ByteArray {
-    if (compositeDecoder is ProtobufDecoder) {
-        return readRawFieldBytes(compositeDecoder, compositeDecoder.currentTag)
-    }
-    throw ClassCastException("Calling readRawFieldBytes is supported only for ProtobufDecoder")
 }
