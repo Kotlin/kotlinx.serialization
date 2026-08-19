@@ -3,7 +3,8 @@
  */
 package kotlinx.serialization.json.internal
 
-internal expect object CharArrayPoolBatchSize {
+// Operates with lexer's batch size
+internal expect object JsonLexerBufferPool {
     fun take(): CharArray
     fun release(array: CharArray)
 }

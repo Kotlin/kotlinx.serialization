@@ -25,19 +25,19 @@ class ProtoBufNullTest {
     @Test
     fun testReadCompareWithNulls() {
         val data = MessageWithOptionals()
-        assertTrue(readCompare(data, alwaysPrint = true, protoBuf = protoBuf))
+        assertTrue(readCompare(data, protoBuf = protoBuf))
     }
 
     @Test
     fun testDumpCompareWithNulls() {
         val data = MessageWithOptionals()
-        assertTrue(dumpCompare(data, alwaysPrint = true, protoBuf = protoBuf))
+        assertTrue(dumpCompare(data, protoBuf = protoBuf))
     }
 
     @Test
     fun testReadCompareWithDefaults() {
         val data = MessageWithOptionals(0, "", MessageWithOptionals.Position.FIRST, 99, listOf(1, 2, 3))
-        assertTrue(readCompare(data, alwaysPrint = true, protoBuf = protoBuf))
+        assertTrue(readCompare(data, protoBuf = protoBuf))
     }
 
     @Test
@@ -49,13 +49,13 @@ class ProtoBufNullTest {
     @Test
     fun testReadCompareWithValues() {
         val data = MessageWithOptionals(42, "Test", MessageWithOptionals.Position.SECOND, 24, listOf(1, 2, 3))
-        assertTrue(readCompare(data, alwaysPrint = true, protoBuf = protoBuf))
+        assertTrue(readCompare(data, protoBuf = protoBuf))
     }
 
     @Test
     fun testDumpCompareWithValues() {
         val data = MessageWithOptionals(42, "Test", MessageWithOptionals.Position.SECOND, 24, listOf(1, 2, 3))
-        assertTrue(dumpCompare(data, alwaysPrint = true, protoBuf = protoBuf))
+        assertTrue(dumpCompare(data, protoBuf = protoBuf))
     }
 
     @Test

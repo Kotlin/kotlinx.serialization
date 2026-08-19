@@ -15,6 +15,9 @@ class OkioTests {
     @Serializable
     data class Simple(val i: Int)
 
+    @Serializable
+    data class Text(val value: String)
+
     @Test
     fun testSurrogate() {
         val text = "\uD83D\uDE03"
@@ -22,7 +25,7 @@ class OkioTests {
 
         val buffer = Buffer()
         buffer.writeUtf8(text)
-        val reader = OkioSerialReader(buffer)
+        val reader = OkioReader(buffer)
 
         val readArray = CharArray(2)
         assertEquals(1, reader.read(readArray, 0, 1) )
@@ -31,6 +34,21 @@ class OkioTests {
         assertContentEquals(originalChars, readArray)
     }
 
+    @Test
+    fun testMultibyteJsonString() {
+        val expected = Text("Latin-1: é, BMP: 漢, supplementary: \uD83D\uDE03")
+        val source = Buffer().writeUtf8(Json.encodeToString(expected))
+        assertEquals(expected, Json.decodeFromBufferedSource<Text>(source))
+    }
+
+    @Test
+    fun testMalformedUtf8() {
+        assertEquals("\uFFFD", Json.decodeFromBufferedSource<String>(jsonStringWithBytes(0xc0, 0x80)))
+        assertEquals("\uFFFD", Json.decodeFromBufferedSource<String>(jsonStringWithBytes(0xe0, 0x80, 0x80)))
+        assertFailsWith<EOFException> {
+            Json.decodeFromBufferedSource<String>(jsonStringWithBytes(0xf5))
+        }
+    }
 
     @Test
     fun testEncodingAndDecoding() {
@@ -66,5 +84,11 @@ class OkioTests {
         assertTrue(buffer.exhausted())
         assertEquals(2, decodedExplicit.size)
         assertEquals(listOf(value1, value2), decodedExplicit)
+    }
+
+    private fun jsonStringWithBytes(vararg bytes: Int): Buffer = Buffer().apply {
+        writeByte('"'.code)
+        bytes.forEach(::writeByte)
+        writeByte('"'.code)
     }
 }

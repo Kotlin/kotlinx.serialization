@@ -5,7 +5,7 @@ import kotlinx.serialization.json.JsonEncodingException
 import java.io.InputStream
 import java.io.OutputStream
 
-internal class JsonToJavaStreamWriter(private val stream: OutputStream) : InternalJsonWriter {
+internal class OutputStreamJsonWriter(private val stream: OutputStream) : InternalJsonWriter {
     private val buffer = ByteArrayPool.take()
     private var charArray = CharArrayPool.take()
     private var indexInBuffer: Int = 0
@@ -257,7 +257,7 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : Intern
     }
 }
 
-internal class JavaStreamSerialReader(stream: InputStream) : InternalJsonReader {
+internal class Utf8InputStreamReader(stream: InputStream) : InternalJsonReader {
     // NB: not closed on purpose, it is the responsibility of the caller
     private val reader = CharsetReader(stream, Charsets.UTF_8)
 

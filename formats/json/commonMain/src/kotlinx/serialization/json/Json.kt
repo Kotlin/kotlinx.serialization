@@ -120,7 +120,7 @@ public sealed class Json(
      * @throws [SerializationException] if the given value cannot be serialized to JSON.
      */
     public final override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
-        val result = JsonToStringWriter()
+        val result = StringJsonWriter()
         try {
             encodeByWriter(this@Json, result, serializer, value)
             return result.toString()
@@ -145,7 +145,7 @@ public sealed class Json(
      */
     public final override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, @FormatLanguage("json", "", "") string: String): T {
         val lexer = StringJsonLexer(this, string)
-        val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer, deserializer.descriptor, null)
+        val input = StreamingJsonDecoder(this, LexerMode.OBJ, lexer, deserializer.descriptor, null)
         val result = input.decodeSerializableValue(deserializer)
         lexer.expectEof()
         return result

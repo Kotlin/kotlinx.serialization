@@ -3,7 +3,7 @@
  */
 package kotlinx.serialization.json.internal
 
-internal actual object CharArrayPoolBatchSize {
+internal actual object JsonLexerBufferPool {
     actual fun take(): CharArray = CharArray(BATCH_SIZE)
     actual fun release(array: CharArray) = Unit
 }

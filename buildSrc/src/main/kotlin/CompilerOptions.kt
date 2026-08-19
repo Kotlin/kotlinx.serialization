@@ -14,7 +14,6 @@ val defaultCompilerArgs
         "-Xreport-all-warnings",
         "-Xrender-internal-diagnostic-names",
         "-Xreturn-value-checker=full",
-        "-Xklib-ir-inliner=intra-module",
     )
 
 fun KotlinCommonCompilerOptions.defaultOptions() {

@@ -123,14 +123,6 @@ abstract class <#A: kotlin/Any?> kotlinx.serialization.json/JsonTransformingSeri
     open fun transformSerialize(kotlinx.serialization.json/JsonElement): kotlinx.serialization.json/JsonElement // kotlinx.serialization.json/JsonTransformingSerializer.transformSerialize|transformSerialize(kotlinx.serialization.json.JsonElement){}[0]
 }
 
-abstract class kotlinx.serialization.json.internal/InternalJsonReaderCodePointImpl : kotlinx.serialization.json.internal/InternalJsonReader { // kotlinx.serialization.json.internal/InternalJsonReaderCodePointImpl|null[0]
-    constructor <init>() // kotlinx.serialization.json.internal/InternalJsonReaderCodePointImpl.<init>|<init>(){}[0]
-
-    abstract fun exhausted(): kotlin/Boolean // kotlinx.serialization.json.internal/InternalJsonReaderCodePointImpl.exhausted|exhausted(){}[0]
-    abstract fun nextCodePoint(): kotlin/Int // kotlinx.serialization.json.internal/InternalJsonReaderCodePointImpl.nextCodePoint|nextCodePoint(){}[0]
-    final fun read(kotlin/CharArray, kotlin/Int, kotlin/Int): kotlin/Int // kotlinx.serialization.json.internal/InternalJsonReaderCodePointImpl.read|read(kotlin.CharArray;kotlin.Int;kotlin.Int){}[0]
-}
-
 final class kotlinx.serialization.json/JsonArray : kotlin.collections/List<kotlinx.serialization.json/JsonElement>, kotlinx.serialization.json/JsonElement { // kotlinx.serialization.json/JsonArray|null[0]
     constructor <init>(kotlin.collections/List<kotlinx.serialization.json/JsonElement>) // kotlinx.serialization.json/JsonArray.<init>|<init>(kotlin.collections.List<kotlinx.serialization.json.JsonElement>){}[0]
 
