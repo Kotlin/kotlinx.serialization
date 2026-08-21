@@ -77,6 +77,15 @@ internal class ProtobufWriter(private val out: ByteArrayOutput) {
         out.writeInt(value.reverseBytes())
     }
 
+    fun writeRawBytes(data: ByteArray, tag: Int) {
+        out.encodeVarint32(tag)
+        out.write(data)
+    }
+
+    fun writeRawBytes(bytes: ByteArray) {
+        out.write(bytes)
+    }
+
     private fun ByteArrayOutput.encode32(
         number: Int,
         format: ProtoIntegerType = ProtoIntegerType.DEFAULT
