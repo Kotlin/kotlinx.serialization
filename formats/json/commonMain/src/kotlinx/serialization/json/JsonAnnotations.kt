@@ -39,7 +39,6 @@ import kotlin.native.concurrent.*
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
-@ExperimentalSerializationApi
 public annotation class JsonNames(vararg val names: String)
 
 /**
@@ -72,7 +71,7 @@ public annotation class JsonNames(vararg val names: String)
  */
 @InheritableSerialInfo
 @Target(AnnotationTarget.CLASS)
-@ExperimentalSerializationApi
+@ExperimentalSerializationApi // need to take a quick look at #2142 first
 public annotation class JsonClassDiscriminator(val discriminator: String)
 
 
@@ -105,5 +104,4 @@ public annotation class JsonClassDiscriminator(val discriminator: String)
  */
 @SerialInfo
 @Target(AnnotationTarget.CLASS)
-@ExperimentalSerializationApi
 public annotation class JsonIgnoreUnknownKeys
