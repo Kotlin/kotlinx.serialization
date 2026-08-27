@@ -21,7 +21,10 @@ import kotlinx.serialization.json.JsonConfiguration
  * ```
  */
 @OptIn(ExperimentalSerializationApi::class)
-internal class JsonPath(private val configuration: JsonConfiguration) {
+internal class JsonPath(configuration: JsonConfiguration) {
+
+    private val maxNestingDepth = configuration.maxNestingDepth
+    private val exceptionsWithDebug = configuration.exceptionsWithDebugInfo
 
     // Tombstone indicates that we are within a map, but the map key is currently being decoded.
     // It is also used to overwrite a previous map key to avoid memory leaks and misattribution.
@@ -45,11 +48,15 @@ internal class JsonPath(private val configuration: JsonConfiguration) {
      * The cleanup is essential in order to avoid memory leaks for huge strings and structured keys.
      */
     private var indicies = IntArray(8) { -1 }
-    private var currentDepth = -1
+    internal var currentDepth = -1
+        private set
 
     // Invoked when class is started being decoded
     fun pushDescriptor(sd: SerialDescriptor) {
         val depth = ++currentDepth
+        if (depth >= maxNestingDepth) {
+            jsonTooNested(maxNestingDepth)
+        }
         if (depth == currentObjectPath.size) {
             resize()
         }
@@ -72,7 +79,7 @@ internal class JsonPath(private val configuration: JsonConfiguration) {
         if (indicies[currentDepth] != -2 && ++currentDepth == currentObjectPath.size) {
             resize()
         }
-        currentObjectPath[currentDepth] = if (configuration.exceptionsWithDebugInfo) key else RedactedKey
+        currentObjectPath[currentDepth] = if (exceptionsWithDebug) key else RedactedKey
         indicies[currentDepth] = -2
     }
 
