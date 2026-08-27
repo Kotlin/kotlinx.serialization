@@ -37,11 +37,12 @@ public class JsonConfiguration @OptIn(ExperimentalSerializationApi::class) inter
     @set:Deprecated(
         "JsonConfiguration is not meant to be mutable, and will be made read-only in a future release. " +
             "The `Json(from = ...) {}` copy builder should be used instead.",
-        level = DeprecationLevel.ERROR
+        level = DeprecationLevel.HIDDEN
     )
     public var classDiscriminatorMode: ClassDiscriminatorMode = ClassDiscriminatorMode.POLYMORPHIC,
 
     @ExperimentalSerializationApi
+    @set:Deprecated("Not meant to be mutable", level = DeprecationLevel.HIDDEN)
     public var exceptionsWithDebugInfo: Boolean = true,
 
     @ExperimentalSerializationApi
