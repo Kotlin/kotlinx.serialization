@@ -14,14 +14,14 @@ import kotlinx.serialization.json.*
 
 @OptIn(ExperimentalSerializationApi::class)
 @Suppress("DEPRECATION_ERROR")
-internal fun decodingExceptionOf(shortMessage: String): JsonDecodingException =
+internal fun decodingExceptionOf(shortMessage: String, hint: String? = null): JsonDecodingException =
     JsonDecodingException(
-        formatDecodingException(-1, shortMessage, null, null, null),
+        formatDecodingException(-1, shortMessage, null, hint, null),
         shortMessage,
         -1,
         null,
         null,
-        null
+        hint
     )
 
 
