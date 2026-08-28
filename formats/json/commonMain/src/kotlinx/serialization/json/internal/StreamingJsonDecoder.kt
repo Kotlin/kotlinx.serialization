@@ -24,7 +24,7 @@ internal open class StreamingJsonDecoder(
     @JvmField internal val lexer: AbstractJsonLexer,
     descriptor: SerialDescriptor,
     discriminatorHolder: DiscriminatorHolder?
-) : PolymorphicJsonDecoder, ChunkedDecoder, AbstractDecoder() {
+) : PolymorphicJsonDecoder, @Suppress("DEPRECATION") ChunkedDecoder, AbstractDecoder() {
 
     // A mutable reference to the discriminator that have to be skipped when in optimistic phase
     // of polymorphic serialization, see `decodeSerializableValue`
@@ -343,6 +343,7 @@ internal open class StreamingJsonDecoder(
         }
     }
 
+    @Deprecated("This method will be removed in the subsequent releases.")
     override fun decodeStringChunked(consumeChunk: (chunk: String) -> Unit) {
         lexer.consumeStringChunked(configuration.isLenient, consumeChunk)
     }

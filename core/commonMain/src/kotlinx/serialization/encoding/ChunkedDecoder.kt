@@ -8,6 +8,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
  * Please note that this interface is only applicable to streaming decoders. That means that it is not possible to use
  * some JsonTreeDecoder features like polymorphism with this interface.
  */
+@Deprecated("This interface will be removed in the subsequent releases.")
 @ExperimentalSerializationApi
 public interface ChunkedDecoder {
     /**
@@ -46,6 +47,7 @@ public interface ChunkedDecoder {
      * In this sample, we need to be able to handle a huge string coming from json. Instead of storing it in memory,
      * we offload it into a file and return the file name instead
      */
+    @Deprecated("This method will be removed in the subsequent releases.")
     @ExperimentalSerializationApi
     public fun decodeStringChunked(consumeChunk: (chunk: String) -> Unit)
 }
