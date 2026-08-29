@@ -326,8 +326,8 @@ class JsonExtraKeysTest : JsonTestBase() {
         @JsonExtraKeys val extras: Map<String, Int> = emptyMap()
     )
 
-    // Inline String key — rejected by the strict identity check: bucket keys
-    // must be plain String.
+    // Inline String key: rejected by the strict identity check because bucket
+    // keys must be plain String.
     @JvmInline
     @Serializable
     value class WrappedKey(val raw: String)
@@ -389,7 +389,7 @@ class JsonExtraKeysTest : JsonTestBase() {
     @Test
     fun testFlagOffValidationSkipped() = parametrizedTest { mode ->
         // With the flag off, even invalid bucket declarations are usable as
-        // plain properties — validation never runs.
+        // plain properties, because validation never runs.
         val json = Json(extraJson) { useExtraKeys = false }
         val result = json.decodeFromString<IntBucket>("""{"a":1,"extras":{"x":10}}""", mode)
         assertEquals(1, result.a)
@@ -399,7 +399,7 @@ class JsonExtraKeysTest : JsonTestBase() {
     @Test
     fun testRejectInlineStringKey() {
         // Inline value class wrapping String has STRING kind but a different
-        // runtime type — the strict identity check rejects it.
+        // runtime type, so the strict identity check rejects it.
         assertFailsWith<SerializationException> {
             extraJson.decodeFromString<InlineKeyBucket>("""{"a":1}""")
         }

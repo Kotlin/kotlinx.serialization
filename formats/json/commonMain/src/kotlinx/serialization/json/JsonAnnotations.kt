@@ -123,9 +123,10 @@ public annotation class JsonIgnoreUnknownKeys
  * enclosing JSON object, after all regular properties; the bucket's own
  * property name is not written. This makes `encode(decode(input))` preserve
  * the captured keys. If the bucket was manipulated to contain a key that a
- * declared property (or the class discriminator) would be written under —
- * i.e. a key that decoding would *not* capture into the bucket —
+ * declared property (or the class discriminator) would be written under,
  * a [SerializationException] is thrown to prevent duplicate keys in the output.
+ * In other words, the bucket may only contain keys that decoding would have
+ * captured into it.
  *
  * Capturing takes precedence over both [JsonBuilder.ignoreUnknownKeys] and
  * [JsonIgnoreUnknownKeys]: when this annotation is present on a property,

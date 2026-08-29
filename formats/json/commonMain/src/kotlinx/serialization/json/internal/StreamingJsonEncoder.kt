@@ -68,7 +68,7 @@ internal class StreamingJsonEncoder(
     // element comes through encodeSerializableElement and written out as the
     // last members of the enclosing JSON object in endStructure. Because this
     // encoder instance is reused across same-mode nested structures
-    // (modeReuseCache), the state is saved/restored via a stack — but only for
+    // (modeReuseCache), the state is saved/restored via a stack, but only for
     // descriptors that actually declare a bucket, so bucket-free encoding pays
     // nothing beyond the extraKeysIndexFor check in beginStructure.
     private var pendingExtraKeys: Map<String, JsonElement>? = null
@@ -247,7 +247,7 @@ internal class StreamingJsonEncoder(
         // stashed here and spread as the last members of the enclosing object
         // in endStructure. The check lives here rather than in encodeElement
         // because a bucket is always a Map and can only arrive through this
-        // method — primitive properties never pay for it. The mode check
+        // method, so primitive properties never pay for it. The mode check
         // short-circuits map/list entries before the descriptor lookup.
         if (mode == LexerMode.OBJ && extraKeysIndexFor(descriptor) == index) {
             // Validation in JsonNamesMap guarantees the declared type is

@@ -178,7 +178,7 @@ internal open class StreamingJsonDecoder(
         // The stack is null in the common case (no @JsonExtraKeys was ever seen).
         // The pop condition must mirror the push in beginStructure: a frame was
         // pushed only when the begun descriptor declared a bucket, so only such
-        // a descriptor's endStructure may pop — a nested bucket-less object
+        // a descriptor's endStructure may pop. A nested bucket-less object
         // ending must not steal its parent's frame.
         val savedStack = extraKeysSavedStack
         if (savedStack != null && savedStack.isNotEmpty() && extraKeysIndexFor(descriptor) != -1) {

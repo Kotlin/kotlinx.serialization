@@ -189,9 +189,9 @@ internal fun SerialDescriptor.jsonExtraKeysIndex(json: Json): Int {
         // Some partially-customized descriptors (e.g. created via the @Serializer
         // companion shortcut) have a broken hashCode() that throws an
         // index-out-of-bounds exception when the schema cache hashes them.
-        // Unlike useAlternativeNames — which touches hashCode only on the
-        // unknown-key slow path and documents `useAlternativeNames = false` as
-        // the remedy — this lookup runs eagerly for every class descriptor, so
+        // useAlternativeNames touches hashCode only on the unknown-key slow
+        // path and documents `useAlternativeNames = false` as the remedy. This
+        // lookup instead runs eagerly for every class descriptor, so
         // without this fallback the mere presence of such a descriptor would
         // break on upgrade even when @JsonExtraKeys is not used at all
         // (see JsonCustomSerializersTest). Fall back to uncached computation.
@@ -267,7 +267,7 @@ internal val JsonExtraKeysCollisionNamesKey = DescriptorSchemaCache.Key<Set<Stri
  * Names that a [JsonExtraKeys] bucket is not allowed to contain when written
  * back during encoding: every JSON name that decoding would resolve to a
  * declared property (serial names, [JsonNames] aliases and naming-strategy
- * forms) — except names resolving to the bucket itself, which decoding
+ * forms), except names resolving to the bucket itself, which decoding
  * captures into the bucket and which therefore round-trip safely.
  *
  * Memoised in the per-[Json] [DescriptorSchemaCache].
