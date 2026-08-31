@@ -164,8 +164,8 @@ According to the [RFC 8949 Major Types](https://datatracker.ietf.org/doc/html/rf
 * Major type 6: optional semantic tagging of other major types
 * Major type 7: floating-point numbers, simple data types with no content, and the "break" stop code
 
-Unlike JSON, CBOR supports maps with non-trivial keys.
-Some parsers, such as [`jackson-dataformat-cbor`](https://github.com/FasterXML/jackson-dataformats-binary), don't support this feature.
+Unlike JSON, CBOR supports maps with structured map keys, such as instances of user-defined classes.
+However, some parsers, such as [`jackson-dataformat-cbor`](https://github.com/FasterXML/jackson-dataformats-binary), don't support them.
 
 > For a JSON workaround, see [Allow structured map keys](serialization-json-configuration.md#allow-structured-map-keys).
 >
@@ -181,11 +181,6 @@ To encode `ByteArray` properties as major type 2, a byte string, use the [`@Byte
 ```kotlin
 import kotlinx.serialization.*
 import kotlinx.serialization.cbor.*
-
-fun ByteArray.toAsciiHexString() = joinToString("") {
-    if (it in 32..127) it.toInt().toChar().toString() else
-        "{${it.toUByte().toString(16).padStart(2, '0').uppercase()}}"
-}
 
 @Serializable
 data class Data(
@@ -236,6 +231,7 @@ BF                     | map(*)       | Start of a CBOR map
 │   └── FF             | primitive(*) | End of the CBOR array
 └── FF                 | primitive(*) | End of the CBOR map
 ```
+{collapsible="true" collapsed-title="The full CBOR hex notation"}
 
 To encode all `ByteArray` values as major type 2 without annotating each property with `@ByteString`, set the [`alwaysUseByteString`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-builder/always-use-byte-string.html) property to `true`:
 
@@ -269,7 +265,7 @@ Cbor.encodeToByteArray(DataClass(alg = -7, kid = null))
 With the `@CborArray` annotation, this example is encoded as a CBOR array: `0x8226f6`.
 Without it, the same class is encoded as a CBOR map: `0xa263616c6726636b6964f6`.
 
-## Definite and indefinite length encoding in CBOR
+### Definite and indefinite length encoding in CBOR
 
 CBOR supports [two encodings](https://datatracker.ietf.org/doc/html/rfc8949#section-3.2.2) for maps and arrays: *definite length encoding* and *indefinite length encoding*.
 

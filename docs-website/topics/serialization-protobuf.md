@@ -99,11 +99,6 @@ Here's an example:
 import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.*
 
-fun ByteArray.toAsciiHexString() = joinToString("") {
-    if (it in 32..127) it.toInt().toChar().toString() else
-        "{${it.toUByte().toString(16).padStart(2, '0').uppercase()}}"
-}
-
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class Project(
@@ -147,7 +142,7 @@ Field #3: 1A String Length = 6, Hex = 06, UTF8 = "Kotlin"
 
 ## Specify integer encoding in ProtoBuf
 
-ProtoBuf encodes integer properties using varint encoding by default.
+ProtoBuf encodes integer properties using [varint encoding](https://protobuf.dev/programming-guides/encoding/#varints) by default.
 
 To use a different integer encoding for a property, apply the [`@ProtoType`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-type/) annotation with a [`ProtoIntegerType`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-integer-type/) value.
 This annotation affects `Byte`, `Short`, `Int`, `Long`, and `Char` properties.
@@ -170,11 +165,6 @@ The following example shows all three supported options:
 ```kotlin
 import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.*
-
-fun ByteArray.toAsciiHexString() = joinToString("") {
-    if (it in 32..127) it.toInt().toChar().toString() else
-        "{${it.toUByte().toString(16).padStart(2, '0').uppercase()}}"
-}
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
@@ -217,10 +207,6 @@ Here's an example:
 ```kotlin
 import kotlinx.serialization.*
 import kotlinx.serialization.protobuf.*
-
-fun ByteArray.toAsciiHexString() = joinToString("") {
-    "{${it.toUByte().toString(16).padStart(2, '0').uppercase()}}"
-}
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
@@ -300,7 +286,7 @@ Add a `phone` property of the polymorphic `IPhoneType` and annotate it with [`@P
     )
     ```
 
-3. Create a subclass for each field in the `oneof` declaration. Each subclass can be a value class or a data class and must have a single property for that field:
+3. For each field in the `oneof` declaration, create a subclass with a single property that corresponds to that field. Each subclass can be a regular class, data class, or value class:
 
     ```kotlin
     @Serializable
