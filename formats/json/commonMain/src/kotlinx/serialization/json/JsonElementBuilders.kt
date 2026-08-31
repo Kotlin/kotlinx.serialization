@@ -80,8 +80,10 @@ public class JsonObjectBuilder @PublishedApi internal constructor() {
  * Returns the previous value associated with [key], or `null` if the key was not present.
  */
 @IgnorableReturnValue
-public fun JsonObjectBuilder.putJsonObject(key: String, builderAction: JsonObjectBuilder.() -> Unit): JsonElement? =
-    put(key, buildJsonObject(builderAction))
+public inline fun JsonObjectBuilder.putJsonObject(key: String, builderAction: JsonObjectBuilder.() -> Unit): JsonElement? {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return put(key, buildJsonObject(builderAction))
+}
 
 /**
  * Add the [JSON array][JsonArray] produced by the [builderAction] function to a resulting JSON object using the given [key].
@@ -89,8 +91,10 @@ public fun JsonObjectBuilder.putJsonObject(key: String, builderAction: JsonObjec
  * Returns the previous value associated with [key], or `null` if the key was not present.
  */
 @IgnorableReturnValue
-public fun JsonObjectBuilder.putJsonArray(key: String, builderAction: JsonArrayBuilder.() -> Unit): JsonElement? =
-    put(key, buildJsonArray(builderAction))
+public inline fun JsonObjectBuilder.putJsonArray(key: String, builderAction: JsonArrayBuilder.() -> Unit): JsonElement? {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return put(key, buildJsonArray(builderAction))
+}
 
 /**
  * Add the given boolean [value] to a resulting JSON object using the given [key].
@@ -196,8 +200,10 @@ public fun JsonArrayBuilder.add(value: Nothing?): Boolean = add(JsonNull)
  * Always returns `true` similarly to [ArrayList] specification.
  */
 @IgnorableReturnValue
-public fun JsonArrayBuilder.addJsonObject(builderAction: JsonObjectBuilder.() -> Unit): Boolean =
-    add(buildJsonObject(builderAction))
+public inline fun JsonArrayBuilder.addJsonObject(builderAction: JsonObjectBuilder.() -> Unit): Boolean {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return add(buildJsonObject(builderAction))
+}
 
 /**
  * Adds the [JSON array][JsonArray] produced by the [builderAction] function to a resulting JSON array.
@@ -205,8 +211,10 @@ public fun JsonArrayBuilder.addJsonObject(builderAction: JsonObjectBuilder.() ->
  * Always returns `true` similarly to [ArrayList] specification.
  */
 @IgnorableReturnValue
-public fun JsonArrayBuilder.addJsonArray(builderAction: JsonArrayBuilder.() -> Unit): Boolean =
-    add(buildJsonArray(builderAction))
+public inline fun JsonArrayBuilder.addJsonArray(builderAction: JsonArrayBuilder.() -> Unit): Boolean {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return add(buildJsonArray(builderAction))
+}
 
 /**
  * Adds the given string [values] to a resulting JSON array.
