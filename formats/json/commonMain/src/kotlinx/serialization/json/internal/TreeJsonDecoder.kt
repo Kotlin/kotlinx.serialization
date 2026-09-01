@@ -215,9 +215,9 @@ private open class JsonTreeDecoder(
 ) : AbstractJsonTreeDecoder(json, value, polymorphicDiscriminator) {
 
     // Pointer to the current entry of JsonObject that is being decoded
-    private val entries: Iterator<Map.Entry<String, JsonElement>> by lazy(LazyThreadSafetyMode.NONE) {
-        value.entries.iterator()
-    }
+    // NB: do not `override val value` in JsonTreeMapDecoder, otherwise this field won't be
+    // initialized and will cause NPE.
+    private val entries: Iterator<Map.Entry<String, JsonElement>> = value.entries.iterator()
 
     private val elementMarker: JsonElementMarker? = if (configuration.explicitNulls) null else JsonElementMarker(descriptor)
 
@@ -290,7 +290,7 @@ private open class JsonTreeDecoder(
 
 private class JsonTreeMapDecoder(
     json: Json,
-    override val value: JsonObject,
+    value: JsonObject,
     descriptor: SerialDescriptor
 ) : JsonTreeDecoder(json, value, descriptor) {
     private val keys = value.keys.toList()
