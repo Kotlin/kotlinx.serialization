@@ -103,6 +103,9 @@ internal open class StreamingJsonDecoder(
         lexer.path.pushDescriptor(descriptor)
         lexer.consumeNextToken(newMode.begin)
         checkLeadingComma()
+        if (newMode == WriteMode.MAP) {
+            skipMapDiscriminator()
+        }
         return when (newMode) {
             // In fact resets current index that these modes rely on
             LexerMode.LIST, LexerMode.MAP, LexerMode.POLY_OBJ -> StreamingJsonDecoder(
@@ -152,6 +155,18 @@ internal open class StreamingJsonDecoder(
     private fun checkLeadingComma() {
         if (lexer.peekNextToken() == TC_COMMA) {
             lexer.fail("Unexpected leading comma")
+        }
+    }
+
+    // Skip the discriminator when entering MAP mode. decodeMapIndex can't skip
+    // it like decodeObjectIndex because we delegate the actual key decoding to
+    // serializers, and decodeObjectIndex only needs to care about string keys.
+    private fun skipMapDiscriminator() {
+        if (discriminatorHolder?.discriminatorToSkip == null) return
+        if (discriminatorHolder.trySkip(decodeStringKey())) {
+            lexer.consumeNextToken(COLON)
+            lexer.skipElement(configuration.isLenient)
+            val _ = lexer.tryConsumeComma()
         }
     }
 

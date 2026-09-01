@@ -121,6 +121,9 @@ private sealed class AbstractJsonTreeEncoder(
         return if (currentTagOrNull != null) {
             if (polymorphicDiscriminator != null) polymorphicSerialName = descriptor.serialName
             super.encodeInline(descriptor)
+        } else if (polymorphicDiscriminator != null) {
+            polymorphicSerialName = descriptor.serialName
+            this
         } else {
             JsonPrimitiveEncoder(json, nodeConsumer).encodeInline(descriptor)
         }

@@ -72,7 +72,7 @@ private sealed class AbstractJsonTreeDecoder(
             StructureKind.LIST, is PolymorphicKind -> JsonTreeListDecoder(json, cast(currentObject, descriptor))
             StructureKind.MAP -> json.selectMapMode(
                 descriptor,
-                { JsonTreeMapDecoder(json, cast(currentObject, descriptor)) },
+                { JsonTreeMapDecoder(json, cast(currentObject, descriptor), polymorphicDiscriminator) },
                 { JsonTreeListDecoder(json, cast(currentObject, descriptor)) }
             )
             else -> JsonTreeDecoder(json, cast(currentObject, descriptor), polymorphicDiscriminator)
@@ -312,8 +312,16 @@ private open class JsonTreeDecoder(
     }
 }
 
-private class JsonTreeMapDecoder(json: Json, override val value: JsonObject) : JsonTreeDecoder(json, value) {
-    private val keys = value.keys.toList()
+private class JsonTreeMapDecoder(
+    json: Json,
+    override val value: JsonObject,
+    polymorphicDiscriminator: String? = null
+) : JsonTreeDecoder(json, value, polymorphicDiscriminator) {
+    private val keys = if (polymorphicDiscriminator != null) {
+        value.keys.filter { it != polymorphicDiscriminator }
+    } else {
+        value.keys.toList()
+    }
     private val size: Int = keys.size * 2
     private var position = -1
 
