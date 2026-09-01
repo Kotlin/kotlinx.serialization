@@ -34,7 +34,7 @@ internal class OutputStreamJsonWriter(private val stream: OutputStream) : Intern
         for (i in 1 until 1 + length) {
             val ch = arr[i].code
             // Do we have unescaped symbols?
-            if (ch < ESCAPE_MARKERS.size && ESCAPE_MARKERS[ch] != 0.toByte()) {
+            if (isCodePointRequiringEscapeSequence(ch)) {
                 // Go to slow path
                 return appendStringSlowPath(i, text)
             }
