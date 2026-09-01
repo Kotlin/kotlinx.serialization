@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.*
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
 
 /*
@@ -7,6 +8,12 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.*
 
 plugins {
     kotlin("multiplatform")
+}
+
+// Temporary workaround for the removed watchosArm32 target
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+fun KotlinMultiplatformExtension.watchosArm32() {
+    // Do nothing
 }
 
 kotlin {
