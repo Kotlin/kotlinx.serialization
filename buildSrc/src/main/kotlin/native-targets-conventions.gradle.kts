@@ -38,7 +38,14 @@ kotlin {
     iosArm64()
 
     // Tier 3
-    mingwX64()
+
+    // The PE default stack reserve is 1 MB, vs. 8 MB on Unix targets; deeply
+    // nested JSON tests overflow it.
+    mingwX64 {
+        binaries.withType<TestExecutable>().configureEach {
+            linkerOpts("-Wl,--stack,8388608")
+        }
+    }
     iosX64()
     watchosDeviceArm64()
 
