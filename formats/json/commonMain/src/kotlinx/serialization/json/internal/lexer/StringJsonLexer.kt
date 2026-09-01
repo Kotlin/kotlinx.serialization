@@ -5,6 +5,8 @@
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.json.*
+import kotlin.math.max
+import kotlin.math.min
 
 internal fun StringJsonLexer(json: Json, source: String) =
     if (!json.configuration.allowComments)
@@ -100,7 +102,8 @@ internal open class StringJsonLexer(
             fail(TC_STRING, wasConsumed = false)
         }
         // Now we _optimistically_ know where the string ends (it might have been an escaped quote)
-        for (i in current until closingQuote) {
+        // min/max is a trick to let compilers know that index is strictly in source's bounds.
+        for (i in max(0, current) until min(closingQuote, source.length)) {
             // Encountered escape sequence, should fallback to "slow" path and symbolic scanning
             if (source[i] == STRING_ESC) {
                 return consumeString(source, currentPosition, i)

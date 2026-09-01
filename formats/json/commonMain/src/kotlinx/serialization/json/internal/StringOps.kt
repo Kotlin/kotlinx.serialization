@@ -4,8 +4,6 @@
 
 package kotlinx.serialization.json.internal
 
-import kotlin.native.concurrent.*
-
 private fun toHexChar(i: Int) : Char {
     val d = i and 0xf
     return if (d < 10) (d + '0'.code).toChar()
@@ -42,6 +40,8 @@ internal val ESCAPE_MARKERS: ByteArray = ByteArray(93).apply {
     this['\r'.code] = 'r'.code.toByte()
     this[0x0c] = 'f'.code.toByte()
 }
+
+internal fun isCodePointRequiringEscapeSequence(charCode: Int): Boolean = charCode <= 0x1f || charCode == 0x22 || charCode == 0x5c
 
 internal fun StringBuilder.printQuoted(value: String) {
     append(STRING)
