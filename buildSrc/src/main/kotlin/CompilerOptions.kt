@@ -22,7 +22,7 @@ fun KotlinCommonCompilerOptions.defaultOptions() {
 
 fun KotlinJvmCompilerOptions.setJava8Compatible() {
     jvmTarget = JvmTarget.JVM_1_8
-    freeCompilerArgs.addAll("-Xjdk-release=1.8")
+    freeCompilerArgs.addAll("-Xjdk-release=1.8", "-Xallow-pre-17-runtime-jdk")
 }
 
 fun KotlinCommonCompilerOptions.languageVersion(overriddenLanguageVersion: String?) {
