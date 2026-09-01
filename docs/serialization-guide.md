@@ -143,6 +143,7 @@ Once the project is set up, we can start serializing some classes.
   * <a name='extending-the-behavior-of-the-plugin-generated-serializer'></a>[Extending the behavior of the plugin generated serializer](json.md#extending-the-behavior-of-the-plugin-generated-serializer)
   * <a name='under-the-hood-experimental'></a>[Under the hood (experimental)](json.md#under-the-hood-experimental)
   * <a name='maintaining-custom-json-attributes'></a>[Maintaining custom JSON attributes](json.md#maintaining-custom-json-attributes)
+  * <a name='preserving-unknown-keys-experimental'></a>[Preserving unknown keys (experimental)](json.md#preserving-unknown-keys-experimental)
 <!--- END -->
 
 **Chapter 6.** [Alternative and custom formats (experimental)](formats.md)

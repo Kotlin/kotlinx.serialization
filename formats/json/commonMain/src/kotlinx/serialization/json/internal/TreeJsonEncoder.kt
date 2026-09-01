@@ -36,6 +36,10 @@ private sealed class AbstractJsonTreeEncoder(
     private var polymorphicDiscriminator: String? = null
     private var polymorphicSerialName: String? = null
 
+    // The discriminator written into this encoder's object, if any. Used by
+    // @JsonExtraKeys write-back to detect key collisions with the discriminator.
+    internal var activeDiscriminator: String? = null
+
     override fun elementName(descriptor: SerialDescriptor, index: Int): String =
         descriptor.getJsonElementName(json, index)
 
@@ -168,6 +172,7 @@ private sealed class AbstractJsonTreeEncoder(
             } else {
                 encoder.putElement(discriminator, JsonPrimitive(polymorphicSerialName ?: descriptor.serialName))
             }
+            encoder.activeDiscriminator = discriminator
             polymorphicDiscriminator = null
             polymorphicSerialName = null
         }
@@ -212,9 +217,33 @@ private open class JsonTreeEncoder(
 
     protected val content: MutableMap<String, JsonElement> = linkedMapOf()
 
+    // Cache of the @JsonExtraKeys index for the most recently queried descriptor.
+    // The sentinel `lookupDescriptor !== descriptor` triggers a refresh when the
+    // descriptor changes. Avoids hitting the per-Json schema cache on every
+    // encoded element.
+    private var lookupDescriptor: SerialDescriptor? = null
+    private var cachedExtraKeysIndex: Int = -1
+
+    private fun extraKeysIndexFor(descriptor: SerialDescriptor): Int {
+        // Flag check first: when the feature is disabled this is a single
+        // predictable branch, before any cache machinery is touched.
+        if (!configuration.useExtraKeys) return -1
+        if (lookupDescriptor !== descriptor) {
+            lookupDescriptor = descriptor
+            cachedExtraKeysIndex = descriptor.jsonExtraKeysIndex(json)
+        }
+        return cachedExtraKeysIndex
+    }
+
     override fun putElement(key: String, element: JsonElement) {
         content[key] = element
     }
+
+    // State for @JsonExtraKeys write-back. Unlike the streaming encoder, a tree
+    // encoder instance corresponds to exactly one JSON object, so no
+    // save/restore stack is needed.
+    private var pendingExtraKeys: Map<String, JsonElement>? = null
+    private var pendingBucketDescriptor: SerialDescriptor? = null
 
     override fun <T : Any> encodeNullableSerializableElement(
         descriptor: SerialDescriptor,
@@ -222,12 +251,69 @@ private open class JsonTreeEncoder(
         serializer: SerializationStrategy<T>,
         value: T?
     ) {
+        if (isExtraKeysBucket(descriptor, index)) {
+            @Suppress("UNCHECKED_CAST")
+            stashExtraKeys(descriptor, value as Map<String, JsonElement>?)
+            return
+        }
         if (value != null || configuration.explicitNulls) {
             super.encodeNullableSerializableElement(descriptor, index, serializer, value)
         }
     }
 
-    override fun getCurrent(): JsonElement = JsonObject(content)
+    override fun <T> encodeSerializableElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        serializer: SerializationStrategy<T>,
+        value: T
+    ) {
+        if (isExtraKeysBucket(descriptor, index)) {
+            @Suppress("UNCHECKED_CAST")
+            stashExtraKeys(descriptor, value as Map<String, JsonElement>)
+            return
+        }
+        super.encodeSerializableElement(descriptor, index, serializer, value)
+    }
+
+    // The @JsonExtraKeys bucket is not written as a regular property: it is
+    // stashed and spread as the last members of this object in getCurrent().
+    // The kind check stops the stash firing for JsonTreeMapEncoder, which
+    // inherits these methods.
+    private fun isExtraKeysBucket(descriptor: SerialDescriptor, index: Int): Boolean =
+        descriptor.kind == StructureKind.CLASS && extraKeysIndexFor(descriptor) == index
+
+    private fun stashExtraKeys(descriptor: SerialDescriptor, extras: Map<String, JsonElement>?) {
+        pendingExtraKeys = extras
+        pendingBucketDescriptor = descriptor
+    }
+
+    override fun getCurrent(): JsonElement {
+        val extras = pendingExtraKeys
+        val descriptor = pendingBucketDescriptor
+        if (extras != null && descriptor != null) {
+            pendingExtraKeys = null
+            pendingBucketDescriptor = null
+            val collisionNames = descriptor.jsonExtraKeysCollisionNames(json, extraKeysIndexFor(descriptor))
+            for ((key, element) in extras) {
+                if (key in collisionNames) {
+                    throw JsonEncodingException(
+                        "@JsonExtraKeys property of '${descriptor.serialName}' contains key '$key' " +
+                            "which conflicts with a declared property name.",
+                        classSerialName = descriptor.serialName
+                    )
+                }
+                if (key == activeDiscriminator) {
+                    throw JsonEncodingException(
+                        "@JsonExtraKeys property of '${descriptor.serialName}' contains key '$key' " +
+                            "which conflicts with the class discriminator.",
+                        classSerialName = descriptor.serialName
+                    )
+                }
+                content[key] = element
+            }
+        }
+        return JsonObject(content)
+    }
 }
 
 private class JsonTreeMapEncoder(json: Json, nodeConsumer: (JsonElement) -> Unit) : JsonTreeEncoder(json, nodeConsumer) {

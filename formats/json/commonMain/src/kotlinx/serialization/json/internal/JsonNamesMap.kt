@@ -6,6 +6,7 @@
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.internal.jsonCachedSerialNames
@@ -164,3 +165,129 @@ internal inline fun Json.tryCoerceValue(
 
 internal fun SerialDescriptor.ignoreUnknownKeys(json: Json): Boolean =
     json.configuration.ignoreUnknownKeys || annotations.any { it is JsonIgnoreUnknownKeys }
+
+internal val JsonExtraKeysIndexKey = DescriptorSchemaCache.Key<Int>()
+
+/**
+ * Returns the element index of the property annotated with [JsonExtraKeys],
+ * or -1 if no such property exists in this descriptor or the feature is
+ * disabled via [JsonBuilder.useExtraKeys].
+ *
+ * Validates on first computation and throws [SerializationException] if:
+ *  - more than one property is annotated with [JsonExtraKeys];
+ *  - the annotated property is not of type `JsonObject` / `Map<String, JsonElement>`.
+ *
+ * The result is memoised in the per-[Json] [DescriptorSchemaCache].
+ */
+internal fun SerialDescriptor.jsonExtraKeysIndex(json: Json): Int {
+    if (!json.configuration.useExtraKeys) return -1
+    return try {
+        json.schemaCache.getOrPut(this, JsonExtraKeysIndexKey) {
+            computeJsonExtraKeysIndex()
+        }
+    } catch (_: IndexOutOfBoundsException) {
+        // Some partially-customized descriptors (e.g. created via the @Serializer
+        // companion shortcut) have a broken hashCode() that throws an
+        // index-out-of-bounds exception when the schema cache hashes them.
+        // useAlternativeNames touches hashCode only on the unknown-key slow
+        // path and documents `useAlternativeNames = false` as the remedy. This
+        // lookup instead runs eagerly for every class descriptor, so
+        // without this fallback the mere presence of such a descriptor would
+        // break on upgrade even when @JsonExtraKeys is not used at all
+        // (see JsonCustomSerializersTest). Fall back to uncached computation.
+        // The parent exception type is caught for portability: the JDK throws
+        // AIOOBE, while on Kotlin/Native AIOOBE is a deprecated alias of IOOBE.
+        computeJsonExtraKeysIndex()
+    }
+}
+
+private fun SerialDescriptor.computeJsonExtraKeysIndex(): Int {
+    var foundIndex = -1
+    var duplicates: MutableList<String>? = null
+    for (i in 0 until elementsCount) {
+        if (getElementAnnotations(i).any { it is JsonExtraKeys }) {
+            if (foundIndex == -1) {
+                foundIndex = i
+            } else {
+                val list = duplicates
+                if (list == null) {
+                    duplicates = mutableListOf(getElementName(foundIndex), getElementName(i))
+                } else {
+                    list.add(getElementName(i))
+                }
+            }
+        }
+    }
+    duplicates?.let {
+        throw SerializationException(
+            "Class '$serialName' has more than one property annotated with @JsonExtraKeys: " +
+                it.joinToString(", ") { name -> "'$name'" } +
+                ". At most one such property is allowed per class."
+        )
+    }
+    if (foundIndex == -1) return -1
+    validateJsonExtraKeysProperty(foundIndex)
+    return foundIndex
+}
+
+private fun SerialDescriptor.validateJsonExtraKeysProperty(index: Int) {
+    val propertyName = getElementName(index)
+    val elementDescriptor = getElementDescriptor(index)
+    val rejection = "Property '$propertyName' of '$serialName' is annotated with @JsonExtraKeys " +
+        "but its type is not 'JsonObject' or 'Map<String, JsonElement>'"
+    if (elementDescriptor.kind != StructureKind.MAP) {
+        throw SerializationException("$rejection (kind is ${elementDescriptor.kind}).")
+    }
+    // Strict identity checks: bucket keys are JSON object member names and
+    // values must be opaque JsonElements. Both JsonObject's descriptor and the
+    // one produced by MapSerializer(String.serializer(), JsonElement.serializer())
+    // delegate to the same element descriptors, so identity comparison accepts
+    // exactly the two supported declarations and nothing else (e.g. inline
+    // value classes wrapping String, or typed/nullable values).
+    if (elementDescriptor.getElementDescriptor(0) !== String.serializer().descriptor) {
+        throw SerializationException(
+            "$rejection: map key type must be String but was '${elementDescriptor.getElementDescriptor(0).serialName}'."
+        )
+    }
+    if (elementDescriptor.getElementDescriptor(1) !== JsonElementSerializer.descriptor) {
+        throw SerializationException(
+            "$rejection: map value type must be JsonElement but was '${elementDescriptor.getElementDescriptor(1).serialName}'."
+        )
+    }
+    if (getElementAnnotations(index).any { it is JsonNames }) {
+        throw SerializationException(
+            "$rejection: @JsonNames is not allowed on a @JsonExtraKeys property."
+        )
+    }
+}
+
+internal val JsonExtraKeysCollisionNamesKey = DescriptorSchemaCache.Key<Set<String>>()
+
+/**
+ * Names that a [JsonExtraKeys] bucket is not allowed to contain when written
+ * back during encoding: every JSON name that decoding would resolve to a
+ * declared property (serial names, [JsonNames] aliases and naming-strategy
+ * forms), except names resolving to the bucket itself, which decoding
+ * captures into the bucket and which therefore round-trip safely.
+ *
+ * Memoised in the per-[Json] [DescriptorSchemaCache].
+ */
+internal fun SerialDescriptor.jsonExtraKeysCollisionNames(json: Json, bucketIndex: Int): Set<String> =
+    json.schemaCache.getOrPut(this, JsonExtraKeysCollisionNamesKey) {
+        // Mirrors the name-resolution rules of decoding: serial names are
+        // recognized only without a naming strategy, and @JsonNames aliases
+        // (from deserializationNamesMap) only when useAlternativeNames is on.
+        val strategy = namingStrategy(json)
+        val result = mutableSetOf<String>()
+        if (strategy == null) {
+            for (i in 0 until elementsCount) {
+                if (i != bucketIndex) result.add(getElementName(i))
+            }
+        }
+        if (strategy != null || json.configuration.useAlternativeNames) {
+            for ((name, index) in json.deserializationNamesMap(this)) {
+                if (index != bucketIndex) result.add(name)
+            }
+        }
+        result
+    }

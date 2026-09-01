@@ -105,3 +105,66 @@ public annotation class JsonClassDiscriminator(val discriminator: String)
 @SerialInfo
 @Target(AnnotationTarget.CLASS)
 public annotation class JsonIgnoreUnknownKeys
+
+/**
+ * Marks a property as the bucket that captures every JSON object key that
+ * does not match any declared property of the enclosing class.
+ *
+ * The annotated property must be of type [JsonObject] or `Map<String, JsonElement>`.
+ * Captured values are stored losslessly as [JsonElement]s; apply
+ * [Json.decodeFromJsonElement] to individual entries if typed access is needed.
+ *
+ * Unknown keys are still resolved through [JsonNames] aliases and the active
+ * [JsonNamingStrategy] first; only keys that remain unmatched after that
+ * resolution are placed into the bucket. The class discriminator used during
+ * polymorphic decoding is also excluded from the bucket.
+ *
+ * On encoding, the entries of the bucket are written back as members of the
+ * enclosing JSON object, after all regular properties; the bucket's own
+ * property name is not written. This makes `encode(decode(input))` preserve
+ * the captured keys. If the bucket was manipulated to contain a key that a
+ * declared property (or the class discriminator) would be written under,
+ * a [SerializationException] is thrown to prevent duplicate keys in the output.
+ * In other words, the bucket may only contain keys that decoding would have
+ * captured into it.
+ *
+ * Capturing takes precedence over both [JsonBuilder.ignoreUnknownKeys] and
+ * [JsonIgnoreUnknownKeys]: when this annotation is present on a property,
+ * unknown keys are always captured rather than silently dropped or rejected.
+ *
+ * Processing of this annotation must be enabled with the
+ * [JsonBuilder.useExtraKeys] flag (`false` by default); without it, the
+ * annotated property behaves as a regular property.
+ *
+ * Example:
+ * ```
+ * @Serializable
+ * data class Project(
+ *     val name: String,
+ *     @JsonExtraKeys val extras: JsonObject = JsonObject(emptyMap())
+ * )
+ *
+ * val json = Json { useExtraKeys = true }
+ * val parsed = json.decodeFromString<Project>(
+ *     """{"name":"kotlinx.serialization","stars":9000,"forks":500}"""
+ * )
+ * // parsed.extras == {"stars": 9000, "forks": 500}
+ * // json.encodeToString(parsed) reproduces the original JSON
+ * ```
+ *
+ * Constraints validated lazily on first use, raising [SerializationException]:
+ *  - at most one property per class may be annotated with [JsonExtraKeys];
+ *  - the annotated property must be of type [JsonObject] or `Map<String, JsonElement>`
+ *    (with exactly the standard [String] and [JsonElement] serializers);
+ *  - the property must not also carry a [JsonNames] annotation.
+ *
+ * It is recommended to give the annotated property a default value of
+ * `JsonObject(emptyMap())` (or `emptyMap()`) so that it is optional in the input.
+ *
+ * @see JsonIgnoreUnknownKeys
+ * @see JsonBuilder.ignoreUnknownKeys
+ */
+@SerialInfo
+@Target(AnnotationTarget.PROPERTY)
+@ExperimentalSerializationApi
+public annotation class JsonExtraKeys

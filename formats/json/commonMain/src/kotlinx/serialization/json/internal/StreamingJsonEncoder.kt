@@ -46,6 +46,82 @@ internal class StreamingJsonEncoder(
     private var polymorphicDiscriminator: String? = null
     private var polymorphicSerialName: String? = null
 
+    // Cache of the @JsonExtraKeys index for the most recently queried descriptor.
+    // The sentinel `lookupDescriptor !== descriptor` triggers a refresh when the
+    // descriptor changes. This avoids hitting the per-Json schema cache on every
+    // encoded element.
+    private var lookupDescriptor: SerialDescriptor? = null
+    private var cachedExtraKeysIndex: Int = -1
+
+    private fun extraKeysIndexFor(descriptor: SerialDescriptor): Int {
+        // Flag check first: when the feature is disabled this is a single
+        // predictable branch, before any cache machinery is touched.
+        if (!configuration.useExtraKeys) return -1
+        if (lookupDescriptor !== descriptor) {
+            lookupDescriptor = descriptor
+            cachedExtraKeysIndex = descriptor.jsonExtraKeysIndex(json)
+        }
+        return cachedExtraKeysIndex
+    }
+
+    // State for @JsonExtraKeys write-back. The bucket value is stashed when its
+    // element comes through encodeSerializableElement and written out as the
+    // last members of the enclosing JSON object in endStructure. Because this
+    // encoder instance is reused across same-mode nested structures
+    // (modeReuseCache), the state is saved/restored via a stack, but only for
+    // descriptors that actually declare a bucket, so bucket-free encoding pays
+    // nothing beyond the extraKeysIndexFor check in beginStructure.
+    private var pendingExtraKeys: Map<String, JsonElement>? = null
+    private var pendingDiscriminator: String? = null
+
+    private class ExtraKeysFrame(val extras: Map<String, JsonElement>?, val discriminator: String?)
+
+    private var extraKeysStack: MutableList<ExtraKeysFrame>? = null
+
+    private fun pushExtraKeysFrame(discriminator: String?) {
+        val stack = extraKeysStack ?: mutableListOf<ExtraKeysFrame>().also { extraKeysStack = it }
+        stack.add(ExtraKeysFrame(pendingExtraKeys, pendingDiscriminator))
+        pendingExtraKeys = null
+        pendingDiscriminator = discriminator
+    }
+
+    private fun flushExtraKeys(descriptor: SerialDescriptor, bucketIndex: Int) {
+        val extras = pendingExtraKeys
+        if (extras != null && extras.isNotEmpty()) {
+            val collisionNames = descriptor.jsonExtraKeysCollisionNames(json, bucketIndex)
+            for ((key, element) in extras) {
+                validateNoExtraKeyCollision(descriptor, key, collisionNames)
+                if (!composer.writingFirst) composer.print(COMMA)
+                composer.nextItem()
+                encodeString(key)
+                composer.print(COLON)
+                composer.space()
+                encodeSerializableValue(JsonElementSerializer, element)
+            }
+        }
+        val stack = extraKeysStack!!
+        val frame = stack.removeAt(stack.lastIndex)
+        pendingExtraKeys = frame.extras
+        pendingDiscriminator = frame.discriminator
+    }
+
+    private fun validateNoExtraKeyCollision(descriptor: SerialDescriptor, key: String, collisionNames: Set<String>) {
+        if (key in collisionNames) {
+            throw JsonEncodingException(
+                "@JsonExtraKeys property of '${descriptor.serialName}' contains key '$key' " +
+                    "which conflicts with a declared property name.",
+                classSerialName = descriptor.serialName
+            )
+        }
+        if (key == pendingDiscriminator) {
+            throw JsonEncodingException(
+                "@JsonExtraKeys property of '${descriptor.serialName}' contains key '$key' " +
+                    "which conflicts with the class discriminator.",
+                classSerialName = descriptor.serialName
+            )
+        }
+    }
+
     init {
         val i = mode.ordinal
         if (modeReuseCache != null) {
@@ -94,14 +170,22 @@ internal class StreamingJsonEncoder(
             polymorphicSerialName = null
         }
 
-        if (mode == newMode) {
-            return this
+        val result = if (mode == newMode) {
+            this
+        } else {
+            (modeReuseCache?.get(newMode.ordinal) ?: StreamingJsonEncoder(composer, json, newMode, modeReuseCache))
         }
-
-        return modeReuseCache?.get(newMode.ordinal) ?: StreamingJsonEncoder(composer, json, newMode, modeReuseCache)
+        if (newMode == LexerMode.OBJ && extraKeysIndexFor(descriptor) != -1) {
+            (result as StreamingJsonEncoder).pushExtraKeysFrame(discriminator)
+        }
+        return result
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
+        if (mode == LexerMode.OBJ) {
+            val bucketIndex = extraKeysIndexFor(descriptor)
+            if (bucketIndex != -1) flushExtraKeys(descriptor, bucketIndex)
+        }
         if (mode.end != INVALID) {
             composer.unIndent()
             composer.nextItemIfNotFirst()
@@ -153,12 +237,39 @@ internal class StreamingJsonEncoder(
         return true
     }
 
+    override fun <T> encodeSerializableElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        serializer: SerializationStrategy<T>,
+        value: T
+    ) {
+        // The @JsonExtraKeys bucket is not written as a regular property: it is
+        // stashed here and spread as the last members of the enclosing object
+        // in endStructure. The check lives here rather than in encodeElement
+        // because a bucket is always a Map and can only arrive through this
+        // method, so primitive properties never pay for it. The mode check
+        // short-circuits map/list entries before the descriptor lookup.
+        if (mode == LexerMode.OBJ && extraKeysIndexFor(descriptor) == index) {
+            // Validation in JsonNamesMap guarantees the declared type is
+            // JsonObject or Map<String, JsonElement>.
+            @Suppress("UNCHECKED_CAST")
+            pendingExtraKeys = value as Map<String, JsonElement>
+            return
+        }
+        super.encodeSerializableElement(descriptor, index, serializer, value)
+    }
+
     override fun <T : Any> encodeNullableSerializableElement(
         descriptor: SerialDescriptor,
         index: Int,
         serializer: SerializationStrategy<T>,
         value: T?
     ) {
+        if (mode == LexerMode.OBJ && extraKeysIndexFor(descriptor) == index) {
+            @Suppress("UNCHECKED_CAST")
+            pendingExtraKeys = value as Map<String, JsonElement>?
+            return
+        }
         if (value != null || configuration.explicitNulls) {
             super.encodeNullableSerializableElement(descriptor, index, serializer, value)
         }

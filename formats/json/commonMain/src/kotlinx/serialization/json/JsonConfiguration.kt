@@ -43,6 +43,8 @@ public class JsonConfiguration @OptIn(ExperimentalSerializationApi::class) inter
 
     @ExperimentalSerializationApi
     public var exceptionsWithDebugInfo: Boolean = true,
+    @ExperimentalSerializationApi
+    public val useExtraKeys: Boolean = false,
 ) {
 
     /** @suppress Dokka **/
@@ -53,7 +55,8 @@ public class JsonConfiguration @OptIn(ExperimentalSerializationApi::class) inter
                 "prettyPrintIndent='$prettyPrintIndent', coerceInputValues=$coerceInputValues, useArrayPolymorphism=$useArrayPolymorphism, " +
                 "classDiscriminator='$classDiscriminator', allowSpecialFloatingPointValues=$allowSpecialFloatingPointValues, " +
                 "useAlternativeNames=$useAlternativeNames, namingStrategy=$namingStrategy, decodeEnumsCaseInsensitive=$decodeEnumsCaseInsensitive, " +
-                "allowTrailingComma=$allowTrailingComma, allowComments=$allowComments, classDiscriminatorMode=$classDiscriminatorMode, exceptionsWithDebugInfo=$exceptionsWithDebugInfo)"
+                "allowTrailingComma=$allowTrailingComma, allowComments=$allowComments, classDiscriminatorMode=$classDiscriminatorMode, " +
+                "exceptionsWithDebugInfo=$exceptionsWithDebugInfo, useExtraKeys=$useExtraKeys)"
     }
 }
 

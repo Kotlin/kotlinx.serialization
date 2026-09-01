@@ -554,6 +554,22 @@ public class JsonBuilder internal constructor(json: Json) {
     public var useAlternativeNames: Boolean = json.configuration.useAlternativeNames
 
     /**
+     * Specifies whether Json instance makes use of the [JsonExtraKeys] annotation.
+     *
+     * When disabled (the default), properties annotated with [JsonExtraKeys] are
+     * treated as regular properties: unknown keys are not captured (they are handled
+     * according to [ignoreUnknownKeys]), and the annotated property is read from and
+     * written under its own name.
+     *
+     * The flag is disabled by default because resolving the annotation adds a small
+     * per-object cost to decoding and encoding of all classes, including ones that
+     * do not use [JsonExtraKeys].
+     * `false` by default.
+     */
+    @ExperimentalSerializationApi
+    public var useExtraKeys: Boolean = json.configuration.useExtraKeys
+
+    /**
      * Specifies [JsonNamingStrategy] that should be used for all properties in classes for serialization and deserialization.
      *
      * `null` by default.
@@ -720,7 +736,7 @@ public class JsonBuilder internal constructor(json: Json) {
             coerceInputValues, useArrayPolymorphism,
             classDiscriminator, allowSpecialFloatingPointValues, useAlternativeNames,
             namingStrategy, decodeEnumsCaseInsensitive, allowTrailingComma, allowComments, classDiscriminatorMode,
-            exceptionsWithDebugInfo
+            exceptionsWithDebugInfo, useExtraKeys
         )
     }
 }

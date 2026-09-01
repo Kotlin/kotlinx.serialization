@@ -41,6 +41,7 @@ In this chapter, we'll walk through features of [JSON](https://www.json.org/json
   * [Extending the behavior of the plugin generated serializer](#extending-the-behavior-of-the-plugin-generated-serializer)
   * [Under the hood (experimental)](#under-the-hood-experimental)
   * [Maintaining custom JSON attributes](#maintaining-custom-json-attributes)
+  * [Preserving unknown keys (experimental)](#preserving-unknown-keys-experimental)
 
 <!--- END -->
 
@@ -162,6 +163,8 @@ It decodes the object despite the fact that the `Project` class doesn't have the
 ```text
 Project(name=kotlinx.serialization)
 ```
+
+If you need to keep the unknown keys instead of dropping them, see [Preserving unknown keys (experimental)](#preserving-unknown-keys-experimental).
 
 <!--- TEST -->
 
@@ -1514,6 +1517,56 @@ UnknownProject(name=example, details={"type":"unknown","maintainer":"Unknown","l
 
 <!--- TEST -->
 
+### Preserving unknown keys (experimental)
+
+Instead of writing such a serializer by hand, you can ask the plugin-generated serializer to collect unknown keys for you.
+Mark a property of type [JsonObject] with the [JsonExtraKeys] annotation and enable the [useExtraKeys][JsonBuilder.useExtraKeys]
+flag on the [Json] instance:
+
+```kotlin
+@OptIn(ExperimentalSerializationApi::class) // useExtraKeys is an experimental setting for now
+val format = Json { useExtraKeys = true }
+
+@OptIn(ExperimentalSerializationApi::class) // JsonExtraKeys is an experimental annotation for now
+@Serializable
+data class Project(
+    val name: String,
+    @JsonExtraKeys val details: JsonObject = JsonObject(emptyMap())
+)
+
+fun main() {
+    val project = format.decodeFromString<Project>("""{"type":"unknown","name":"example","maintainer":"Unknown","license":"Apache 2.0"}""")
+    println(project)
+    println(format.encodeToString(project))
+}
+```
+
+> You can get the full code [here](../guide/example/example-json-33.kt).
+
+Every key that does not match a declared property of `Project` ends up in `details`. Encoding writes them back
+after the regular properties, so the JSON survives a decode and encode round trip:
+
+```text
+Project(name=example, details={"type":"unknown","maintainer":"Unknown","license":"Apache 2.0"})
+{"name":"example","type":"unknown","maintainer":"Unknown","license":"Apache 2.0"}
+```
+
+A few rules apply:
+
+* Only one property per class can be annotated, and it must be of type [JsonObject] or `Map<String, JsonElement>`.
+Give it a default value so that the property is optional when the input has no unknown keys.
+* [JsonExtraKeys] takes precedence over [ignoreUnknownKeys][JsonBuilder.ignoreUnknownKeys] and [JsonIgnoreUnknownKeys]:
+unknown keys are captured rather than ignored or rejected.
+* Keys matched through [JsonNames] or a [JsonNamingStrategy] are not unknown and are not captured.
+The class discriminator used for polymorphism is not captured either.
+* If the captured object contains a key that a declared property would be written under, encoding throws
+a `SerializationException` instead of producing duplicate keys.
+
+The flag is disabled by default because resolving the annotation adds a small cost to encoding and decoding of every class,
+including classes that do not use [JsonExtraKeys]. Without the flag, the annotated property behaves as a regular one.
+
+<!--- TEST -->
+
 ---
 
 The next chapter covers [Alternative and custom formats (experimental)](formats.md).
@@ -1598,5 +1651,7 @@ The next chapter covers [Alternative and custom formats (experimental)](formats.
 [JsonDecoder.json]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-decoder/json.html
 [JsonEncoder.json]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-encoder/json.html
 [Json.encodeToJsonElement]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/encode-to-json-element.html
+[JsonExtraKeys]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-extra-keys/index.html
+[JsonBuilder.useExtraKeys]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/use-extra-keys.html
 
 <!--- END -->

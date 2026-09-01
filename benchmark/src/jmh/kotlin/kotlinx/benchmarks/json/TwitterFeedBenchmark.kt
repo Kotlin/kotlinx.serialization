@@ -24,6 +24,8 @@ open class TwitterFeedBenchmark {
     private val twitter = Json.decodeFromString(MacroTwitterFeed.serializer(), input)
 
     private val jsonNoAltNames = Json { useAlternativeNames = false }
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    private val jsonExtraKeys = Json { useExtraKeys = true }
     private val jsonIgnoreUnknwn = Json { ignoreUnknownKeys = true }
     private val jsonIgnoreUnknwnNoAltNames = Json { ignoreUnknownKeys = true; useAlternativeNames = false }
     private val jsonNamingStrategy = Json { namingStrategy = JsonNamingStrategy.SnakeCase }
@@ -46,6 +48,14 @@ open class TwitterFeedBenchmark {
 
     @Benchmark
     fun encodeTwitter() = Json.encodeToString(MacroTwitterFeed.serializer(), twitter)
+
+    // Enabled state of the useExtraKeys flag on a macro payload; the default
+    // (disabled) state is measured by decodeTwitter/encodeTwitter.
+    @Benchmark
+    fun decodeTwitterWithExtraKeys() = jsonExtraKeys.decodeFromString(MacroTwitterFeed.serializer(), input)
+
+    @Benchmark
+    fun encodeTwitterWithExtraKeys() = jsonExtraKeys.encodeToString(MacroTwitterFeed.serializer(), twitter)
 
     @Benchmark
     fun decodeMicroTwitter() = jsonIgnoreUnknwn.decodeFromString(MicroTwitterFeed.serializer(), input)

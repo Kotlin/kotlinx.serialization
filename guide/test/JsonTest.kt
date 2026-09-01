@@ -248,4 +248,12 @@ class JsonTest {
             "UnknownProject(name=example, details={\"type\":\"unknown\",\"maintainer\":\"Unknown\",\"license\":\"Apache 2.0\"})"
         )
     }
+
+    @Test
+    fun testExampleJson33() {
+        captureOutput("ExampleJson33") { example.exampleJson33.main() }.verifyOutputLines(
+            "Project(name=example, details={\"type\":\"unknown\",\"maintainer\":\"Unknown\",\"license\":\"Apache 2.0\"})",
+            "{\"name\":\"example\",\"type\":\"unknown\",\"maintainer\":\"Unknown\",\"license\":\"Apache 2.0\"}"
+        )
+    }
 }

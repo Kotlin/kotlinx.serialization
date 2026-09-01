@@ -112,6 +112,7 @@ public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
 	public final fun getUseAlternativeNames ()Z
 	public final fun getUseArrayPolymorphism ()Z
+	public final fun getUseExtraKeys ()Z
 	public final fun isLenient ()Z
 	public final fun setAllowComments (Z)V
 	public final fun setAllowSpecialFloatingPointValues (Z)V
@@ -132,6 +133,7 @@ public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun setSerializersModule (Lkotlinx/serialization/modules/SerializersModule;)V
 	public final fun setUseAlternativeNames (Z)V
 	public final fun setUseArrayPolymorphism (Z)V
+	public final fun setUseExtraKeys (Z)V
 }
 
 public abstract interface annotation class kotlinx/serialization/json/JsonClassDiscriminator : java/lang/annotation/Annotation {
@@ -162,6 +164,7 @@ public final class kotlinx/serialization/json/JsonConfiguration {
 	public final fun getPrettyPrintIndent ()Ljava/lang/String;
 	public final fun getUseAlternativeNames ()Z
 	public final fun getUseArrayPolymorphism ()Z
+	public final fun getUseExtraKeys ()Z
 	public final fun isLenient ()Z
 	public final fun setClassDiscriminatorMode (Lkotlinx/serialization/json/ClassDiscriminatorMode;)V
 	public final fun setExceptionsWithDebugInfo (Z)V
@@ -285,6 +288,13 @@ public abstract class kotlinx/serialization/json/JsonException : kotlinx/seriali
 	public abstract fun getHint ()Ljava/lang/String;
 	public fun getMessage ()Ljava/lang/String;
 	public abstract fun getShortMessage ()Ljava/lang/String;
+}
+
+public abstract interface annotation class kotlinx/serialization/json/JsonExtraKeys : java/lang/annotation/Annotation {
+}
+
+public final synthetic class kotlinx/serialization/json/JsonExtraKeys$Impl : kotlinx/serialization/json/JsonExtraKeys {
+	public fun <init> ()V
 }
 
 public abstract interface annotation class kotlinx/serialization/json/JsonIgnoreUnknownKeys : java/lang/annotation/Annotation {
