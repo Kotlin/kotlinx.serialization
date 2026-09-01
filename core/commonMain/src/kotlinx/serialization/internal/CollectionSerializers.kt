@@ -19,8 +19,6 @@ public sealed class AbstractCollectionSerializer<Element, Collection, Builder> :
     protected abstract fun Builder.builderSize(): Int
     protected abstract fun Builder.toResult(): Collection
     protected abstract fun Collection.toBuilder(expectedSize: Int): Builder
-    protected abstract fun Builder.checkCapacity(size: Int)
-
     abstract override fun serialize(encoder: Encoder, value: Collection)
 
     @InternalSerializationApi
@@ -151,7 +149,6 @@ internal abstract class PrimitiveArraySerializer<Element, Array, Builder
 
     final override fun Builder.builderSize(): Int = position
     final override fun Builder.toResult(): Array = build()
-    final override fun Builder.checkCapacity(size: Int): Unit = ensureCapacity(size)
 
     final override fun Array.collectionIterator(): Iterator<Element> =
         error("This method lead to boxing and must not be used, use writeContents instead")
@@ -210,7 +207,6 @@ internal class ReferenceArraySerializer<ElementKlass : Any, Element : ElementKla
         return ArrayList<Element>(expectedCapacity).also { it.addAll(this) }
     }
 
-    override fun ArrayList<Element>.checkCapacity(size: Int): Unit = ensureCapacity(size)
     override fun ArrayList<Element>.insert(index: Int, element: Element) {
         add(index, element)
     }
@@ -235,13 +231,11 @@ internal class ArrayListSerializer<E>(element: KSerializer<E>) : CollectionSeria
     override fun ArrayList<E>.toResult(): List<E> = this
     override fun List<E>.toBuilder(expectedSize: Int): ArrayList<E> {
         if (this is ArrayList) {
-            if (expectedSize == size) return this
             return this.also { it.ensureCapacity(expectedSize) }
         }
         if (expectedSize == size) return ArrayList(this)
         return ArrayList<E>(expectedSize).also { it.addAll(this) }
     }
-    override fun ArrayList<E>.checkCapacity(size: Int): Unit = ensureCapacity(size)
     override fun ArrayList<E>.insert(index: Int, element: E) { add(index, element) }
 }
 
@@ -259,11 +253,10 @@ internal class LinkedHashSetSerializer<E>(
     override fun LinkedHashSet<E>.toResult(): Set<E> = this
     override fun Set<E>.toBuilder(expectedSize: Int): LinkedHashSet<E> {
         if (this is LinkedHashSet<E>) return this
-        if (expectedSize == size) return LinkedHashSet(this)
+        if (expectedSize <= size) return LinkedHashSet(this)
         return newLinkedHashSet<E>(expectedSize).also { it.addAll(this) }
     }
 
-    override fun LinkedHashSet<E>.checkCapacity(size: Int) {}
     override fun LinkedHashSet<E>.insert(index: Int, element: E) { add(element) }
 }
 
@@ -281,10 +274,9 @@ internal class HashSetSerializer<E>(
     override fun HashSet<E>.toResult(): Set<E> = this
     override fun Set<E>.toBuilder(expectedSize: Int): HashSet<E> {
         if (this is HashSet<E>) return this
-        if (expectedSize == size) return HashSet(this)
+        if (expectedSize <= size) return HashSet(this)
         return newHashSet<E>(expectedSize).also { it.addAll(this) }
     }
-    override fun HashSet<E>.checkCapacity(size: Int) {}
     override fun HashSet<E>.insert(index: Int, element: E) { add(element) }
 }
 
@@ -304,11 +296,10 @@ internal class LinkedHashMapSerializer<K, V>(
     override fun LinkedHashMap<K, V>.toResult(): Map<K, V> = this
     override fun Map<K, V>.toBuilder(expectedSize: Int): LinkedHashMap<K, V> {
         if (this is LinkedHashMap<K, V>) return this
-        if (expectedSize == size) return LinkedHashMap(this)
+        if (expectedSize <= size) return LinkedHashMap(this)
         return newLinkedHashMap<K, V>(expectedSize).also { it.putAll(this) }
     }
 
-    override fun LinkedHashMap<K, V>.checkCapacity(size: Int) {}
     override fun LinkedHashMap<K, V>.insertKeyValuePair(index: Int, key: K, value: V): Unit = set(key, value)
 }
 
@@ -328,35 +319,34 @@ internal class HashMapSerializer<K, V>(
     override fun HashMap<K, V>.toResult(): Map<K, V> = this
     override fun Map<K, V>.toBuilder(expectedSize: Int): HashMap<K, V> {
         if (this is HashMap<K, V>) return this
-        if (expectedSize == size) return HashMap(this)
+        if (expectedSize <= size) return HashMap(this)
         return newHashMap<K, V>(expectedSize).also { it.putAll(this) }
     }
 
-    override fun HashMap<K, V>.checkCapacity(size: Int) {}
     override fun HashMap<K, V>.insertKeyValuePair(index: Int, key: K, value: V): Unit = set(key, value)
 }
 
-private fun estimateCapacityForHashMap(requiredCapacity: Int, loadFactor: Double): Int =
+private fun estimateCapacityForHashMap(requiredCapacity: Int, loadFactor: Float): Int =
     ceil(requiredCapacity / loadFactor).toInt()
 
 private const val DEFAULT_LOAD_FACTORY = 0.75f
 
 private fun <T> newHashSet(expectedCapacity: Int): HashSet<T> {
-    val capacity = estimateCapacityForHashMap(expectedCapacity, DEFAULT_LOAD_FACTORY.toDouble())
+    val capacity = estimateCapacityForHashMap(expectedCapacity, DEFAULT_LOAD_FACTORY)
     return HashSet(capacity, DEFAULT_LOAD_FACTORY)
 }
 
 private fun <K, V> newHashMap(expectedCapacity: Int): HashMap<K, V> {
-    val capacity = estimateCapacityForHashMap(expectedCapacity, DEFAULT_LOAD_FACTORY.toDouble())
+    val capacity = estimateCapacityForHashMap(expectedCapacity, DEFAULT_LOAD_FACTORY)
     return HashMap(capacity, DEFAULT_LOAD_FACTORY)
 }
 
 private fun <T> newLinkedHashSet(expectedCapacity: Int): LinkedHashSet<T> {
-    val capacity = estimateCapacityForHashMap(expectedCapacity, DEFAULT_LOAD_FACTORY.toDouble())
+    val capacity = estimateCapacityForHashMap(expectedCapacity, DEFAULT_LOAD_FACTORY)
     return LinkedHashSet(capacity, DEFAULT_LOAD_FACTORY)
 }
 
 private fun <K, V> newLinkedHashMap(expectedCapacity: Int): LinkedHashMap<K, V> {
-    val capacity = estimateCapacityForHashMap(expectedCapacity, DEFAULT_LOAD_FACTORY.toDouble())
+    val capacity = estimateCapacityForHashMap(expectedCapacity, DEFAULT_LOAD_FACTORY)
     return LinkedHashMap(capacity, DEFAULT_LOAD_FACTORY)
 }

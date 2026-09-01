@@ -42,9 +42,7 @@ internal object ByteArraySerializer : KSerializer<ByteArray>,
 internal class ByteArrayBuilder internal constructor(
     bufferWithData: ByteArray, initialPosition: Int
 ) : PrimitiveArrayBuilder<ByteArray>() {
-    internal constructor(bufferWithData: ByteArray) : this(bufferWithData, bufferWithData.size) {
-        ensureCapacity(INITIAL_SIZE)
-    }
+    internal constructor(bufferWithData: ByteArray) : this(bufferWithData, bufferWithData.size)
     internal constructor(initialCapacity: Int) : this(ByteArray(initialCapacity), 0)
     internal constructor() : this(ByteArray(INITIAL_SIZE), 0)
 
@@ -100,9 +98,7 @@ internal object ShortArraySerializer : KSerializer<ShortArray>,
 internal class ShortArrayBuilder internal constructor(
     bufferWithData: ShortArray, initialPosition: Int
 ) : PrimitiveArrayBuilder<ShortArray>() {
-    internal constructor(bufferWithData: ShortArray) : this(bufferWithData, bufferWithData.size) {
-        ensureCapacity(INITIAL_SIZE)
-    }
+    internal constructor(bufferWithData: ShortArray) : this(bufferWithData, bufferWithData.size)
     internal constructor(initialCapacity: Int) : this(ShortArray(initialCapacity), 0)
     internal constructor() : this(ShortArray(INITIAL_SIZE), 0)
 
@@ -156,9 +152,7 @@ internal object IntArraySerializer : KSerializer<IntArray>,
 internal class IntArrayBuilder internal constructor(
     bufferWithData: IntArray, initialPosition: Int
 ) : PrimitiveArrayBuilder<IntArray>() {
-    internal constructor(bufferWithData: IntArray) : this(bufferWithData, bufferWithData.size) {
-        ensureCapacity(INITIAL_SIZE)
-    }
+    internal constructor(bufferWithData: IntArray) : this(bufferWithData, bufferWithData.size)
     internal constructor(initialCapacity: Int) : this(IntArray(initialCapacity), 0)
     internal constructor() : this(IntArray(INITIAL_SIZE), 0)
 
@@ -212,9 +206,7 @@ internal object LongArraySerializer : KSerializer<LongArray>,
 internal class LongArrayBuilder internal constructor(
     bufferWithData: LongArray, initialPosition: Int
 ) : PrimitiveArrayBuilder<LongArray>() {
-    internal constructor(bufferWithData: LongArray) : this(bufferWithData, bufferWithData.size) {
-        ensureCapacity(INITIAL_SIZE)
-    }
+    internal constructor(bufferWithData: LongArray) : this(bufferWithData, bufferWithData.size)
     internal constructor(initialCapacity: Int) : this(LongArray(initialCapacity), 0)
     internal constructor() : this(LongArray(INITIAL_SIZE), 0)
 
@@ -267,9 +259,7 @@ internal object FloatArraySerializer : KSerializer<FloatArray>,
 internal class FloatArrayBuilder internal constructor(
     bufferWithData: FloatArray, initialPosition: Int
 ) : PrimitiveArrayBuilder<FloatArray>() {
-    internal constructor(bufferWithData: FloatArray) : this(bufferWithData, bufferWithData.size) {
-        ensureCapacity(INITIAL_SIZE)
-    }
+    internal constructor(bufferWithData: FloatArray) : this(bufferWithData, bufferWithData.size)
     internal constructor(initialCapacity: Int) : this(FloatArray(initialCapacity), 0)
     internal constructor() : this(FloatArray(INITIAL_SIZE), 0)
 
@@ -322,9 +312,7 @@ internal object DoubleArraySerializer : KSerializer<DoubleArray>,
 internal class DoubleArrayBuilder internal constructor(
     bufferWithData: DoubleArray, initialPosition: Int
 ) : PrimitiveArrayBuilder<DoubleArray>() {
-    internal constructor(bufferWithData: DoubleArray) : this(bufferWithData, bufferWithData.size) {
-        ensureCapacity(INITIAL_SIZE)
-    }
+    internal constructor(bufferWithData: DoubleArray) : this(bufferWithData, bufferWithData.size)
     internal constructor(initialCapacity: Int) : this(DoubleArray(initialCapacity), 0)
     internal constructor() : this(DoubleArray(INITIAL_SIZE), 0)
 
@@ -377,9 +365,7 @@ internal object CharArraySerializer : KSerializer<CharArray>,
 internal class CharArrayBuilder internal constructor(
     bufferWithData: CharArray, initialPosition: Int
 ) : PrimitiveArrayBuilder<CharArray>() {
-    internal constructor(bufferWithData: CharArray) : this(bufferWithData, bufferWithData.size) {
-        ensureCapacity(INITIAL_SIZE)
-    }
+    internal constructor(bufferWithData: CharArray) : this(bufferWithData, bufferWithData.size)
     internal constructor(initialCapacity: Int) : this(CharArray(initialCapacity), 0)
     internal constructor() : this(CharArray(INITIAL_SIZE), 0)
 
@@ -429,10 +415,7 @@ internal object BooleanArraySerializer : KSerializer<BooleanArray>,
 @PublishedApi
 internal class BooleanArrayBuilder internal constructor(bufferWithData: BooleanArray, initialPosition: Int)
     : PrimitiveArrayBuilder<BooleanArray>() {
-    internal constructor(bufferWithData: BooleanArray) : this(bufferWithData, bufferWithData.size) {
-        ensureCapacity(INITIAL_SIZE)
-    }
-
+    internal constructor(bufferWithData: BooleanArray) : this(bufferWithData, bufferWithData.size)
     internal constructor(initialCapacity: Int) : this(BooleanArray(initialCapacity), 0)
     internal constructor() : this(BooleanArray(INITIAL_SIZE), 0)
 
@@ -490,9 +473,7 @@ internal object UByteArraySerializer : KSerializer<UByteArray>,
 internal class UByteArrayBuilder internal constructor(
     bufferWithData: UByteArray, initialPosition: Int
 ) : PrimitiveArrayBuilder<UByteArray>() {
-    internal constructor(bufferWithData: UByteArray) : this(bufferWithData, bufferWithData.size) {
-        ensureCapacity(INITIAL_SIZE)
-    }
+    internal constructor(bufferWithData: UByteArray) : this(bufferWithData, bufferWithData.size)
     internal constructor(initialCapacity: Int) : this(UByteArray(initialCapacity), 0)
     internal constructor() : this(UByteArray(INITIAL_SIZE), 0)
 
@@ -547,9 +528,7 @@ internal object UShortArraySerializer : KSerializer<UShortArray>,
 internal class UShortArrayBuilder internal constructor(
     bufferWithData: UShortArray, initialPosition: Int
 ) : PrimitiveArrayBuilder<UShortArray>() {
-    internal constructor(bufferWithData: UShortArray) : this(bufferWithData, bufferWithData.size) {
-        ensureCapacity(INITIAL_SIZE)
-    }
+    internal constructor(bufferWithData: UShortArray) : this(bufferWithData, bufferWithData.size)
     internal constructor(initialCapacity: Int) : this(UShortArray(initialCapacity), 0)
     internal constructor() : this(UShortArray(INITIAL_SIZE), 0)
 
@@ -604,9 +583,7 @@ internal object UIntArraySerializer : KSerializer<UIntArray>,
 internal class UIntArrayBuilder internal constructor(
     bufferWithData: UIntArray, initialPosition: Int
 ) : PrimitiveArrayBuilder<UIntArray>() {
-    internal constructor(bufferWithData: UIntArray) : this(bufferWithData, bufferWithData.size) {
-        ensureCapacity(INITIAL_SIZE)
-    }
+    internal constructor(bufferWithData: UIntArray) : this(bufferWithData, bufferWithData.size)
     internal constructor(initialCapacity: Int) : this(UIntArray(initialCapacity), 0)
     internal constructor() : this(UIntArray(INITIAL_SIZE), 0)
 
@@ -661,9 +638,7 @@ internal object ULongArraySerializer : KSerializer<ULongArray>,
 internal class ULongArrayBuilder internal constructor(
     bufferWithData: ULongArray, initialPosition: Int
 ) : PrimitiveArrayBuilder<ULongArray>() {
-    internal constructor(bufferWithData: ULongArray) : this(bufferWithData, bufferWithData.size) {
-        ensureCapacity(INITIAL_SIZE)
-    }
+    internal constructor(bufferWithData: ULongArray) : this(bufferWithData, bufferWithData.size)
     internal constructor(initialCapacity: Int) : this(ULongArray(initialCapacity), 0)
     internal constructor() : this(ULongArray(INITIAL_SIZE), 0)
 
