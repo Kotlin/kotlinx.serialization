@@ -176,16 +176,19 @@ fun MavenPom.configureMavenCentralMetadata() {
 // Unfortunately, archiveClassifier is always empty during the configuration phase,
 // so the check is postponed until the actual task execution.
 tasks.withType<Jar>().configureEach {
+    val multiplatformProject = isMultiplatform
+    val implementationTitle = project.name
+    val implementationVersion = project.version
     doFirst {
         // Skip all non-main JARs (sources, javadoc, etc)
         if (archiveClassifier.getOrElse("").isNotEmpty()) return@doFirst
         // Skip multiplatform metadata JARs
-        if (isMultiplatform && archiveAppendix.getOrElse("") != "jvm") return@doFirst
+        if (multiplatformProject && archiveAppendix.getOrElse("") != "jvm") return@doFirst
         manifest {
             attributes(
                 "Implementation-Vendor" to "JetBrains",
-                "Implementation-Title" to project.name,
-                "Implementation-Version" to project.version,
+                "Implementation-Title" to implementationTitle,
+                "Implementation-Version" to implementationVersion,
             )
         }
     }
