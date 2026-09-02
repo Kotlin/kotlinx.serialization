@@ -1,6 +1,8 @@
 import com.android.tools.r8.*
 import com.android.tools.r8.origin.*
+import org.gradle.process.ExecOperations
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import javax.inject.Inject
 
 /*
  * Copyright 2017-2025 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
@@ -56,10 +58,10 @@ dependencies {
 }
 
 // extend sharedImplementation by all test compilation tasks
-val testR8FullModeImplementation by configurations.getting {
+configurations.getByName("testR8FullModeImplementation") {
     extendsFrom(sharedImplementation)
 }
-val testProguardCompatibleImplementation by configurations.getting {
+configurations.getByName("testProguardCompatibleImplementation") {
     extendsFrom(sharedImplementation)
 }
 
@@ -93,8 +95,13 @@ tasks.check {
 //
 // R8 actions
 //
+abstract class ExecOp @Inject constructor() {
+    @get:Inject
+    abstract val execOperations: ExecOperations
+}
 
 val baseJar = layout.buildDirectory.file("jdk/java.base.jar")
+val exec = objects.newInstance<ExecOp>().execOperations
 
 
 /**
@@ -129,11 +136,11 @@ val extractBaseJarTask = tasks.register<Task>("extractBaseJar") {
             jdkBinDir.resolve("jmod")
         }
 
-        exec {
+        exec.exec {
             commandLine(jmodFile.absolutePath, "extract", baseJmod.absolutePath, "--dir", extractDir.absolutePath)
         }
         // pack class-files into jar
-        exec {
+        exec.exec {
             commandLine(
                 "jar",
                 "--create",

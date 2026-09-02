@@ -30,7 +30,7 @@ dependencies {
 
 publishing {
     publications {
-        val mavenBom by creating(MavenPublication::class) {
+        create<MavenPublication>("mavenBom") {
             from(components["javaPlatform"])
         }
         // Disable metadata publication
@@ -48,7 +48,7 @@ publishing {
 }
 
 fun DefaultMavenPublication.unsetModuleDescriptorGenerator() {
-    @Suppress("NULL_FOR_NONNULL_TYPE")
-    val generator: TaskProvider<Task?> = null
-    setModuleDescriptorGenerator(generator)
+    DefaultMavenPublication::class.java
+        .getMethod("setModuleDescriptorGenerator", TaskProvider::class.java)
+        .invoke(this, null)
 }

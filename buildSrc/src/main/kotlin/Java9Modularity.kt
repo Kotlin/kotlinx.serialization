@@ -133,11 +133,6 @@ object Java9Modularity {
             libraries.from(compileTask.map { it.libraries })
             source(compileTask.map { it.sources })
             source(compileTask.map { it.javaSources })
-            // part of work-around for https://youtrack.jetbrains.com/issue/KT-60541
-            source(compileTask.map {
-                @Suppress("INVISIBLE_MEMBER")
-                it.scriptSources
-            })
             source(sourceFile)
             destinationDirectory.set(temporaryDir)
             multiPlatformEnabled.set(compileTask.get().multiPlatformEnabled)

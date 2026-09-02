@@ -21,7 +21,7 @@ kotlin {
                 optIn("kotlinx.serialization.json.internal.JsonFriendModuleApi")
             }
         }
-        val commonMain by getting {
+        getByName("commonMain") {
             dependencies {
                 api(project(":kotlinx-serialization-core"))
                 api(project(":kotlinx-serialization-json"))

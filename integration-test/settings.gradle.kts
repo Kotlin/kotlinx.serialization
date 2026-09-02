@@ -2,7 +2,7 @@ pluginManagement {
     includeBuild("../build-settings-logic")
 
     resolutionStrategy {
-        val mainKotlinVersion: String by settings
+        val mainKotlinVersion = providers.gradleProperty("mainKotlinVersion").get()
         eachPlugin {
             if (requested.id.id == "org.jetbrains.kotlin.multiplatform") {
                 useVersion("$mainKotlinVersion")
