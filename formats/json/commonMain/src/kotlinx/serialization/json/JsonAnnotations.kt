@@ -29,9 +29,10 @@ import kotlin.native.concurrent.*
  * println(oldProject) // Also OK
  * ```
  *
- * This annotation has lesser priority than [SerialName].
+ * Specifying this annotation and [SerialName] with the same value leads to unspecified behavior, which is implementation-defined.
  * In practice, this means that if property A has `@SerialName("foo")` annotation, and property B has `@JsonNames("foo")` annotation,
- * Json key `foo` will be deserialized into property A.
+ * Json key `foo` can be deserialized to the last property in the stream, set both properties, or throw an exception about duplicate keys.
+ * This behavior may differ across runtime versions.
  *
  * Using the same alternative name for different properties across one class is prohibited and leads to a deserialization exception.
  *
