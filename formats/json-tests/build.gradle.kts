@@ -31,7 +31,7 @@ kotlin {
                 optIn("kotlinx.serialization.json.internal.JsonFriendModuleApi")
             }
         }
-        getByName("commonTest") {
+        commonTest {
             dependencies {
                 implementation(project(":kotlinx-serialization-json"))
                 implementation(project(":kotlinx-serialization-json-okio"))
@@ -41,7 +41,7 @@ kotlin {
             }
         }
 
-        getByName("jvmTest") {
+        jvmTest {
             dependencies {
                 implementation(libs.gson)
                 implementation(libs.coroutines.core)

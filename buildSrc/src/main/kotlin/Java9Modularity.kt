@@ -166,8 +166,7 @@ object Java9Modularity {
                 refinesEdges.set(compileTask.flatMap { it.multiplatformStructure.refinesEdges })
                 fragments.set(compileTask.flatMap { it.multiplatformStructure.fragments })
             }
-            // part of work-around for https://youtrack.jetbrains.com/issue/KT-60541
-            // and work-around for https://youtrack.jetbrains.com/issue/KT-60582
+            // work-around for https://youtrack.jetbrains.com/issue/KT-60582
             incremental = false
         }
         return verifyModuleTask
