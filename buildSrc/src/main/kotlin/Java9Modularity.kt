@@ -20,6 +20,12 @@ import org.jetbrains.kotlin.gradle.targets.jvm.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 import java.io.*
+import javax.inject.Inject
+
+abstract class ArchiveOperationsHolder {
+    @get:Inject
+    abstract val archiveOperations: ArchiveOperations
+}
 
 object Java9Modularity {
     private val KotlinProjectExtension.targets: Iterable<KotlinTarget>
@@ -122,6 +128,7 @@ object Java9Modularity {
         val verifyModuleTaskName = "verify${compileTask.name.removePrefix("compile").capitalize()}Module"
         // work-around for https://youtrack.jetbrains.com/issue/KT-60542
         val kotlinApiPlugin = plugins.getPlugin(KotlinApiPlugin::class)
+        val archiveOperations = objects.newInstance<ArchiveOperationsHolder>().archiveOperations
         val verifyModuleTask = kotlinApiPlugin.registerKotlinJvmCompileTask(
             verifyModuleTaskName,
             compilerOptions = compileTask.get().compilerOptions,
@@ -148,7 +155,7 @@ object Java9Modularity {
                     libs
                         .filter { it.asFile.exists() }
                         .map {
-                            zipTree(it.asFile).filter { it.name == "module-info.class" }
+                            archiveOperations.zipTree(it.asFile).filter { it.name == "module-info.class" }
                         }
                 }
             ).withPropertyName("moduleInfosOfLibraries")

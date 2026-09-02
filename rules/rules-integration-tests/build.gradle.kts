@@ -1,5 +1,8 @@
 import com.android.tools.r8.*
 import com.android.tools.r8.origin.*
+import org.gradle.api.file.FileCollection
+import org.gradle.api.logging.Logging
+import org.gradle.jvm.toolchain.JavaLauncher
 import org.gradle.process.ExecOperations
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import javax.inject.Inject
@@ -95,29 +98,24 @@ tasks.check {
 //
 // R8 actions
 //
-abstract class ExecOp @Inject constructor() {
-    @get:Inject
-    abstract val execOperations: ExecOperations
-}
-
-val baseJar = layout.buildDirectory.file("jdk/java.base.jar")
-val exec = objects.newInstance<ExecOp>().execOperations
-
-
 /**
  * Get jar with standard Java classes.
  * For JDK > 9 these classes are located in the `base` module.
  * The module has the special format `jmod` and it isn't supported in R8, so we should convert content of jmod to jar.
  */
-val extractBaseJarTask = tasks.register<Task>("extractBaseJar") {
-    inputs.property("jdkVersion", jdkToolchainVersion)
-    outputs.file(baseJar)
+abstract class ExtractBaseJar : DefaultTask() {
+    @get:Nested
+    abstract val javaLauncher: Property<JavaLauncher>
 
-    doLast {
-        val javaLauncher = javaToolchains.launcherFor {
-            languageVersion.set(JavaLanguageVersion.of(jdkToolchainVersion))
-        }.get()
-        val javaHomeDir = javaLauncher.metadata.installationPath.asFile
+    @get:OutputFile
+    abstract val outputJar: RegularFileProperty
+
+    @get:Inject
+    abstract val execOperations: ExecOperations
+
+    @TaskAction
+    fun extract() {
+        val javaHomeDir = javaLauncher.get().metadata.installationPath.asFile
         val baseJmod = javaHomeDir.resolve("jmods").resolve("java.base.jmod")
         if (!baseJmod.exists()) {
             throw GradleException("Cannot find file with base java module, make sure that specified jdk_toolchain_version is 9 or higher")
@@ -136,22 +134,32 @@ val extractBaseJarTask = tasks.register<Task>("extractBaseJar") {
             jdkBinDir.resolve("jmod")
         }
 
-        exec.exec {
+        execOperations.exec {
             commandLine(jmodFile.absolutePath, "extract", baseJmod.absolutePath, "--dir", extractDir.absolutePath)
         }
         // pack class-files into jar
-        exec.exec {
+        execOperations.exec {
             commandLine(
                 "jar",
                 "--create",
                 "--file",
-                baseJar.get().asFile.absolutePath,
+                outputJar.get().asFile.absolutePath,
                 "-C",
                 File(extractDir, "classes").absolutePath,
                 "."
             )
         }
     }
+}
+
+val baseJar = layout.buildDirectory.file("jdk/java.base.jar")
+val extractBaseJarTask = tasks.register<ExtractBaseJar>("extractBaseJar") {
+    javaLauncher.set(
+        javaToolchains.launcherFor {
+            languageVersion.set(JavaLanguageVersion.of(jdkToolchainVersion))
+        }
+    )
+    outputJar.set(baseJar)
 }
 
 // Serialization ProGuard/R8 rules
@@ -165,6 +173,10 @@ fun KotlinCompile.configureCompilation(r8FullMode: Boolean) {
     val mode = if (r8FullMode) "full" else "compatible"
     val mapFile = layout.buildDirectory.file("r8/$mode/mapping.txt")
     val usageFile = layout.buildDirectory.file("r8/$mode/usage.txt")
+    val runtimeDependencies = project.files(
+        project.configurations.getByName("runtimeClasspath"),
+        project.configurations.getByName("sharedRuntimeClasspath")
+    )
 
     dependsOn(extractBaseJarTask)
     inputs.files(baseJar)
@@ -176,13 +188,42 @@ fun KotlinCompile.configureCompilation(r8FullMode: Boolean) {
     // disable incremental compilation because previously compiled classes may be deleted or renamed by R8
     incremental = false
 
-    doLast {
-        val intermediateDir = temporaryDir.resolve("original")
+    doLast(
+        R8Action(
+            runtimeDependencies,
+            baseJar.get().asFile,
+            ruleFiles,
+            mapFile.get().asFile,
+            usageFile.get().asFile,
+            r8FullMode
+        )
+    )
+}
 
-        val dependencies = configurations.runtimeClasspath.get().files
-        dependencies += configurations.getByName("sharedRuntimeClasspath").files
+fun Test.configureTest(r8FullMode: Boolean) {
+    // R8 output files
+    val mode = if (r8FullMode) "full" else "compatible"
+    val mapFile = project.layout.buildDirectory.file("r8/$mode/mapping.txt")
+    val usageFile = project.layout.buildDirectory.file("r8/$mode/usage.txt")
 
-        val kotlinOutput = this@configureCompilation.destinationDirectory.get().asFile
+    doFirst {
+        systemProperty("r8.output.map", mapFile.get().asFile.absolutePath)
+        systemProperty("r8.output.usage", usageFile.get().asFile.absolutePath)
+    }
+}
+
+class R8Action(
+    private val runtimeDependencies: FileCollection,
+    private val baseJar: File,
+    private val ruleFiles: Set<File>,
+    private val mapFile: File,
+    private val usageFile: File,
+    private val fullMode: Boolean
+) : Action<Task> {
+    override fun execute(task: Task) {
+        val compileTask = task as KotlinCompile
+        val intermediateDir = task.temporaryDir.resolve("original")
+        val kotlinOutput = compileTask.destinationDirectory.get().asFile
 
         intermediateDir.deleteRecursively()
         // copy original class-files to temp dir
@@ -199,71 +240,61 @@ fun KotlinCompile.configureCompilation(r8FullMode: Boolean) {
 
         val classFiles = intermediateDir.walk().filter { it.isFile }.toList()
 
-        runR8(
+        run(
             kotlinOutput,
             classFiles,
-            (dependencies + baseJar.get().asFile),
+            runtimeDependencies.files + baseJar,
             ruleFiles,
-            mapFile.get().asFile,
-            usageFile.get().asFile,
-            r8FullMode
+            mapFile,
+            usageFile,
+            fullMode
         )
     }
-}
 
-fun Test.configureTest(r8FullMode: Boolean) {
-    doFirst {
-        // R8 output files
-        val mode = if (r8FullMode) "full" else "compatible"
-        val mapFile = layout.buildDirectory.file("r8/$mode/mapping.txt")
-        val usageFile = layout.buildDirectory.file("r8/$mode/usage.txt")
+    private fun run(
+        outputDir: File,
+        originalClasses: List<File>,
+        libraries: Set<File>,
+        ruleFiles: Set<File>,
+        mapFile: File,
+        usageFile: File,
+        fullMode: Boolean = true
+    ) {
+        val r8Command = R8Command.builder(DiagnosticLogger())
+            .addProgramFiles(originalClasses.map { it.toPath() })
+            .addLibraryFiles(libraries.map { it.toPath() })
+            .addProguardConfigurationFiles(ruleFiles.map { file -> file.toPath() })
+            .addProguardConfiguration(
+                listOf(
+                    "-keep class **.*Tests { *; }",
+                    // widespread rule in AGP
+                    "-allowaccessmodification",
+                    // on some OS mixed classnames may lead to problems due classes like a/a and a/A cannot be stored simultaneously in their file system
+                    "-dontusemixedcaseclassnames",
+                    // uncomment to show reason of keeping specified class
+                    //"-whyareyoukeeping class YourClassName",
+                ),
+                object : Origin(root()) {
+                    override fun part() = "EntryPoint"
+                })
 
-        systemProperty("r8.output.map", mapFile.get().asFile.absolutePath)
-        systemProperty("r8.output.usage", usageFile.get().asFile.absolutePath)
+            .setDisableTreeShaking(false)
+            .setDisableMinification(false)
+            .setProguardCompatibility(!fullMode)
+
+            .setProgramConsumer(ClassFileConsumer.DirectoryConsumer(outputDir.toPath()))
+
+            .setProguardMapConsumer(StringConsumer.FileConsumer(mapFile.toPath()))
+            .setProguardUsageConsumer(StringConsumer.FileConsumer(usageFile.toPath()))
+            .build()
+
+        R8.run(r8Command)
     }
-}
-
-fun runR8(
-    outputDir: File,
-    originalClasses: List<File>,
-    libraries: Set<File>,
-    ruleFiles: Set<File>,
-    mapFile: File,
-    usageFile: File,
-    fullMode: Boolean = true
-) {
-    val r8Command = R8Command.builder(DiagnosticLogger())
-        .addProgramFiles(originalClasses.map { it.toPath() })
-        .addLibraryFiles(libraries.map { it.toPath() })
-        .addProguardConfigurationFiles(ruleFiles.map { file -> file.toPath() })
-        .addProguardConfiguration(
-            listOf(
-                "-keep class **.*Tests { *; }",
-                // widespread rule in AGP
-                "-allowaccessmodification",
-                // on some OS mixed classnames may lead to problems due classes like a/a and a/A cannot be stored simultaneously in their file system
-                "-dontusemixedcaseclassnames",
-                // uncomment to show reason of keeping specified class
-                //"-whyareyoukeeping class YourClassName",
-            ),
-            object : Origin(root()) {
-                override fun part() = "EntryPoint"
-            })
-
-        .setDisableTreeShaking(false)
-        .setDisableMinification(false)
-        .setProguardCompatibility(!fullMode)
-
-        .setProgramConsumer(ClassFileConsumer.DirectoryConsumer(outputDir.toPath()))
-
-        .setProguardMapConsumer(StringConsumer.FileConsumer(mapFile.toPath()))
-        .setProguardUsageConsumer(StringConsumer.FileConsumer(usageFile.toPath()))
-        .build()
-
-    R8.run(r8Command)
 }
 
 class DiagnosticLogger : DiagnosticsHandler {
+    private val logger = Logging.getLogger(DiagnosticLogger::class.java)
+
     override fun warning(diagnostic: Diagnostic) {
         // we shouldn't ignore any warning in R8
         throw GradleException("Warning in R8: ${diagnostic.format()}")
@@ -277,7 +308,7 @@ class DiagnosticLogger : DiagnosticsHandler {
         logger.info("Info in R8: ${diagnostic.format()}")
     }
 
-    fun Diagnostic.format(): String {
+    private fun Diagnostic.format(): String {
         return "$diagnosticMessage\nIn: $position\nFrom: ${this.origin}"
     }
 }
