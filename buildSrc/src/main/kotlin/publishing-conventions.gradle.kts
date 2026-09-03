@@ -1,4 +1,5 @@
 import groovy.util.*
+import groovy.xml.XmlParser
 import org.gradle.jvm.tasks.Jar
 import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.tasks.*
@@ -208,18 +209,23 @@ public fun Project.reconfigureMultiplatformPublication(jvmPublication: MavenPubl
     val mavenPublications =
         extensions.getByType<PublishingExtension>().publications.withType<MavenPublication>()
     val kmpPublication = mavenPublications.getByName("kotlinMultiplatform")
-
-    var jvmPublicationXml: XmlProvider? = null
-    jvmPublication.pom.withXml { jvmPublicationXml = this }
+    // MavenPublication is not supported as configuration-cache state, snapshotting strings
+    val kmpArtifactId = kmpPublication.artifactId
+    val jvmGroupId = jvmPublication.groupId
+    val jvmArtifactId = jvmPublication.artifactId
+    val jvmVersion = jvmPublication.version
+    val jvmPublicationName = jvmPublication.name
+    val jvmPomFile = layout.buildDirectory.file("publications/$jvmPublicationName/pom-default.xml")
 
     kmpPublication.pom.withXml {
         val root = asNode()
+        val jvmPom = XmlParser(false, false).parse(jvmPomFile.get().asFile)
         // Remove the original content and add the content from the platform POM:
         root.children().toList().forEach { root.remove(it as Node) }
-        jvmPublicationXml!!.asNode().children().forEach { root.append(it as Node) }
+        jvmPom.children().forEach { root.append(it as Node) }
 
         // Adjust the self artifact ID, as it should match the root module's coordinates:
-        ((root["artifactId"] as NodeList).first() as Node).setValue(kmpPublication.artifactId)
+        ((root["artifactId"] as NodeList).first() as Node).setValue(kmpArtifactId)
 
         // Set packaging to POM to indicate that there's no artifact:
         root.appendNode("packaging", "pom")
@@ -228,9 +234,9 @@ public fun Project.reconfigureMultiplatformPublication(jvmPublication: MavenPubl
         val dependencies = (root["dependencies"] as NodeList).first() as Node
         dependencies.children().toList().forEach { dependencies.remove(it as Node) }
         dependencies.appendNode("dependency").apply {
-            appendNode("groupId", jvmPublication.groupId)
-            appendNode("artifactId", jvmPublication.artifactId)
-            appendNode("version", jvmPublication.version)
+            appendNode("groupId", jvmGroupId)
+            appendNode("artifactId", jvmArtifactId)
+            appendNode("version", jvmVersion)
             appendNode("scope", "compile")
         }
     }
@@ -238,7 +244,10 @@ public fun Project.reconfigureMultiplatformPublication(jvmPublication: MavenPubl
     // TODO verify if this is still relevant
     tasks.matching { it.name == "generatePomFileForKotlinMultiplatformPublication" }.configureEach {
         @Suppress("DEPRECATION")
-        dependsOn("generatePomFileFor${jvmPublication.name.capitalize()}Publication")
+        dependsOn("generatePomFileFor${jvmPublicationName.capitalize()}Publication")
+        inputs.file(jvmPomFile)
+            .withPropertyName("jvmPomFile")
+            .withPathSensitivity(PathSensitivity.RELATIVE)
     }
 }
 
