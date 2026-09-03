@@ -57,7 +57,7 @@ internal actual class StringJsonWriter : InternalJsonWriter {
         for (i in sz until sz + length) {
             val ch = arr[i].code
             // Do we have unescaped symbols?
-            if (ch < ESCAPE_MARKERS.size && ESCAPE_MARKERS[ch] != 0.toByte()) {
+            if (isCodePointRequiringEscapeSequence(ch)) {
                 // Go to slow path
                 return appendStringSlowPath(i - sz, i, text)
             }
