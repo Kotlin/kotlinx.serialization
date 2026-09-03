@@ -5,6 +5,7 @@ import kotlinx.serialization.protobuf.*
 import kotlin.jvm.*
 import kotlin.test.*
 
+@Suppress("PROTOBUF_PROTO_NUM_DUPLICATED")
 class SchemaValidationsTest {
     @Serializable
     data class ValidClass(val i: Int)

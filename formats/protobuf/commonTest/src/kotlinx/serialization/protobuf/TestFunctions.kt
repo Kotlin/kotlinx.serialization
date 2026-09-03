@@ -43,7 +43,6 @@ interface ExceptionCheckScope<T> {
     fun <R : Throwable> assertCausedBy(byType: KClass<R>, assertion: ExceptionCheckScope<R>.() -> Unit)
 }
 
-@ExceptionCheckDsl
 inline fun <reified R : Throwable> ExceptionCheckScope<*>.assertCausedBy(noinline assertion: ExceptionCheckScope<R>.() -> Unit) {
     assertCausedBy(R::class, assertion)
 }
