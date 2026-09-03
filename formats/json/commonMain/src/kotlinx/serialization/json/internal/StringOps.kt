@@ -30,7 +30,11 @@ public val ESCAPE_STRINGS: Array<String?> = arrayOfNulls<String>(93).apply {
     this[0x0c] = "\\f"
 }
 
-internal val ESCAPE_MARKERS: ByteArray = ByteArray(93).apply {
+internal fun isCodePointRequiringEscapeSequence(charCode: Int): Boolean =
+    charCode <= 0x1f || charCode == 0x22 || charCode == 0x5c
+
+// Note: it is 128 so Hotspot successfully eliminates all range checks
+internal val ESCAPE_MARKERS: ByteArray = ByteArray(128).apply {
     for (c in 0..0x1f) {
         this[c] = 1.toByte()
     }

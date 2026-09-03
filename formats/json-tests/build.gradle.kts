@@ -43,6 +43,7 @@ kotlin {
 
         val jvmTest by getting {
             dependencies {
+                implementation(libs.kotlin.reflect)
                 implementation(libs.gson)
                 implementation(libs.coroutines.core)
             }

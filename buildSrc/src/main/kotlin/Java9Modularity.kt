@@ -143,8 +143,14 @@ object Java9Modularity {
             multiPlatformEnabled.set(compileTask.get().multiPlatformEnabled)
             compilerOptions {
                 jvmTarget.set(JvmTarget.JVM_9)
-                freeCompilerArgs.addAll(
-                    listOf("-Xjdk-release=9",  "-Xsuppress-version-warnings", "-Xexpect-actual-classes")
+                freeCompilerArgs.set(
+                    compileTask.flatMap { it.compilerOptions.freeCompilerArgs }.map { args ->
+                        args.filterNot { it.startsWith("-Xjdk-release=") } + listOf(
+                            "-Xjdk-release=9",
+                            "-Xsuppress-version-warnings",
+                            "-Xexpect-actual-classes"
+                        )
+                    }
                 )
             }
             // work-around for https://youtrack.jetbrains.com/issue/KT-60583

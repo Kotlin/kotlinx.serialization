@@ -27,32 +27,6 @@ fun <T> encodeToList(serializer: SerializationStrategy<T>, value: T): List<Any> 
 @ExperimentalSerializationApi
 inline fun <reified T> encodeToList(value: T) = encodeToList(serializer(), value)
 
-@ExperimentalSerializationApi
-class ListDecoder(val list: ArrayDeque<Any>) : AbstractDecoder() {
-    private var elementIndex = 0
-
-    override val serializersModule: SerializersModule = EmptySerializersModule()
-
-    override fun decodeValue(): Any = list.removeFirst()
-    
-    override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-        if (elementIndex == descriptor.elementsCount) return CompositeDecoder.DECODE_DONE
-        return elementIndex++
-    }
-
-    override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder =
-        ListDecoder(list)
-}
-
-@ExperimentalSerializationApi
-fun <T> decodeFromList(list: List<Any>, deserializer: DeserializationStrategy<T>): T {
-    val decoder = ListDecoder(ArrayDeque(list))
-    return decoder.decodeSerializableValue(deserializer)
-}
-
-@ExperimentalSerializationApi
-inline fun <reified T> decodeFromList(list: List<Any>): T = decodeFromList(list, serializer())
-
 @Serializable
 data class Project(val name: String, val owner: User, val votes: Int)
 
@@ -62,8 +36,5 @@ data class User(val name: String)
 @OptIn(ExperimentalSerializationApi::class)
 fun main() {
     val data = Project("kotlinx.serialization",  User("kotlin"), 9000)
-    val list = encodeToList(data)
-    println(list)
-    val obj = decodeFromList<Project>(list)
-    println(obj)
+    println(encodeToList(data))
 }

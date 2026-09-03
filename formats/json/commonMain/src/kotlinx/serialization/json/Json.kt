@@ -691,6 +691,19 @@ public class JsonBuilder internal constructor(json: Json) {
     @ExperimentalSerializationApi
     public var exceptionsWithDebugInfo: Boolean = json.configuration.exceptionsWithDebugInfo
 
+    /**
+     * Specifies the maximum allowed depth for nested structures during JSON deserialization.
+     *
+     * This value defines the limit up to which nested objects, arrays, or other structures can exist in JSON input.
+     * The parser will reject any JSON exceeding the specified nesting depth to prevent potential stack overflow.
+     *
+     * Setting it higher than the default value requires a careful approach and testing. Remember that even if the parser
+     * succeeds with a higher depth limit, created [JsonElement]s may still occasionally throw stack overflow errors
+     * on operations such as `toString()`, making debugging and exception handling harder.
+     */
+    @ExperimentalSerializationApi
+    public var maxNestingDepth: Int = json.configuration.maxNestingDepth
+
     @OptIn(ExperimentalSerializationApi::class)
     internal fun build(): JsonConfiguration {
         if (useArrayPolymorphism) {
@@ -720,7 +733,7 @@ public class JsonBuilder internal constructor(json: Json) {
             coerceInputValues, useArrayPolymorphism,
             classDiscriminator, allowSpecialFloatingPointValues, useAlternativeNames,
             namingStrategy, decodeEnumsCaseInsensitive, allowTrailingComma, allowComments, classDiscriminatorMode,
-            exceptionsWithDebugInfo
+            exceptionsWithDebugInfo, maxNestingDepth
         )
     }
 }

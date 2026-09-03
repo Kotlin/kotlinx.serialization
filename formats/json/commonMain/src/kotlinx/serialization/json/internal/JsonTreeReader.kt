@@ -4,6 +4,7 @@
 
 package kotlinx.serialization.json.internal
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.*
 
 internal class JsonTreeReader(
@@ -12,7 +13,9 @@ internal class JsonTreeReader(
 ) {
     private val isLenient = configuration.isLenient
     private val trailingCommaAllowed = configuration.allowTrailingComma
-    private var stackDepth = 0
+    @OptIn(ExperimentalSerializationApi::class)
+    private val maxNestingDepth = configuration.maxNestingDepth
+    private var stackDepth = lexer.path.currentDepth
 
     private fun readObject(): JsonElement = readObjectImpl {
         read()
@@ -88,20 +91,29 @@ internal class JsonTreeReader(
             TC_OTHER -> readValue(isString = false)
             TC_BEGIN_OBJ -> {
                 /*
-                 * If the object has the depth of 200 (an arbitrary "good enough" constant), it means
-                 * that it's time to switch to stackless recursion to avoid StackOverflowError.
+                 * If the object has the depth of 200 (an arbitrary "good enough" constant),
+                 * but not greater than maxNestingDepth, it means
+                 * that it's time to switch to stackless recursion to avoid StackOverflowError for 'pure parsing' cases
+                 * (see https://github.com/Kotlin/kotlinx.serialization/issues/1594)
                  * This case is quite rare and specific, so more complex nestings (e.g. through
                  * the chain of JsonArray and JsonElement) are not supported.
                  */
-                val result = if (++stackDepth == 200) {
-                    readDeepRecursive()
-                } else {
-                    readObject()
+                ++stackDepth
+                if (stackDepth >= maxNestingDepth) {
+                    jsonTooNested(maxNestingDepth)
                 }
-                --stackDepth
+                val result: JsonElement
+                if (stackDepth == 200) {
+                    --stackDepth // readDeepRecursive() calls its own withStackControl {}, so we should decrease depth before, not after.
+                    result = readDeepRecursive()
+                } else {
+                    result = readObject()
+                    --stackDepth
+                }
+
                 result
             }
-            TC_BEGIN_LIST -> readArray()
+            TC_BEGIN_LIST -> withDepthControl { readArray() }
             else -> lexer.fail("Cannot read Json element because of unexpected ${tokenDescription(token)}")
         }
     }
@@ -110,9 +122,27 @@ internal class JsonTreeReader(
         when (lexer.peekNextToken()) {
             TC_STRING -> readValue(isString = true)
             TC_OTHER -> readValue(isString = false)
-            TC_BEGIN_OBJ -> readObject()
-            TC_BEGIN_LIST -> readArray()
+            TC_BEGIN_OBJ -> withDepthControl { readObject() }
+            TC_BEGIN_LIST -> withDepthControl { readArray() }
             else -> lexer.fail("Can't begin reading element, unexpected token")
         }
     }.invoke(Unit)
+
+    private inline fun withDepthControl(read: () -> JsonElement): JsonElement {
+        if (++stackDepth >= maxNestingDepth) {
+            jsonTooNested(maxNestingDepth)
+        }
+        val result = read()
+        --stackDepth
+        return result
+    }
+}
+
+// It is also possible to use [AbstractJsonLexer.fail], but path and position are largely irrelevant to this type of error.
+@OptIn(ExperimentalSerializationApi::class)
+internal fun jsonTooNested(maxStackDepth: Int): Nothing {
+    throw decodingExceptionOf(
+        "Json input is too nested and may be impossible to parse without stack overflow.",
+        "Current nesting limit is $maxStackDepth. To adjust it, use 'maxNestingDepth' in 'Json {}' builder."
+    )
 }

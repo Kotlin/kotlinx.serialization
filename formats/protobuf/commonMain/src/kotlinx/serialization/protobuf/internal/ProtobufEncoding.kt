@@ -143,9 +143,16 @@ internal open class ProtobufEncoder(
         serializer is MapLikeSerializer<*, *, *, *> -> {
             serializeMap(serializer as SerializationStrategy<T>, value)
         }
+        serializer.descriptor == ProtoUnknownFieldHolderSerializer.descriptor -> {
+            serializeUnknownFields(serializer as ProtoUnknownFieldHolderSerializer, value as ProtoUnknownFieldHolder)
+        }
         serializer.descriptor == ByteArraySerializer().descriptor -> serializeByteArray(value as ByteArray)
         serializer.descriptor == UByteArraySerializer().descriptor -> serializeByteArray((value as UByteArray).asByteArray())
         else -> serializer.serialize(this, value)
+    }
+
+    internal fun writeRawBytes(bytes: ByteArray) {
+        writer.writeRawBytes(bytes)
     }
 
     private fun serializeByteArray(value: ByteArray) {
@@ -155,6 +162,13 @@ internal open class ProtobufEncoder(
         } else {
             writer.writeBytes(value, tag.protoId)
         }
+    }
+
+    private fun serializeUnknownFields(serializer: SerializationStrategy<ProtoUnknownFieldHolder>, protoUnknownFieldHolder: ProtoUnknownFieldHolder) {
+        require(currentTagOrDefault != MISSING_TAG) {
+            "Cannot serialize directly from kotlinx.serialization.protobuf.ProtoUnknownFieldHolder."
+        }
+        serializer.serialize(this, protoUnknownFieldHolder)
     }
 
     @Suppress("UNCHECKED_CAST")

@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.*
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
 
 /*
@@ -7,6 +8,12 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.*
 
 plugins {
     kotlin("multiplatform")
+}
+
+// Temporary workaround for the removed watchosArm32 target
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+fun KotlinMultiplatformExtension.watchosArm32() {
+    // Do nothing
 }
 
 kotlin {
@@ -30,7 +37,14 @@ kotlin {
     iosArm64()
 
     // Tier 3
-    mingwX64()
+
+    // The PE default stack reserve is 1 MB, vs. 8 MB on Unix targets; deeply
+    // nested JSON tests overflow it.
+    mingwX64 {
+        binaries.withType<TestExecutable>().configureEach {
+            linkerOpts("-Wl,--stack,8388608")
+        }
+    }
     iosX64()
     watchosDeviceArm64()
 

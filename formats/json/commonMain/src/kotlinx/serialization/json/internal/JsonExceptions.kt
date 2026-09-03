@@ -8,13 +8,81 @@ package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.internal.missingFieldExceptionWithNewMessage
 import kotlinx.serialization.json.*
 
 
 @OptIn(ExperimentalSerializationApi::class)
 @Suppress("DEPRECATION_ERROR")
-internal fun decodingExceptionOf(shortMessage: String): JsonDecodingException =
-    JsonDecodingException(formatDecodingException(-1, shortMessage, null, null, null), shortMessage, -1, null, null, null)
+internal fun decodingExceptionOf(shortMessage: String, hint: String? = null): JsonDecodingException =
+    JsonDecodingException(
+        formatDecodingException(-1, shortMessage, null, hint, null),
+        shortMessage,
+        -1,
+        null,
+        null,
+        hint
+    )
+
+
+@OptIn(ExperimentalSerializationApi::class)
+internal inline fun <T> JsonDecoder.withExceptionHandling(
+    path: () -> String,
+    input: () -> CharSequence,
+    block: () -> T
+): T {
+    return try {
+        block()
+    } catch (e: MissingFieldException) {
+        // Add "at path" if and only if we've just caught an exception and it hasn't been augmented yet
+        if (e.message!!.contains("at path")) throw e
+        // NB: we could've use some additional flag marker or augment the stacktrace, but it seemed to be as too much of a burden
+        throw missingFieldExceptionWithNewMessage(e, e.message + " at path: " + path())
+    } catch (e: SerializationException) {
+        throw e
+    } catch (e: Exception) {
+        throw errorFromDeserializer(e, path(), input)
+    }
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+internal inline fun JsonEncoder.withExceptionHandling(classSerialName: () -> String, block: () -> Unit) {
+    return try {
+        block()
+    } catch (e: SerializationException) {
+        throw e
+    } catch (e: Exception) {
+        val causeMessage = e.message
+        val classSerialName = classSerialName()
+        val message =
+            "Serialization " +
+                (if (classSerialName.isBlank()) "" else "of '$classSerialName' ") + "failed because of " +
+                (if (causeMessage == null) "an exception" else "'$causeMessage' exception") + " in the encoder"
+        throw JsonEncodingException(message, classSerialName, cause = e)
+    }
+}
+
+@Suppress("DEPRECATION_ERROR")
+@OptIn(ExperimentalSerializationApi::class)
+internal inline fun JsonDecoder.errorFromDeserializer(
+    cause: Throwable,
+    path: String?,
+    input: () -> CharSequence
+): JsonDecodingException {
+    val causeMessage = cause.message
+    val shortMessage =
+        "Deserialization failed because of " + (if (causeMessage == null) "an exception" else "'$causeMessage' exception") + " in the decoder"
+    val inputValue = json.configuration.ifDebugInput { input().minify().toString() }
+    return JsonDecodingException(
+        formatDecodingException(-1, shortMessage, path, null, inputValue),
+        shortMessage,
+        -1,
+        path,
+        inputValue,
+        null,
+        cause
+    )
+}
 
 @Suppress("DEPRECATION_ERROR")
 @OptIn(ExperimentalSerializationApi::class)
@@ -43,6 +111,7 @@ internal fun AbstractJsonLexer.decodingExceptionOf(
     path: String,
     hint: String?,
     input: CharSequence,
+    cause: Throwable? = null
 ): JsonDecodingException {
     val inputValue = configuration.ifDebugInput { input.minify(offset).toString() }
     return JsonDecodingException(
@@ -51,7 +120,8 @@ internal fun AbstractJsonLexer.decodingExceptionOf(
         offset,
         path,
         inputValue,
-        hint
+        hint,
+        cause
     )
 }
 
@@ -88,7 +158,8 @@ private fun formatDecodingException(
 
 
 internal fun AbstractJsonLexer.invalidTrailingComma(entity: String = "object"): Nothing {
-    fail("Trailing comma before the end of JSON $entity",
+    fail(
+        "Trailing comma before the end of JSON $entity",
         position = currentPosition - 1,
         hint = "Trailing commas are non-complaint JSON and not allowed by default. Use 'allowTrailingComma = true' in 'Json {}' builder to support them."
     )

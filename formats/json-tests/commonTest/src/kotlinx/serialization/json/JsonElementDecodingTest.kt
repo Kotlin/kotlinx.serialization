@@ -47,12 +47,13 @@ class JsonElementDecodingTest : JsonTestBase() {
     @Test
     fun testDeepRecursion() {
         // Reported as https://github.com/Kotlin/kotlinx.serialization/issues/1594
+        val deepJson = Json { maxNestingDepth = Int.MAX_VALUE }
         var json = """{ "a": %}"""
         for (i in 0..12) {
             json = json.replace("%", json)
         }
         json = json.replace("%", "0")
-        val _ = Json.parseToJsonElement(json)
+        val _ = deepJson.parseToJsonElement(json)
     }
 
     private open class NullAsElementSerializer<T : Any>(private val serializer: KSerializer<T>, val nullElement: T) : KSerializer<T?> {
