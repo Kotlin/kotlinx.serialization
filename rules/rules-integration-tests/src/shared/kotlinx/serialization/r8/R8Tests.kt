@@ -5,7 +5,7 @@
 package kotlinx.serialization.r8
 
 import kotlinx.serialization.*
-import java.lang.annotation.Annotation
+import kotlin.Annotation
 import kotlin.reflect.*
 import kotlin.test.*
 
@@ -91,13 +91,13 @@ class R8Tests {
         assertFalse(serializer.isShrunk)
         assertFalse(serializer.isObfuscated)
 
-        serializer(typeOf<T>())
+        val _ = serializer(typeOf<T>())
     }
 
     private inline fun <reified T> assertSerializerWithNamedCompanion(companionName: String) {
         // somewhy R8 doesn't print field for named companion in mapping.txt, so we check it by reflection
         T::class.java.getDeclaredField(companionName)
-        serializer(typeOf<T>())
+        val _ = serializer(typeOf<T>())
     }
 
     private inline fun <reified T> assertSerializerForObject() {
@@ -111,11 +111,11 @@ class R8Tests {
         assertFalse(serializer.isObfuscated, "Method 'serializer()' should not be obfuscated")
         assertFalse(serializer.isShrunk, "Method 'serializer()' should not be shrunk")
 
-        serializer(typeOf<T>())
+        val _ = serializer(typeOf<T>())
     }
 
     fun Class<*>.hasAnnotation(annotationName: String): Boolean {
-        return annotations.any { (it as Annotation).annotationType().name == annotationName }
+        return annotations.any { (it as Annotation).annotationClass.qualifiedName == annotationName }
     }
 
 }
