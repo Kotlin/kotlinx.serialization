@@ -40,6 +40,7 @@ import kotlin.native.concurrent.*
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
+@ExperimentalSerializationApi
 public annotation class JsonNames(vararg val names: String)
 
 /**
