@@ -7,6 +7,7 @@ package kotlinx.serialization.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import java.lang.reflect.*
+import kotlin.math.ceil
 import kotlin.reflect.*
 import kotlin.time.*
 import kotlin.uuid.*
@@ -222,3 +223,8 @@ private inline fun loadSafe(block: () -> Unit) {
     } catch (_: ClassNotFoundException) {
     }
 }
+
+internal actual fun estimateCapacityForHashMap(requiredCapacity: Int): Int =
+    ceil(requiredCapacity / DEFAULT_HASH_MAP_LOAD_FACTORY).toInt()
+
+private const val DEFAULT_HASH_MAP_LOAD_FACTORY: Float = 0.75f

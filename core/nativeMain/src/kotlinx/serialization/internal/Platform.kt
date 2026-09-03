@@ -6,6 +6,7 @@ package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
+import kotlin.math.ceil
 import kotlin.reflect.*
 import kotlin.time.*
 import kotlin.uuid.*
@@ -109,3 +110,5 @@ internal actual fun initBuiltins(): Map<KClass<*>, KSerializer<*>> = mapOf(
     Instant::class to Instant.serializer(),
     Uuid::class to Uuid.serializer()
 )
+
+internal actual fun estimateCapacityForHashMap(requiredCapacity: Int): Int = requiredCapacity

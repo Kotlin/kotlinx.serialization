@@ -117,3 +117,5 @@ internal actual fun initBuiltins(): Map<KClass<*>, KSerializer<*>> = mapOf(
     Instant::class to Instant.serializer(),
     Uuid::class to Uuid.serializer()
 )
+
+internal actual fun estimateCapacityForHashMap(requiredCapacity: Int): Int = requiredCapacity

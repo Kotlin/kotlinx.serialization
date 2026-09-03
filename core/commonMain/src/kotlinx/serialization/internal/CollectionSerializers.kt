@@ -8,7 +8,6 @@ package kotlinx.serialization.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
-import kotlin.math.ceil
 import kotlin.reflect.*
 
 @InternalSerializationApi
@@ -326,27 +325,22 @@ internal class HashMapSerializer<K, V>(
     override fun HashMap<K, V>.insertKeyValuePair(index: Int, key: K, value: V): Unit = set(key, value)
 }
 
-private fun estimateCapacityForHashMap(requiredCapacity: Int, loadFactor: Float): Int =
-    ceil(requiredCapacity / loadFactor).toInt()
-
-private const val DEFAULT_LOAD_FACTORY = 0.75f
-
 private fun <T> newHashSet(expectedCapacity: Int): HashSet<T> {
-    val capacity = estimateCapacityForHashMap(expectedCapacity, DEFAULT_LOAD_FACTORY)
-    return HashSet(capacity, DEFAULT_LOAD_FACTORY)
+    val capacity = estimateCapacityForHashMap(expectedCapacity)
+    return HashSet(capacity)
 }
 
 private fun <K, V> newHashMap(expectedCapacity: Int): HashMap<K, V> {
-    val capacity = estimateCapacityForHashMap(expectedCapacity, DEFAULT_LOAD_FACTORY)
-    return HashMap(capacity, DEFAULT_LOAD_FACTORY)
+    val capacity = estimateCapacityForHashMap(expectedCapacity)
+    return HashMap(capacity)
 }
 
 private fun <T> newLinkedHashSet(expectedCapacity: Int): LinkedHashSet<T> {
-    val capacity = estimateCapacityForHashMap(expectedCapacity, DEFAULT_LOAD_FACTORY)
-    return LinkedHashSet(capacity, DEFAULT_LOAD_FACTORY)
+    val capacity = estimateCapacityForHashMap(expectedCapacity)
+    return LinkedHashSet(capacity)
 }
 
 private fun <K, V> newLinkedHashMap(expectedCapacity: Int): LinkedHashMap<K, V> {
-    val capacity = estimateCapacityForHashMap(expectedCapacity, DEFAULT_LOAD_FACTORY)
-    return LinkedHashMap(capacity, DEFAULT_LOAD_FACTORY)
+    val capacity = estimateCapacityForHashMap(expectedCapacity)
+    return LinkedHashMap(capacity)
 }
