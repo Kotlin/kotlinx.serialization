@@ -175,6 +175,7 @@ class KeepGeneratedSerializerTest {
     @Serializable(WithCompanion.Companion::class)
     @KeepGeneratedSerializer
     data class WithCompanion(val value: Int) {
+        @Suppress("EXTERNAL_SERIALIZER_USELESS")
         @Serializer(WithCompanion::class)
         companion object {
             override val descriptor = PrimitiveSerialDescriptor("WithCompanionDesc", PrimitiveKind.INT)
