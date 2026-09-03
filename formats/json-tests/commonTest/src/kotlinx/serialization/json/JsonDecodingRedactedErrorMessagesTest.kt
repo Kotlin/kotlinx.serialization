@@ -40,7 +40,7 @@ class JsonDecodingRedactedErrorMessagesTest : JsonTestBase() {
                 "Failed to parse literal '\"y\"' as an int value",
             )
             offset(17)
-            if (mode != JsonTestingMode.TREE) path("$.boxed[<debug info disabled>]") else path("$.x") // #3170
+            path("$.boxed[<debug info disabled>]")
             noInput()
         })
     }
