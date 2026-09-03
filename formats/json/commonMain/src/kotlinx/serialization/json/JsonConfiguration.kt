@@ -37,12 +37,16 @@ public class JsonConfiguration @OptIn(ExperimentalSerializationApi::class) inter
     @set:Deprecated(
         "JsonConfiguration is not meant to be mutable, and will be made read-only in a future release. " +
             "The `Json(from = ...) {}` copy builder should be used instead.",
-        level = DeprecationLevel.ERROR
+        level = DeprecationLevel.HIDDEN
     )
     public var classDiscriminatorMode: ClassDiscriminatorMode = ClassDiscriminatorMode.POLYMORPHIC,
 
     @ExperimentalSerializationApi
+    @set:Deprecated("Not meant to be mutable", level = DeprecationLevel.HIDDEN)
     public var exceptionsWithDebugInfo: Boolean = true,
+
+    @ExperimentalSerializationApi
+    public val maxNestingDepth: Int = 400,
 ) {
 
     /** @suppress Dokka **/
@@ -53,7 +57,8 @@ public class JsonConfiguration @OptIn(ExperimentalSerializationApi::class) inter
                 "prettyPrintIndent='$prettyPrintIndent', coerceInputValues=$coerceInputValues, useArrayPolymorphism=$useArrayPolymorphism, " +
                 "classDiscriminator='$classDiscriminator', allowSpecialFloatingPointValues=$allowSpecialFloatingPointValues, " +
                 "useAlternativeNames=$useAlternativeNames, namingStrategy=$namingStrategy, decodeEnumsCaseInsensitive=$decodeEnumsCaseInsensitive, " +
-                "allowTrailingComma=$allowTrailingComma, allowComments=$allowComments, classDiscriminatorMode=$classDiscriminatorMode, exceptionsWithDebugInfo=$exceptionsWithDebugInfo)"
+                "allowTrailingComma=$allowTrailingComma, allowComments=$allowComments, classDiscriminatorMode=$classDiscriminatorMode, " +
+                "exceptionsWithDebugInfo=$exceptionsWithDebugInfo, maxNestingDepth=$maxNestingDepth)"
     }
 }
 

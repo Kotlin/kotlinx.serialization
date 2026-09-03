@@ -46,16 +46,27 @@ internal enum class ProtoWireType(val typeId: Int) {
 }
 
 internal const val ID_HOLDER_ONE_OF = -2
+internal const val ID_HOLDER_UNKNOWN_FIELDS = -3
 
+internal const val INDEX_NOT_EXISTED = -1
+
+private const val UNKNOWN_FIELD_MASK = 1L shl 37
 private const val ONEOFMASK = 1L shl 36
 private const val INTTYPEMASK = 3L shl 33
 private const val PACKEDMASK = 1L shl 32
 
 @Suppress("NOTHING_TO_INLINE")
-internal inline fun ProtoDesc(protoId: Int, type: ProtoIntegerType, packed: Boolean = false, oneOf: Boolean = false): ProtoDesc {
+internal inline fun ProtoDesc(
+    protoId: Int,
+    type: ProtoIntegerType,
+    packed: Boolean = false,
+    oneOf: Boolean = false,
+    unknown: Boolean = false,
+): ProtoDesc {
     val packedBits = if (packed) PACKEDMASK else 0L
     val oneOfBits = if (oneOf) ONEOFMASK else 0L
-    return packedBits or oneOfBits or type.signature or protoId.toLong()
+    val unknownBits = if (unknown) UNKNOWN_FIELD_MASK else 0L
+    return packedBits or oneOfBits or type.signature or protoId.toLong() or unknownBits
 }
 
 internal inline val ProtoDesc.protoId: Int get() = (this and Int.MAX_VALUE.toLong()).toInt()
@@ -79,6 +90,9 @@ internal val ProtoDesc.isPacked: Boolean
 
 internal val ProtoDesc.isOneOf: Boolean
     get() = (this and ONEOFMASK) != 0L
+
+internal val ProtoDesc.isUnknown: Boolean
+    get() = (this and UNKNOWN_FIELD_MASK) != 0L
 
 internal fun ProtoDesc.overrideId(protoId: Int): ProtoDesc {
     return this and (0xFFFFFFF00000000L) or protoId.toLong()
@@ -110,12 +124,13 @@ internal fun SerialDescriptor.extractParameters(index: Int): ProtoDesc {
         // See [kotlinx.serialization.protobuf.internal.ProtobufDecoder.decodeElementIndex] for detail
         protoId = index + 1
     }
-    return ProtoDesc(protoId, format, protoPacked, isOneOf)
+    return ProtoDesc(protoId, format, protoPacked, isOneOf, this.getElementDescriptor(index).isUnknownFieldsDescriptor)
 }
 
 /**
  * Get the proto id from the descriptor of [index] element,
- * or return [ID_HOLDER_ONE_OF] if such element is marked with [ProtoOneOf]
+ * or [ID_HOLDER_ONE_OF] if such element is marked with [ProtoOneOf],
+ * or [ID_HOLDER_UNKNOWN_FIELDS] if such element is [ProtoUnknownFieldHolder].
  */
 internal fun extractProtoId(descriptor: SerialDescriptor, index: Int, zeroBasedDefault: Boolean): Int {
     val annotations = descriptor.getElementAnnotations(index)
@@ -133,8 +148,14 @@ internal fun extractProtoId(descriptor: SerialDescriptor, index: Int, zeroBasedD
             }
         }
     }
+    if (descriptor.getElementDescriptor(index).isUnknownFieldsDescriptor) {
+        return ID_HOLDER_UNKNOWN_FIELDS
+    }
     return result
 }
+
+internal val SerialDescriptor.isUnknownFieldsDescriptor: Boolean
+    get() = this.nullable == ProtoUnknownFieldHolderSerializer.descriptor.nullable
 
 private fun checkFieldNumber(fieldNumber: Int, propertyIndex: Int, descriptor: SerialDescriptor) {
     if (fieldNumber <= 0) {

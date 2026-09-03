@@ -77,7 +77,7 @@ private sealed class AbstractJsonTreeEncoder(
         }
     }
 
-    override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
+    override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T): Unit = withExceptionHandling({ serializer.descriptor.serialName }) {
         // Writing non-structured data (i.e. primitives) on top-level (e.g. without any tag) requires special output
         if (currentTagOrNull != null || !serializer.descriptor.carrierDescriptor(serializersModule).requiresTopLevelTag) {
             encodePolymorphically(serializer, value) { discriminatorName, serialName ->

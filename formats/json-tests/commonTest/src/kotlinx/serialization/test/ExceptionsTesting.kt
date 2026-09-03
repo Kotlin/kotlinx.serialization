@@ -15,6 +15,7 @@ import kotlin.test.assertNull
 class EncodingExceptionAsserter(val mode: JsonTestingMode, val exception: JsonEncodingException) {
     var hasHint = false
     var hasSerialName = false
+    var hasCause = false
 
     fun message(msg: String, alternativeForTree: String? = null) {
         val expected = alternativeForTree.takeIf { mode == JsonTestingMode.TREE } ?: msg
@@ -27,7 +28,7 @@ class EncodingExceptionAsserter(val mode: JsonTestingMode, val exception: JsonEn
     }
 
     fun serialName(name: String?) {
-        assertEquals(name,  exception.classSerialName, message = "Serial name is not equal to expected serial name")
+        assertEquals(name, exception.classSerialName, message = "Serial name is not equal to expected serial name")
         if (name != null) hasSerialName = true
     }
 
@@ -37,9 +38,27 @@ class EncodingExceptionAsserter(val mode: JsonTestingMode, val exception: JsonEn
         hasHint = true
     }
 
+    internal inline fun <reified T : Throwable> cause(noinline causeMessage: (() -> String?)? = null) {
+        val cause = exception.cause
+        assertEquals(
+            T::class,
+            if (cause != null) cause::class else null,
+            message = "Cause class is not equal to expected cause"
+        )
+        if (causeMessage != null) {
+            assertContains(
+                cause!!.message.orEmpty(),
+                causeMessage().orEmpty(),
+                message = "Cause message does not contain expected message"
+            )
+        }
+        hasCause = true
+    }
+
     fun assertMissing() {
         if (!hasHint) assertNull(exception.hint, "Hint is not null")
         if (!hasSerialName) assertNull(exception.classSerialName, "Serial name is not null")
+        if (!hasCause) assertNull(exception.cause, "Cause is not null")
     }
 }
 
@@ -50,7 +69,7 @@ inline fun checkEncodingException(
 ) {
     val e = assertFailsWith(JsonEncodingException::class, action)
     val asserter = EncodingExceptionAsserter(mode, e)
-    val result= runCatching {
+    val result = runCatching {
         asserter.assertions()
         asserter.assertMissing()
     }
@@ -66,6 +85,7 @@ class DecodingExceptionAsserter(val mode: JsonTestingMode, val exception: JsonDe
     private var hasPath = false
     private var hasOffset = false
     private var hasHint = false
+    internal var hasCause = false
 
     fun message(msg: String, alternativeForTree: String? = null) {
         val expected = alternativeForTree.takeIf { mode == JsonTestingMode.TREE } ?: msg
@@ -119,10 +139,28 @@ class DecodingExceptionAsserter(val mode: JsonTestingMode, val exception: JsonDe
         assertNull(exception.input, "Input is not null")
     }
 
+    internal inline fun <reified T : Throwable> cause(noinline causeMessage: (() -> String?)? = null) {
+        val cause = exception.cause
+        assertEquals(
+            T::class,
+            if (cause != null) cause::class else null,
+            message = "Cause class is not equal to expected cause"
+        )
+        if (causeMessage != null) {
+            assertContains(
+                cause!!.message.orEmpty(),
+                causeMessage().orEmpty(),
+                message = "Cause message does not contain expected message"
+            )
+        }
+        hasCause = true
+    }
+
     fun assertMissing() {
         if (!hasPath) assertNull(exception.path, "Path is not null")
         if (!hasOffset) assertEquals(-1, exception.offset, "Offset is not -1")
         if (!hasHint) assertNull(exception.hint, "Hint is not null")
+        if (!hasCause) assertNull(exception.cause, "Cause is not null")
     }
 
 }
@@ -134,7 +172,7 @@ inline fun checkDecodingException(
 ) {
     val e = assertFailsWith(JsonDecodingException::class, action)
     val asserter = DecodingExceptionAsserter(mode, e)
-    val result= runCatching {
+    val result = runCatching {
         asserter.assertions()
         asserter.assertMissing()
     }

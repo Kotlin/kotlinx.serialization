@@ -43,10 +43,10 @@ tasks.withType(KotlinCompilationTask::class).configureEach {
 }
 
 tasks.withType<Kotlin2JsCompile>().configureEach {
-    compilerOptions { freeCompilerArgs.add("-Xpartial-linkage-loglevel=ERROR") }
+    compilerOptions { freeCompilerArgs.add("-Xpartial-linkage-loglevel=error") }
 }
 tasks.withType<KotlinNativeCompile>().configureEach {
-    compilerOptions { freeCompilerArgs.add("-Xpartial-linkage-loglevel=ERROR") }
+    compilerOptions { freeCompilerArgs.add("-Xpartial-linkage-loglevel=error") }
 }
 
 tasks.withType<KotlinCompilationTask<*>>().configureEach {

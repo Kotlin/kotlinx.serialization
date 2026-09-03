@@ -106,6 +106,7 @@ public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun getExceptionsWithDebugInfo ()Z
 	public final fun getExplicitNulls ()Z
 	public final fun getIgnoreUnknownKeys ()Z
+	public final fun getMaxNestingDepth ()I
 	public final fun getNamingStrategy ()Lkotlinx/serialization/json/JsonNamingStrategy;
 	public final fun getPrettyPrint ()Z
 	public final fun getPrettyPrintIndent ()Ljava/lang/String;
@@ -126,6 +127,7 @@ public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun setExplicitNulls (Z)V
 	public final fun setIgnoreUnknownKeys (Z)V
 	public final fun setLenient (Z)V
+	public final fun setMaxNestingDepth (I)V
 	public final fun setNamingStrategy (Lkotlinx/serialization/json/JsonNamingStrategy;)V
 	public final fun setPrettyPrint (Z)V
 	public final fun setPrettyPrintIndent (Ljava/lang/String;)V
@@ -157,14 +159,15 @@ public final class kotlinx/serialization/json/JsonConfiguration {
 	public final fun getExceptionsWithDebugInfo ()Z
 	public final fun getExplicitNulls ()Z
 	public final fun getIgnoreUnknownKeys ()Z
+	public final fun getMaxNestingDepth ()I
 	public final fun getNamingStrategy ()Lkotlinx/serialization/json/JsonNamingStrategy;
 	public final fun getPrettyPrint ()Z
 	public final fun getPrettyPrintIndent ()Ljava/lang/String;
 	public final fun getUseAlternativeNames ()Z
 	public final fun getUseArrayPolymorphism ()Z
 	public final fun isLenient ()Z
-	public final fun setClassDiscriminatorMode (Lkotlinx/serialization/json/ClassDiscriminatorMode;)V
-	public final fun setExceptionsWithDebugInfo (Z)V
+	public final synthetic fun setClassDiscriminatorMode (Lkotlinx/serialization/json/ClassDiscriminatorMode;)V
+	public final synthetic fun setExceptionsWithDebugInfo (Z)V
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -281,7 +284,7 @@ public final class kotlinx/serialization/json/JsonEncodingException : kotlinx/se
 }
 
 public abstract class kotlinx/serialization/json/JsonException : kotlinx/serialization/SerializationException {
-	public synthetic fun <init> (Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public abstract fun getHint ()Ljava/lang/String;
 	public fun getMessage ()Ljava/lang/String;
 	public abstract fun getShortMessage ()Ljava/lang/String;
