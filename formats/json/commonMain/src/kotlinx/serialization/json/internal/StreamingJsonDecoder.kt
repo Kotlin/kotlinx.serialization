@@ -53,7 +53,7 @@ internal open class StreamingJsonDecoder(
     override fun decodeJsonElement(): JsonElement = JsonTreeReader(json.configuration, lexer).read()
 
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
-        return withExceptionHandling(path = lexer.path::getPath, input = lexer::source) {
+        return withExceptionHandling(path = lexer.path, input = lexer::source) {
             /*
              * This is an optimized path over decodeSerializableValuePolymorphic(deserializer):
              * dSVP reads the very next JSON tree into a memory as JsonElement and then runs TreeJsonDecoder over it
@@ -155,17 +155,9 @@ internal open class StreamingJsonDecoder(
         previousValue: T?
     ): T {
         val isMapKey = mode == LexerMode.MAP && index and 1 == 0
-        // Reset previous key
-        if (isMapKey) {
-            lexer.path.resetCurrentMapKey()
+        return withMapKeyTracking(lexer.path, isMapKey) {
+            super.decodeSerializableElement(descriptor, index, deserializer, previousValue)
         }
-        // Deserialize the key
-        val value = super.decodeSerializableElement(descriptor, index, deserializer, previousValue)
-        // Put the key to the path
-        if (isMapKey) {
-            lexer.path.updateCurrentMapKey(value)
-        }
-        return value
     }
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
