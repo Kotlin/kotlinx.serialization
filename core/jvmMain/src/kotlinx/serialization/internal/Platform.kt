@@ -225,6 +225,6 @@ private inline fun loadSafe(block: () -> Unit) {
 }
 
 internal actual fun estimateCapacityForHashMap(requiredCapacity: Int): Int =
-    ceil(requiredCapacity / DEFAULT_HASH_MAP_LOAD_FACTORY).toInt()
+    ceil(requiredCapacity / DEFAULT_HASH_MAP_LOAD_FACTOR).toInt()
 
-private const val DEFAULT_HASH_MAP_LOAD_FACTORY: Float = 0.75f
+private const val DEFAULT_HASH_MAP_LOAD_FACTOR: Float = 0.75f

@@ -6,7 +6,6 @@ package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
-import kotlin.math.ceil
 import kotlin.reflect.*
 import kotlin.time.*
 import kotlin.uuid.*
