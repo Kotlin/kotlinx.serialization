@@ -1,5 +1,3 @@
-import org.gradle.api.publish.maven.internal.publication.DefaultMavenPublication
-
 plugins {
     `java-platform`
 }
@@ -30,25 +28,13 @@ dependencies {
 
 publishing {
     publications {
-        val mavenBom by creating(MavenPublication::class) {
+        create<MavenPublication>("mavenBom") {
             from(components["javaPlatform"])
-        }
-        // Disable metadata publication
-        forEach { pub ->
-            pub as DefaultMavenPublication
-            pub.unsetModuleDescriptorGenerator()
-
-            tasks.configureEach {
-                if (name == "generateMetadataFileFor${pub.name.capitalizeCompat()}Publication") {
-                    onlyIf { false }
-                }
-            }
         }
     }
 }
 
-fun DefaultMavenPublication.unsetModuleDescriptorGenerator() {
-    @Suppress("NULL_FOR_NONNULL_TYPE")
-    val generator: TaskProvider<Task?> = null
-    setModuleDescriptorGenerator(generator)
+// Disable metadata publication
+tasks.withType<GenerateModuleMetadata>().configureEach {
+    enabled = false
 }

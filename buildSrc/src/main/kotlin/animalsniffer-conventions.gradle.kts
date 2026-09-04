@@ -28,10 +28,11 @@ plugins.withId("org.jetbrains.kotlin.multiplatform") {
 
 afterEvaluate { // Can be applied only when the project is evaluated
     extensions.configure<AnimalSnifferExtension> {
-        sourceSets = listOfNotNull(
-            this@afterEvaluate.sourceSets.findByName("jvmMain"),
-            this@afterEvaluate.sourceSets.findByName("main")
-        )
+        // For multiplatform projects, check only the JVM target: without it animalsniffer registers
+        // a check task for every KMP target
+        if (plugins.hasPlugin("org.jetbrains.kotlin.multiplatform")) {
+            defaultTargets("jvmMain")
+        }
 
         val annotationValue = when(name) {
             "kotlinx-serialization-core" -> "kotlinx.serialization.internal.SuppressAnimalSniffer"

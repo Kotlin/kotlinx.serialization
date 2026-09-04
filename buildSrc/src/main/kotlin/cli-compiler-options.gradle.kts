@@ -20,7 +20,7 @@ val kotlinAdditionalCliOptions = providers.gradleProperty("kotlin_additional_cli
         options.removeSurrounding("\"").split(" ").filter { it.isNotBlank() }
     }
 
-val kotlin_Werror_override: String? by project
+val kotlinWerrorOverride = providers.gradleProperty("kotlin_Werror_override").orNull
 
 // -Werror option only for test source sets
 // Cannot migrate to general compilerOptions {} because we need compilation task name
@@ -31,7 +31,7 @@ tasks.withType(KotlinCompilationTask::class).configureEach {
 
         val isMainTaskName = name.startsWith("compileKotlin")
         if (isMainTaskName) {
-            val werrorEnabled = when (kotlin_Werror_override?.lowercase()) {
+            val werrorEnabled = when (kotlinWerrorOverride?.lowercase()) {
                 "disable" -> false
                 "enable" -> true
                 null -> true // Werror is enabled by default

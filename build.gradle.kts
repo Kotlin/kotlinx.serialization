@@ -29,7 +29,7 @@ allprojects {
     group = "org.jetbrains.kotlinx"
 
     // version setup
-    val deployVersion = properties["DeployVersion"]
+    val deployVersion = providers.gradleProperty("DeployVersion").orNull
     if (deployVersion != null) version = deployVersion
     if (project.hasProperty("bootstrap")) {
         version = "$version-SNAPSHOT"
