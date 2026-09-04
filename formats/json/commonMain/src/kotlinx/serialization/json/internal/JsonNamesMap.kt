@@ -112,11 +112,12 @@ internal fun SerialDescriptor.getJsonNameIndex(json: Json, name: String): Int {
 /**
  * Throws on [CompositeDecoder.UNKNOWN_NAME]
  */
-@OptIn(ExperimentalSerializationApi::class)
-internal fun SerialDescriptor.getJsonNameIndexOrThrow(json: Json, name: String, suffix: String = ""): Int {
+internal fun SerialDescriptor.getJsonNameIndexOrThrow(json: Json, name: String, jsonPath: JsonPath?): Int {
     val index = getJsonNameIndex(json, name)
-    if (index == CompositeDecoder.UNKNOWN_NAME)
-        throw SerializationException("$serialName does not contain element with name '$name'$suffix")
+    if (index == CompositeDecoder.UNKNOWN_NAME) {
+        val path = if (jsonPath == null) "" else " at path ${jsonPath.getPath()}"
+        throw SerializationException("$serialName does not contain element with name '$name'${path}")
+    }
     return index
 }
 

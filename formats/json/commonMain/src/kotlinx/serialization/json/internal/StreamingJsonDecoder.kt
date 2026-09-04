@@ -346,7 +346,7 @@ internal open class StreamingJsonDecoder(
         else super.decodeInline(descriptor)
 
     override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
-        return enumDescriptor.getJsonNameIndexOrThrow(json, decodeString(), " at path " + lexer.path.getPath())
+        return enumDescriptor.getJsonNameIndexOrThrow(json, decodeString(), lexer.path)
     }
 }
 

@@ -141,7 +141,7 @@ private open class DynamicInput(
     override fun decodeTaggedEnum(tag: String, enumDescriptor: SerialDescriptor): Int {
         val byTag = getByTag(tag)
         val enumValue = byTag as? String ?: throw SerializationException("Enum value must be a string, got '$byTag'")
-        return enumDescriptor.getJsonNameIndexOrThrow(json, enumValue)
+        return enumDescriptor.getJsonNameIndexOrThrow(json, enumValue, null)
     }
 
     protected open fun getByTag(tag: String): dynamic = value[tag]
