@@ -104,7 +104,6 @@ internal class JsonPath(configuration: JsonConfiguration) {
         }
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
     fun getPath(): String {
         return buildString {
             append("$")
@@ -141,10 +140,6 @@ internal class JsonPath(configuration: JsonConfiguration) {
         }
     }
 
-
-    @OptIn(ExperimentalSerializationApi::class)
-    private fun prettyString(it: Any?) = (it as? SerialDescriptor)?.serialName ?: it.toString()
-
     private fun resize() {
         val newSize = currentDepth * 2
         currentObjectPath = currentObjectPath.copyOf(newSize)
@@ -154,4 +149,13 @@ internal class JsonPath(configuration: JsonConfiguration) {
     }
 
     override fun toString(): String = getPath()
+}
+
+// Updates JsonPath if we are currently decoding map key and not a regular object
+// (because map keys are not indices in the descriptor, but actual strings/objects)
+internal inline fun <T> withMapKeyTracking(path: JsonPath, isMapKey: Boolean, block: () -> T): T {
+    if (isMapKey) path.resetCurrentMapKey()
+    val result = block()
+    if (isMapKey) path.updateCurrentMapKey(result)
+    return result
 }
