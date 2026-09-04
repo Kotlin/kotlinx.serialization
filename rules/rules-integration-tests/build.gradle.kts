@@ -129,10 +129,12 @@ val extractBaseJarTask = tasks.register<Task>("extractBaseJar") {
             jdkBinDir.resolve("jmod")
         }
 
+        @Suppress("DEPRECATION")
         exec {
             commandLine(jmodFile.absolutePath, "extract", baseJmod.absolutePath, "--dir", extractDir.absolutePath)
         }
         // pack class-files into jar
+        @Suppress("DEPRECATION")
         exec {
             commandLine(
                 "jar",
