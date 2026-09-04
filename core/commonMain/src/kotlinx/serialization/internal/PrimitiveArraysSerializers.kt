@@ -21,8 +21,12 @@ internal object ByteArraySerializer : KSerializer<ByteArray>,
     PrimitiveArraySerializer<Byte, ByteArray, ByteArrayBuilder>(Byte.serializer()) {
 
     override fun ByteArray.collectionSize(): Int = size
-    override fun ByteArray.toBuilder(): ByteArrayBuilder = ByteArrayBuilder(this)
-    override fun empty(): ByteArray = ByteArray(0)
+    override fun ByteArray.toBuilder(expectedSize: Int): ByteArrayBuilder {
+        if (expectedSize == size) return ByteArrayBuilder(this)
+        return ByteArrayBuilder(this.copyOf(expectedSize), size)
+    }
+    override fun ofSize(size: Int): ByteArrayBuilder = ByteArrayBuilder(size)
+    override fun ofUnknownSize(): ByteArrayBuilder = ByteArrayBuilder()
 
     override fun readElement(decoder: CompositeDecoder, index: Int, builder: ByteArrayBuilder, checkIndex: Boolean) {
         builder.append(decoder.decodeByteElement(descriptor, index))
@@ -36,16 +40,16 @@ internal object ByteArraySerializer : KSerializer<ByteArray>,
 
 @PublishedApi
 internal class ByteArrayBuilder internal constructor(
-    bufferWithData: ByteArray
+    bufferWithData: ByteArray, initialPosition: Int
 ) : PrimitiveArrayBuilder<ByteArray>() {
+    internal constructor(bufferWithData: ByteArray) : this(bufferWithData, bufferWithData.size)
+    internal constructor(initialCapacity: Int) : this(ByteArray(initialCapacity), 0)
+    internal constructor() : this(ByteArray(INITIAL_SIZE), 0)
+
 
     private var buffer: ByteArray = bufferWithData
-    override var position: Int = bufferWithData.size
+    override var position: Int = initialPosition
         private set
-
-    init {
-        ensureCapacity(INITIAL_SIZE)
-    }
 
     override fun ensureCapacity(requiredCapacity: Int) {
         if (buffer.size < requiredCapacity)
@@ -72,8 +76,13 @@ internal object ShortArraySerializer : KSerializer<ShortArray>,
     PrimitiveArraySerializer<Short, ShortArray, ShortArrayBuilder>(Short.serializer()) {
 
     override fun ShortArray.collectionSize(): Int = size
-    override fun ShortArray.toBuilder(): ShortArrayBuilder = ShortArrayBuilder(this)
-    override fun empty(): ShortArray = ShortArray(0)
+    override fun ShortArray.toBuilder(expectedSize: Int): ShortArrayBuilder {
+        if (expectedSize == size) return ShortArrayBuilder(this)
+        return ShortArrayBuilder(this.copyOf(expectedSize), size)
+    }
+
+    override fun ofSize(size: Int): ShortArrayBuilder = ShortArrayBuilder(size)
+    override fun ofUnknownSize(): ShortArrayBuilder = ShortArrayBuilder()
 
     override fun readElement(decoder: CompositeDecoder, index: Int, builder: ShortArrayBuilder, checkIndex: Boolean) {
         builder.append(decoder.decodeShortElement(descriptor, index))
@@ -87,16 +96,15 @@ internal object ShortArraySerializer : KSerializer<ShortArray>,
 
 @PublishedApi
 internal class ShortArrayBuilder internal constructor(
-    bufferWithData: ShortArray
+    bufferWithData: ShortArray, initialPosition: Int
 ) : PrimitiveArrayBuilder<ShortArray>() {
+    internal constructor(bufferWithData: ShortArray) : this(bufferWithData, bufferWithData.size)
+    internal constructor(initialCapacity: Int) : this(ShortArray(initialCapacity), 0)
+    internal constructor() : this(ShortArray(INITIAL_SIZE), 0)
 
     private var buffer: ShortArray = bufferWithData
-    override var position: Int = bufferWithData.size
+    override var position: Int = initialPosition
         private set
-
-    init {
-        ensureCapacity(INITIAL_SIZE)
-    }
 
     override fun ensureCapacity(requiredCapacity: Int) {
         if (buffer.size < requiredCapacity)
@@ -122,8 +130,13 @@ internal object IntArraySerializer : KSerializer<IntArray>,
     PrimitiveArraySerializer<Int, IntArray, IntArrayBuilder>(Int.serializer()) {
 
     override fun IntArray.collectionSize(): Int = size
-    override fun IntArray.toBuilder(): IntArrayBuilder = IntArrayBuilder(this)
-    override fun empty(): IntArray = IntArray(0)
+    override fun IntArray.toBuilder(expectedSize: Int): IntArrayBuilder {
+        if (expectedSize == size) return IntArrayBuilder(this)
+        return IntArrayBuilder(this.copyOf(expectedSize), size)
+    }
+
+    override fun ofSize(size: Int): IntArrayBuilder = IntArrayBuilder(size)
+    override fun ofUnknownSize(): IntArrayBuilder = IntArrayBuilder()
 
     override fun readElement(decoder: CompositeDecoder, index: Int, builder: IntArrayBuilder, checkIndex: Boolean) {
         builder.append(decoder.decodeIntElement(descriptor, index))
@@ -137,16 +150,15 @@ internal object IntArraySerializer : KSerializer<IntArray>,
 
 @PublishedApi
 internal class IntArrayBuilder internal constructor(
-    bufferWithData: IntArray
+    bufferWithData: IntArray, initialPosition: Int
 ) : PrimitiveArrayBuilder<IntArray>() {
+    internal constructor(bufferWithData: IntArray) : this(bufferWithData, bufferWithData.size)
+    internal constructor(initialCapacity: Int) : this(IntArray(initialCapacity), 0)
+    internal constructor() : this(IntArray(INITIAL_SIZE), 0)
 
     private var buffer: IntArray = bufferWithData
-    override var position: Int = bufferWithData.size
+    override var position: Int = initialPosition
         private set
-
-    init {
-        ensureCapacity(INITIAL_SIZE)
-    }
 
     override fun ensureCapacity(requiredCapacity: Int) {
         if (buffer.size < requiredCapacity)
@@ -172,8 +184,13 @@ internal object LongArraySerializer : KSerializer<LongArray>,
     PrimitiveArraySerializer<Long, LongArray, LongArrayBuilder>(Long.serializer()) {
 
     override fun LongArray.collectionSize(): Int = size
-    override fun LongArray.toBuilder(): LongArrayBuilder = LongArrayBuilder(this)
-    override fun empty(): LongArray = LongArray(0)
+    override fun LongArray.toBuilder(expectedSize: Int): LongArrayBuilder {
+        if (expectedSize == size) return LongArrayBuilder(this)
+        return LongArrayBuilder(this.copyOf(expectedSize), size)
+    }
+    override fun ofSize(size: Int): LongArrayBuilder = LongArrayBuilder(size)
+    override fun ofUnknownSize(): LongArrayBuilder = LongArrayBuilder()
+
 
     override fun readElement(decoder: CompositeDecoder, index: Int, builder: LongArrayBuilder, checkIndex: Boolean) {
         builder.append(decoder.decodeLongElement(descriptor, index))
@@ -187,16 +204,15 @@ internal object LongArraySerializer : KSerializer<LongArray>,
 
 @PublishedApi
 internal class LongArrayBuilder internal constructor(
-    bufferWithData: LongArray
+    bufferWithData: LongArray, initialPosition: Int
 ) : PrimitiveArrayBuilder<LongArray>() {
+    internal constructor(bufferWithData: LongArray) : this(bufferWithData, bufferWithData.size)
+    internal constructor(initialCapacity: Int) : this(LongArray(initialCapacity), 0)
+    internal constructor() : this(LongArray(INITIAL_SIZE), 0)
 
     private var buffer: LongArray = bufferWithData
-    override var position: Int = bufferWithData.size
+    override var position: Int = initialPosition
         private set
-
-    init {
-        ensureCapacity(INITIAL_SIZE)
-    }
 
     override fun ensureCapacity(requiredCapacity: Int) {
         if (buffer.size < requiredCapacity)
@@ -222,8 +238,12 @@ internal object FloatArraySerializer : KSerializer<FloatArray>,
     PrimitiveArraySerializer<Float, FloatArray, FloatArrayBuilder>(Float.serializer()) {
 
     override fun FloatArray.collectionSize(): Int = size
-    override fun FloatArray.toBuilder(): FloatArrayBuilder = FloatArrayBuilder(this)
-    override fun empty(): FloatArray = FloatArray(0)
+    override fun FloatArray.toBuilder(expectedSize: Int): FloatArrayBuilder {
+        if (expectedSize == size) return FloatArrayBuilder(this)
+        return FloatArrayBuilder(this.copyOf(expectedSize), size)
+    }
+    override fun ofSize(size: Int): FloatArrayBuilder = FloatArrayBuilder(size)
+    override fun ofUnknownSize(): FloatArrayBuilder = FloatArrayBuilder()
 
     override fun readElement(decoder: CompositeDecoder, index: Int, builder: FloatArrayBuilder, checkIndex: Boolean) {
         builder.append(decoder.decodeFloatElement(descriptor, index))
@@ -237,16 +257,15 @@ internal object FloatArraySerializer : KSerializer<FloatArray>,
 
 @PublishedApi
 internal class FloatArrayBuilder internal constructor(
-    bufferWithData: FloatArray
+    bufferWithData: FloatArray, initialPosition: Int
 ) : PrimitiveArrayBuilder<FloatArray>() {
+    internal constructor(bufferWithData: FloatArray) : this(bufferWithData, bufferWithData.size)
+    internal constructor(initialCapacity: Int) : this(FloatArray(initialCapacity), 0)
+    internal constructor() : this(FloatArray(INITIAL_SIZE), 0)
 
     private var buffer: FloatArray = bufferWithData
-    override var position: Int = bufferWithData.size
+    override var position: Int = initialPosition
         private set
-
-    init {
-        ensureCapacity(INITIAL_SIZE)
-    }
 
     override fun ensureCapacity(requiredCapacity: Int) {
         if (buffer.size < requiredCapacity)
@@ -272,8 +291,12 @@ internal object DoubleArraySerializer : KSerializer<DoubleArray>,
     PrimitiveArraySerializer<Double, DoubleArray, DoubleArrayBuilder>(Double.serializer()) {
 
     override fun DoubleArray.collectionSize(): Int = size
-    override fun DoubleArray.toBuilder(): DoubleArrayBuilder = DoubleArrayBuilder(this)
-    override fun empty(): DoubleArray = DoubleArray(0)
+    override fun DoubleArray.toBuilder(expectedSize: Int): DoubleArrayBuilder {
+        if (expectedSize == size) return DoubleArrayBuilder(this)
+        return DoubleArrayBuilder(this.copyOf(expectedSize), size)
+    }
+    override fun ofSize(size: Int): DoubleArrayBuilder = DoubleArrayBuilder(size)
+    override fun ofUnknownSize(): DoubleArrayBuilder = DoubleArrayBuilder()
 
     override fun readElement(decoder: CompositeDecoder, index: Int, builder: DoubleArrayBuilder, checkIndex: Boolean) {
         builder.append(decoder.decodeDoubleElement(descriptor, index))
@@ -287,16 +310,15 @@ internal object DoubleArraySerializer : KSerializer<DoubleArray>,
 
 @PublishedApi
 internal class DoubleArrayBuilder internal constructor(
-    bufferWithData: DoubleArray
+    bufferWithData: DoubleArray, initialPosition: Int
 ) : PrimitiveArrayBuilder<DoubleArray>() {
+    internal constructor(bufferWithData: DoubleArray) : this(bufferWithData, bufferWithData.size)
+    internal constructor(initialCapacity: Int) : this(DoubleArray(initialCapacity), 0)
+    internal constructor() : this(DoubleArray(INITIAL_SIZE), 0)
 
     private var buffer: DoubleArray = bufferWithData
-    override var position: Int = bufferWithData.size
+    override var position: Int = initialPosition
         private set
-
-    init {
-        ensureCapacity(INITIAL_SIZE)
-    }
 
     override fun ensureCapacity(requiredCapacity: Int) {
         if (buffer.size < requiredCapacity)
@@ -322,8 +344,12 @@ internal object CharArraySerializer : KSerializer<CharArray>,
     PrimitiveArraySerializer<Char, CharArray, CharArrayBuilder>(Char.serializer()) {
 
     override fun CharArray.collectionSize(): Int = size
-    override fun CharArray.toBuilder(): CharArrayBuilder = CharArrayBuilder(this)
-    override fun empty(): CharArray = CharArray(0)
+    override fun CharArray.toBuilder(expectedSize: Int): CharArrayBuilder {
+        if (expectedSize == size) return CharArrayBuilder(this)
+        return CharArrayBuilder(this.copyOf(expectedSize), size)
+    }
+    override fun ofSize(size: Int): CharArrayBuilder = CharArrayBuilder(size)
+    override fun ofUnknownSize(): CharArrayBuilder = CharArrayBuilder()
 
     override fun readElement(decoder: CompositeDecoder, index: Int, builder: CharArrayBuilder, checkIndex: Boolean) {
         builder.append(decoder.decodeCharElement(descriptor, index))
@@ -337,16 +363,15 @@ internal object CharArraySerializer : KSerializer<CharArray>,
 
 @PublishedApi
 internal class CharArrayBuilder internal constructor(
-    bufferWithData: CharArray
+    bufferWithData: CharArray, initialPosition: Int
 ) : PrimitiveArrayBuilder<CharArray>() {
+    internal constructor(bufferWithData: CharArray) : this(bufferWithData, bufferWithData.size)
+    internal constructor(initialCapacity: Int) : this(CharArray(initialCapacity), 0)
+    internal constructor() : this(CharArray(INITIAL_SIZE), 0)
 
     private var buffer: CharArray = bufferWithData
-    override var position: Int = bufferWithData.size
+    override var position: Int = initialPosition
         private set
-
-    init {
-        ensureCapacity(INITIAL_SIZE)
-    }
 
     override fun ensureCapacity(requiredCapacity: Int) {
         if (buffer.size < requiredCapacity)
@@ -370,8 +395,12 @@ internal object BooleanArraySerializer : KSerializer<BooleanArray>,
     PrimitiveArraySerializer<Boolean, BooleanArray, BooleanArrayBuilder>(Boolean.serializer()) {
 
     override fun BooleanArray.collectionSize(): Int = size
-    override fun BooleanArray.toBuilder(): BooleanArrayBuilder = BooleanArrayBuilder(this)
-    override fun empty(): BooleanArray = BooleanArray(0)
+    override fun BooleanArray.toBuilder(expectedSize: Int): BooleanArrayBuilder {
+        if (expectedSize == size) return BooleanArrayBuilder(this)
+        return BooleanArrayBuilder(this.copyOf(expectedSize), size)
+    }
+    override fun ofSize(size: Int): BooleanArrayBuilder = BooleanArrayBuilder(size)
+    override fun ofUnknownSize(): BooleanArrayBuilder = BooleanArrayBuilder()
 
     override fun readElement(decoder: CompositeDecoder, index: Int, builder: BooleanArrayBuilder, checkIndex: Boolean) {
         builder.append(decoder.decodeBooleanElement(descriptor, index))
@@ -384,17 +413,15 @@ internal object BooleanArraySerializer : KSerializer<BooleanArray>,
 }
 
 @PublishedApi
-internal class BooleanArrayBuilder internal constructor(
-    bufferWithData: BooleanArray
-) : PrimitiveArrayBuilder<BooleanArray>() {
+internal class BooleanArrayBuilder internal constructor(bufferWithData: BooleanArray, initialPosition: Int)
+    : PrimitiveArrayBuilder<BooleanArray>() {
+    internal constructor(bufferWithData: BooleanArray) : this(bufferWithData, bufferWithData.size)
+    internal constructor(initialCapacity: Int) : this(BooleanArray(initialCapacity), 0)
+    internal constructor() : this(BooleanArray(INITIAL_SIZE), 0)
 
     private var buffer: BooleanArray = bufferWithData
-    override var position: Int = bufferWithData.size
+    override var position: Int = initialPosition
         private set
-
-    init {
-        ensureCapacity(INITIAL_SIZE)
-    }
 
     override fun ensureCapacity(requiredCapacity: Int) {
         if (buffer.size < requiredCapacity)
@@ -424,8 +451,12 @@ internal object UByteArraySerializer : KSerializer<UByteArray>,
     PrimitiveArraySerializer<UByte, UByteArray, UByteArrayBuilder>(UByte.serializer()) {
 
     override fun UByteArray.collectionSize(): Int = size
-    override fun UByteArray.toBuilder(): UByteArrayBuilder = UByteArrayBuilder(this)
-    override fun empty(): UByteArray = UByteArray(0)
+    override fun UByteArray.toBuilder(expectedSize: Int): UByteArrayBuilder {
+        if (expectedSize == size) return UByteArrayBuilder(this)
+        return UByteArrayBuilder(this.copyOf(expectedSize), size)
+    }
+    override fun ofSize(size: Int): UByteArrayBuilder = UByteArrayBuilder(size)
+    override fun ofUnknownSize(): UByteArrayBuilder = UByteArrayBuilder()
 
     override fun readElement(decoder: CompositeDecoder, index: Int, builder: UByteArrayBuilder, checkIndex: Boolean) {
         builder.append(decoder.decodeInlineElement(descriptor, index).decodeByte().toUByte())
@@ -440,16 +471,15 @@ internal object UByteArraySerializer : KSerializer<UByteArray>,
 @PublishedApi
 @ExperimentalUnsignedTypes
 internal class UByteArrayBuilder internal constructor(
-    bufferWithData: UByteArray
+    bufferWithData: UByteArray, initialPosition: Int
 ) : PrimitiveArrayBuilder<UByteArray>() {
+    internal constructor(bufferWithData: UByteArray) : this(bufferWithData, bufferWithData.size)
+    internal constructor(initialCapacity: Int) : this(UByteArray(initialCapacity), 0)
+    internal constructor() : this(UByteArray(INITIAL_SIZE), 0)
 
     private var buffer: UByteArray = bufferWithData
-    override var position: Int = bufferWithData.size
+    override var position: Int = initialPosition
         private set
-
-    init {
-        ensureCapacity(INITIAL_SIZE)
-    }
 
     override fun ensureCapacity(requiredCapacity: Int) {
         if (buffer.size < requiredCapacity)
@@ -476,8 +506,12 @@ internal object UShortArraySerializer : KSerializer<UShortArray>,
     PrimitiveArraySerializer<UShort, UShortArray, UShortArrayBuilder>(UShort.serializer()) {
 
     override fun UShortArray.collectionSize(): Int = size
-    override fun UShortArray.toBuilder(): UShortArrayBuilder = UShortArrayBuilder(this)
-    override fun empty(): UShortArray = UShortArray(0)
+    override fun UShortArray.toBuilder(expectedSize: Int): UShortArrayBuilder {
+        if (expectedSize == size) return UShortArrayBuilder(this)
+        return UShortArrayBuilder(this.copyOf(expectedSize), size)
+    }
+    override fun ofSize(size: Int): UShortArrayBuilder = UShortArrayBuilder(size)
+    override fun ofUnknownSize(): UShortArrayBuilder = UShortArrayBuilder()
 
     override fun readElement(decoder: CompositeDecoder, index: Int, builder: UShortArrayBuilder, checkIndex: Boolean) {
         builder.append(decoder.decodeInlineElement(descriptor, index).decodeShort().toUShort())
@@ -492,16 +526,15 @@ internal object UShortArraySerializer : KSerializer<UShortArray>,
 @PublishedApi
 @ExperimentalUnsignedTypes
 internal class UShortArrayBuilder internal constructor(
-    bufferWithData: UShortArray
+    bufferWithData: UShortArray, initialPosition: Int
 ) : PrimitiveArrayBuilder<UShortArray>() {
+    internal constructor(bufferWithData: UShortArray) : this(bufferWithData, bufferWithData.size)
+    internal constructor(initialCapacity: Int) : this(UShortArray(initialCapacity), 0)
+    internal constructor() : this(UShortArray(INITIAL_SIZE), 0)
 
     private var buffer: UShortArray = bufferWithData
-    override var position: Int = bufferWithData.size
+    override var position: Int = initialPosition
         private set
-
-    init {
-        ensureCapacity(INITIAL_SIZE)
-    }
 
     override fun ensureCapacity(requiredCapacity: Int) {
         if (buffer.size < requiredCapacity)
@@ -528,8 +561,12 @@ internal object UIntArraySerializer : KSerializer<UIntArray>,
     PrimitiveArraySerializer<UInt, UIntArray, UIntArrayBuilder>(UInt.serializer()) {
 
     override fun UIntArray.collectionSize(): Int = size
-    override fun UIntArray.toBuilder(): UIntArrayBuilder = UIntArrayBuilder(this)
-    override fun empty(): UIntArray = UIntArray(0)
+    override fun UIntArray.toBuilder(expectedSize: Int): UIntArrayBuilder {
+        if (expectedSize == size) return UIntArrayBuilder(this)
+        return UIntArrayBuilder(this.copyOf(expectedSize), size)
+    }
+    override fun ofSize(size: Int): UIntArrayBuilder = UIntArrayBuilder(size)
+    override fun ofUnknownSize(): UIntArrayBuilder = UIntArrayBuilder()
 
     override fun readElement(decoder: CompositeDecoder, index: Int, builder: UIntArrayBuilder, checkIndex: Boolean) {
         builder.append(decoder.decodeInlineElement(descriptor, index).decodeInt().toUInt())
@@ -544,16 +581,15 @@ internal object UIntArraySerializer : KSerializer<UIntArray>,
 @PublishedApi
 @ExperimentalUnsignedTypes
 internal class UIntArrayBuilder internal constructor(
-    bufferWithData: UIntArray
+    bufferWithData: UIntArray, initialPosition: Int
 ) : PrimitiveArrayBuilder<UIntArray>() {
+    internal constructor(bufferWithData: UIntArray) : this(bufferWithData, bufferWithData.size)
+    internal constructor(initialCapacity: Int) : this(UIntArray(initialCapacity), 0)
+    internal constructor() : this(UIntArray(INITIAL_SIZE), 0)
 
     private var buffer: UIntArray = bufferWithData
-    override var position: Int = bufferWithData.size
+    override var position: Int = initialPosition
         private set
-
-    init {
-        ensureCapacity(INITIAL_SIZE)
-    }
 
     override fun ensureCapacity(requiredCapacity: Int) {
         if (buffer.size < requiredCapacity)
@@ -580,8 +616,12 @@ internal object ULongArraySerializer : KSerializer<ULongArray>,
     PrimitiveArraySerializer<ULong, ULongArray, ULongArrayBuilder>(ULong.serializer()) {
 
     override fun ULongArray.collectionSize(): Int = size
-    override fun ULongArray.toBuilder(): ULongArrayBuilder = ULongArrayBuilder(this)
-    override fun empty(): ULongArray = ULongArray(0)
+    override fun ULongArray.toBuilder(expectedSize: Int): ULongArrayBuilder {
+        if (expectedSize == size) return ULongArrayBuilder(this)
+        return ULongArrayBuilder(this.copyOf(expectedSize), size)
+    }
+    override fun ofSize(size: Int): ULongArrayBuilder = ULongArrayBuilder(size)
+    override fun ofUnknownSize(): ULongArrayBuilder = ULongArrayBuilder()
 
     override fun readElement(decoder: CompositeDecoder, index: Int, builder: ULongArrayBuilder, checkIndex: Boolean) {
         builder.append(decoder.decodeInlineElement(descriptor, index).decodeLong().toULong())
@@ -596,16 +636,15 @@ internal object ULongArraySerializer : KSerializer<ULongArray>,
 @PublishedApi
 @ExperimentalUnsignedTypes
 internal class ULongArrayBuilder internal constructor(
-    bufferWithData: ULongArray
+    bufferWithData: ULongArray, initialPosition: Int
 ) : PrimitiveArrayBuilder<ULongArray>() {
+    internal constructor(bufferWithData: ULongArray) : this(bufferWithData, bufferWithData.size)
+    internal constructor(initialCapacity: Int) : this(ULongArray(initialCapacity), 0)
+    internal constructor() : this(ULongArray(INITIAL_SIZE), 0)
 
     private var buffer: ULongArray = bufferWithData
-    override var position: Int = bufferWithData.size
+    override var position: Int = initialPosition
         private set
-
-    init {
-        ensureCapacity(INITIAL_SIZE)
-    }
 
     override fun ensureCapacity(requiredCapacity: Int) {
         if (buffer.size < requiredCapacity)

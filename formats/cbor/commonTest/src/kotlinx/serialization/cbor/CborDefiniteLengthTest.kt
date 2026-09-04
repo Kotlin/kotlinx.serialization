@@ -28,4 +28,36 @@ class CborDefiniteLengthTest {
         )
     }
 
+    @OptIn(ExperimentalUnsignedTypes::class)
+    @Test
+    fun readCollections() {
+        val cbor = Cbor { useDefiniteLengthEncoding = true }
+        val arrayEncoded = cbor.encodeToByteArray(byteArrayOf(1, 2, 3, 4, 5))
+        val fpArrayEncoded = cbor.encodeToByteArray(floatArrayOf(1.0f, 2.0f, 3.0f))
+        val charArrayEncoded = cbor.encodeToByteArray(charArrayOf('a', 'b'))
+        val listEncoded = cbor.encodeToByteArray(arrayListOf("a", "b", "c"))
+        val mapEncoded = cbor.encodeToByteArray(mapOf("a" to 1, "b" to 2, "c" to 3))
+
+        assertContentEquals(byteArrayOf(1, 2, 3, 4, 5), cbor.decodeFromByteArray(arrayEncoded))
+        assertContentEquals(shortArrayOf(1, 2, 3, 4, 5), cbor.decodeFromByteArray(arrayEncoded))
+        assertContentEquals(intArrayOf(1, 2, 3, 4, 5), cbor.decodeFromByteArray(arrayEncoded))
+        assertContentEquals(longArrayOf(1, 2, 3, 4, 5), cbor.decodeFromByteArray(arrayEncoded))
+        assertContentEquals(ubyteArrayOf(1u, 2u, 3u, 4u, 5u), cbor.decodeFromByteArray(arrayEncoded))
+        assertContentEquals(ushortArrayOf(1u, 2u, 3u, 4u, 5u), cbor.decodeFromByteArray(arrayEncoded))
+        assertContentEquals(uintArrayOf(1u, 2u, 3u, 4u, 5u), cbor.decodeFromByteArray(arrayEncoded))
+        assertContentEquals(ulongArrayOf(1u, 2u, 3u, 4u, 5u), cbor.decodeFromByteArray(arrayEncoded))
+
+        assertContentEquals(arrayOf(1, 2, 3, 4, 5), cbor.decodeFromByteArray(arrayEncoded))
+
+        assertContentEquals(floatArrayOf(1.0f, 2.0f, 3.0f), cbor.decodeFromByteArray(fpArrayEncoded))
+        assertContentEquals(doubleArrayOf(1.0, 2.0, 3.0), cbor.decodeFromByteArray(fpArrayEncoded))
+
+        assertContentEquals(charArrayOf('a', 'b'), cbor.decodeFromByteArray(charArrayEncoded))
+
+        assertEquals(listOf("a", "b", "c"), cbor.decodeFromByteArray(listEncoded))
+        assertEquals(setOf("a", "b", "c"), cbor.decodeFromByteArray(listEncoded))
+        assertEquals(linkedSetOf("a", "b", "c"), cbor.decodeFromByteArray<LinkedHashSet<String>>(listEncoded))
+        assertEquals(mapOf("a" to 1, "b" to 2, "c" to 3), cbor.decodeFromByteArray(mapEncoded))
+        assertEquals(linkedMapOf("a" to 1, "b" to 2, "c" to 3), cbor.decodeFromByteArray(mapEncoded))
+    }
 }
