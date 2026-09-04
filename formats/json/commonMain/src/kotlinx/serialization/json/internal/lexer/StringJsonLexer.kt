@@ -18,6 +18,9 @@ internal open class StringJsonLexer(
     configuration: JsonConfiguration
 ) : AbstractJsonLexer(configuration) {
 
+    private var unmatchedKey: String? = null
+    override val supportsKeyNameMatching: Boolean get() = true
+
     override fun prefetchOrEof(position: Int): Int = if (position < source.length) position else -1
 
     override fun consumeNextToken(): Byte {
@@ -108,6 +111,57 @@ internal open class StringJsonLexer(
         }
         this.currentPosition = closingQuote + 1
         return source.substring(current, closingQuote)
+    }
+
+    override fun tryConsumeKeyString(expected: String): Boolean {
+        val positionSnapshot = currentPosition
+        consumeNextToken(STRING)
+        val start = currentPosition
+        val expectedEnd = start + expected.length
+
+        // The common case knows the expected length, so it can avoid scanning the key twice.
+        // expectedEnd >= start also rejects Int overflow for unusually large inputs.
+        if (expectedEnd >= start && expectedEnd < source.length && source[expectedEnd] == STRING) {
+            var matches = true
+            for (i in expected.indices) {
+                val char = source[start + i]
+                // A quote before expectedEnd means the key is shorter. An escape needs full decoding.
+                if (char == STRING || char == STRING_ESC) {
+                    currentPosition = positionSnapshot
+                    return false
+                }
+                if (matches && char != expected[i]) matches = false
+            }
+
+            currentPosition = expectedEnd + 1
+            if (!matches) unmatchedKey = source.substring(start, expectedEnd)
+            return matches
+        }
+
+        // A differently-sized key can still be returned to the regular lookup without rescanning it.
+        val closingQuote = source.indexOf('"', start)
+        if (closingQuote == -1) {
+            currentPosition = positionSnapshot
+            return false
+        }
+
+        for (i in start until closingQuote) {
+            val char = source[i]
+            if (char == STRING_ESC) {
+                currentPosition = positionSnapshot
+                return false
+            }
+        }
+
+        currentPosition = closingQuote + 1
+        unmatchedKey = source.substring(start, closingQuote)
+        return false
+    }
+
+    override fun consumeKeyStringAfterMatchFailure(): String {
+        val key = unmatchedKey ?: return consumeKeyString()
+        unmatchedKey = null
+        return key
     }
 
     override fun consumeStringChunked(isLenient: Boolean, consumeChunk: (stringChunk: String) -> Unit) {
