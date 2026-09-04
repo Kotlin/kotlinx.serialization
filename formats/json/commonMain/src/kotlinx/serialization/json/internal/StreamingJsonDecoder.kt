@@ -41,6 +41,8 @@ internal open class StreamingJsonDecoder(
 
 
     override val serializersModule: SerializersModule = json.serializersModule
+    override val path: JsonPath
+        get() = lexer.path
     override val discriminator: String?
         get() = discriminatorHolder?.discriminatorToSkip
     private var currentIndex = -1
@@ -75,7 +77,7 @@ internal open class StreamingJsonDecoder(
             val discriminator = deserializer.descriptor.classDiscriminator(json)
             val type = lexer.peekLeadingMatchingValue(discriminator, configuration.isLenient)
                 ?: // Fallback to slow path if we haven't found discriminator on first try
-                return decodeSerializableValuePolymorphic<T>(deserializer as DeserializationStrategy<T>) { lexer.path.getPath() }
+                return decodeSerializableValuePolymorphic<T>(deserializer as DeserializationStrategy<T>)
 
             @Suppress("UNCHECKED_CAST")
             val actualSerializer = deserializer.findPolymorphicSerializerOrNull(this, type) as? DeserializationStrategy<T>
