@@ -51,7 +51,7 @@ class InstantSerializationTest: JsonTestBase() {
         }
         // by default, `nanosecondsOfSecond` is optional
         assertJsonFormAndRestored(serializer, Instant.fromEpochSeconds(987654321, 0),
-            "{\"epochSeconds\":987654321}", Json { })
+            "{\"epochSeconds\":987654321}", @Suppress("JSON_FORMAT_REDUNDANT_DEFAULT") Json { })
         // having a `"nanosecondsOfSecond": 0` field doesn't break deserialization
         assertEquals(Instant.fromEpochSeconds(987654321, 0),
             Json.decodeFromString(serializer,
