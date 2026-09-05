@@ -127,6 +127,11 @@ class EncodeToDynamicTest {
     }
 
     @Test
+    fun dynamicNull() {
+        assertNull(Json.encodeToDynamic(Data.serializer().nullable, null))
+    }
+
+    @Test
     fun wrappedObjectsTest() {
         assertDynamicForm(DataWrapper("a string", Data(42))) { data, serialized ->
             assertEquals(data.s, serialized.s)
