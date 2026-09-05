@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE vars SYSTEM "https://resources.jetbrains.com/stardust/vars.dtd">
+
+<!-- Variables to be used throughout the documentation -->
+<vars>
+    <!-- Kotlin -->
+    <var name="kotlinVersion" value="2.4.0"/>
+    <var name="serializationVersion" value="1.11.0"/>
+    <var name="kotlinxIoVersion" value="0.9.0"/>
+    <var name="okioVersion" value="3.16.2"/>
+</vars>
