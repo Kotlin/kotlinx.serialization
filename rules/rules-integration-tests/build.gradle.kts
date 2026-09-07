@@ -73,6 +73,8 @@ tasks.withType<KotlinCompile>().named("compileTestR8FullModeKotlin") {
 }
 
 tasks.withType<KotlinCompile>().named("compileTestProguardCompatibleKotlin") {
+    // For some reason, two R8 tasks cannot run in parallel and lead to the corrupted computation
+    mustRunAfter("compileTestR8FullModeKotlin")
     configureCompilation(r8FullMode = false)
 }
 
