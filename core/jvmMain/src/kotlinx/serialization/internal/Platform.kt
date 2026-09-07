@@ -198,8 +198,9 @@ internal actual fun initBuiltins(): Map<KClass<*>, KSerializer<*>> = buildMap {
     put(Unit::class, Unit.serializer())
     put(Nothing::class, NothingSerializer())
 
-    // Duration is a stable class, but may be missing in very old stdlibs
+    // Duration and Instant are stable classes, but may be missing in very old stdlibs
     loadSafe { put(Duration::class, Duration.serializer()) }
+    loadSafe { put(Instant::class, Instant.serializer()) }
 
     // Experimental types that may be missing
     @OptIn(ExperimentalUnsignedTypes::class) run {
@@ -210,9 +211,6 @@ internal actual fun initBuiltins(): Map<KClass<*>, KSerializer<*>> = buildMap {
     }
     @OptIn(ExperimentalUuidApi::class)
     loadSafe { put(Uuid::class, Uuid.serializer()) }
-
-    @OptIn(ExperimentalTime::class)
-    loadSafe { put(Instant::class, Instant.serializer()) }
 }
 
 // Reference classes in [block] ignoring any exceptions related to class loading
