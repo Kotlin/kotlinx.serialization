@@ -18,8 +18,8 @@ buildscript {
     }
 
     dependencies {
-        // `8.10` corresponds to Kotlin `2.2`, see: https://developer.android.com/build/kotlin-support
-        classpath("com.android.tools:r8:8.10.21")
+        // `9.1.29` is the minimum version supporting Kotlin `2.4`, see: https://developer.android.com/build/kotlin-support
+        classpath("com.android.tools:r8:9.1.29")
     }
 }
 
