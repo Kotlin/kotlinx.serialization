@@ -150,10 +150,12 @@ class JsonElementDecodingTest : JsonTestBase() {
             )
         }
         checkParseFails("9223372036854775808")
+        checkParseFails("-9223372036854775809")
         checkParseFails("18446744073709551615")
         checkParseFails("18446744073709551616")
         checkParseFails("18446744073709551623")
         checkParseFails("36893488147419103232")
         checkParseFails("-18446744073709551623")
+        checkParseFails("46116860184273879020")
     }
 }
