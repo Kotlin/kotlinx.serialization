@@ -265,16 +265,16 @@ public fun Instant.Companion.serializer(): KSerializer<Instant> = InstantSeriali
 
 /**
  * Returns serializer for [Uuid].
- * Serializer operates with a standard UUID string representation, also known as "hex-and-dash" format —
- * [RFC 9562 section 4](https://www.rfc-editor.org/rfc/rfc9562.html#section-4).
+ * It is serialized as a string in the format produced by [Uuid.toString]:
+ * the standard UUID string representation, also known as "hex-and-dash" format,
+ * and described in [RFC 9562 section 4](https://www.rfc-editor.org/rfc/rfc9562.html#section-4).
  *
- * Serialization always produces lowercase string, deserialization is case-insensitive.
+ * Deserialization is case-insensitive and supports parsing both standard hex-and-dash and the hexadecimal string representations.
  * More details can be found in the documentation of [Uuid.toString] and [Uuid.parse] functions.
  *
  * @see Uuid.toString
  * @see Uuid.parse
  */
-@ExperimentalUuidApi
 public fun Uuid.Companion.serializer(): KSerializer<Uuid> = UuidSerializer
 
 /**
