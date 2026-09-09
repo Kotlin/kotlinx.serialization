@@ -10,7 +10,23 @@ import kotlinx.serialization.test.*
 import kotlin.jvm.*
 import kotlin.test.*
 
+@Serializable
+sealed interface A
+
+@JvmInline
+@Serializable
+@SerialName("C")
+value class C(val b: B) : A
+
+@Serializable
+data class B(val foo: String)
+
 class ValueClassesInSealedHierarchyTest : JsonTestBase() {
+    @Test
+    fun testBareValueClassWithObject() {
+        assertJsonFormAndRestored(A.serializer(), C(B("1")), """{"type":"C","foo":"1"}""")
+    }
+
     @Test
     fun testSingle() {
         val single = "foo"
