@@ -11,7 +11,6 @@ import kotlin.time.*
 import kotlin.test.*
 import kotlin.reflect.typeOf
 
-@OptIn(ExperimentalTime::class)
 class InstantSerializationTest: JsonTestBase() {
     private fun iso8601Serialization(serializer: KSerializer<Instant>) {
         for ((instant, json) in listOf(

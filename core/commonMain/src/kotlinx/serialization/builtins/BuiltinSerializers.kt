@@ -10,7 +10,6 @@ import kotlinx.serialization.internal.*
 import kotlin.reflect.*
 import kotlinx.serialization.descriptors.*
 import kotlin.time.Duration
-import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 import kotlin.uuid.*
 
@@ -262,7 +261,6 @@ public fun Duration.Companion.serializer(): KSerializer<Duration> = DurationSeri
  * @see Instant.toString
  * @see Instant.parse
  */
-@ExperimentalTime
 public fun Instant.Companion.serializer(): KSerializer<Instant> = InstantSerializer
 
 /**
