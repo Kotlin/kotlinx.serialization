@@ -641,12 +641,10 @@ internal abstract class AbstractJsonLexer(internal val configuration: JsonConfig
                 exponentAccumulator = exponentAccumulator * 10 + digit
                 continue
             }
-            if (accumulator < MUL_BY_10_OVERFLOW_LIMIT
-                || accumulator == MUL_BY_10_OVERFLOW_LIMIT && digit > LAST_NON_OVERFLOWING_DIGIT
-            ) {
-                fail("Numeric value overflow")
-            }
-            accumulator = accumulator * 10 - digit
+            if (accumulator < MUL_BY_10_OVERFLOW_LIMIT) fail("Numeric value overflow")
+            val newAccumulator = accumulator * 10 - digit
+            if (newAccumulator > accumulator) fail("Numeric value overflow")
+            accumulator = newAccumulator
         }
         val hasChars = current != start
         if (start == current || (isNegative && start == current - 1)) {
@@ -763,7 +761,3 @@ internal abstract class AbstractJsonLexer(internal val configuration: JsonConfig
 
 // If a negative long value is smaller than this, its multiplication by 10 will overflow.
 private const val MUL_BY_10_OVERFLOW_LIMIT = Long.MIN_VALUE / 10
-
-// If a negative long value parsed so far is equal to MUL_BY_10_OVERFLOW_LIMIT,
-// then the next digit should not exceed this value. It's 9, by the way.
-private const val LAST_NON_OVERFLOWING_DIGIT = MUL_BY_10_OVERFLOW_LIMIT * 10 - Long.MIN_VALUE
