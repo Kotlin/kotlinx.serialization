@@ -55,7 +55,7 @@ class DeserializerExceptionsTest: JsonTestBase() {
     @Test
     fun testConstructorExceptionIsCause() = parametrizedTest { mode ->
         val string = """{"r":256,"g":256,"b":256}"""
-        checkDecodingException(mode, { Json.decodeFromString<Rgb>(string) }) {
+        checkDecodingException(mode, { Json.decodeFromString<Rgb>(string, mode) }) {
             message("Deserialization failed because of 'r is out of range: 256' exception in the decoder")
             path("$")
             input(string)
@@ -66,7 +66,7 @@ class DeserializerExceptionsTest: JsonTestBase() {
     @Test
     fun testDecodingExceptionSwallowed() = parametrizedTest { mode ->
         val string = """{"i":1}"""
-        checkDecodingException(mode, { Json.decodeFromString<Box>(string) }) {
+        checkDecodingException(mode, { Json.decodeFromString<Box>(string, mode) }) {
             message("Deserialization failed because of an exception in the decoder")
             path("$")
             input(string)
