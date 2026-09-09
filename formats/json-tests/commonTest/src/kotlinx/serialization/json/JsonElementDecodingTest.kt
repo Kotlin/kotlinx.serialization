@@ -118,4 +118,42 @@ class JsonElementDecodingTest : JsonTestBase() {
             println(obj.getValue("a").jsonPrimitive.long)
         }
     }
+
+    @Test
+    fun testParseOverlongNumericLiterals() {
+        assertEquals(
+            9223372036854775807L,
+            Json.parseToJsonElement("9223372036854775807").jsonPrimitive.long
+        )
+        assertEquals(
+            -9223372036854775807L - 1L,
+            Json.parseToJsonElement("-9223372036854775808").jsonPrimitive.long
+        )
+        assertEquals(
+            42,
+            Json.parseToJsonElement("00000000000000000000000000000000000000042").jsonPrimitive.long
+        )
+        assertEquals(
+            -1,
+            Json.parseToJsonElement("-0000000000000000000000000000000000000001").jsonPrimitive.long
+        )
+
+        fun checkParseFails(literal: String) {
+            val exception = assertFailsWith<NumberFormatException> {
+                println(Json.parseToJsonElement(literal).jsonPrimitive.long)
+            }
+            assertContains(exception.message ?: "", "Numeric value overflow")
+
+            assertNull(
+                Json.parseToJsonElement(literal).jsonPrimitive.longOrNull,
+                "$literal should not be parsable as a number"
+            )
+        }
+        checkParseFails("9223372036854775808")
+        checkParseFails("18446744073709551615")
+        checkParseFails("18446744073709551616")
+        checkParseFails("18446744073709551623")
+        checkParseFails("36893488147419103232")
+        checkParseFails("-18446744073709551623")
+    }
 }

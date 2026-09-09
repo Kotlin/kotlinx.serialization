@@ -641,8 +641,9 @@ internal abstract class AbstractJsonLexer(internal val configuration: JsonConfig
                 exponentAccumulator = exponentAccumulator * 10 + digit
                 continue
             }
-            accumulator = accumulator * 10 - digit
-            if (accumulator > 0) fail("Numeric value overflow")
+            val newAccumulator = accumulator * 10 - digit
+            if (newAccumulator > accumulator) fail("Numeric value overflow")
+            accumulator = newAccumulator
         }
         val hasChars = current != start
         if (start == current || (isNegative && start == current - 1)) {
