@@ -311,7 +311,7 @@ class EncodeToDynamicTest {
             @Suppress("CAST_NEVER_SUCCEEDS")
             assertDynamicForm(
                 mapOf(
-                    (null as? Data) to "Data null"
+                    null to "Data null"
                 ),
                 MapSerializer(Data.serializer().nullable, String.serializer())
             )
