@@ -7,7 +7,7 @@ This tutorial shows you how to add the necessary plugins and dependencies for Ko
 
 ## Add plugins and dependencies
 
-To include the `kotlinx.serialization` library in your project, add the corresponding plugin and dependency configuration based on your build tool:
+To use Kotlin serialization in your project, add the corresponding plugin and dependency configuration based on your build tool:
 
 <tabs>
 <tab id="kotlin" title="Gradle Kotlin">

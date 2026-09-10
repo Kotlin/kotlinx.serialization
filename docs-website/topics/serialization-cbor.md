@@ -7,8 +7,8 @@ Concise Binary Object Representation ([CBOR](https://datatracker.ietf.org/doc/ht
 
 To use CBOR in your project, add the CBOR serialization library dependency to your build file:
 
-<tabs>
-<tab id="dependency-gradle" title="Gradle">
+<tabs group ="build-script">
+<tab title="Kotlin" group-key="kotlin">
 
 ```kotlin
 // build.gradle(.kts)
@@ -39,20 +39,21 @@ dependencies {
 
 ## Use CBOR for binary serialization
 
-The [`Cbor`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor/) class provides two main functions:
+The [`Cbor`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor/) class provides two functions:
 
 * [`encodeToByteArray()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/encode-to-byte-array.html) serializes objects to a byte array.
 * [`decodeFromByteArray()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/decode-from-byte-array.html) deserializes objects from a byte array.
 
-Let's look at an example where a `Project` object is serialized into a byte array and then deserialized back to its original form:
+Here's an example where a `Project` object is serialized into a byte array and then deserialized back to its original form:
 
 ```kotlin
 import kotlinx.serialization.*
 import kotlinx.serialization.cbor.*
 
 fun ByteArray.toAsciiHexString() = joinToString("") {
-    // Shows printable ASCII bytes as characters and other bytes as hex values
-    if (it in 32..127) it.toInt().toChar().toString() else
+    // Converts bytes in the printable ASCII range to characters
+    // and other bytes to hex values
+    if (it in 32..126) it.toInt().toChar().toString() else
         "{${it.toUByte().toString(16).padStart(2, '0').uppercase()}}"
 }
 
@@ -81,7 +82,6 @@ This example prints the encoded bytes in a readable mixed form. It represents pr
 
 Here's the same output in full [CBOR hex notation](http://cbor.me/):
 
-
 ```none
 Hex code                                             | CBOR type    | Description
 -----------------------------------------------------|--------------|------------------------------------
@@ -99,7 +99,7 @@ BF                                                   | map(*)       | Start of a
 
 ## Ignore unknown keys in CBOR
 
-CBOR is commonly used in communication with [IoT](https://en.wikipedia.org/wiki/Internet_of_things) devices where new properties may be added as part of API evolution.
+CBOR is commonly used in communication with [Internet of Things (IoT)](https://en.wikipedia.org/wiki/Internet_of_things) devices where new properties may be added as part of API evolution.
 By default, unknown keys encountered during deserialization result in an error.
 
 Just like in [JSON](serialization-json-configuration.md#ignore-unknown-keys), you set the [`ignoreUnknownKeys`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-builder/ignore-unknown-keys.html) property to `true` to ignore them during deserialization:
@@ -173,7 +173,8 @@ However, some parsers, such as [`jackson-dataformat-cbor`](https://github.com/Fa
 
 ### Encode `ByteArray` properties as byte strings
 
-You can customize how CBOR encodes data to better match existing specifications and, in some cases, reduce binary size.
+You can customize the CBOR representation of your data instead of using the default encoding, for example, to match a serialized form defined by an external schema.
+In some cases, these customizations can also reduce binary size.
 
 By default, Kotlin `ByteArray` values are encoded as major type 4, which represents an array of data items.
 To encode `ByteArray` properties as major type 2, a byte string, use the [`@ByteString`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-byte-string/) annotation:
@@ -184,7 +185,7 @@ import kotlinx.serialization.cbor.*
 
 @Serializable
 data class Data(
-    // Encodes the byte array as CBOR major type 2 as a byte string
+    // Encodes the byte array as a CBOR byte string (major type 2)
     @ByteString
     val type2: ByteArray,
     // Encodes the byte array as CBOR major type 4:
@@ -246,7 +247,7 @@ val format = Cbor {
 By default, classes are serialized as a CBOR map, which corresponds to major type 5.
 This means that each property of the class is stored as a key-value pair.
 
-You can serialize a class as a CBOR array, major type 4, with the [`@CborArray`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-array/) annotation.
+You can serialize a class as a CBOR array (major type 4) with the [`@CborArray`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-array/) annotation.
 This can be useful for encoding COSE message structures, which [RFC 9052](https://www.rfc-editor.org/rfc/rfc9052#section-2) defines as CBOR arrays.
 
 Here's an example:
@@ -265,20 +266,20 @@ Cbor.encodeToByteArray(DataClass(alg = -7, kid = null))
 With the `@CborArray` annotation, this example is encoded as a CBOR array: `0x8226f6`.
 Without it, the same class is encoded as a CBOR map: `0xa263616c6726636b6964f6`.
 
-### Definite and indefinite length encoding in CBOR
+### Definite-length and indefinite-length encoding in CBOR
 
-CBOR supports [two encodings](https://datatracker.ietf.org/doc/html/rfc8949#section-3.2.2) for maps and arrays: *definite length encoding* and *indefinite length encoding*.
+CBOR supports [two encodings](https://datatracker.ietf.org/doc/html/rfc8949#section-3.2.2) for maps and arrays: _definite-length encoding_ and _indefinite-length encoding_.
 
-By default, Kotlin serialization uses indefinite length encoding.
-This means that the number of elements in a map or array isn't encoded explicitly, and a terminating byte is appended after the last element.
+By default, Kotlin serialization uses indefinite-length encoding.
+In this encoding, the number of elements in a map or array isn't encoded explicitly. Instead, a "break" stop code (`0xFF`) marks the end of a collection.
 
-Definite length encoding omits the terminating byte and encodes the number of elements at the start of the map or array.
+Definite-length encoding omits the terminating byte and encodes the number of elements at the start of the map or array.
 
 To switch between these two modes, use the [`useDefiniteLengthEncoding`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-builder/use-definite-length-encoding.html) property.
 
 ## Tags and labels in CBOR
 
-CBOR allows you to define *tags* that encode additional information for properties and values.
+CBOR allows you to define _tags_ that encode additional information for properties and values.
 You can specify these tags with the [`@KeyTags`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-key-tags/) and [`@ValueTags`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-value-tags/) annotations.
 The `encodeKeyTags`, `encodeValueTags`, `verifyKeyTags`, and `verifyValueTags` properties control
 the encoding and verification of these tags.
@@ -299,14 +300,14 @@ If you verify only value tags and don't verify object tags, the decoder can stil
 {style="tip"}
 
 CBOR supports map keys of any type.
-In COSE (CBOR Object Signing and Encryption), these keys are restricted to strings and numbers and are called *labels*.
+In COSE (CBOR Object Signing and Encryption), these keys are restricted to strings and numbers and are called _labels_.
 
 You can assign string labels with the [`@SerialName`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serial-name/) annotation and numeric labels with the [`@CborLabel`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-label/) annotation.
 The [`preferCborLabelsOverNames`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor-configuration/prefer-cbor-labels-over-names.html) property allows prioritizing numeric labels over serial names when both are present.
 You can use it to keep compact labels for CBOR while still keeping readable names when serializing to JSON.
 
 Kotlin serialization also provides a predefined [`Cbor.CoseCompliant`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-cbor/-default/-cose-compliant.html) instance that follows COSE encoding requirements.
-It uses definite length encoding, encodes and verifies all tags, and prefers numeric labels over serial names.
+It uses definite-length encoding, encodes and verifies all tags, and prefers numeric labels over serial names.
 
 ## Custom CBOR-specific serializers
 

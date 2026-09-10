@@ -40,7 +40,7 @@ You can find the latest release versions on [GitHub](https://github.com/Kotlin/k
 
 ## Supported serialization formats
 
-`kotlinx.serialization` includes serialization format libraries for various formats:
+The `kotlinx.serialization` project provides libraries for various serialization formats:
 
 | Format       | Artifact ID                                                                                                                    | Platform                | Status       |
 |--------------|--------------------------------------------------------------------------------------------------------------------------------|-------------------------|--------------|

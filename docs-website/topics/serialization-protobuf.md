@@ -1,8 +1,8 @@
 [//]: # (title: ProtoBuf format)
 <primary-label ref="experimental-general"/>
 
-[Protocol Buffers](https://developers.google.com/protocol-buffers), or ProtoBuf, is a language-neutral binary format that normally
-relies on a separate `.proto` file to define the protocol schema.
+[Protocol Buffers](https://developers.google.com/protocol-buffers) (ProtoBuf) is a language-neutral binary format that typically
+uses a separate [`.proto` file](#generate-a-protobuf-schema) to define the protocol schema.
 It's more compact than CBOR, because it assigns integer numbers to fields instead of names.
 
 Kotlin serialization uses [proto2 semantics](https://protobuf.dev/programming-guides/proto2/), where all fields are explicitly required or optional.
@@ -91,7 +91,7 @@ By default, ProtoBuf assigns field numbers automatically.
 To keep your schema stable over time, use the [`@ProtoNumber`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-protobuf/kotlinx.serialization.protobuf/-proto-number/) annotation to assign field numbers explicitly, without needing a separate `.proto` file.
 For example, `@ProtoNumber(1)` assigns field number 1 to a property, so the Kotlin serialization's ProtoBuf format uses that number during encoding and decoding instead of assigning one automatically.
 
-This is useful if you plan to reorder properties, and it aligns with Protobuf's compatibility rules for evolving schemas.
+If you plan to reorder properties, assigning field numbers explicitly keeps the schema stable and aligns with Protobuf's compatibility rules for evolving schemas.
 
 Here's an example:
 
