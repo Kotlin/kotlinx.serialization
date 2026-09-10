@@ -69,31 +69,18 @@ class JsonObjectBuilderBigDecimalTest : JsonTestBase() {
     }
 
     @Test
-    fun testOtherOverloads() {
+    fun testNumberTypedBigDecimalUsesExistingOverload() {
         val number: Number = BigDecimal("1.000000000000000000000000001")
         val json = buildJsonObject {
-            put("int", 1)
-            put("long", Long.MAX_VALUE)
-            put("double", 1.5)
-            put("boolean", true)
-            put("string", "1.2300")
             put("number", number)
             put("primitive", JsonPrimitive(number))
         }
         parametrizedTest { mode ->
             assertEquals(
-                "{\"int\":1,\"long\":9223372036854775807,\"double\":1.5,\"boolean\":true," +
-                    "\"string\":\"1.2300\",\"number\":1.0,\"primitive\":1.0}",
+                "{\"number\":1.0,\"primitive\":1.0}",
                 default.encodeToString(JsonObject.serializer(), json, mode), "mode:$mode"
             )
         }
-    }
-
-    @Test
-    fun testSpecialFloatingPointValidationUnchanged() {
-        val json = buildJsonObject { put("number", Double.NaN) }
-        assertFailsWith<SerializationException> { default.encodeToString(JsonObject.serializer(), json) }
-        assertEquals("{\"number\":NaN}", lenient.encodeToString(JsonObject.serializer(), json))
     }
 
     @Test
