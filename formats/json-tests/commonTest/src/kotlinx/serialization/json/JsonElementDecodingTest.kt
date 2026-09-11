@@ -158,4 +158,26 @@ class JsonElementDecodingTest : JsonTestBase() {
         checkParseFails("1e18446744073709551616")
         checkParseFails("10e36893488147419103232")
     }
+
+    @Test
+    fun testParseIllFormedIntegralNumericLiterals() {
+        fun assertFails(literal: String) {
+            assertFailsWith<NumberFormatException>("Literal: $literal") {
+                Json.parseToJsonElement(literal).jsonPrimitive.long
+            }
+        }
+        assertFails("++1")
+        assertFails("--1")
+        assertFails("+10+10")
+        assertFails("1.0")
+        assertFails("10e++10")
+        assertFails("10e--10")
+        assertFails("1e-+10")
+        assertFails("0e0000a")
+        assertFails("0xc0de")
+        assertFails("10a")
+        assertFails("1e10.1")
+        assertFails("1e-2")
+        assertFails("1e1E1")
+    }
 }
