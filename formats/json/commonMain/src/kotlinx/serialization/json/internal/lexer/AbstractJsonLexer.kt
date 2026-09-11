@@ -605,23 +605,27 @@ internal abstract class AbstractJsonLexer(internal val configuration: JsonConfig
         var isExponentPositive = false
         var hasExponent = false
         val start = current
+        var legalExponentSignPosition = -1
         while (current != source.length) {
             val ch: Char = source[current]
             if ((ch == 'e' || ch == 'E') && !hasExponent) {
                 if (current == start) fail("Unexpected symbol '$ch' in numeric literal", current)
                 isExponentPositive = true
                 hasExponent = true
+                legalExponentSignPosition = current + 1
                 ++current
                 continue
             }
             if (ch == '-' && hasExponent) {
-                if (current == start) fail("Unexpected symbol '-' in numeric literal", current)
+                if (current != legalExponentSignPosition)
+                    fail("Unexpected symbol '-' in numeric literal", current)
                 isExponentPositive = false
                 ++current
                 continue
             }
             if (ch == '+' && hasExponent) {
-                if (current == start) fail("Unexpected symbol '+' in numeric literal", current)
+                if (current != legalExponentSignPosition)
+                    fail("Unexpected symbol '+' in numeric literal", current)
                 isExponentPositive = true
                 ++current
                 continue
