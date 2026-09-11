@@ -121,22 +121,10 @@ class JsonElementDecodingTest : JsonTestBase() {
 
     @Test
     fun testParseOverlongNumericLiterals() {
-        assertEquals(
-            9223372036854775807L,
-            Json.parseToJsonElement("9223372036854775807").jsonPrimitive.long
-        )
-        assertEquals(
-            -9223372036854775807L - 1L,
-            Json.parseToJsonElement("-9223372036854775808").jsonPrimitive.long
-        )
-        assertEquals(
-            42,
-            Json.parseToJsonElement("00000000000000000000000000000000000000042").jsonPrimitive.long
-        )
-        assertEquals(
-            -1,
-            Json.parseToJsonElement("-0000000000000000000000000000000000000001").jsonPrimitive.long
-        )
+        fun checkParseSucceed(expectedValue: Long, literal: String) {
+            assertEquals(expectedValue, Json.parseToJsonElement(literal).jsonPrimitive.long,
+                "Literal: $literal")
+        }
 
         fun checkParseFails(literal: String) {
             val exception = assertFailsWith<NumberFormatException> {
@@ -149,6 +137,15 @@ class JsonElementDecodingTest : JsonTestBase() {
                 "$literal should not be parsable as a number"
             )
         }
+
+        checkParseSucceed(9223372036854775807L, "9223372036854775807")
+        checkParseSucceed(-9223372036854775807L - 1L, "-9223372036854775808")
+        checkParseSucceed(42,"00000000000000000000000000000000000000042")
+        checkParseSucceed(-1,"-0000000000000000000000000000000000000001")
+        checkParseSucceed(0,"1e-334")
+        checkParseSucceed(0,"10000000000000e-500")
+        checkParseSucceed(0,"1e-18446744073709551623")
+
         checkParseFails("9223372036854775808")
         checkParseFails("-9223372036854775809")
         checkParseFails("18446744073709551615")
@@ -157,5 +154,8 @@ class JsonElementDecodingTest : JsonTestBase() {
         checkParseFails("36893488147419103232")
         checkParseFails("-18446744073709551623")
         checkParseFails("46116860184273879020")
+        checkParseFails("1e500")
+        checkParseFails("1e18446744073709551616")
+        checkParseFails("10e36893488147419103232")
     }
 }
