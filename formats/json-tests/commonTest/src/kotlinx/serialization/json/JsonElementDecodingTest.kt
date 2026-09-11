@@ -157,6 +157,7 @@ class JsonElementDecodingTest : JsonTestBase() {
         checkParseFails("1e500")
         checkParseFails("1e18446744073709551616")
         checkParseFails("10e36893488147419103232")
+        checkParseFails("1e9223372036854775800")
     }
 
     @Test
@@ -179,5 +180,11 @@ class JsonElementDecodingTest : JsonTestBase() {
         assertFails("1e10.1")
         assertFails("1e-2")
         assertFails("1e1E1")
+        assertFails("+")
+        assertFails("-")
+        assertFails("1e+")
+        assertFails("1e-")
+        assertFails("E")
+        assertFails("e")
     }
 }

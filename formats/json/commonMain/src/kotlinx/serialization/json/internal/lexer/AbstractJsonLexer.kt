@@ -677,6 +677,9 @@ internal abstract class AbstractJsonLexer(internal val configuration: JsonConfig
         }
 
         if (hasExponent) {
+            if (current == legalExponentSignPosition + 1 && source[legalExponentSignPosition] - '0' !in 0..9) {
+                fail("Numeric literal terminated prematurely")
+            }
             val doubleAccumulator  = accumulator.toDouble() * calculateExponent(exponentAccumulator, isExponentPositive)
             if (doubleAccumulator > Long.MAX_VALUE || doubleAccumulator < Long.MIN_VALUE) fail("Numeric value overflow")
             if (floor(doubleAccumulator) != doubleAccumulator) fail("Can't convert $doubleAccumulator to Long")
