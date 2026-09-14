@@ -1,4 +1,5 @@
 import groovy.util.*
+import groovy.xml.XmlParser
 import org.gradle.jvm.tasks.Jar
 import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.tasks.*
@@ -176,16 +177,19 @@ fun MavenPom.configureMavenCentralMetadata() {
 // Unfortunately, archiveClassifier is always empty during the configuration phase,
 // so the check is postponed until the actual task execution.
 tasks.withType<Jar>().configureEach {
+    val multiplatformProject = isMultiplatform
+    val implementationTitle = project.name
+    val implementationVersion = project.version
     doFirst {
         // Skip all non-main JARs (sources, javadoc, etc)
         if (archiveClassifier.getOrElse("").isNotEmpty()) return@doFirst
         // Skip multiplatform metadata JARs
-        if (isMultiplatform && archiveAppendix.getOrElse("") != "jvm") return@doFirst
+        if (multiplatformProject && archiveAppendix.getOrElse("") != "jvm") return@doFirst
         manifest {
             attributes(
                 "Implementation-Vendor" to "JetBrains",
-                "Implementation-Title" to project.name,
-                "Implementation-Version" to project.version,
+                "Implementation-Title" to implementationTitle,
+                "Implementation-Version" to implementationVersion,
             )
         }
     }
@@ -205,18 +209,23 @@ public fun Project.reconfigureMultiplatformPublication(jvmPublication: MavenPubl
     val mavenPublications =
         extensions.getByType<PublishingExtension>().publications.withType<MavenPublication>()
     val kmpPublication = mavenPublications.getByName("kotlinMultiplatform")
-
-    var jvmPublicationXml: XmlProvider? = null
-    jvmPublication.pom.withXml { jvmPublicationXml = this }
+    // MavenPublication is not supported as configuration-cache state, snapshotting strings
+    val kmpArtifactId = kmpPublication.artifactId
+    val jvmGroupId = jvmPublication.groupId
+    val jvmArtifactId = jvmPublication.artifactId
+    val jvmVersion = jvmPublication.version
+    val jvmPublicationName = jvmPublication.name
+    val jvmPomFile = layout.buildDirectory.file("publications/$jvmPublicationName/pom-default.xml")
 
     kmpPublication.pom.withXml {
         val root = asNode()
+        val jvmPom = XmlParser(false, false).parse(jvmPomFile.get().asFile)
         // Remove the original content and add the content from the platform POM:
         root.children().toList().forEach { root.remove(it as Node) }
-        jvmPublicationXml!!.asNode().children().forEach { root.append(it as Node) }
+        jvmPom.children().forEach { root.append(it as Node) }
 
         // Adjust the self artifact ID, as it should match the root module's coordinates:
-        ((root["artifactId"] as NodeList).first() as Node).setValue(kmpPublication.artifactId)
+        ((root["artifactId"] as NodeList).first() as Node).setValue(kmpArtifactId)
 
         // Set packaging to POM to indicate that there's no artifact:
         root.appendNode("packaging", "pom")
@@ -225,9 +234,9 @@ public fun Project.reconfigureMultiplatformPublication(jvmPublication: MavenPubl
         val dependencies = (root["dependencies"] as NodeList).first() as Node
         dependencies.children().toList().forEach { dependencies.remove(it as Node) }
         dependencies.appendNode("dependency").apply {
-            appendNode("groupId", jvmPublication.groupId)
-            appendNode("artifactId", jvmPublication.artifactId)
-            appendNode("version", jvmPublication.version)
+            appendNode("groupId", jvmGroupId)
+            appendNode("artifactId", jvmArtifactId)
+            appendNode("version", jvmVersion)
             appendNode("scope", "compile")
         }
     }
@@ -235,7 +244,10 @@ public fun Project.reconfigureMultiplatformPublication(jvmPublication: MavenPubl
     // TODO verify if this is still relevant
     tasks.matching { it.name == "generatePomFileForKotlinMultiplatformPublication" }.configureEach {
         @Suppress("DEPRECATION")
-        dependsOn("generatePomFileFor${jvmPublication.name.capitalize()}Publication")
+        dependsOn("generatePomFileFor${jvmPublicationName.capitalize()}Publication")
+        inputs.file(jvmPomFile)
+            .withPropertyName("jvmPomFile")
+            .withPathSensitivity(PathSensitivity.RELATIVE)
     }
 }
 

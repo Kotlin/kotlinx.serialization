@@ -10,22 +10,26 @@ import java.io.FileNotFoundException
  * Results can be obtained with JMH flags
  * -rf json -rff serialization-benchmark-results.json
  */
-open class PrintBenchmarksTask: DefaultTask() {
-    private val fileName: String = "serialization-benchmark-results.json"
+abstract class PrintBenchmarksTask: DefaultTask() {
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.NONE)
+    abstract val resultsFile: RegularFileProperty
 
     @Suppress("UNCHECKED_CAST")
     @TaskAction
     fun printBenchmarkJsonAsTeamcityStats() {
-        val jsonFile = project.file(fileName)
-        if (!jsonFile.exists()) throw TaskExecutionException(this, FileNotFoundException("File $fileName not found"))
+        val jsonFile = resultsFile.get().asFile
+        if (!jsonFile.exists()) throw TaskExecutionException(this, FileNotFoundException("File $jsonFile not found"))
         val parsedJson = JsonSlurper().parseText(jsonFile.readText()) as Iterable<Map<String, Any>>
 
         parsedJson.forEach { v ->
             val name = (v["benchmark"] as String).substringAfter("kotlinx.benchmarks.")
-            val score = (v["primaryMetric"] as Map<String, String>)["score"]
+            val score = (v["primaryMetric"] as Map<String, Any>)["score"]
             println("##teamcity[buildStatisticValue key='$name' value='$score']")
         }
     }
 }
 
-tasks.register<PrintBenchmarksTask>("printBenchmarksJsonAsTeamcityStats")
+tasks.register<PrintBenchmarksTask>("printBenchmarksJsonAsTeamcityStats") {
+    resultsFile.convention(layout.projectDirectory.file("serialization-benchmark-results.json"))
+}

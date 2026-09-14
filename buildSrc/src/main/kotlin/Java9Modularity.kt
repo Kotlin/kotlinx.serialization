@@ -20,6 +20,12 @@ import org.jetbrains.kotlin.gradle.targets.jvm.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 import java.io.*
+import javax.inject.Inject
+
+abstract class ArchiveOperationsHolder {
+    @get:Inject
+    abstract val archiveOperations: ArchiveOperations
+}
 
 object Java9Modularity {
     private val KotlinProjectExtension.targets: Iterable<KotlinTarget>
@@ -122,6 +128,7 @@ object Java9Modularity {
         val verifyModuleTaskName = "verify${compileTask.name.removePrefix("compile").capitalize()}Module"
         // work-around for https://youtrack.jetbrains.com/issue/KT-60542
         val kotlinApiPlugin = plugins.getPlugin(KotlinApiPlugin::class)
+        val archiveOperations = objects.newInstance<ArchiveOperationsHolder>().archiveOperations
         val verifyModuleTask = kotlinApiPlugin.registerKotlinJvmCompileTask(
             verifyModuleTaskName,
             compilerOptions = compileTask.get().compilerOptions,
@@ -133,11 +140,6 @@ object Java9Modularity {
             libraries.from(compileTask.map { it.libraries })
             source(compileTask.map { it.sources })
             source(compileTask.map { it.javaSources })
-            // part of work-around for https://youtrack.jetbrains.com/issue/KT-60541
-            source(compileTask.map {
-                @Suppress("INVISIBLE_MEMBER")
-                it.scriptSources
-            })
             source(sourceFile)
             destinationDirectory.set(temporaryDir)
             multiPlatformEnabled.set(compileTask.get().multiPlatformEnabled)
@@ -159,7 +161,7 @@ object Java9Modularity {
                     libs
                         .filter { it.asFile.exists() }
                         .map {
-                            zipTree(it.asFile).filter { it.name == "module-info.class" }
+                            archiveOperations.zipTree(it.asFile).filter { it.name == "module-info.class" }
                         }
                 }
             ).withPropertyName("moduleInfosOfLibraries")
@@ -170,8 +172,7 @@ object Java9Modularity {
                 refinesEdges.set(compileTask.flatMap { it.multiplatformStructure.refinesEdges })
                 fragments.set(compileTask.flatMap { it.multiplatformStructure.fragments })
             }
-            // part of work-around for https://youtrack.jetbrains.com/issue/KT-60541
-            // and work-around for https://youtrack.jetbrains.com/issue/KT-60582
+            // work-around for https://youtrack.jetbrains.com/issue/KT-60582
             incremental = false
         }
         return verifyModuleTask
