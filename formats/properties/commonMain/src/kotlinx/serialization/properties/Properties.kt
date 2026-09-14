@@ -12,6 +12,8 @@ import kotlinx.serialization.encoding.*
 import kotlinx.serialization.internal.*
 import kotlinx.serialization.modules.*
 
+private const val MAX_SAFE_INTEGER: Double = 9007199254740991.0 // 2^53 - 1
+
 /**
  * Transforms a [Serializable] class' properties into a single flat [Map] consisting of
  * string keys and primitive type values, and vice versa.
@@ -147,6 +149,49 @@ public sealed class Properties(
     ) : InMapper<Any>(map, descriptor) {
         override fun structure(descriptor: SerialDescriptor): InAnyMapper =
             InAnyMapper(map, descriptor)
+
+        override fun decodeTaggedByte(tag: String): Byte =
+            decodeTaggedIntegral<Byte>(tag, Byte.MIN_VALUE.toDouble(), Byte.MAX_VALUE.toDouble()).toInt().toByte()
+
+        override fun decodeTaggedShort(tag: String): Short =
+            decodeTaggedIntegral<Short>(tag, Short.MIN_VALUE.toDouble(), Short.MAX_VALUE.toDouble()).toInt().toShort()
+
+        override fun decodeTaggedInt(tag: String): Int =
+            decodeTaggedIntegral<Int>(tag, Int.MIN_VALUE.toDouble(), Int.MAX_VALUE.toDouble()).toInt()
+
+        override fun decodeTaggedLong(tag: String): Long {
+            val value = decodeTaggedValue(tag)
+            if (value is Long) return value
+
+            // Kotlin/JS represents Float and Double as the same JavaScript Number.
+            // Other targets retain distinct runtime types and must not coerce them to Long.
+            val isFloat = value is Float
+            val isDouble = value is Double
+            if (isFloat && isDouble) {
+                val number = (value as Number).toDouble()
+                if (number.isFinite() && number % 1.0 == 0.0 && number in -MAX_SAFE_INTEGER..MAX_SAFE_INTEGER) {
+                    return number.toLong()
+                }
+            }
+
+            throw invalidIntegralValue(tag, value, "Long")
+        }
+
+        private inline fun <reified T : Number> decodeTaggedIntegral(
+            tag: String,
+            min: Double,
+            max: Double
+        ): Double {
+            val value = decodeTaggedValue(tag)
+            val number = (value as? T)?.toDouble() ?: throw invalidIntegralValue(tag, value, T::class.simpleName!!)
+            if (!number.isFinite() || number % 1.0 != 0.0 || number !in min..max) {
+                throw invalidIntegralValue(tag, value, T::class.simpleName!!)
+            }
+            return number
+        }
+
+        private fun invalidIntegralValue(tag: String, value: Any, type: String): SerializationException =
+            SerializationException("Value '$value' for property '$tag' is not a valid $type")
     }
 
     private inner class InStringMapper(
