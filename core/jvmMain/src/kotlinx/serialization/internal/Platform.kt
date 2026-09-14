@@ -171,7 +171,6 @@ private fun <T : Any> Class<T>.findObjectSerializer(): KSerializer<T>? {
 
 internal actual fun isReferenceArray(rootClass: KClass<Any>): Boolean = rootClass.java.isArray
 
-@OptIn(ExperimentalSerializationApi::class)
 internal actual fun initBuiltins(): Map<KClass<*>, KSerializer<*>> = buildMap {
     // Standard classes are always present
     put(String::class, String.serializer())
@@ -198,9 +197,10 @@ internal actual fun initBuiltins(): Map<KClass<*>, KSerializer<*>> = buildMap {
     put(Unit::class, Unit.serializer())
     put(Nothing::class, NothingSerializer())
 
-    // Duration and Instant are stable classes, but may be missing in very old stdlibs
+    // Duration, Instant and Uuid are stable classes, but may be missing in very old stdlibs
     loadSafe { put(Duration::class, Duration.serializer()) }
     loadSafe { put(Instant::class, Instant.serializer()) }
+    loadSafe { put(Uuid::class, Uuid.serializer()) }
 
     // Experimental types that may be missing
     @OptIn(ExperimentalUnsignedTypes::class) run {
@@ -209,8 +209,6 @@ internal actual fun initBuiltins(): Map<KClass<*>, KSerializer<*>> = buildMap {
         loadSafe { put(UShortArray::class, UShortArraySerializer()) }
         loadSafe { put(UByteArray::class, UByteArraySerializer()) }
     }
-    @OptIn(ExperimentalUuidApi::class)
-    loadSafe { put(Uuid::class, Uuid.serializer()) }
 }
 
 // Reference classes in [block] ignoring any exceptions related to class loading

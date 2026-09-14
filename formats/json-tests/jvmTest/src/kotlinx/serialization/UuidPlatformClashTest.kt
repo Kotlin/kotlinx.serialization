@@ -14,7 +14,6 @@ import kotlin.uuid.*
 import java.util.UUID as JUuid
 import kotlin.uuid.Uuid as KUuid
 
-@OptIn(ExperimentalUuidApi::class)
 class UuidPlatformClashTest : JsonTestBase() {
     object JavaUuidSerializer : KSerializer<JUuid> {
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Uuid", PrimitiveKind.STRING)

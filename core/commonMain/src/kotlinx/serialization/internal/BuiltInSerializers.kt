@@ -54,7 +54,6 @@ internal object InstantSerializer : KSerializer<Instant> {
 }
 
 @PublishedApi
-@ExperimentalUuidApi
 internal object UuidSerializer: KSerializer<Uuid> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("kotlin.uuid.Uuid", PrimitiveKind.STRING)
 
