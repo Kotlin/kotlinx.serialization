@@ -5,6 +5,7 @@
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.*
 import org.jetbrains.kotlin.gradle.dsl.*
+import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsBinaryMode
 
 plugins {
     kotlin("multiplatform")
@@ -42,8 +43,39 @@ kotlin {
     jvmToolchain(jdkToolchainVersion)
 
     js {
+        // The part for testing with the latest JS target supported
+        val mainCompilation = compilations.getByName("main")
+        val testCompilation = compilations.getByName("test")
+
+        val latestJsCompilation = compilations.create("latestJsTest") {
+            associateWith(mainCompilation)
+            defaultSourceSet.dependsOn(testCompilation.defaultSourceSet)
+            binaries.executable(this)
+            binaries.configureEach {
+                linkTask.configure {
+                    compilerOptions {
+                        target.set("es2015")
+                        moduleKind.set(JsModuleKind.MODULE_UMD) // Mocha adapter doesn't support ES modules yet
+                        freeCompilerArgs.add("-Xes-long-as-bigint")
+                    }
+                }
+            }
+        }
+
         nodejs {
+            val latestTargetRun = testRuns.create("latestTarget") {
+                setExecutionSourceFrom(latestJsCompilation)
+                executionTask.configure {
+                    val devBinary = latestJsCompilation.binaries
+                        .matching { it.mode == KotlinJsBinaryMode.DEVELOPMENT }
+                        .single()
+
+                    inputFileProperty.set(devBinary.mainFileSyncPath)
+                }
+            }
+
             testTask {
+                dependsOn(latestTargetRun.executionTask)
                 useMocha {
                     timeout = "10s"
                 }
