@@ -431,6 +431,10 @@ public abstract class kotlinx/serialization/json/JsonTransformingSerializer : ko
 	protected fun transformSerialize (Lkotlinx/serialization/json/JsonElement;)Lkotlinx/serialization/json/JsonElement;
 }
 
+public final class kotlinx/serialization/json/JvmJsonElementBuildersKt {
+	public static final fun put (Lkotlinx/serialization/json/JsonObjectBuilder;Ljava/lang/String;Ljava/math/BigDecimal;)Lkotlinx/serialization/json/JsonElement;
+}
+
 public final class kotlinx/serialization/json/JvmStreamsKt {
 	public static final fun decodeFromStream (Lkotlinx/serialization/json/Json;Lkotlinx/serialization/DeserializationStrategy;Ljava/io/InputStream;)Ljava/lang/Object;
 	public static final fun decodeToSequence (Lkotlinx/serialization/json/Json;Ljava/io/InputStream;Lkotlinx/serialization/DeserializationStrategy;Lkotlinx/serialization/json/DecodeSequenceMode;)Lkotlin/sequences/Sequence;
