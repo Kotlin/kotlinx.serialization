@@ -83,7 +83,7 @@ private val KClass<*>.isInterfaceHack: Boolean
         return js.asDynamic().`$metadata$`?.kind == "interface"
     }
 
-@OptIn(ExperimentalUnsignedTypes::class, ExperimentalUuidApi::class, ExperimentalSerializationApi::class)
+@OptIn(ExperimentalUnsignedTypes::class)
 internal actual fun initBuiltins(): Map<KClass<*>, KSerializer<*>> = mapOf(
     String::class to String.serializer(),
     Char::class to Char.serializer(),
