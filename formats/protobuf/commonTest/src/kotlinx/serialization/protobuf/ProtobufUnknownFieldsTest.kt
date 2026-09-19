@@ -110,6 +110,7 @@ class ProtobufUnknownFieldsTest {
         }
     }
 
+    @Suppress("PROTOBUF_PROTO_NUM_DUPLICATED")
     @Serializable
     data class DataWithStaggeredFields(
         @ProtoNumber(2)
