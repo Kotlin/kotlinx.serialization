@@ -55,7 +55,7 @@ For more details about JSON serialization, see [JSON serialization overview](ser
 
 There are also community-maintained libraries that support more serialization formats, such as [YAML](https://yaml.org/) or [Apache Avro](https://avro.apache.org/).
 
-You can find out more about experimental serialization formats in [Alternative and custom formats](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/formats.md).
+You can find out more about alternative and custom experimental serialization formats in [Custom serialization formats](serialization-custom-formats.md).
 
 ## Supported serialization types
 
@@ -73,4 +73,5 @@ For more information, see [Serialize classes](serialization-customization-option
 * Dive into [Serialize classes](serialization-customization-options.md) to learn how to serialize classes and modify the default behavior of the `@Serializable` annotation.
 * Learn how to obtain generated serializers, create custom serializers, and apply serializers in [Create and use serializers](serialization-create-and-use-serializers.md).
 * See how to serialize different types through a shared base type in [Serialize polymorphic classes](serialization-polymorphism.md).
-* Explore experimental serialization formats, including CBOR, ProtoBuf, and Properties, and learn how to create custom formats in [Alternative and custom formats](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/formats.md).
+* Learn how to create custom formats in [Custom serialization formats](serialization-custom-formats.md).
+* Explore experimental serialization formats such as [CBOR](serialization-cbor.md) and [ProtoBuf](serialization-protobuf.md).

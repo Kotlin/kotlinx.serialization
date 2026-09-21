@@ -474,4 +474,5 @@ In this example, the preserved JSON properties remain at the same level within t
 ## What's next
 
 * Learn how to [serialize polymorphic classes](serialization-polymorphism.md) and handle objects of various types within a shared hierarchy.
-* Discover [other serialization formats](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/formats.md), such as CBOR and ProtoBuf.
+* Learn how to create custom formats in [Custom serialization formats](serialization-custom-formats.md).
+* Discover alternative serialization formats, such as [CBOR](serialization-cbor.md) and [ProtoBuf](serialization-protobuf.md).

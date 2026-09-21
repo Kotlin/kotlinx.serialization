@@ -378,7 +378,7 @@ fun main() {
 
 While using the array representation isn't conventional in JSON, it can reduce the size of serialized data when used with a `ByteArray` and a binary format.
 
-> For more information on how non-JSON serialization formats treat arrays, see [Alternative and custom serialization formats](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/formats.md).
+> For more information on how non-JSON serialization formats treat arrays, see [CBOR format](serialization-cbor.md) and [ProtoBuf format](serialization-protobuf.md).
 > 
 {style="tip"}
 
@@ -1231,4 +1231,5 @@ val correctModule = SerializersModule {
 ## What's next
 
 * Discover how to [transform JSON structure](serialization-transform-json.md) by modifying the JSON element tree instead of creating a custom serializer.
-* Learn about [alternative and custom serialization formats](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/formats.md) to implement format-specific representations for your data.
+* Learn how to create custom formats in [Custom serialization formats](serialization-custom-formats.md).
+* Explore experimental serialization formats such as [CBOR](serialization-cbor.md) and [ProtoBuf](serialization-protobuf.md).
