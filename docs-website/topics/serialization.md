@@ -10,7 +10,7 @@ Kotlin provides this functionality through the [`kotlinx.serialization` librarie
 which support multiple platforms and data formats.
 
 If you're new to serialization in Kotlin, we recommend starting with the [Get Started with Serialization](serialization-get-started.md) tutorial.
-It walks you through adding the Kotlin serialization library to your project and shows you how to serialize and deserialize your first class.
+It walks you through setting up Kotlin serialization in your project and shows you how to serialize and deserialize your first class.
 
 <a href="serialization-get-started.md"><img src="get-started-serialization.svg" width="700" alt="Get started with serialization" style="block"/></a>
 
@@ -20,10 +20,10 @@ Kotlin serialization offers support for all platforms, including JVM, JavaScript
 You can use the same [dependency declaration](serialization-get-started.md#add-plugins-and-dependencies) regardless of the target platform.
 
 Kotlin serialization supports various serialization formats, such as JSON, CBOR, and Protocol buffers through different serialization format libraries.
-These libraries build on the core `kotlinx.serialization` library.
+These libraries build on the `kotlinx-serialization-core` library.
 For the complete list of supported serialization formats, see [Supported serialization formats](#supported-serialization-formats).
 
-All Kotlin serialization format libraries are part of the `org.jetbrains.kotlinx:` group, with names
+All `kotlinx.serialization` format libraries are part of the `org.jetbrains.kotlinx:` group, with names
 starting with `kotlinx-serialization-` and suffixes that reflect the serialization format.
 For example:
 
@@ -68,7 +68,7 @@ For more information, see [Serialize classes](serialization-customization-option
 ## What's next
 
 * Learn the basics of Kotlin serialization in the [Get started with serialization tutorial](serialization-get-started.md).
-* See how the Kotlin serialization library processes [primitives, collections, and other built-in types](serialization-serialize-builtin-types.md)
+* See how the Kotlin serialization processes [primitives, collections, and other built-in types](serialization-serialize-builtin-types.md)
 * Explore more complex JSON serialization scenarios in the [JSON serialization overview](serialization-configure-json-serialization.md).
 * Dive into [Serialize classes](serialization-customization-options.md) to learn how to serialize classes and modify the default behavior of the `@Serializable` annotation.
 * Learn how to obtain generated serializers, create custom serializers, and apply serializers in [Create and use serializers](serialization-create-and-use-serializers.md).

@@ -1,6 +1,6 @@
 [//]: # (title: JSON serialization overview)
 
-The Kotlin serialization library allows you to easily convert Kotlin objects to JSON and back.
+Kotlin serialization allows you to easily convert Kotlin objects to JSON and back.
 The [`Json`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/) class is the primary tool for this, offering flexibility in how JSON is generated and parsed.
 You can configure `Json` instances to handle specific JSON behaviors or use its default instance for basic tasks.
 

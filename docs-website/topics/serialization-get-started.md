@@ -111,7 +111,7 @@ This dependency automatically includes the core serialization library as well.
 
 ### Configure R8 for Kotlin serialization in Android projects {initial-collapse-state="collapsed" collapsible="true"}
 
-The Kotlin serialization library includes default [ProGuard rules](https://github.com/Kotlin/kotlinx.serialization/blob/master/rules/common.pro), so you don't need additional setup to keep serializers for all serializable classes after [shrinking](https://developer.android.com/topic/performance/app-optimization/enable-app-optimization).
+Kotlin serialization includes default [ProGuard rules](https://github.com/Kotlin/kotlinx.serialization/blob/master/rules/common.pro), so you don't need additional setup to keep serializers for all serializable classes after [shrinking](https://developer.android.com/topic/performance/app-optimization/enable-app-optimization).
 However, these rules don't apply to classes with named companion objects.
 
 To retain serializers for classes with named companion objects, add rules based on the [compatibility mode](https://r8.googlesource.com/r8/+/refs/heads/master/compatibility-faq.md) you use to your `proguard-rules.pro` file:
@@ -172,7 +172,7 @@ com.example.myapplication.HasNamedCompanion2
 
 ## Serialize objects to JSON
 
-In Kotlin, you can serialize objects to JSON using the `kotlinx.serialization` library.
+In Kotlin, you can serialize objects to JSON using the `kotlinx-serialization-json` library.
 
 To make a class serializable, you need to mark it with the [`@Serializable`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/) annotation.
 This annotation instructs the compiler to generate the code required for serializing and deserializing instances of the class.

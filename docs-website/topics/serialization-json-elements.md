@@ -1,6 +1,6 @@
 [//]: # (title: JSON elements)
 
-The Kotlin serialization library also supports working with JSON at a structural level.
+Kotlin serialization also supports working with JSON at a structural level.
 You can use the [`JsonElement`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-element/) API, to inspect, modify, and build JSON structures directly before converting them into a Kotlin type or a string.
 
 `JsonElement` has three direct subtypes that represent the core JSON structures:

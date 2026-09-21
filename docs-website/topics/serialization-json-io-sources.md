@@ -1,7 +1,7 @@
 [//]: # (title: Serialize JSON with I/O sources)
 <primary-label ref="experimental-general"/>
 
-The Kotlin serialization library provides APIs for working with JVM streams and [`kotlinx-io`](https://github.com/Kotlin/kotlinx-io) or [Okio](https://square.github.io/okio/) sources and sinks.
+Kotlin serialization provides APIs for working with JVM streams and [`kotlinx-io`](https://github.com/Kotlin/kotlinx-io) or [Okio](https://square.github.io/okio/) sources and sinks.
 
 You can use these APIs to serialize and deserialize JSON directly from I/O sources without creating intermediate strings.
 These APIs use UTF-8 encoding and throw `SerializationException` for invalid JSON data and `IOException` for I/O failures.

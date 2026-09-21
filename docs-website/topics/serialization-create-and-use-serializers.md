@@ -143,7 +143,7 @@ To create a custom primitive serializer:
         PrimitiveSerialDescriptor("com.example.Type", PrimitiveKind.STRING)
     ```
    
-    > If the `descriptor` doesn't match the encoding and decoding functions, updates to `kotlinx.serialization` may cause the serializer to behave unpredictably in some formats.
+    > If the `descriptor` doesn't match the encoding and decoding functions, updates to the `kotlinx.serialization` project may cause the serializer to behave unpredictably in some formats.
     > 
     {style="warning"}
 
