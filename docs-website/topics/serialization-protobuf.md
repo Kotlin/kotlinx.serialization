@@ -11,13 +11,11 @@ Kotlin serialization uses [proto2 semantics](https://protobuf.dev/programming-gu
 
 To use ProtoBuf in your project, add the ProtoBuf serialization library dependency to your build file:
 
-<tabs>
-
-<tab id="gradle-proto" title="Gradle">
+<tabs group="build-script">
+<tab title="Gradle" group-key="gradle">
 
 ```kotlin
 // build.gradle(.kts)
-
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-protobuf:%serializationVersion%")
 }
@@ -25,7 +23,7 @@ dependencies {
 
 </tab>
 
-<tab id="maven-proto" title="Maven">
+<tab title="Maven" group-key="maven">
 
 ```xml
 <!-- pom.xml -->

@@ -118,8 +118,8 @@ To use the extension functions with `kotlinx-io` or Okio types, add the correspo
 
 #### Add dependencies for `kotlinx-io`
 
-<tabs>
-<tab id="kotlin-io" title="Gradle">
+<tabs group="build-script">
+<tab title="Gradle" group-key="gradle">
 
 ```kotlin
 // build.gradle(.kts)
@@ -131,7 +131,7 @@ dependencies {
 
 </tab>
 
-<tab id="maven-io" title="Maven">
+<tab title="Maven" group-key="maven">
 
 ```xml
 <!-- pom.xml -->
@@ -153,8 +153,9 @@ dependencies {
 
 #### Add dependencies for Okio
 
-<tabs>
-<tab id="kotlin" title="Gradle">
+<tabs group="build-script">
+
+<tab title="Gradle" group-key="gradle">
 
 ```kotlin
 // build.gradle(.kts)
@@ -165,7 +166,8 @@ dependencies {
 ```
 
 </tab>
-<tab id="maven" title="Maven">
+
+<tab title="Maven" group-key="maven">
 
 ```xml
 <!-- pom.xml -->
@@ -182,6 +184,7 @@ dependencies {
     </dependency>
 </dependencies>
 ```
+
 </tab>
 </tabs>
 

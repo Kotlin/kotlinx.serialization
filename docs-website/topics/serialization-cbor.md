@@ -7,12 +7,11 @@ Concise Binary Object Representation ([CBOR](https://datatracker.ietf.org/doc/ht
 
 To use CBOR in your project, add the CBOR serialization library dependency to your build file:
 
-<tabs group ="build-script">
-<tab title="Kotlin" group-key="kotlin">
+<tabs group="build-script">
+<tab title="Gradle" group-key="gradle">
 
 ```kotlin
 // build.gradle(.kts)
-
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:%serializationVersion%")
 }
@@ -20,11 +19,10 @@ dependencies {
 
 </tab>
 
-<tab id="dependency-maven" title="Maven">
+<tab title="Maven" group-key="maven">
 
 ```xml
 <!-- pom.xml -->
-
 <dependencies>
     <dependency>
         <groupId>org.jetbrains.kotlinx</groupId>
@@ -288,7 +286,7 @@ the encoding and verification of these tags.
 >
 {style="tip"}
 
-You can also tag classes using the [`@ObjectTags`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-object-tags/) annotation, which applies tags to all instances of a class.
+You can also assign tags to all instances of a class with the [`@ObjectTags`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-cbor/kotlinx.serialization.cbor/-object-tags/) annotation.
 
 When serializing, `@ObjectTags` are encoded directly before the data of the tagged object.
 If a property has value tags and its type has object tags, the value tags are encoded before the object tags.
