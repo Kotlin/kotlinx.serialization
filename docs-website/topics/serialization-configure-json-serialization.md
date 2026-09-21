@@ -45,8 +45,8 @@ fun main() {
     val deserializedUser = json.decodeFromString<User>(jsonString)
     println(deserializedUser)
     // User(name=Alice, age=30)
-//sampleEnd
 }
+//sampleEnd
 ```
 {kotlin-runnable="true" id="first-json-example"}
 

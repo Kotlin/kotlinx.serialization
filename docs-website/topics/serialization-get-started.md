@@ -101,9 +101,9 @@ To use Kotlin serialization for JSON in multiplatform projects, add the JSON ser
 
 ```kotlin
 commonMain {
-   dependencies {
-      implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:%serializationVersion%")
-   }
+    dependencies {
+        implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:%serializationVersion%")
+    }
 }
 ```
 
@@ -221,14 +221,14 @@ Let's look at an example:
     ```
    {kotlin-runnable="true" id="serialize-get-started"}
 
-   As a result, you get a string containing the state of this object in JSON format: `{"yearPublished":1937,"title":"The Hobbit"}`
+   As a result, you get a string containing the state of this object in JSON format: `{"yearPublished":1937,"title":"The Hobbit"}`.
 
    > You can also serialize a collection of objects in a single call:
    >
    > ```kotlin
-    > val bookList = listOf(Book(1937, "The Hobbit"), Book(1867, "War and Peace"))
-    > val jsonList = Json.encodeToString(bookList)
-    > ```
+   > val bookList = listOf(Book(1937, "The Hobbit"), Book(1867, "War and Peace"))
+   > val jsonList = Json.encodeToString(bookList)
+   > ```
    >
    {style="tip"}
 

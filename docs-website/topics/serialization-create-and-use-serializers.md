@@ -789,8 +789,9 @@ object ColorAsObjectSerializer : KSerializer<Color> {
             require(r in 0..255 && g in 0..255 && b in 0..255)
             Color((r shl 16) or (g shl 8) or b)
         }
-}
 //sampleEnd
+}
+
 
 @Serializable(ColorAsObjectSerializer::class)
 data class Color(val rgb: Int)

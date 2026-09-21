@@ -50,7 +50,7 @@ The `kotlinx.serialization` project provides libraries for various serialization
 | [CBOR](https://cbor.io/)                             | [`kotlinx-serialization-cbor`](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md#cbor)             | All supported platforms | Experimental |
 | [Properties](https://en.wikipedia.org/wiki/.properties) | [`kotlinx-serialization-properties`](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md#properties) | All supported platforms | Experimental |
 
-All serialization format libraries, except for the JSON serialization library (`kotlinx-serialization-json`), are [Experimental](components-stability.md). Their APIs might change at any time.
+All serialization format libraries, except for the JSON serialization library (`kotlinx-serialization-json`), are [Experimental](components-stability.md#stability-levels-explained). Their APIs might change at any time.
 For more details about JSON serialization, see [JSON serialization overview](serialization-configure-json-serialization.md).
 
 There are also community-maintained libraries that support more serialization formats, such as [YAML](https://yaml.org/) or [Apache Avro](https://avro.apache.org/).

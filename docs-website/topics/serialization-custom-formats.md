@@ -765,7 +765,7 @@ This makes it easier to adapt the format for cases where you need a compact repr
 A custom format can support types that don't map directly to the standard primitive encoding functions.
 
 To support such types, override the `encodeSerializableValue()` function in the encoder and the `decodeSerializableValue()` function in the decoder.
-This lets you [define custom serialization logic](create-custom-serializers.md) for format-specific types,
+This lets you [define custom serialization logic](#create-custom-formats) for format-specific types,
 while maintaining efficient handling and flexibility for non-standard data representations.
 
 To detect a type correctly, compare the `serializer.descriptor` property with the descriptor of the serializer for that type instead of checking the runtime type of the value.
