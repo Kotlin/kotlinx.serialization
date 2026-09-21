@@ -7,10 +7,10 @@ This tutorial shows you how to add the necessary plugins and dependencies for Ko
 
 ## Add plugins and dependencies
 
-To include the `kotlinx.serialization` library in your project, add the corresponding plugin and dependency configuration based on your build tool:
+To use Kotlin serialization in your project, add the corresponding plugin and dependency configuration based on your build tool:
 
-<tabs>
-<tab id="kotlin" title="Gradle Kotlin">
+<tabs group="build-script">
+<tab title="Kotlin" group-key="kotlin">
 
 ```kotlin
 // build.gradle.kts
@@ -24,7 +24,7 @@ dependencies {
 ```
 
 </tab>
-<tab id="groovy" title="Gradle Groovy">
+<tab title="Groovy" group-key="groovy">
 
 ```groovy
 // build.gradle
@@ -38,7 +38,7 @@ dependencies {
 ```
 
 </tab>
-<tab id="maven" title="Maven">
+<tab title="Maven" group-key="maven">
 
 ```xml
 <!-- pom.xml -->
