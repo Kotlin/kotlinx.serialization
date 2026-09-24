@@ -143,7 +143,7 @@ To create a custom primitive serializer:
         PrimitiveSerialDescriptor("com.example.Type", PrimitiveKind.STRING)
     ```
    
-    > If the `descriptor` doesn't match the encoding and decoding functions, updates to `kotlinx.serialization` may cause the serializer to behave unpredictably in some formats.
+    > If the `descriptor` doesn't match the encoding and decoding functions, updates to the `kotlinx.serialization` project may cause the serializer to behave unpredictably in some formats.
     > 
     {style="warning"}
 
@@ -378,7 +378,7 @@ fun main() {
 
 While using the array representation isn't conventional in JSON, it can reduce the size of serialized data when used with a `ByteArray` and a binary format.
 
-> For more information on how non-JSON serialization formats treat arrays, see [Alternative and custom serialization formats](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/formats.md).
+> For more information on how non-JSON serialization formats treat arrays, see [CBOR format](serialization-cbor.md) and [ProtoBuf format](serialization-protobuf.md).
 > 
 {style="tip"}
 
@@ -789,8 +789,9 @@ object ColorAsObjectSerializer : KSerializer<Color> {
             require(r in 0..255 && g in 0..255 && b in 0..255)
             Color((r shl 16) or (g shl 8) or b)
         }
-}
 //sampleEnd
+}
+
 
 @Serializable(ColorAsObjectSerializer::class)
 data class Color(val rgb: Int)
@@ -1231,4 +1232,5 @@ val correctModule = SerializersModule {
 ## What's next
 
 * Discover how to [transform JSON structure](serialization-transform-json.md) by modifying the JSON element tree instead of creating a custom serializer.
-* Learn about [alternative and custom serialization formats](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/formats.md) to implement format-specific representations for your data.
+* Learn how to create custom formats in [Custom serialization formats](serialization-custom-formats.md).
+* Explore experimental serialization formats such as [CBOR](serialization-cbor.md) and [ProtoBuf](serialization-protobuf.md).

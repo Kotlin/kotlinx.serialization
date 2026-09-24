@@ -15,6 +15,10 @@
         </toc-element>
         <toc-element topic="serialization-polymorphism.md"/>
         <toc-element topic="serialization-create-and-use-serializers.md"/>
-        <toc-element toc-title="Alternative serialization formats" href="https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/formats.md"/>
+        <toc-element toc-title="Alternative and custom serialization formats">
+            <toc-element topic="serialization-custom-formats.md"/>
+            <toc-element topic="serialization-cbor.md"/>
+            <toc-element topic="serialization-protobuf.md"/>
+        </toc-element>
     </snippet>
 </instance-profile>

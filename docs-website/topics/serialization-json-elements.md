@@ -1,7 +1,7 @@
 [//]: # (title: JSON elements)
 
-The Kotlin serialization library also supports working with JSON at a structural level.
-You can use the [`JsonElement`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-element/) API, to inspect, modify, and build JSON structures directly before converting them into a Kotlin type or a string.
+Kotlin serialization also supports working with JSON at a structural level.
+You can use the [`JsonElement`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-element/) API to inspect, modify, and build JSON structures directly before converting them into a Kotlin type or a string.
 
 `JsonElement` has three direct subtypes that represent the core JSON structures:
 
@@ -267,7 +267,7 @@ fun main() {
 {kotlin-runnable="true"}
 
 > This example uses a `JsonPrimitive` for simplicity. For more reusable approaches, see
-> [Json Transformations](serialization-transform-json.md).
+> [Transform JSON structure](serialization-transform-json.md).
 >
 {style="tip"}
 
@@ -309,7 +309,7 @@ fun main() {
 ```
 {kotlin-runnable="true"}
 
-## Decode Json elements
+## Decode JSON elements
 
 To decode an instance of the `JsonElement` class into a serializable object, use
 the [`Json.decodeFromJsonElement()`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/decode-from-json-element.html) function:
