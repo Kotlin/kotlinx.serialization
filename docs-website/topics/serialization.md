@@ -10,7 +10,7 @@ Kotlin provides this functionality through the [`kotlinx.serialization` librarie
 which support multiple platforms and data formats.
 
 If you're new to serialization in Kotlin, we recommend starting with the [Get Started with Serialization](serialization-get-started.md) tutorial.
-It walks you through adding the Kotlin serialization library to your project and shows you how to serialize and deserialize your first class.
+It walks you through setting up Kotlin serialization in your project and shows you how to serialize and deserialize your first class.
 
 <a href="serialization-get-started.md"><img src="get-started-serialization.svg" width="700" alt="Get started with serialization" style="block"/></a>
 
@@ -20,10 +20,10 @@ Kotlin serialization offers support for all platforms, including JVM, JavaScript
 You can use the same [dependency declaration](serialization-get-started.md#add-plugins-and-dependencies) regardless of the target platform.
 
 Kotlin serialization supports various serialization formats, such as JSON, CBOR, and Protocol buffers through different serialization format libraries.
-These libraries build on the core `kotlinx.serialization` library.
+These libraries build on the `kotlinx-serialization-core` library.
 For the complete list of supported serialization formats, see [Supported serialization formats](#supported-serialization-formats).
 
-All Kotlin serialization format libraries are part of the `org.jetbrains.kotlinx:` group, with names
+All `kotlinx.serialization` format libraries are part of the `org.jetbrains.kotlinx:` group, with names
 starting with `kotlinx-serialization-` and suffixes that reflect the serialization format.
 For example:
 
@@ -40,7 +40,7 @@ You can find the latest release versions on [GitHub](https://github.com/Kotlin/k
 
 ## Supported serialization formats
 
-`kotlinx.serialization` includes serialization format libraries for various formats:
+The `kotlinx.serialization` project provides libraries for various serialization formats:
 
 | Format       | Artifact ID                                                                                                                    | Platform                | Status       |
 |--------------|--------------------------------------------------------------------------------------------------------------------------------|-------------------------|--------------|
@@ -50,12 +50,12 @@ You can find the latest release versions on [GitHub](https://github.com/Kotlin/k
 | [CBOR](https://cbor.io/)                             | [`kotlinx-serialization-cbor`](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md#cbor)             | All supported platforms | Experimental |
 | [Properties](https://en.wikipedia.org/wiki/.properties) | [`kotlinx-serialization-properties`](https://github.com/Kotlin/kotlinx.serialization/blob/master/formats/README.md#properties) | All supported platforms | Experimental |
 
-All serialization format libraries, except for the JSON serialization library (`kotlinx-serialization-json`), are [Experimental](components-stability.md). Their APIs might change at any time.
+All serialization format libraries, except for the JSON serialization library (`kotlinx-serialization-json`), are [Experimental](components-stability.md#stability-levels-explained). Their APIs might change at any time.
 For more details about JSON serialization, see [JSON serialization overview](serialization-configure-json-serialization.md).
 
 There are also community-maintained libraries that support more serialization formats, such as [YAML](https://yaml.org/) or [Apache Avro](https://avro.apache.org/).
 
-You can find out more about experimental serialization formats in [Alternative and custom formats](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/formats.md).
+You can find out more about alternative and custom experimental serialization formats in [Custom serialization formats](serialization-custom-formats.md).
 
 ## Supported serialization types
 
@@ -68,9 +68,10 @@ For more information, see [Serialize classes](serialization-customization-option
 ## What's next
 
 * Learn the basics of Kotlin serialization in the [Get started with serialization tutorial](serialization-get-started.md).
-* See how the Kotlin serialization library processes [primitives, collections, and other built-in types](serialization-serialize-builtin-types.md)
+* See how the Kotlin serialization processes [primitives, collections, and other built-in types](serialization-serialize-builtin-types.md)
 * Explore more complex JSON serialization scenarios in the [JSON serialization overview](serialization-configure-json-serialization.md).
 * Dive into [Serialize classes](serialization-customization-options.md) to learn how to serialize classes and modify the default behavior of the `@Serializable` annotation.
 * Learn how to obtain generated serializers, create custom serializers, and apply serializers in [Create and use serializers](serialization-create-and-use-serializers.md).
 * See how to serialize different types through a shared base type in [Serialize polymorphic classes](serialization-polymorphism.md).
-* Explore experimental serialization formats, including CBOR, ProtoBuf, and Properties, and learn how to create custom formats in [Alternative and custom formats](https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/formats.md).
+* Learn how to create custom formats in [Custom serialization formats](serialization-custom-formats.md).
+* Explore experimental serialization formats such as [CBOR](serialization-cbor.md) and [ProtoBuf](serialization-protobuf.md).

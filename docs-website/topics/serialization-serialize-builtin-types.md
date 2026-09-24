@@ -1,6 +1,6 @@
 [//]: # (title: Serialize built-in types)
 
-The Kotlin serialization library supports a variety of built-in types, including basic types such as primitives and strings, as well as certain standard library classes.
+Kotlin serialization supports a variety of built-in types, including basic types such as primitives and strings, as well as certain standard library classes.
 The following sections describe these types in detail and show how to serialize them.
 
 ## Basic types

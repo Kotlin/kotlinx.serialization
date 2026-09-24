@@ -325,7 +325,7 @@ fun main() {
 ```
 {kotlin-runnable="true" id="set-classdiscriminatormode-example"}
 
-> Without the discriminator, the Kotlin serialization library can't deserialize the output back into the appropriate type.
+> Without the discriminator, the serializer for the base class can't deserialize the output back into the appropriate type.
 >
 {style="note"}
 
@@ -451,7 +451,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true" min-compiler-version="2.2" validate="false" id="ignore-specific-unknown-keys-example"}
+{kotlin-runnable="true" kotlin-min-compiler-version="2.2" validate="false" id="ignore-specific-unknown-keys-example"}
 
 In this example, `Inner` throws a `SerializationException` for unknown keys because it isn't annotated with `@JsonIgnoreUnknownKeys`.
 
@@ -638,7 +638,7 @@ fun main() {
 ## Customize name mapping between JSON and Kotlin
 
 Some JSON data may not perfectly align with Kotlin's naming conventions or expected formats.
-To address these challenges, the Kotlin serialization library provides several tools to manage naming discrepancies,
+To address these challenges, Kotlin serialization provides several tools to manage naming discrepancies,
 handle multiple JSON property names, and ensure consistent naming strategies across serialized data.
 
 ### Accept alternative JSON property names for a single Kotlin property
@@ -724,7 +724,7 @@ When property names in JSON input differ from those in Kotlin, you can specify t
 However, when migrating from other frameworks or a legacy codebase, you might need to transform every serial name in the same way.
 
 For these scenarios, you can specify a global naming strategy using the [JsonBuilder.namingStrategy](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-builder/naming-strategy.html) property in a `Json` instance.
-The Kotlin serialization library provides built-in strategies, such as [JsonNamingStrategy.SnakeCase](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-naming-strategy/-builtins/-snake-case.html):
+Kotlin serialization provides built-in strategies, such as [JsonNamingStrategy.SnakeCase](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-naming-strategy/-builtins/-snake-case.html):
 
 ```kotlin
 // Imports declarations from the serialization library

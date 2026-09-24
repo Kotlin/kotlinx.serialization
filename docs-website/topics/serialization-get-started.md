@@ -7,10 +7,10 @@ This tutorial shows you how to add the necessary plugins and dependencies for Ko
 
 ## Add plugins and dependencies
 
-To include the `kotlinx.serialization` library in your project, add the corresponding plugin and dependency configuration based on your build tool:
+To use Kotlin serialization in your project, add the corresponding plugin and dependency configuration based on your build tool:
 
-<tabs>
-<tab id="kotlin" title="Gradle Kotlin">
+<tabs group="build-script">
+<tab title="Kotlin" group-key="kotlin">
 
 ```kotlin
 // build.gradle.kts
@@ -24,7 +24,7 @@ dependencies {
 ```
 
 </tab>
-<tab id="groovy" title="Gradle Groovy">
+<tab title="Groovy" group-key="groovy">
 
 ```groovy
 // build.gradle
@@ -38,7 +38,7 @@ dependencies {
 ```
 
 </tab>
-<tab id="maven" title="Maven">
+<tab title="Maven" group-key="maven">
 
 ```xml
 <!-- pom.xml -->
@@ -101,9 +101,9 @@ To use Kotlin serialization for JSON in multiplatform projects, add the JSON ser
 
 ```kotlin
 commonMain {
-   dependencies {
-      implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:%serializationVersion%")
-   }
+    dependencies {
+        implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:%serializationVersion%")
+    }
 }
 ```
 
@@ -111,7 +111,7 @@ This dependency automatically includes the core serialization library as well.
 
 ### Configure R8 for Kotlin serialization in Android projects {initial-collapse-state="collapsed" collapsible="true"}
 
-The Kotlin serialization library includes default [ProGuard rules](https://github.com/Kotlin/kotlinx.serialization/blob/master/rules/common.pro), so you don't need additional setup to keep serializers for all serializable classes after [shrinking](https://developer.android.com/topic/performance/app-optimization/enable-app-optimization).
+Kotlin serialization includes default [ProGuard rules](https://github.com/Kotlin/kotlinx.serialization/blob/master/rules/common.pro), so you don't need additional setup to keep serializers for all serializable classes after [shrinking](https://developer.android.com/topic/performance/app-optimization/enable-app-optimization).
 However, these rules don't apply to classes with named companion objects.
 
 To retain serializers for classes with named companion objects, add rules based on the [compatibility mode](https://r8.googlesource.com/r8/+/refs/heads/master/compatibility-faq.md) you use to your `proguard-rules.pro` file:
@@ -172,7 +172,7 @@ com.example.myapplication.HasNamedCompanion2
 
 ## Serialize objects to JSON
 
-In Kotlin, you can serialize objects to JSON using the `kotlinx.serialization` library.
+In Kotlin, you can serialize objects to JSON using the `kotlinx-serialization-json` library.
 
 To make a class serializable, you need to mark it with the [`@Serializable`](https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serializable/) annotation.
 This annotation instructs the compiler to generate the code required for serializing and deserializing instances of the class.
@@ -221,14 +221,14 @@ Let's look at an example:
     ```
    {kotlin-runnable="true" id="serialize-get-started"}
 
-   As a result, you get a string containing the state of this object in JSON format: `{"yearPublished":1937,"title":"The Hobbit"}`
+   As a result, you get a string containing the state of this object in JSON format: `{"yearPublished":1937,"title":"The Hobbit"}`.
 
    > You can also serialize a collection of objects in a single call:
    >
    > ```kotlin
-    > val bookList = listOf(Book(1937, "The Hobbit"), Book(1867, "War and Peace"))
-    > val jsonList = Json.encodeToString(bookList)
-    > ```
+   > val bookList = listOf(Book(1937, "The Hobbit"), Book(1867, "War and Peace"))
+   > val jsonList = Json.encodeToString(bookList)
+   > ```
    >
    {style="tip"}
 
