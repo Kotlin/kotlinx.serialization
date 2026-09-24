@@ -451,7 +451,7 @@ fun main() {
 }
 //sampleEnd
 ```
-{kotlin-runnable="true" min-compiler-version="2.2" validate="false" id="ignore-specific-unknown-keys-example"}
+{kotlin-runnable="true" kotlin-min-compiler-version="2.2" validate="false" id="ignore-specific-unknown-keys-example"}
 
 In this example, `Inner` throws a `SerializationException` for unknown keys because it isn't annotated with `@JsonIgnoreUnknownKeys`.
 
