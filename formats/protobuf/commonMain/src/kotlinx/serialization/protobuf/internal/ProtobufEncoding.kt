@@ -60,7 +60,7 @@ internal open class ProtobufEncoder(
         }
         StructureKind.CLASS, StructureKind.OBJECT, is PolymorphicKind -> {
             val tag = currentTagOrDefault
-            if (tag == MISSING_TAG && descriptor == this.descriptor) {
+            if (tag == MISSING_TAG && (descriptor == this.descriptor || descriptor.nullable == this.descriptor)) {
                 this
             } else if (tag.isOneOf) {
                 OneOfPolymorphicEncoder(proto = proto, parentWriter = writer, descriptor = descriptor)

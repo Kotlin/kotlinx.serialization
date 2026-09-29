@@ -164,7 +164,7 @@ internal open class ProtobufDecoder(
                 StructureKind.CLASS, StructureKind.OBJECT, is PolymorphicKind -> {
                     val tag = currentTagOrDefault
                     // Do not create redundant copy
-                    if (tag == MISSING_TAG && this.descriptor == descriptor) return this
+                    if (tag == MISSING_TAG && (this.descriptor == descriptor || this.descriptor == descriptor.nullable)) return this
                     if (tag.isOneOf) {
                         // If a tag is annotated as oneof
                         // [tag.protoId] here is overwritten with index-based default id in
