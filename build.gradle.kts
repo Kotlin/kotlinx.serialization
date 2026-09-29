@@ -14,6 +14,7 @@ plugins {
     id("org.jetbrains.dokka")
     id("benchmark-conventions")
     id("kover-conventions")
+    id("release-conventions")
 
     alias(libs.plugins.serialization) apply false
 }
