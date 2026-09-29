@@ -26,23 +26,23 @@ kotlin {
     sourceSets {
         configureEach {
             languageSettings {
-                optIn("kotlin.uuid.ExperimentalUuidApi")
                 optIn("kotlinx.serialization.internal.CoreFriendModuleApi")
                 optIn("kotlinx.serialization.json.internal.JsonFriendModuleApi")
             }
         }
-        val commonTest by getting {
+        commonTest {
             dependencies {
-                api(project(":kotlinx-serialization-json"))
-                api(project(":kotlinx-serialization-json-okio"))
-                api(project(":kotlinx-serialization-json-io"))
+                implementation(project(":kotlinx-serialization-json"))
+                implementation(project(":kotlinx-serialization-json-okio"))
+                implementation(project(":kotlinx-serialization-json-io"))
                 implementation(libs.kotlinx.io)
                 implementation(libs.okio)
             }
         }
 
-        val jvmTest by getting {
+        jvmTest {
             dependencies {
+                implementation(libs.kotlin.reflect)
                 implementation(libs.gson)
                 implementation(libs.coroutines.core)
             }

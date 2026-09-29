@@ -6,6 +6,7 @@ package kotlinx.serialization.features
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
+import kotlinx.serialization.test.*
 import kotlin.test.*
 
 class DefaultPolymorphicSerializerTest : JsonTestBase() {
@@ -31,6 +32,23 @@ class DefaultPolymorphicSerializerTest : JsonTestBase() {
         assertEquals(
             DefaultProject("example", "unknown"),
             json.decodeFromString<Project>(""" {"type":"unknown","name":"example"}""", it))
+    }
+
+    @Test
+    fun defaultSerializerConflictWithDiscriminatorNotAllowed() = parametrizedTest { mode ->
+        @Suppress("UNCHECKED_CAST") val module = SerializersModule {
+            polymorphicDefaultSerializer(Project::class) {
+                DefaultProject.serializer() as KSerializer<Project>
+            }
+        }
+        val j = Json { serializersModule = module }
+        checkEncodingException(mode, {
+            j.encodeToString<Project>(DefaultProject("example", "custom"), mode)
+        }) {
+            message("Class 'kotlinx.serialization.features.DefaultPolymorphicSerializerTest.DefaultProject' cannot be serialized as base class 'kotlinx.serialization.Polymorphic<Project>' because it has property name that conflicts with JSON class discriminator 'type'.")
+            serialName("kotlinx.serialization.features.DefaultPolymorphicSerializerTest.DefaultProject")
+            hint("change class discriminator in JsonConfiguration, or rename property")
+        }
     }
 
 }

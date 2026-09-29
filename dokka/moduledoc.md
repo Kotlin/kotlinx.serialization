@@ -14,7 +14,7 @@ Extensions for kotlinx.serialization.json.Json for integration with the [kotlinx
 Currently experimental.
 
 # Module kotlinx-serialization-cbor
-Concise Binary Object Representation (CBOR) format implementation, as per [RFC 7049](https://tools.ietf.org/html/rfc7049).
+Concise Binary Object Representation (CBOR) format implementation, as per [RFC 8949](https://tools.ietf.org/html/rfc8949).
 
 # Module kotlinx-serialization-hocon
 Allows deserialization of `Config` object from popular [lightbend/config](https://github.com/lightbend/config) library 
@@ -66,4 +66,4 @@ Experimental generator of ProtoBuf schema from Kotlin classes.
 Properties serialization format implementation that represents the input data as a plain map of properties.
 
 # Package kotlinx.serialization.cbor
-Concise Binary Object Representation (CBOR) format implementation, as per [RFC 7049](https://tools.ietf.org/html/rfc7049).
+Concise Binary Object Representation (CBOR) format implementation, as per [RFC 8949](https://tools.ietf.org/html/rfc8949).

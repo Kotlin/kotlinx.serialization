@@ -10,7 +10,7 @@ internal class CborDecodingException(message: String) : SerializationException(m
 
 @Suppress("FunctionName")
 internal fun CborDecodingException(expected: String, foundByte: Int) =
-    CborDecodingException("Expected $expected, but found ${printByte(foundByte)}")
+    CborDecodingException("Expected $expected, but found ${printByte(foundByte)} (${foundByte.majorTypeName})")
 
 internal fun printByte(b: Int): String {
     val hexCode = "0123456789ABCDEF"

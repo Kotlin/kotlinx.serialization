@@ -20,7 +20,7 @@ public fun <T> Json.encodeToStream(
     value: T,
     stream: OutputStream
 ) {
-    val writer = JsonToJavaStreamWriter(stream)
+    val writer = OutputStreamJsonWriter(stream)
     try {
         encodeByWriter(this, writer, serializer, value)
     } finally {
@@ -56,7 +56,7 @@ public fun <T> Json.decodeFromStream(
     deserializer: DeserializationStrategy<T>,
     stream: InputStream
 ): T {
-    val reader = JavaStreamSerialReader(stream)
+    val reader = Utf8InputStreamReader(stream)
     try {
         return decodeByReader(this, deserializer, reader)
     } finally {
@@ -102,7 +102,7 @@ public fun <T> Json.decodeToSequence(
     deserializer: DeserializationStrategy<T>,
     format: DecodeSequenceMode = DecodeSequenceMode.AUTO_DETECT
 ): Sequence<T> {
-    return decodeToSequenceByReader(this, JavaStreamSerialReader(stream), deserializer, format)
+    return decodeToSequenceByReader(this, Utf8InputStreamReader(stream), deserializer, format)
 }
 
 /**

@@ -83,7 +83,7 @@ import kotlinx.serialization.modules.*
  * ```
  *
  * This serializer does not know anything about the underlying storage and will work with any properly-implemented encoder.
- * JSON, for example, writes an opening bracket `{` during the `beginStructure` call, writes 'stringValue` key along
+ * JSON, for example, writes an opening bracket `{` during the `beginStructure` call, writes `stringValue` key along
  * with its value in `encodeStringElement` and writes the closing bracket `}` during the `endStructure`.
  * XML would do roughly the same, but with different separators and structures, while ProtoBuf
  * machinery could be completely different.

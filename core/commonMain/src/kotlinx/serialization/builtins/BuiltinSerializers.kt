@@ -10,6 +10,7 @@ import kotlinx.serialization.internal.*
 import kotlin.reflect.*
 import kotlinx.serialization.descriptors.*
 import kotlin.time.Duration
+import kotlin.time.Instant
 import kotlin.uuid.*
 
 /**
@@ -78,7 +79,6 @@ public fun ByteArraySerializer(): KSerializer<ByteArray> = ByteArraySerializer
  * Returns serializer for [UByteArray] with [descriptor][SerialDescriptor] of [StructureKind.LIST] kind.
  * Each element of the array is serialized one by one with [UByte.Companion.serializer].
  */
-@ExperimentalSerializationApi
 @ExperimentalUnsignedTypes
 public fun UByteArraySerializer(): KSerializer<UByteArray> = UByteArraySerializer
 
@@ -97,7 +97,6 @@ public fun ShortArraySerializer(): KSerializer<ShortArray> = ShortArraySerialize
  * Returns serializer for [UShortArray] with [descriptor][SerialDescriptor] of [StructureKind.LIST] kind.
  * Each element of the array is serialized one by one with [UShort.Companion.serializer].
  */
-@ExperimentalSerializationApi
 @ExperimentalUnsignedTypes
 public fun UShortArraySerializer(): KSerializer<UShortArray> = UShortArraySerializer
 
@@ -116,7 +115,6 @@ public fun IntArraySerializer(): KSerializer<IntArray> = IntArraySerializer
  * Returns serializer for [UIntArray] with [descriptor][SerialDescriptor] of [StructureKind.LIST] kind.
  * Each element of the array is serialized one by one with [UInt.Companion.serializer].
  */
-@ExperimentalSerializationApi
 @ExperimentalUnsignedTypes
 public fun UIntArraySerializer(): KSerializer<UIntArray> = UIntArraySerializer
 
@@ -135,7 +133,6 @@ public fun LongArraySerializer(): KSerializer<LongArray> = LongArraySerializer
  * Returns serializer for [ULongArray] with [descriptor][SerialDescriptor] of [StructureKind.LIST] kind.
  * Each element of the array is serialized one by one with [ULong.Companion.serializer].
  */
-@ExperimentalSerializationApi
 @ExperimentalUnsignedTypes
 public fun ULongArraySerializer(): KSerializer<ULongArray> = ULongArraySerializer
 
@@ -188,7 +185,6 @@ public fun String.Companion.serializer(): KSerializer<String> = StringSerializer
  * Each element of the array is serialized with the given [elementSerializer].
  */
 @Suppress("UNCHECKED_CAST")
-@ExperimentalSerializationApi
 public inline fun <reified T : Any, reified E : T?> ArraySerializer(elementSerializer: KSerializer<E>): KSerializer<Array<E>> =
     ArraySerializer<T, E>(T::class, elementSerializer)
 
@@ -196,7 +192,6 @@ public inline fun <reified T : Any, reified E : T?> ArraySerializer(elementSeria
  * Returns serializer for reference [Array] of type [E] with [descriptor][SerialDescriptor] of [StructureKind.LIST] kind.
  * Each element of the array is serialized with the given [elementSerializer].
  */
-@ExperimentalSerializationApi
 public fun <T : Any, E : T?> ArraySerializer(
     kClass: KClass<T>,
     elementSerializer: KSerializer<E>
@@ -245,24 +240,41 @@ public fun UShort.Companion.serializer(): KSerializer<UShort> = UShortSerializer
 
 /**
  * Returns serializer for [Duration].
- * It is serialized as a string that represents a duration in the ISO-8601-2 format.
+ * It is serialized as a string that represents a duration in the format used by [Duration.toIsoString],
+ * that is, the ISO-8601-2 format.
  *
- * The result of serialization is similar to calling [Duration.toIsoString], for deserialization is [Duration.parseIsoString].
+ * For deserialization, [Duration.parseIsoString] is used.
+ *
+ * @see Duration.toIsoString
+ * @see Duration.parseIsoString
  */
 public fun Duration.Companion.serializer(): KSerializer<Duration> = DurationSerializer
 
 /**
- * Returns serializer for [Uuid].
- * Serializer operates with a standard UUID string representation, also known as "hex-and-dash" format —
- * [RFC 9562 section 4](https://www.rfc-editor.org/rfc/rfc9562.html#section-4).
+ * Returns serializer for [Instant].
+ * It is serialized as a string that represents an instant in the format used by [Instant.toString]
+ * and described in ISO-8601-1:2019, 5.4.2.1b).
  *
- * Serialization always produces lowercase string, deserialization is case-insensitive.
+ * Deserialization is case-insensitive.
+ * More details can be found in the documentation of [Instant.toString] and [Instant.parse] functions.
+ *
+ * @see Instant.toString
+ * @see Instant.parse
+ */
+public fun Instant.Companion.serializer(): KSerializer<Instant> = InstantSerializer
+
+/**
+ * Returns serializer for [Uuid].
+ * It is serialized as a string in the format produced by [Uuid.toString]:
+ * the standard UUID string representation, also known as "hex-and-dash" format,
+ * and described in [RFC 9562 section 4](https://www.rfc-editor.org/rfc/rfc9562.html#section-4).
+ *
+ * Deserialization is case-insensitive and supports parsing string representations supported by [Uuid.parse], such as hex-and-dash and the hexadecimal formats.
  * More details can be found in the documentation of [Uuid.toString] and [Uuid.parse] functions.
  *
  * @see Uuid.toString
  * @see Uuid.parse
  */
-@ExperimentalUuidApi
 public fun Uuid.Companion.serializer(): KSerializer<Uuid> = UuidSerializer
 
 /**
@@ -271,5 +283,4 @@ public fun Uuid.Companion.serializer(): KSerializer<Uuid> = UuidSerializer
  *
  * It is used as a dummy in case it is necessary to pass a type to a parameterized class. At the same time, it is expected that this generic type will not participate in serialization.
  */
-@ExperimentalSerializationApi
 public fun NothingSerializer(): KSerializer<Nothing> = NothingSerializer

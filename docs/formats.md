@@ -22,9 +22,11 @@ stable, these are currently experimental features of Kotlin Serialization.
   * [Integer types](#integer-types)
   * [Lists as repeated fields](#lists-as-repeated-fields)
   * [Packed fields](#packed-fields)
+  * [Default values](#default-values)
   * [Oneof field (experimental)](#oneof-field-experimental)
     * [Usage](#usage)
     * [Alternative](#alternative)
+  * [Preserving unknown fields (experimental)](#preserving-unknown-fields-experimental)
   * [ProtoBuf schema generator (experimental)](#protobuf-schema-generator-experimental)
 * [Properties (experimental)](#properties-experimental)
 * [Custom formats (experimental)](#custom-formats-experimental)
@@ -40,7 +42,7 @@ stable, these are currently experimental features of Kotlin Serialization.
 
 ## CBOR (experimental) 
 
-[CBOR][RFC 7049] is one of the standard compact binary
+[CBOR][RFC 8949] is one of the standard compact binary
 encodings for JSON, so it supports a subset of [JSON features](json.md) and
 is generally very similar to JSON in use, but produces binary data.
 
@@ -157,7 +159,7 @@ BF                                      # map(*)
 
 ### Byte arrays and CBOR data types
 
-Per the [RFC 7049 Major Types] section, CBOR supports the following data types:
+Per the [RFC 8949 Major Types] section, CBOR supports the following data types:
 
 - Major type 0: an unsigned integer
 - Major type 1: a negative integer
@@ -483,7 +485,7 @@ Field #3: 1D Fixed32 Value = 3, Hex = 03-00-00-00
 
 ### Lists as repeated fields
 
-By default, kotlin lists and other collections are representend as repeated fields. 
+By default, kotlin lists and other collections are represented as repeated fields. 
 In the protocol buffers when the list is empty there are no elements in the 
 stream with the corresponding number. For Kotlin Serialization you must explicitly specify a default of `emptyList()`
 for any property of a collection or map type. Otherwise you will not be able deserialize an empty
@@ -537,6 +539,29 @@ Per the standard packed fields can only be used on primitive numeric types. The 
 
 Per the [format description](https://developers.google.com/protocol-buffers/docs/encoding#packed) the parser ignores
 the annotation, but rather reads list in either packed or repeated format.
+
+### Default values
+
+In Protocol Buffers, fields have implicit default values when they are not present in the encoded data.
+According to the [proto2 default value specification](https://protobuf.dev/programming-guides/proto2/#default), 
+these default values are type-specific:
+
+| Code type               | Recommanded default value                                           | Acceptable default value                                            |
+| ----------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Int, Long, Uint, Ulong  | 0                                                                   |                                                                     |
+| Float, Double           | 0.0                                                                 |                                                                     |
+| String                  | ""                                                                  |                                                                     |
+| ByteArray               | empty                                                               |                                                                     |
+| Boolean                 | false                                                               |                                                                     |
+| Enum                    | Enum instance stands for 0                                          | `null`                                                              |
+| Array, Map              | Empty or `null`                                                     |                                                                     |
+| Optional Messages       | null                                                                | Default instance with all fields assigned with valid default values |
+| Required Messages       | Default instance with all fields assigned with valid default values |                                                                     |
+| Field with `@ProtoOneOf`| Always use `null` as default                                        |                                                                     |
+
+Protocol Buffers uses a compact binary encoding where fields set to their type's default value are completely omitted from the wire format. This is a fundamental design principle for efficiency. When decoding, if a field is missing from the binary data, the decoder automatically assigns the type's default value.
+
+If you use a custom default value in Kotlin (e.g., `val timeout: Int = 30` instead of `0`), you create a mismatch between Kotlin's expectations and ProtoBuf's behavior. The encoder will include the field in the output when the value equals your custom default (since `30 != 0`), but if that field is missing from data encoded elsewhere, the decoder will assign `0` (the type default), not `30`. This creates data inconsistency and unpredictable behavior.
 
 ### Oneof field (experimental)
 
@@ -642,6 +667,54 @@ is also compatible with the `message Data` given above, which means the same inp
 
 But please note that there are no exclusivity checks. This means that if an instance of `Data2` has both (or none) `homeNumber` and `workNumber` as non-null values and is serialized to protobuf, it no longer complies with the original schema. If you send such data to another parser, one of the fields may be omitted, leading to an unknown issue.
 
+### Preserving unknown fields (experimental)
+
+You may keep updating your schema by adding new fields, but you may not want to break compatibility with the old data.
+
+Kotlin Serialization `ProtoBuf` format supports preserving unknown fields, as described in the [Protocol Buffer - Unknown Fields](https://protobuf.dev/programming-guides/proto3/#unknowns).
+
+To keep the unknown fields, add a property of type `ProtoUnknownFieldHolder` with default value `null` or `ProtoUnknownFieldHolder.Empty` to your data class.
+
+<!--- INCLUDE
+import kotlinx.serialization.*
+import kotlinx.serialization.protobuf.*
+-->
+
+```kotlin
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class Data(
+    @ProtoNumber(1) val name: String,
+    val unknownFields: ProtoUnknownFieldHolder = ProtoUnknownFieldHolder.Empty
+)
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class NewData(
+    @ProtoNumber(1) val name: String,
+    @ProtoNumber(2) val age: Int,
+)
+
+@OptIn(ExperimentalSerializationApi::class)
+fun main() {
+  val dataFromNewBinary = NewData("Tom", 25)
+  val hexString = ProtoBuf.encodeToHexString(dataFromNewBinary)
+  val dataInOldBinary = ProtoBuf.decodeFromHexString<Data>(hexString)
+  val hexOfOldData = ProtoBuf.encodeToHexString(dataInOldBinary)
+  println(hexOfOldData)
+  println(hexString)
+  assert(hexOfOldData == hexString)
+}
+```
+
+> You can get the full code [here](../guide/example/example-formats-09.kt).
+
+```text
+0a03546f6d1019
+0a03546f6d1019
+```
+
+<!--- TEST -->
 ### ProtoBuf schema generator (experimental)
 
 As mentioned above, when working with protocol buffers you usually use a ".proto" file and a code generator for your
@@ -676,7 +749,7 @@ fun main() {
   println(schemas)
 }
 ```
-> You can get the full code [here](../guide/example/example-formats-09.kt).
+> You can get the full code [here](../guide/example/example-formats-10.kt).
 
 Which would output as follows.
 
@@ -684,7 +757,7 @@ Which would output as follows.
 syntax = "proto2";
 
 
-// serial name 'example.exampleFormats09.SampleData'
+// serial name 'example.exampleFormats10.SampleData'
 message SampleData {
   required int64 amount = 1;
   optional string description = 2;
@@ -729,7 +802,7 @@ fun main() {
 }
 ```      
 
-> You can get the full code [here](../guide/example/example-formats-10.kt).
+> You can get the full code [here](../guide/example/example-formats-11.kt).
 
 The resulting map has dot-separated keys representing keys of the nested objects.
 
@@ -814,7 +887,7 @@ fun main() {
 }
 ```                                    
 
-> You can get the full code [here](../guide/example/example-formats-11.kt).
+> You can get the full code [here](../guide/example/example-formats-12.kt).
 
 As a result, we got all the primitive values in our object graph visited and put into a list
 in _serial_ order.
@@ -923,7 +996,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-formats-12.kt).
+> You can get the full code [here](../guide/example/example-formats-13.kt).
 
 Now we can convert a list of primitives back to an object tree.
 
@@ -1021,7 +1094,7 @@ fun main() {
 }
 -->
 
-> You can get the full code [here](../guide/example/example-formats-13.kt).
+> You can get the full code [here](../guide/example/example-formats-14.kt).
 
 <!--- TEST 
 [kotlinx.serialization, kotlin, 9000]
@@ -1135,7 +1208,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-formats-14.kt).
+> You can get the full code [here](../guide/example/example-formats-15.kt).
 
 We see the size of the list added to the result, letting the decoder know where to stop. 
 
@@ -1254,7 +1327,7 @@ fun main() {
 
 ```
 
-> You can get the full code [here](../guide/example/example-formats-15.kt).
+> You can get the full code [here](../guide/example/example-formats-16.kt).
 
 In the output we see how not-null`!!` and `NULL` marks are used.
 
@@ -1389,7 +1462,7 @@ fun main() {
 }
 ```
               
-> You can get the full code [here](../guide/example/example-formats-16.kt).
+> You can get the full code [here](../guide/example/example-formats-17.kt).
 
 As we can see, the result is a dense binary format that only contains the data that is being serialized. 
 It can be easily tweaked for any kind of domain-specific compact encoding.
@@ -1590,7 +1663,7 @@ fun main() {
 }
 ```
               
-> You can get the full code [here](../guide/example/example-formats-17.kt).
+> You can get the full code [here](../guide/example/example-formats-18.kt).
 
 As we can see, our custom byte array format is being used, with the compact encoding of its size in one byte. 
 
@@ -1607,9 +1680,9 @@ This chapter concludes [Kotlin Serialization Guide](serialization-guide.md).
                                      
 
 <!-- references -->
-[RFC 7049]: https://tools.ietf.org/html/rfc7049
+[RFC 8949]: https://tools.ietf.org/html/rfc8949
 [IoT]: https://en.wikipedia.org/wiki/Internet_of_things
-[RFC 7049 Major Types]: https://tools.ietf.org/html/rfc7049#section-2.1
+[RFC 8949 Major Types]: https://tools.ietf.org/html/rfc8949#section-3.1
 
 <!-- Java references -->
 [java.io.DataOutput]: https://docs.oracle.com/javase/8/docs/api/java/io/DataOutput.html

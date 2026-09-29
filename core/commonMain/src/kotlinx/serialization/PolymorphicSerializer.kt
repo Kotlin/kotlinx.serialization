@@ -62,7 +62,9 @@ import kotlin.reflect.*
  * }
  * ```
  *
- * @see SerializersModule
+ * @param baseClass Base class of the polymorphic hierarchy. Only classes that are registered in its scope in the [SerializersModule] can be serialized by this serializer.
+ *
+ * @see SerializersModule.getPolymorphic
  * @see SerializersModuleBuilder.polymorphic
  */
 @OptIn(ExperimentalSerializationApi::class)

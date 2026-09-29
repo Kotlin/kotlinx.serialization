@@ -18,7 +18,7 @@ import kotlin.reflect.KTypeProjection
  * and fallback to ConcurrentHashMap-based cache.
  */
 private val useClassValue = try {
-    Class.forName("java.lang.ClassValue")
+    val _ = Class.forName("java.lang.ClassValue")
     true
 } catch (_: Throwable) {
     false

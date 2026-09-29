@@ -23,28 +23,30 @@ public class JsonConfiguration @OptIn(ExperimentalSerializationApi::class) inter
     public val allowStructuredMapKeys: Boolean = false,
     public val prettyPrint: Boolean = false,
     public val explicitNulls: Boolean = true,
-    @ExperimentalSerializationApi
     public val prettyPrintIndent: String = "    ",
     public val coerceInputValues: Boolean = false,
     public val useArrayPolymorphism: Boolean = false,
     public val classDiscriminator: String = "type",
     public val allowSpecialFloatingPointValues: Boolean = false,
     public val useAlternativeNames: Boolean = true,
-    @ExperimentalSerializationApi
     public val namingStrategy: JsonNamingStrategy? = null,
-    @ExperimentalSerializationApi
     public val decodeEnumsCaseInsensitive: Boolean = false,
-    @ExperimentalSerializationApi
     public val allowTrailingComma: Boolean = false,
-    @ExperimentalSerializationApi
     public val allowComments: Boolean = false,
     @ExperimentalSerializationApi
     @set:Deprecated(
         "JsonConfiguration is not meant to be mutable, and will be made read-only in a future release. " +
             "The `Json(from = ...) {}` copy builder should be used instead.",
-        level = DeprecationLevel.ERROR
+        level = DeprecationLevel.HIDDEN
     )
     public var classDiscriminatorMode: ClassDiscriminatorMode = ClassDiscriminatorMode.POLYMORPHIC,
+
+    @ExperimentalSerializationApi
+    @set:Deprecated("Not meant to be mutable", level = DeprecationLevel.HIDDEN)
+    public var exceptionsWithDebugInfo: Boolean = true,
+
+    @ExperimentalSerializationApi
+    public val maxNestingDepth: Int = 400,
 ) {
 
     /** @suppress Dokka **/
@@ -55,7 +57,8 @@ public class JsonConfiguration @OptIn(ExperimentalSerializationApi::class) inter
                 "prettyPrintIndent='$prettyPrintIndent', coerceInputValues=$coerceInputValues, useArrayPolymorphism=$useArrayPolymorphism, " +
                 "classDiscriminator='$classDiscriminator', allowSpecialFloatingPointValues=$allowSpecialFloatingPointValues, " +
                 "useAlternativeNames=$useAlternativeNames, namingStrategy=$namingStrategy, decodeEnumsCaseInsensitive=$decodeEnumsCaseInsensitive, " +
-                "allowTrailingComma=$allowTrailingComma, allowComments=$allowComments, classDiscriminatorMode=$classDiscriminatorMode)"
+                "allowTrailingComma=$allowTrailingComma, allowComments=$allowComments, classDiscriminatorMode=$classDiscriminatorMode, " +
+                "exceptionsWithDebugInfo=$exceptionsWithDebugInfo, maxNestingDepth=$maxNestingDepth)"
     }
 }
 

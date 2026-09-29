@@ -2,6 +2,7 @@
  * Copyright 2017-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 import Java9Modularity.configureJava9ModuleInfo
+import Java9Modularity.configureMetadataJarAutomaticModuleName
 
 plugins {
     kotlin("multiplatform")
@@ -34,3 +35,4 @@ kotlin {
 }
 
 configureJava9ModuleInfo()
+configureMetadataJarAutomaticModuleName()

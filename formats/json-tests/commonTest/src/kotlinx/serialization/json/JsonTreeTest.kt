@@ -115,13 +115,12 @@ class JsonTreeTest : JsonTestBase() {
         assertEquals(m, lenient.decodeFromJsonElement(ComplexMapWrapper.serializer(), dyn))
     }
 
-    private inline fun <reified T: Any> writeAndTest(obj: T, serial: KSerializer<T>, printDiagnostics: Boolean = false): Pair<JsonElement, T> {
+    private inline fun <reified T: Any> writeAndTest(obj: T, serial: KSerializer<T>, printDiagnostics: Boolean = false) {
         val tree = lenient.encodeToJsonElement(serial, obj)
         val str = tree.toString()
         if (printDiagnostics) println(str)
         val restored = lenient.decodeFromJsonElement(serial, lenient.parseToJsonElement(str))
         assertEquals(obj, restored)
-        return tree to restored
     }
 
     @Test

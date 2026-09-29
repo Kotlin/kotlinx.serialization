@@ -10,7 +10,7 @@ import kotlinx.serialization.modules.*
 
 /**
  * Implements [encoding][encodeToByteArray] and [decoding][decodeFromByteArray] classes to/from bytes
- * using [CBOR](https://tools.ietf.org/html/rfc7049) specification.
+ * using [CBOR](https://tools.ietf.org/html/rfc8949) specification.
  * It is typically used by constructing an application-specific instance, with configured behaviour, and,
  * if necessary, registered custom serializers (in [SerializersModule] provided by [serializersModule] constructor parameter).
  *
@@ -86,7 +86,13 @@ public sealed class Cbor(
     override fun <T> decodeFromByteArray(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T {
         val stream = ByteArrayInput(bytes)
         val reader = CborReader(this, CborParser(stream, configuration.verifyObjectTags))
-        return reader.decodeSerializableValue(deserializer)
+        val result = reader.decodeSerializableValue(deserializer)
+        if (stream.availableBytes > 0) {
+            throw CborDecodingException(
+                "Input contains ${stream.availableBytes} unprocessed bytes left after decoding a value."
+            )
+        }
+        return result
     }
 }
 

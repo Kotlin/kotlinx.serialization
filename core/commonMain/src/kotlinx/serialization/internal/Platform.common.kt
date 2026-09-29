@@ -187,3 +187,9 @@ internal interface ParametrizedSerializerCache<T> {
      */
     fun get(key: KClass<Any>, types: List<KType> = emptyList()): Result<KSerializer<T>?>
 }
+
+/**
+ * Estimates a capacity value to pass to [HashMap], [HashSet] and other collection's constructor
+ * to ensure there will be no reallocation while adding [requiredCapacity] elements given a default load factor value.
+ */
+internal expect fun estimateCapacityForHashMap(requiredCapacity: Int): Int

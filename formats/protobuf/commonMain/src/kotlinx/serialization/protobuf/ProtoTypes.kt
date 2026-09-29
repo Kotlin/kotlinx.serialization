@@ -5,7 +5,6 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
-import kotlinx.serialization.descriptors.*
 
 /**
  * Specifies protobuf field number (a unique number for a field in the protobuf message)

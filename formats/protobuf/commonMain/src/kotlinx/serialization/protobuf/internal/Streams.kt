@@ -127,6 +127,20 @@ internal class ByteArrayInput(private var array: ByteArray, private val endIndex
         }
         throw SerializationException("Input stream is malformed: Varint too long (exceeded 32 bits)")
     }
+
+    /**
+     * Reads raw varint bytes without decoding them into a number.
+     * Returns the bytes as-is from the wire, including continuation bits.
+     */
+    fun readRawVarint(): ByteArray {
+        val start = position
+        while (position < endIndex) {
+            if (array[position++].toInt() and 0x80 == 0) {
+                return array.copyOfRange(start, position)
+            }
+        }
+        throw SerializationException("Input stream is malformed: Varint too long or unexpected EOF")
+    }
 }
 
 internal class ByteArrayOutput {

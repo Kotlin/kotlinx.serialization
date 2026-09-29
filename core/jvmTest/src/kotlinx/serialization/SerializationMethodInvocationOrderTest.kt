@@ -23,7 +23,7 @@ class SerializationMethodInvocationOrderTest {
         out.done()
 
         val inp = Inp()
-        inp.decodeSerializableValue(serializer<Container>())
+        assertEquals(Container(Data("s1", 42)), inp.decodeSerializableValue(serializer<Container>()))
         inp.done()
     }
 

@@ -87,6 +87,22 @@ class JsonNamesTest : JsonTestBase() {
     }
 
     @Test
+    fun testLastPropertyWinsOnAlternativeNames() {
+        val cases = mapOf(
+            """{"data":"first","foo":"second"}""" to "second", // primary then alternative
+            """{"foo":"first","data":"second"}""" to "second", // alternative then primary
+            """{"foo":"first","_foo":"second"}""" to "second", // two alternatives
+            """{"foo":"first","foo":"second"}""" to "second", // Two primary
+        )
+        for ((input, expected) in cases) {
+            parameterizedCoercingTest { json, streaming, _ ->
+                val data = json.decodeFromString(WithNames.serializer(), input, jsonTestingMode = streaming).data
+                assertEquals(expected, data, "Failed to parse input '$input' with streaming=$streaming")
+            }
+        }
+    }
+
+    @Test
     fun testThrowsAnErrorOnDuplicateNames() {
         val serializer = CollisionWithAlternate.serializer()
         parameterizedCoercingTest { json, streaming, _ ->
@@ -99,6 +115,25 @@ class JsonNamesTest : JsonTestBase() {
                     jsonTestingMode = streaming
                 )
             }
+        }
+    }
+
+    @Test
+    fun testMissingFieldExceptionOnDuplicateAlternativeNames() {
+        val serializer = CollisionWithAlternate.serializer()
+        for (input in listOf("{}", """{"data":"a"}""")) {
+            parameterizedCoercingTest { json, streaming, msg ->
+                assertFailsWithMessage<MissingFieldException>("required", "$msg, input=$input") {
+                    json.decodeFromString(serializer, input, jsonTestingMode = streaming)
+                }
+            }
+        }
+        parameterizedCoercingTest { json, streaming, msg ->
+            assertEquals(
+                CollisionWithAlternate("a", "b"),
+                json.decodeFromString(serializer, """{"data":"a","foo":"b"}""", jsonTestingMode = streaming),
+                msg
+            )
         }
     }
 }

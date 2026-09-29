@@ -158,6 +158,7 @@ public abstract class TaggedEncoder<Tag : Any?> : Encoder, CompositeEncoder {
         tagStack.add(name)
     }
 
+    @IgnorableReturnValue
     protected fun popTag(): Tag =
         if (tagStack.isNotEmpty())
             tagStack.removeAt(tagStack.lastIndex)
@@ -316,6 +317,7 @@ public abstract class TaggedDecoder<Tag : Any?> : Decoder, CompositeDecoder {
 
     private var flag = false
 
+    @IgnorableReturnValue
     protected fun popTag(): Tag {
         val r = tagStack.removeAt(tagStack.lastIndex)
         flag = true

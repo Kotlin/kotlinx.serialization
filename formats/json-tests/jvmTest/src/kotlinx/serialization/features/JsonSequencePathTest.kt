@@ -23,7 +23,7 @@ class JsonSequencePathTest {
     fun testFailure() {
         val source = """{"data":{"s":"value"}}{"data":{"s":42}}{notevenreached}""".toStream()
         val iterator = Json.decodeToSequence<Data>(source).iterator()
-        iterator.next() // Ignore
+        val _ = iterator.next() // Ignore
         assertFailsWithMessage<SerializationException>(
             "Expected quotation mark '\"', but had '4' instead at path: \$.data.s"
         ) { iterator.next() }

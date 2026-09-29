@@ -10,8 +10,7 @@ import kotlinx.serialization.internal.EnumSerializer
 import kotlinx.serialization.test.*
 import kotlin.test.*
 
-// This is unimplemented functionality that should be
-@Suppress("RemoveExplicitTypeArguments") // This is exactly what's being tested
+@Suppress("RETURN_VALUE_NOT_USED") // assertIs, KT-82363
 class SerializersLookupEnumTest {
     @Serializable(with = EnumExternalObjectSerializer::class)
     enum class EnumExternalObject

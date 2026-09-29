@@ -4,14 +4,19 @@
 
 package kotlinx.serialization.json.internal
 
-import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
-@OptIn(ExperimentalSerializationApi::class)
-internal fun StringJsonLexer(json: Json, source: String) = if (!json.configuration.allowComments) StringJsonLexer(source) else StringJsonLexerWithComments(source)
+internal fun StringJsonLexer(json: Json, source: String) =
+    if (!json.configuration.allowComments)
+        StringJsonLexer(source, json.configuration)
+    else
+        StringJsonLexerWithComments(source, json.configuration)
 
 @Suppress("unused")
-internal open class StringJsonLexer(override val source: String) : AbstractJsonLexer() {
+internal open class StringJsonLexer(
+    override val source: String,
+    configuration: JsonConfiguration
+) : AbstractJsonLexer(configuration) {
 
     override fun prefetchOrEof(position: Int): Int = if (position < source.length) position else -1
 
@@ -91,7 +96,7 @@ internal open class StringJsonLexer(override val source: String) : AbstractJsonL
         if (closingQuote == -1) {
             // advance currentPosition to a token after the end of the string to guess position in the error msg
             // (not always correct, as `:`/`,` are valid contents of the string, but good guess anyway)
-            consumeStringLenient()
+            val _ = consumeStringLenient()
             fail(TC_STRING, wasConsumed = false)
         }
         // Now we _optimistically_ know where the string ends (it might have been an escaped quote)
@@ -125,4 +130,3 @@ internal open class StringJsonLexer(override val source: String) : AbstractJsonL
         }
     }
 }
-

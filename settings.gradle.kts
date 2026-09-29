@@ -1,8 +1,10 @@
 /*
- * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ * Copyright 2017-2026 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
 pluginManagement {
+    includeBuild("build-settings-logic")
+
     repositories {
         /**
          * Overrides for Teamcity 'K2 User Projects' + 'Aggregate build / Kotlinx libraries compilation' configuration:
@@ -16,7 +18,7 @@ pluginManagement {
         }
         /*
         * This property group is used to build kotlinx.serialization against Kotlin compiler snapshot.
-        * When build_snapshot_train is set to true, kotlin_version property is overridden with kotlin_snapshot_version.
+        * When build_snapshot_train is set to true, kotlin_version property is used.
         * DO NOT change the name of these properties without adapting kotlinx.train build chain.
         */
         val buildSnapshotTrain: String? = providers.gradleProperty("build_snapshot_train").orNull
@@ -25,20 +27,19 @@ pluginManagement {
         }
 
         // kotlin-dev with space redirector
-        maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
-
-        maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev")
-        // For Dokka that depends on kotlinx-html
-        maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven")
-
-        gradlePluginPortal()
-        mavenCentral()
+        maven("https://redirector.kotlinlang.org/maven/dev")
+        // gradlePluginPortal() with cache redirector
+        maven("https://cache-redirector.jetbrains.com/plugins.gradle.org/m2")
+        // mavenCentral() with cache redirector
+        maven("https://cache-redirector.jetbrains.com/repo.maven.apache.org/maven2")
         mavenLocal()
     }
 }
 
 plugins {
+    id("serialization-cache-redirector")
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.5.0"
+    id("org.jetbrains.kotlinx.artifacts-validator-plugin") version "0.0.2"
 }
 
 rootProject.name = "kotlinx-serialization"
@@ -81,6 +82,9 @@ project(":benchmark").projectDir = file("./benchmark")
 include(":guide")
 project(":guide").projectDir = file("./guide")
 
+include(":proguard-rules-test")
+project(":proguard-rules-test").projectDir = file("./rules/rules-integration-tests")
+
 
 dependencyResolutionManagement {
     versionCatalogs {
@@ -101,7 +105,6 @@ fun overriddenKotlinVersion(): String? {
     val bootstrapVersion: String? = providers.gradleProperty("kotlin.version.snapshot").orNull
 
     val buildSnapshotTrain: String? = providers.gradleProperty("build_snapshot_train").orNull
-    val trainVersion: String? = providers.gradleProperty("kotlin_snapshot_version").orNull
 
     if (kotlinRepoUrl?.isNotEmpty() == true) {
         return repoVersion ?: throw IllegalArgumentException("\"kotlin_version\" Gradle property should be defined")
@@ -110,8 +113,8 @@ fun overriddenKotlinVersion(): String? {
             ?: throw IllegalArgumentException("\"kotlin.version.snapshot\" Gradle property should be defined")
     }
     if (buildSnapshotTrain?.isNotEmpty() == true) {
-        return trainVersion
-            ?: throw IllegalArgumentException("\"kotlin_snapshot_version\" should be defined when building with snapshot compiler")
+        return repoVersion
+            ?: throw IllegalArgumentException("\"kotlin_version\" should be defined when building with snapshot compiler")
     }
     return null
 }

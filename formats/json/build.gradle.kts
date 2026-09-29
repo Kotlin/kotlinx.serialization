@@ -1,5 +1,5 @@
 import Java9Modularity.configureJava9ModuleInfo
-import org.jetbrains.kotlin.gradle.tasks.*
+import Java9Modularity.configureMetadataJarAutomaticModuleName
 
 /*
  * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
@@ -52,11 +52,5 @@ kotlin {
     }
 }
 
-// This task should be disabled because of no need to build and publish intermediate JsWasm sourceset
-tasks.whenTaskAdded {
-    if (name == "compileJsWasmMainKotlinMetadata") {
-        enabled = false
-    }
-}
-
 configureJava9ModuleInfo()
+configureMetadataJarAutomaticModuleName()

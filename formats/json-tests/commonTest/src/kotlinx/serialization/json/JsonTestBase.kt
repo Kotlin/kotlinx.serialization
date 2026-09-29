@@ -190,4 +190,15 @@ abstract class JsonTestBase {
             assertTrue("Failed with streaming = $jsonTestingMode\n\tsource value =$data\n\tdeserialized value=$deserialized") { check(data, deserialized) }
         }
     }
+
+    internal fun <T> assertRestoredFromJsonForm(
+        serializer: KSerializer<T>,
+        jsonForm: String,
+        expected: T,
+    ) {
+        parametrizedTest { jsonTestingMode ->
+            val deserialized: T = Json.decodeFromString(serializer, jsonForm, jsonTestingMode)
+            assertEquals(expected, deserialized, "Failed with streaming = $jsonTestingMode")
+        }
+    }
 }

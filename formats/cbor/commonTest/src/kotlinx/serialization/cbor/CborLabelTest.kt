@@ -1,7 +1,7 @@
 package kotlinx.serialization.cbor
 
 import kotlinx.serialization.*
-import kotlinx.serialization.cbor.internal.CborDecodingException
+import kotlinx.serialization.cbor.internal.*
 import kotlin.test.*
 
 
@@ -130,6 +130,29 @@ class CborLabelTest {
         assertEquals(referenceWithoutLabel, cbor.decodeFromHexString(ClassWithoutCborLabel.serializer(), referenceHexStringWithoutLabel))
     }
 
+    @Test
+    fun withNegativeLabel() {
+        val cbor = Cbor {
+            preferCborLabelsOverNames = true
+            useDefiniteLengthEncoding = true
+        }
+        val target = WithNegativeLabel(3, true, false)
+        // a3010321f53b7ffffffffffffffff4
+        /**
+         * A3                     # map(3)
+         *    01                  # unsigned(1)
+         *    03                  # unsigned(3)
+         *    21                  # negative(1)
+         *    F5                  # primitive(21)
+         *    3B 7FFFFFFFFFFFFFFF # negative(9223372036854775807)
+         *    F4                  # primitive(20)
+         */
+        val roundTripResult: WithNegativeLabel = cbor.decodeFromByteArray(cbor.encodeToByteArray(target))
+        assertEquals(target, roundTripResult)
+        val decodeFromFixedBytes: WithNegativeLabel = cbor.decodeFromHexString("a3010321f53b7ffffffffffffffff4")
+        assertEquals(target, decodeFromFixedBytes)
+    }
+
     @Serializable
     data class ClassWithCborLabel(
         @CborLabel(1)
@@ -151,5 +174,14 @@ class CborLabelTest {
         val algorithm: Int
     )
 
+    @Serializable
+    data class WithNegativeLabel(
+        @CborLabel(1)
+        val id: Int,
+        @CborLabel(-2)
+        val cool: Boolean? = null,
+        @CborLabel(Long.MIN_VALUE)
+        val evenCooler: Boolean? = null
+    )
 }
 

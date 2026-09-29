@@ -1,7 +1,3 @@
-import org.gradle.kotlin.dsl.support.*
-import org.jetbrains.kotlin.gradle.dsl.*
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 /*
  * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
@@ -29,6 +25,10 @@ tasks.processJmhResources {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
+tasks.shadowJar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
 tasks.jmhJar {
     archiveBaseName.set("benchmarks")
     archiveVersion.set("")
@@ -43,11 +43,9 @@ tasks.assemble {
 
 kotlin {
     compilerOptions {
-        jvmTarget = JvmTarget.JVM_1_8
-        if (overriddenLanguageVersion != null) {
-            languageVersion = KotlinVersion.fromVersion(overriddenLanguageVersion!!)
-            freeCompilerArgs.add("-Xsuppress-version-warnings")
-        }
+        defaultOptions()
+        setJava8Compatible()
+        languageVersion(overriddenLanguageVersion)
     }
 }
 

@@ -121,14 +121,38 @@ class JsonParserFailureModesTest : JsonTestBase() {
 
     @Test
     fun testNoOverflow() = parametrizedTest {
-        default.decodeFromString<PrimitiveHolder>("""{"b": ${Byte.MAX_VALUE}}""", it)
-        default.decodeFromString<PrimitiveHolder>("""{"b": ${Byte.MIN_VALUE}}""", it)
-        default.decodeFromString<PrimitiveHolder>("""{"s": ${Short.MAX_VALUE}}""", it)
-        default.decodeFromString<PrimitiveHolder>("""{"s": ${Short.MIN_VALUE}}""", it)
-        default.decodeFromString<PrimitiveHolder>("""{"i": ${Int.MAX_VALUE}}""", it)
-        default.decodeFromString<PrimitiveHolder>("""{"i": ${Int.MIN_VALUE}}""", it)
-        default.decodeFromString<Holder>("""{"id": ${Long.MIN_VALUE.toString()}}""", it)
-        default.decodeFromString<Holder>("""{"id": ${Long.MAX_VALUE.toString()}}""", it)
+        assertEquals(
+            Byte.MAX_VALUE,
+            default.decodeFromString<PrimitiveHolder>("""{"b": ${Byte.MAX_VALUE}}""", it).b
+        )
+        assertEquals(
+            Byte.MIN_VALUE,
+            default.decodeFromString<PrimitiveHolder>("""{"b": ${Byte.MIN_VALUE}}""", it).b
+        )
+        assertEquals(
+            Short.MAX_VALUE,
+            default.decodeFromString<PrimitiveHolder>("""{"s": ${Short.MAX_VALUE}}""", it).s
+        )
+        assertEquals(
+            Short.MIN_VALUE,
+            default.decodeFromString<PrimitiveHolder>("""{"s": ${Short.MIN_VALUE}}""", it).s
+        )
+        assertEquals(
+            Int.MAX_VALUE,
+            default.decodeFromString<PrimitiveHolder>("""{"i": ${Int.MAX_VALUE}}""", it).i
+        )
+        assertEquals(
+            Int.MIN_VALUE,
+            default.decodeFromString<PrimitiveHolder>("""{"i": ${Int.MIN_VALUE}}""", it).i
+        )
+        assertEquals(
+            Long.MIN_VALUE,
+            default.decodeFromString<Holder>("""{"id": ${Long.MIN_VALUE}}""", it).id
+        )
+        assertEquals(
+            Long.MAX_VALUE,
+            default.decodeFromString<Holder>("""{"id": ${Long.MAX_VALUE}}""", it).id
+        )
     }
 
     @Test

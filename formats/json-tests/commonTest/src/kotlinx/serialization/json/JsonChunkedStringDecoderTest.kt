@@ -14,7 +14,7 @@ data class LargeStringData(val largeString: String)
 @Serializable
 data class ClassWithLargeStringDataField(val largeStringField: LargeStringData)
 
-
+@Suppress("DEPRECATION")
 object LargeStringSerializer : KSerializer<LargeStringData> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("LargeStringContent", PrimitiveKind.STRING)
 
@@ -59,8 +59,8 @@ open class JsonChunkedStringDecoderTest : JsonTestBase() {
         /* Filter out Java Streams mode in common tests. Java streams tested separately in java tests */
         JsonTestingMode.values().filterNot { it == JsonTestingMode.JAVA_STREAMS }.forEach { mode ->
             if (mode == JsonTestingMode.TREE) {
-                assertFailsWithMessage<IllegalArgumentException>(
-                    "Only chunked decoder supported", "Shouldn't decode JSON in TREE mode"
+                assertFailsWithMessage<SerializationException>(
+                    "Deserialization failed because of 'Only chunked decoder supported' exception in the decoder", "Shouldn't decode JSON in TREE mode"
                 ) {
                     seralizer.decodeFromString<ClassWithLargeStringDataField>(serializedObject, mode)
                 }

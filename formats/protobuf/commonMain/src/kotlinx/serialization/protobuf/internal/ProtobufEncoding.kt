@@ -138,12 +138,21 @@ internal open class ProtobufEncoder(
 
     override fun SerialDescriptor.getTag(index: Int) = extractParameters(index)
 
+    @OptIn(ExperimentalUnsignedTypes::class)
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) = when {
         serializer is MapLikeSerializer<*, *, *, *> -> {
             serializeMap(serializer as SerializationStrategy<T>, value)
         }
+        serializer.descriptor == ProtoUnknownFieldHolderSerializer.descriptor -> {
+            serializeUnknownFields(serializer as ProtoUnknownFieldHolderSerializer, value as ProtoUnknownFieldHolder)
+        }
         serializer.descriptor == ByteArraySerializer().descriptor -> serializeByteArray(value as ByteArray)
+        serializer.descriptor == UByteArraySerializer().descriptor -> serializeByteArray((value as UByteArray).asByteArray())
         else -> serializer.serialize(this, value)
+    }
+
+    internal fun writeRawBytes(bytes: ByteArray) {
+        writer.writeRawBytes(bytes)
     }
 
     private fun serializeByteArray(value: ByteArray) {
@@ -153,6 +162,13 @@ internal open class ProtobufEncoder(
         } else {
             writer.writeBytes(value, tag.protoId)
         }
+    }
+
+    private fun serializeUnknownFields(serializer: SerializationStrategy<ProtoUnknownFieldHolder>, protoUnknownFieldHolder: ProtoUnknownFieldHolder) {
+        require(currentTagOrDefault != MISSING_TAG) {
+            "Cannot serialize directly from kotlinx.serialization.protobuf.ProtoUnknownFieldHolder."
+        }
+        serializer.serialize(this, protoUnknownFieldHolder)
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -251,6 +267,12 @@ private class OneOfElementEncoder(
             "Implementation of oneOf type ${descriptor.serialName} should have @ProtoNumber annotation"
         }
     }
+
+    // For oneof fields, we must always encode the element even if it contains default values,
+    // because the oneof semantics require knowing which case was selected.
+    // Otherwise, decoding an empty byte array would incorrectly select the default variant defined in the message class.
+    // An element with default values will be encoded as {TAG}00 for 0-length content.
+    override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = true
 }
 
 private class MapRepeatedEncoder(

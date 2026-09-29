@@ -2,8 +2,7 @@
  * Copyright 2017-2022 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 import Java9Modularity.configureJava9ModuleInfo
-import org.jetbrains.dokka.gradle.*
-import java.net.*
+import Java9Modularity.configureMetadataJarAutomaticModuleName
 
 plugins {
     kotlin("multiplatform")
@@ -22,7 +21,7 @@ kotlin {
                 optIn("kotlinx.serialization.json.internal.JsonFriendModuleApi")
             }
         }
-        val commonMain by getting {
+        commonMain {
             dependencies {
                 api(project(":kotlinx-serialization-core"))
                 api(project(":kotlinx-serialization-json"))
@@ -33,16 +32,11 @@ kotlin {
 }
 
 project.configureJava9ModuleInfo()
+project.configureMetadataJarAutomaticModuleName()
 
-tasks.named<DokkaTaskPartial>("dokkaHtmlPartial") {
-    dokkaSourceSets {
-        configureEach {
-            externalDocumentationLink {
-                url.set(URI("https://square.github.io/okio/3.x/okio/").toURL())
-                packageListUrl.set(
-                    file("dokka/okio.package.list").toURI().toURL()
-                )
-            }
-        }
+dokka.dokkaSourceSets.configureEach {
+    externalDocumentationLinks.register("okio") {
+        url("https://square.github.io/okio/3.x/okio")
+        packageListUrl = file("dokka/okio.package-list").toURI()
     }
 }

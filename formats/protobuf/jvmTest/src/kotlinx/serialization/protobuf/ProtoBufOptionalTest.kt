@@ -25,25 +25,25 @@ class ProtoBufOptionalTest {
     @Test
     fun readCompareWithDefaults() {
         val data = MessageWithOptionals()
-        assertTrue(readCompare(data, alwaysPrint = true, protoBuf = protoBuf))
+        assertTrue(readCompare(data, protoBuf = protoBuf))
     }
 
     @Test
     fun dumpCompareWithDefaults() {
         val data = MessageWithOptionals()
-        assertTrue(dumpCompare(data, alwaysPrint = true, protoBuf = protoBuf))
+        assertTrue(dumpCompare(data, protoBuf = protoBuf))
     }
 
     @Test
     fun readCompareWithValues() {
         val data = MessageWithOptionals(42, "Test", MessageWithOptionals.Position.SECOND, 24, listOf(1, 2, 3))
-        assertTrue(readCompare(data, alwaysPrint = true, protoBuf = protoBuf))
+        assertTrue(readCompare(data, protoBuf = protoBuf))
     }
 
     @Test
     fun dumpCompareWithValues() {
         val data = MessageWithOptionals(42, "Test", MessageWithOptionals.Position.SECOND, 24, listOf(1, 2, 3))
-        assertTrue(dumpCompare(data, alwaysPrint = true, protoBuf = protoBuf))
+        assertTrue(dumpCompare(data, protoBuf = protoBuf))
     }
 
     @Test

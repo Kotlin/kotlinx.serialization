@@ -5,6 +5,7 @@
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlin.jvm.*
 import kotlin.reflect.*
@@ -96,6 +97,7 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
         encoder.serializersModule.getPolymorphic(baseClass, value)
 }
 
+// When editing these messages, make sure to update JsonPolymorphicHelpers#subtypeNotRegisteredMessageJson as well.
 @JvmName("throwSubtypeNotRegistered")
 internal fun throwSubtypeNotRegistered(subClassName: String?, baseClass: KClass<*>): Nothing {
     val scope = "in the polymorphic scope of '${baseClass.simpleName}'"

@@ -20,7 +20,7 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
+    maven("https://redirector.kotlinlang.org/maven/dev")
     mavenLocal {
         mavenContent {
             snapshotsOnly()
@@ -49,6 +49,7 @@ kotlin {
         nodejs()
     }
     jvm()
+    @Suppress("DEPRECATION", "DEPRECATION_ERROR")
     macosX64()
     macosArm64()
     linuxX64()
@@ -110,7 +111,7 @@ kotlin {
         }
         named("wasmJsTest") {
             dependencies {
-                api("org.jetbrains.kotlin:kotlin-test-wasm-js")
+                implementation("org.jetbrains.kotlin:kotlin-test-wasm-js")
             }
         }
         named("wasmWasiMain") {
@@ -120,9 +121,13 @@ kotlin {
         }
         named("wasmWasiTest") {
             dependencies {
-                api("org.jetbrains.kotlin:kotlin-test-wasm-wasi")
+                implementation("org.jetbrains.kotlin:kotlin-test-wasm-wasi")
             }
         }
+    }
+
+    compilerOptions {
+        freeCompilerArgs.add("-Xreturn-value-checker=check")
     }
 
     targets.all {

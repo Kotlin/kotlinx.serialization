@@ -8,46 +8,158 @@ package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.internal.missingFieldExceptionWithNewMessage
 import kotlinx.serialization.json.*
 
-/**
- * Generic exception indicating a problem with JSON serialization and deserialization.
- */
-internal open class JsonException(message: String) : SerializationException(message)
 
-/**
- * Thrown when [Json] has failed to parse the given JSON string or deserialize it to a target class.
- */
-internal class JsonDecodingException(message: String) : JsonException(message)
-
-internal fun JsonDecodingException(offset: Int, message: String) =
-    JsonDecodingException(if (offset >= 0) "Unexpected JSON token at offset $offset: $message" else message)
-
-/**
- * Thrown when [Json] has failed to create a JSON string from the given value.
- */
-internal class JsonEncodingException(message: String) : JsonException(message)
-
-internal fun JsonDecodingException(offset: Int, message: String, input: CharSequence) =
-    JsonDecodingException(offset, "$message\nJSON input: ${input.minify(offset)}")
-
-internal fun InvalidFloatingPointEncoded(value: Number, output: String) = JsonEncodingException(
-    "Unexpected special floating-point value $value. By default, " +
-            "non-finite floating point values are prohibited because they do not conform JSON specification. " +
-            "$specialFlowingValuesHint\n" +
-            "Current output: ${output.minify()}"
-)
+@OptIn(ExperimentalSerializationApi::class)
+@Suppress("DEPRECATION_ERROR")
+internal fun decodingExceptionOf(shortMessage: String, hint: String? = null): JsonDecodingException =
+    JsonDecodingException(
+        formatDecodingException(-1, shortMessage, null, hint, null),
+        shortMessage,
+        -1,
+        null,
+        null,
+        hint
+    )
 
 
-// Extension on JSON reader and fail immediately
-internal fun AbstractJsonLexer.throwInvalidFloatingPointDecoded(result: Number): Nothing {
-    fail("Unexpected special floating-point value $result. By default, " +
-            "non-finite floating point values are prohibited because they do not conform JSON specification",
-        hint = specialFlowingValuesHint)
+@OptIn(ExperimentalSerializationApi::class)
+internal inline fun <T> JsonDecoder.withExceptionHandling(
+    path: () -> String,
+    input: () -> CharSequence,
+    block: () -> T
+): T {
+    return try {
+        block()
+    } catch (e: MissingFieldException) {
+        // Add "at path" if and only if we've just caught an exception and it hasn't been augmented yet
+        if (e.message!!.contains("at path")) throw e
+        // NB: we could've use some additional flag marker or augment the stacktrace, but it seemed to be as too much of a burden
+        throw missingFieldExceptionWithNewMessage(e, e.message + " at path: " + path())
+    } catch (e: SerializationException) {
+        throw e
+    } catch (e: Exception) {
+        throw errorFromDeserializer(e, path(), input)
+    }
 }
 
+@OptIn(ExperimentalSerializationApi::class)
+internal inline fun JsonEncoder.withExceptionHandling(classSerialName: () -> String, block: () -> Unit) {
+    return try {
+        block()
+    } catch (e: SerializationException) {
+        throw e
+    } catch (e: Exception) {
+        val causeMessage = e.message
+        val classSerialName = classSerialName()
+        val message =
+            "Serialization " +
+                (if (classSerialName.isBlank()) "" else "of '$classSerialName' ") + "failed because of " +
+                (if (causeMessage == null) "an exception" else "'$causeMessage' exception") + " in the encoder"
+        throw JsonEncodingException(message, classSerialName, cause = e)
+    }
+}
+
+@Suppress("DEPRECATION_ERROR")
+@OptIn(ExperimentalSerializationApi::class)
+internal inline fun JsonDecoder.errorFromDeserializer(
+    cause: Throwable,
+    path: String?,
+    input: () -> CharSequence
+): JsonDecodingException {
+    val causeMessage = cause.message
+    val shortMessage =
+        "Deserialization failed because of " + (if (causeMessage == null) "an exception" else "'$causeMessage' exception") + " in the decoder"
+    val inputValue = json.configuration.ifDebugInput { input().minify().toString() }
+    return JsonDecodingException(
+        formatDecodingException(-1, shortMessage, path, null, inputValue),
+        shortMessage,
+        -1,
+        path,
+        inputValue,
+        null,
+        cause
+    )
+}
+
+@Suppress("DEPRECATION_ERROR")
+@OptIn(ExperimentalSerializationApi::class)
+internal inline fun JsonDecoder.decodingExceptionOf(
+    shortMessage: String,
+    path: String? = null, // no offset because it is used with JsonElement, not the whole input
+    hint: String? = null,
+    input: () -> CharSequence
+): JsonDecodingException {
+    val inputValue = json.configuration.ifDebugInput { input().minify().toString() }
+    return JsonDecodingException(
+        formatDecodingException(-1, shortMessage, path, hint, inputValue),
+        shortMessage,
+        -1,
+        path,
+        inputValue,
+        hint
+    )
+}
+
+@Suppress("DEPRECATION_ERROR")
+@OptIn(ExperimentalSerializationApi::class)
+internal fun AbstractJsonLexer.decodingExceptionOf(
+    shortMessage: String,
+    offset: Int,
+    path: String,
+    hint: String?,
+    input: CharSequence,
+    cause: Throwable? = null
+): JsonDecodingException {
+    val inputValue = configuration.ifDebugInput { input.minify(offset).toString() }
+    return JsonDecodingException(
+        formatDecodingException(offset, shortMessage, path, hint, inputValue),
+        shortMessage,
+        offset,
+        path,
+        inputValue,
+        hint,
+        cause
+    )
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+private inline fun JsonConfiguration.ifDebugInput(block: () -> String): String? =
+    if (exceptionsWithDebugInfo) block() else null
+
+internal fun formatEncodingException(shortMessage: String, hint: String?): String {
+    return shortMessage + if (hint.isNullOrBlank()) "" else "\n$hint"
+}
+
+private fun formatDecodingException(
+    offset: Int,
+    shortMessage: String,
+    path: String?,
+    hint: String?,
+    input: String?,
+): String = buildString {
+    if (offset >= 0) append("Unexpected JSON token at offset $offset: ")
+    append(shortMessage)
+
+    if (!path.isNullOrBlank()) {
+        append(" at path: ")
+        append(path)
+    }
+    if (!hint.isNullOrBlank()) {
+        append("\n$hint")
+    }
+    if (input != null) {
+        append("\nJSON input: ")
+        append(input)
+    }
+}
+
+
 internal fun AbstractJsonLexer.invalidTrailingComma(entity: String = "object"): Nothing {
-    fail("Trailing comma before the end of JSON $entity",
+    fail(
+        "Trailing comma before the end of JSON $entity",
         position = currentPosition - 1,
         hint = "Trailing commas are non-complaint JSON and not allowed by default. Use 'allowTrailingComma = true' in 'Json {}' builder to support them."
     )
@@ -56,24 +168,27 @@ internal fun AbstractJsonLexer.invalidTrailingComma(entity: String = "object"): 
 @OptIn(ExperimentalSerializationApi::class)
 internal fun InvalidKeyKindException(keyDescriptor: SerialDescriptor) = JsonEncodingException(
     "Value of type '${keyDescriptor.serialName}' can't be used in JSON as a key in the map. " +
-            "It should have either primitive or enum kind, but its kind is '${keyDescriptor.kind}'.\n" +
-            allowStructuredMapKeysHint
+        "It should have either primitive or enum kind, but its kind is '${keyDescriptor.kind}'",
+    classSerialName = keyDescriptor.serialName,
+    hint = allowStructuredMapKeysHint
 )
 
-// Exceptions for tree-based decoder
-
-internal fun InvalidFloatingPointEncoded(value: Number, key: String, output: String) =
-    JsonEncodingException(unexpectedFpErrorMessage(value, key, output))
-
-internal fun InvalidFloatingPointDecoded(value: Number, key: String, output: String) =
-    JsonDecodingException(-1, unexpectedFpErrorMessage(value, key, output))
-
-private fun unexpectedFpErrorMessage(value: Number, key: String, output: String): String {
-    return "Unexpected special floating-point value $value with key $key. By default, " +
-            "non-finite floating point values are prohibited because they do not conform JSON specification. " +
-            "$specialFlowingValuesHint\n" +
-            "Current output: ${output.minify()}"
+// Invalid FP messages:
+internal fun AbstractJsonLexer.throwInvalidFloatingPointDecoded(result: Number): Nothing {
+    fail(nonFiniteFpMessage(result, null), hint = specialFlowingValuesHint)
 }
+
+@OptIn(ExperimentalSerializationApi::class)
+internal fun InvalidFloatingPointEncoded(value: Number, key: String? = null) =
+    JsonEncodingException(nonFiniteFpMessage(value, key), hint = specialFlowingValuesHint)
+
+@OptIn(ExperimentalSerializationApi::class)
+internal inline fun JsonDecoder.InvalidFloatingPointDecoded(value: Number, key: String, input: () -> CharSequence) =
+    decodingExceptionOf(nonFiniteFpMessage(value, key), hint = specialFlowingValuesHint, input = input)
+
+private fun nonFiniteFpMessage(value: Number, key: String?): String =
+    "Unexpected special floating-point value $value" + (if (key != null) " with key $key. " else ". ") + "By default, " +
+        "non-finite floating point values are prohibited because they do not conform JSON specification."
 
 internal fun CharSequence.minify(offset: Int = -1): CharSequence {
     if (length < 200) return this

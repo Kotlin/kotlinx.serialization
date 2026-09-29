@@ -80,7 +80,7 @@ abstract class JsonClassDiscriminatorModeBaseTest(
     @SerialName("mixed")
     data class MixedPolyAndRegular(val sb: SealedBase, val sc: SealedContainer, val i: Inner)
 
-    private inline fun <reified T> doTest(expected: String, obj: T) {
+    internal inline fun <reified T> doTest(expected: String, obj: T) {
         parametrizedTest { mode ->
             val serialized = json.encodeToString(serializer<T>(), obj, mode)
             assertEquals(expected, serialized, "Failed with mode = $mode")
@@ -150,4 +150,8 @@ abstract class JsonClassDiscriminatorModeBaseTest(
         val nm = NullableMixed(null, null)
        doTest(expected, nm)
     }
+
+    @Serializable
+    @SerialName("Conflict")
+    class Conflict(val type: String)
 }

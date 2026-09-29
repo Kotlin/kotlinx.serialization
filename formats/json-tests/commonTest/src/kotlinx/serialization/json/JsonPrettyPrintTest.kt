@@ -72,4 +72,15 @@ class JsonPrettyPrintTest : JsonTestBase() {
             "{\n    \"rec\": {\n        \"rec\": null,\n        \"l\": []\n    },\n    \"l\": [\n        1,\n        2,\n        3\n    ]\n}"
         assertEquals(s, fmt.encodeToString(obj, mode))
     }
+
+    val jsonWithTabs = Json(fmt) {
+        prettyPrintIndent = "\t"
+    }
+
+    @Test
+    fun testRecursiveWithTab() = parametrizedTest { mode ->
+        val obj = Recursive(Recursive(null))
+        val s = "{\n\t\"rec\": {\n\t\t\"rec\": null,\n\t\t\"empty\": {}\n\t},\n\t\"empty\": {}\n}"
+        assertEquals(s, jsonWithTabs.encodeToString(obj, mode))
+    }
 }

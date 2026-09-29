@@ -47,6 +47,6 @@ kover {
 }
 
 
-val uncoveredProjects get() = setOf(":kotlinx-serialization-bom", ":benchmark", ":guide")
+val uncoveredProjects get() = setOf(":kotlinx-serialization-bom", ":benchmark", ":guide", ":proguard-rules-test")
 // map: variant name -> project path
 val projectsForCoverageVerification get() = mapOf("core" to ":kotlinx-serialization-core", "json" to ":kotlinx-serialization-json", "jsonOkio" to ":kotlinx-serialization-json-okio", "cbor" to ":kotlinx-serialization-cbor", "hocon" to ":kotlinx-serialization-hocon", "properties" to ":kotlinx-serialization-properties", "protobuf" to ":kotlinx-serialization-protobuf", "io" to ":kotlinx-serialization-json-io")

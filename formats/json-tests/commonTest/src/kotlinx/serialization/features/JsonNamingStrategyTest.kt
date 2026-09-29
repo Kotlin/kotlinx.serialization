@@ -183,14 +183,26 @@ class JsonNamingStrategyTest : JsonTestBase() {
             ignoreUnknownKeys = true
         }
         parametrizedTest { mode ->
-            assertFailsWithMessage<SerializationException>("The suggested name 'test_case' for property test_case is already one of the names for property testCase") {
-                json.decodeFromString<CollisionCheckPrimary>("""{"test_case":"a"}""", mode)
-            }
+            checkEncodingException(mode, {
+                json.encodeToString(CollisionCheckPrimary("a", "b"))
+            }, {
+                message("The transformed name 'test_case' for property test_case already exists in kotlinx.serialization.features.JsonNamingStrategyTest.CollisionCheckPrimary(testCase: kotlin.String, test_case: kotlin.String)")
+                serialName(CollisionCheckPrimary.serializer().descriptor.serialName)
+            })
         }
         parametrizedTest { mode ->
-            assertFailsWithMessage<SerializationException>("The suggested name 'test_case' for property testCase2 is already one of the names for property testCase") {
+            checkDecodingException(mode, {
+                json.decodeFromString<CollisionCheckPrimary>("""{"test_case":"a"}""", mode)
+            }, {
+                message("The suggested name 'test_case' for property test_case is already one of the names for property testCase in kotlinx.serialization.features.JsonNamingStrategyTest.CollisionCheckPrimary(testCase: kotlin.String, test_case: kotlin.String)")
+            })
+        }
+        parametrizedTest { mode ->
+            checkDecodingException(mode, {
                 json.decodeFromString<CollisionCheckAlternate>("""{"test_case":"a"}""", mode)
-            }
+            }, {
+                message("The suggested name 'test_case' for property testCase2 is already one of the names for property testCase in kotlinx.serialization.features.JsonNamingStrategyTest.CollisionCheckAlternate(testCase: kotlin.String, testCase2: kotlin.String)")
+            })
         }
     }
 
@@ -209,6 +221,7 @@ class JsonNamingStrategyTest : JsonTestBase() {
     }
 
     @Serializable
+    @SerialName("SealedBase")
     sealed interface SealedBase {
         @Serializable
         @JsonClassDiscriminator("typeSub")
@@ -238,5 +251,29 @@ class JsonNamingStrategyTest : JsonTestBase() {
             """{"test_base":{"typeBase":"SealedSub2","test_case":0},"test_mid":{"typeSub":"SealedSub1"}}""",
             json
         )
+    }
+
+    @Test
+    fun testClashWithDiscriminator() {
+        val correctJson = Json(jsonWithNaming) {
+            classDiscriminator = "test_base"
+        }
+        val holder = Holder(SealedBase.SealedSub2(), SealedBase.SealedMid.SealedSub1)
+
+        // Should pass because same name is only on different levels
+        assertJsonFormAndRestored(
+            Holder.serializer(),
+            holder,
+            """{"test_base":{"test_base":"SealedSub2","test_case":0},"test_mid":{"typeSub":"SealedSub1"}}""",
+            correctJson
+        )
+
+        val incorrectJson = Json(jsonWithNaming) {
+            classDiscriminator = "test_case"
+        }
+
+        assertFailsWithMessage<SerializationException>("Class 'SealedSub2' cannot be serialized as base class 'SealedBase' because it has property name that conflicts with JSON class discriminator 'test_case'.") {
+            incorrectJson.encodeToString<Holder>(holder)
+        }
     }
 }

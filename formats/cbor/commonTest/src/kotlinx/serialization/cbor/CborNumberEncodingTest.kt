@@ -1,9 +1,10 @@
+@file:OptIn(ExperimentalUnsignedTypes::class)
+
 package kotlinx.serialization.cbor
 
-import kotlinx.serialization.decodeFromByteArray
-import kotlinx.serialization.encodeToByteArray
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
+import kotlin.test.*
 
 class CborNumberEncodingTest {
 
@@ -210,6 +211,65 @@ class CborNumberEncodingTest {
         assertEquals(
             expected = -4294967296,
             actual = Cbor.decodeFromByteArray(bytes),
+        )
+    }
+
+    @Test
+    fun testEncodingUnsignedValuesAsPositiveInteger() {
+        assertEquals(expected = "18c8", actual = Cbor.encodeToHexString(UByte.serializer(), 200u))
+        assertEquals(expected = "197d00", actual = Cbor.encodeToHexString(UShort.serializer(), 32000u))
+        assertEquals(expected = "1a80000000", actual = Cbor.encodeToHexString(UInt.serializer(), 2147483648u))
+        assertEquals(
+            expected = "1b8000000000000000",
+            actual = Cbor.encodeToHexString(ULong.serializer(), 9223372036854775808uL)
+        )
+        assertEquals(expected = "9f18d0ff", actual = Cbor.encodeToHexString(UByteArraySerializer(), ubyteArrayOf(208u)))
+        assertEquals(
+            expected = "9f198000ff",
+            actual = Cbor.encodeToHexString(UShortArraySerializer(), ushortArrayOf(32768u))
+        )
+        assertEquals(
+            expected = "9f1a80000000ff",
+            actual = Cbor.encodeToHexString(UIntArraySerializer(), uintArrayOf(2147483648u))
+        )
+        assertEquals(
+            expected = "9f1b8000000000000000ff",
+            actual = Cbor.encodeToHexString(ULongArraySerializer(), ulongArrayOf(9223372036854775808uL))
+        )
+    }
+
+    @Test
+    fun testDecodingLegacySignedEncodingOfUnsignedValues() {
+        assertEquals(expected = 200u, actual = Cbor.decodeFromHexString(UByte.serializer(), "3837"))
+        assertEquals(expected = 32768u, actual = Cbor.decodeFromHexString(UShort.serializer(), "397fff"))
+        assertEquals(expected = 2147483648u, actual = Cbor.decodeFromHexString(UInt.serializer(), "3a7fffffff"))
+        assertEquals(
+            expected = 9223372036854775808uL,
+            actual = Cbor.decodeFromHexString(ULong.serializer(), "3b7fffffffffffffff")
+        )
+        assertContentEquals(expected = ubyteArrayOf(208u), actual = Cbor.decodeFromHexString("9f382fff"))
+        assertContentEquals(expected = ushortArrayOf(32768u), actual = Cbor.decodeFromHexString("9f397fffff"))
+        assertContentEquals(expected = uintArrayOf(2147483648u), actual = Cbor.decodeFromHexString("9f3a7fffffffff"))
+        assertContentEquals(
+            expected = ulongArrayOf(9223372036854775808uL),
+            actual = Cbor.decodeFromHexString("9f3b7fffffffffffffffff")
+        )
+    }
+
+    @Test
+    fun testUnsignedArrayMixedDecoding() {
+        assertContentEquals(expected = ubyteArrayOf(208u, 208u), actual = Cbor.decodeFromHexString("9f382f18d0ff"))
+        assertContentEquals(
+            expected = ushortArrayOf(32768u, 32768u),
+            actual = Cbor.decodeFromHexString("9f397fff198000ff")
+        )
+        assertContentEquals(
+            expected = uintArrayOf(2147483648u, 2147483648u),
+            actual = Cbor.decodeFromHexString("9f3a7fffffff1a80000000ff")
+        )
+        assertContentEquals(
+            expected = ulongArrayOf(9223372036854775808uL, 9223372036854775808uL),
+            actual = Cbor.decodeFromHexString("9f3b7fffffffffffffff1b8000000000000000ff")
         )
     }
 }

@@ -1,10 +1,9 @@
 import groovy.util.*
+import groovy.xml.XmlParser
 import org.gradle.jvm.tasks.Jar
-import org.gradle.kotlin.dsl.*
-import org.gradle.plugins.signing.*
 import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.tasks.*
-import java.net.*
+import java.nio.file.Paths
 
 /*
  * Copyright 2017-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
@@ -69,6 +68,7 @@ afterEvaluate {
                         artifactId = project.name
                         reconfigureMultiplatformPublication(publications.getByName("jvm") as MavenPublication)
                     }
+
                     "metadata", "jvm", "js", "native" -> artifactId = "${project.name}-$type"
                 }
                 logger.info("Artifact id = $artifactId")
@@ -92,7 +92,7 @@ val testRepositoryDir = project.layout.buildDirectory.dir("testRepository")
 
 publishing {
     repositories {
-        addSonatypeRepository()
+        addPublishingRepository()
 
         /**
          * Maven repository in build directory to check published artifacts.
@@ -114,13 +114,11 @@ interface LocalArtifactAttr : Named {
 }
 
 val testPublicationTask: TaskCollection<*> = tasks.named { name -> name == "publishAllPublicationsToTestRepository" }
-configurations.register("testPublication") {
-    isVisible = false
-    isCanBeResolved = false
+configurations.consumable("testPublication") {
     // this configuration produces modules that can be consumed by other projects
-    isCanBeConsumed = true
     attributes {
         attribute(Attribute.of("kotlinx.serialization.repository", String::class.java), "test")
+        attribute(Usage.USAGE_ATTRIBUTE, objects.named<Usage>("repo-testing"))
     }
     outgoing.artifact(testRepositoryDir) {
         builtBy(testPublicationTask)
@@ -172,6 +170,31 @@ fun MavenPom.configureMavenCentralMetadata() {
     }
 }
 
+// Add Implementation-* attributes to JAR's manifest
+// While the manifest and these attributes could be added to any JAR file,
+// it does not make a lot of sense for anything but JAR files with actual implementation.
+// Those are JAR files without a classifier (where classifier is sources, javadoc, you name it).
+// Unfortunately, archiveClassifier is always empty during the configuration phase,
+// so the check is postponed until the actual task execution.
+tasks.withType<Jar>().configureEach {
+    val multiplatformProject = isMultiplatform
+    val implementationTitle = project.name
+    val implementationVersion = project.version
+    doFirst {
+        // Skip all non-main JARs (sources, javadoc, etc)
+        if (archiveClassifier.getOrElse("").isNotEmpty()) return@doFirst
+        // Skip multiplatform metadata JARs
+        if (multiplatformProject && archiveAppendix.getOrElse("") != "jvm") return@doFirst
+        manifest {
+            attributes(
+                "Implementation-Vendor" to "JetBrains",
+                "Implementation-Title" to implementationTitle,
+                "Implementation-Version" to implementationVersion,
+            )
+        }
+    }
+}
+
 // utility functions
 
 /**
@@ -186,18 +209,23 @@ public fun Project.reconfigureMultiplatformPublication(jvmPublication: MavenPubl
     val mavenPublications =
         extensions.getByType<PublishingExtension>().publications.withType<MavenPublication>()
     val kmpPublication = mavenPublications.getByName("kotlinMultiplatform")
-
-    var jvmPublicationXml: XmlProvider? = null
-    jvmPublication.pom.withXml { jvmPublicationXml = this }
+    // MavenPublication is not supported as configuration-cache state, snapshotting strings
+    val kmpArtifactId = kmpPublication.artifactId
+    val jvmGroupId = jvmPublication.groupId
+    val jvmArtifactId = jvmPublication.artifactId
+    val jvmVersion = jvmPublication.version
+    val jvmPublicationName = jvmPublication.name
+    val jvmPomFile = layout.buildDirectory.file("publications/$jvmPublicationName/pom-default.xml")
 
     kmpPublication.pom.withXml {
         val root = asNode()
+        val jvmPom = XmlParser(false, false).parse(jvmPomFile.get().asFile)
         // Remove the original content and add the content from the platform POM:
         root.children().toList().forEach { root.remove(it as Node) }
-        jvmPublicationXml!!.asNode().children().forEach { root.append(it as Node) }
+        jvmPom.children().forEach { root.append(it as Node) }
 
         // Adjust the self artifact ID, as it should match the root module's coordinates:
-        ((root["artifactId"] as NodeList).first() as Node).setValue(kmpPublication.artifactId)
+        ((root["artifactId"] as NodeList).first() as Node).setValue(kmpArtifactId)
 
         // Set packaging to POM to indicate that there's no artifact:
         root.appendNode("packaging", "pom")
@@ -206,9 +234,9 @@ public fun Project.reconfigureMultiplatformPublication(jvmPublication: MavenPubl
         val dependencies = (root["dependencies"] as NodeList).first() as Node
         dependencies.children().toList().forEach { dependencies.remove(it as Node) }
         dependencies.appendNode("dependency").apply {
-            appendNode("groupId", jvmPublication.groupId)
-            appendNode("artifactId", jvmPublication.artifactId)
-            appendNode("version", jvmPublication.version)
+            appendNode("groupId", jvmGroupId)
+            appendNode("artifactId", jvmArtifactId)
+            appendNode("version", jvmVersion)
             appendNode("scope", "compile")
         }
     }
@@ -216,7 +244,10 @@ public fun Project.reconfigureMultiplatformPublication(jvmPublication: MavenPubl
     // TODO verify if this is still relevant
     tasks.matching { it.name == "generatePomFileForKotlinMultiplatformPublication" }.configureEach {
         @Suppress("DEPRECATION")
-        dependsOn("generatePomFileFor${jvmPublication.name.capitalize()}Publication")
+        dependsOn("generatePomFileFor${jvmPublicationName.capitalize()}Publication")
+        inputs.file(jvmPomFile)
+            .withPropertyName("jvmPomFile")
+            .withPathSensitivity(PathSensitivity.RELATIVE)
     }
 }
 
@@ -232,23 +263,18 @@ fun MavenPublication.signPublicationIfKeyPresent() {
     }
 }
 
-fun RepositoryHandler.addSonatypeRepository() {
-    maven {
-        url = mavenRepositoryUri()
-        credentials {
-            username = getSensitiveProperty("libs.sonatype.user")
-            password = getSensitiveProperty("libs.sonatype.password")
-        }
-    }
-}
-
-fun mavenRepositoryUri(): URI {
-    // TODO -SNAPSHOT detection can be made here as well
-    val repositoryId: String? = System.getenv("libs.repository.id")
-    return if (repositoryId == null) {
-        URI("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+// Artifacts are published to a local repo, then all combined into a deployment bundle elsewhere
+fun RepositoryHandler.addPublishingRepository() {
+    val buildRepoLocationProperty = getSensitiveProperty("build.repo.path")
+    val buildRepoLocation: Any = if (buildRepoLocationProperty.isNullOrBlank()) {
+        project.rootProject.layout.buildDirectory.dir("repo")
     } else {
-        URI("https://oss.sonatype.org/service/local/staging/deployByRepositoryId/$repositoryId")
+        Paths.get(buildRepoLocationProperty).toUri()
+    }
+    maven {
+        maven(buildRepoLocation) {
+            name = "buildRepo"
+        }
     }
 }
 

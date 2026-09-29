@@ -1,9 +1,13 @@
+/*
+ * Copyright 2017-2026 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 import java.io.*
 import java.util.*
 
-/*
- * Copyright 2017-2024 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
- */
+pluginManagement {
+    includeBuild("../build-settings-logic")
+}
 
 dependencyResolutionManagement {
     versionCatalogs {
@@ -18,6 +22,10 @@ dependencyResolutionManagement {
     }
 }
 
+plugins {
+    id("serialization-cache-redirector")
+}
+
 fun overriddenKotlinVersion(): String? {
     val kotlinRepoUrl: String? = providers.gradleProperty("kotlin_repo_url").orNull
     val repoVersion: String? = providers.gradleProperty("kotlin_version").orNull
@@ -28,15 +36,12 @@ fun overriddenKotlinVersion(): String? {
     val bootstrapVersionFile: String?
 
     val buildSnapshotTrain: String? = providers.gradleProperty("build_snapshot_train").orNull
-    val trainVersion: String? = providers.gradleProperty("kotlin_snapshot_version").orNull
-    val trainVersionFile: String?
 
     FileInputStream(file("../gradle.properties")).use { propFile ->
         val properties = Properties()
         properties.load(propFile)
         repoVersionFile = properties["kotlin_version"] as String?
         bootstrapVersionFile = properties["kotlin.version.snapshot"] as String?
-        trainVersionFile = properties["kotlin_snapshot_version"] as String?
     }
 
     if (kotlinRepoUrl?.isNotEmpty() == true) {
@@ -45,7 +50,7 @@ fun overriddenKotlinVersion(): String? {
         return bootstrapVersion ?: bootstrapVersionFile ?: throw IllegalArgumentException("\"kotlin.version.snapshot\" Gradle property should be defined")
     }
     if (buildSnapshotTrain?.isNotEmpty() == true) {
-        return trainVersion ?: trainVersionFile ?: throw IllegalArgumentException("\"kotlin_snapshot_version\" should be defined when building with snapshot compiler")
+        return repoVersion ?: repoVersionFile ?: throw IllegalArgumentException("\"kotlin_version\" should be defined when building with snapshot compiler")
     }
     return null
 }

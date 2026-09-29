@@ -19,22 +19,15 @@ repositories {
     }
     /*
     * This property group is used to build kotlinx.serialization against Kotlin compiler snapshot.
-    * When build_snapshot_train is set to true, kotlin_version property is overridden with kotlin_snapshot_version.
+    * When build_snapshot_train is set to true, kotlin_version property is used.
     * DO NOT change the name of these properties without adapting kotlinx.train build chain.
     */
     if ((findProperty("build_snapshot_train") as? String?).equals("true", true)) {
         maven("https://oss.sonatype.org/content/repositories/snapshots")
     }
 
-    // kotlin-dev with space redirector
-    maven("https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
-
-    maven("https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev")
-    // For Dokka that depends on kotlinx-html
-    maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven")
-
     mavenCentral()
-    mavenLocal()
+    maven("https://redirector.kotlinlang.org/maven/dev")
 }
 
 kotlin {

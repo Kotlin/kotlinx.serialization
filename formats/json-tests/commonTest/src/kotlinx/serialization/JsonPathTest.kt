@@ -5,7 +5,6 @@
 package kotlinx.serialization
 
 import kotlinx.serialization.json.*
-import kotlinx.serialization.test.*
 import kotlin.test.*
 
 class JsonPathTest : JsonTestBase() {
@@ -36,8 +35,7 @@ class JsonPathTest : JsonTestBase() {
     fun testUnknownKeyIsProperlyReported() {
         expectPath("$.i") { Json.decodeFromString<Outer>("""{"a":42, "i":{"foo":42}""") }
         expectPath("$") { Json.decodeFromString<Outer>("""{"x":{}, "a": 42}""") }
-        // The only place we have misattribution in
-        // Json.decodeFromString<Outer>("""{"a":42, "x":{}}""")
+        expectPath("$") { Json.decodeFromString<Outer>("""{"a":42, "x":{}}""") }
     }
 
     @Test
@@ -106,28 +104,27 @@ class JsonPathTest : JsonTestBase() {
 
         @Serializable
         @SerialName("n")
-        class Nesting(val f: Sealed) : Sealed()
+        data class Nesting(val f: Sealed) : Sealed()
 
         @Serializable
         @SerialName("b")
-        class Box(val s: String) : Sealed()
+        data class Box(val s: String) : Sealed()
 
         @Serializable
         @SerialName("d")
-        class DoubleNesting(val f: Sealed, val f2: Sealed) : Sealed()
+        data class DoubleNesting(val f: Sealed, val f2: Sealed) : Sealed()
     }
 
-    // TODO use non-array polymorphism when https://github.com/Kotlin/kotlinx.serialization/issues/1839 is fixed
     @Test
-    fun testHugeNestingToCheckResize() = jvmOnly {
+    fun testHugeNestingToCheckResize() {
         val json = Json { useArrayPolymorphism = true }
         var outer = Sealed.Nesting(Sealed.Box("value"))
         repeat(100) {
             outer = Sealed.Nesting(outer)
         }
         val str = json.encodeToString(Sealed.serializer(), outer)
-        // throw-away data
-        json.decodeFromString(Sealed.serializer(), str)
+        // check that data is correctly formed
+        assertEquals(outer, json.decodeFromString(Sealed.serializer(), str))
 
         val malformed = str.replace("\"value\"", "42")
         val expectedPath = "$" + ".value.f".repeat(101) + ".value.s"
@@ -135,8 +132,8 @@ class JsonPathTest : JsonTestBase() {
     }
 
     @Test
-    fun testDoubleNesting() = jvmOnly {
-        val json = Json { useArrayPolymorphism = true }
+    fun testDoubleNestingNoArrayPoly() {
+        val json = Json { useArrayPolymorphism = false }
         var outer1 = Sealed.Nesting(Sealed.Box("correct"))
         repeat(64) {
             outer1 = Sealed.Nesting(outer1)
@@ -147,16 +144,38 @@ class JsonPathTest : JsonTestBase() {
             outer2 = Sealed.Nesting(outer2)
         }
 
-        val str = json.encodeToString(Sealed.serializer(), Sealed.DoubleNesting(outer1, outer2))
-        // throw-away data
-        json.decodeFromString(Sealed.serializer(), str)
+        val value = Sealed.DoubleNesting(outer1, outer2)
+        val str = json.encodeToString(Sealed.serializer(), value)
+        // check that data is correctly formed
+        assertEquals(value, json.decodeFromString(Sealed.serializer(), str))
 
         val malformed = str.replace("\"incorrect\"", "42")
-        val expectedPath = "$.value.f2" + ".value.f".repeat(34) + ".value.s"
+        val expectedPath = "$.f2" + ".f".repeat(34) + ".s"
         expectPath(expectedPath) { json.decodeFromString(Sealed.serializer(), malformed) }
     }
 
-    private inline fun expectPath(path: String, block: () -> Unit) {
+    @Serializable
+    data class SimpleNested(val n: SimpleNested? = null, val t: DataObject? = null)
+
+    @Serializable
+    data object DataObject
+
+    @Test
+    fun testMalformedDataObjectInDeeplyNestedStructure() {
+        var outer = SimpleNested(t = DataObject)
+        repeat(20) {
+            outer = SimpleNested(n = outer)
+        }
+        val str = Json.encodeToString(SimpleNested.serializer(), outer)
+        // check that data is correctly formed
+        assertEquals(outer, Json.decodeFromString(SimpleNested.serializer(), str))
+
+        val malformed = str.replace("{}", "42")
+        val expectedPath = "$" + ".n".repeat(20) + ".t\n"
+        expectPath(expectedPath) { Json.decodeFromString(SimpleNested.serializer(), malformed) }
+    }
+
+    private inline fun expectPath(path: String, block: () -> Any?) {
         val message = runCatching { block() }
             .exceptionOrNull()!!.message!!
         assertContains(message, path)

@@ -21,7 +21,7 @@ class CachingTest {
         }
 
         repeat(10) {
-            cache.get(typeOf<String>().kclass())
+            val _ = cache.get(typeOf<String>().kclass())
         }
 
         assertEquals(1, factoryCalled)
@@ -38,7 +38,7 @@ class CachingTest {
         }
 
         repeat(10) {
-            cache.get(typeOf<Map<*, *>>().kclass(), listOf(typeOf<String>(), typeOf<String>()))
+            val _ = cache.get(typeOf<Map<*, *>>().kclass(), listOf(typeOf<String>(), typeOf<String>()))
         }
 
         assertEquals(1, factoryCalled)

@@ -148,7 +148,10 @@ public annotation class Serializer(
  * println(Json.encodeToString(CustomName(42)))
  * ```
  *
- * If a name of class or property is overridden with this annotation, original source code name is not available for the library.
+ * When picking a serial name for a class, avoid assigning the same name to different classes.
+ * Check out Equality rules for [SerialDescriptor] to make sure that class descriptor will stay unique.
+ *
+ * If a name of a class or property is overridden with this annotation, the original source code name is not available for the library.
  * Tools like `JsonNamingStrategy` and `ProtoBufSchemaGenerator` would see and transform [value] from [SerialName] annotation.
  */
 @MustBeDocumented
@@ -196,12 +199,10 @@ public annotation class Transient
  */
 @MustBeDocumented
 @Target(AnnotationTarget.PROPERTY)
-@ExperimentalSerializationApi
 public annotation class EncodeDefault(val mode: Mode = Mode.ALWAYS) {
     /**
      * Strategy for the [EncodeDefault] annotation.
      */
-    @ExperimentalSerializationApi
     public enum class Mode {
         /**
          * Configures serializer to always encode the property, even if its value is equal to its default.
@@ -222,23 +223,25 @@ public annotation class EncodeDefault(val mode: Mode = Mode.ALWAYS) {
 /**
  * Meta-annotation that commands the compiler plugin to handle the annotation as serialization-specific.
  * Serialization-specific annotations are preserved in the [SerialDescriptor] and can be retrieved
- * during serialization process with [SerialDescriptor.getElementAnnotations] for properties annotations
+ * during the serialization process with [SerialDescriptor.getElementAnnotations] for properties annotations
  * and [SerialDescriptor.annotations] for class annotations.
  *
- * It is recommended to explicitly specify target for serial info annotations, whether it is [AnnotationTarget.PROPERTY], [AnnotationTarget.CLASS], or both.
+ * It is recommended to explicitly specify a target for serial info annotations, whether it is [AnnotationTarget.PROPERTY], [AnnotationTarget.CLASS], or both.
+ * Other targets are not supported and will cause a compiler warning. Explicitly specifying the target(s) will help
+ * to avoid accidental behavior change if support for new targets is added in the future.
+ *
  * Keep in mind that Kotlin compiler prioritizes [function parameter target][AnnotationTarget.VALUE_PARAMETER] over [property target][AnnotationTarget.PROPERTY],
  * so serial info annotations used on constructor-parameters-as-properties without explicit declaration-site or use-site target are not preserved.
  */
 @MustBeDocumented
 @Target(AnnotationTarget.ANNOTATION_CLASS)
 @Retention(AnnotationRetention.BINARY)
-@ExperimentalSerializationApi
 public annotation class SerialInfo
 
 /**
  * Meta-annotation that commands the compiler plugin to handle the annotation as serialization-specific.
  * Serialization-specific annotations are preserved in the [SerialDescriptor] and can be retrieved
- * during serialization process with [SerialDescriptor.getElementAnnotations].
+ * during the serialization process with [SerialDescriptor.getElementAnnotations].
  *
  * In contrary to regular [SerialInfo], this one makes annotations inheritable:
  * If class X marked as [Serializable] has any of its supertypes annotated with annotation A that has `@InheritableSerialInfo` on it,
@@ -266,11 +269,14 @@ public annotation class SerialInfo
  * // This function returns 1.
  * fun foo(): Int = Derived.serializer().descriptor.annotations.filterIsInstance<A>().single().value
  * ```
+ *
+ * It is recommended to explicitly specify a target for inheritable serial info annotations. Only [AnnotationTarget.CLASS] is supported currently.
+ * Other targets are not supported and will cause a compiler warning. Explicitly specifying the target will help
+ * to avoid accidental behavior change if support for new targets is added in the future.
  */
 @MustBeDocumented
 @Target(AnnotationTarget.ANNOTATION_CLASS)
 @Retention(AnnotationRetention.BINARY)
-@ExperimentalSerializationApi
 public annotation class InheritableSerialInfo
 
 /**
@@ -343,7 +349,6 @@ public annotation class Polymorphic
  *
  * A compiler version `2.0.20` or higher is required.
  */
-@ExperimentalSerializationApi
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 public annotation class KeepGeneratedSerializer

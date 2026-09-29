@@ -2,17 +2,14 @@
  * Copyright 2017-2022 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
-@file:OptIn(ExperimentalSerializationApi::class)
 package kotlinx.serialization.json.internal
 
-import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import kotlin.jvm.*
 
 internal fun Composer(sb: InternalJsonWriter, json: Json): Composer =
     if (json.configuration.prettyPrint) ComposerWithPrettyPrint(sb, json) else Composer(sb)
 
-@OptIn(ExperimentalSerializationApi::class)
 internal open class Composer(@JvmField internal val writer: InternalJsonWriter) {
     var writingFirst = true
         protected set

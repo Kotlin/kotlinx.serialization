@@ -75,7 +75,7 @@ public abstract class JsonTransformingSerializer<T : Any?>(
     final override fun deserialize(decoder: Decoder): T {
         val input = decoder.asJsonDecoder()
         val element = input.decodeJsonElement()
-        return input.json.decodeFromJsonElement(tSerializer, transformDeserialize(element))
+        return readJson(input.json, transformDeserialize(element), tSerializer, input)
     }
 
     /**

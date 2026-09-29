@@ -7,6 +7,7 @@ package kotlinx.serialization.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import java.lang.reflect.*
+import kotlin.math.ceil
 import kotlin.reflect.*
 import kotlin.time.*
 import kotlin.uuid.*
@@ -77,12 +78,20 @@ private fun <T: Any> Class<T>.findInNamedCompanion(vararg args: KSerializer<Any?
     }
 }
 
-private fun <T: Any> Class<T>.findNamedCompanionByAnnotation(): Any? {
-    val companionClass = declaredClasses.firstOrNull { clazz ->
-        clazz.getAnnotation(NamedCompanion::class.java) != null
+private fun <T : Any> Class<T>.findNamedCompanionByAnnotation(): Any? {
+    // search static field with type marked by kotlinx.serialization.internal.NamedCompanion - it's the companion
+    // declaredClasses are erased after R8 even if `-keepattributes InnerClasses, EnclosingMethod` is specified, so we use declaredFields
+    val field = declaredFields.firstOrNull { field ->
+        Modifier.isStatic(field.modifiers) && field.type.getAnnotation(NamedCompanion::class.java) != null
     } ?: return null
 
-    return companionOrNull(companionClass.simpleName)
+    // short version of companionOrNull()
+    return try {
+        field.isAccessible = true
+        field.get(null)
+    } catch (e: Throwable) {
+        null
+    }
 }
 
 private fun <T: Any> Class<T>.isNotAnnotated(): Boolean {
@@ -162,7 +171,6 @@ private fun <T : Any> Class<T>.findObjectSerializer(): KSerializer<T>? {
 
 internal actual fun isReferenceArray(rootClass: KClass<Any>): Boolean = rootClass.java.isArray
 
-@OptIn(ExperimentalSerializationApi::class)
 internal actual fun initBuiltins(): Map<KClass<*>, KSerializer<*>> = buildMap {
     // Standard classes are always present
     put(String::class, String.serializer())
@@ -189,8 +197,10 @@ internal actual fun initBuiltins(): Map<KClass<*>, KSerializer<*>> = buildMap {
     put(Unit::class, Unit.serializer())
     put(Nothing::class, NothingSerializer())
 
-    // Duration is a stable class, but may be missing in very old stdlibs
+    // Duration, Instant and Uuid are stable classes, but may be missing in very old stdlibs
     loadSafe { put(Duration::class, Duration.serializer()) }
+    loadSafe { put(Instant::class, Instant.serializer()) }
+    loadSafe { put(Uuid::class, Uuid.serializer()) }
 
     // Experimental types that may be missing
     @OptIn(ExperimentalUnsignedTypes::class) run {
@@ -199,8 +209,6 @@ internal actual fun initBuiltins(): Map<KClass<*>, KSerializer<*>> = buildMap {
         loadSafe { put(UShortArray::class, UShortArraySerializer()) }
         loadSafe { put(UByteArray::class, UByteArraySerializer()) }
     }
-    @OptIn(ExperimentalUuidApi::class)
-    loadSafe { put(Uuid::class, Uuid.serializer()) }
 }
 
 // Reference classes in [block] ignoring any exceptions related to class loading
@@ -211,3 +219,8 @@ private inline fun loadSafe(block: () -> Unit) {
     } catch (_: ClassNotFoundException) {
     }
 }
+
+internal actual fun estimateCapacityForHashMap(requiredCapacity: Int): Int =
+    ceil(requiredCapacity / DEFAULT_HASH_MAP_LOAD_FACTOR).toInt()
+
+private const val DEFAULT_HASH_MAP_LOAD_FACTOR: Float = 0.75f

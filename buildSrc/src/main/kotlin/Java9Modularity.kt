@@ -17,13 +17,15 @@ import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
 import org.jetbrains.kotlin.gradle.targets.jvm.*
-import org.jetbrains.kotlin.gradle.tasks.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
-import org.jetbrains.kotlin.tooling.core.*
 import java.io.*
-import kotlin.reflect.*
-import kotlin.reflect.full.*
+import javax.inject.Inject
+
+abstract class ArchiveOperationsHolder {
+    @get:Inject
+    abstract val archiveOperations: ArchiveOperations
+}
 
 object Java9Modularity {
     private val KotlinProjectExtension.targets: Iterable<KotlinTarget>
@@ -126,6 +128,7 @@ object Java9Modularity {
         val verifyModuleTaskName = "verify${compileTask.name.removePrefix("compile").capitalize()}Module"
         // work-around for https://youtrack.jetbrains.com/issue/KT-60542
         val kotlinApiPlugin = plugins.getPlugin(KotlinApiPlugin::class)
+        val archiveOperations = objects.newInstance<ArchiveOperationsHolder>().archiveOperations
         val verifyModuleTask = kotlinApiPlugin.registerKotlinJvmCompileTask(
             verifyModuleTaskName,
             compilerOptions = compileTask.get().compilerOptions,
@@ -137,18 +140,19 @@ object Java9Modularity {
             libraries.from(compileTask.map { it.libraries })
             source(compileTask.map { it.sources })
             source(compileTask.map { it.javaSources })
-            // part of work-around for https://youtrack.jetbrains.com/issue/KT-60541
-            source(compileTask.map {
-                @Suppress("INVISIBLE_MEMBER")
-                it.scriptSources
-            })
             source(sourceFile)
             destinationDirectory.set(temporaryDir)
             multiPlatformEnabled.set(compileTask.get().multiPlatformEnabled)
             compilerOptions {
                 jvmTarget.set(JvmTarget.JVM_9)
-                freeCompilerArgs.addAll(
-                    listOf("-Xjdk-release=9",  "-Xsuppress-version-warnings", "-Xexpect-actual-classes")
+                freeCompilerArgs.set(
+                    compileTask.flatMap { it.compilerOptions.freeCompilerArgs }.map { args ->
+                        args.filterNot { it.startsWith("-Xjdk-release=") } + listOf(
+                            "-Xjdk-release=9",
+                            "-Xsuppress-version-warnings",
+                            "-Xexpect-actual-classes"
+                        )
+                    }
                 )
             }
             // work-around for https://youtrack.jetbrains.com/issue/KT-60583
@@ -157,37 +161,18 @@ object Java9Modularity {
                     libs
                         .filter { it.asFile.exists() }
                         .map {
-                            zipTree(it.asFile).filter { it.name == "module-info.class" }
+                            archiveOperations.zipTree(it.asFile).filter { it.name == "module-info.class" }
                         }
                 }
             ).withPropertyName("moduleInfosOfLibraries")
             this as KotlinCompile
-            val kotlinPluginVersion = KotlinToolingVersion(kotlinApiPlugin.pluginVersion)
-            if (kotlinPluginVersion <= KotlinToolingVersion("1.9.255")) {
-                // part of work-around for https://youtrack.jetbrains.com/issue/KT-60541
-                @Suppress("UNCHECKED_CAST")
-                val ownModuleNameProp = (this::class.superclasses.first() as KClass<AbstractKotlinCompile<*>>)
-                    .declaredMemberProperties
-                    .find { it.name == "ownModuleName" }
-                    ?.get(this) as? Property<String>
-                ownModuleNameProp?.set(compileTask.flatMap { it.compilerOptions.moduleName})
-            }
 
-            val taskKotlinLanguageVersion = compilerOptions.languageVersion.orElse(KotlinVersion.DEFAULT)
             @OptIn(InternalKotlinGradlePluginApi::class)
-            if (taskKotlinLanguageVersion.get() < KotlinVersion.KOTLIN_2_0) {
-                // part of work-around for https://youtrack.jetbrains.com/issue/KT-60541
-                @Suppress("INVISIBLE_MEMBER")
-                commonSourceSet.from(compileTask.map {
-                    @Suppress("INVISIBLE_MEMBER")
-                    it.commonSourceSet
-                })
-            } else {
-                multiplatformStructure.refinesEdges.set(compileTask.flatMap { it.multiplatformStructure.refinesEdges })
-                multiplatformStructure.fragments.set(compileTask.flatMap { it.multiplatformStructure.fragments })
+            multiplatformStructure.apply {
+                refinesEdges.set(compileTask.flatMap { it.multiplatformStructure.refinesEdges })
+                fragments.set(compileTask.flatMap { it.multiplatformStructure.fragments })
             }
-            // part of work-around for https://youtrack.jetbrains.com/issue/KT-60541
-            // and work-around for https://youtrack.jetbrains.com/issue/KT-60582
+            // work-around for https://youtrack.jetbrains.com/issue/KT-60582
             incremental = false
         }
         return verifyModuleTask
@@ -239,5 +224,29 @@ object Java9Modularity {
                 "-Xlint:-requires-transitive-automatic"
             )
         })
+    }
+
+    /**
+     * For multiplatform Gradle modules, generate and set `Automatic-Module-Name` in metadata JAR's manifest.
+     *
+     * Generated automatic (JPMS) module name has the following format:
+     * `<Gradle module name>. artifact_disambiguating_module`.
+     *
+     * For multiplatform projects, a metadata artifact is the one without a platform-specific suffix,
+     * and it always depends on corresponding `-jvm` artifact (for convenience on build systems other than Gradle).
+     * For a JVM project depending on such an artifact and using JPMS, it may result in the automatic module name clash
+     * with a module provided by the `-jvm` artifact. By explicitly setting a non-clashing automatic module name in
+     * metadata JAR's manifest, we're mitigating this issue.
+     */
+    fun Project.configureMetadataJarAutomaticModuleName() {
+        val kotlin = extensions.findByType<KotlinMultiplatformExtension>() ?: return
+        val moduleName = project.name.replace('-', '.') + ".artifact_disambiguating_module"
+        tasks.withType<Jar>().named(kotlin.metadata().artifactsTaskName) {
+            manifest {
+                attributes(
+                    "Automatic-Module-Name" to moduleName,
+                )
+            }
+        }
     }
 }

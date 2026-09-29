@@ -270,7 +270,7 @@ fun main() {
 Running this code produces the exception:
 
 ```text
-Exception in thread "main" java.lang.IllegalArgumentException: name cannot be empty
+Exception in thread "main" kotlinx.serialization.json.JsonDecodingException: Deserialization failed because of 'name cannot be empty' exception in the decoder at path: $
 ```
 
 <!--- TEST LINES_START -->
@@ -411,7 +411,7 @@ Attempts to explicitly specify its value in the serial format, even if the speci
 value is equal to the default one, produces the following exception.
 
 ```text
-Exception in thread "main" kotlinx.serialization.json.internal.JsonDecodingException: Encountered an unknown key 'language' at offset 42 at path: $
+Exception in thread "main" kotlinx.serialization.json.JsonDecodingException: Unexpected JSON token at offset 42: Encountered an unknown key 'language' at path: $
 Use 'ignoreUnknownKeys = true' in 'Json {}' builder or '@JsonIgnoreUnknownKeys' annotation to ignore unknown keys.
 ```
 
@@ -448,9 +448,13 @@ See JSON's [Encoding defaults](json.md#encoding-defaults) section on how this be
 Additionally, this behavior can be controlled without taking format settings into account.
 For that purposes, [EncodeDefault] annotation can be used:
 
+<!--- INCLUDE
+import kotlinx.serialization.EncodeDefault.Mode.NEVER
+-->
+
+
 ```kotlin
 @Serializable
-@OptIn(ExperimentalSerializationApi::class) // EncodeDefault is an experimental annotation for now
 data class Project(
     val name: String,
     @EncodeDefault val language: String = "Kotlin"
@@ -461,12 +465,10 @@ This annotation instructs the framework to always serialize property, regardless
 It's also possible to tweak it into the opposite behavior using [EncodeDefault.Mode] parameter:
 
 ```kotlin
-
 @Serializable
-@OptIn(ExperimentalSerializationApi::class) // EncodeDefault is an experimental annotation for now
 data class User(
     val name: String,
-    @EncodeDefault(EncodeDefault.Mode.NEVER) val projects: List<Project> = emptyList()
+    @EncodeDefault(NEVER) val projects: List<Project> = emptyList()
 )
 
 fun main() {
@@ -535,7 +537,7 @@ Even though the `language` property has a default value, it is still an error to
 the `null` value to it.
 
 ```text
-Exception in thread "main" kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 52: Expected string literal but 'null' literal was found at path: $.language
+Exception in thread "main" kotlinx.serialization.json.JsonDecodingException: Unexpected JSON token at offset 52: Expected string literal but 'null' literal was found at path: $.language
 Use 'coerceInputValues = true' in 'Json {}' builder to coerce nulls if property has a default value.
 ```
 

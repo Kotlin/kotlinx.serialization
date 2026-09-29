@@ -8,6 +8,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import org.junit.*
 import org.junit.Assert.*
+import kotlin.test.assertFailsWith
 
 class InternalInheritanceTest : JsonTestBase() {
     @Serializable
@@ -105,16 +106,22 @@ class InternalInheritanceTest : JsonTestBase() {
         )
     }
 
-    @Test(expected = SerializationException::class)
+    @Test
     fun testThrowTransient() {
-        Json.decodeFromString<B>("""{"parent":100,"rootOptional":"rootOptional","transientDerived":"X",""" +
-                """"parent2":100,"derived":"wowstring","bodyDerived":"body"}""")
+        assertFailsWith<SerializationException> {
+            Json.decodeFromString<B>(
+                """{"parent":100,"rootOptional":"rootOptional","transientDerived":"X",""" +
+                    """"parent2":100,"derived":"wowstring","bodyDerived":"body"}"""
+            )
+        }
     }
 
-    @Test(expected = SerializationException::class)
-    fun testThrowMissingField() {
-        default.decodeFromString<C>("""{"parent":42,"rootOptional":"rootOptional","derived":"derived",""" +
+    @Test
+    fun testThrowMissingField(): Unit {
+        assertFailsWith<SerializationException> {
+            default.decodeFromString<C>("""{"parent":42,"rootOptional":"rootOptional","derived":"derived",""" +
                 """"bodyDerived":"body","parent3":42,"lastDerived":"optional"}""")
+        }
     }
 
     @Test

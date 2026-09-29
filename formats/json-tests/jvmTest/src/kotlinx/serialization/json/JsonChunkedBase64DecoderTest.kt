@@ -33,6 +33,7 @@ data class LargeBinaryData(val binaryData: ByteArray) {
 @Serializable
 data class ClassWithBinaryDataField(val binaryField: LargeBinaryData)
 
+@Suppress("DEPRECATION")
 object LargeBase64StringSerializer : KSerializer<LargeBinaryData> {
     private val b64Decoder: Base64.Decoder = Base64.getDecoder()
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("LargeStringContent", PrimitiveKind.STRING)
@@ -71,8 +72,8 @@ class JsonChunkedBase64DecoderTest : JsonTestBase() {
 
         JsonTestingMode.values().forEach { mode ->
             if (mode == JsonTestingMode.TREE) {
-                assertFailsWithMessage<IllegalArgumentException>(
-                    "Only chunked decoder supported", "Shouldn't decode JSON in TREE mode"
+                assertFailsWithMessage<SerializationException>(
+                    "Deserialization failed because of 'Only chunked decoder supported' exception in the decoder", "Shouldn't decode JSON in TREE mode"
                 ) {
                     Json.decodeFromString<ClassWithBinaryDataField>(serializedObject, mode)
                 }

@@ -23,7 +23,7 @@ public inline fun <reified T : Any> serializersModuleOf(serializer: KSerializer<
 /**
  * A builder function for creating a [SerializersModule].
  * Serializers can be added via [SerializersModuleBuilder.contextual] or [SerializersModuleBuilder.polymorphic].
- * Since [SerializersModuleBuilder] also implements [SerialModuleCollector],
+ * Since [SerializersModuleBuilder] also implements [SerializersModuleCollector],
  * it is possible to copy whole another module to this builder with [SerializersModule.dumpTo]
  */
 @Suppress("FunctionName")

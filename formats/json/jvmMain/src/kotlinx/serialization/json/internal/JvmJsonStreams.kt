@@ -1,9 +1,11 @@
 package kotlinx.serialization.json.internal
 
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.JsonEncodingException
 import java.io.InputStream
 import java.io.OutputStream
 
-internal class JsonToJavaStreamWriter(private val stream: OutputStream) : InternalJsonWriter {
+internal class OutputStreamJsonWriter(private val stream: OutputStream) : InternalJsonWriter {
     private val buffer = ByteArrayPool.take()
     private var charArray = CharArrayPool.take()
     private var indexInBuffer: Int = 0
@@ -32,7 +34,7 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : Intern
         for (i in 1 until 1 + length) {
             val ch = arr[i].code
             // Do we have unescaped symbols?
-            if (ch < ESCAPE_MARKERS.size && ESCAPE_MARKERS[ch] != 0.toByte()) {
+            if (isCodePointRequiringEscapeSequence(ch)) {
                 // Go to slow path
                 return appendStringSlowPath(i, text)
             }
@@ -91,6 +93,7 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : Intern
         flush()
     }
 
+    @IgnorableReturnValue
     private fun ensureTotalCapacity(oldSize: Int, additional: Int): Int {
         val newSize = oldSize + additional
         if (charArray.size <= newSize) {
@@ -208,6 +211,7 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : Intern
     /**
      * Sources taken from okio library with minor changes, see https://github.com/square/okio
      */
+    @OptIn(ExperimentalSerializationApi::class)
     private fun writeUtf8CodePoint(codePoint: Int) {
         when {
             codePoint < 0x80 -> {
@@ -247,13 +251,13 @@ internal class JsonToJavaStreamWriter(private val stream: OutputStream) : Intern
             }
 
             else -> {
-                throw JsonEncodingException("Unexpected code point: $codePoint")
+                throw JsonEncodingException("Unexpected code point: $codePoint. Check your strings for malformed UTF-8 sequences.")
             }
         }
     }
 }
 
-internal class JavaStreamSerialReader(stream: InputStream) : InternalJsonReader {
+internal class Utf8InputStreamReader(stream: InputStream) : InternalJsonReader {
     // NB: not closed on purpose, it is the responsibility of the caller
     private val reader = CharsetReader(stream, Charsets.UTF_8)
 

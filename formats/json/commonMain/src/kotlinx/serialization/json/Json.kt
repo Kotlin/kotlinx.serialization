@@ -120,7 +120,7 @@ public sealed class Json(
      * @throws [SerializationException] if the given value cannot be serialized to JSON.
      */
     public final override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
-        val result = JsonToStringWriter()
+        val result = StringJsonWriter()
         try {
             encodeByWriter(this@Json, result, serializer, value)
             return result.toString()
@@ -145,7 +145,7 @@ public sealed class Json(
      */
     public final override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, @FormatLanguage("json", "", "") string: String): T {
         val lexer = StringJsonLexer(this, string)
-        val input = StreamingJsonDecoder(this, WriteMode.OBJ, lexer, deserializer.descriptor, null)
+        val input = StreamingJsonDecoder(this, LexerMode.OBJ, lexer, deserializer.descriptor, null)
         val result = input.decodeSerializableValue(deserializer)
         lexer.expectEof()
         return result
@@ -484,11 +484,7 @@ public class JsonBuilder internal constructor(json: Json) {
      * Specifies indent string to use with [prettyPrint] mode.
      * Only whitespace characters are allowed: ' ', '\n', '\r' or '\t'.
      * 4 spaces by default.
-     *
-     * Experimentality note: this API is experimental because
-     * it is not clear whether this option has compelling use-cases.
      */
-    @ExperimentalSerializationApi
     public var prettyPrintIndent: String = json.configuration.prettyPrintIndent
 
     /**
@@ -564,7 +560,6 @@ public class JsonBuilder internal constructor(json: Json) {
      *
      * This strategy is applied for all entities that have [StructureKind.CLASS].
      */
-    @ExperimentalSerializationApi
     public var namingStrategy: JsonNamingStrategy? = json.configuration.namingStrategy
 
     /**
@@ -595,7 +590,6 @@ public class JsonBuilder internal constructor(json: Json) {
      * json.decodeFromString<CaseSensitiveEnum>("ONE")
      * ```
      */
-    @ExperimentalSerializationApi
     public var decodeEnumsCaseInsensitive: Boolean = json.configuration.decodeEnumsCaseInsensitive
 
     /**
@@ -604,7 +598,6 @@ public class JsonBuilder internal constructor(json: Json) {
      * Does not affect encoding.
      * `false` by default.
      */
-    @ExperimentalSerializationApi
     public var allowTrailingComma: Boolean = json.configuration.allowTrailingComma
 
     /**
@@ -620,7 +613,6 @@ public class JsonBuilder internal constructor(json: Json) {
      *
      *  `false` by default.
      */
-    @ExperimentalSerializationApi
     public var allowComments: Boolean = json.configuration.allowComments
 
     /**
@@ -667,6 +659,51 @@ public class JsonBuilder internal constructor(json: Json) {
      */
     public var serializersModule: SerializersModule = json.serializersModule
 
+    /**
+     * Specifies whether actual input data should be included in exception messages.
+     * 
+     * When `false`, exception messages will not contain sensitive input data that could be logged
+     * or exposed in error reporting systems. This is the default and recommended setting for production
+     * environments where input data may contain sensitive or confidential information.
+     * With this setting disabled, [JsonDecodingException.input] will be null and [JsonDecodingException.path]
+     * will have `<debug info disabled>` where `Map` keys are supposed to be.
+     * 
+     * When `true`, exception messages will include the actual input data that caused the error,
+     * which can be helpful for debugging purposes during development.
+     * 
+     * While in experimental stage, this flag is `true` by default.
+     * It will be changed to `false` when API stabilizes to assume data is sensitive and unsafe by default.
+     * 
+     * Example of usage:
+     * ```
+     * @Serializable
+     * data class User(val name: String, val age: Int)
+     * 
+     * val json = Json { exceptionsWithDebugInfo = false }
+     * // Exception message will not contain the invalid input string
+     * json.decodeFromString<User>("""{"name":"John","age":"invalid"}""")
+     * 
+     * val debugJson = Json { exceptionsWithDebugInfo = true }
+     * // Exception message will include `JSON Input: {"name":"John","age":"invalid"}` line
+     * debugJson.decodeFromString<User>("""{"name":"John","age":"invalid"}""")
+     * ```
+     */
+    @ExperimentalSerializationApi
+    public var exceptionsWithDebugInfo: Boolean = json.configuration.exceptionsWithDebugInfo
+
+    /**
+     * Specifies the maximum allowed depth for nested structures during JSON deserialization.
+     *
+     * This value defines the limit up to which nested objects, arrays, or other structures can exist in JSON input.
+     * The parser will reject any JSON exceeding the specified nesting depth to prevent potential stack overflow.
+     *
+     * Setting it higher than the default value requires a careful approach and testing. Remember that even if the parser
+     * succeeds with a higher depth limit, created [JsonElement]s may still occasionally throw stack overflow errors
+     * on operations such as `toString()`, making debugging and exception handling harder.
+     */
+    @ExperimentalSerializationApi
+    public var maxNestingDepth: Int = json.configuration.maxNestingDepth
+
     @OptIn(ExperimentalSerializationApi::class)
     internal fun build(): JsonConfiguration {
         if (useArrayPolymorphism) {
@@ -695,7 +732,8 @@ public class JsonBuilder internal constructor(json: Json) {
             allowStructuredMapKeys, prettyPrint, explicitNulls, prettyPrintIndent,
             coerceInputValues, useArrayPolymorphism,
             classDiscriminator, allowSpecialFloatingPointValues, useAlternativeNames,
-            namingStrategy, decodeEnumsCaseInsensitive, allowTrailingComma, allowComments, classDiscriminatorMode
+            namingStrategy, decodeEnumsCaseInsensitive, allowTrailingComma, allowComments, classDiscriminatorMode,
+            exceptionsWithDebugInfo, maxNestingDepth
         )
     }
 }

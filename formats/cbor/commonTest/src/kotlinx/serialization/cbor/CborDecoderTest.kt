@@ -9,6 +9,7 @@ package kotlinx.serialization.cbor
 import kotlinx.serialization.*
 import kotlinx.serialization.SimpleSealed.*
 import kotlinx.serialization.cbor.internal.*
+import kotlinx.serialization.descriptors.*
 import kotlin.test.*
 
 class CborDecoderTest {
@@ -50,6 +51,28 @@ class CborDecoderTest {
     }
 
     @Test
+    fun testDecodeCollectionSize() {
+        fun decodeCollectionSize(data: String, descriptor: SerialDescriptor): Int {
+            val parser = CborParser(ByteArrayInput(data.hexToByteArray()), false)
+            val decoder = CborReader(Cbor, parser).beginStructure(descriptor)
+            return decoder.decodeCollectionSize(descriptor)
+        }
+
+        // Indefinite-length list
+        assertEquals(-1, decodeCollectionSize("9F010203FF", listSerialDescriptor<Int>()))
+        // Definite-length list
+        assertEquals(3, decodeCollectionSize("83010203", listSerialDescriptor<Int>()))
+        // Indefinite-length map
+        assertEquals(-1, decodeCollectionSize("BF016161026162FF", mapSerialDescriptor<Int, String>()))
+        // Definite-length map
+        assertEquals(2, decodeCollectionSize("A2016161026162", mapSerialDescriptor<Int, String>()))
+        // Decode object size
+        assertEquals(-1, decodeCollectionSize("BF61616474657374FF", Simple.serializer().descriptor))
+        // Decode object size when the definite-length encoding was used
+        assertEquals(-1, decodeCollectionSize("A161616474657374", Simple.serializer().descriptor))
+    }
+
+    @Test
     fun testReadByteStringWhenNullable() {
         /* A1                         # map(1)
          *    6A                      # text(10)
@@ -81,7 +104,7 @@ class CborDecoderTest {
 
     @Test
     fun testNullables() {
-        Cbor.decodeFromHexString<NullableByteStringDefaultNull>("a0")
+        assertEquals(NullableByteStringDefaultNull(), Cbor.decodeFromHexString<NullableByteStringDefaultNull>("a0"))
     }
 
     /**
@@ -121,7 +144,7 @@ class CborDecoderTest {
          *       69676E6F7265 # "ignore"
          * (missing value associated with "ignore" key)
          */
-        assertFailsWithMessage<CborDecodingException>("Unexpected EOF while skipping element") {
+        assertFailsWithMessage<CborDecodingException>("Unexpected end of encoded CBOR document") {
             ignoreUnknownKeys.decodeFromHexString(
                 TypesUmbrella.serializer(),
                 "a36373747266737472696e676169006669676e6f7265"
@@ -141,7 +164,7 @@ class CborDecoderTest {
          *    A2              # map(2)
          * (missing map contents associated with "ignore" key)
          */
-        assertFailsWithMessage<CborDecodingException>("Unexpected EOF while skipping element") {
+        assertFailsWithMessage<CborDecodingException>("Unexpected end of encoded CBOR document") {
             ignoreUnknownKeys.decodeFromHexString(
                 TypesUmbrella.serializer(),
                 "a36373747266737472696e676169006669676e6f7265a2"
@@ -374,4 +397,368 @@ class CborDecoderTest {
         )
     }
 
+    @Test
+    fun testMismatchedByteStringRepresentationError() {
+        @Serializable class BytesHolder(@ByteString val bytes: ByteArray)
+        @Serializable class ArrayHolder(val bytes: ByteArray)
+
+        assertFailsWithMessage<CborDecodingException>("Expected a start of array, but found 40, " +
+            "which corresponds to the start of a byte string. " +
+            "Make sure you correctly set 'alwaysUseByteString' setting " +
+            "and/or 'kotlinx.serialization.cbor.ByteString' annotation.") {
+            Cbor.decodeFromHexString<ArrayHolder>(Cbor.encodeToHexString(BytesHolder(ByteArray(0))))
+        }
+
+        assertFailsWithMessage<CborDecodingException>("Expected a start of a byte string, but found 9F, " +
+            "which corresponds to the start of an array. " +
+            "Make sure you correctly set 'alwaysUseByteString' setting " +
+            "and/or 'kotlinx.serialization.cbor.ByteString' annotation.") {
+            Cbor.decodeFromHexString<BytesHolder>(Cbor.encodeToHexString(ArrayHolder(ByteArray(0))))
+        }
+    }
+
+    @Test
+    fun testIndefiniteLengthTextStrings() {
+        @Serializable
+        class StringHolder(val string: String)
+
+        assertEquals(
+            "hello world",
+            Cbor.decodeFromHexString<StringHolder>("BF66737472696E677F6568656C6C6F612065776F726C64FFFF").string
+        )
+
+
+        // Read a truncated sequence
+        assertFailsWithMessage<CborDecodingException>("Unexpected end of encoded CBOR document") {
+            Cbor.decodeFromHexString<StringHolder>("BF66737472696E677F6568656C6C6F612065776F726C64")
+        }
+
+        // Nested indefinite-length string (illegal as per https://www.rfc-editor.org/rfc/rfc8949.html#name-indefinite-length-byte-stri)
+        // BF
+        //   66 # key
+        //     737472696E67
+        //   7F # value, indefinite-length string
+        //     65 # text chunk, 5 bytes
+        //       68656C6C6F
+        //     7F # indefinite length chunk
+        //       61 # definite length cheunk
+        //          20
+        //     FF
+        //     65 # text chunk, 5 bytes
+        //       776F726C64
+        //   FF # end of value
+        // FF # end of object
+        assertFailsWith<CborDecodingException> {
+            Cbor.decodeFromHexString<StringHolder>("BF66737472696E677F6568656C6C6F7F6120FF65776F726C64FFFF")
+        }
+
+        // Indefinite-length string can only consist of definite-length string of the same major type
+        // (see https://www.rfc-editor.org/rfc/rfc8949.html#name-indefinite-length-byte-stri).
+        // Here, one of the chunks is an integer value.
+        // BF
+        //   66 # key
+        //     737472696E67
+        //   7F # value
+        //     65 # text chunk, 5 bytes
+        //       68656C6C6F
+        //     01 # integer value, 1
+        //     65 # text chunk, 5 bytes
+        //       776F726C64
+        //   FF
+        // FF
+        assertFailsWith<CborDecodingException> {
+            Cbor.decodeFromHexString<StringHolder>("BF66737472696E677F6568656C6C6F0165776F726C64FFFF")
+        }
+
+        // Indefinite-length string can only consist of definite-length string of the same major type
+        // (see https://www.rfc-editor.org/rfc/rfc8949.html#name-indefinite-length-byte-stri).
+        // Here, one of the chunks is a byte-string.
+        // BF
+        //   66 # key
+        //     737472696E67
+        //   7F # value
+        //     65 # text chunk, 5 bytes
+        //       68656C6C6F
+        //     41 # byte-string, 1 byte
+        //       20
+        //     65 # text chunk, 5 bytes
+        //       776F726C64
+        //   FF
+        // FF
+        assertFailsWith<CborDecodingException> {
+            Cbor.decodeFromHexString<StringHolder>("BF66737472696E677F6568656C6C6F412065776F726C64FFFF")
+        }
+
+        // Indefinite-length string can only consist of definite-length string of the same major type
+        // (see https://www.rfc-editor.org/rfc/rfc8949.html#name-indefinite-length-byte-stri).
+        // Here, one of the chunks is a regular array.
+        // BF
+        //   66 # key
+        //     737472696E67
+        //   7F # value
+        //     65 # text chunk, 5 bytes
+        //       68656C6C6F
+        //     81 # array
+        //       1820
+        //     65 # text chunk, 5 bytes
+        //       776F726C64
+        //   FF
+        // FF
+        assertFailsWith<CborDecodingException> {
+            Cbor.decodeFromHexString<StringHolder>("BF66737472696E677F6568656C6C6F81182065776F726C64FFFF")
+        }
+    }
+
+    @Test
+    fun testIndefiniteLengthByteStrings() {
+        @Serializable
+        class BytesHolder(@ByteString val bytes: ByteArray)
+
+        assertContentEquals(
+            byteArrayOf(0, 1, 2),
+            Cbor.decodeFromHexString<BytesHolder>("BF6562797465735F4100420102FFFF").bytes
+        )
+
+        // Read a truncated sequence
+        assertFailsWithMessage<CborDecodingException>("Unexpected end of encoded CBOR document") {
+            Cbor.decodeFromHexString<BytesHolder>("BF6562797465735F4100420102")
+        }
+
+        // Nested indefinite-length byte-strings are illegal
+        // (see https://www.rfc-editor.org/rfc/rfc8949.html#name-indefinite-length-byte-stri).
+        //
+        // BF
+        //   65 # key
+        //     6279746573
+        //   5F # value
+        //     5F # nested byte-string
+        //       41 # fixed-length chunk
+        //         00
+        //     FF
+        //     42 # fixed-length chunk
+        //       0102
+        //   FF
+        // FF
+        assertFailsWith<CborDecodingException> {
+            Cbor.decodeFromHexString<BytesHolder>("BF6562797465735F5F4100FF420102FFFF")
+        }
+
+        // Indefinite-length byte-string can only consist of definite-length string of the same major type
+        // (see https://www.rfc-editor.org/rfc/rfc8949.html#name-indefinite-length-byte-stri).
+        // Here, one of the chunks is an integer value.
+        // BF
+        //   65 # key
+        //     6279746573
+        //   5F # value
+        //     00 # integer value (0)
+        //     42 # fixed-length chunk
+        //       0102
+        //   FF
+        // FF
+        assertFailsWith<CborDecodingException> {
+            Cbor.decodeFromHexString<BytesHolder>("BF6562797465735F00420102FFFF")
+        }
+
+        // Indefinite-length string can only consist of definite-length string of the same major type
+        // (see https://www.rfc-editor.org/rfc/rfc8949.html#name-indefinite-length-byte-stri).
+        // Here, one of the chunks is a text-string.
+        // BF
+        //   65 # key
+        //     6279746573
+        //   5F # value
+        //     61 # text-string
+        //       00
+        //     42 # fixed-length chunk
+        //       0102
+        //   FF
+        // FF
+        assertFailsWith<CborDecodingException> {
+            Cbor.decodeFromHexString<BytesHolder>("BF6562797465735F6100420102FFFF")
+        }
+
+        // Indefinite-length string can only consist of definite-length string of the same major type
+        // (see https://www.rfc-editor.org/rfc/rfc8949.html#name-indefinite-length-byte-stri).
+        // Here, one of the chunks is an array.
+        // BF
+        //   65 # key
+        //     6279746573
+        //   5F # value
+        //     81 # array
+        //       00
+        //     42 # fixed-length chunk
+        //       0102
+        //   FF
+        // FF
+        assertFailsWith<CborDecodingException> {
+            Cbor.decodeFromHexString<BytesHolder>("BF6562797465735F8100420102FFFF")
+        }
+    }
+
+    private inline fun <reified T> checkDecodingException(inputHexString: String, exceptionMessage: String, cbor: BinaryFormat = Cbor) {
+        assertFailsWithMessage<CborDecodingException>(exceptionMessage) {
+            cbor.decodeFromHexString<T>(inputHexString)
+        }
+    }
+
+    @Test
+    fun testEOF() {
+        val eof = "Unexpected end of encoded CBOR document"
+        checkDecodingException<Int>("", eof)
+        checkDecodingException<Boolean>("", eof)
+        checkDecodingException<Double>("", eof)
+        checkDecodingException<String>("", eof)
+        checkDecodingException<ByteArray>("", eof)
+        checkDecodingException<Map<String, String>>("", eof)
+        // Fixed length map, missing the second key-value pair
+        checkDecodingException<Map<String, String>>("A261616161", eof)
+        // Fixed length map, missing the second key-value pair's key is truncated
+        checkDecodingException<Map<String, String>>("A26161616161", "Unexpected EOF, available 0 bytes, requested: 1")
+        // Fixed length map, missing the second key-value pair's value is missing
+        checkDecodingException<Map<String, String>>("A2616161616161", eof)
+        // Fixed length array, second element is missing
+        checkDecodingException<List<String>>("826161", eof)
+        // Fixed length array, second element is corrupted
+        checkDecodingException<List<String>>("82616161", "Unexpected EOF, available 0 bytes, requested: 1")
+        // Only tag is present
+        checkDecodingException<Int>("C0", eof)
+        // Only tag is present, but it's truncated
+        checkDecodingException<Int>("D7", eof)
+    }
+
+    @Test
+    fun testValueTruncation() {
+        @Serializable data class IntHolder(val v: Int)
+        @Serializable data class ShortHolder(val v: Short)
+        @Serializable data class ByteHolder(val v: Byte)
+
+        //          18: single-byte int \  / 2A
+        val singleByteValue = "BF6176182AFF"
+        //       39: two-byte int \   / -16162
+        val twoByteValue = "BF6176393F21FF"
+        //                       19: two-byte int \   / C0DE
+        val twoByteValueWithShortOverflow = "BF617619C0DEFF"
+        //                       19: two-byte int \   / 01DE
+        val twoByteValueSlightlyOutOfByte = "BF61761901DEFF"
+        //                    38: negative single-byte int \   / 80
+        val negativeTwoByteValueSlightlyOutOfByte = "BF61763880FF"
+        //       1A: four-byte int \  / 0BADC0DE
+        val fourByteValue = "BF61761A0BADC0DEFF"
+        //                         1A: four-byte int \  / 0001CODE
+        val fourByteValueSlightlyOutOfShort = "BF61761A0001C0DEFF"
+        //                         39: two-byte negative int \  / 8000
+        val negativeFourByteValueSlightlyOutOfShort = "BF6176398000FF"
+        //       1B: eight-byte int \  / 0BADC0DE15BAD000
+        val eightByteValue = "BF61761B0BADC0DE15BAD000FF"
+
+        assertEquals(0x2A, Cbor.decodeFromHexString<IntHolder>(singleByteValue).v)
+        assertEquals(0xC0DE, Cbor.decodeFromHexString<IntHolder>(twoByteValueWithShortOverflow).v)
+        assertEquals(0xBADC0DE, Cbor.decodeFromHexString<IntHolder>(fourByteValue).v)
+        assertEquals(0x1C0DE,Cbor.decodeFromHexString<IntHolder>(fourByteValueSlightlyOutOfShort).v)
+        assertEquals(-32769,Cbor.decodeFromHexString<IntHolder>(negativeFourByteValueSlightlyOutOfShort).v)
+        assertFailsWith<CborDecodingException> { Cbor.decodeFromHexString<IntHolder>(eightByteValue) }
+
+        assertEquals(0x2A, Cbor.decodeFromHexString<ShortHolder>(singleByteValue).v)
+        assertEquals(0xC0DE.toShort(), Cbor.decodeFromHexString<ShortHolder>(twoByteValue).v)
+        assertEquals(0xC0DE.toShort(), Cbor.decodeFromHexString<ShortHolder>(twoByteValueWithShortOverflow).v)
+        assertFailsWith<CborDecodingException> { Cbor.decodeFromHexString<ShortHolder>(fourByteValue) }
+        assertFailsWith<CborDecodingException> { Cbor.decodeFromHexString<ShortHolder>(fourByteValueSlightlyOutOfShort) }
+        assertFailsWith<CborDecodingException> { Cbor.decodeFromHexString<ShortHolder>(negativeFourByteValueSlightlyOutOfShort) }
+        assertFailsWith<CborDecodingException> { Cbor.decodeFromHexString<ShortHolder>(eightByteValue) }
+
+        assertEquals(0x2A, Cbor.decodeFromHexString<ByteHolder>(singleByteValue).v)
+        assertFailsWith<CborDecodingException> { Cbor.decodeFromHexString<ByteHolder>(twoByteValue) }
+        assertFailsWith<CborDecodingException> { Cbor.decodeFromHexString<ByteHolder>(twoByteValueSlightlyOutOfByte) }
+        assertFailsWith<CborDecodingException> { Cbor.decodeFromHexString<ByteHolder>(fourByteValueSlightlyOutOfShort) }
+        assertFailsWith<CborDecodingException> { Cbor.decodeFromHexString<ByteHolder>(negativeTwoByteValueSlightlyOutOfByte) }
+        assertFailsWith<CborDecodingException> { Cbor.decodeFromHexString<ByteHolder>(negativeFourByteValueSlightlyOutOfShort) }
+        assertFailsWith<CborDecodingException> { Cbor.decodeFromHexString<ByteHolder>(fourByteValue) }
+        assertFailsWith<CborDecodingException> { Cbor.decodeFromHexString<ByteHolder>(eightByteValue) }
+    }
+
+    // Check behavior for examples from https://www.rfc-editor.org/rfc/rfc8949.html#section-f.1
+    @Test
+    fun rfcWellFormednessComplianceTest() {
+        val shortEOF = "Unexpected EOF"
+        val longEOF = "Unexpected end of encoded CBOR document"
+        val CborABS = Cbor { alwaysUseByteString = true }
+
+        // End of input in a head
+        checkDecodingException<Long>("18", shortEOF)
+        checkDecodingException<Long>("19", shortEOF)
+        checkDecodingException<Long>("1A", shortEOF)
+        checkDecodingException<Long>("1B", shortEOF)
+        checkDecodingException<Long>("1901", shortEOF)
+        checkDecodingException<Long>("1A0102", shortEOF)
+        checkDecodingException<Long>("1B01020304050607", shortEOF)
+        checkDecodingException<Long>("38", shortEOF)
+        checkDecodingException<ByteArray>("58", shortEOF, CborABS)
+        checkDecodingException<String>("78", shortEOF)
+        checkDecodingException<IntArray>("98", shortEOF)
+        checkDecodingException<IntArray>("9A01FF00", shortEOF)
+        checkDecodingException<Map<String, String>>("B8", shortEOF)
+        checkDecodingException<Int>("D8", shortEOF)
+        // we don't support arbitrary simple values
+        // checkEof<Boolean>("F8") }
+        checkDecodingException<Double>("F900", shortEOF)
+        checkDecodingException<Double>("FA0000", shortEOF)
+        checkDecodingException<Double>("FB000000", shortEOF)
+
+        // Definite-length strings with short data
+        checkDecodingException<ByteArray>("41", shortEOF, CborABS)
+        checkDecodingException<String>("61", shortEOF)
+        checkDecodingException<ByteArray>("5AFFFFFFFF00", "length for byte string is too large", CborABS)
+        checkDecodingException<ByteArray>("5BFFFFFFFFFFFFFFFF010203", "negative length value was decoded for byte string", CborABS)
+        checkDecodingException<String>("7AFFFFFFFF00", "length for string is too large")
+        checkDecodingException<String>("7B7FFFFFFFFFFFFFFF010203", "length for string is too large")
+
+        // Definite-length maps and arrays not closed with enough items:
+        checkDecodingException<IntArray>("81", longEOF)
+        checkDecodingException<Array<Array<Array<Array<Array<Array<Array<Array<Array<Int>>>>>>>>>>("818181818181818181", longEOF)
+        checkDecodingException<IntArray>("8200", longEOF)
+        checkDecodingException<Map<Int, Int>>("A1", longEOF)
+        checkDecodingException<Map<Int, Int>>("A20102", longEOF)
+        checkDecodingException<Map<Int, Int>>("A100", longEOF)
+        checkDecodingException<Map<Int, Int>>("A2000000", longEOF)
+
+        // Tag number not followed by tag content
+        checkDecodingException<Long>("C0", longEOF)
+
+        // Indefinite-length strings not closed by a "break" stop code:
+        checkDecodingException<ByteArray>("5F4100", longEOF, CborABS)
+        checkDecodingException<String>("7F6100", longEOF)
+
+        // Indefinite-length maps and arrays not closed by a "break" stop code:
+        checkDecodingException<IntArray>("9F", longEOF)
+        checkDecodingException<IntArray>("9F0102", longEOF)
+        checkDecodingException<Map<Int, Int>>("BF", longEOF)
+        checkDecodingException<Map<Int, Int>>("BF01020102", longEOF)
+        checkDecodingException<Array<Array<Int>>>("819F", longEOF)
+        checkDecodingException<IntArray>("9F8000", "Expected an unsigned or negative integer, but found 80")
+        checkDecodingException<IntArray>("9F9F9F9F9FFFFFFFFF", "Expected an unsigned or negative integer, but found 9F")
+        checkDecodingException<IntArray>("9F819F819F9FFFFFFF", "Expected an unsigned or negative integer, but found 81")
+    }
+
+    @Test
+    fun testTrailingBytesAfterDecoding() {
+        @Serializable
+        class BytesHolder(@ByteString val bytes: ByteArray)
+
+        val paddedInput = "BF6562797465735F4100420102FFFFBADBADBADBAD"
+        assertFailsWith<CborDecodingException> {
+            Cbor.decodeFromHexString<BytesHolder>(paddedInput)
+        }
+    }
+
+    @Test
+    fun testEncodeUnsignedValuesFromPositiveInteger() {
+        assertEquals(200U.toUByte(), Cbor.decodeFromHexString<UByte>("18C8"))
+        checkDecodingException<UByte>("197D00", "Decoded number 32000 is not within the range for type Byte ([-128..127]), nor it is within the range for UByte ([0..255])")
+        assertEquals(32000U.toUShort(), Cbor.decodeFromHexString<UShort>("197D00"))
+        assertEquals(32000.toChar(), Cbor.decodeFromHexString<Char>("197D00"))
+        checkDecodingException<Char>("1A80000000", "Decoded number 2147483648 is not within the range for type Char ([0..65535])")
+        checkDecodingException<UShort>("1A80000000", "Decoded number 2147483648 is not within the range for type Short ([-32768..32767]), nor it is within the range for UShort ([0..65535])")
+        assertEquals(2147483648U, Cbor.decodeFromHexString<UInt>("1A80000000"))
+        checkDecodingException<UInt>("1B8000000000000000", "Decoded number -9223372036854775808 is not within the range for type Int ([-2147483648..2147483647]), nor it is within the range for UInt ([0..4294967295])")
+        assertEquals(9223372036854775808UL, Cbor.decodeFromHexString<ULong>("1B8000000000000000"))
+    }
 }

@@ -7,6 +7,9 @@ package kotlinx.serialization.features
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.*
+import kotlinx.serialization.test.Platform
+import kotlinx.serialization.test.checkDecodingException
+import kotlinx.serialization.test.currentPlatform
 import kotlin.test.*
 
 class LongAsStringTest : JsonTestBase() {
@@ -25,8 +28,30 @@ class LongAsStringTest : JsonTestBase() {
     @Test
     fun canNotDeserializeInvalidString() = parametrizedTest { jsonTestingMode ->
         val str = """{"l": "this is definitely not a long"}"""
-        assertFailsWith<NumberFormatException> { default.decodeFromString(HasLong.serializer(), str, jsonTestingMode) }
+        checkDecodingException(
+            jsonTestingMode,
+            { default.decodeFromString(HasLong.serializer(), str, jsonTestingMode) },
+            {
+                assertContains(exception.message, "Deserialization failed because of")
+                // NumberFormatException messages vary by platform
+                assertContains(exception.message, "exception in the decoder")
+                assertContains(exception.message, exception.shortMessage)
+                if (jsonTestingMode == JsonTestingMode.TREE) path("$") else path("$.l")
+                input(str)
+                cause<NumberFormatException>()
+            })
         val str2 = """{"l": "1000000000000000000000"}""" // toooo long for Long
-        assertFailsWith<NumberFormatException> { default.decodeFromString(HasLong.serializer(), str2, jsonTestingMode) }
+        checkDecodingException(
+            jsonTestingMode,
+            { default.decodeFromString(HasLong.serializer(), str2, jsonTestingMode) },
+            {
+                assertContains(exception.message, "Deserialization failed because of")
+                // NumberFormatException messages vary by platform
+                assertContains(exception.message, "exception in the decoder")
+                assertContains(exception.message, exception.shortMessage)
+                if (jsonTestingMode == JsonTestingMode.TREE) path("$") else path("$.l")
+                input(str2)
+                cause<NumberFormatException>()
+            })
     }
 }

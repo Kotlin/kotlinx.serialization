@@ -2,7 +2,7 @@ package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
-import kotlinx.serialization.internal.*
+import kotlinx.serialization.json.JsonConfiguration
 
 /**
  * Internal representation of the current JSON path.
@@ -20,11 +20,18 @@ import kotlinx.serialization.internal.*
  * 1 (index of the 'l'), 2 (index of currently being decoded "c")
  * ```
  */
-internal class JsonPath {
+@OptIn(ExperimentalSerializationApi::class)
+internal class JsonPath(configuration: JsonConfiguration) {
+
+    private val maxNestingDepth = configuration.maxNestingDepth
+    private val exceptionsWithDebug = configuration.exceptionsWithDebugInfo
 
     // Tombstone indicates that we are within a map, but the map key is currently being decoded.
     // It is also used to overwrite a previous map key to avoid memory leaks and misattribution.
     private object Tombstone
+
+    // Indicates that the key should not be rendered due to JsonConfiguration
+    private object RedactedKey
 
     /*
      * Serial descriptor, map key or the tombstone for map key
@@ -41,11 +48,15 @@ internal class JsonPath {
      * The cleanup is essential in order to avoid memory leaks for huge strings and structured keys.
      */
     private var indicies = IntArray(8) { -1 }
-    private var currentDepth = -1
+    internal var currentDepth = -1
+        private set
 
     // Invoked when class is started being decoded
     fun pushDescriptor(sd: SerialDescriptor) {
         val depth = ++currentDepth
+        if (depth >= maxNestingDepth) {
+            jsonTooNested(maxNestingDepth)
+        }
         if (depth == currentObjectPath.size) {
             resize()
         }
@@ -68,7 +79,7 @@ internal class JsonPath {
         if (indicies[currentDepth] != -2 && ++currentDepth == currentObjectPath.size) {
             resize()
         }
-        currentObjectPath[currentDepth] = key
+        currentObjectPath[currentDepth] = if (exceptionsWithDebug) key else RedactedKey
         indicies[currentDepth] = -2
     }
 
@@ -114,6 +125,9 @@ internal class JsonPath {
                             append(element.getElementName(idx))
                         }
                     }
+                } else if (element === RedactedKey) {
+                    // Technically, this is out of spec of JsonPath. But parsing such a query would result in an error, which is reasonable.
+                    append("[<debug info disabled>]")
                 } else if (element !== Tombstone) {
                     append("[")
                     // All non-indicies should be properly quoted by JsonPath convention
@@ -134,7 +148,9 @@ internal class JsonPath {
     private fun resize() {
         val newSize = currentDepth * 2
         currentObjectPath = currentObjectPath.copyOf(newSize)
-        indicies = indicies.copyOf(newSize)
+        val newIndices = IntArray(newSize) { -1 }
+        indicies.copyInto(newIndices)
+        indicies = newIndices
     }
 
     override fun toString(): String = getPath()

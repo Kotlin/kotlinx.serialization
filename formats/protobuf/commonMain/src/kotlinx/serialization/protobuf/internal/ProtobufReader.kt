@@ -51,16 +51,26 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
         pushBack = true
 
         val nextHeader = (currentId shl 3) or currentType.typeId
-        updateIdAndType(pushBackHeader)
+        val _ = updateIdAndType(pushBackHeader)
         pushBackHeader = nextHeader
     }
 
     fun skipElement() {
-        when (currentType) {
+        val _ = when (currentType) {
             ProtoWireType.VARINT -> readInt(ProtoIntegerType.DEFAULT)
             ProtoWireType.i64 -> readLong(ProtoIntegerType.FIXED)
             ProtoWireType.SIZE_DELIMITED -> skipSizeDelimited()
             ProtoWireType.i32 -> readInt(ProtoIntegerType.FIXED)
+            else -> throw ProtobufDecodingException("Unsupported start group or end group wire type: $currentType")
+        }
+    }
+
+    fun readRawElement(): ByteArray {
+        return when (currentType) {
+            ProtoWireType.VARINT -> input.readRawVarint()
+            ProtoWireType.i64 -> input.readExactNBytes(8)
+            ProtoWireType.SIZE_DELIMITED -> readByteArrayNoTag()
+            ProtoWireType.i32 -> input.readExactNBytes(4)
             else -> throw ProtobufDecodingException("Unsupported start group or end group wire type: $currentType")
         }
     }

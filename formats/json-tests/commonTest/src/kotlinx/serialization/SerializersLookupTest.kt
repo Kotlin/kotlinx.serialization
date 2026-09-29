@@ -143,7 +143,6 @@ class SerializersLookupTest : JsonTestBase() {
     }
 
     @Test
-    @OptIn(ExperimentalUuidApi::class)
     fun testLookupUuid() {
         assertSame<KSerializer<*>?>(Uuid.serializer(), serializerOrNull(typeOf<Uuid>()))
         assertSame<KSerializer<*>?>(Uuid.serializer(), serializer<Uuid>())

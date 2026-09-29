@@ -764,6 +764,19 @@ class CborTaggedTest {
 
     }
 
+    // See https://www.rfc-editor.org/rfc/rfc8949.html#name-self-described-cbor
+    @Test
+    fun testSelfDescribedCborParsing() {
+        val selfDescribedCborTag = "d9d9f7"
+        @Serializable
+        data class Datum(val l: String, val v: Int)
+
+        val original = Datum("Kotlin", 2)
+        val serialized = selfDescribedCborTag + Cbor.encodeToHexString(original)
+        val deserialized = Cbor.decodeFromHexString<Datum>(serialized)
+        assertEquals(original, deserialized)
+    }
+
     @ObjectTags(1337uL)
     @Serializable
     data class ClassAsTagged(

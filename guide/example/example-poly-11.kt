@@ -6,26 +6,33 @@ import kotlinx.serialization.json.*
 
 import kotlinx.serialization.modules.*
 
-val module = SerializersModule {
-    polymorphic(Project::class) {
-        subclass(OwnedProject::class)
-    }
-}
-
-val format = Json { serializersModule = module }
-
-interface Project {
-    val name: String
-}
+interface Base
 
 @Serializable
-@SerialName("owned")
-class OwnedProject(override val name: String, val owner: String) : Project
+sealed interface Sub: Base
 
 @Serializable
-class Data(val project: Project) // Project is an interface
+class Sub1(val data: String): Sub
+
+val module1 = SerializersModule {
+  polymorphic(Base::class) {
+     subclassesOfSealed(Sub.serializer())
+  }
+}
+
+val format1 = Json { serializersModule = module1 }
+
+val module2 = SerializersModule {
+  polymorphic(Base::class) {
+     subclassesOfSealed<Sub>()
+  }
+}
+
+val format2 = Json { serializersModule = module2 }
+
 
 fun main() {
-    val data = Data(OwnedProject("kotlinx.coroutines", "kotlin"))
-    println(format.encodeToString(data))
-}        
+    val data: Base = Sub1("kotlin")
+    println(format1.encodeToString(data))
+    println(format2.encodeToString(data))
+}

@@ -8,9 +8,13 @@
 #
 # see https://github.com/Kotlin/kotlinx.serialization/issues/2050
 
- -if @kotlinx.serialization.Serializable class **
- -keep, allowshrinking, allowoptimization, allowobfuscation, allowaccessmodification class <1>
+-if @kotlinx.serialization.Serializable class **
+-keep, allowshrinking, allowoptimization, allowobfuscation, allowaccessmodification class <1>
 
+# Rule to save runtime annotations on named companion class.
+# If the R8 full mode is used, annotations are removed from classes-files.
+-if @kotlinx.serialization.internal.NamedCompanion class *
+-keep, allowshrinking, allowoptimization, allowobfuscation, allowaccessmodification class <1>
 
 # Rule to save INSTANCE field and serializer function for Kotlin serializable objects.
 #

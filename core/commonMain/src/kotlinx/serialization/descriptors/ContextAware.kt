@@ -63,8 +63,7 @@ public fun SerializersModule.getContextualDescriptor(descriptor: SerialDescripto
 /**
  * Retrieves a collection of descriptors which serializers are registered for polymorphic serialization in [this]
  * with base class equal to [descriptor]'s [SerialDescriptor.capturedKClass].
- * This method does not retrieve serializers registered with [PolymorphicModuleBuilder.defaultDeserializer]
- * or [PolymorphicModuleBuilder.defaultSerializer].
+ * This method does not retrieve serializers registered with [PolymorphicModuleBuilder.defaultDeserializer].
  *
  * @see SerializersModule.getPolymorphic
  * @see SerializersModuleBuilder.polymorphic
@@ -86,7 +85,6 @@ internal fun SerialDescriptor.withContext(context: KClass<*>): SerialDescriptor 
  * Descriptor that captures [kClass] and allows retrieving additional runtime information,
  * if proper [SerializersModule] is provided.
  */
-@OptIn(ExperimentalSerializationApi::class)
 private class ContextDescriptor(
     private val original: SerialDescriptor,
     @JvmField val kClass: KClass<*>

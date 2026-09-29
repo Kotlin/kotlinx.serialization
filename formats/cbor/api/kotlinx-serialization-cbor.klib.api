@@ -144,6 +144,8 @@ final object kotlinx.serialization.cbor/CborTag { // kotlinx.serialization.cbor/
         final fun <get-BIGFLOAT>(): kotlin/ULong // kotlinx.serialization.cbor/CborTag.BIGFLOAT.<get-BIGFLOAT>|<get-BIGFLOAT>(){}[0]
     final const val BIGNUM_NEGAIVE // kotlinx.serialization.cbor/CborTag.BIGNUM_NEGAIVE|{}BIGNUM_NEGAIVE[0]
         final fun <get-BIGNUM_NEGAIVE>(): kotlin/ULong // kotlinx.serialization.cbor/CborTag.BIGNUM_NEGAIVE.<get-BIGNUM_NEGAIVE>|<get-BIGNUM_NEGAIVE>(){}[0]
+    final const val BIGNUM_NEGATIVE // kotlinx.serialization.cbor/CborTag.BIGNUM_NEGATIVE|{}BIGNUM_NEGATIVE[0]
+        final fun <get-BIGNUM_NEGATIVE>(): kotlin/ULong // kotlinx.serialization.cbor/CborTag.BIGNUM_NEGATIVE.<get-BIGNUM_NEGATIVE>|<get-BIGNUM_NEGATIVE>(){}[0]
     final const val BIGNUM_POSITIVE // kotlinx.serialization.cbor/CborTag.BIGNUM_POSITIVE|{}BIGNUM_POSITIVE[0]
         final fun <get-BIGNUM_POSITIVE>(): kotlin/ULong // kotlinx.serialization.cbor/CborTag.BIGNUM_POSITIVE.<get-BIGNUM_POSITIVE>|<get-BIGNUM_POSITIVE>(){}[0]
     final const val CBOR_ENCODED_DATA // kotlinx.serialization.cbor/CborTag.CBOR_ENCODED_DATA|{}CBOR_ENCODED_DATA[0]

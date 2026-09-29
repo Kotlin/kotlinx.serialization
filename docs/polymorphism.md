@@ -19,6 +19,7 @@ In this chapter we'll see how Kotlin Serialization deals with polymorphic class 
 * [Open polymorphism](#open-polymorphism)
   * [Registered subclasses](#registered-subclasses)
   * [Serializing interfaces](#serializing-interfaces)
+  * [Registering sealed children as subclasses](#registering-sealed-children-as-subclasses)
   * [Property of an interface type](#property-of-an-interface-type)
   * [Static parent type lookup for polymorphism](#static-parent-type-lookup-for-polymorphism)
   * [Explicitly marking polymorphic class properties](#explicitly-marking-polymorphic-class-properties)
@@ -123,7 +124,7 @@ fun main() {
 This is close to the best design for a serializable hierarchy of classes, but running it produces the following error:
 
 ```text 
-Exception in thread "main" kotlinx.serialization.SerializationException: Serializer for subclass 'OwnedProject' is not found in the polymorphic scope of 'Project'.
+Exception in thread "main" kotlinx.serialization.json.JsonEncodingException: Serializer for subclass 'OwnedProject' is not found in the polymorphic scope of 'Project'
 Check if class with serial name 'OwnedProject' exists and serializer is registered in a corresponding SerializersModule.
 To be registered automatically, class 'OwnedProject' has to be '@Serializable', and the base class 'Project' has to be sealed and '@Serializable'.
 ```         
@@ -233,6 +234,10 @@ This way we can have a stable _serial name_ that is not affected by the class's 
 
 > In addition to that, JSON can be configured to use a different key name for the class discriminator. 
 > You can find an example in the [Class discriminator for polymorphism](json.md#class-discriminator-for-polymorphism) section.
+
+> [!IMPORTANT]
+> When picking a serial name for a class, avoid assigning the same name to different classes.
+Check out equality rules in documentation for [SerialDescriptor] to make sure that the class descriptor will stay unique.
 
 ### Concrete properties in a base class
 
@@ -410,6 +415,68 @@ fun main() {
 
 > Note: On Kotlin/Native, you should use `format.encodeToString(PolymorphicSerializer(Project::class), data))` instead due to limited reflection capabilities.
 
+### Registering sealed children as subclasses
+A sealed parent interface or class can be used to directly register all its children using `subclassesOfSealed`.
+This will allow serializing the children using open polymorphism without the need to register each one individually. 
+
+If one of the type's subclasses is a sealed serializable class on its own, its subclasses are registered recursively
+as well. However, if one of the type's subclasses is an open polymorphic class, an `IllegalArgumentException` is thrown.
+In other words, all children/descendants must be either concrete or sealed.
+
+<!--- TEST -->
+
+<!--- INCLUDE
+import kotlinx.serialization.modules.*
+-->
+
+```kotlin
+interface Base
+
+@Serializable
+sealed interface Sub: Base
+
+@Serializable
+class Sub1(val data: String): Sub
+
+val module1 = SerializersModule {
+  polymorphic(Base::class) {
+     subclassesOfSealed(Sub.serializer())
+  }
+}
+
+val format1 = Json { serializersModule = module1 }
+```
+
+Alternatively the convenience overload allows specifying the sealed type as type parameter.
+
+```kotlin
+val module2 = SerializersModule {
+  polymorphic(Base::class) {
+     subclassesOfSealed<Sub>()
+  }
+}
+
+val format2 = Json { serializersModule = module2 }
+```
+
+Now if we declare `data` with the type of `Base` we can simply call `format.encodeToString` as before.
+```kotlin
+
+fun main() {
+    val data: Base = Sub1("kotlin")
+    println(format1.encodeToString(data))
+    println(format2.encodeToString(data))
+}
+```
+
+```text
+{"type":"example.examplePoly11.Sub1","data":"kotlin"}
+{"type":"example.examplePoly11.Sub1","data":"kotlin"}
+```
+
+> You can get the full code [here](../guide/example/example-poly-11.kt).
+
+
 <!--- TEST LINES_START -->
 
 ### Property of an interface type
@@ -447,7 +514,7 @@ fun main() {
 }        
 ```
 
-> You can get the full code [here](../guide/example/example-poly-11.kt).
+> You can get the full code [here](../guide/example/example-poly-12.kt).
 
 As long as we've registered the actual subtype of the interface that is being serialized in
 the [SerializersModule] of our `format`, we get it working at runtime.
@@ -492,7 +559,7 @@ fun main() {
 }    
 ```
 
-> You can get the full code [here](../guide/example/example-poly-12.kt).
+> You can get the full code [here](../guide/example/example-poly-13.kt).
  
 We get the exception.
 
@@ -540,7 +607,7 @@ fun main() {
 }    
 ```
 
-> You can get the full code [here](../guide/example/example-poly-13.kt).
+> You can get the full code [here](../guide/example/example-poly-14.kt).
 
 However, `Any` is a class and it is not serializable:
 
@@ -582,7 +649,7 @@ fun main() {
 }    
 ```
 
-> You can get the full code [here](../guide/example/example-poly-14.kt).
+> You can get the full code [here](../guide/example/example-poly-15.kt).
 
 With the explicit serializer it works as before.
 
@@ -635,7 +702,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-poly-15.kt).
+> You can get the full code [here](../guide/example/example-poly-16.kt).
  
 <!--- TEST 
 {"project":{"type":"owned","name":"kotlinx.coroutines","owner":"kotlin"}}
@@ -688,7 +755,7 @@ fun main() {
 }        
 -->
 
-> You can get the full code [here](../guide/example/example-poly-16.kt).
+> You can get the full code [here](../guide/example/example-poly-17.kt).
 
 <!--- TEST 
 {"project":{"type":"owned","name":"kotlinx.coroutines","owner":"kotlin"},"any":{"type":"owned","name":"kotlinx.coroutines","owner":"kotlin"}}
@@ -779,7 +846,7 @@ fun main() {
 
 ```
 
-> You can get the full code [here](../guide/example/example-poly-17.kt).
+> You can get the full code [here](../guide/example/example-poly-18.kt).
 
 The JSON that is being produced is deeply polymorphic.
 
@@ -827,12 +894,12 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-poly-18.kt).
+> You can get the full code [here](../guide/example/example-poly-19.kt).
 
 We get the following exception.
 
 ```text 
-Exception in thread "main" kotlinx.serialization.json.internal.JsonDecodingException: Unexpected JSON token at offset 0: Serializer for subclass 'unknown' is not found in the polymorphic scope of 'Project' at path: $
+Exception in thread "main" kotlinx.serialization.json.JsonDecodingException: Unexpected JSON token at offset 0: Serializer for subclass 'unknown' is not found in the polymorphic scope of 'Project' at path: $
 Check if class with serial name 'unknown' exists and serializer is registered in a corresponding SerializersModule.
 ```
 
@@ -890,7 +957,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-poly-19.kt).
+> You can get the full code [here](../guide/example/example-poly-20.kt).
 
 Notice, how `BasicProject` had also captured the specified type key in its `type` property. 
 
@@ -994,7 +1061,7 @@ fun main() {
 }
 ```
 
-> You can get the full code [here](../guide/example/example-poly-20.kt)
+> You can get the full code [here](../guide/example/example-poly-21.kt)
 
 ```text
 {"type":"Cat","catType":"Tabby"}
@@ -1017,6 +1084,10 @@ The next chapter covers [JSON features](json.md).
 [DeserializationStrategy]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-deserialization-strategy/index.html
 [SerializationStrategy]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization/-serialization-strategy/index.html
 
+<!--- INDEX kotlinx-serialization-core/kotlinx.serialization.descriptors -->
+
+[SerialDescriptor]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.descriptors/-serial-descriptor/index.html
+
 <!--- INDEX kotlinx-serialization-core/kotlinx.serialization.modules -->
 
 [SerializersModule]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-core/kotlinx.serialization.modules/-serializers-module/index.html
@@ -1037,4 +1108,3 @@ The next chapter covers [JSON features](json.md).
 [Json]: https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json/index.html
 
 <!--- END -->
-

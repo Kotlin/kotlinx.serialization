@@ -36,7 +36,7 @@ inline fun jvmOnly(test: () -> Unit) {
     if (isJvm()) test()
 }
 
-inline fun assertFailsWithMissingField(block: () -> Unit) {
+inline fun assertFailsWithMissingField(block: () -> Any?) {
     val e = assertFailsWith<SerializationException>(block = block)
     assertTrue(e.message?.contains("but it was missing") ?: false)
 }

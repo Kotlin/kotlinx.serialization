@@ -3,6 +3,7 @@
  */
 
 @file:Suppress("unused")
+@file:OptIn(ExperimentalSerializationApi::class)
 
 package kotlinx.serialization.json
 
@@ -66,7 +67,6 @@ public fun JsonPrimitive(value: Number?): JsonPrimitive {
  *
  * The value will be encoded as a JSON number.
  */
-@ExperimentalSerializationApi
 public fun JsonPrimitive(value: UByte): JsonPrimitive = JsonPrimitive(value.toULong())
 
 /**
@@ -74,7 +74,6 @@ public fun JsonPrimitive(value: UByte): JsonPrimitive = JsonPrimitive(value.toUL
  *
  * The value will be encoded as a JSON number.
  */
-@ExperimentalSerializationApi
 public fun JsonPrimitive(value: UShort): JsonPrimitive = JsonPrimitive(value.toULong())
 
 /**
@@ -82,7 +81,6 @@ public fun JsonPrimitive(value: UShort): JsonPrimitive = JsonPrimitive(value.toU
  *
  * The value will be encoded as a JSON number.
  */
-@ExperimentalSerializationApi
 public fun JsonPrimitive(value: UInt): JsonPrimitive = JsonPrimitive(value.toULong())
 
 /**
@@ -91,7 +89,6 @@ public fun JsonPrimitive(value: UInt): JsonPrimitive = JsonPrimitive(value.toULo
  * The value will be encoded as a JSON number.
  */
 @SuppressAnimalSniffer // Long.toUnsignedString(long)
-@ExperimentalSerializationApi
 public fun JsonPrimitive(value: ULong): JsonPrimitive = JsonUnquotedLiteral(value.toString())
 
 /** Creates a [JsonPrimitive] from the given string. */
@@ -101,7 +98,6 @@ public fun JsonPrimitive(value: String?): JsonPrimitive {
 }
 
 /** Creates [JsonNull]. */
-@ExperimentalSerializationApi
 @Suppress("FunctionName", "UNUSED_PARAMETER") // allows to call `JsonPrimitive(null)`
 public fun JsonPrimitive(value: Nothing?): JsonNull = JsonNull
 
@@ -123,12 +119,11 @@ public fun JsonPrimitive(value: Nothing?): JsonNull = JsonNull
  * @see JsonPrimitive is the preferred method for encoding JSON primitives.
  * @throws JsonEncodingException if `value == "null"`
  */
-@ExperimentalSerializationApi
 @Suppress("FunctionName")
 public fun JsonUnquotedLiteral(value: String?): JsonPrimitive {
     return when (value) {
         null -> JsonNull
-        JsonNull.content -> throw JsonEncodingException("Creating a literal unquoted value of 'null' is forbidden. If you want to create JSON null literal, use JsonNull object, otherwise, use JsonPrimitive")
+        JsonNull.content -> throw JsonEncodingException("Creating a literal unquoted value of 'null' is forbidden.", hint = "If you want to create JSON null literal, use JsonNull object, otherwise, use JsonPrimitive")
         else -> JsonLiteral(value, isString = false, coerceToInlineType = jsonUnquotedLiteralDescriptor)
     }
 }
@@ -346,4 +341,4 @@ internal fun unexpectedJson(key: String, expected: String): Nothing =
     throw IllegalArgumentException("Element $key is not a $expected")
 
 // Use this function to avoid re-wrapping exception into NumberFormatException
-internal fun JsonPrimitive.parseLongImpl(): Long = StringJsonLexer(content).consumeNumericLiteralFully()
+internal fun JsonPrimitive.parseLongImpl(): Long = StringJsonLexer(Json.Default, content).consumeNumericLiteralFully()

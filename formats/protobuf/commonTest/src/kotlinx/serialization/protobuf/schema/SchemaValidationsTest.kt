@@ -127,10 +127,11 @@ class SchemaValidationsTest {
     @Test
     fun testValidPackageNames() {
         val descriptors = listOf(ValidClass.serializer().descriptor)
-        ProtoBufSchemaGenerator.generateSchemaText(descriptors, "singleIdent")
-        ProtoBufSchemaGenerator.generateSchemaText(descriptors, "double.ident")
-        ProtoBufSchemaGenerator.generateSchemaText(descriptors, "with.digits0123")
-        ProtoBufSchemaGenerator.generateSchemaText(descriptors, "with.underscore_")
+        fun String.assertNotEmpty() = assertTrue(isNotEmpty())
+        ProtoBufSchemaGenerator.generateSchemaText(descriptors, "singleIdent").assertNotEmpty()
+        ProtoBufSchemaGenerator.generateSchemaText(descriptors, "double.ident").assertNotEmpty()
+        ProtoBufSchemaGenerator.generateSchemaText(descriptors, "with.digits0123").assertNotEmpty()
+        ProtoBufSchemaGenerator.generateSchemaText(descriptors, "with.underscore_").assertNotEmpty()
     }
 
     @Test

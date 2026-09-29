@@ -85,11 +85,13 @@ class JsonProhibitedPolymorphicKindsTest : JsonTestBase() {
         }
     }
 
-    private fun Json(useArrayPolymorphism: Boolean, builderAction: PolymorphicModuleBuilder<Any>.() -> Unit) = Json {
-        this.useArrayPolymorphism = useArrayPolymorphism
-        serializersModule = SerializersModule {
-            polymorphic(Any::class) {
-                builderAction()
+    private fun Json(useArrayPolymorphism: Boolean, builderAction: PolymorphicModuleBuilder<Any>.() -> Unit) {
+        val _ = Json {
+            this.useArrayPolymorphism = useArrayPolymorphism
+            serializersModule = SerializersModule {
+                polymorphic(Any::class) {
+                    builderAction()
+                }
             }
         }
     }

@@ -25,8 +25,6 @@ import kotlin.reflect.*
  * @see Polymorphic
  */
 public sealed class SerializersModule {
-
-    @ExperimentalSerializationApi
     @Deprecated(
         "Deprecated in favor of overload with default parameter",
         ReplaceWith("getContextual(kclass)"),
@@ -43,7 +41,6 @@ public sealed class SerializersModule {
      *
      * @see SerializersModuleBuilder.contextual
      */
-    @ExperimentalSerializationApi
     public abstract fun <T : Any> getContextual(
         kClass: KClass<T>,
         typeArgumentsSerializers: List<KSerializer<*>> = emptyList()
@@ -52,20 +49,17 @@ public sealed class SerializersModule {
     /**
      * Returns a polymorphic serializer registered for a class of the given [value] in the scope of [baseClass].
      */
-    @ExperimentalSerializationApi
     public abstract fun <T : Any> getPolymorphic(baseClass: KClass<in T>, value: T): SerializationStrategy<T>?
 
     /**
      * Returns a polymorphic deserializer registered for a [serializedClassName] in the scope of [baseClass]
      * or default value constructed from [serializedClassName] if a default serializer provider was registered.
      */
-    @ExperimentalSerializationApi
     public abstract fun <T : Any> getPolymorphic(baseClass: KClass<in T>, serializedClassName: String?): DeserializationStrategy<T>?
 
     /**
      * Copies contents of this module to the given [collector].
      */
-    @ExperimentalSerializationApi
     public abstract fun dumpTo(collector: SerializersModuleCollector)
 
     @InternalSerializationApi

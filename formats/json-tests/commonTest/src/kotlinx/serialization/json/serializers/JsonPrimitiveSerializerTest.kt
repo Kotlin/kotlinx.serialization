@@ -211,8 +211,8 @@ class JsonPrimitiveSerializerTest : JsonTestBase() {
         checkSerializationException({
             default.decodeFromString(OuterLong.serializer(), """{"a":"12:34:45"}""", mode)
         }, {
-            if (mode == JsonTestingMode.TREE) assertContains(it, "Failed to parse literal '\"12:34:45\"' as a long value at element: \$.a")
-            else assertContains(it, "Unexpected JSON token at offset 5: Expected closing quotation mark at path: \$.a")
+            if (mode == JsonTestingMode.TREE) assertContains(it, "Failed to parse literal '\"12:34:45\"' as a long value at path: \$.a")
+            else assertContains(it, "Unexpected JSON token at offset 8: Expected closing quotation mark at path: \$.a")
         })
     }
 }

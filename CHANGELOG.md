@@ -1,3 +1,235 @@
+1.12.0-RC / 2026-09-04
+==================
+
+This is a release candidate for 1.12 version, bringing a lot of changes and improvements. 
+It is based on Kotlin 2.4.10.
+
+## API stabilization and deprecations
+
+A big portion of the Json and Core APIs has been stabilized. Most important ones include:
+`@KeepGeneratedSerializer` and `@SerialInfo` annotations, `JsonNamingStrategy`, and `ContextualSerializer`.
+Additionally, various descriptor builders such as `listDescriptor` and JsonElementBuilder's `addAll` functions are also
+stable and can be freely used. There is also one deprecation: `ChunkedDecoder` interface. Since there is no demand for
+it, we plan to remove it in the future. See details in
+the [#3238](https://github.com/Kotlin/kotlinx.serialization/issues/3238), [#3239](https://github.com/Kotlin/kotlinx.serialization/issues/3239),
+and [#3216](https://github.com/Kotlin/kotlinx.serialization/issues/3216).
+
+## Performance improvements
+
+We also improved performance in various areas. ASCII-specific parser
+([#3225](https://github.com/Kotlin/kotlinx.serialization/issues/3225)) brings performance of decoding from Okio and
+kotlinx-io sources closer to decoding performance from
+String. [#3220](https://github.com/Kotlin/kotlinx.serialization/issues/3220) makes decoding significantly faster in case
+`JsonElement` present in your serializable classes.
+And [#3248](https://github.com/Kotlin/kotlinx.serialization/issues/3248) should bring overall performance improvements
+(up to 30%) on large strings.
+
+## Exceptions rework
+
+We continue to improve exception handling in Json encoders and decoders.
+[#3235](https://github.com/Kotlin/kotlinx.serialization/issues/3235) makes a big change around custom serializers and
+`@Serializable` classes constructors:
+from now on, every exception thrown during deserialization is wrapped by decoder into a `JsonException`. This way, it is
+more predictable to write a `catch` and it is easier to understand what went wrong:
+`JsonDecodingException` also includes context information such as Json path and input. Besides
+that, [#3246](https://github.com/Kotlin/kotlinx.serialization/issues/3246) limits maximum nesting depth of Json
+document, so you will get a proper `JsonDecodingException` instead of a random stack overflow error.
+
+## CBOR improvements
+
+CBOR format also gets many improvements in this release. The most important one is memory optimization for
+definitely-sized collections ([#3191](https://github.com/Kotlin/kotlinx.serialization/issues/3191), [#3192](https://github.com/Kotlin/kotlinx.serialization/issues/3192)).
+
+The others include:
+
+* Encode unsigned integer types as positive integers ([#3194](https://github.com/Kotlin/kotlinx.serialization/issues/3194)) (thanks to [Eyüp Can Akman](https://github.com/eyupcanakman))
+* Correctly decode CborLabel values ([#3195](https://github.com/Kotlin/kotlinx.serialization/issues/3195))
+* Include actual tag info into CborDecodingException ([#3197](https://github.com/Kotlin/kotlinx.serialization/issues/3197))
+
+## Protobuf improvements
+
+Protocol buffers format received a big new feature: support for unknown fields. Using a new `ProtoUnknownFieldHolder`
+class, you can now decode and store unknown fields in Protobuf messages to retransmit them back later. See documentation
+updates and [#2860](https://github.com/Kotlin/kotlinx.serialization/issues/2860) for details. Big thanks
+to [xzk](https://github.com/xiaozhikang0916) for theirs contributions:
+this one and the bug with `oneof` default value ([#3147](https://github.com/Kotlin/kotlinx.serialization/issues/3147)).
+
+We've also fixed Protobuf schema generation for inlined value classes ([#3209](https://github.com/Kotlin/kotlinx.serialization/issues/3209)).
+
+## Other improvements and bugfixes
+
+* Set Deprecated (HIDDEN) to setters in JsonConfiguration
+* Add Json nesting depth calculation during parsing ([#3246](https://github.com/Kotlin/kotlinx.serialization/issues/3246))
+* JsonElementBuilders: mark all (add|put)Json (Object|Array) functions as inline ([#3242](https://github.com/Kotlin/kotlinx.serialization/issues/3242)) (thanks to [Miha-x64](https://github.com/Miha-x64))
+* Fix Polymorphic Deserialization Error with Subclass using JsonTransformingSerializer ([#3139](https://github.com/Kotlin/kotlinx.serialization/issues/3139)) (thanks to [YongJun Jung](https://github.com/oungsi2000))
+* Align collections' SerialDescriptors with the contract ([#3199](https://github.com/Kotlin/kotlinx.serialization/issues/3199))
+
+1.11.0 / 2026-04-10
+==================
+
+This release is based on Kotlin 2.3.20 and provides new Json exceptions API and some bugfixes and improvements.
+
+## Expose Json exceptions structure
+
+To make working with exceptions easier and providing proper error codes in e.g., REST APIs,
+classes `JsonException`, `JsonDecodingException`, and `JsonEncodingException` are now public.
+They have relevant public properties, such as `shortMessage`, `path`, `offset`, and others.
+This API is currently experimental, and we're going to improve it further in the subsequent releases.
+See the linked issues for the details: [#1930](https://github.com/Kotlin/kotlinx.serialization/issues/1930), [#1877](https://github.com/Kotlin/kotlinx.serialization/issues/1877).
+
+## Ability to hide user input from exception messages for security/privacy reasons.
+
+Historically, exception messages in kotlinx.serialization often included the input Json itself for debuggability reason.
+Such behavior may pose additional challenges for logging, analytics, and other systems, since
+a system is not always allowed to store user data due to privacy/security reasons, which imposes additional sanitation logic.
+To address this issue, a new property `exceptionsWithDebugInfo` is added to `JsonConfiguration`.
+Disable it to hide user input from exception messages.
+IMPORTANT: This behavior will be enabled by default when this property becomes stable.
+See [#2590](https://github.com/Kotlin/kotlinx.serialization/issues/2590) for more details.
+
+## Bugfixes and improvements
+
+  * CBOR: Relax value range check when decoding numbers (#3167)
+  * Use a specialized writeDecimalLong method for IO stream integrations in Json (#3152)
+
+1.10.0 / 2026-01-21
+==================
+
+This release is based on Kotlin 2.3.0 and contains all of the changes from 1.10.0-RC.
+The only additional change is a fix for ProtoBuf packing of Kotlin unsigned types (#3079).
+Big thanks to [KosmX](https://github.com/KosmX) for contributing the fix.
+
+> For your convenience, the changelog for 1.10.0-RC is duplicated below:
+
+## Stabilization of APIs
+
+kotlinx-serialization 1.10 and subsequent releases will be focused on stabilization of existing APIs.
+The following APIs and configuration options are no longer experimental because they're widely used without any known major issues:
+
+* `Json` configuration options: `decodeEnumsCaseInsensitive`, `allowTrailingComma`, `allowComments`, and `prettyPrintIndent`. (#3100)
+* `@EncodeDefault` annotation and its modes. (#3106)
+* `JsonUnquotedLiteral` constructor function (#2900)
+* `JsonPrimitive` constructor function overloads that accept unsigned types. (#3117)
+* JSON DSL functions on `JsonElement` with `Nothing?` overloads. (#3117)
+
+## Readiness for return value checker
+
+Kotlin 2.3.0 [introduces a new feature](https://kotlinlang.org/docs/whatsnew23.html#unused-return-value-checker) aimed
+at helping you to catch bugs related to the accidentally ignored return value of the function.
+kotlinx-serialization 1.10.0-RC code is fully marked for this feature, meaning that you
+can get warnings for unused function calls like `Json.encodeToString(...)`.
+To get the warnings, the feature has to be enabled in your project as [described here](https://kotlinlang.org/docs/unused-return-value-checker.html#configure-the-unused-return-value-checker).
+
+## Polymorphism improvements
+
+Polymorphic serialization received a couple of improvements in this release:
+
+New `subclassesOfSealed` utility to automatically register sealed subclasses serializers in polymorphic modules (#2201).
+Use it in your `SerializersModule` when configuring a polymorphic hierarchy which contains both abstract and sealed classes.
+[For example](https://github.com/Kotlin/kotlinx.serialization/issues/2199), when root of your hierarchy is an `interface`, but most of your inheritors are `sealed` classes.
+The new function will register all known sealed subclasses for you, so you don’t need to list them one by one.
+This makes writing your `SerializerModule`s much faster and simpler.
+Big thanks to [Paul de Vrieze](https://github.com/pdvrieze) for contributing this feature.
+
+Class discriminator conflict check rework (#3105).
+If a payload already contains a property with the same name as the configured discriminator (for example, `type`),
+it is called a class discriminator conflict.
+To produce a correct output and allow more inputs to be deserialized at the same time, the following changes were made:
+* Conflicts introduced by `JsonNamingStrategy` transformations are now detected during serialization as well and will cause `SerializationException`.
+  It also affects non-polymorphic classes.
+* Conflicts from `ClassDisciminatorMode.ALL_JSON_OBJECTS` and `SerializersModuleBuilder.polymorphicDefaultSerializer` are also detected.
+* It is allowed to deserialize such a conflicting key for both sealed and open polymorphic hierarchies.
+  Previously, it was possible in the sealed hierarchies alone due to missing assertion. See #1664 for details.
+
+## General improvements
+
+* Add `.serialName` to `MissingFieldException` for clearer diagnostics. (#3114)
+* Generate unique `Automatic-Module-Name` entries for metadata JARs. (#3109)
+* Revised ProGuard rules and added R8 tests. (#3041)
+* CBOR: Improved error message when a byte string/array type mismatch is encountered. (#3052)
+
+## Bugfixes
+
+* Fix the type in the `BIGNUM_NEGATIVE` tag name. (#3090)
+* CBOR: Fix various bugs in the decoder implementation to be more strict and consistent with the specification.
+
+1.10.0-RC / 2025-12-18
+==================
+
+This is a release candidate for 1.10.0 based on Kotlin 2.3.0. It stabilizes a set of frequently used JSON APIs and builder options,
+adopts a new 'Return Value Checker' Kotlin feature, and provides a lot of improvements and bug fixes.
+
+## Stabilization of APIs
+
+kotlinx-serialization 1.10 and subsequent releases will be focused on stabilization of existing APIs.
+The following APIs and configuration options are no longer experimental because they're widely used without any known major issues:
+
+* `Json` configuration options: `decodeEnumsCaseInsensitive`, `allowTrailingComma`, `allowComments`, and `prettyPrintIndent`. (#3100)
+* `@EncodeDefault` annotation and its modes. (#3106)
+* `JsonUnquotedLiteral` constructor function (#2900)
+* `JsonPrimitive` constructor function overloads that accept unsigned types. (#3117)
+* JSON DSL functions on `JsonElement` with `Nothing?` overloads. (#3117)
+
+## Readiness for return value checker
+
+Kotlin 2.3.0 [introduces a new feature](https://kotlinlang.org/docs/whatsnew23.html#unused-return-value-checker) aimed 
+at helping you to catch bugs related to the accidentally ignored return value of the function.
+kotlinx-serialization 1.10.0-RC code is fully marked for this feature, meaning that you
+can get warnings for unused function calls like `Json.encodeToString(...)`.
+To get the warnings, the feature has to be enabled in your project as [described here](https://kotlinlang.org/docs/unused-return-value-checker.html#configure-the-unused-return-value-checker).
+
+## Polymorphism improvements
+
+Polymorphic serialization received a couple of improvements in this release:
+
+New `subclassesOfSealed` utility to automatically register sealed subclasses serializers in polymorphic modules (#2201).
+Use it in your `SerializersModule` when configuring a polymorphic hierarchy which contains both abstract and sealed classes.
+[For example](https://github.com/Kotlin/kotlinx.serialization/issues/2199), when root of your hierarchy is an `interface`, but most of your inheritors are `sealed` classes.
+The new function will register all known sealed subclasses for you, so you don’t need to list them one by one.
+This makes writing your `SerializerModule`s much faster and simpler.
+Big thanks to [Paul de Vrieze](https://github.com/pdvrieze) for contributing this feature.
+
+Class discriminator conflict check rework (#3105).
+If a payload already contains a property with the same name as the configured discriminator (for example, `type`),
+it is called a class discriminator conflict. 
+To produce a correct output and allow more inputs to be deserialized at the same time, the following changes were made:
+* Conflicts introduced by `JsonNamingStrategy` transformations are now detected during serialization as well and will cause `SerializationException`.
+It also affects non-polymorphic classes.
+* Conflicts from `ClassDisciminatorMode.ALL_JSON_OBJECTS` and `SerializersModuleBuilder.polymorphicDefaultSerializer` are also detected.
+* It is allowed to deserialize such a conflicting key for both sealed and open polymorphic hierarchies. 
+Previously, it was possible in the sealed hierarchies alone due to missing assertion. See #1664 for details.
+
+## General improvements
+
+  * Add `.serialName` to `MissingFieldException` for clearer diagnostics. (#3114)
+  * Generate unique `Automatic-Module-Name` entries for metadata JARs. (#3109)
+  * Revised ProGuard rules and added R8 tests. (#3041)
+  * CBOR: Improved error message when a byte string/array type mismatch is encountered. (#3052)
+
+## Bugfixes
+
+  * Fix the type in the `BIGNUM_NEGATIVE` tag name. (#3090)
+  * CBOR: Fix various bugs in the decoder implementation to be more strict and consistent with the specification.
+
+1.9.0 / 2025-06-27
+==================
+
+This release updates Kotlin version to 2.2.0, includes several bugfixes and provides serializers for kotlin.time.Instant.
+
+## Add kotlin.time.Instant serializers
+
+Instant class was moved from kotlinx-datetime library to Kotlin standard library. 
+As a result, kotlinx-datetime 0.7.0 no longer has serializers for the Instant class.
+To use new kotlin.time.Instant class in your @Serializable classes,
+you can use this 1.9.0 kotlinx-serialization version (Kotlin 2.2 is required).
+You can choose between default `InstantSerializer` which uses its string representation,
+or specify `InstantComponentSerializer` that represents instant as its components.
+See details in the [PR](https://github.com/Kotlin/kotlinx.serialization/pull/2945).
+
+## Other bugfixes
+  * Fix resize in JsonPath (#2995)
+  * Fixed proguard rules for obfuscation to work correctly (#2983)
+
 1.8.1 / 2025-03-31
 ==================
 

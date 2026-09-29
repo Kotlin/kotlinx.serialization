@@ -5,15 +5,12 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 
 import kotlinx.serialization.modules.*
-import kotlin.reflect.KClass
 
 val module = SerializersModule {
-    fun PolymorphicModuleBuilder<Project>.registerProjectSubclasses() {
+    polymorphic(Any::class) {
         subclass(OwnedProject::class)
     }
-    polymorphic(Any::class) { registerProjectSubclasses() }
-    polymorphic(Project::class) { registerProjectSubclasses() }
-}        
+}
 
 val format = Json { serializersModule = module }
 
@@ -27,12 +24,11 @@ class OwnedProject(override val name: String, val owner: String) : Project
 
 @Serializable
 class Data(
-    val project: Project,
-    @Polymorphic val any: Any 
+    @Polymorphic // the code does not compile without it 
+    val project: Any 
 )
 
 fun main() {
-    val project = OwnedProject("kotlinx.coroutines", "kotlin")
-    val data = Data(project, project)
+    val data = Data(OwnedProject("kotlinx.coroutines", "kotlin"))
     println(format.encodeToString(data))
-}        
+}

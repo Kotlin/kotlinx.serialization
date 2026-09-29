@@ -82,37 +82,30 @@ open class ImplicitNullsBenchmark {
     private val serializer = Values.serializer()
 
     @Benchmark
-    fun decodeNoNulls() {
+    fun decodeNoNulls() =
         Json.decodeFromString(serializer, jsonNoNulls)
-    }
 
     @Benchmark
-    fun decodeNoNullsImplicit() {
+    fun decodeNoNullsImplicit() =
         jsonImplicitNulls.decodeFromString(serializer, jsonNoNulls)
-    }
 
     @Benchmark
-    fun decodeNulls() {
+    fun decodeNulls() =
         Json.decodeFromString(serializer, jsonWithNulls)
-    }
 
     @Benchmark
-    fun decodeNullsImplicit() {
+    fun decodeNullsImplicit() =
         jsonImplicitNulls.decodeFromString(serializer, jsonWithNulls)
-    }
 
     @Benchmark
-    fun decodeAbsenceImplicit() {
+    fun decodeAbsenceImplicit() =
         jsonImplicitNulls.decodeFromString(serializer, jsonWithAbsence)
-    }
 
     @Benchmark
-    fun encodeNulls() {
+    fun encodeNulls() =
         Json.encodeToString(serializer, valueWithNulls)
-    }
 
     @Benchmark
-    fun encodeNullsImplicit() {
+    fun encodeNullsImplicit() =
         jsonImplicitNulls.encodeToString(serializer, valueWithNulls)
-    }
 }

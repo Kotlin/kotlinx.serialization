@@ -7,6 +7,7 @@ package kotlinx.serialization.json.polymorphic
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
+import kotlinx.serialization.test.assertFailsWithMessage
 import kotlin.test.*
 
 class ClassDiscriminatorModeAllObjectsTest :
@@ -46,6 +47,13 @@ class ClassDiscriminatorModeAllObjectsTest :
     @Test
     fun testNullable() = testNullable("""{"type":"NullableMixed","sb":null,"sc":null}""")
 
+    @Test
+    fun testConflictWithDiscriminator() {
+        assertFailsWithMessage<SerializationException>("Class 'Conflict' cannot be serialized in ALL_JSON_OBJECTS class discriminator mode because it has property name that conflicts with JSON class discriminator 'type'") {
+            json.encodeToString(Conflict("foo"))
+        }
+    }
+
 }
 
 class ClassDiscriminatorModeNoneTest :
@@ -82,6 +90,11 @@ class ClassDiscriminatorModeNoneTest :
 
     @Test
     fun testNullable() = testNullable("""{"sb":null,"sc":null}""")
+
+    @Test
+    fun testConflictWithDiscriminator() {
+        doTest("""{"type":"foo"}""", Conflict("foo"))
+    }
 
     interface CommandType
 

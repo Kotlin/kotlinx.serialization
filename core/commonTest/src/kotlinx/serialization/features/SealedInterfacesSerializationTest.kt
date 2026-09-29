@@ -68,9 +68,9 @@ class SealedInterfacesSerializationTest {
         assertEquals(listOf("ImplA", "ImplB"), subclasses)
     }
 
-    private fun SerialDescriptor.isDummy() = serialName == "Dummy"
+    private fun SerialDescriptor.isDummy() = assertEquals(serialName, "Dummy")
 
-    private fun SerialDescriptor.isPolymorphic() = kind == PolymorphicKind.OPEN
+    private fun SerialDescriptor.isPolymorphic() = assertEquals(kind, PolymorphicKind.OPEN)
 
     operator fun SerialDescriptor.get(i: Int) = getElementDescriptor(i)
 

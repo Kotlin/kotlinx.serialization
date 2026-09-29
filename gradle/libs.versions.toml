@@ -1,12 +1,12 @@
 [versions]
-kotlin = "2.1.20"
-kover = "0.8.2"
-dokka = "2.0.0-Beta"
+kotlin = "2.4.10"
+kover = "0.9.8"
+dokka = "2.2.0-Beta"
 knit = "0.5.0"
-bcv = "0.16.2"
-animalsniffer = "1.7.1"
-protobuf = "0.8.19"
-shadow = "8.1.1"
+bcv = "0.18.1"
+animalsniffer = "2.0.1"
+protobuf = "0.10.0"
+shadow = "8.3.9"
 jmh = "0.7.2"
 jmh-core = "1.37"
 guava = "31.1-jre"
@@ -31,6 +31,7 @@ gradlePlugin-animalsniffer = { module = "ru.vyarus:gradle-animalsniffer-plugin",
 gradlePlugin-binaryCompatibilityValidator = { module = "org.jetbrains.kotlinx:binary-compatibility-validator", version.ref = "bcv" }
 
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 
 dokka-pathsaver = { module = "org.jetbrains.kotlinx:dokka-pathsaver-plugin", version.ref = "knit" }
@@ -58,6 +59,6 @@ moshi-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.re
 [plugins]
 knit = { id = "org.jetbrains.kotlinx.knit", version.ref = "knit" }
 jmh = { id = "me.champeau.jmh", version.ref = "jmh" }
-shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 protobuf = { id = "com.google.protobuf", version.ref = "protobuf" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

@@ -26,7 +26,7 @@ internal actual fun <T : Any> KClass<T>.compiledSerializerImpl(): KSerializer<T>
         else this.js.asDynamic().Companion?.serializer()
         ) as? KSerializer<T>
 
-internal actual fun <T: Any> KClass<T>.isInterface(): Boolean = isInterface
+internal actual fun <T: Any> KClass<T>.isInterface(): Boolean = isInterfaceHack
 
 internal actual fun <T> createCache(factory: (KClass<*>) -> KSerializer<T>?): SerializerCache<T> {
     return object: SerializerCache<T> {
@@ -73,15 +73,17 @@ internal actual fun isReferenceArray(rootClass: KClass<Any>): Boolean = rootClas
  * WARNING: may be broken in arbitrary time in the future without notice
  *
  * Should be eventually replaced with compiler intrinsics
+ *
+ * TODO: Remove this when KT-78581 lands into a 2.2.20 release
  */
-private val KClass<*>.isInterface: Boolean
+private val KClass<*>.isInterfaceHack: Boolean
     get(): Boolean {
         // .js throws an exception for Nothing
         if (this === Nothing::class) return false
         return js.asDynamic().`$metadata$`?.kind == "interface"
     }
 
-@OptIn(ExperimentalUnsignedTypes::class, ExperimentalUuidApi::class, ExperimentalSerializationApi::class)
+@OptIn(ExperimentalUnsignedTypes::class)
 internal actual fun initBuiltins(): Map<KClass<*>, KSerializer<*>> = mapOf(
     String::class to String.serializer(),
     Char::class to Char.serializer(),
@@ -111,5 +113,8 @@ internal actual fun initBuiltins(): Map<KClass<*>, KSerializer<*>> = mapOf(
     Unit::class to Unit.serializer(),
     Nothing::class to NothingSerializer(),
     Duration::class to Duration.serializer(),
+    Instant::class to Instant.serializer(),
     Uuid::class to Uuid.serializer()
 )
+
+internal actual fun estimateCapacityForHashMap(requiredCapacity: Int): Int = requiredCapacity

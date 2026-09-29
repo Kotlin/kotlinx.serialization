@@ -20,11 +20,11 @@ import kotlin.jvm.*
 @OptIn(ExperimentalSerializationApi::class)
 internal open class StreamingJsonDecoder(
     final override val json: Json,
-    private val mode: WriteMode,
+    private val mode: LexerMode,
     @JvmField internal val lexer: AbstractJsonLexer,
     descriptor: SerialDescriptor,
     discriminatorHolder: DiscriminatorHolder?
-) : JsonDecoder, ChunkedDecoder, AbstractDecoder() {
+) : PolymorphicJsonDecoder, @Suppress("DEPRECATION") ChunkedDecoder, AbstractDecoder() {
 
     // A mutable reference to the discriminator that have to be skipped when in optimistic phase
     // of polymorphic serialization, see `decodeSerializableValue`
@@ -41,16 +41,19 @@ internal open class StreamingJsonDecoder(
 
 
     override val serializersModule: SerializersModule = json.serializersModule
+    override val discriminator: String?
+        get() = discriminatorHolder?.discriminatorToSkip
     private var currentIndex = -1
     private var discriminatorHolder: DiscriminatorHolder? = discriminatorHolder
     private val configuration = json.configuration
 
-    private val elementMarker: JsonElementMarker? = if (configuration.explicitNulls) null else JsonElementMarker(descriptor)
+    private val elementMarker: JsonElementMarker? =
+        if (configuration.explicitNulls) null else JsonElementMarker(descriptor)
 
     override fun decodeJsonElement(): JsonElement = JsonTreeReader(json.configuration, lexer).read()
 
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
-        try {
+        return withExceptionHandling(path = lexer.path::getPath, input = lexer::source) {
             /*
              * This is an optimized path over decodeSerializableValuePolymorphic(deserializer):
              * dSVP reads the very next JSON tree into a memory as JsonElement and then runs TreeJsonDecoder over it
@@ -75,41 +78,33 @@ internal open class StreamingJsonDecoder(
                 return decodeSerializableValuePolymorphic<T>(deserializer as DeserializationStrategy<T>) { lexer.path.getPath() }
 
             @Suppress("UNCHECKED_CAST")
-            val actualSerializer = try {
-                    deserializer.findPolymorphicSerializer(this, type)
-                } catch (it: SerializationException) { // Wrap SerializationException into JsonDecodingException to preserve position, path, and input.
-                    // Split multiline message from private core function:
-                    // core/commonMain/src/kotlinx/serialization/internal/AbstractPolymorphicSerializer.kt:102
-                    val message = it.message!!.substringBefore('\n').removeSuffix(".")
-                    val hint = it.message!!.substringAfter('\n', missingDelimiterValue = "")
-                    lexer.fail(message, hint = hint)
-                } as DeserializationStrategy<T>
+            val actualSerializer = deserializer.findPolymorphicSerializerOrNull(this, type) as? DeserializationStrategy<T>
+
+            if (actualSerializer == null) {
+                val (message, hint) = subtypeNotRegisteredMessageJson(type, deserializer.baseClass)
+                lexer.fail(message, hint = hint)
+            }
 
             discriminatorHolder = DiscriminatorHolder(discriminator)
-            return actualSerializer.deserialize(this)
-
-        } catch (e: MissingFieldException) {
-            // Add "at path" if and only if we've just caught an exception and it hasn't been augmented yet
-            if (e.message!!.contains("at path")) throw e
-            // NB: we could've use some additional flag marker or augment the stacktrace, but it seemed to be as too much of a burden
-            throw MissingFieldException(e.missingFields, e.message + " at path: " + lexer.path.getPath(), e)
+            actualSerializer.deserialize(this)
         }
     }
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
-        val newMode = json.switchMode(descriptor)
+        val newMode = json.modeFor(descriptor)
         lexer.path.pushDescriptor(descriptor)
         lexer.consumeNextToken(newMode.begin)
         checkLeadingComma()
         return when (newMode) {
             // In fact resets current index that these modes rely on
-            WriteMode.LIST, WriteMode.MAP, WriteMode.POLY_OBJ -> StreamingJsonDecoder(
+            LexerMode.LIST, LexerMode.MAP, LexerMode.POLY_OBJ -> StreamingJsonDecoder(
                 json,
                 newMode,
                 lexer,
                 descriptor,
                 discriminatorHolder
             )
+
             else -> if (mode == newMode && json.configuration.explicitNulls) {
                 this
             } else {
@@ -159,7 +154,7 @@ internal open class StreamingJsonDecoder(
         deserializer: DeserializationStrategy<T>,
         previousValue: T?
     ): T {
-        val isMapKey = mode == WriteMode.MAP && index and 1 == 0
+        val isMapKey = mode == LexerMode.MAP && index and 1 == 0
         // Reset previous key
         if (isMapKey) {
             lexer.path.resetCurrentMapKey()
@@ -175,12 +170,12 @@ internal open class StreamingJsonDecoder(
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         val index = when (mode) {
-            WriteMode.OBJ -> decodeObjectIndex(descriptor)
-            WriteMode.MAP -> decodeMapIndex()
+            LexerMode.OBJ -> decodeObjectIndex(descriptor)
+            LexerMode.MAP -> decodeMapIndex()
             else -> decodeListIndex() // Both for LIST and default polymorphic
         }
         // The element of the next index that will be decoded
-        if (mode != WriteMode.MAP) {
+        if (mode != LexerMode.MAP) {
             lexer.path.updateDescriptorIndex(index)
         }
         return index
@@ -216,7 +211,7 @@ internal open class StreamingJsonDecoder(
         descriptor, index,
         { lexer.tryConsumeNull(it) },
         { lexer.peekString(configuration.isLenient) },
-        { lexer.consumeString() /* skip unknown enum string*/ }
+        { val _ = lexer.consumeString() /* skip unknown enum string*/ }
     )
 
     private fun decodeObjectIndex(descriptor: SerialDescriptor): Int {
@@ -341,6 +336,7 @@ internal open class StreamingJsonDecoder(
         }
     }
 
+    @Deprecated("This method will be removed in the subsequent releases.")
     override fun decodeStringChunked(consumeChunk: (chunk: String) -> Unit) {
         lexer.consumeStringChunked(configuration.isLenient, consumeChunk)
     }
@@ -361,7 +357,7 @@ public fun <T> decodeStringToJsonTree(
     source: String
 ): JsonElement {
     val lexer = StringJsonLexer(json, source)
-    val input = StreamingJsonDecoder(json, WriteMode.OBJ, lexer, deserializer.descriptor, null)
+    val input = StreamingJsonDecoder(json, LexerMode.OBJ, lexer, deserializer.descriptor, null)
     val tree = input.decodeJsonElement()
     lexer.expectEof()
     return tree

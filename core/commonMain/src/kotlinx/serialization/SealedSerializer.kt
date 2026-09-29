@@ -115,7 +115,7 @@ public class SealedClassSerializer<T : Any>(
         }
     }
 
-    private val class2Serializer: Map<KClass<out T>, KSerializer<out T>>
+    internal val class2Serializer: Map<KClass<out T>, KSerializer<out T>>
     private val serialName2Serializer: Map<String, KSerializer<out T>>
 
     init {
