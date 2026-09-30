@@ -3,6 +3,8 @@
  */
 package kotlinx.serialization.json.internal
 
+import java.util.concurrent.locks.StampedLock
+
 /*
  * Not really documented kill switch as a workaround for potential
  * (unlikely) problems with memory consumptions.
@@ -11,25 +13,76 @@ private val MAX_CHARS_IN_POOL = runCatching {
     System.getProperty("kotlinx.serialization.json.pool.size")?.toIntOrNull()
 }.getOrNull() ?: (2 * 1024 * 1024)
 
-internal open class CharArrayPoolBase {
-    private val arrays = ArrayDeque<CharArray>()
-    private var charsTotal = 0
+/**
+ * Supporting different scenarios and access patterns poses a challenge w.r.t. performance:
+ * - `synchronized` sections shows nice performance in a single-threaded scenario
+ * - `synchronized` shows significantly worse performance in a contended multithreaded access scenario
+ * - `ReentrantLock` shows much better performance in a multithreaded access scenario,
+ *    but it is slightly slower than `synchronized` in a single-threaded scenario
+ * - `StampedLock`'s write lock is comparable w/ `synchronized` in a single-threaded scenario
+ *    and with `ReentrantLock` in a multithreaded scenario
+ * - On Android, everything performs worse compared to `synchronized` in a single-threaded scenario,
+ *   and there's no `StampedLock` until API level 24.
+ *
+ * This set of constraints created a monster - we check a platform and choose a lock implementation accordingly.
+ */
+private object LockSupport {
+    @JvmField
+    public val isAndroid = System.getProperty("java.vm.name") == "Dalvik"
 
+    class FallbackLockImplementation
+
+    @SuppressAnimalSniffer // StampedLock
+    inline fun <T> withLock(lock: Any, block: () -> T): T {
+        if (isAndroid || lock is FallbackLockImplementation) {
+            synchronized(lock) {
+                return block()
+            }
+        } else {
+            lock as StampedLock
+            val stamp = lock.writeLock()
+            try {
+                return block()
+            } finally {
+                lock.unlockWrite(stamp)
+            }
+        }
+    }
+
+    @SuppressAnimalSniffer // StampedLock
+    fun initLock(): Any {
+        return if (isAndroid) {
+            FallbackLockImplementation()
+        } else {
+            try {
+                StampedLock()
+            } catch (_: Throwable) {
+                // If, for some reason, isAndroid returned false, but StampedLock is not available,
+                // fallback to the synchronized.
+                FallbackLockImplementation()
+            }
+        }
+    }
+}
+
+internal open class CharArrayPoolBase {
+    private val arrays = ArrayList<CharArray>()
+    private var charsTotal = 0
+    private val lock = LockSupport.initLock()
+
+    @SuppressAnimalSniffer // withLock
     protected fun take(size: Int): CharArray {
-        /*
-         * Initially the pool is empty, so an instance will be allocated
-         * and the pool will be populated in the 'release'
-         */
-        val candidate = synchronized(this) {
+        val candidate = LockSupport.withLock(lock) {
             arrays.removeLastOrNull()?.also { charsTotal -= it.size }
         }
         return candidate ?: CharArray(size)
     }
 
-    protected fun releaseImpl(array: CharArray): Unit = synchronized(this) {
-        if (charsTotal + array.size >= MAX_CHARS_IN_POOL) return@synchronized
+    @SuppressAnimalSniffer // withLock
+    protected fun releaseImpl(array: CharArray) = LockSupport.withLock(lock) {
+        if (charsTotal + array.size >= MAX_CHARS_IN_POOL) return@withLock
         charsTotal += array.size
-        arrays.addLast(array)
+        arrays.add(array)
     }
 }
 
@@ -52,26 +105,28 @@ internal actual object JsonLexerBufferPool : CharArrayPoolBase() {
 }
 
 // Byte array pool
-
 internal open class ByteArrayPoolBase {
-    private val arrays = ArrayDeque<kotlin.ByteArray>()
+    private val arrays = ArrayList<ByteArray>()
     private var bytesTotal = 0
+    private val lock = LockSupport.initLock()
 
+    @SuppressAnimalSniffer // withLock
     protected fun take(size: Int): ByteArray {
         /*
          * Initially the pool is empty, so an instance will be allocated
          * and the pool will be populated in the 'release'
          */
-        val candidate = synchronized(this) {
+        val candidate = LockSupport.withLock(lock) {
             arrays.removeLastOrNull()?.also { bytesTotal -= it.size / 2 }
         }
         return candidate ?: ByteArray(size)
     }
 
-    protected fun releaseImpl(array: ByteArray): Unit = synchronized(this) {
-        if (bytesTotal + array.size >= MAX_CHARS_IN_POOL) return@synchronized
+    @SuppressAnimalSniffer // withLock
+    protected fun releaseImpl(array: ByteArray): Unit = LockSupport.withLock(lock) {
+        if (bytesTotal + array.size >= MAX_CHARS_IN_POOL) return
         bytesTotal += array.size / 2
-        arrays.addLast(array)
+        arrays.add(array)
     }
 }
 
