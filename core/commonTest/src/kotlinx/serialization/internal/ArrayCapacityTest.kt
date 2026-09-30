@@ -32,7 +32,7 @@ class ArrayCapacityTest {
     @Test
     fun testNeverGrowsBelowRequiredCapacity() {
         assertEquals(100, newArrayCapacity(8, 100))
-        assertEquals(maxCapacity, newArrayCapacity(8, maxCapacity))
+        assertEquals(maxCapacity, newArrayCapacity(8, maxCapacity.toLong()))
     }
 
     @Test
@@ -44,20 +44,18 @@ class ArrayCapacityTest {
     fun testCapsAtMaximumCapacity() {
         assertEquals(1_610_612_736, newArrayCapacity(1_073_741_824, 1_073_741_825))
         assertEquals(maxCapacity, newArrayCapacity(1_500_000_000, 1_500_000_001))
-        assertEquals(maxCapacity, newArrayCapacity(maxCapacity - 1, maxCapacity))
+        assertEquals(maxCapacity, newArrayCapacity(maxCapacity - 1, maxCapacity.toLong()))
     }
 
     @Test
     fun testRequiredCapacityAboveMaximumThrows() {
-        assertFailsWith<SerializationException> { newArrayCapacity(maxCapacity, maxCapacity + 1) }
-        assertFailsWith<SerializationException> { newArrayCapacity(maxCapacity, Int.MAX_VALUE) }
+        assertFailsWith<SerializationException> { newArrayCapacity(maxCapacity, maxCapacity + 1L) }
+        assertFailsWith<SerializationException> { newArrayCapacity(maxCapacity, Int.MAX_VALUE.toLong()) }
     }
 
     @Test
-    fun testOverflowedRequiredCapacityThrows() {
-        val overflowedPosition = maxCapacity + 100 // e.g. 'position + count' at the call site
-        assertTrue(overflowedPosition < 0)
-        assertFailsWith<SerializationException> { newArrayCapacity(maxCapacity, overflowedPosition) }
-        assertFailsWith<SerializationException> { newArrayCapacity(0, Int.MIN_VALUE) }
+    fun testErrorMessageContainsRequiredCapacity() {
+        val exception = assertFailsWith<SerializationException> { newArrayCapacity(maxCapacity, Int.MAX_VALUE + 100L) }
+        assertEquals("Cannot grow array to 2147483747 elements, the maximum supported array size is 2147483639", exception.message)
     }
 }

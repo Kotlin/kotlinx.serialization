@@ -97,7 +97,7 @@ internal class OutputStreamJsonWriter(private val stream: OutputStream) : Intern
     @IgnorableReturnValue
     private fun ensureTotalCapacity(oldSize: Int, additional: Int): Int {
         if (charArray.size - oldSize <= additional) {
-            charArray = charArray.copyOf(newArrayCapacity(charArray.size, oldSize + additional))
+            charArray = charArray.copyOf(newArrayCapacity(charArray.size, oldSize.toLong() + additional))
         }
         return oldSize
     }

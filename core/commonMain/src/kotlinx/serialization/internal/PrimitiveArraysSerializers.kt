@@ -54,7 +54,7 @@ internal class ByteArrayBuilder internal constructor(
 
     override fun ensureCapacity(requiredCapacity: Int) {
         if (buffer.size < requiredCapacity)
-            buffer = buffer.copyOf(newArrayCapacity(buffer.size, requiredCapacity))
+            buffer = buffer.copyOf(newArrayCapacity(buffer.size, requiredCapacity.toLong()))
     }
 
     internal fun append(c: Byte) {
@@ -109,7 +109,7 @@ internal class ShortArrayBuilder internal constructor(
 
     override fun ensureCapacity(requiredCapacity: Int) {
         if (buffer.size < requiredCapacity)
-            buffer = buffer.copyOf(newArrayCapacity(buffer.size, requiredCapacity))
+            buffer = buffer.copyOf(newArrayCapacity(buffer.size, requiredCapacity.toLong()))
     }
 
     internal fun append(c: Short) {
@@ -163,7 +163,7 @@ internal class IntArrayBuilder internal constructor(
 
     override fun ensureCapacity(requiredCapacity: Int) {
         if (buffer.size < requiredCapacity)
-            buffer = buffer.copyOf(newArrayCapacity(buffer.size, requiredCapacity))
+            buffer = buffer.copyOf(newArrayCapacity(buffer.size, requiredCapacity.toLong()))
     }
 
     internal fun append(c: Int) {
@@ -217,7 +217,7 @@ internal class LongArrayBuilder internal constructor(
 
     override fun ensureCapacity(requiredCapacity: Int) {
         if (buffer.size < requiredCapacity)
-            buffer = buffer.copyOf(newArrayCapacity(buffer.size, requiredCapacity))
+            buffer = buffer.copyOf(newArrayCapacity(buffer.size, requiredCapacity.toLong()))
     }
 
     internal fun append(c: Long) {
@@ -270,7 +270,7 @@ internal class FloatArrayBuilder internal constructor(
 
     override fun ensureCapacity(requiredCapacity: Int) {
         if (buffer.size < requiredCapacity)
-            buffer = buffer.copyOf(newArrayCapacity(buffer.size, requiredCapacity))
+            buffer = buffer.copyOf(newArrayCapacity(buffer.size, requiredCapacity.toLong()))
     }
 
     internal fun append(c: Float) {
@@ -323,7 +323,7 @@ internal class DoubleArrayBuilder internal constructor(
 
     override fun ensureCapacity(requiredCapacity: Int) {
         if (buffer.size < requiredCapacity)
-            buffer = buffer.copyOf(newArrayCapacity(buffer.size, requiredCapacity))
+            buffer = buffer.copyOf(newArrayCapacity(buffer.size, requiredCapacity.toLong()))
     }
 
     internal fun append(c: Double) {
@@ -376,7 +376,7 @@ internal class CharArrayBuilder internal constructor(
 
     override fun ensureCapacity(requiredCapacity: Int) {
         if (buffer.size < requiredCapacity)
-            buffer = buffer.copyOf(newArrayCapacity(buffer.size, requiredCapacity))
+            buffer = buffer.copyOf(newArrayCapacity(buffer.size, requiredCapacity.toLong()))
     }
 
     internal fun append(c: Char) {
@@ -426,7 +426,7 @@ internal class BooleanArrayBuilder internal constructor(bufferWithData: BooleanA
 
     override fun ensureCapacity(requiredCapacity: Int) {
         if (buffer.size < requiredCapacity)
-            buffer = buffer.copyOf(newArrayCapacity(buffer.size, requiredCapacity))
+            buffer = buffer.copyOf(newArrayCapacity(buffer.size, requiredCapacity.toLong()))
     }
 
     internal fun append(c: Boolean) {
@@ -484,7 +484,7 @@ internal class UByteArrayBuilder internal constructor(
 
     override fun ensureCapacity(requiredCapacity: Int) {
         if (buffer.size < requiredCapacity)
-            buffer = buffer.copyOf(newArrayCapacity(buffer.size, requiredCapacity))
+            buffer = buffer.copyOf(newArrayCapacity(buffer.size, requiredCapacity.toLong()))
     }
 
     internal fun append(c: UByte) {
@@ -539,7 +539,7 @@ internal class UShortArrayBuilder internal constructor(
 
     override fun ensureCapacity(requiredCapacity: Int) {
         if (buffer.size < requiredCapacity)
-            buffer = buffer.copyOf(newArrayCapacity(buffer.size, requiredCapacity))
+            buffer = buffer.copyOf(newArrayCapacity(buffer.size, requiredCapacity.toLong()))
     }
 
     internal fun append(c: UShort) {
@@ -594,7 +594,7 @@ internal class UIntArrayBuilder internal constructor(
 
     override fun ensureCapacity(requiredCapacity: Int) {
         if (buffer.size < requiredCapacity)
-            buffer = buffer.copyOf(newArrayCapacity(buffer.size, requiredCapacity))
+            buffer = buffer.copyOf(newArrayCapacity(buffer.size, requiredCapacity.toLong()))
     }
 
     internal fun append(c: UInt) {
@@ -649,7 +649,7 @@ internal class ULongArrayBuilder internal constructor(
 
     override fun ensureCapacity(requiredCapacity: Int) {
         if (buffer.size < requiredCapacity)
-            buffer = buffer.copyOf(newArrayCapacity(buffer.size, requiredCapacity))
+            buffer = buffer.copyOf(newArrayCapacity(buffer.size, requiredCapacity.toLong()))
     }
 
     internal fun append(c: ULong) {

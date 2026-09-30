@@ -4,6 +4,7 @@
 
 package kotlinx.serialization.cbor
 
+import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import kotlin.test.*
 
@@ -26,5 +27,17 @@ class CborHugeByteArrayTest {
         assertEquals(0x5A.toByte(), encoded[0])
         assertEquals(1.toByte(), encoded[headerSize])
         assertEquals(2.toByte(), encoded[headerSize + size - 1])
+    }
+
+    @Test
+    fun testEncodingLargerThanMaximumArraySizeThrows() {
+        val size = (1 shl 30) + 1
+        if (Runtime.getRuntime().maxMemory() < 3L * size) return
+
+        val value = ByteArray(size)
+        val exception = assertFailsWith<SerializationException> {
+            Cbor { alwaysUseByteString = true }.encodeToByteArray(ListSerializer(ByteArraySerializer()), listOf(value, value))
+        }
+        assertEquals("Cannot grow array to 2147483661 elements, the maximum supported array size is 2147483639", exception.message)
     }
 }

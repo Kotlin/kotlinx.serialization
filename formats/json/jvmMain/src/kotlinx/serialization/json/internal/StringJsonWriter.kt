@@ -131,7 +131,7 @@ internal actual class StringJsonWriter : InternalJsonWriter {
     @IgnorableReturnValue
     private fun ensureTotalCapacity(oldSize: Int, additional: Int): Int {
         if (array.size - oldSize <= additional) {
-            array = array.copyOf(newArrayCapacity(array.size, oldSize + additional))
+            array = array.copyOf(newArrayCapacity(array.size, oldSize.toLong() + additional))
         }
         return oldSize
     }

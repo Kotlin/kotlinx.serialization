@@ -163,7 +163,7 @@ internal class ByteArrayOutput {
         if (elementsToAppend <= array.size - position) {
             return
         }
-        array = array.copyOf(newArrayCapacity(array.size, position + elementsToAppend))
+        array = array.copyOf(newArrayCapacity(array.size, position.toLong() + elementsToAppend))
     }
 
     fun size(): Int {
