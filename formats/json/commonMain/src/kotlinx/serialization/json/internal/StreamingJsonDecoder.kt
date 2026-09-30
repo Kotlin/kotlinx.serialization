@@ -46,6 +46,8 @@ internal open class StreamingJsonDecoder(
     private var currentIndex = -1
     private var discriminatorHolder: DiscriminatorHolder? = discriminatorHolder
     private val configuration = json.configuration
+    private val useKeyNameFastPath =
+        !configuration.isLenient && configuration.namingStrategy == null && lexer.supportsKeyNameMatching
 
     private val elementMarker: JsonElementMarker? =
         if (configuration.explicitNulls) null else JsonElementMarker(descriptor)
@@ -106,6 +108,7 @@ internal open class StreamingJsonDecoder(
             )
 
             else -> if (mode == newMode && json.configuration.explicitNulls) {
+                currentIndex = -1
                 this
             } else {
                 StreamingJsonDecoder(json, newMode, lexer, descriptor, discriminatorHolder)
@@ -125,6 +128,8 @@ internal open class StreamingJsonDecoder(
         lexer.consumeNextToken(mode.end)
         // Then cleanup the path
         lexer.path.popDescriptor()
+        // An object decoder can be reused for a nested object, so restore the outer sequential index.
+        if (mode == WriteMode.OBJ) currentIndex = lexer.path.currentDescriptorIndex()
     }
 
     private fun skipLeftoverElements(descriptor: SerialDescriptor) {
@@ -219,10 +224,26 @@ internal open class StreamingJsonDecoder(
         var hasComma = lexer.tryConsumeComma()
         while (lexer.canConsumeValue()) { // TODO: consider merging comma consumption and this check
             hasComma = false
-            val key = decodeStringKey()
+            // JSON produced by this format writes keys in descriptor order. Compare that expected
+            // name directly against String input, then retain the regular lookup as a full fallback.
+            val nextIndex = currentIndex + 1
+            val fastIndex = if (
+                useKeyNameFastPath && nextIndex < descriptor.elementsCount &&
+                lexer.tryConsumeKeyString(descriptor.getElementName(nextIndex))
+            ) {
+                nextIndex
+            } else {
+                UNKNOWN_NAME
+            }
+            val key = if (fastIndex == UNKNOWN_NAME) {
+                if (configuration.isLenient) decodeStringKey() else lexer.consumeKeyStringAfterMatchFailure()
+            } else {
+                null
+            }
             lexer.consumeNextToken(COLON)
-            val index = descriptor.getJsonNameIndex(json, key)
+            val index = if (fastIndex == UNKNOWN_NAME) descriptor.getJsonNameIndex(json, key!!) else fastIndex
             val isUnknown = if (index != UNKNOWN_NAME) {
+                currentIndex = index
                 if (configuration.coerceInputValues && coerceInputValue(descriptor, index)) {
                     hasComma = lexer.tryConsumeComma()
                     false // Known element, but coerced
@@ -235,7 +256,7 @@ internal open class StreamingJsonDecoder(
             }
 
             if (isUnknown) { // slow-path for unknown keys handling
-                hasComma = handleUnknown(descriptor, key)
+                hasComma = handleUnknown(descriptor, key!!)
             }
         }
         if (hasComma && !json.configuration.allowTrailingComma) lexer.invalidTrailingComma()

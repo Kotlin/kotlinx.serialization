@@ -33,6 +33,7 @@ open class LookupOverheadBenchmark {
     private val data = """{"a":""}"""
     private val doubleData = """{"a":"","b":0}"""
     private val pentaData = """{"a":"","b":0,"c":1,"d":true,"e":" "}"""
+    private val reversedPentaData = """{"e":" ","d":true,"c":1,"b":0,"a":""}"""
 
     @Serializable
     object Object
@@ -60,6 +61,9 @@ open class LookupOverheadBenchmark {
 
     @Benchmark
     fun pentaGenericPlain() = Json.decodeFromString(PentaGeneric.serializer(String.serializer(), Int.serializer(), Long.serializer(), Boolean.serializer(), Char.serializer()), pentaData)
+
+    @Benchmark
+    fun pentaGenericReversed() = Json.decodeFromString(PentaGeneric.serializer(String.serializer(), Int.serializer(), Long.serializer(), Boolean.serializer(), Char.serializer()), reversedPentaData)
 
     @Benchmark
     fun objectReified() = Json.decodeFromString<Object>("{}")
