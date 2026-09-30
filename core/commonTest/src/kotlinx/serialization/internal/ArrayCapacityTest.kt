@@ -23,10 +23,10 @@ class ArrayCapacityTest {
     }
 
     @Test
-    fun testGrowsByOneAndAHalf() {
-        assertEquals(12, newArrayCapacity(8, 9))
-        assertEquals(48, newArrayCapacity(32, 33))
-        assertEquals(1_536, newArrayCapacity(1_024, 1_025))
+    fun testGrowsByFactorOfTwo() {
+        assertEquals(16, newArrayCapacity(8, 9))
+        assertEquals(64, newArrayCapacity(32, 33))
+        assertEquals(2_048, newArrayCapacity(1_024, 1_025))
     }
 
     @Test
@@ -42,8 +42,8 @@ class ArrayCapacityTest {
 
     @Test
     fun testCapsAtMaximumCapacity() {
-        assertEquals(1_610_612_736, newArrayCapacity(1_073_741_824, 1_073_741_825))
-        assertEquals(maxCapacity, newArrayCapacity(1_500_000_000, 1_500_000_001))
+        assertEquals(1_073_741_824, newArrayCapacity(536_870_912, 536_870_913))
+        assertEquals(maxCapacity, newArrayCapacity(1_073_741_824, 1_073_741_825))
         assertEquals(maxCapacity, newArrayCapacity(maxCapacity - 1, maxCapacity.toLong()))
     }
 

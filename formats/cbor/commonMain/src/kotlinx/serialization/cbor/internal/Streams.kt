@@ -48,7 +48,9 @@ internal class ByteArrayOutput {
         if (elementsToAppend <= array.size - position) {
             return
         }
-        array = array.copyOf(newArrayCapacity(array.size, position.toLong() + elementsToAppend))
+        val newArray = ByteArray(newArrayCapacity(array.size, position.toLong() + elementsToAppend))
+        array.copyInto(newArray)
+        array = newArray
     }
 
     public fun toByteArray(): ByteArray {
