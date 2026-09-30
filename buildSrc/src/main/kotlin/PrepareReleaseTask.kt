@@ -50,10 +50,13 @@ private fun File.patchChangeLog(prevReleaseVersion: String, releaseVersion: Stri
         it.appendLine("===================")
         it.appendLine()
         it.appendLine("INSERT DESCRIPTION HERE")
+        it.appendLine()
         it.appendLine("<<<  Commits  >>>")
+        it.appendLine()
         readCommits(prevReleaseVersion).forEach { line ->
             it.appendLine("* $line")
         }
+        it.appendLine()
         it.appendLine("<<<----------->>>")
         it.appendLine()
         it.append(oldContent)
