@@ -587,6 +587,10 @@ public abstract class kotlinx/serialization/internal/AbstractPolymorphicSerializ
 	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
 }
 
+public final class kotlinx/serialization/internal/ArrayCapacityKt {
+	public static final fun newArrayCapacity (II)I
+}
+
 public final class kotlinx/serialization/internal/ArrayListSerializer : kotlinx/serialization/internal/CollectionSerializer {
 	public fun <init> (Lkotlinx/serialization/KSerializer;)V
 	public synthetic fun builder (I)Ljava/lang/Object;

@@ -1,57 +1,73 @@
+/*
+ * Copyright 2026 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
 package kotlinx.serialization.cbor.internal
 
-import kotlinx.serialization.*
 import kotlin.test.*
 
 class StreamsTest {
+    private val initialCapacity = 32
+
+    private fun bytes(count: Int, offset: Int = 0) = ByteArray(count) { (it + offset).toByte() }
 
     @Test
-    fun powerOfTwoCapacity_negativeValue() {
-        assertEquals(0, ByteArrayOutput.nextPowerOfTwoCapacity(-1))
-        assertEquals(0, ByteArrayOutput.nextPowerOfTwoCapacity(-17))
+    fun testManySingleByteWrites() {
+        val output = ByteArrayOutput()
+        val expected = bytes(100_000)
+        expected.forEach { output.write(it.toInt()) }
+        assertContentEquals(expected, output.toByteArray())
     }
 
     @Test
-    fun powerOfTwoCapacity_zeroValue() {
-        assertEquals(0, ByteArrayOutput.nextPowerOfTwoCapacity(0))
+    fun testBulkWriteLargerThanGrownCapacity() {
+        val output = ByteArrayOutput()
+        output.write(1)
+        val bulk = bytes(10_000)
+        output.write(bulk)
+        assertContentEquals(byteArrayOf(1) + bulk, output.toByteArray())
     }
 
     @Test
-    fun powerOfTwoCapacity_exactPowerOfTwo() {
-        assertEquals(16, ByteArrayOutput.nextPowerOfTwoCapacity(8))
-        assertEquals(32, ByteArrayOutput.nextPowerOfTwoCapacity(16))
-        assertEquals(64, ByteArrayOutput.nextPowerOfTwoCapacity(32))
+    fun testWritesExactlyAtCapacityBoundary() {
+        val output = ByteArrayOutput()
+        val full = bytes(initialCapacity)
+        output.write(full)
+        assertContentEquals(full, output.toByteArray())
+
+        output.write(42)
+        assertContentEquals(full + 42.toByte(), output.toByteArray())
     }
 
     @Test
-    fun powerOfTwoCapacity_nonPowerOfTwo() {
-        assertEquals(16, ByteArrayOutput.nextPowerOfTwoCapacity(9))
-        assertEquals(64, ByteArrayOutput.nextPowerOfTwoCapacity(33))
-        assertEquals(128, ByteArrayOutput.nextPowerOfTwoCapacity(65))
+    fun testWriteWithOffsetAndCount() {
+        val output = ByteArrayOutput()
+        val source = bytes(1_000)
+        output.write(source, offset = 100, count = 500)
+        assertContentEquals(source.copyOfRange(100, 600), output.toByteArray())
     }
 
     @Test
-    fun powerOfTwoCapacity_smallValues() {
-        assertEquals(2, ByteArrayOutput.nextPowerOfTwoCapacity(1))
-        assertEquals(4, ByteArrayOutput.nextPowerOfTwoCapacity(2))
-        assertEquals(4, ByteArrayOutput.nextPowerOfTwoCapacity(3))
+    fun testCopyFromNestedOutput() {
+        val inner = ByteArrayOutput()
+        val innerContent = bytes(10_000, offset = 7)
+        inner.write(innerContent)
+
+        val outer = ByteArrayOutput()
+        outer.write(1)
+        outer.write(2)
+        outer.copyFrom(inner)
+        outer.write(3)
+
+        assertContentEquals(byteArrayOf(1, 2) + innerContent + 3.toByte(), outer.toByteArray())
     }
 
     @Test
-    fun powerOfTwoCapacity_boundaryValues() {
-        assertEquals(0, ByteArrayOutput.nextPowerOfTwoCapacity(0))
-        assertEquals(2, ByteArrayOutput.nextPowerOfTwoCapacity(1))
-        assertEquals(4, ByteArrayOutput.nextPowerOfTwoCapacity(3))
-        assertEquals(8, ByteArrayOutput.nextPowerOfTwoCapacity(5))
-    }
-
-    @Test
-    fun powerOfTwoCapacity_largeValues() {
-        assertEquals(1073741824, ByteArrayOutput.nextPowerOfTwoCapacity(536870912))
-        assertEquals(1073741824, ByteArrayOutput.nextPowerOfTwoCapacity(1073741823))
-        assertEquals(Integer.MAX_VALUE, ByteArrayOutput.nextPowerOfTwoCapacity(1073741824))
-        assertEquals(Integer.MAX_VALUE, ByteArrayOutput.nextPowerOfTwoCapacity(1073741825))
-        assertEquals(Integer.MAX_VALUE, ByteArrayOutput.nextPowerOfTwoCapacity(Integer.MAX_VALUE-1))
-        assertEquals(Integer.MAX_VALUE, ByteArrayOutput.nextPowerOfTwoCapacity(Integer.MAX_VALUE))
+    fun testInvalidWriteArgumentsThrow() {
+        val output = ByteArrayOutput()
+        assertFailsWith<IndexOutOfBoundsException> { output.write(bytes(10), offset = -1, count = 1) }
+        assertFailsWith<IndexOutOfBoundsException> { output.write(bytes(10), offset = 5, count = 6) }
+        assertFailsWith<IndexOutOfBoundsException> { output.write(bytes(10), offset = 0, count = -1) }
+        assertContentEquals(ByteArray(0), output.toByteArray())
     }
 }
