@@ -52,7 +52,7 @@ private fun File.patchChangeLog(prevReleaseVersion: String, releaseVersion: Stri
         it.appendLine("INSERT DESCRIPTION HERE")
         it.appendLine("<<<  Commits  >>>")
         readCommits(prevReleaseVersion).forEach { line ->
-            it.appendLine(line)
+            it.appendLine("* $line")
         }
         it.appendLine("<<<----------->>>")
         it.appendLine()
@@ -138,7 +138,7 @@ private fun readCommits(prevReleaseVersion: String): List<String> {
         val ids = lines.drop(1).mapNotNull { line ->
             issueId.matchEntire(line.trim())?.groupValues?.get(1)
         }
-        lines.first() + ids.joinToString(separator = ", ") { id ->
+        processCommitTitle(lines.first()) + ids.joinToString(separator = ", ") { id ->
             val url = if (id.startsWith("KT-", ignoreCase = true)) {
                 "https://youtrack.jetbrains.com/issue/${id.uppercase()}"
             } else {
@@ -149,8 +149,21 @@ private fun readCommits(prevReleaseVersion: String): List<String> {
     }
 }
 
+private fun processCommitTitle(title: String): String {
+    val chars = " (#"
+    val index = title.indexOf(chars)
+    if (index == -1) {
+        return title
+    }
+
+    val text = title.substring(0, index)
+    val id = title.substring(index + chars.length).substringBefore(")")
+
+    return "$text (#$id)[https://github.com/Kotlin/kotlinx.serialization/pull/$id]"
+}
+
 private fun git(vararg arguments: String): String {
-    val process = ProcessBuilder(*arrayOf("git", *arguments))
+    val process = ProcessBuilder("git", *arguments)
         .redirectErrorStream(true)
         .start()
     val output = process.inputStream.readBytes().toString(Charsets.UTF_8)

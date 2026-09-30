@@ -8,50 +8,47 @@ To release new `<version>` of `kotlinx.serialization`:
 3. Make sure the `master` branch is fully merged into `dev`:<br>
     `git merge origin/master`
 
-4. Search & replace `<old-version>` with `<version>` across the project files. Should replace in:
-   * [`README.md`](README.md)
-   * [`gradle.properties`](gradle.properties)
-   * [`integration-test/gradle.properties`](integration-test/gradle.properties)
+4. Update version in files:<br>
+    Run Gradle task `prepareRelease -Pversion=<version>`
 
    Update Kotlin version in [`libs.versions.toml`](gradle/libs.versions.toml), if necessary.
 
 5. Write release notes in [`CHANGELOG.md`](CHANGELOG.md):
+   * Template will be created automatically on step 4.
    * Use old releases as example of style.
    * Write each change on a single line (don't wrap with CR).
-   * Study commit message from previous release.
-
-    [git changelog](https://github.com/tj/git-extras/blob/master/Commands.md#git-changelog) from git-extras may help you with that.
+   * The titles of commits and issue ids from the previous release will be added automatically. Delete it upon completion.
 
 6. If necessary, commit your changes to a new branch called `<version>-release` and send it for review, then merge it to `dev` branch.<br>
 If review is not required, commit directly to `dev`.
 
-6. Tag version:<br>
+7. Tag version:<br>
     `git tag v<version>`
 
 8. Push your changes:<br>
    `git push origin dev && git push origin --tags`
 
-1. On [TeamCity integration server](https://teamcity.jetbrains.com/project.html?projectId=KotlinTools_KotlinxSerialization&tab=projectOverview):
+9. On [TeamCity integration server](https://teamcity.jetbrains.com/project.html?projectId=KotlinTools_KotlinxSerialization&tab=projectOverview):
    * Wait until "Runtime library (Build – Aggregated)" configuration for committed `dev` branch passes tests.
    * Run "Runtime library (Deployment / Deploy [RUN THIS ONE])" configuration:
      * On 'Changes' tab, select `dev` branch and corresponding commit.
      * On 'Parameters' tab, find 'Deploy version' and fill in with `<version>`.
 
-4. Ask the owner of Maven Central access credentials to publish artifacts on [Maven Central Portal](https://central.sonatype.com/publishing/deployments).
+10. Ask the owner of Maven Central access credentials to publish artifacts on [Maven Central Portal](https://central.sonatype.com/publishing/deployments).
    
-5. Set a new value for [`KOTLINX_SERIALIZATION_RELEASE_LABEL`](https://github.com/JetBrains/kotlin-web-site/blob/master/.teamcity/BuildParams.kt),
-   creating a pull request in the website's repository. To find out why it is needed, [read this](#kotlinxserializationreleasetag).
+11. Set a new value for [`KOTLINX_SERIALIZATION_RELEASE_LABEL`](https://github.com/JetBrains/kotlin-web-site/blob/master/.teamcity/BuildParams.kt),
+   creating a pull request in the website's repository. To find out why it is needed, [read this](#kotlinx_serialization_release_tag).
 
-6. Create a new release in [Github releases](https://github.com/Kotlin/kotlinx.serialization/releases). Use created git tag for title and changelog message for body.
+12. Create a new release in [Github releases](https://github.com/Kotlin/kotlinx.serialization/releases). Use created git tag for title and changelog message for body.
 
-1. Switch back to master branch and update it:<br>
+13. Switch back to master branch and update it:<br>
    ```
    git checkout master && git pull
    git merge --ff-only dev
    git push origin master
    ```
 
-5. Announce new release in [Slack](https://kotlinlang.slack.com).
+14. Announce new release in [Slack](https://kotlinlang.slack.com).
 
 # API reference documentation
 
