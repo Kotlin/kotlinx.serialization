@@ -19,24 +19,24 @@ import kotlin.jvm.*
 internal open class ProtobufDecoder(
     @JvmField protected val proto: ProtoBuf,
     @JvmField protected val reader: ProtobufReader,
-    @JvmField protected val descriptor: SerialDescriptor
+    @JvmField protected val descriptor: SerialDescriptor,
+    info: ProtoDecodingInfo? = proto.descriptorCache.decodingInfo(descriptor, proto.serializersModule),
 ) : ProtobufTaggedDecoder() {
     override val serializersModule: SerializersModule
         get() = proto.serializersModule
 
-    private val info: ProtoDecodingInfo = proto.descriptorCache.decodingInfo(descriptor, proto.serializersModule)
-    private val tags: LongArray? = info.tags
-    private val indexCache: IntArray? = info.indexCache
-    private val sparseIndexCache: Map<Int, Int>? = info.sparseIndexCache
-    private val unknownHolderIndex: Int = info.unknownHolderIndex
+    private val tags: LongArray? = info?.tags
+    private val indexCache: IntArray? = info?.indexCache
+    private val sparseIndexCache: Map<Int, Int>? = info?.sparseIndexCache
+    private val unknownHolderIndex: Int = info?.unknownHolderIndex ?: INDEX_NOT_EXISTED
 
     // Index -> proto id for oneof element or unknown fields.
     // These kind of elements in certain index may refer to different proto id in runtime.
     private val index2IdMap: MutableMap<Int, Int>? =
-        if (info.runtimeIdElements > 0) HashMap(info.runtimeIdElements, 1f) else null
+        if (info != null && info.runtimeIdElements > 0) HashMap(info.runtimeIdElements, 1f) else null
 
     private var nullValue: Boolean = false
-    private val elementMarker = ElementMarker(descriptor, ::readIfAbsent)
+    private val elementMarker: ElementMarker? = if (info != null) ElementMarker(descriptor, ::readIfAbsent) else null
 
     internal val currentType: ProtoWireType
         get() = reader.currentType
@@ -114,7 +114,8 @@ internal open class ProtobufDecoder(
                     proto,
                     makeDelimitedForced(reader, currentTagOrDefault),
                     currentTagOrDefault,
-                    descriptor
+                    descriptor,
+                    mapEntryInfo(descriptor)
                 )
 
                 else -> throw SerializationException("Primitives are not supported at top-level")
@@ -255,6 +256,9 @@ internal open class ProtobufDecoder(
         return setOfEntries.associateBy({ it.key }, { it.value }) as T
     }
 
+    protected open fun mapEntryInfo(descriptor: SerialDescriptor): ProtoDecodingInfo =
+        proto.descriptorCache.decodingInfo(descriptor, proto.serializersModule)
+
     override fun SerialDescriptor.getTag(index: Int): ProtoDesc = cachedTag(this, index)
 
     private fun cachedTag(descriptor: SerialDescriptor, index: Int): ProtoDesc {
@@ -267,7 +271,7 @@ internal open class ProtobufDecoder(
             while (true) {
                 val protoId = reader.readTag()
                 if (protoId == -1) { // EOF
-                    return elementMarker.nextUnmarkedIndex()
+                    return elementMarker!!.nextUnmarkedIndex()
                 }
                 if (protoId == 0) {
                     throw SerializationException("0 is not allowed as the protobuf field number in ${descriptor.serialName}, the input bytes may have been corrupted")
@@ -289,7 +293,7 @@ internal open class ProtobufDecoder(
                          */
                         index2IdMap?.put(index, protoId)
                     }
-                    elementMarker.mark(index)
+                    elementMarker!!.mark(index)
                     return index
                 }
             }
@@ -352,7 +356,7 @@ private class RepeatedDecoder(
     decoder: ProtobufReader,
     currentTag: ProtoDesc,
     descriptor: SerialDescriptor
-) : ProtobufDecoder(proto, decoder, descriptor) {
+) : ProtobufDecoder(proto, decoder, descriptor, info = null) {
     // Current index
     private var index = -1
 
@@ -410,14 +414,27 @@ private class RepeatedDecoder(
         if (tagOrSize > 0) return tagOrSize
         return MISSING_TAG
     }
+
+    private var entryDescriptor: SerialDescriptor? = null
+    private var entryInfo: ProtoDecodingInfo? = null
+
+    override fun mapEntryInfo(descriptor: SerialDescriptor): ProtoDecodingInfo {
+        val info = entryInfo
+        if (info != null && descriptor === entryDescriptor) return info
+        return super.mapEntryInfo(descriptor).also {
+            entryDescriptor = descriptor
+            entryInfo = it
+        }
+    }
 }
 
 private class MapEntryReader(
     proto: ProtoBuf,
     decoder: ProtobufReader,
     @JvmField val parentTag: ProtoDesc,
-    descriptor: SerialDescriptor
-) : ProtobufDecoder(proto, decoder, descriptor) {
+    descriptor: SerialDescriptor,
+    info: ProtoDecodingInfo,
+) : ProtobufDecoder(proto, decoder, descriptor, info) {
     override fun SerialDescriptor.getTag(index: Int): ProtoDesc =
         if (index % 2 == 0) ProtoDesc(1, (parentTag.integerType))
         else ProtoDesc(2, (parentTag.integerType))
@@ -428,7 +445,7 @@ private class OneOfPolymorphicReader(
     decoder: ProtobufReader,
     private val parentTag: ProtoDesc,
     descriptor: SerialDescriptor
-) : ProtobufDecoder(proto, decoder, descriptor) {
+) : ProtobufDecoder(proto, decoder, descriptor, info = null) {
     private var serialNameDecoded = false
     private var contentDecoded = false
     override fun SerialDescriptor.getTag(index: Int): ProtoDesc = if (index == 0) {

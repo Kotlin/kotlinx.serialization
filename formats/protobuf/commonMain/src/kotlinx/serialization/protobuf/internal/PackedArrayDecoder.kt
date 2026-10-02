@@ -10,7 +10,7 @@ internal class PackedArrayDecoder(
     proto: ProtoBuf,
     reader: ProtobufReader,
     descriptor: SerialDescriptor,
-) : ProtobufDecoder(proto, reader, descriptor) {
+) : ProtobufDecoder(proto, reader, descriptor, info = null) {
     private var nextIndex: Int = 0
 
     // Tags are omitted in the packed array format
