@@ -5,8 +5,10 @@
 package kotlinx.serialization.protobuf
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
+import kotlinx.serialization.protobuf.internal.*
 import kotlinx.serialization.test.isJvm
 import kotlin.test.*
 
@@ -501,5 +503,37 @@ class ProtobufUnknownFieldsTest {
         assertFailsWith<IllegalArgumentException> {
             ProtoBuf.decodeFromByteArray<ProtoUnknownFieldHolder>(byte)
         }
+    }
+
+    @Test
+    fun testUnknownFieldsDescriptorDetection() {
+        val holder = serializer<ProtoUnknownFieldHolder>().descriptor
+        assertTrue(holder.isUnknownFieldsDescriptor)
+        assertTrue(holder.nullable.isUnknownFieldsDescriptor)
+        assertFalse(ByteArraySerializer().descriptor.isUnknownFieldsDescriptor)
+        assertFalse(ByteArraySerializer().descriptor.nullable.isUnknownFieldsDescriptor)
+        assertFalse(SerialDescriptor("kotlinx.serialization.protobuf.Other", ByteArraySerializer().descriptor).isUnknownFieldsDescriptor)
+        assertFalse(String.serializer().descriptor.nullable.isUnknownFieldsDescriptor)
+        assertFalse(InnerData.serializer().descriptor.isUnknownFieldsDescriptor)
+    }
+
+    @Serializable
+    data class DataWithBytesAndUnknownFields(
+        @ProtoNumber(1) val a: Int,
+        @ProtoNumber(3) val c: ByteArray? = null,
+        val unknownFields: ProtoUnknownFieldHolder? = null
+    )
+
+    @Test
+    fun testByteArrayFieldIsNotUnknownFieldsHolder() {
+        val data = BuildData(42, "42", byteArrayOf(1, 2, 3), listOf(42), InnerData("42", 42, listOf("42")))
+        val encoded = ProtoBuf.encodeToByteArray(BuildData.serializer(), data)
+        val decoded = ProtoBuf.decodeFromByteArray(DataWithBytesAndUnknownFields.serializer(), encoded)
+        assertEquals(42, decoded.a)
+        assertContentEquals(byteArrayOf(1, 2, 3), decoded.c)
+        assertTrue(decoded.unknownFields!!.fields.isNotEmpty())
+
+        val reEncoded = ProtoBuf.encodeToByteArray(DataWithBytesAndUnknownFields.serializer(), decoded)
+        assertEquals(data, ProtoBuf.decodeFromByteArray(BuildData.serializer(), reEncoded))
     }
 }

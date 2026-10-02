@@ -338,8 +338,7 @@ internal open class ProtobufDecoder(
                 if (index == INDEX_NOT_EXISTED) { // not found
                     reader.skipElement()
                 } else {
-                    val tag = descriptor.extractParameters(index)
-                    if (tag.isOneOf || tag.isUnknown) {
+                    if (index == unknownHolderIndex || descriptor.extractParameters(index).isOneOf) {
                         /**
                          * While decoding message with one-of field or unknown fields,
                          * the proto id read from wire data cannot be easily found
