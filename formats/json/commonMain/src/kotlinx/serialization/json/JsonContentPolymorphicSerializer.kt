@@ -100,8 +100,8 @@ public abstract class JsonContentPolymorphicSerializer<T : Any>(private val base
     protected abstract fun selectDeserializer(element: JsonElement): DeserializationStrategy<T>
 
     private fun throwSubtypeNotRegistered(subClass: KClass<*>, baseClass: KClass<*>): Nothing {
-        val subClassName = subClass.simpleName ?: "$subClass"
-        val scope = "in the scope of '${baseClass.simpleName}'"
+        val subClassName = subClass.qualifiedName ?: subClass.simpleName ?: "$subClass"
+        val scope = "in the scope of '${baseClass.qualifiedName ?: baseClass.simpleName}'"
         throw SerializationException(
                     "Class '${subClassName}' is not registered for polymorphic serialization $scope.\n" +
                             "Mark the base class as 'sealed' or register the serializer explicitly.")
