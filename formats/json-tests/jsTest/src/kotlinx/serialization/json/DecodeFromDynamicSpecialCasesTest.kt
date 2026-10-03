@@ -118,4 +118,54 @@ class DecodeFromDynamicSpecialCasesTest {
         val expected = Wrapper(JsonPrimitive(42), JsonPrimitive("239"), buildJsonObject { put("k", "v") }, JsonArray((1..3).map(::JsonPrimitive)), JsonNull)
         assertEquals(expected, parsed)
     }
+
+    @Test
+    fun testUInt() {
+        assertEquals(
+            2147483647u,
+            Json.decodeFromDynamic<UInt>(js("2147483647"))
+        )
+        assertEquals(
+            2147483648u,
+            Json.decodeFromDynamic<UInt>(js("2147483648"))
+        )
+        assertEquals(
+            4294967295u,
+            Json.decodeFromDynamic<UInt>(js("4294967295"))
+        )
+    }
+
+    @Test
+    fun testUByte() {
+        assertEquals(
+            255u.toUByte(),
+            Json.decodeFromDynamic<UByte>(js("255"))
+        )
+    }
+
+    @Test
+    fun testUShort() {
+        assertEquals(
+            65535u.toUShort(),
+            Json.decodeFromDynamic<UShort>(js("65535"))
+        )
+    }
+
+    @Serializable
+    data class UnsignedWrapper(val u: UInt, val b: UByte, val s: UShort)
+
+    @Test
+    fun testUnsignedInObject() {
+        val dyn = js("{u: 2147483648, b: 255, s: 65535}")
+        val parsed = Json.decodeFromDynamic<UnsignedWrapper>(dyn)
+        assertEquals(UnsignedWrapper(2147483648u, 255u.toUByte(), 65535u.toUShort()), parsed)
+    }
+
+    @Test
+    fun testUIntMap() {
+        val map = mapOf(2147483648u to 1)
+        val dyn = js("""{"2147483648": 1}""")
+        val parsed = Json.decodeFromDynamic<Map<UInt, Int>>(dyn)
+        assertEquals(map, parsed)
+    }
 }
