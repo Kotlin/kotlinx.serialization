@@ -101,9 +101,13 @@ internal open class StringJsonLexer(
         }
         // Now we _optimistically_ know where the string ends (it might have been an escaped quote)
         for (i in current until closingQuote) {
+            val c = source[i]
             // Encountered escape sequence, should fallback to "slow" path and symbolic scanning
-            if (source[i] == STRING_ESC) {
+            if (c == STRING_ESC) {
                 return consumeString(source, currentPosition, i)
+            }
+            if (!configuration.isLenient && c < ' ') {
+                fail("Unescaped control character in string: \\u${c.code.toString(16).padStart(4, '0')}", i, hint = lenientHint)
             }
         }
         this.currentPosition = closingQuote + 1

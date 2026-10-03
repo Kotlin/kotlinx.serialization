@@ -125,4 +125,38 @@ class LexerModesTest : JsonTestBase() {
         assertEquals(Object, lenient.decodeFromString("""{}""", jsonTestingMode))
         assertEquals(Object, lenient.decodeFromString("""{"o":{"unknown":{"b":"c"}}}""", jsonTestingMode))
     }
+
+    @Serializable
+    data class StringHolder(val text: String)
+
+    @Test
+    fun testUnescapedControlCharactersInStrictJson() = parametrizedTest { mode ->
+        for (code in 0x00..0x1f) {
+            val controlChar = code.toChar()
+            val raw = "{\"text\":\"a${controlChar}b\"}"
+            assertFailsWith<SerializationException> {
+                default.decodeFromString(StringHolder.serializer(), raw, mode)
+            }
+            assertFailsWith<SerializationException> {
+                default.decodeFromString(serializer<String>(), "\"a${controlChar}b\"", mode)
+            }
+        }
+    }
+
+    @Test
+    fun testUnescapedControlCharactersInLenientJson() = parametrizedTest { mode ->
+        for (code in 0x00..0x1f) {
+            val controlChar = code.toChar()
+            val raw = "{\"text\":\"a${controlChar}b\"}"
+            val decoded = lenient.decodeFromString(StringHolder.serializer(), raw, mode)
+            assertEquals("a${controlChar}b", decoded.text)
+        }
+    }
+
+    @Test
+    fun testEscapedControlCharactersInStrictJson() = parametrizedTest { mode ->
+        val escaped = """{"text":"a\n\t\r\u0001b"}"""
+        val decoded = default.decodeFromString(StringHolder.serializer(), escaped, mode)
+        assertEquals("a\n\t\r\u0001b", decoded.text)
+    }
 }
