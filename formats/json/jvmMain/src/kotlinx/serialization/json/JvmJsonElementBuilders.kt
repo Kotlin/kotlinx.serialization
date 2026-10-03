@@ -20,3 +20,16 @@ import java.math.*
 @IgnorableReturnValue
 public fun JsonObjectBuilder.put(key: String, value: BigDecimal?): JsonElement? =
     put(key, JsonUnquotedLiteral(value?.toString()))
+
+/**
+ * Adds the given [BigDecimal] [value] to the resulting JSON array.
+ *
+ * The value is encoded as an unquoted JSON number using [BigDecimal.toString], preserving its precision and scale.
+ * A `null` value is added as [JsonNull].
+ * This overload applies to values of type [BigDecimal]; values of type [Number] use the numeric overload instead.
+ *
+ * Always returns `true` similarly to [ArrayList] specification.
+ */
+@ExperimentalSerializationApi
+@IgnorableReturnValue
+public fun JsonArrayBuilder.add(value: BigDecimal?): Boolean = add(JsonUnquotedLiteral(value?.toString()))

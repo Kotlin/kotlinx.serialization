@@ -432,6 +432,7 @@ public abstract class kotlinx/serialization/json/JsonTransformingSerializer : ko
 }
 
 public final class kotlinx/serialization/json/JvmJsonElementBuildersKt {
+	public static final fun add (Lkotlinx/serialization/json/JsonArrayBuilder;Ljava/math/BigDecimal;)Z
 	public static final fun put (Lkotlinx/serialization/json/JsonObjectBuilder;Ljava/lang/String;Ljava/math/BigDecimal;)Lkotlinx/serialization/json/JsonElement;
 }
 
