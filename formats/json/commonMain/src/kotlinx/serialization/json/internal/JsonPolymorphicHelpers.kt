@@ -36,7 +36,7 @@ internal inline fun <T> JsonEncoder.encodePolymorphically(
         val casted = serializer as AbstractPolymorphicSerializer<Any>
         requireNotNull(value) { "Value for serializer ${serializer.descriptor} should always be non-null. Please report issue to the kotlinx.serialization tracker." }
         val actual = casted.findPolymorphicSerializerOrNull(this, value) ?: throw run {
-            val subClassName = value::class.simpleName ?: value::class.toString()
+            val subClassName = value::class.qualifiedName ?: value::class.simpleName ?: value::class.toString()
             val (message, hint) = subtypeNotRegisteredMessageJson(subClassName, casted.baseClass)
             JsonEncodingException(message, subClassName, hint)
         }
@@ -124,12 +124,13 @@ internal fun throwJsonElementPolymorphicException(serialName: String?, element: 
 
 // When editing these messages, make sure to update AbstractPolymorphicSerializer#throwSubtypeNotRegistered as well.
 internal fun subtypeNotRegisteredMessageJson(subClassName: String?, baseClass: KClass<*>): Pair<String, String?> {
-    val scope = "in the polymorphic scope of '${baseClass.simpleName}'"
+    val baseName = baseClass.qualifiedName ?: baseClass.simpleName
+    val scope = "in the polymorphic scope of '$baseName'"
     return if (subClassName == null) {
         "Class discriminator was missing and no default serializers were registered $scope" to null
     } else {
         "Serializer for subclass '$subClassName' is not found $scope" to
             "Check if class with serial name '$subClassName' exists and serializer is registered in a corresponding SerializersModule.\n" +
-            "To be registered automatically, class '$subClassName' has to be '@Serializable', and the base class '${baseClass.simpleName}' has to be sealed and '@Serializable'."
+            "To be registered automatically, class '$subClassName' has to be '@Serializable', and the base class '$baseName' has to be sealed and '@Serializable'."
     }
 }
