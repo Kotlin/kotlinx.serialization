@@ -335,6 +335,9 @@ internal abstract class AbstractJsonLexer(internal val configuration: JsonConfig
                 currentPosition = prefetchOrEof(appendEscape(lastPosition, currentPosition))
                 lastPosition = currentPosition
             } else {
+                if (!isLenient && char < ' ') {
+                    fail("Unescaped control character in string: \\u${char.code.toString(16).padStart(4, '0')}", currentPosition, hint = lenientHint)
+                }
                 currentPosition++
             }
             if (currentPosition >= source.length) {
@@ -385,14 +388,19 @@ internal abstract class AbstractJsonLexer(internal val configuration: JsonConfig
                 if (currentPosition == -1)
                     fail("Unexpected EOF", currentPosition)
                 lastPosition = currentPosition
-            } else if (++currentPosition >= source.length) {
-                usedAppend = true
-                // end of chunk
-                appendRange(lastPosition, currentPosition)
-                currentPosition = prefetchOrEof(currentPosition)
-                if (currentPosition == -1)
-                    fail("Unexpected EOF", currentPosition)
-                lastPosition = currentPosition
+            } else {
+                if (!configuration.isLenient && char < ' ') {
+                    fail("Unescaped control character in string: \\u${char.code.toString(16).padStart(4, '0')}", currentPosition, hint = lenientHint)
+                }
+                if (++currentPosition >= source.length) {
+                    usedAppend = true
+                    // end of chunk
+                    appendRange(lastPosition, currentPosition)
+                    currentPosition = prefetchOrEof(currentPosition)
+                    if (currentPosition == -1)
+                        fail("Unexpected EOF", currentPosition)
+                    lastPosition = currentPosition
+                }
             }
             char = source[currentPosition]
         }
