@@ -159,6 +159,24 @@ private open class DynamicInput(
         }
     }
 
+    override fun decodeTaggedByte(tag: String): Byte {
+        val value = getByTag(tag)
+        val number = value as? Double ?: throw SerializationException("$value is not a Number")
+        return (js("number | 0") as Int).toByte()
+    }
+
+    override fun decodeTaggedShort(tag: String): Short {
+        val value = getByTag(tag)
+        val number = value as? Double ?: throw SerializationException("$value is not a Number")
+        return (js("number | 0") as Int).toShort()
+    }
+
+    override fun decodeTaggedInt(tag: String): Int {
+        val value = getByTag(tag)
+        val number = value as? Double ?: throw SerializationException("$value is not a Number")
+        return js("number | 0") as Int
+    }
+
     override fun decodeTaggedLong(tag: String): Long {
         val value = getByTag(tag)
         val number = value as? Double ?: throw SerializationException("$value is not a Number")
@@ -236,13 +254,13 @@ private class DynamicMapInput(
     }
 
     override fun decodeTaggedByte(tag: String): Byte =
-        decodeMapKey(tag, "byte", { super.decodeTaggedByte(tag) }, { toByteOrNull() })
+        decodeMapKey(tag, "byte", { super.decodeTaggedByte(tag) }, { toByteOrNull() ?: toUByteOrNull()?.toByte() })
 
     override fun decodeTaggedShort(tag: String): Short =
-        decodeMapKey(tag, "short", { super.decodeTaggedShort(tag) }, { toShortOrNull() })
+        decodeMapKey(tag, "short", { super.decodeTaggedShort(tag) }, { toShortOrNull() ?: toUShortOrNull()?.toShort() })
 
     override fun decodeTaggedInt(tag: String): Int =
-        decodeMapKey(tag, "int", { super.decodeTaggedInt(tag) }, { toIntOrNull() })
+        decodeMapKey(tag, "int", { super.decodeTaggedInt(tag) }, { toIntOrNull() ?: toUIntOrNull()?.toInt() })
 
     override fun decodeTaggedLong(tag: String): Long = decodeMapKey(tag, "long", { super.decodeTaggedLong(tag) }) {
         toJavascriptLong(toDoubleOrNull() ?: throwIllegalKeyType(tag, this, "long"))
