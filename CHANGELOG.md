@@ -1,3 +1,69 @@
+1.12.0-RC / 2026-09-04
+==================
+
+This is a release candidate for 1.12 version, bringing a lot of changes and improvements. 
+It is based on Kotlin 2.4.10.
+
+## API stabilization and deprecations
+
+A big portion of the Json and Core APIs has been stabilized. Most important ones include:
+`@KeepGeneratedSerializer` and `@SerialInfo` annotations, `JsonNamingStrategy`, and `ContextualSerializer`.
+Additionally, various descriptor builders such as `listDescriptor` and JsonElementBuilder's `addAll` functions are also
+stable and can be freely used. There is also one deprecation: `ChunkedDecoder` interface. Since there is no demand for
+it, we plan to remove it in the future. See details in
+the [#3238](https://github.com/Kotlin/kotlinx.serialization/issues/3238), [#3239](https://github.com/Kotlin/kotlinx.serialization/issues/3239),
+and [#3216](https://github.com/Kotlin/kotlinx.serialization/issues/3216).
+
+## Performance improvements
+
+We also improved performance in various areas. ASCII-specific parser
+([#3225](https://github.com/Kotlin/kotlinx.serialization/issues/3225)) brings performance of decoding from Okio and
+kotlinx-io sources closer to decoding performance from
+String. [#3220](https://github.com/Kotlin/kotlinx.serialization/issues/3220) makes decoding significantly faster in case
+`JsonElement` present in your serializable classes.
+And [#3248](https://github.com/Kotlin/kotlinx.serialization/issues/3248) should bring overall performance improvements
+(up to 30%) on large strings.
+
+## Exceptions rework
+
+We continue to improve exception handling in Json encoders and decoders.
+[#3235](https://github.com/Kotlin/kotlinx.serialization/issues/3235) makes a big change around custom serializers and
+`@Serializable` classes constructors:
+from now on, every exception thrown during deserialization is wrapped by decoder into a `JsonException`. This way, it is
+more predictable to write a `catch` and it is easier to understand what went wrong:
+`JsonDecodingException` also includes context information such as Json path and input. Besides
+that, [#3246](https://github.com/Kotlin/kotlinx.serialization/issues/3246) limits maximum nesting depth of Json
+document, so you will get a proper `JsonDecodingException` instead of a random stack overflow error.
+
+## CBOR improvements
+
+CBOR format also gets many improvements in this release. The most important one is memory optimization for
+definitely-sized collections ([#3191](https://github.com/Kotlin/kotlinx.serialization/issues/3191), [#3192](https://github.com/Kotlin/kotlinx.serialization/issues/3192)).
+
+The others include:
+
+* Encode unsigned integer types as positive integers ([#3194](https://github.com/Kotlin/kotlinx.serialization/issues/3194)) (thanks to [Eyüp Can Akman](https://github.com/eyupcanakman))
+* Correctly decode CborLabel values ([#3195](https://github.com/Kotlin/kotlinx.serialization/issues/3195))
+* Include actual tag info into CborDecodingException ([#3197](https://github.com/Kotlin/kotlinx.serialization/issues/3197))
+
+## Protobuf improvements
+
+Protocol buffers format received a big new feature: support for unknown fields. Using a new `ProtoUnknownFieldHolder`
+class, you can now decode and store unknown fields in Protobuf messages to retransmit them back later. See documentation
+updates and [#2860](https://github.com/Kotlin/kotlinx.serialization/issues/2860) for details. Big thanks
+to [xzk](https://github.com/xiaozhikang0916) for theirs contributions:
+this one and the bug with `oneof` default value ([#3147](https://github.com/Kotlin/kotlinx.serialization/issues/3147)).
+
+We've also fixed Protobuf schema generation for inlined value classes ([#3209](https://github.com/Kotlin/kotlinx.serialization/issues/3209)).
+
+## Other improvements and bugfixes
+
+* Set Deprecated (HIDDEN) to setters in JsonConfiguration
+* Add Json nesting depth calculation during parsing ([#3246](https://github.com/Kotlin/kotlinx.serialization/issues/3246))
+* JsonElementBuilders: mark all (add|put)Json (Object|Array) functions as inline ([#3242](https://github.com/Kotlin/kotlinx.serialization/issues/3242)) (thanks to [Miha-x64](https://github.com/Miha-x64))
+* Fix Polymorphic Deserialization Error with Subclass using JsonTransformingSerializer ([#3139](https://github.com/Kotlin/kotlinx.serialization/issues/3139)) (thanks to [YongJun Jung](https://github.com/oungsi2000))
+* Align collections' SerialDescriptors with the contract ([#3199](https://github.com/Kotlin/kotlinx.serialization/issues/3199))
+
 1.11.0 / 2026-04-10
 ==================
 
