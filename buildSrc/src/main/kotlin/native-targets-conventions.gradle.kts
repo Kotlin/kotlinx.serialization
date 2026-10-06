@@ -31,6 +31,7 @@ kotlin {
     linuxX64()
     linuxArm64()
     watchosSimulatorArm64()
+    @Suppress("DEPRECATION", "DEPRECATION_ERROR")
     watchosArm32()
     watchosArm64()
     tvosSimulatorArm64()
