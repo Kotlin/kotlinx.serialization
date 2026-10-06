@@ -7,7 +7,6 @@ package kotlinx.serialization.builtins
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
-import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 /**
@@ -15,7 +14,6 @@ import kotlin.time.Instant
  *
  * JSON example: `{"epochSeconds":1607505416,"nanosecondsOfSecond":124000}`.
  */
-@ExperimentalTime
 public object InstantComponentSerializer : KSerializer<Instant> {
 
     override val descriptor: SerialDescriptor =

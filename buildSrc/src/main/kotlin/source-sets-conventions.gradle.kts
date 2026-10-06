@@ -63,6 +63,7 @@ kotlin {
 
     @OptIn(ExperimentalWasmDsl::class)
     wasmWasi {
+        @Suppress("DEPRECATION")
         nodejs()
     }
 

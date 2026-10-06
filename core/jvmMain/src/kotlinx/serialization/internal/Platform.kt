@@ -7,6 +7,7 @@ package kotlinx.serialization.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.*
 import java.lang.reflect.*
+import kotlin.math.ceil
 import kotlin.reflect.*
 import kotlin.time.*
 import kotlin.uuid.*
@@ -170,7 +171,6 @@ private fun <T : Any> Class<T>.findObjectSerializer(): KSerializer<T>? {
 
 internal actual fun isReferenceArray(rootClass: KClass<Any>): Boolean = rootClass.java.isArray
 
-@OptIn(ExperimentalSerializationApi::class)
 internal actual fun initBuiltins(): Map<KClass<*>, KSerializer<*>> = buildMap {
     // Standard classes are always present
     put(String::class, String.serializer())
@@ -197,8 +197,10 @@ internal actual fun initBuiltins(): Map<KClass<*>, KSerializer<*>> = buildMap {
     put(Unit::class, Unit.serializer())
     put(Nothing::class, NothingSerializer())
 
-    // Duration is a stable class, but may be missing in very old stdlibs
+    // Duration, Instant and Uuid are stable classes, but may be missing in very old stdlibs
     loadSafe { put(Duration::class, Duration.serializer()) }
+    loadSafe { put(Instant::class, Instant.serializer()) }
+    loadSafe { put(Uuid::class, Uuid.serializer()) }
 
     // Experimental types that may be missing
     @OptIn(ExperimentalUnsignedTypes::class) run {
@@ -207,11 +209,6 @@ internal actual fun initBuiltins(): Map<KClass<*>, KSerializer<*>> = buildMap {
         loadSafe { put(UShortArray::class, UShortArraySerializer()) }
         loadSafe { put(UByteArray::class, UByteArraySerializer()) }
     }
-    @OptIn(ExperimentalUuidApi::class)
-    loadSafe { put(Uuid::class, Uuid.serializer()) }
-
-    @OptIn(ExperimentalTime::class)
-    loadSafe { put(Instant::class, Instant.serializer()) }
 }
 
 // Reference classes in [block] ignoring any exceptions related to class loading
@@ -222,3 +219,8 @@ private inline fun loadSafe(block: () -> Unit) {
     } catch (_: ClassNotFoundException) {
     }
 }
+
+internal actual fun estimateCapacityForHashMap(requiredCapacity: Int): Int =
+    ceil(requiredCapacity / DEFAULT_HASH_MAP_LOAD_FACTOR).toInt()
+
+private const val DEFAULT_HASH_MAP_LOAD_FACTOR: Float = 0.75f
