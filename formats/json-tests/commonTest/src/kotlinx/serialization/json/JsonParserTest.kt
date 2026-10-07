@@ -87,6 +87,15 @@ class JsonParserTest : JsonTestBase() {
     }
 
     @Test
+    fun testValueAfterArrayEnd() {
+        val lenient = Json { isLenient = true }
+        for (input in listOf("[1]2]", """{"a":[1]2]}""", """["x"]"y"]""", "[[1]2]]")) {
+            assertFailsWithSerial("JsonDecodingException") { Json.parseToJsonElement(input) }
+            assertFailsWithSerial("JsonDecodingException") { lenient.parseToJsonElement(input) }
+        }
+    }
+
+    @Test
     fun testUnclosedStringLiteral() {
         assertFailsWithSerial("JsonDecodingException") {
             parse("\"")
