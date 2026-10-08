@@ -32,6 +32,7 @@ kotlin {
     // TODO: remove the block completely after updating to Kotlin 2.5
     val languageVersion = overriddenLanguageVersion?.let(KotlinVersion::fromVersion) ?: KotlinVersion.DEFAULT
     if (languageVersion < KotlinVersion.KOTLIN_2_5) {
+        @Suppress("DEPRECATION_ERROR", "DEPRECATION")
         watchosArm32()
     }
     watchosArm64()
