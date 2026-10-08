@@ -24,7 +24,7 @@ class PolymorphicErrorMessagesTest : JsonTestBase() {
             default.decodeFromString<Holder>(input, mode)
         }) {
             message("Serializer for subclass 'my.Class' is not found in the polymorphic scope of 'Any'")
-            if (mode != JsonTestingMode.TREE) path("$.d.a") else path("$.a") // #3170
+            path("$.d.a")
             hint("Check if class with serial name 'my.Class' exists and serializer is registered in a corresponding SerializersModule.")
             // ReaderJsonLexer.peekLeadingMatchingValue is not implemented (#2626), so first-key optimization is not working for non-streaming yet.
             if (mode == JsonTestingMode.STREAMING) {
@@ -44,7 +44,7 @@ class PolymorphicErrorMessagesTest : JsonTestBase() {
         }) {
             // Always slow path when discriminator is missing, so no position
             message("Class discriminator was missing and no default serializers were registered in the polymorphic scope of 'Any'")
-            if (mode != JsonTestingMode.TREE) path("$.d.a") else path("$.a") // #3170
+            path("$.d.a")
             input("{\"value\":42}")
         }
     }
@@ -57,7 +57,7 @@ class PolymorphicErrorMessagesTest : JsonTestBase() {
         }) {
             // Always slow path when discriminator is missing, so no position
             message("Class discriminator was missing and no default serializers were registered in the polymorphic scope of 'Any'")
-            if (mode != JsonTestingMode.TREE) path("$.d.a") else path("$.a") // #3170
+            path("$.d.a")
             input("{\"type\":null,\"value\":42}")
         }
     }

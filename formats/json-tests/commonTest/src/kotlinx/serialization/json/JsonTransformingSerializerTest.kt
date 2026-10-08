@@ -100,6 +100,14 @@ class JsonTransformingSerializerTest : JsonTestBase() {
         assertEquals(correctExample, json.decodeFromString(DocExample.serializer(), """{"data":"str1"}""", streaming))
     }
 
+    @Test
+    fun testTransformingSerializerPreservesPath() = parametrizedTest { mode ->
+        val exception = assertFailsWith<SerializationException> {
+            json.decodeFromString<Example>("""{"name":"test","data":{"data":42}}""", mode)
+        }
+        assertContains(exception.message!!, "at path: $.data.data")
+    }
+
     // Wraps/unwraps {"data":null} to just `null`, because StringData.data is not nullable
     object NullableStringDataSerializer : JsonTransformingSerializer<StringData?>(StringData.serializer().nullable) {
         override fun transformDeserialize(element: JsonElement): JsonElement {

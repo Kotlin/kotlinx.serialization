@@ -36,7 +36,7 @@ class LongAsStringTest : JsonTestBase() {
                 // NumberFormatException messages vary by platform
                 assertContains(exception.message, "exception in the decoder")
                 assertContains(exception.message, exception.shortMessage)
-                if (jsonTestingMode == JsonTestingMode.TREE) path("$") else path("$.l")
+                path("$.l")
                 input(str)
                 cause<NumberFormatException>()
             })
@@ -49,7 +49,7 @@ class LongAsStringTest : JsonTestBase() {
                 // NumberFormatException messages vary by platform
                 assertContains(exception.message, "exception in the decoder")
                 assertContains(exception.message, exception.shortMessage)
-                if (jsonTestingMode == JsonTestingMode.TREE) path("$") else path("$.l")
+                path("$.l")
                 input(str2)
                 cause<NumberFormatException>()
             })

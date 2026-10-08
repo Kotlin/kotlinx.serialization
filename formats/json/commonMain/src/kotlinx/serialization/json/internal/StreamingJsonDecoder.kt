@@ -41,6 +41,8 @@ internal open class StreamingJsonDecoder(
 
 
     override val serializersModule: SerializersModule = json.serializersModule
+    override val path: JsonPath
+        get() = lexer.path
     override val discriminator: String?
         get() = discriminatorHolder?.discriminatorToSkip
     private var currentIndex = -1
@@ -53,7 +55,7 @@ internal open class StreamingJsonDecoder(
     override fun decodeJsonElement(): JsonElement = JsonTreeReader(json.configuration, lexer).read()
 
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
-        return withExceptionHandling(path = lexer.path::getPath, input = lexer::source) {
+        return withExceptionHandling(path = lexer.path, input = lexer::source) {
             /*
              * This is an optimized path over decodeSerializableValuePolymorphic(deserializer):
              * dSVP reads the very next JSON tree into a memory as JsonElement and then runs TreeJsonDecoder over it
@@ -75,7 +77,7 @@ internal open class StreamingJsonDecoder(
             val discriminator = deserializer.descriptor.classDiscriminator(json)
             val type = lexer.peekLeadingMatchingValue(discriminator, configuration.isLenient)
                 ?: // Fallback to slow path if we haven't found discriminator on first try
-                return decodeSerializableValuePolymorphic<T>(deserializer as DeserializationStrategy<T>) { lexer.path.getPath() }
+                return decodeSerializableValuePolymorphic<T>(deserializer as DeserializationStrategy<T>)
 
             @Suppress("UNCHECKED_CAST")
             val actualSerializer = deserializer.findPolymorphicSerializerOrNull(this, type) as? DeserializationStrategy<T>
@@ -155,17 +157,9 @@ internal open class StreamingJsonDecoder(
         previousValue: T?
     ): T {
         val isMapKey = mode == LexerMode.MAP && index and 1 == 0
-        // Reset previous key
-        if (isMapKey) {
-            lexer.path.resetCurrentMapKey()
+        return withMapKeyTracking(lexer.path, isMapKey) {
+            super.decodeSerializableElement(descriptor, index, deserializer, previousValue)
         }
-        // Deserialize the key
-        val value = super.decodeSerializableElement(descriptor, index, deserializer, previousValue)
-        // Put the key to the path
-        if (isMapKey) {
-            lexer.path.updateCurrentMapKey(value)
-        }
-        return value
     }
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
@@ -346,7 +340,7 @@ internal open class StreamingJsonDecoder(
         else super.decodeInline(descriptor)
 
     override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
-        return enumDescriptor.getJsonNameIndexOrThrow(json, decodeString(), " at path " + lexer.path.getPath())
+        return enumDescriptor.getJsonNameIndexOrThrow(json, decodeString(), lexer.path)
     }
 }
 
