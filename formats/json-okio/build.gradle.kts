@@ -36,7 +36,7 @@ project.configureMetadataJarAutomaticModuleName()
 
 dokka.dokkaSourceSets.configureEach {
     externalDocumentationLinks.register("okio") {
-        url("https://square.github.io/okio/3.x/okio")
+        url("https://lysine.dev/okio/3.x/")
         packageListUrl = file("dokka/okio.package-list").toURI()
     }
 }

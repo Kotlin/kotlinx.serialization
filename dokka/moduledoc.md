@@ -6,7 +6,7 @@ format implementation.
 Stable and ready to use JSON format implementation, `JsonElement` API to operate with JSON trees and JSON-specific serializers.
 
 # Module kotlinx-serialization-json-okio
-Extensions for kotlinx.serialization.json.Json for integration with the popular [Okio](https://square.github.io/okio/) library.
+Extensions for kotlinx.serialization.json.Json for integration with the popular [Okio](https://lysine.dev/okio/3.x/okio/) library.
 Currently experimental.
 
 # Module kotlinx-serialization-json-io
@@ -51,7 +51,7 @@ JSON serialization format implementation, JSON tree data structures with builder
 and JSON-specific serializers.
 
 # Package kotlinx.serialization.json.okio
-Extensions for kotlinx.serialization.json.Json for integration with the popular [Okio](https://square.github.io/okio/) library.
+Extensions for kotlinx.serialization.json.Json for integration with the popular [Okio](https://lysine.dev/okio/) library.
 
 # Package kotlinx.serialization.json.io
 Extensions for kotlinx.serialization.json.Json for integration with the [kotlinx-io](https://github.com/Kotlin/kotlinx-io) library.
