@@ -5,6 +5,7 @@
 package kotlinx.serialization.features
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
@@ -12,6 +13,8 @@ import kotlinx.serialization.test.*
 import org.junit.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.OutputStream
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
@@ -85,6 +88,45 @@ class JsonJvmStreamsTest {
         }
     }
 
+    @Test
+    fun testEncodeBuffersSmallWrites() {
+        val serializer = ListSerializer(String.serializer())
+        val value = List(20) { "value-$it" }
+        val stream = CountingOutputStream()
+
+        Json.encodeToStream(serializer, value, stream)
+
+        assertEquals(Json.encodeToString(serializer, value), stream.content())
+        assertEquals(1, stream.writeCalls)
+        assertEquals(0, stream.flushCalls)
+    }
+
+    @Test
+    fun testStreamUtf8EncodingMatchesStringEncoding() {
+        val values = listOf(
+            "",
+            "plain ASCII",
+            "\"\\\b\u000c\n\r\t\u0000\u001f",
+            "\u007f\u0080\u07ff\u0800\uffff",
+            "Привет, мир",
+            "😀",
+            "\ud800",
+            "\udc00",
+            "\ud800x\udc00",
+            "é".repeat(BATCH_SIZE),
+            "😀".repeat(BATCH_SIZE)
+        )
+
+        for (value in values) {
+            val expected = Json.encodeToString(String.serializer(), value).encodeToByteArray()
+            val output = ByteArrayOutputStream()
+
+            Json.encodeToStream(String.serializer(), value, output)
+
+            assertContentEquals(expected, output.toByteArray(), "Failed to encode ${value.take(32)}")
+        }
+    }
+
     interface Poly
 
     @Serializable
@@ -125,5 +167,30 @@ class JsonJvmStreamsTest {
 
         val deserialized = json.decodeViaStream(serializer<Poly>(), string)
         assertEquals(golden, deserialized as Impl)
+    }
+
+    private class CountingOutputStream : OutputStream() {
+        private val output = ByteArrayOutputStream()
+
+        var writeCalls: Int = 0
+            private set
+        var flushCalls: Int = 0
+            private set
+
+        override fun write(b: Int) {
+            writeCalls++
+            output.write(b)
+        }
+
+        override fun write(b: ByteArray, off: Int, len: Int) {
+            writeCalls++
+            output.write(b, off, len)
+        }
+
+        override fun flush() {
+            flushCalls++
+        }
+
+        fun content(): String = output.toByteArray().decodeToString()
     }
 }
