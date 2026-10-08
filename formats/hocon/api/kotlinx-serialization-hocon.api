@@ -35,6 +35,15 @@ public final class kotlinx/serialization/hocon/HoconKt {
 	public static synthetic fun Hocon$default (Lkotlinx/serialization/hocon/Hocon;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lkotlinx/serialization/hocon/Hocon;
 }
 
+public abstract interface annotation class kotlinx/serialization/hocon/HoconName : java/lang/annotation/Annotation {
+	public abstract fun value ()Ljava/lang/String;
+}
+
+public synthetic class kotlinx/serialization/hocon/HoconName$Impl : kotlinx/serialization/hocon/HoconName {
+	public fun <init> (Ljava/lang/String;)V
+	public final synthetic fun value ()Ljava/lang/String;
+}
+
 public final class kotlinx/serialization/hocon/serializers/ConfigMemorySizeSerializer : kotlinx/serialization/KSerializer {
 	public static final field INSTANCE Lkotlinx/serialization/hocon/serializers/ConfigMemorySizeSerializer;
 	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/typesafe/config/ConfigMemorySize;
