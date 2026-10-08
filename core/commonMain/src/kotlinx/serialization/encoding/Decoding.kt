@@ -559,6 +559,18 @@ public interface CompositeDecoder {
         deserializer: DeserializationStrategy<T?>,
         previousValue: T? = null
     ): T?
+
+    /**
+     * Called after a key has been read.
+     *
+     * This could be a map or set key, or anything otherwise intended to be
+     * distinct within the collection under normal circumstances.
+     *
+     * Implementations might use this as a hook for throwing an exception when
+     * duplicate keys are encountered.
+     */
+    @ExperimentalSerializationApi
+    public fun visitKey(key: Any?) { }
 }
 
 /**
