@@ -131,6 +131,8 @@ public sealed class ProtoBuf(
      */
     public companion object Default : ProtoBuf(false, EmptySerializersModule())
 
+    internal val descriptorCache: ProtoDescriptorCache = ProtoDescriptorCache()
+
     override fun <T> encodeToByteArray(serializer: SerializationStrategy<T>, value: T): ByteArray {
         val output = ByteArrayOutput()
         val encoder = ProtobufEncoder(this, ProtobufWriter(output), serializer.descriptor)
