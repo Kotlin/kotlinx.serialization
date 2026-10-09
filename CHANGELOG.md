@@ -796,7 +796,7 @@ It uses Kotlin 1.7.10 by default.
 
 ### Integration with Okio's BufferedSource and BufferedSink
 
-[Okio library by Square](https://lysine.dev/okio/) is a popular solution for fast and efficient IO operations on JVM, K/N and K/JS.
+[Okio library](https://lysine.dev/okio/) is a popular solution for fast and efficient IO operations on JVM, K/N and K/JS.
 In this version, we have added functions that parse/write JSON directly to Okio's input/output classes, saving you the overhead of copying data to `String` beforehand.
 These functions are called `Json.decodeFromBufferedSource` and `Json.encodeToBufferedSink`, respectively.
 There's also `decodeBufferedSourceToSequence` that behaves similarly to `decodeToSequence` from Java streams integration, so you can lazily decode multiple objects the same way as before.
