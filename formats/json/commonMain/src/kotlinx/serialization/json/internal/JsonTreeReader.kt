@@ -63,6 +63,7 @@ internal class JsonTreeReader(
             lastToken = lexer.consumeNextToken()
             if (lastToken != TC_COMMA) {
                 lexer.require(lastToken == TC_END_LIST) { "Expected end of the array or comma" }
+                break // `canConsumeValue` can return incorrect result, since it checks token _after_ TC_END_LIST
             }
         }
         // Check for the correct ending
