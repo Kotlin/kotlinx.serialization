@@ -15,18 +15,19 @@ class MultiWorkerJsonTest {
     @Serializable
     data class PlainTwo(val two: Int)
 
+    @OptIn(ObsoleteWorkersApi::class)
     private fun doTest(json: () -> Json) {
         val worker = Worker.start()
         val operation = {
-            for (i in 0..999) {
+            repeat(1000) {
                 assertEquals(PlainOne(42), json().decodeFromString("""{"one":42,"two":239}"""))
             }
         }
         worker.executeAfter(1000, operation)
-        for (i in 0..999) {
+        repeat(1000) {
             assertEquals(PlainTwo(239), json().decodeFromString("""{"one":42,"two":239}"""))
         }
-        worker.requestTermination()
+        worker.requestTermination().result
     }
 
 
