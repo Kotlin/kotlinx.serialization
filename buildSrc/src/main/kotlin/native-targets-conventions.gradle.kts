@@ -1,5 +1,5 @@
 import org.jetbrains.kotlin.gradle.*
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
 
 /*
@@ -8,12 +8,6 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.*
 
 plugins {
     kotlin("multiplatform")
-}
-
-// Temporary workaround for the removed watchosArm32 target
-@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
-fun KotlinMultiplatformExtension.watchosArm32() {
-    // Do nothing
 }
 
 kotlin {
@@ -31,7 +25,16 @@ kotlin {
     linuxX64()
     linuxArm64()
     watchosSimulatorArm64()
-    watchosArm32()
+    // Starting from 2.5.0, watchosArm32 target is no longer supported.
+    // While there is a DSL to configure it, it won't let you configure the target.
+    // To prevent build failures in configurations where the project is built with the fresh Kotlin version,
+    // let's skip target's configuration.
+    // TODO: remove the block completely after updating to Kotlin 2.5
+    val languageVersion = overriddenLanguageVersion?.let(KotlinVersion::fromVersion) ?: KotlinVersion.DEFAULT
+    if (languageVersion < KotlinVersion.KOTLIN_2_5) {
+        @Suppress("DEPRECATION_ERROR", "DEPRECATION")
+        watchosArm32()
+    }
     watchosArm64()
     tvosSimulatorArm64()
     tvosArm64()
