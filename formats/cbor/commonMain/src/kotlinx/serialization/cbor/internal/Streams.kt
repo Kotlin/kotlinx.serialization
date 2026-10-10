@@ -4,6 +4,8 @@
 
 package kotlinx.serialization.cbor.internal
 
+import kotlinx.serialization.internal.newArrayCapacity
+
 internal class ByteArrayInput(private var array: ByteArray) {
     private var position: Int = 0
     public val availableBytes: Int get() = array.size - position
@@ -43,10 +45,10 @@ internal class ByteArrayOutput {
     private var position: Int = 0
 
     private fun ensureCapacity(elementsToAppend: Int) {
-        if (position + elementsToAppend <= array.size) {
+        if (elementsToAppend <= array.size - position) {
             return
         }
-        val newArray = ByteArray((position + elementsToAppend).takeHighestOneBit() shl 1)
+        val newArray = ByteArray(newArrayCapacity(array.size, position.toLong() + elementsToAppend))
         array.copyInto(newArray)
         array = newArray
     }
