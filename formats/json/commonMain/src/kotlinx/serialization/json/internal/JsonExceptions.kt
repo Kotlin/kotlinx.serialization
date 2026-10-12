@@ -27,7 +27,7 @@ internal fun decodingExceptionOf(shortMessage: String, hint: String? = null): Js
 
 @OptIn(ExperimentalSerializationApi::class)
 internal inline fun <T> JsonDecoder.withExceptionHandling(
-    path: () -> String,
+    path: JsonPath,
     input: () -> CharSequence,
     block: () -> T
 ): T {
@@ -37,11 +37,11 @@ internal inline fun <T> JsonDecoder.withExceptionHandling(
         // Add "at path" if and only if we've just caught an exception and it hasn't been augmented yet
         if (e.message!!.contains("at path")) throw e
         // NB: we could've use some additional flag marker or augment the stacktrace, but it seemed to be as too much of a burden
-        throw missingFieldExceptionWithNewMessage(e, e.message + " at path: " + path())
+        throw missingFieldExceptionWithNewMessage(e, e.message + " at path: " + path.getPath())
     } catch (e: SerializationException) {
         throw e
     } catch (e: Exception) {
-        throw errorFromDeserializer(e, path(), input)
+        throw errorFromDeserializer(e, path.getPath(), input)
     }
 }
 
@@ -186,7 +186,7 @@ internal fun InvalidFloatingPointEncoded(value: Number, key: String? = null) =
 internal inline fun JsonDecoder.InvalidFloatingPointDecoded(value: Number, key: String, input: () -> CharSequence) =
     decodingExceptionOf(nonFiniteFpMessage(value, key), hint = specialFlowingValuesHint, input = input)
 
-private fun nonFiniteFpMessage(value: Number, key: String?): String =
+internal fun nonFiniteFpMessage(value: Number, key: String?): String =
     "Unexpected special floating-point value $value" + (if (key != null) " with key $key. " else ". ") + "By default, " +
         "non-finite floating point values are prohibited because they do not conform JSON specification."
 
