@@ -14,7 +14,7 @@ import kotlin.test.*
  * Pins the current behavior that surfaced in the specific issue.
  *
  * Sealed value-class child wrapping a Map encodes type discriminator inside the map,
- * which leads to invalid json, that cannot be decoded.
+ * which leads to an invalid resulting json, that cannot be decoded.
  */
 class Gh3172PinnedBugTest {
     @Serializable
@@ -26,7 +26,7 @@ class Gh3172PinnedBugTest {
     }
 
     @Test
-    fun decodingSealedValueClassMapChildFailsOnClassDiscriminator() {
+    fun test() {
         val value: Parent = Parent.Child(mapOf(1 to "one", 2 to "two"))
 
         val encoded = Json.encodeToString(Parent.serializer(), value)

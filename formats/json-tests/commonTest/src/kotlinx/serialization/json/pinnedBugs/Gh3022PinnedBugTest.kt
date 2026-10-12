@@ -14,8 +14,8 @@ import kotlin.test.*
  * Pins the current behavior that surfaced in the specific issue.
  *
  * With classDiscriminatorMode = ClassDiscriminatorMode.ALL_JSON_OBJECTS, encoding a value class
- * that wraps a List injects a "type" discriminator entry into the JSON array's own element list,
- * producing malformed/unexpected output such as ["type":"Test",3,4,5] instead of a plain [3,4,5].
+ * that wraps a List injects a "type" discriminator entry into the JSON array element list,
+ * producing malformed output such as ["type":"Test",3,4,5] instead of a plain [3,4,5].
  */
 @OptIn(ExperimentalSerializationApi::class)
 class Gh3022PinnedBugTest {
@@ -28,7 +28,7 @@ class Gh3022PinnedBugTest {
     }
 
     @Test
-    fun valueClassWrappingListGetsClassDiscriminatorInjectedIntoTheArray() {
+    fun test() {
         val result = json.encodeToString(Wrapper(listOf(3, 4, 5)))
 
         assertEquals("""["type":"kotlinx.serialization.json.pinnedBugs.Gh3022PinnedBugTest.Wrapper",3,4,5]""", result)
