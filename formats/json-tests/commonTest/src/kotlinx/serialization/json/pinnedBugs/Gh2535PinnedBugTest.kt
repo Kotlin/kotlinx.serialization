@@ -40,7 +40,7 @@ class Gh2535PinnedBugTest {
 
     @OptIn(ExperimentalSerializationApi::class)
     @Test
-    fun encodeToJsonElementCrashesForGenericContextualSerializerButEncodeToStringWorks() {
+    fun test() {
         val json = Json {
             serializersModule = SerializersModule {
                 contextual(Box::class) { args -> BoxSerializer(args[0]) }

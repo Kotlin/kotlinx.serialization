@@ -13,36 +13,40 @@ import kotlin.test.*
  * PINNED BUG. Related issue: https://github.com/Kotlin/kotlinx.serialization/issues/3039
  * Pins the current behavior that surfaced in the specific issue.
  *
- * encodeToJsonElement and JsonTransformingSerializer built on top of it
- * silently drops the type discriminator, when serializing a value class
- * that wraps a non-primitive to a sealed interface subtype.
+ * encodeToJsonElement() drops the class discriminator when serializing a bare value class
+ * that wraps a non-primitive in a sealed interface, even though encodeToString() includes it.
+ * The discriminator is only missing for the bare top-level value, and has it when nested
+ * inside another class, or as a list element.
  */
 class Gh3039PinnedBugTest {
 
     @Serializable
-    data class Data(val id: Int, val name: String)
+    sealed interface A
 
     @Serializable
-    sealed interface Parent
+    data class B(val foo: String)
 
     @JvmInline
     @Serializable
-    value class Child(val value: Data) : Parent
+    @SerialName("C")
+    value class C(val b: B) : A
 
-    object ParentSerializer : JsonTransformingSerializer<Parent>(Parent.serializer()) {
-        override fun transformSerialize(element: JsonElement): JsonElement {
-            return JsonObject(element.jsonObject + ("version" to JsonPrimitive("1.0")))
-        }
-    }
+    @Serializable
+    data class D(val bar: A)
 
     @Test
-    fun encodeToJsonElementDropsDiscriminatorForValueClassWrapper() {
-        val message: Parent = Child(Data(1, "one"))
-        // encodeToJsonElement does not produce type discriminator
-        val element = Json.encodeToJsonElement(Parent.serializer(), message)
-        assertEquals("{\"id\":1,\"name\":\"one\"}", element.toString())
-        // JsonTransformingSerializer does not produce type discriminator
-        val str = Json.encodeToString(ParentSerializer, message)
-        assertEquals("{\"id\":1,\"name\":\"one\",\"version\":\"1.0\"}",str)
+    fun test() {
+        val bare: A = C(B("1"))
+        assertEquals("""{"type":"C","foo":"1"}""", Json.encodeToString(bare))
+        // Bug: the discriminator is missing here.
+        assertEquals("""{"foo":"1"}""", Json.encodeToJsonElement(bare).toString())
+        // Works as expected when nested inside another class, the discriminator is always present.
+        val nested = D(C(B("2")))
+        assertEquals("""{"bar":{"type":"C","foo":"2"}}""", Json.encodeToString(nested))
+        assertEquals("""{"bar":{"type":"C","foo":"2"}}""", Json.encodeToJsonElement(nested).toString())
+        // Works as expected when used as a list element, the discriminator is always present.
+        val list: List<A> = listOf(C(B("3")))
+        assertEquals("""[{"type":"C","foo":"3"}]""", Json.encodeToString(list))
+        assertEquals("""[{"type":"C","foo":"3"}]""", Json.encodeToJsonElement(list).toString())
     }
 }

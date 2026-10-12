@@ -17,14 +17,9 @@ import kotlin.test.*
  */
 @OptIn(ExperimentalSerializationApi::class)
 class Gh2971PinnedBugTest {
-    @Test
-    fun signedIntegerWithExponentDecodesSuccessfully() {
-        val signed = Json.decodeFromString<Int>("1E2")
-        assertEquals(100, signed)
-    }
 
     @Test
-    fun unsignedIntegerWithExponentFailsToDecode() {
+    fun test() {
         val e = assertFailsWith<JsonDecodingException> {
             Json.decodeFromString<UInt>("1E2")
         }

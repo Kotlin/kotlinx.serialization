@@ -23,7 +23,7 @@ class Gh2540PinnedBugTest {
     data class Message(val id: Int)
 
     @Test
-    fun decodeBufferedSourceToSequenceReadsEverythingBeforeEmittingAnything() {
+    fun test() {
         val log = mutableListOf<String>()
         val chunks = listOf("{\"id\":1} ", "{\"id\":2} ", "{\"id\":3} ")
         var index = 0
