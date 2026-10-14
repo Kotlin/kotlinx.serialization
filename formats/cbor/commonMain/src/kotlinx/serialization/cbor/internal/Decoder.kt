@@ -24,6 +24,13 @@ internal open class CborReader(override val cbor: Cbor, protected val parser: Cb
     protected var decodeByteArrayAsByteString = false
     protected var tags: ULongArray? = null
 
+    /**
+     * Keys that have been seen so far while reading this map.
+     *
+     * Only used if [Cbor.configuration.forbidDuplicateKeys] is in effect.
+     */
+    private val seenKeys = mutableSetOf<Any?>()
+
     protected fun setSize(size: Int) {
         if (size >= 0) {
             finiteMode = true
@@ -54,12 +61,19 @@ internal open class CborReader(override val cbor: Cbor, protected val parser: Cb
         if (!finiteMode) parser.end()
     }
 
+    override fun visitKey(key: Any?) {
+        if (cbor.configuration.forbidDuplicateKeys) {
+            seenKeys.add(key) || throw DuplicateKeyException(key)
+        }
+    }
+
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         val index = if (cbor.configuration.ignoreUnknownKeys) {
             val knownIndex: Int
             while (true) {
                 if (isDone()) return CompositeDecoder.DECODE_DONE
                 val (elemName, tags) = decodeElementNameWithTagsLenient(descriptor)
+                visitKey(elemName)
                 readProperties++
 
                 val index = elemName?.let { descriptor.getElementIndex(it) } ?: CompositeDecoder.UNKNOWN_NAME
@@ -75,6 +89,7 @@ internal open class CborReader(override val cbor: Cbor, protected val parser: Cb
         } else {
             if (isDone()) return CompositeDecoder.DECODE_DONE
             val (elemName, tags) = decodeElementNameWithTags(descriptor)
+            visitKey(elemName)
             readProperties++
             descriptor.getElementIndexOrThrow(elemName).also { index ->
                 verifyKeyTags(descriptor, index, tags)
