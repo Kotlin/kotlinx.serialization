@@ -118,4 +118,73 @@ class JsonElementDecodingTest : JsonTestBase() {
             println(obj.getValue("a").jsonPrimitive.long)
         }
     }
+
+    @Test
+    fun testParseOverlongNumericLiterals() {
+        fun checkParseSucceed(expectedValue: Long, literal: String) {
+            assertEquals(expectedValue, Json.parseToJsonElement(literal).jsonPrimitive.long,
+                "Literal: $literal")
+        }
+
+        fun checkParseFails(literal: String) {
+            val exception = assertFailsWith<NumberFormatException> {
+                println(Json.parseToJsonElement(literal).jsonPrimitive.long)
+            }
+            assertContains(exception.message ?: "", "Numeric value overflow")
+
+            assertNull(
+                Json.parseToJsonElement(literal).jsonPrimitive.longOrNull,
+                "$literal should not be parsable as a number"
+            )
+        }
+
+        checkParseSucceed(9223372036854775807L, "9223372036854775807")
+        checkParseSucceed(-9223372036854775807L - 1L, "-9223372036854775808")
+        checkParseSucceed(42,"00000000000000000000000000000000000000042")
+        checkParseSucceed(-1,"-0000000000000000000000000000000000000001")
+        checkParseSucceed(0,"1e-334")
+        checkParseSucceed(0,"10000000000000e-500")
+        checkParseSucceed(0,"1e-18446744073709551623")
+
+        checkParseFails("9223372036854775808")
+        checkParseFails("-9223372036854775809")
+        checkParseFails("18446744073709551615")
+        checkParseFails("18446744073709551616")
+        checkParseFails("18446744073709551623")
+        checkParseFails("36893488147419103232")
+        checkParseFails("-18446744073709551623")
+        checkParseFails("46116860184273879020")
+        checkParseFails("1e500")
+        checkParseFails("1e18446744073709551616")
+        checkParseFails("10e36893488147419103232")
+        checkParseFails("1e9223372036854775800")
+    }
+
+    @Test
+    fun testParseIllFormedIntegralNumericLiterals() {
+        fun assertFails(literal: String) {
+            assertFailsWith<NumberFormatException>("Literal: $literal") {
+                Json.parseToJsonElement(literal).jsonPrimitive.long
+            }
+        }
+        assertFails("++1")
+        assertFails("--1")
+        assertFails("+10+10")
+        assertFails("1.0")
+        assertFails("10e++10")
+        assertFails("10e--10")
+        assertFails("1e-+10")
+        assertFails("0e0000a")
+        assertFails("0xc0de")
+        assertFails("10a")
+        assertFails("1e10.1")
+        assertFails("1e-2")
+        assertFails("1e1E1")
+        assertFails("+")
+        assertFails("-")
+        assertFails("1e+")
+        assertFails("1e-")
+        assertFails("E")
+        assertFails("e")
+    }
 }
