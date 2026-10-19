@@ -94,10 +94,13 @@ private fun increaseSnapshotVersion(releaseVersion: String): String {
         return "$correctedVersion-SNAPSHOT"
     }
 
-    val parts = correctedVersion.split('.')
-    val newVersion = parts.mapIndexed { index, value ->
-        if (index == parts.size - 1) (value.toInt() + 1).toString() else value
-    }.joinToString(".")
+    val parts = correctedVersion.split('.').toMutableList()
+    // Patch version should not be included in a SNAPSHOT version.
+    // Snapshot version for any 1.11.x is 1.12.0-SNAPSHOT,
+    // so we only need to increment the minor version and reset the patch version to 0.
+    parts[parts.size - 2] = parts[parts.size - 2].toInt().inc().toString()
+    parts[parts.size - 1] = "0"
+    val newVersion = parts.joinToString(".")
 
     return "$newVersion-SNAPSHOT"
 }
