@@ -162,7 +162,7 @@ private fun processCommitTitle(title: String): String {
     val text = title.substring(0, index)
     val id = title.substring(index + chars.length).substringBefore(")")
 
-    return "$text (#$id)[https://github.com/Kotlin/kotlinx.serialization/pull/$id]"
+    return "$text [#$id](https://github.com/Kotlin/kotlinx.serialization/pull/$id)"
 }
 
 private fun git(vararg arguments: String): String {
