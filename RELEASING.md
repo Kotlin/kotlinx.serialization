@@ -34,21 +34,19 @@ If review is not required, commit directly to `dev`.
      * On 'Changes' tab, select `dev` branch and corresponding commit.
      * On 'Parameters' tab, find 'Deploy version' and fill in with `<version>`.
 
-10. Ask the owner of Maven Central access credentials to publish artifacts on [Maven Central Portal](https://central.sonatype.com/publishing/deployments).
-   
-11. Set a new value for [`KOTLINX_SERIALIZATION_RELEASE_LABEL`](https://github.com/JetBrains/kotlin-web-site/blob/master/.teamcity/BuildParams.kt),
+10. Set a new value for [`KOTLINX_SERIALIZATION_RELEASE_LABEL`](https://github.com/JetBrains/kotlin-web-site/blob/master/.teamcity/BuildParams.kt),
    creating a pull request in the website's repository. To find out why it is needed, [read this](#kotlinx_serialization_release_tag).
 
-12. Create a new release in [Github releases](https://github.com/Kotlin/kotlinx.serialization/releases). Use created git tag for title and changelog message for body.
+11. Create a new release in [Github releases](https://github.com/Kotlin/kotlinx.serialization/releases). Use created git tag for title and changelog message for body.
 
-13. Switch back to master branch and update it:<br>
+12. Switch back to master branch and update it:<br>
    ```
    git checkout master && git pull
    git merge --ff-only dev
    git push origin master
    ```
 
-14. Announce new release in [Slack](https://kotlinlang.slack.com).
+13. Announce new release in [Slack](https://kotlinlang.slack.com).
 
 # API reference documentation
 
