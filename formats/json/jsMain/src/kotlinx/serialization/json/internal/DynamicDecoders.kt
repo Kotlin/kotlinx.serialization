@@ -159,6 +159,12 @@ private open class DynamicInput(
         }
     }
 
+    override fun decodeTaggedInt(tag: String): Int {
+        // JS numbers are doubles. `as Int` does not apply ToInt32, so values above Int.MAX_VALUE
+        // stay non-canonical and UInt equality fails. `or 0` narrows to int32; Double.toInt() saturates.
+        return (decodeTaggedValue(tag) as Int) or 0
+    }
+
     override fun decodeTaggedLong(tag: String): Long {
         val value = getByTag(tag)
         val number = value as? Double ?: throw SerializationException("$value is not a Number")
