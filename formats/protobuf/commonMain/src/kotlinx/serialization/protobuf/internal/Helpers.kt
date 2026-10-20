@@ -50,7 +50,6 @@ internal const val ID_HOLDER_UNKNOWN_FIELDS = -3
 
 internal const val INDEX_NOT_EXISTED = -1
 
-private const val UNKNOWN_FIELD_MASK = 1L shl 37
 private const val ONEOFMASK = 1L shl 36
 private const val INTTYPEMASK = 3L shl 33
 private const val PACKEDMASK = 1L shl 32
@@ -61,12 +60,10 @@ internal inline fun ProtoDesc(
     type: ProtoIntegerType,
     packed: Boolean = false,
     oneOf: Boolean = false,
-    unknown: Boolean = false,
 ): ProtoDesc {
     val packedBits = if (packed) PACKEDMASK else 0L
     val oneOfBits = if (oneOf) ONEOFMASK else 0L
-    val unknownBits = if (unknown) UNKNOWN_FIELD_MASK else 0L
-    return packedBits or oneOfBits or type.signature or protoId.toLong() or unknownBits
+    return packedBits or oneOfBits or type.signature or protoId.toLong()
 }
 
 internal inline val ProtoDesc.protoId: Int get() = (this and Int.MAX_VALUE.toLong()).toInt()
@@ -90,9 +87,6 @@ internal val ProtoDesc.isPacked: Boolean
 
 internal val ProtoDesc.isOneOf: Boolean
     get() = (this and ONEOFMASK) != 0L
-
-internal val ProtoDesc.isUnknown: Boolean
-    get() = (this and UNKNOWN_FIELD_MASK) != 0L
 
 internal fun ProtoDesc.overrideId(protoId: Int): ProtoDesc {
     return this and (0xFFFFFFF00000000L) or protoId.toLong()
@@ -124,7 +118,7 @@ internal fun SerialDescriptor.extractParameters(index: Int): ProtoDesc {
         // See [kotlinx.serialization.protobuf.internal.ProtobufDecoder.decodeElementIndex] for detail
         protoId = index + 1
     }
-    return ProtoDesc(protoId, format, protoPacked, isOneOf, this.getElementDescriptor(index).isUnknownFieldsDescriptor)
+    return ProtoDesc(protoId, format, protoPacked, isOneOf)
 }
 
 /**
@@ -155,7 +149,7 @@ internal fun extractProtoId(descriptor: SerialDescriptor, index: Int, zeroBasedD
 }
 
 internal val SerialDescriptor.isUnknownFieldsDescriptor: Boolean
-    get() = this.nullable == ProtoUnknownFieldHolderSerializer.descriptor.nullable
+    get() = this.nonNullOriginal == ProtoUnknownFieldHolderSerializer.descriptor
 
 private fun checkFieldNumber(fieldNumber: Int, propertyIndex: Int, descriptor: SerialDescriptor) {
     if (fieldNumber <= 0) {
