@@ -6,7 +6,7 @@ package kotlinx.serialization.json.internal
 
 import kotlin.native.concurrent.*
 
-private fun toHexChar(i: Int) : Char {
+private fun toHexChar(i: Int): Char {
     val d = i and 0xf
     return if (d < 10) (d + '0'.code).toChar()
     else (d - 10 + 'a'.code).toChar()
@@ -50,7 +50,7 @@ internal val ESCAPE_MARKERS: ByteArray = ByteArray(128).apply {
 internal fun StringBuilder.printQuoted(value: String) {
     append(STRING)
     var lastPos = 0
-    for (i in value.indices) {
+    for (i in 0..<value.length) {
         val c = value[i].code
         if (c < ESCAPE_STRINGS.size && ESCAPE_STRINGS[c] != null) {
             append(value, lastPos, i) // flush prev
@@ -59,8 +59,11 @@ internal fun StringBuilder.printQuoted(value: String) {
         }
     }
 
-    if (lastPos != 0) append(value, lastPos, value.length)
-    else append(value)
+    if (lastPos != 0) {
+        append(value, lastPos, value.length)
+    } else {
+        append(value)
+    }
     append(STRING)
 }
 
