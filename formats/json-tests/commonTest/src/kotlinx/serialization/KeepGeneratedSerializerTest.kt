@@ -175,8 +175,7 @@ class KeepGeneratedSerializerTest {
     @Serializable(WithCompanion.Companion::class)
     @KeepGeneratedSerializer
     data class WithCompanion(val value: Int) {
-        @Serializer(WithCompanion::class)
-        companion object {
+        companion object: KSerializer<WithCompanion> {
             override val descriptor = PrimitiveSerialDescriptor("WithCompanionDesc", PrimitiveKind.INT)
             override fun deserialize(decoder: Decoder): WithCompanion {
                 val value = decoder.decodeInt()
