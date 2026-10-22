@@ -87,11 +87,10 @@ class JsonParserTest : JsonTestBase() {
     }
 
     @Test
-    fun testValueAfterArrayEnd() {
-        val lenient = Json { isLenient = true }
+    fun testValueAfterArrayEnd() = parametrizedTest { mode ->
         for (input in listOf("[1]2]", """{"a":[1]2]}""", """["x"]"y"]""", "[[1]2]]")) {
-            assertFailsWithSerial("JsonDecodingException") { Json.parseToJsonElement(input) }
-            assertFailsWithSerial("JsonDecodingException") { lenient.parseToJsonElement(input) }
+            assertFailsWithSerial("JsonDecodingException") { Json.decodeFromString<JsonElement>(input, mode) }
+            assertFailsWithSerial("JsonDecodingException") { lenient.decodeFromString<JsonElement>(input, mode) }
         }
     }
 
