@@ -10,7 +10,6 @@ package kotlinx.serialization.json.internal
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
-import kotlinx.serialization.internal.*
 import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlin.jvm.*
@@ -22,11 +21,13 @@ public fun <T> readJson(
     deserializer: DeserializationStrategy<T>,
     previousDecoder: JsonDecoder? = null
 ): T {
-    val discriminator = (previousDecoder as? PolymorphicJsonDecoder)?.discriminator
+    val parent = previousDecoder as? PolymorphicJsonDecoder
+    val discriminator = parent?.discriminator
+    val path = parent?.path ?: JsonPath(json.configuration)
     val input = when (element) {
-        is JsonObject -> JsonTreeDecoder(json, element, deserializer.descriptor, discriminator)
-        is JsonArray -> JsonTreeListDecoder(json, element)
-        is JsonLiteral, JsonNull -> JsonPrimitiveDecoder(json, element as JsonPrimitive)
+        is JsonObject -> JsonTreeDecoder(json, element, deserializer.descriptor, path, discriminator)
+        is JsonArray -> JsonTreeListDecoder(json, element, path)
+        is JsonLiteral, JsonNull -> JsonPrimitiveDecoder(json, element as JsonPrimitive, path)
     }
     return input.decodeSerializableValue(deserializer)
 }
@@ -35,19 +36,21 @@ internal fun <T> Json.readPolymorphicJson(
     discriminator: String,
     element: JsonObject,
     // Note: this is an actual deserializer, not a polymorphic one
-    deserializer: DeserializationStrategy<T>
+    deserializer: DeserializationStrategy<T>,
+    path: JsonPath
 ): T {
     val descriptor = deserializer.descriptor
     return JsonTreeDecoder(
-        this, element, descriptor, discriminator, descriptor
+        this, element, descriptor, path, discriminator, descriptor
     ).decodeSerializableValue(deserializer)
 }
 
 private sealed class AbstractJsonTreeDecoder(
     override val json: Json,
     open val value: JsonElement,
+    final override val path: JsonPath,
     protected val polymorphicDiscriminator: String? = null
-) : NamedValueDecoder(), PolymorphicJsonDecoder {
+) : AbstractDecoder(), PolymorphicJsonDecoder {
 
     override val serializersModule: SerializersModule
         get() = json.serializersModule
@@ -58,161 +61,146 @@ private sealed class AbstractJsonTreeDecoder(
     @JvmField
     protected val configuration = json.configuration
 
-    protected fun currentObject() = currentTagOrNull?.let { currentElement(it) } ?: value
-
-    fun renderTagStack(currentTag: String) = renderTagStack() + ".$currentTag"
-
-    override fun decodeJsonElement(): JsonElement = currentObject()
+    override fun decodeJsonElement(): JsonElement = currentElement()
 
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
-        return withExceptionHandling(path = ::renderTagStack, input = currentObject()::toString) { decodeSerializableValuePolymorphic(deserializer, ::renderTagStack) }
+        return withExceptionHandling(path = path, input = currentElement()::toString) {
+            decodeSerializableValuePolymorphic(deserializer)
+        }
     }
-
-    final override fun composeName(parentName: String, childName: String): String = childName
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
-        val currentObject = currentObject()
+        val element = currentElement()
+        path.pushDescriptor(descriptor)
         return when (descriptor.kind) {
-            StructureKind.LIST, is PolymorphicKind -> JsonTreeListDecoder(json, cast(currentObject, descriptor))
+            StructureKind.LIST, is PolymorphicKind -> JsonTreeListDecoder(json, cast(element, descriptor), path)
             StructureKind.MAP -> json.selectMapMode(
                 descriptor,
-                { JsonTreeMapDecoder(json, cast(currentObject, descriptor), descriptor) },
-                { JsonTreeListDecoder(json, cast(currentObject, descriptor)) }
+                { JsonTreeMapDecoder(json, cast(element, descriptor), descriptor, path) },
+                { JsonTreeListDecoder(json, cast(element, descriptor), path) }
             )
-            else -> JsonTreeDecoder(json, cast(currentObject, descriptor), descriptor, polymorphicDiscriminator)
+            else -> JsonTreeDecoder(json, cast(element, descriptor), descriptor, path, polymorphicDiscriminator)
         }
     }
 
-    inline fun <reified T : JsonElement> cast(value: JsonElement, descriptor: SerialDescriptor): T = cast(value, descriptor.serialName) { renderTagStack() }
-    inline fun <reified T : JsonElement> cast(value: JsonElement, serialName: String, tag: String): T = cast(value, serialName) { renderTagStack(tag) }
+    inline fun <reified T : JsonElement> cast(value: JsonElement, descriptor: SerialDescriptor): T =
+        cast(value, descriptor.serialName, path::getPath)
 
     override fun endStructure(descriptor: SerialDescriptor) {
-        // Nothing
+        path.popDescriptor()
     }
 
-    override fun decodeNotNullMark(): Boolean = currentObject() !is JsonNull
+    override fun decodeNotNullMark(): Boolean = currentElement() !is JsonNull
 
     @Suppress("NOTHING_TO_INLINE")
-    protected inline fun getPrimitiveValue(tag: String, descriptor: SerialDescriptor): JsonPrimitive =
-        cast(currentElement(tag), descriptor.serialName, tag)
+    protected inline fun getPrimitiveValue(descriptor: SerialDescriptor): JsonPrimitive =
+        cast(currentElement(), descriptor.serialName, path::getPath)
 
-    private inline fun <T : Any> getPrimitiveValue(tag: String, primitiveName: String, convert: JsonPrimitive.() -> T?): T {
-        val literal = cast<JsonPrimitive>(currentElement(tag), primitiveName, tag)
+    private inline fun <T : Any> getPrimitiveValue(primitiveName: String, convert: JsonPrimitive.() -> T?): T {
+        val literal = cast<JsonPrimitive>(currentElement(), primitiveName, path::getPath)
         try {
-            return literal.convert() ?: unparsedPrimitive(literal, primitiveName, tag)
+            return literal.convert() ?: unparsedPrimitive(literal, primitiveName)
         } catch (e: IllegalArgumentException) {
             // TODO: pass e as cause? (may conflict with #2590)
-            unparsedPrimitive(literal, primitiveName, tag)
+            unparsedPrimitive(literal, primitiveName)
         }
     }
 
-    private fun unparsedPrimitive(literal: JsonPrimitive, primitive: String, tag: String): Nothing {
+    private fun unparsedPrimitive(literal: JsonPrimitive, primitive: String): Nothing {
         val type = if (primitive.startsWith("i")) "an $primitive" else "a $primitive"
-        throw decodingExceptionOf("Failed to parse literal '$literal' as $type value", path = renderTagStack(tag)) {
-            currentObject().toString()
+        throw decodingExceptionOf("Failed to parse literal '$literal' as $type value", path = path.getPath()) {
+            currentElement().toString()
         }
     }
 
-    protected abstract fun currentElement(tag: String): JsonElement
+    // The element being decoded
+    protected open fun currentElement(): JsonElement = value
 
-    override fun decodeTaggedEnum(tag: String, enumDescriptor: SerialDescriptor): Int =
-        enumDescriptor.getJsonNameIndexOrThrow(json, getPrimitiveValue(tag, enumDescriptor).content)
+    // The name of the element being decoded, used in error messages only
+    protected open fun currentTag(): String = PRIMITIVE_TAG
 
-    override fun decodeTaggedNull(tag: String): Nothing? = null
+    override fun decodeEnum(enumDescriptor: SerialDescriptor): Int =
+        enumDescriptor.getJsonNameIndexOrThrow(json, getPrimitiveValue(enumDescriptor).content, path)
 
-    override fun decodeTaggedNotNullMark(tag: String): Boolean = currentElement(tag) !== JsonNull
+    override fun decodeBoolean(): Boolean =
+        getPrimitiveValue("boolean", JsonPrimitive::booleanOrNull)
 
-    override fun decodeTaggedBoolean(tag: String): Boolean =
-        getPrimitiveValue(tag, "boolean", JsonPrimitive::booleanOrNull)
-
-    override fun decodeTaggedByte(tag: String) = getPrimitiveValue(tag, "byte") {
+    override fun decodeByte() = getPrimitiveValue("byte") {
         val result = parseLongImpl()
         if (result in Byte.MIN_VALUE..Byte.MAX_VALUE) result.toByte()
         else null
     }
 
-    override fun decodeTaggedShort(tag: String) = getPrimitiveValue(tag, "short") {
+    override fun decodeShort() = getPrimitiveValue("short") {
         val result = parseLongImpl()
         if (result in Short.MIN_VALUE..Short.MAX_VALUE) result.toShort()
         else null
     }
 
-    override fun decodeTaggedInt(tag: String) = getPrimitiveValue(tag, "int") {
+    override fun decodeInt() = getPrimitiveValue("int") {
         val result = parseLongImpl()
         if (result in Int.MIN_VALUE..Int.MAX_VALUE) result.toInt()
         else null
     }
 
-    override fun decodeTaggedLong(tag: String) = getPrimitiveValue(tag, "long") { parseLongImpl() }
+    override fun decodeLong() = getPrimitiveValue("long") { parseLongImpl() }
 
-    override fun decodeTaggedFloat(tag: String): Float {
-        val result = getPrimitiveValue(tag, "float") { float }
+    override fun decodeFloat(): Float {
+        val result = getPrimitiveValue("float") { float }
         val specialFp = json.configuration.allowSpecialFloatingPointValues
         if (specialFp || result.isFinite()) return result
-        throw InvalidFloatingPointDecoded(result, tag) { currentObject().toString() }
+        throw decodingExceptionOf(nonFiniteFpMessage(result, null), path.getPath(), specialFlowingValuesHint) { currentElement().toString() }
     }
 
-    override fun decodeTaggedDouble(tag: String): Double {
-        val result = getPrimitiveValue(tag, "double") { double }
+    override fun decodeDouble(): Double {
+        val result = getPrimitiveValue("double") { double }
         val specialFp = json.configuration.allowSpecialFloatingPointValues
         if (specialFp || result.isFinite()) return result
-        throw InvalidFloatingPointDecoded(result, tag) { currentObject().toString() }
+        throw decodingExceptionOf(nonFiniteFpMessage(result, null), path.getPath(), specialFlowingValuesHint) { currentElement().toString() }
     }
 
-    override fun decodeTaggedChar(tag: String): Char = getPrimitiveValue(tag, "char") { content.single() }
+    override fun decodeChar(): Char = getPrimitiveValue("char") { content.single() }
 
-    override fun decodeTaggedString(tag: String): String {
-        val value = cast<JsonPrimitive>(currentElement(tag), "string", tag)
+    override fun decodeString(): String {
+        val tag = currentTag()
+        val value = cast<JsonPrimitive>(currentElement(), "string", path::getPath)
         if (value !is JsonLiteral)
-            throw decodingExceptionOf("Expected string value for a non-null key '$tag', got null literal instead", renderTagStack(tag), coerceInputValuesHint) {
-                currentObject().toString()
+            throw decodingExceptionOf("Expected string value for a non-null key '$tag', got null literal instead", path.getPath(), coerceInputValuesHint) {
+                currentElement().toString()
             }
         if (!value.isString && !json.configuration.isLenient) {
-            throw decodingExceptionOf("String literal for value of key '$tag' should be quoted", renderTagStack(tag), lenientHint) {
-                currentObject().toString()
+            throw decodingExceptionOf("String literal for value of key '$tag' should be quoted", path.getPath(), lenientHint) {
+                currentElement().toString()
             }
         }
         return value.content
     }
 
-    override fun decodeTaggedInline(tag: String, inlineDescriptor: SerialDescriptor): Decoder {
-        return if (inlineDescriptor.isUnsignedNumber) {
-            val lexer = StringJsonLexer(json, getPrimitiveValue(tag, inlineDescriptor).content)
-            JsonDecoderForUnsignedTypes(lexer, json)
-        } else super.decodeTaggedInline(tag, inlineDescriptor)
-    }
-
     override fun decodeInline(descriptor: SerialDescriptor): Decoder {
-        return if (currentTagOrNull != null) super.decodeInline(descriptor)
-        else JsonPrimitiveDecoder(json, value, polymorphicDiscriminator).decodeInline(descriptor)
+        return if (descriptor.isUnsignedNumber) {
+            val lexer = StringJsonLexer(json, getPrimitiveValue(descriptor).content)
+            JsonDecoderForUnsignedTypes(lexer, json)
+        } else this
     }
 }
 
 private class JsonPrimitiveDecoder(
     json: Json,
     override val value: JsonElement,
-    polymorphicDiscriminator: String? = null
-) : AbstractJsonTreeDecoder(json, value, polymorphicDiscriminator) {
-
-    init {
-        pushTag(PRIMITIVE_TAG)
-    }
+    path: JsonPath,
+) : AbstractJsonTreeDecoder(json, value, path) {
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int = 0
-
-    override fun currentElement(tag: String): JsonElement {
-        require(tag == PRIMITIVE_TAG) { "This input can only handle primitives with '$PRIMITIVE_TAG' tag" }
-        return value
-    }
 }
 
 private open class JsonTreeDecoder(
     json: Json,
     override val value: JsonObject,
     descriptor: SerialDescriptor,
+    path: JsonPath,
     polymorphicDiscriminator: String? = null,
     private val polyDescriptor: SerialDescriptor? = null
-) : AbstractJsonTreeDecoder(json, value, polymorphicDiscriminator) {
+) : AbstractJsonTreeDecoder(json, value, path, polymorphicDiscriminator) {
 
     // Pointer to the current entry of JsonObject that is being decoded
     // NB: do not `override val value` in JsonTreeMapDecoder, otherwise this field won't be
@@ -221,7 +209,7 @@ private open class JsonTreeDecoder(
 
     private val elementMarker: JsonElementMarker? = if (configuration.explicitNulls) null else JsonElementMarker(descriptor)
 
-    // Cached results of entries.next() to be used in tagged protocol
+    // Cached results of entries.next() used directly by primitive and nested decoders
     private var currentName: String? = null
     private var currentValue: JsonElement? = null
 
@@ -238,9 +226,11 @@ private open class JsonTreeDecoder(
                 elementMarker?.mark(index)
                 currentName = key
                 currentValue = entry.value
+                path.updateDescriptorIndex(index)
                 return index
             }
             if (key != polymorphicDiscriminator && !descriptor.ignoreUnknownKeys(json)) {
+                path.updateDescriptorIndex(CompositeDecoder.UNKNOWN_NAME)
                 throwUnknownKey(key)
             }
         }
@@ -249,6 +239,7 @@ private open class JsonTreeDecoder(
             currentName = descriptor.getElementName(markerIndex)
             currentValue = null
         }
+        path.updateDescriptorIndex(markerIndex)
         return markerIndex
     }
 
@@ -263,16 +254,17 @@ private open class JsonTreeDecoder(
         return !(elementMarker?.isUnmarkedNull ?: false) && super.decodeNotNullMark()
     }
 
-    override fun elementName(descriptor: SerialDescriptor, index: Int): String =
-        currentName ?: descriptor.getElementName(index)
+    override fun currentElement(): JsonElement =
+        currentValue ?: currentName?.let(value::getValue) ?: value
 
-    override fun currentElement(tag: String): JsonElement = currentValue ?: value.getValue(tag)
+    override fun currentTag(): String = currentName ?: PRIMITIVE_TAG
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
         // polyDiscriminator needs to be preserved so the discriminator key can be filtered out.
         if (descriptor === polyDescriptor) {
+            path.pushDescriptor(descriptor)
             return JsonTreeDecoder(
-                json, cast(currentObject(), polyDescriptor), descriptor, polymorphicDiscriminator, polyDescriptor
+                json, cast(currentElement(), polyDescriptor), descriptor, path, polymorphicDiscriminator, polyDescriptor
             )
         }
 
@@ -282,7 +274,7 @@ private open class JsonTreeDecoder(
     private fun throwUnknownKey(key: String): Nothing {
         throw decodingExceptionOf(
             "Encountered an unknown key '$key'",
-            renderTagStack(),
+            path.getPath(),
             ignoreUnknownKeysHint
         ) { value.toString() }
     }
@@ -291,16 +283,12 @@ private open class JsonTreeDecoder(
 private class JsonTreeMapDecoder(
     json: Json,
     value: JsonObject,
-    descriptor: SerialDescriptor
-) : JsonTreeDecoder(json, value, descriptor) {
+    descriptor: SerialDescriptor,
+    path: JsonPath,
+) : JsonTreeDecoder(json, value, descriptor, path) {
     private val keys = value.keys.toList()
     private val size: Int = keys.size * 2
     private var position = -1
-
-    override fun elementName(descriptor: SerialDescriptor, index: Int): String {
-        val i = index / 2
-        return keys[i]
-    }
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         while (position < size - 1) {
@@ -310,30 +298,46 @@ private class JsonTreeMapDecoder(
         return CompositeDecoder.DECODE_DONE
     }
 
-    override fun currentElement(tag: String): JsonElement {
-        return if (position % 2 == 0) JsonPrimitive(tag) else value.getValue(tag)
+    override fun <T> decodeSerializableElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        deserializer: DeserializationStrategy<T>,
+        previousValue: T?
+    ): T {
+        val isMapKey = index and 1 == 0
+        return withMapKeyTracking(path, isMapKey) {
+            super.decodeSerializableElement(descriptor, index, deserializer, previousValue)
+        }
     }
 
-    override fun endStructure(descriptor: SerialDescriptor) {
-        // do nothing, maps do not have strict keys, so strict mode check is omitted
+    override fun currentElement(): JsonElement {
+        if (position < 0) return value
+        val key = keys[position / 2]
+        return if (position % 2 == 0) JsonPrimitive(key) else value.getValue(key)
     }
+
+    override fun currentTag(): String = if (position < 0) PRIMITIVE_TAG else keys[position / 2]
 }
 
-private class JsonTreeListDecoder(json: Json, override val value: JsonArray) : AbstractJsonTreeDecoder(json, value) {
+private class JsonTreeListDecoder(
+    json: Json,
+    override val value: JsonArray,
+    path: JsonPath,
+) : AbstractJsonTreeDecoder(json, value, path) {
     private val size = value.size
     private var currentIndex = -1
 
-    override fun elementName(descriptor: SerialDescriptor, index: Int): String = index.toString()
+    override fun currentElement(): JsonElement = if (currentIndex < 0) value else value[currentIndex]
 
-    override fun currentElement(tag: String): JsonElement {
-        return value[tag.toInt()]
-    }
+    override fun currentTag(): String = if (currentIndex < 0) PRIMITIVE_TAG else currentIndex.toString()
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         while (currentIndex < size - 1) {
             currentIndex++
+            path.updateDescriptorIndex(currentIndex)
             return currentIndex
         }
+        path.updateDescriptorIndex(CompositeDecoder.DECODE_DONE)
         return CompositeDecoder.DECODE_DONE
     }
 }

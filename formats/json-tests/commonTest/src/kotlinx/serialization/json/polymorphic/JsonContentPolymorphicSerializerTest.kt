@@ -62,6 +62,14 @@ class JsonContentPolymorphicSerializerTest : JsonTestBase() {
     }
 
     @Test
+    fun testPathIsPreservedAfterSelectingDeserializer() = parametrizedTest { mode ->
+        val exception = assertFailsWith<SerializationException> {
+            json.decodeFromString<WithChoices>("""{"response":{"b":"not an int"}}""", mode)
+        }
+        assertContains(exception.message!!, "at path: $.response.b")
+    }
+
+    @Test
     fun testSerializesParametrically() = parametrizedTest { streaming ->
         for (i in testDataOutput.indices) {
             assertEquals(
