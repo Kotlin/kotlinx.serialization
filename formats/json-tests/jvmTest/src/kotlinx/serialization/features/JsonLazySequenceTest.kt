@@ -67,7 +67,10 @@ class JsonLazySequenceTest {
     private fun <T> Json.iterateOverStream(stream: InputStream, deserializer: DeserializationStrategy<T>): Iterator<T> =
         decodeToSequence(stream, deserializer).iterator()
 
-    private fun withInputs(vararg inputs: String = arrayOf(inputStringWsSeparated, inputStringWrapped), block: (InputStream) -> Unit) {
+    private fun withInputs(
+        vararg inputs: String = arrayOf(inputStringWsSeparated, inputStringWrapped),
+        block: (InputStream) -> Unit
+    ) {
         for (input in inputs) {
             val res = runCatching { block(input.asInputStream()) }
             if (res.isFailure) throw AssertionError("Failed test with input $input", res.exceptionOrNull())
@@ -118,12 +121,14 @@ class JsonLazySequenceTest {
             buildJsonObject { put("foo", "baz") },
             JsonPrimitive(10),
             JsonPrimitive("abacaba"),
+            buildJsonArray { add(1); add(2) },
+            buildJsonArray { add("bar") },
             buildJsonObject { put("foo", "qux") }
         )
-        val inputWs = """${list[0]} ${list[1]} ${list[2]}    ${list[3]}    ${list[4]}"""
+        val inputWs = """${list[0]} ${list[1]} ${list[2]}    ${list[3]}    ${list[4]} ${list[5]}${list[6]}"""
         val decodedWs = json.decodeToSequence<JsonElement>(inputWs.asInputStream()).toList()
         assertEquals(list, decodedWs, "Failed whitespace-separated test")
-        val inputArray = """[${list[0]}, ${list[1]},${list[2]}  ,  ${list[3]}    ,${list[4]}]"""
+        val inputArray = """[${list[0]}, ${list[1]},${list[2]}  ,  ${list[3]}    ,${list[4]}, ${list[5]},${list[6]}]"""
         val decodedArrayWrap = json.decodeToSequence<JsonElement>(inputArray.asInputStream()).toList()
         assertEquals(list, decodedArrayWrap, "Failed array-wrapped test")
     }
@@ -161,8 +166,9 @@ class JsonLazySequenceTest {
         assertFailsWithSerial("JsonDecodingException") { // we do not merge lists
             json.decodeToSequence<Int>(input.asInputStream(), DecodeSequenceMode.ARRAY_WRAPPED).toList()
         }
-        val parsed = json.decodeToSequence<List<Int>>(input.asInputStream(), DecodeSequenceMode.WHITESPACE_SEPARATED).toList()
-        val expected = listOf(listOf(1,2,3), listOf(4,5,6), listOf(7,8,9))
+        val parsed =
+            json.decodeToSequence<List<Int>>(input.asInputStream(), DecodeSequenceMode.WHITESPACE_SEPARATED).toList()
+        val expected = listOf(listOf(1, 2, 3), listOf(4, 5, 6), listOf(7, 8, 9))
         assertEquals(expected, parsed)
     }
 
@@ -177,14 +183,25 @@ class JsonLazySequenceTest {
     fun testPaddedWs() {
         val paddedWs = "  $inputStringWsSeparated  "
         assertEquals(inputList, json.decodeToSequence(paddedWs.asInputStream(), StringData.serializer()).toList())
-        assertEquals(inputList, json.decodeToSequence(paddedWs.asInputStream(), StringData.serializer(), DecodeSequenceMode.WHITESPACE_SEPARATED).toList())
+        assertEquals(
+            inputList,
+            json.decodeToSequence(
+                paddedWs.asInputStream(),
+                StringData.serializer(),
+                DecodeSequenceMode.WHITESPACE_SEPARATED
+            ).toList()
+        )
     }
 
     @Test
     fun testPaddedArray() {
         val paddedWs = "  $inputStringWrapped  "
         assertEquals(inputList, json.decodeToSequence(paddedWs.asInputStream(), StringData.serializer()).toList())
-        assertEquals(inputList, json.decodeToSequence(paddedWs.asInputStream(), StringData.serializer(), DecodeSequenceMode.ARRAY_WRAPPED).toList())
+        assertEquals(
+            inputList,
+            json.decodeToSequence(paddedWs.asInputStream(), StringData.serializer(), DecodeSequenceMode.ARRAY_WRAPPED)
+                .toList()
+        )
     }
 
     @Test
