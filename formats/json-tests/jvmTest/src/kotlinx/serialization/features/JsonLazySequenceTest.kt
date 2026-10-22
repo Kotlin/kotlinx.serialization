@@ -133,6 +133,22 @@ class JsonLazySequenceTest {
         assertEquals(list, decodedArrayWrap, "Failed array-wrapped test")
     }
 
+    @Test
+    fun testJsonArray() {
+        val list = listOf<JsonElement>(
+            buildJsonArray { add(1); add(2) },
+            buildJsonArray { add("bar") },
+        )
+        val inputWs = list.joinToString(" ")
+        val decodedWs = json.decodeToSequence<JsonElement>(
+            inputWs.asInputStream(),
+            DecodeSequenceMode.WHITESPACE_SEPARATED
+        ).toList()
+        assertEquals(list, decodedWs, "Failed whitespace-separated test")
+        val inputArray = list.joinToString(", ", "[", "]")
+        val decodedArrayWrap = json.decodeToSequence<JsonElement>(inputArray.asInputStream()).toList()
+        assertEquals(list, decodedArrayWrap, "Failed array-wrapped test")
+    }
 
     @Test
     fun testSealedClasses() {
