@@ -87,6 +87,14 @@ class JsonParserTest : JsonTestBase() {
     }
 
     @Test
+    fun testValueAfterArrayEnd() = parametrizedTest { mode ->
+        for (input in listOf("[1]2]", """{"a":[1]2]}""", """["x"]"y"]""", "[[1]2]]")) {
+            assertFailsWithSerial("JsonDecodingException") { Json.decodeFromString<JsonElement>(input, mode) }
+            assertFailsWithSerial("JsonDecodingException") { lenient.decodeFromString<JsonElement>(input, mode) }
+        }
+    }
+
+    @Test
     fun testUnclosedStringLiteral() {
         assertFailsWithSerial("JsonDecodingException") {
             parse("\"")
