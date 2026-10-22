@@ -136,7 +136,13 @@ internal open class ProtobufEncoder(
         }
     }
 
-    override fun SerialDescriptor.getTag(index: Int) = extractParameters(index)
+    private var tags: LongArray? = null
+
+    override fun SerialDescriptor.getTag(index: Int): ProtoDesc {
+        if (this !== descriptor) return extractParameters(index)
+        val tags = tags ?: proto.descriptorCache.encodingTags(descriptor)?.also { tags = it } ?: return extractParameters(index)
+        return tags[index]
+    }
 
     @OptIn(ExperimentalUnsignedTypes::class)
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) = when {
