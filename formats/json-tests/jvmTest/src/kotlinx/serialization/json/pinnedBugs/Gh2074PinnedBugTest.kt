@@ -13,9 +13,9 @@ import kotlin.test.*
  * PINNED BUG. Related issue: https://github.com/Kotlin/kotlinx.serialization/issues/2074
  * Pins the current behavior that surfaced in the specific issue.
  *
- * Json.decodeToSequence(inputStream, WHITESPACE_SEPARATED) is expected to yield each complete entry
- * as soon as it has been read off the stream. But tries to eagerly fill the internal read buffer
- * before the parsing starts, which may block on the live stream.
+ * Json.decodeToSequence is expected to yield each complete entry as soon as it has been
+ * read off the stream. But tries to eagerly fill the internal read buffer before the
+ * parsing starts, which may block on the live stream.
  */
 class Gh2074PinnedBugTest {
     @Serializable
@@ -35,12 +35,12 @@ class Gh2074PinnedBugTest {
             position += count
             return count
         }
+
+        override fun available(): Int = data.size - position
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
     @Test
     fun test() {
-        // Doesnt block, when number of elements is bigger then the internal buffer
         val data = (1..5).joinToString(separator = "") { Json.encodeToString(Data("data")) }
         assertFailsWith<WouldBlockException> {
             val _ = Json.decodeToSequence<Data>(
