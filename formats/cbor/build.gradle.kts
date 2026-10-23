@@ -16,6 +16,10 @@ plugins {
 kotlin {
 
     sourceSets {
+        configureEach {
+            languageSettings.optIn("kotlinx.serialization.internal.CoreFriendModuleApi")
+        }
+
         commonMain {
             dependencies {
                 api(project(":kotlinx-serialization-core"))
