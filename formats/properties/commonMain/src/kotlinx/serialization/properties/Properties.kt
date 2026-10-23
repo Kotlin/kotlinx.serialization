@@ -137,8 +137,16 @@ public sealed class Properties(
                     // if map does not contain key we look for, then indices in collection have ended
                     break
                 }
+                // an empty collection is encoded as no keys at all, so a required one is decoded as empty
+                if (descriptor.isRequiredNonNullCollection(currentIndex - 1)) return currentIndex - 1
             }
             return CompositeDecoder.DECODE_DONE
+        }
+
+        private fun SerialDescriptor.isRequiredNonNullCollection(index: Int): Boolean {
+            if (isElementOptional(index)) return false
+            val element = getElementDescriptor(index)
+            return !element.isNullable && (element.kind == StructureKind.LIST || element.kind == StructureKind.MAP)
         }
     }
 
