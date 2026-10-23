@@ -4,7 +4,6 @@
 
 package kotlinx.serialization.json.pinnedBugs
 
-import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import kotlin.test.*
 
@@ -15,7 +14,6 @@ import kotlin.test.*
  * decodeFromString can decode a signed numeric value containing an exponent as Int, but decoding
  * the same numeric-with-exponent literal as UInt fails with a JsonDecodingException.
  */
-@OptIn(ExperimentalSerializationApi::class)
 class Gh2971PinnedBugTest {
 
     @Test

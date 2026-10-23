@@ -38,7 +38,6 @@ class Gh2535PinnedBugTest {
             typeArgumentsSerializers = arrayOf(typeArgumentSerializer),
         ) as KSerializer<Box<T>>
 
-    @OptIn(ExperimentalSerializationApi::class)
     @Test
     fun test() {
         val json = Json {
