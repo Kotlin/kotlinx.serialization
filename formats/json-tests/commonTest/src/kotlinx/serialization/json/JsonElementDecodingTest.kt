@@ -145,6 +145,8 @@ class JsonElementDecodingTest : JsonTestBase() {
         checkParseSucceed(0,"1e-334")
         checkParseSucceed(0,"10000000000000e-500")
         checkParseSucceed(0,"1e-18446744073709551623")
+        checkParseSucceed(9007199254740993L, "9007199254740993e0")
+        // checkParseSucceed(1, "100000e-5")
 
         checkParseFails("9223372036854775808")
         checkParseFails("-9223372036854775809")
@@ -158,6 +160,7 @@ class JsonElementDecodingTest : JsonTestBase() {
         checkParseFails("1e18446744073709551616")
         checkParseFails("10e36893488147419103232")
         checkParseFails("1e9223372036854775800")
+        //checkParseFails("-922337203685477581e1")
     }
 
     @Test
@@ -165,6 +168,9 @@ class JsonElementDecodingTest : JsonTestBase() {
         fun assertFails(literal: String) {
             assertFailsWith<NumberFormatException>("Literal: $literal") {
                 Json.parseToJsonElement(literal).jsonPrimitive.long
+            }
+            assertFails("Literal: $literal (via decodeFromString)") {
+                Json.decodeFromString<Long>(literal)
             }
         }
         assertFails("++1")
@@ -186,5 +192,9 @@ class JsonElementDecodingTest : JsonTestBase() {
         assertFails("1e-")
         assertFails("E")
         assertFails("e")
+        assertFails("1e")
+        assertFails("-e1")
+        assertFails("+e1")
+        assertFails("e2")
     }
 }
