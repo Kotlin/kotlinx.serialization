@@ -51,6 +51,9 @@ class PropertiesTest {
     data class NullableEnumData(val data0: TestEnum?, val data1: TestEnum?)
 
     @Serializable
+    data class NullableCollections(val a: Int, val b: List<Int>?, val c: Map<Int, Int>?, val d: Set<Int>?)
+
+    @Serializable
     data class SharedPrefixNames(
         val first: String = "100",
         val firstSecond: String = "100"
@@ -243,5 +246,23 @@ class PropertiesTest {
             Properties.decodeFromStringMap(EnumData.serializer(), mapOf("data" to wrongElementName))
         }
         assertEquals(expectedMessage, exception.message)
+    }
+
+    @Test
+    fun testAbsentNullableCollections() {
+        assertMappedAndRestored(
+            mapOf("a" to 1),
+            NullableCollections(1, null, null, null),
+            NullableCollections.serializer()
+        )
+    }
+
+    @Test
+    fun testAbsentNullableScalar() {
+        assertMappedAndRestored(
+            mapOf("data0" to "ZERO"),
+            NullableEnumData(TestEnum.ZERO, null),
+            NullableEnumData.serializer()
+        )
     }
 }
