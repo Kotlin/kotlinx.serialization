@@ -312,6 +312,17 @@ internal abstract class AbstractJsonLexer(internal val configuration: JsonConfig
      */
     abstract fun consumeKeyString(): String
 
+    /** Whether [tryConsumeKeyString] can avoid materializing a matching key. */
+    open val supportsKeyNameMatching: Boolean get() = false
+
+    /**
+     * Consumes a key equal to [expected] without creating a [String]. If the key does not match,
+     * [consumeKeyStringAfterMatchFailure] must return it and leave the lexer after the key.
+     */
+    open fun tryConsumeKeyString(expected: String): Boolean = false
+
+    open fun consumeKeyStringAfterMatchFailure(): String = consumeKeyString()
+
     private fun insideString(isLenient: Boolean, char: Char): Boolean = if (isLenient) {
         charToTokenClass(char) == TC_OTHER
     } else {
