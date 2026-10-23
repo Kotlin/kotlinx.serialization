@@ -610,6 +610,7 @@ internal abstract class AbstractJsonLexer(internal val configuration: JsonConfig
             val ch: Char = source[current]
             if ((ch == 'e' || ch == 'E') && !hasExponent) {
                 if (current == start) fail("Unexpected symbol '$ch' in numeric literal", current)
+                if (source[current - 1] !in '0'..'9') fail("Expected digit before the exponent sign")
                 isExponentPositive = true
                 hasExponent = true
                 legalExponentSignPosition = current + 1
@@ -677,13 +678,17 @@ internal abstract class AbstractJsonLexer(internal val configuration: JsonConfig
         }
 
         if (hasExponent) {
-            if (current == legalExponentSignPosition + 1 && source[legalExponentSignPosition] - '0' !in 0..9) {
+            val terminatedOnSign = current == legalExponentSignPosition + 1 && source[legalExponentSignPosition] !in '0'..'9'
+            if (terminatedOnSign || legalExponentSignPosition >= source.length /* terminated on E|e */) {
                 fail("Numeric literal terminated prematurely")
             }
-            val doubleAccumulator  = accumulator.toDouble() * calculateExponent(exponentAccumulator, isExponentPositive)
-            if (doubleAccumulator > Long.MAX_VALUE || doubleAccumulator < Long.MIN_VALUE) fail("Numeric value overflow")
-            if (floor(doubleAccumulator) != doubleAccumulator) fail("Can't convert $doubleAccumulator to Long")
-            accumulator = doubleAccumulator.toLong()
+            if (exponentAccumulator != 0L) {
+                val doubleAccumulator =
+                    accumulator.toDouble() * calculateExponent(exponentAccumulator, isExponentPositive)
+                if (doubleAccumulator > Long.MAX_VALUE || doubleAccumulator < Long.MIN_VALUE) fail("Numeric value overflow")
+                if (floor(doubleAccumulator) != doubleAccumulator) fail("Can't convert $doubleAccumulator to Long")
+                accumulator = doubleAccumulator.toLong()
+            }
         }
 
         return when {
