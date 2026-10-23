@@ -33,7 +33,7 @@ Kotlin serialization consists of a compiler plugin, that generates visitor code 
 <!--- END -->
 
 * **Additional links**
-  * [Kotlin Serialization Guide](docs/serialization-guide.md)
+  * [Kotlin serialization documentation](https://kotlinlang.org/docs/serialization.html)
   * [Full API reference](https://kotlinlang.org/api/kotlinx.serialization/)
   * [Submitting issues and PRs](CONTRIBUTING.md)
   * [Building this library](docs/building.md)
@@ -69,7 +69,7 @@ fun main() {
 Project(name=kotlinx.serialization, language=Kotlin)
 -->
 
-**Read the [Kotlin Serialization Guide](docs/serialization-guide.md) for all details.**
+**For detailed guides and examples, see the [Kotlin serialization documentation](https://kotlinlang.org/docs/serialization.html).**
 
 You can find auto-generated documentation website on [kotlinlang.org](https://kotlinlang.org/api/kotlinx.serialization/).
 
