@@ -164,3 +164,10 @@ internal constructor(message: String?) : SerializationException(message) {
     // This constructor is used by the generated serializers
     constructor(index: Int) : this("An unknown field for index $index")
 }
+
+/**
+ * Thrown when a deserializer encounters a repeated key (and configuration disallows this.)
+ */
+@ExperimentalSerializationApi
+public class DuplicateKeyException(key: Any?) :
+    SerializationException("Duplicate keys not allowed. Key appeared twice: $key")
