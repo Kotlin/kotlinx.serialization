@@ -100,17 +100,18 @@ public abstract class AbstractPolymorphicSerializer<T : Any> internal constructo
 // When editing these messages, make sure to update JsonPolymorphicHelpers#subtypeNotRegisteredMessageJson as well.
 @JvmName("throwSubtypeNotRegistered")
 internal fun throwSubtypeNotRegistered(subClassName: String?, baseClass: KClass<*>): Nothing {
-    val scope = "in the polymorphic scope of '${baseClass.simpleName}'"
+    val baseName = baseClass.qualifiedName ?: baseClass.simpleName
+    val scope = "in the polymorphic scope of '$baseName'"
     throw SerializationException(
         if (subClassName == null)
             "Class discriminator was missing and no default serializers were registered $scope."
         else
             "Serializer for subclass '$subClassName' is not found $scope.\n" +
                 "Check if class with serial name '$subClassName' exists and serializer is registered in a corresponding SerializersModule.\n" +
-                "To be registered automatically, class '$subClassName' has to be '@Serializable', and the base class '${baseClass.simpleName}' has to be sealed and '@Serializable'."
+                "To be registered automatically, class '$subClassName' has to be '@Serializable', and the base class '$baseName' has to be sealed and '@Serializable'."
     )
 }
 
 @JvmName("throwSubtypeNotRegistered")
 internal fun throwSubtypeNotRegistered(subClass: KClass<*>, baseClass: KClass<*>): Nothing =
-    throwSubtypeNotRegistered(subClass.simpleName ?: "$subClass", baseClass)
+    throwSubtypeNotRegistered(subClass.qualifiedName ?: subClass.simpleName ?: "$subClass", baseClass)
