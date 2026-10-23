@@ -605,23 +605,28 @@ internal abstract class AbstractJsonLexer(internal val configuration: JsonConfig
         var isExponentPositive = false
         var hasExponent = false
         val start = current
+        var legalExponentSignPosition = -1
         while (current != source.length) {
             val ch: Char = source[current]
             if ((ch == 'e' || ch == 'E') && !hasExponent) {
                 if (current == start) fail("Unexpected symbol '$ch' in numeric literal", current)
+                if (source[current - 1] !in '0'..'9') fail("Expected digit before the exponent sign")
                 isExponentPositive = true
                 hasExponent = true
+                legalExponentSignPosition = current + 1
                 ++current
                 continue
             }
             if (ch == '-' && hasExponent) {
-                if (current == start) fail("Unexpected symbol '-' in numeric literal", current)
+                if (current != legalExponentSignPosition)
+                    fail("Unexpected symbol '-' in numeric literal", current)
                 isExponentPositive = false
                 ++current
                 continue
             }
             if (ch == '+' && hasExponent) {
-                if (current == start) fail("Unexpected symbol '+' in numeric literal", current)
+                if (current != legalExponentSignPosition)
+                    fail("Unexpected symbol '+' in numeric literal", current)
                 isExponentPositive = true
                 ++current
                 continue
@@ -638,11 +643,23 @@ internal abstract class AbstractJsonLexer(internal val configuration: JsonConfig
             val digit = ch - '0'
             if (digit !in 0..9) fail("Unexpected symbol '$ch' in numeric literal", current - 1)
             if (hasExponent) {
-                exponentAccumulator = exponentAccumulator * 10 + digit
+                // On overflow, just clamp the exponent and handle it later:
+                // - extremely large positive exponent will result in an error
+                // - extremely large negative exponent will convert the value into 0
+                // Strictly speaking, exponentAccumulator * 10 + digit may not overflow
+                // if exponentAccumulator == MUL_BY_10_OVERFLOW_POS_LIMIT, it all depends on digit's value.
+                // But it does not really matter for such large exponents anyway
+                exponentAccumulator = if (exponentAccumulator >= MUL_BY_10_OVERFLOW_POS_LIMIT) {
+                    Long.MAX_VALUE
+                } else {
+                    exponentAccumulator * 10 + digit
+                }
                 continue
             }
-            accumulator = accumulator * 10 - digit
-            if (accumulator > 0) fail("Numeric value overflow")
+            if (accumulator < MUL_BY_10_OVERFLOW_LIMIT) fail("Numeric value overflow")
+            val newAccumulator = accumulator * 10 - digit
+            if (newAccumulator > accumulator) fail("Numeric value overflow")
+            accumulator = newAccumulator
         }
         val hasChars = current != start
         if (start == current || (isNegative && start == current - 1)) {
@@ -661,10 +678,17 @@ internal abstract class AbstractJsonLexer(internal val configuration: JsonConfig
         }
 
         if (hasExponent) {
-            val doubleAccumulator  = accumulator.toDouble() * calculateExponent(exponentAccumulator, isExponentPositive)
-            if (doubleAccumulator > Long.MAX_VALUE || doubleAccumulator < Long.MIN_VALUE) fail("Numeric value overflow")
-            if (floor(doubleAccumulator) != doubleAccumulator) fail("Can't convert $doubleAccumulator to Long")
-            accumulator = doubleAccumulator.toLong()
+            val terminatedOnSign = current == legalExponentSignPosition + 1 && source[legalExponentSignPosition] !in '0'..'9'
+            if (terminatedOnSign || legalExponentSignPosition >= source.length /* terminated on E|e */) {
+                fail("Numeric literal terminated prematurely")
+            }
+            if (exponentAccumulator != 0L) {
+                val doubleAccumulator =
+                    accumulator.toDouble() * calculateExponent(exponentAccumulator, isExponentPositive)
+                if (doubleAccumulator > Long.MAX_VALUE || doubleAccumulator < Long.MIN_VALUE) fail("Numeric value overflow")
+                if (floor(doubleAccumulator) != doubleAccumulator) fail("Can't convert $doubleAccumulator to Long")
+                accumulator = doubleAccumulator.toLong()
+            }
         }
 
         return when {
@@ -756,3 +780,8 @@ internal abstract class AbstractJsonLexer(internal val configuration: JsonConfig
         }
     }
 }
+
+// If a negative long value is smaller than this, its multiplication by 10 will overflow.
+private const val MUL_BY_10_OVERFLOW_LIMIT = Long.MIN_VALUE / 10
+// If a positive long value is larger that this value, its multiplication by 10 will overflow.
+private const val MUL_BY_10_OVERFLOW_POS_LIMIT = Long.MAX_VALUE / 10
