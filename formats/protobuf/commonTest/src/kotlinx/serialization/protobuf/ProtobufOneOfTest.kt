@@ -10,6 +10,8 @@ import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.modules.*
 import kotlinx.serialization.protobuf.internal.*
+import kotlinx.serialization.test.isJs
+import kotlinx.serialization.test.isWasm
 import kotlin.jvm.*
 import kotlin.test.*
 
@@ -360,10 +362,15 @@ class ProtobufOneOfTest {
             assertEquals("28201a03666f6f6203626172", it)
         }
 
+        val subclassName = if (isJs() || isWasm()) {
+            "OtherIntType"
+        } else {
+            "kotlinx.serialization.protobuf.ProtobufOneOfTest.OtherIntType"
+        }
         assertFailsWithMessage<SerializationException>(
-            message = "Serializer for subclass 'OtherIntType' is not found in the polymorphic scope of 'OtherType'.\n" +
-                "Check if class with serial name 'OtherIntType' exists and serializer is registered in a corresponding SerializersModule.\n" +
-                "To be registered automatically, class 'OtherIntType' has to be '@Serializable', and the base class 'OtherType' has to be sealed and '@Serializable'."
+            message = "Serializer for subclass '$subclassName' is not found in the polymorphic scope of 'OtherType'.\n" +
+                "Check if class with serial name '$subclassName' exists and serializer is registered in a corresponding SerializersModule.\n" +
+                "To be registered automatically, class '$subclassName' has to be '@Serializable', and the base class 'OtherType' has to be sealed and '@Serializable'."
         ) {
             buf.encodeToHexString(
                 DoubleOneOfElement.serializer(), DoubleOneOfElement(
