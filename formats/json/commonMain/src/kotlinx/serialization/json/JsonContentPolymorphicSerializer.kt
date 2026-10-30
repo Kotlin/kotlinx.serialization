@@ -7,6 +7,7 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
+import kotlinx.serialization.json.internal.*
 import kotlinx.serialization.modules.*
 import kotlin.reflect.*
 
@@ -91,7 +92,8 @@ public abstract class JsonContentPolymorphicSerializer<T : Any>(private val base
 
         @Suppress("UNCHECKED_CAST")
         val actualSerializer = selectDeserializer(tree) as KSerializer<T>
-        return input.json.decodeFromJsonElement(actualSerializer, tree)
+        // Note: use internal readJson so we can pass `input` further and link json path
+        return readJson(input.json, tree, actualSerializer, input)
     }
 
     /**

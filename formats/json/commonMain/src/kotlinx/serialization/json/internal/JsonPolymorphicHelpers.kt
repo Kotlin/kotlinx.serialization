@@ -80,17 +80,26 @@ internal fun checkKind(kind: SerialKind) {
     if (kind is PolymorphicKind) error("Actual serializer for polymorphic cannot be polymorphic itself")
 }
 
-internal inline fun <T> JsonDecoder.decodeSerializableValuePolymorphic(
+
+internal fun <T> PolymorphicJsonDecoder.decodeSerializableValuePolymorphic(deserializer: DeserializationStrategy<T>): T =
+    decodeSerializableValuePolymorphic(deserializer, path, null)
+
+internal fun <T> JsonDecoder.decodeSerializableValuePolymorphic(
     deserializer: DeserializationStrategy<T>,
-    path: () -> String
+    path: JsonPath,
+    // Kludge for 'decodeDynamic' that does not track JsonPath
+    alternativePath: (() -> String)?
 ): T {
+
+    fun renderPath(): String = (alternativePath ?: path::getPath).invoke()
+
     // NB: changes in this method should be reflected in StreamingJsonDecoder#decodeSerializableValue
     if (deserializer !is AbstractPolymorphicSerializer<*> || json.configuration.useArrayPolymorphism) {
         return deserializer.deserialize(this)
     }
     val discriminator = deserializer.descriptor.classDiscriminator(json)
 
-    val jsonTree = cast<JsonObject>(decodeJsonElement(), deserializer.descriptor.serialName, path)
+    val jsonTree = cast<JsonObject>(decodeJsonElement(), deserializer.descriptor.serialName, ::renderPath)
     val type =
         jsonTree[discriminator]?.jsonPrimitive?.contentOrNull // differentiate between `"type":"null"` and `"type":null`.
 
@@ -99,9 +108,9 @@ internal inline fun <T> JsonDecoder.decodeSerializableValuePolymorphic(
         deserializer.findPolymorphicSerializerOrNull(this, type) as? DeserializationStrategy<T>
     if (actualSerializer == null) {
         val (message, hint) = subtypeNotRegisteredMessageJson(type, deserializer.baseClass)
-        throw decodingExceptionOf(message, path(), hint) { jsonTree.toString() }
+        throw decodingExceptionOf(message, renderPath(), hint) { jsonTree.toString() }
     }
-    return json.readPolymorphicJson(discriminator, jsonTree, actualSerializer)
+    return json.readPolymorphicJson(discriminator, jsonTree, actualSerializer, path)
 }
 
 internal fun SerialDescriptor.classDiscriminator(json: Json): String {

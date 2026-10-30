@@ -4,6 +4,8 @@
 
 package kotlinx.serialization
 
+import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.*
 import kotlin.test.*
 
@@ -19,74 +21,73 @@ class JsonPathTest : JsonTestBase() {
     class Box(val s: String)
 
     @Test
-    fun testBasicError() {
-        expectPath("$.a") { Json.decodeFromString<Outer>("""{"a":foo}""") }
-        expectPath("$.i") { Json.decodeFromString<Outer>("""{"a":42, "i":[]}""") }
-        expectPath("$.i.b") { Json.decodeFromString<Outer>("""{"a":42, "i":{"a":43, "b":42}""") }
-        expectPath("$.i.b") { Json.decodeFromString<Outer>("""{"a":42, "i":{"b":42}""") }
+    fun testBasicError() = parametrizedTest { mode ->
+        expectPath("$.a") { Json.decodeFromString<Outer>("""{"a":foo}""", mode) }
+        expectPath("$.i") { Json.decodeFromString<Outer>("""{"a":42, "i":[]}""", mode) }
+        expectPath("$.i.b") { Json.decodeFromString<Outer>("""{"a":42, "i":{"a":43, "b":42}}""", mode) }
+        expectPath("$.i.b") { Json.decodeFromString<Outer>("""{"a":42, "i":{"b":42}}""", mode) }
     }
 
     @Test
-    fun testMissingKey() {
-        expectPath("$.i.d['1']") { Json.decodeFromString<Outer>("""{"a":42, "i":{"d":{1:{}}""") }
+    fun testMissingKey() = parametrizedTest { mode ->
+        expectPath("$.i.d['1']") { Json.decodeFromString<Outer>("""{"a":42, "i":{"d":{"1":{}}}}""", mode) }
     }
 
     @Test
-    fun testUnknownKeyIsProperlyReported() {
-        expectPath("$.i") { Json.decodeFromString<Outer>("""{"a":42, "i":{"foo":42}""") }
-        expectPath("$") { Json.decodeFromString<Outer>("""{"x":{}, "a": 42}""") }
+    fun testUnknownKeyIsProperlyReported() = parametrizedTest { mode ->
+        expectPath("$.i") { Json.decodeFromString<Outer>("""{"a":42, "i":{"foo":42}}""", mode) }
+        expectPath("$") { Json.decodeFromString<Outer>("""{"x":{}, "a": 42}""", mode) }
         expectPath("$") { Json.decodeFromString<Outer>("""{"a":42, "x":{}}""") }
     }
 
     @Test
-    fun testMalformedRootObject() {
-        expectPath("$") { Json.decodeFromString<Outer>("""{{""") }
+    fun testMalformedRootObject() = parametrizedTest { mode ->
+        expectPath("$") { Json.decodeFromString<Outer>("""{{""", mode) }
     }
 
     @Test
-    fun testArrayIndex() {
-        expectPath("$.i.c[1]") { Json.decodeFromString<Outer>("""{"a":42, "i":{ "c": ["a", 2]}""") }
-        expectPath("$[2]") { Json.decodeFromString<List<String>>("""["a", "2", 3]""") }
+    fun testArrayIndex() = parametrizedTest { mode ->
+        expectPath("$.i.c[1]") { Json.decodeFromString<Outer>("""{"a":42, "i":{ "c": ["a", 2]}}""", mode) }
+        expectPath("$[2]") { Json.decodeFromString<List<String>>("""["a", "2", 3]""", mode) }
     }
 
     @Test
-    fun testArrayIndexMalformedArray() {
-        // Also zeroes as we cannot distinguish what exactly wen wrong is such cases
-        expectPath("$.i.c[0]") { Json.decodeFromString<Outer>("""{"a":42, "i":{ "c": [[""") }
-        expectPath("$[0]") { Json.decodeFromString<List<String>>("""[[""") }
+    fun testArrayIndexMalformedArray() = parametrizedTest { mode ->
+        expectPath("$.i.c[0]") { Json.decodeFromString<Outer>("""{"a":42, "i":{ "c": [[]]}}""", mode) }
+        expectPath("$[0]") { Json.decodeFromString<List<String>>("""[[]]""", mode) }
         // But we can here
-        expectPath("$.i.c\n") { Json.decodeFromString<Outer>("""{"a":42, "i":{ "c": {}}}""") }
-        expectPath("$\n") { Json.decodeFromString<List<String>>("""{""") }
+        expectPath("$.i.c\n") { Json.decodeFromString<Outer>("""{"a":42, "i":{ "c": {}}}""", mode) }
+        expectPath("$\n") { Json.decodeFromString<List<String>>("""{""", mode) }
     }
 
     @Test
-    fun testMapKey() {
-        expectPath("$.i.d\n") { Json.decodeFromString<Outer>("""{"a":42, "i":{ "d": {"foo": {}}""") }
-        expectPath("$.i.d\n") { Json.decodeFromString<Outer>("""{"a":42, "i":{ "d": {42: {"s":"s"}, 42.0:{}}""") }
-        expectPath("$\n") { Json.decodeFromString<Map<Int, String>>("""{"foo":"bar"}""") }
-        expectPath("$\n") { Json.decodeFromString<Map<Int, String>>("""{42:"bar", "foo":"bar"}""") }
-        expectPath("$['42']['foo']") { Json.decodeFromString<Map<Int, Map<String, Int>>>("""{42: {"foo":"bar"}""") }
+    fun testMapKey() = parametrizedTest { mode ->
+        expectPath("$.i.d\n") { Json.decodeFromString<Outer>("""{"a":42, "i":{ "d": {"foo": {}}}}""", mode) }
+        expectPath("$.i.d\n") { Json.decodeFromString<Outer>("""{"a":42, "i":{ "d": {"42": {"s":"s"}, "42.0":{}}}}""", mode) }
+        expectPath("$\n") { Json.decodeFromString<Map<Int, String>>("""{"foo":"bar"}""", mode) }
+        expectPath("$\n") { Json.decodeFromString<Map<Int, String>>("""{"42":"bar", "foo":"bar"}""", mode) }
+        expectPath("$['42']['foo']") { Json.decodeFromString<Map<Int, Map<String, Int>>>("""{"42": {"foo":"bar"}}""", mode) }
     }
 
     @Test
-    fun testMalformedMap() {
-        expectPath("$.i.d\n") { Json.decodeFromString<Outer>("""{"a":42, "i":{ "d": []""") }
-        expectPath("$\n") { Json.decodeFromString<Map<Int, String>>("""[]""") }
+    fun testMalformedMap() = parametrizedTest { mode ->
+        expectPath("$.i.d\n") { Json.decodeFromString<Outer>("""{"a":42, "i":{ "d": []}}""", mode) }
+        expectPath("$\n") { Json.decodeFromString<Map<Int, String>>("""[]""", mode) }
     }
 
     @Test
-    fun testMapValue() {
-        expectPath("$.i.d['42']\n") { Json.decodeFromString<Outer>("""{"a":42, "i":{ "d": {42: {"xx":"bar"}}""") }
-        expectPath("$.i.d['43']\n") { Json.decodeFromString<Outer>("""{"a":42, "i":{ "d": {42: {"s":"s"}, 43: {"xx":"bar"}}}""") }
-        expectPath("$['239']") { Json.decodeFromString<Map<Int, String>>("""{239:bar}""") }
+    fun testMapValue() = parametrizedTest { mode ->
+        expectPath("$.i.d['42']\n") { Json.decodeFromString<Outer>("""{"a":42, "i":{ "d": {"42": {"xx":"bar"}}}}""", mode) }
+        expectPath("$.i.d['43']\n") { Json.decodeFromString<Outer>("""{"a":42, "i":{ "d": {"42": {"s":"s"}, "43": {"xx":"bar"}}}}""", mode) }
+        expectPath("$['239']") { Json.decodeFromString<Map<Int, String>>("""{"239":bar}""", mode) }
     }
 
     @Serializable
     class Fp(val d: Double)
 
     @Test
-    fun testInvalidFp() {
-        expectPath("$.d") { Json.decodeFromString<Fp>("""{"d": NaN}""") }
+    fun testInvalidFp() = parametrizedTest { mode ->
+        expectPath("$.d") { Json.decodeFromString<Fp>("""{"d": NaN}""", mode) }
     }
 
     @Serializable
@@ -94,8 +95,8 @@ class JsonPathTest : JsonTestBase() {
     enum class E
 
     @Test
-    fun testUnknownEnum() {
-        expectPath("$.e") { Json.decodeFromString<EH>("""{"e": "foo"}""") }
+    fun testUnknownEnum() = parametrizedTest { mode ->
+        expectPath("$.e") { Json.decodeFromString<EH>("""{"e": "foo"}""", mode) }
     }
 
     @Serializable
@@ -117,41 +118,45 @@ class JsonPathTest : JsonTestBase() {
 
     @Test
     fun testHugeNestingToCheckResize() {
-        val json = Json { useArrayPolymorphism = true }
-        var outer = Sealed.Nesting(Sealed.Box("value"))
-        repeat(100) {
-            outer = Sealed.Nesting(outer)
-        }
-        val str = json.encodeToString(Sealed.serializer(), outer)
-        // check that data is correctly formed
-        assertEquals(outer, json.decodeFromString(Sealed.serializer(), str))
+        parametrizedTest { mode ->
+            val json = Json { useArrayPolymorphism = true }
+            var outer = Sealed.Nesting(Sealed.Box("value"))
+            repeat(100) {
+                outer = Sealed.Nesting(outer)
+            }
+            val str = json.encodeToString(Sealed.serializer(), outer)
+            // check that data is correctly formed
+            assertEquals(outer, json.decodeFromString(Sealed.serializer(), str, mode))
 
-        val malformed = str.replace("\"value\"", "42")
-        val expectedPath = "$" + ".value.f".repeat(101) + ".value.s"
-        expectPath(expectedPath) { json.decodeFromString(Sealed.serializer(), malformed) }
+            val malformed = str.replace("\"value\"", "42")
+            val expectedPath = "$" + ".value.f".repeat(101) + ".value.s"
+            expectPath(expectedPath) { json.decodeFromString(Sealed.serializer(), malformed, mode) }
+        }
     }
 
     @Test
     fun testDoubleNestingNoArrayPoly() {
-        val json = Json { useArrayPolymorphism = false }
-        var outer1 = Sealed.Nesting(Sealed.Box("correct"))
-        repeat(64) {
-            outer1 = Sealed.Nesting(outer1)
+        parametrizedTest { mode ->
+            val json = Json { useArrayPolymorphism = false }
+            var outer1 = Sealed.Nesting(Sealed.Box("correct"))
+            repeat(64) {
+                outer1 = Sealed.Nesting(outer1)
+            }
+
+            var outer2 = Sealed.Nesting(Sealed.Box("incorrect"))
+            repeat(33) {
+                outer2 = Sealed.Nesting(outer2)
+            }
+
+            val value = Sealed.DoubleNesting(outer1, outer2)
+            val str = json.encodeToString(Sealed.serializer(), value)
+            // check that data is correctly formed
+            assertEquals(value, json.decodeFromString(Sealed.serializer(), str, mode))
+
+            val malformed = str.replace("\"incorrect\"", "42")
+            val expectedPath = "$.f2" + ".f".repeat(34) + ".s"
+            expectPath(expectedPath) { json.decodeFromString(Sealed.serializer(), malformed, mode) }
         }
-
-        var outer2 = Sealed.Nesting(Sealed.Box("incorrect"))
-        repeat(33) {
-            outer2 = Sealed.Nesting(outer2)
-        }
-
-        val value = Sealed.DoubleNesting(outer1, outer2)
-        val str = json.encodeToString(Sealed.serializer(), value)
-        // check that data is correctly formed
-        assertEquals(value, json.decodeFromString(Sealed.serializer(), str))
-
-        val malformed = str.replace("\"incorrect\"", "42")
-        val expectedPath = "$.f2" + ".f".repeat(34) + ".s"
-        expectPath(expectedPath) { json.decodeFromString(Sealed.serializer(), malformed) }
     }
 
     @Serializable
@@ -161,18 +166,18 @@ class JsonPathTest : JsonTestBase() {
     data object DataObject
 
     @Test
-    fun testMalformedDataObjectInDeeplyNestedStructure() {
+    fun testMalformedDataObjectInDeeplyNestedStructure() = parametrizedTest { mode ->
         var outer = SimpleNested(t = DataObject)
         repeat(20) {
             outer = SimpleNested(n = outer)
         }
         val str = Json.encodeToString(SimpleNested.serializer(), outer)
         // check that data is correctly formed
-        assertEquals(outer, Json.decodeFromString(SimpleNested.serializer(), str))
+        assertEquals(outer, Json.decodeFromString(SimpleNested.serializer(), str, mode))
 
         val malformed = str.replace("{}", "42")
         val expectedPath = "$" + ".n".repeat(20) + ".t\n"
-        expectPath(expectedPath) { Json.decodeFromString(SimpleNested.serializer(), malformed) }
+        expectPath(expectedPath) { Json.decodeFromString(SimpleNested.serializer(), malformed, mode) }
     }
 
     private inline fun expectPath(path: String, block: () -> Any?) {
