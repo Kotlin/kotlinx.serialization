@@ -75,7 +75,7 @@ class JsonArrayBuilderBigDecimalTest : JsonTestBase() {
     }
 
     @Test
-    fun testNumberTypedBigDecimalUsesExistingOverload() {
+    fun testNumberTypedBigDecimalPreservesPrecision() {
         val number: Number = BigDecimal("1.000000000000000000000000001")
         val nullableNumber: Number? = number
         val absent: Number? = null
@@ -86,7 +86,7 @@ class JsonArrayBuilderBigDecimalTest : JsonTestBase() {
             add(absent)
         }
         parametrizedTest { mode ->
-            assertEquals("[1.0,1.0,1.0,null]", default.encodeToString(JsonArray.serializer(), json, mode), "mode:$mode")
+            assertEquals("[$number,$number,$number,null]", default.encodeToString(JsonArray.serializer(), json, mode), "mode:$mode")
         }
     }
 

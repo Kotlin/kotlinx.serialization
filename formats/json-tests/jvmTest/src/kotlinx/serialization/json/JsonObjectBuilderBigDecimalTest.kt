@@ -69,7 +69,7 @@ class JsonObjectBuilderBigDecimalTest : JsonTestBase() {
     }
 
     @Test
-    fun testNumberTypedBigDecimalUsesExistingOverload() {
+    fun testNumberTypedBigDecimalPreservesPrecision() {
         val number: Number = BigDecimal("1.000000000000000000000000001")
         val json = buildJsonObject {
             put("number", number)
@@ -77,7 +77,7 @@ class JsonObjectBuilderBigDecimalTest : JsonTestBase() {
         }
         parametrizedTest { mode ->
             assertEquals(
-                "{\"number\":1.0,\"primitive\":1.0}",
+                "{\"number\":$number,\"primitive\":$number}",
                 default.encodeToString(JsonObject.serializer(), json, mode), "mode:$mode"
             )
         }

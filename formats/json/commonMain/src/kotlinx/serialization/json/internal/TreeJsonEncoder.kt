@@ -22,6 +22,12 @@ public fun <T> writeJson(json: Json, value: T, serializer: SerializationStrategy
     return result
 }
 
+internal fun Encoder.tryEncodeJsonNumber(value: JsonLiteral): Boolean {
+    if (this !is AbstractJsonTreeEncoder) return false
+    encodeJsonNumber(value)
+    return true
+}
+
 private sealed class AbstractJsonTreeEncoder(
     final override val json: Json,
     protected val nodeConsumer: (JsonElement) -> Unit
@@ -63,6 +69,8 @@ private sealed class AbstractJsonTreeEncoder(
     }
 
     override fun encodeTaggedNull(tag: String) = putElement(tag, JsonNull)
+
+    fun encodeJsonNumber(value: JsonLiteral) = putElement(popTag(), value)
 
     override fun encodeTaggedInt(tag: String, value: Int) = putElement(tag, JsonPrimitive(value))
     override fun encodeTaggedByte(tag: String, value: Byte) = putElement(tag, JsonPrimitive(value))
