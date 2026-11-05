@@ -761,4 +761,29 @@ class CborDecoderTest {
         checkDecodingException<UInt>("1B8000000000000000", "Decoded number -9223372036854775808 is not within the range for type Int ([-2147483648..2147483647]), nor it is within the range for UInt ([0..4294967295])")
         assertEquals(9223372036854775808UL, Cbor.decodeFromHexString<ULong>("1B8000000000000000"))
     }
+
+    @Test
+    fun testSkipTruncatedByteStringWithIgnoreUnknownKeys() {
+        // A1          # map(1)
+        //    61       # text(1)
+        //       78    # "x"
+        //    45       # bytes(5), but the input has no value bytes
+        assertFailsWith<SerializationException> {
+            ignoreUnknownKeys.decodeFromHexString(IntWithDefault.serializer(), "a1617845")
+        }
+    }
+
+    @Test
+    fun testSkipTruncatedTextStringWithIgnoreUnknownKeys() {
+        // A1          # map(1)
+        //    61       # text(1)
+        //       78    # "x"
+        //    65       # text(5), but the input has no value bytes
+        assertFailsWith<SerializationException> {
+            ignoreUnknownKeys.decodeFromHexString(IntWithDefault.serializer(), "a1617865")
+        }
+    }
 }
+
+@Serializable
+data class IntWithDefault(val known: Int = 0)
