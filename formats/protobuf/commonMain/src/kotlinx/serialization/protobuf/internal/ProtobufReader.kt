@@ -134,6 +134,7 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
 
     private fun readIntLittleEndian(): Int {
         // TODO this could be optimized by extracting method to the IS
+        input.ensureEnoughBytes(4)
         var result = 0
         for (i in 0..3) {
             val byte = input.read() and 0x000000FF
@@ -144,6 +145,7 @@ internal class ProtobufReader(private val input: ByteArrayInput) {
 
     private fun readLongLittleEndian(): Long {
         // TODO this could be optimized by extracting method to the IS
+        input.ensureEnoughBytes(8)
         var result = 0L
         for (i in 0..7) {
             val byte = (input.read() and 0x000000FF).toLong()
