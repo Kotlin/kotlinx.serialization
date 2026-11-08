@@ -34,9 +34,8 @@ internal class ByteArrayInput(private var array: ByteArray) {
     }
 
     fun skip(length: Int) {
-        if (length > availableBytes) {
-            throw CborDecodingException("Unexpected EOF, available $availableBytes bytes, requested: $length")
-        }
+        require(length >= 0) { "Length must not be negative: $length" }
+        require(length <= availableBytes) { "Cannot skip $length bytes, only $availableBytes are available" }
         position += length
     }
 }

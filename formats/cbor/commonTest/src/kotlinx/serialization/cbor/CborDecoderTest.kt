@@ -769,7 +769,7 @@ class CborDecoderTest {
         //       78    # "x"
         //    45       # bytes(5), but the input has no value bytes
         assertFailsWith<SerializationException> {
-            ignoreUnknownKeys.decodeFromHexString(IntWithDefault.serializer(), "a1617845")
+            ignoreUnknownKeys.decodeFromHexString(NullableByteStringDefaultNull.serializer(), "a1617845")
         }
     }
 
@@ -780,10 +780,7 @@ class CborDecoderTest {
         //       78    # "x"
         //    65       # text(5), but the input has no value bytes
         assertFailsWith<SerializationException> {
-            ignoreUnknownKeys.decodeFromHexString(IntWithDefault.serializer(), "a1617865")
+            ignoreUnknownKeys.decodeFromHexString(NullableByteStringDefaultNull.serializer(), "a1617865")
         }
     }
 }
-
-@Serializable
-data class IntWithDefault(val known: Int = 0)
