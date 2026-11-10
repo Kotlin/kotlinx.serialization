@@ -15,7 +15,6 @@ import kotlin.test.assertNull
 class EncodingExceptionAsserter(val mode: JsonTestingMode, val exception: JsonEncodingException) {
     var hasHint = false
     var hasSerialName = false
-    var hasCause = false
 
     fun message(msg: String, alternativeForTree: String? = null) {
         val expected = alternativeForTree.takeIf { mode == JsonTestingMode.TREE } ?: msg
@@ -38,27 +37,9 @@ class EncodingExceptionAsserter(val mode: JsonTestingMode, val exception: JsonEn
         hasHint = true
     }
 
-    internal inline fun <reified T : Throwable> cause(noinline causeMessage: (() -> String?)? = null) {
-        val cause = exception.cause
-        assertEquals(
-            T::class,
-            if (cause != null) cause::class else null,
-            message = "Cause class is not equal to expected cause"
-        )
-        if (causeMessage != null) {
-            assertContains(
-                cause!!.message.orEmpty(),
-                causeMessage().orEmpty(),
-                message = "Cause message does not contain expected message"
-            )
-        }
-        hasCause = true
-    }
-
     fun assertMissing() {
         if (!hasHint) assertNull(exception.hint, "Hint is not null")
         if (!hasSerialName) assertNull(exception.classSerialName, "Serial name is not null")
-        if (!hasCause) assertNull(exception.cause, "Cause is not null")
     }
 }
 

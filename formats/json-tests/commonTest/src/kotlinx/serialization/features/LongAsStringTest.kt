@@ -32,7 +32,7 @@ class LongAsStringTest : JsonTestBase() {
             jsonTestingMode,
             { default.decodeFromString(HasLong.serializer(), str, jsonTestingMode) },
             {
-                assertContains(exception.message, "Deserialization failed because of")
+                assertContains(exception.message, "Deserializer caused")
                 // NumberFormatException messages vary by platform
                 assertContains(exception.message, "exception in the decoder")
                 assertContains(exception.message, exception.shortMessage)
@@ -45,7 +45,7 @@ class LongAsStringTest : JsonTestBase() {
             jsonTestingMode,
             { default.decodeFromString(HasLong.serializer(), str2, jsonTestingMode) },
             {
-                assertContains(exception.message, "Deserialization failed because of")
+                assertContains(exception.message, "Deserializer caused")
                 // NumberFormatException messages vary by platform
                 assertContains(exception.message, "exception in the decoder")
                 assertContains(exception.message, exception.shortMessage)

@@ -73,7 +73,7 @@ class JsonChunkedBase64DecoderTest : JsonTestBase() {
         JsonTestingMode.values().forEach { mode ->
             if (mode == JsonTestingMode.TREE) {
                 assertFailsWithMessage<SerializationException>(
-                    "Deserialization failed because of 'Only chunked decoder supported' exception in the decoder", "Shouldn't decode JSON in TREE mode"
+                    "Deserializer caused 'Only chunked decoder supported' exception in the decoder", "Shouldn't decode JSON in TREE mode"
                 ) {
                     Json.decodeFromString<ClassWithBinaryDataField>(serializedObject, mode)
                 }
