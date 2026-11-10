@@ -682,7 +682,7 @@ internal abstract class AbstractJsonLexer(internal val configuration: JsonConfig
             if (terminatedOnSign || legalExponentSignPosition >= source.length /* terminated on E|e */) {
                 fail("Numeric literal terminated prematurely")
             }
-            if (exponentAccumulator != 0L) {
+            if (accumulator != 0L && exponentAccumulator != 0L) {
                 val doubleAccumulator =
                     accumulator.toDouble() * calculateExponent(exponentAccumulator, isExponentPositive)
                 if (doubleAccumulator > Long.MAX_VALUE || doubleAccumulator < Long.MIN_VALUE) fail("Numeric value overflow")

@@ -146,6 +146,8 @@ class JsonElementDecodingTest : JsonTestBase() {
         checkParseSucceed(0,"10000000000000e-500")
         checkParseSucceed(0,"1e-18446744073709551623")
         checkParseSucceed(9007199254740993L, "9007199254740993e0")
+        checkParseSucceed(0, "0e1000000000")
+        checkParseSucceed(0, "0E-1000000000")
         // checkParseSucceed(1, "100000e-5")
 
         checkParseFails("9223372036854775808")
