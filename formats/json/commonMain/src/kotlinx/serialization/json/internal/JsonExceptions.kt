@@ -15,22 +15,11 @@ import kotlinx.serialization.json.*
 @OptIn(ExperimentalSerializationApi::class)
 @Suppress("DEPRECATION_ERROR")
 internal fun decodingExceptionOf(shortMessage: String, hint: String? = null): JsonDecodingException =
-    JsonDecodingException(
-        formatDecodingException(-1, shortMessage, null, hint, null),
-        shortMessage,
-        -1,
-        null,
-        null,
-        hint
-    )
+    JsonDecodingException(formatDecodingException(-1, shortMessage, null, hint, null), shortMessage, -1, null, null, hint)
 
 
 @OptIn(ExperimentalSerializationApi::class)
-internal inline fun <T> JsonDecoder.withExceptionHandling(
-    path: () -> String,
-    input: () -> CharSequence,
-    block: () -> T
-): T {
+internal inline fun <T> JsonDecoder.withExceptionHandling(path: () -> String, input: () -> CharSequence, block: () -> T): T {
     return try {
         block()
     } catch (e: MissingFieldException) {
@@ -45,23 +34,6 @@ internal inline fun <T> JsonDecoder.withExceptionHandling(
     }
 }
 
-@OptIn(ExperimentalSerializationApi::class)
-internal inline fun JsonEncoder.withExceptionHandling(classSerialName: () -> String, block: () -> Unit) {
-    return try {
-        block()
-    } catch (e: SerializationException) {
-        throw e
-    } catch (e: Exception) {
-        val causeMessage = e.message
-        val classSerialName = classSerialName()
-        val message =
-            "Serialization " +
-                (if (classSerialName.isBlank()) "" else "of '$classSerialName' ") + "failed because of " +
-                (if (causeMessage == null) "an exception" else "'$causeMessage' exception") + " in the encoder"
-        throw JsonEncodingException(message, classSerialName, cause = e)
-    }
-}
-
 @Suppress("DEPRECATION_ERROR")
 @OptIn(ExperimentalSerializationApi::class)
 internal inline fun JsonDecoder.errorFromDeserializer(
@@ -70,8 +42,7 @@ internal inline fun JsonDecoder.errorFromDeserializer(
     input: () -> CharSequence
 ): JsonDecodingException {
     val causeMessage = cause.message
-    val shortMessage =
-        "Deserialization failed because of " + (if (causeMessage == null) "an exception" else "'$causeMessage' exception") + " in the decoder"
+    val shortMessage = "Deserializer caused " + (if (causeMessage == null) "an exception" else "'$causeMessage' exception") + " in the decoder"
     val inputValue = json.configuration.ifDebugInput { input().minify().toString() }
     return JsonDecodingException(
         formatDecodingException(-1, shortMessage, path, null, inputValue),
@@ -158,8 +129,7 @@ private fun formatDecodingException(
 
 
 internal fun AbstractJsonLexer.invalidTrailingComma(entity: String = "object"): Nothing {
-    fail(
-        "Trailing comma before the end of JSON $entity",
+    fail("Trailing comma before the end of JSON $entity",
         position = currentPosition - 1,
         hint = "Trailing commas are non-complaint JSON and not allowed by default. Use 'allowTrailingComma = true' in 'Json {}' builder to support them."
     )
