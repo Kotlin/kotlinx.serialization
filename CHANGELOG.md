@@ -1,3 +1,22 @@
+1.13.0 / 2026-11-10
+===================
+
+This release is based on Kotlin 2.4.10 and reverts a breaking change introduced in 1.12.0.
+
+Besides that, it improves `JsonElement.toString` performance.
+
+## Exceptions rework rollback
+
+In 1.12.0, Json format start intercepting almost all exceptions thrown by serializers during serialization and
+deserialization, and wrap them into a `JsonException` with additional information about JSON path and input.
+
+The impact of the change was underestimated, and it was decided to revert the change.
+
+## Performance improvements
+
+`JsonElement.toString` was rewritten and its improved twofold on some benchmarks. 
+See [#3296](https://github.com/Kotlin/kotlinx.serialization/issues/3296) and [#3299](https://github.com/Kotlin/kotlinx.serialization/pull/3299) for details.
+
 1.12.0 / 2026-10-19
 ===================
 
