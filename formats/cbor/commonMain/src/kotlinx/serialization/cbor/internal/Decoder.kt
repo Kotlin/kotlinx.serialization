@@ -519,6 +519,7 @@ internal class CborParser(private val input: ByteArrayInput, private val verifyO
                     if (length > 0) lengthStack.add(length)
                     else prune(lengthStack) // empty map or array automatically completes
                 } else {
+                    input.ensureEnoughBytes(length)
                     input.skip(length)
                     prune(lengthStack)
                 }
