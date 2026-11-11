@@ -3,6 +3,20 @@
 There are two main ways to contribute to the project &mdash; submitting issues and submitting 
 fixes/changes/improvements via pull requests.
 
+## LLM policy
+
+Sending us LLM output is only allowed for automating the routine in trivial cases,
+when there is only a single obvious way to do something.
+This is not limited to code: any discussions, such as pull request descriptions or issue comments,
+are subject to the same restriction.
+
+Some examples of trivial cases:
+
+- Implementing obvious refactorings, like replacing `import org.junit.Test` with `import kotlin.test.Test`.
+- Generating test cases for function overloads after having written a test suite for one overload manually.
+- Listing differences between large arrays of difficult-to-parse data.
+- When filing an issue, minifying a reproducer, a memory dump or a stack trace.
+
 ## Submitting issues
 
 Both bug reports and feature requests are welcome.
@@ -48,6 +62,9 @@ so do familiarize yourself with the following guidelines.
     * Use 4 spaces for indentation. 
     * Use imports with '*'.
   * [Build the project](#building) to make sure it all works and passes the tests.
+* If you intend to make a non-trivial change (that is, if there is more than one way to do it):
+  * Do not use an LLM to author the code.
+  * Make sure there is an open issue about it.
 * If you fix a bug:
   * Write the test that reproduces the bug.
   * Fixes without tests are accepted only in exceptional circumstances if it can be shown that writing the 
