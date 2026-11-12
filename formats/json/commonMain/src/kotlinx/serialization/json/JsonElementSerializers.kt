@@ -10,7 +10,7 @@ import kotlinx.serialization.builtins.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.*
-import kotlinx.serialization.json.internal.decodingExceptionOf
+import kotlinx.serialization.json.internal.*
 
 /**
  * Serializer object providing [SerializationStrategy] and [DeserializationStrategy] for [JsonElement].
@@ -118,8 +118,9 @@ private object JsonLiteralSerializer : KSerializer<JsonLiteral> {
             return encoder.encodeInline(value.coerceToInlineType).encodeString(value.content)
         }
 
-        // use .content instead of .longOrNull as latter can process exponential notation,
-        // and it should be delegated to double when encoding.
+        // Long conversion would discard the sign of negative zero.
+        if (value.content == "-0" && encoder.tryEncodeJsonNumberLiteral(value)) return
+
         value.content.toLongOrNull()?.let { return encoder.encodeLong(it) }
 
         // most unsigned values fit to .longOrNull, but not ULong
@@ -127,6 +128,8 @@ private object JsonLiteralSerializer : KSerializer<JsonLiteral> {
             encoder.encodeInline(ULong.serializer().descriptor).encodeLong(it.toLong())
             return
         }
+
+        if (value.content.isJsonNumberLiteral() && encoder.tryEncodeJsonNumberLiteral(value)) return
 
         value.content.toDoubleOrNull()?.let { return encoder.encodeDouble(it) }
         value.content.toBooleanStrictOrNull()?.let { return encoder.encodeBoolean(it) }
@@ -141,6 +144,50 @@ private object JsonLiteralSerializer : KSerializer<JsonLiteral> {
             result.toString()
         }
         return result
+    }
+
+    private fun Encoder.tryEncodeJsonNumberLiteral(value: JsonLiteral): Boolean {
+        if (this is StreamingJsonEncoder) {
+            encodeInline(jsonUnquotedLiteralDescriptor).encodeString(value.content)
+            return true
+        }
+        return tryEncodeJsonNumber(value)
+    }
+
+    private fun String.isJsonNumberLiteral(): Boolean {
+        if (isEmpty()) return false
+        var index = 0
+        if (this[index] == '-') {
+            index++
+            if (index == length) return false
+        }
+
+        when (this[index]) {
+            '0' -> index++
+            in '1'..'9' -> {
+                do {
+                    index++
+                } while (index < length && this[index] in '0'..'9')
+            }
+            else -> return false
+        }
+
+        if (index < length && this[index] == '.') {
+            index++
+            val fractionStart = index
+            while (index < length && this[index] in '0'..'9') index++
+            if (index == fractionStart) return false
+        }
+
+        if (index < length && (this[index] == 'e' || this[index] == 'E')) {
+            index++
+            if (index < length && (this[index] == '+' || this[index] == '-')) index++
+            val exponentStart = index
+            while (index < length && this[index] in '0'..'9') index++
+            if (index == exponentStart) return false
+        }
+
+        return index == length
     }
 }
 
