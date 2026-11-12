@@ -5,6 +5,7 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
 import kotlin.test.*
 
 class DecodeFromDynamicSpecialCasesTest {
@@ -111,11 +112,59 @@ class DecodeFromDynamicSpecialCasesTest {
     @Serializable
     data class Wrapper(val e: JsonElement, val p: JsonPrimitive, val o: JsonObject, val a: JsonArray, val n: JsonNull)
 
+    @Serializable
+    data class UIntHolder(val value: UInt, val values: List<UInt>, val mapped: Map<String, UInt>)
+
     @Test
     fun testJsonElementWrapper() {
         val js = js("""{"e":42,"p":"239", "o":{"k":"v"}, "a":[1, 2, 3], "n": null}""")
         val parsed = Json.decodeFromDynamic<Wrapper>(js)
         val expected = Wrapper(JsonPrimitive(42), JsonPrimitive("239"), buildJsonObject { put("k", "v") }, JsonArray((1..3).map(::JsonPrimitive)), JsonNull)
         assertEquals(expected, parsed)
+    }
+
+    @Test
+    fun testUIntBoundaryWithExplicitSerializer() {
+        assertEquals(2147483647u, Json.decodeFromDynamic(UInt.serializer(), js("2147483647")))
+        assertEquals(2147483648u, Json.decodeFromDynamic(UInt.serializer(), js("2147483648")))
+    }
+
+    @Test
+    fun testUIntReifiedMatchesStringifiedJson() {
+        val samples = listOf(
+            0u to js("0"),
+            1u to js("1"),
+            2147483657u to js("2147483657"),
+            UInt.MAX_VALUE to js("4294967295")
+        )
+        for ((expected, dyn) in samples) {
+            val parsed = Json.decodeFromDynamic<UInt>(dyn)
+            assertEquals(expected, parsed)
+            assertEquals(Json.decodeFromString<UInt>(JSON.stringify(dyn)), parsed)
+        }
+    }
+
+    @Test
+    fun testUpperHalfUIntInObjectListAndMap() {
+        val dyn = js("{value:2147483648, values:[2147483648, 4294967295], mapped:{k:2147483648}}")
+        val parsed = Json.decodeFromDynamic<UIntHolder>(dyn)
+        val expected = UIntHolder(2147483648u, listOf(2147483648u, UInt.MAX_VALUE), mapOf("k" to 2147483648u))
+        assertEquals(expected, parsed)
+        assertEquals(Json.decodeFromString<UIntHolder>(JSON.stringify(dyn)), parsed)
+    }
+
+    @Test
+    fun testSignedIntExtremes() {
+        assertEquals(Int.MIN_VALUE, Json.decodeFromDynamic<Int>(js("-2147483648")))
+        assertEquals(-1, Json.decodeFromDynamic<Int>(js("-1")))
+        assertEquals(0, Json.decodeFromDynamic<Int>(js("0")))
+        assertEquals(Int.MAX_VALUE, Json.decodeFromDynamic<Int>(js("2147483647")))
+    }
+
+    @Test
+    fun testNonNumericIntDoesNotCoerceToZero() {
+        assertFailsWith<ClassCastException> {
+            Json.decodeFromDynamic<Int>(js("'not-a-number'"))
+        }
     }
 }
