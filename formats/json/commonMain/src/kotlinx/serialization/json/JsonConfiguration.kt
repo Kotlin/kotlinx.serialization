@@ -47,6 +47,9 @@ public class JsonConfiguration @OptIn(ExperimentalSerializationApi::class) inter
 
     @ExperimentalSerializationApi
     public val maxNestingDepth: Int = 400,
+
+    @ExperimentalSerializationApi
+    public val encodeAsIs: Boolean = false,
 ) {
 
     /** @suppress Dokka **/
@@ -58,7 +61,7 @@ public class JsonConfiguration @OptIn(ExperimentalSerializationApi::class) inter
                 "classDiscriminator='$classDiscriminator', allowSpecialFloatingPointValues=$allowSpecialFloatingPointValues, " +
                 "useAlternativeNames=$useAlternativeNames, namingStrategy=$namingStrategy, decodeEnumsCaseInsensitive=$decodeEnumsCaseInsensitive, " +
                 "allowTrailingComma=$allowTrailingComma, allowComments=$allowComments, classDiscriminatorMode=$classDiscriminatorMode, " +
-                "exceptionsWithDebugInfo=$exceptionsWithDebugInfo, maxNestingDepth=$maxNestingDepth)"
+                "exceptionsWithDebugInfo=$exceptionsWithDebugInfo, maxNestingDepth=$maxNestingDepth, encodeAsIs=$encodeAsIs)"
     }
 }
 

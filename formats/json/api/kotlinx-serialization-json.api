@@ -102,6 +102,7 @@ public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun getClassDiscriminatorMode ()Lkotlinx/serialization/json/ClassDiscriminatorMode;
 	public final fun getCoerceInputValues ()Z
 	public final fun getDecodeEnumsCaseInsensitive ()Z
+	public final fun getEncodeAsIs ()Z
 	public final fun getEncodeDefaults ()Z
 	public final fun getExceptionsWithDebugInfo ()Z
 	public final fun getExplicitNulls ()Z
@@ -122,6 +123,7 @@ public final class kotlinx/serialization/json/JsonBuilder {
 	public final fun setClassDiscriminatorMode (Lkotlinx/serialization/json/ClassDiscriminatorMode;)V
 	public final fun setCoerceInputValues (Z)V
 	public final fun setDecodeEnumsCaseInsensitive (Z)V
+	public final fun setEncodeAsIs (Z)V
 	public final fun setEncodeDefaults (Z)V
 	public final fun setExceptionsWithDebugInfo (Z)V
 	public final fun setExplicitNulls (Z)V
@@ -155,6 +157,7 @@ public final class kotlinx/serialization/json/JsonConfiguration {
 	public final fun getClassDiscriminatorMode ()Lkotlinx/serialization/json/ClassDiscriminatorMode;
 	public final fun getCoerceInputValues ()Z
 	public final fun getDecodeEnumsCaseInsensitive ()Z
+	public final fun getEncodeAsIs ()Z
 	public final fun getEncodeDefaults ()Z
 	public final fun getExceptionsWithDebugInfo ()Z
 	public final fun getExplicitNulls ()Z

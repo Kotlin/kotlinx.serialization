@@ -704,6 +704,30 @@ public class JsonBuilder internal constructor(json: Json) {
     @ExperimentalSerializationApi
     public var maxNestingDepth: Int = json.configuration.maxNestingDepth
 
+    /**
+     * Specifies whether a [JsonPrimitive] is encoded as-is.
+     *
+     * When `false`, the encoder first resolves the primitive to its platform representation and serializes that value.
+     *
+     * When `true`, the encoder writes the primitive's raw `content` directly into the output, skipping that conversion.
+     *
+     * `false` by default.
+     *
+     * Example of usage:
+     * ```
+     * val primitive = Json.decodeFromString(JsonPrimitive.serializer(), "1.00")
+     *
+     * // Prints 1.0
+     * println(Json.encodeToString(primitive))
+     *
+     * val asIsJson = Json { encodeAsIs = true }
+     * // Prints 1.00
+     * println(asIsJson.encodeToString(primitive))
+     * ```
+     */
+    @ExperimentalSerializationApi
+    public var encodeAsIs: Boolean = json.configuration.encodeAsIs
+
     @OptIn(ExperimentalSerializationApi::class)
     internal fun build(): JsonConfiguration {
         if (useArrayPolymorphism) {
@@ -733,7 +757,7 @@ public class JsonBuilder internal constructor(json: Json) {
             coerceInputValues, useArrayPolymorphism,
             classDiscriminator, allowSpecialFloatingPointValues, useAlternativeNames,
             namingStrategy, decodeEnumsCaseInsensitive, allowTrailingComma, allowComments, classDiscriminatorMode,
-            exceptionsWithDebugInfo, maxNestingDepth
+            exceptionsWithDebugInfo, maxNestingDepth, encodeAsIs,
         )
     }
 }

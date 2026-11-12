@@ -117,6 +117,9 @@ private object JsonLiteralSerializer : KSerializer<JsonLiteral> {
         if (value.coerceToInlineType != null) {
             return encoder.encodeInline(value.coerceToInlineType).encodeString(value.content)
         }
+        if (encoder.asJsonEncoder().json.configuration.encodeAsIs) {
+            return encoder.encodeInline(jsonUnquotedLiteralDescriptor).encodeString(value.content)
+        }
 
         // use .content instead of .longOrNull as latter can process exponential notation,
         // and it should be delegated to double when encoding.
