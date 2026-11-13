@@ -139,6 +139,9 @@ public sealed class ProtoBuf(
     }
 
     override fun <T> decodeFromByteArray(deserializer: DeserializationStrategy<T>, bytes: ByteArray): T {
+        if (deserializer.descriptor.isNullable) {
+            throw SerializationException("Root-level nullable types are not supported by ProtoBuf")
+        }
         val input = ByteArrayInput(bytes)
         val decoder = ProtobufDecoder(this, ProtobufReader(input), deserializer.descriptor)
         return decoder.decodeSerializableValue(deserializer)
