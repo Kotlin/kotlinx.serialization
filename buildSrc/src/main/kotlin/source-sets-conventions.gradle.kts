@@ -5,6 +5,7 @@
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.*
 import org.jetbrains.kotlin.gradle.dsl.*
+import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsBinaryMode
 
 plugins {
     kotlin("multiplatform")
@@ -42,8 +43,40 @@ kotlin {
     jvmToolchain(jdkToolchainVersion)
 
     js {
+        // The part for testing with the latest JS target supported
+        val mainCompilation = compilations.getByName("main")
+
+        val latestJsCompilation = compilations.create("latestJsTest") {
+            associateWith(mainCompilation)
+            // Sources are configured in the `sourceSets` block below (see `jsLatestJsTest`).
+            // Don't `dependsOn(jsTest)` here: that would make `jsTest` a shared (non-leaf) source set
+            // and break its dependency resolution (e.g., kotlin.test) in the IDE.
+            binaries.executable(this)
+            binaries.configureEach {
+                linkTask.configure {
+                    compilerOptions {
+                        target.set("es2015")
+                        moduleKind.set(JsModuleKind.MODULE_UMD) // Mocha adapter doesn't support ES modules yet
+                        freeCompilerArgs.add("-Xes-long-as-bigint")
+                    }
+                }
+            }
+        }
+
         nodejs {
+            val latestTargetRun = testRuns.create("latestTarget") {
+                setExecutionSourceFrom(latestJsCompilation)
+                executionTask.configure {
+                    val devBinary = latestJsCompilation.binaries
+                        .matching { it.mode == KotlinJsBinaryMode.DEVELOPMENT }
+                        .single()
+
+                    inputFileProperty.set(devBinary.mainFileSyncPath)
+                }
+            }
+
             testTask {
+                dependsOn(latestTargetRun.executionTask)
                 useMocha {
                     timeout = "10s"
                 }
@@ -106,6 +139,11 @@ kotlin {
 
         named("wasmWasiTest") {
             dependsOn(named("wasmTest").get())
+        }
+
+        named("jsLatestJsTest") {
+            dependsOn(commonTest.get())
+            kotlin.srcDirs(jsTest.get().kotlin.srcDirs)
         }
     }
 
