@@ -31,6 +31,7 @@ public final class kotlinx/serialization/cbor/CborBuilder {
 	public final fun getEncodeKeyTags ()Z
 	public final fun getEncodeObjectTags ()Z
 	public final fun getEncodeValueTags ()Z
+	public final fun getForbidDuplicateKeys ()Z
 	public final fun getIgnoreUnknownKeys ()Z
 	public final fun getPreferCborLabelsOverNames ()Z
 	public final fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
@@ -43,6 +44,7 @@ public final class kotlinx/serialization/cbor/CborBuilder {
 	public final fun setEncodeKeyTags (Z)V
 	public final fun setEncodeObjectTags (Z)V
 	public final fun setEncodeValueTags (Z)V
+	public final fun setForbidDuplicateKeys (Z)V
 	public final fun setIgnoreUnknownKeys (Z)V
 	public final fun setPreferCborLabelsOverNames (Z)V
 	public final fun setSerializersModule (Lkotlinx/serialization/modules/SerializersModule;)V
@@ -58,6 +60,7 @@ public final class kotlinx/serialization/cbor/CborConfiguration {
 	public final fun getEncodeKeyTags ()Z
 	public final fun getEncodeObjectTags ()Z
 	public final fun getEncodeValueTags ()Z
+	public final fun getForbidDuplicateKeys ()Z
 	public final fun getIgnoreUnknownKeys ()Z
 	public final fun getPreferCborLabelsOverNames ()Z
 	public final fun getUseDefiniteLengthEncoding ()Z

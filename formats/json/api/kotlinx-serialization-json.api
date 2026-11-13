@@ -189,6 +189,7 @@ public final class kotlinx/serialization/json/JsonDecoder$DefaultImpls {
 	public static fun decodeNullableSerializableValue (Lkotlinx/serialization/json/JsonDecoder;Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
 	public static fun decodeSequentially (Lkotlinx/serialization/json/JsonDecoder;)Z
 	public static fun decodeSerializableValue (Lkotlinx/serialization/json/JsonDecoder;Lkotlinx/serialization/DeserializationStrategy;)Ljava/lang/Object;
+	public static fun visitKey (Lkotlinx/serialization/json/JsonDecoder;Ljava/lang/Object;)V
 }
 
 public final class kotlinx/serialization/json/JsonDecodingException : kotlinx/serialization/json/JsonException {
