@@ -27,6 +27,8 @@ internal actual fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing
     )
 }
 
+public actual fun KClass<*>.qualifiedOrSimpleName(): String = simpleName ?: "$this"
+
 @Suppress(
     "UNCHECKED_CAST",
     "DEPRECATION_ERROR"

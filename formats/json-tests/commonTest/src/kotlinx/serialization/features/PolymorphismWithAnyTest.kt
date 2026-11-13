@@ -9,6 +9,8 @@ import kotlinx.serialization.json.*
 import kotlinx.serialization.modules.*
 import kotlinx.serialization.modules.plus
 import kotlinx.serialization.test.assertStringFormAndRestored
+import kotlinx.serialization.test.isJs
+import kotlinx.serialization.test.isWasm
 import kotlin.test.*
 
 class PolymorphismWithAnyTest: JsonTestBase() {
@@ -25,7 +27,7 @@ class PolymorphismWithAnyTest: JsonTestBase() {
     // KClass.toString() on JS prints simple name, not FQ one
     @Suppress("NAME_SHADOWING")
     private fun checkNotRegisteredMessage(className: String, scopeName: String, exception: SerializationException) {
-        val className = className.substringAfterLast('.')
+        val className = if (isJs() || isWasm()) className.substringAfterLast('.') else className
         val scopeName = scopeName.substringAfterLast('.')
         val expectedText =
             "Serializer for subclass '$className' is not found in the polymorphic scope of '$scopeName'"

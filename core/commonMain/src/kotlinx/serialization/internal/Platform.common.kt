@@ -97,6 +97,9 @@ internal fun notRegisteredMessage(className: String): String = "Serializer for c
 
 internal expect fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing
 
+@CoreFriendModuleApi
+public expect fun KClass<*>.qualifiedOrSimpleName(): String
+
 @Suppress("UNCHECKED_CAST")
 internal fun KType.kclass() = when (val t = classifier) {
     is KClass<*> -> t

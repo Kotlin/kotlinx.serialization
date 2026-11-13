@@ -53,6 +53,8 @@ internal actual fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing
     )
 }
 
+public actual fun KClass<*>.qualifiedOrSimpleName(): String = simpleName ?: "$this"
+
 @Suppress("UNCHECKED_CAST", "DEPRECATION_ERROR")
 @OptIn(ExperimentalAssociatedObjects::class)
 internal actual fun <T : Any> KClass<T>.constructSerializerForGivenTypeArgs(vararg args: KSerializer<Any?>): KSerializer<T>? =

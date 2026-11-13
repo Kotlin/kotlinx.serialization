@@ -7,6 +7,7 @@ package kotlinx.serialization.json
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.*
+import kotlinx.serialization.internal.qualifiedOrSimpleName
 import kotlinx.serialization.modules.*
 import kotlin.reflect.*
 
@@ -100,7 +101,7 @@ public abstract class JsonContentPolymorphicSerializer<T : Any>(private val base
     protected abstract fun selectDeserializer(element: JsonElement): DeserializationStrategy<T>
 
     private fun throwSubtypeNotRegistered(subClass: KClass<*>, baseClass: KClass<*>): Nothing {
-        val subClassName = subClass.simpleName ?: "$subClass"
+        val subClassName = subClass.qualifiedOrSimpleName()
         val scope = "in the scope of '${baseClass.simpleName}'"
         throw SerializationException(
                     "Class '${subClassName}' is not registered for polymorphic serialization $scope.\n" +

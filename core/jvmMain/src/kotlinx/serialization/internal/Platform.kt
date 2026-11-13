@@ -33,6 +33,8 @@ internal actual fun <T : Any, E : T?> ArrayList<E>.toNativeArrayImpl(eClass: KCl
 
 internal actual fun KClass<*>.platformSpecificSerializerNotRegistered(): Nothing = serializerNotRegistered()
 
+public actual fun KClass<*>.qualifiedOrSimpleName(): String = qualifiedName ?: simpleName ?: "$this"
+
 internal fun Class<*>.serializerNotRegistered(): Nothing {
     throw SerializationException(this.kotlin.notRegisteredMessage())
 }

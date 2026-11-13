@@ -2,6 +2,8 @@
  * Copyright 2017-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
  */
 
+@file:OptIn(CoreFriendModuleApi::class)
+
 package kotlinx.serialization.internal
 
 import kotlinx.serialization.*
@@ -112,4 +114,4 @@ internal fun throwSubtypeNotRegistered(subClassName: String?, baseClass: KClass<
 
 @JvmName("throwSubtypeNotRegistered")
 internal fun throwSubtypeNotRegistered(subClass: KClass<*>, baseClass: KClass<*>): Nothing =
-    throwSubtypeNotRegistered(subClass.simpleName ?: "$subClass", baseClass)
+    throwSubtypeNotRegistered(subClass.qualifiedOrSimpleName(), baseClass)
