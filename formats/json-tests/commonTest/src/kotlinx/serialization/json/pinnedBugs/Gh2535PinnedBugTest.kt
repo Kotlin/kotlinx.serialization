@@ -49,9 +49,9 @@ class Gh2535PinnedBugTest {
         // The streaming encodeToString works
         assertEquals("\"test\"", json.encodeToString(serializer, Box("test")))
         // encodeToJsonElement crashes
-        val e = assertFailsWith<JsonEncodingException> {
+        val e = assertFailsWith<IndexOutOfBoundsException> {
             json.encodeToJsonElement(serializer, Box("test"))
         }
-        assertEquals("Serialization of 'kotlinx.serialization.ContextualSerializer<Box>' failed because of 'Empty list doesn't contain element at index 0.' exception in the encoder", e.message)
+        assertEquals("Empty list doesn't contain element at index 0.", e.message)
     }
 }
