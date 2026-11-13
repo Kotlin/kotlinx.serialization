@@ -7,6 +7,16 @@ package kotlinx.serialization.protobuf
 import kotlinx.serialization.*
 
 /**
+ * Specifies protobuf field name assigned to a Kotlin property or class.
+ *
+ * Used to get around invalid naming conventions.
+ */
+@SerialInfo
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.CLASS)
+@ExperimentalSerializationApi
+public annotation class ProtoName(public val name: String)
+
+/**
  * Specifies protobuf field number (a unique number for a field in the protobuf message)
  * assigned to a Kotlin property.
  *
