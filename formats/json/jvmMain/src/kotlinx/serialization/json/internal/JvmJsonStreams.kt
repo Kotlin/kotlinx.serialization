@@ -45,7 +45,6 @@ internal class OutputStreamJsonWriter(private val stream: OutputStream) : Intern
         arr[length + 1] = '"'
 
         writeUtf8(arr, length + 2)
-        flush()
     }
 
     private fun appendStringSlowPath(currentSize: Int, string: String) {
@@ -90,7 +89,6 @@ internal class OutputStreamJsonWriter(private val stream: OutputStream) : Intern
         ensureTotalCapacity(sz, 1)
         charArray[sz++] = '"'
         writeUtf8(charArray, sz)
-        flush()
     }
 
     @IgnorableReturnValue
@@ -109,10 +107,10 @@ internal class OutputStreamJsonWriter(private val stream: OutputStream) : Intern
     }
 
     private fun flush() {
+        if (indexInBuffer == 0) return
         stream.write(buffer, 0, indexInBuffer)
         indexInBuffer = 0
     }
-
 
     @Suppress("NOTHING_TO_INLINE")
     // ! you should never ask for more than the buffer size
