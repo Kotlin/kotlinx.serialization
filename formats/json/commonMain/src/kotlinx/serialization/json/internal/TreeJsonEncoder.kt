@@ -121,6 +121,14 @@ private sealed class AbstractJsonTreeEncoder(
         return if (currentTagOrNull != null) {
             if (polymorphicDiscriminator != null) polymorphicSerialName = descriptor.serialName
             super.encodeInline(descriptor)
+        } else if (polymorphicDiscriminator != null && descriptor.getElementDescriptor(0).kind is StructureKind) {
+            // A pending polymorphic discriminator can only be attached to the JsonObject
+            // produced by beginStructure(), so a root-level value class wrapping a
+            // structured type must keep encoding through this tree encoder; delegating to
+            // JsonPrimitiveEncoder here would drop the discriminator (issue #3039). Value
+            // classes wrapping primitives/unsigned numbers keep the JsonPrimitiveEncoder path.
+            polymorphicSerialName = descriptor.serialName
+            this
         } else {
             JsonPrimitiveEncoder(json, nodeConsumer).encodeInline(descriptor)
         }
