@@ -5,6 +5,8 @@
 package kotlinx.serialization.json
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
+import kotlin.js.*
 import kotlin.test.*
 
 class EncodeToDynamicSpecialCasesTest {
@@ -52,6 +54,100 @@ class EncodeToDynamicSpecialCasesTest {
     fun testJsonPrimitiveDouble() {
         assertDynamicForm<JsonElement>(JsonPrimitive(42.0))
         assertDynamicForm<JsonPrimitive>(JsonPrimitive(42.0))
+    }
+
+    @Test
+    fun testParsedJsonNumbersRemainDynamicNumbers() {
+        listOf("1.2300", "1.000000000000000000000000001", "18446744073709551617", "1E+400").forEach { source ->
+            val parsed = Json.parseToJsonElement(source)
+            val actual = Json.encodeToDynamic(JsonElement.serializer(), parsed)
+            assertEquals("number", jsTypeOf(actual))
+            assertEquals(source.toDouble(), actual as Double)
+        }
+    }
+
+    @Test
+    fun testParsedJsonNumbersRemainDynamicNumbersWhenNested() {
+        val parsed = Json.parseToJsonElement("""{"number":1.2300,"items":[1.000000000000000000000000001]}""")
+        val actual = Json.encodeToDynamic(JsonElement.serializer(), parsed)
+        assertEquals("number", jsTypeOf(actual.number))
+        assertEquals(1.23, actual.number as Double)
+        assertEquals("number", jsTypeOf(actual.items[0]))
+        assertEquals(1.0, actual.items[0] as Double)
+    }
+
+    @Test
+    fun testParsedJsonNumbersRemainDynamicNumbersAfterTreeEncoding() {
+        listOf("42", "42.0", "-0.0", "1.2300", "1.000000000000000000000000001", "18446744073709551617", "1E+400").forEach { source ->
+            var tree = Json.parseToJsonElement(source)
+            repeat(3) {
+                tree = Json.encodeToJsonElement(JsonElement.serializer(), tree)
+                assertEquals(source, Json.encodeToString(JsonElement.serializer(), tree))
+                val actual = Json.encodeToDynamic(JsonElement.serializer(), tree)
+                assertEquals("number", jsTypeOf(actual), "source:$source, iteration:$it")
+                assertEquals(source.toDouble(), actual as Double)
+            }
+        }
+    }
+
+    @Test
+    fun testParsedJsonNumbersRemainDynamicNumbersWhenNestedAfterTreeEncoding() {
+        val source = """{"count":42,"number":1.2300,"items":[1.000000000000000000000000001,false,null,"42"]}"""
+        val parsed = Json.parseToJsonElement(source)
+        val tree = Json.encodeToJsonElement(JsonElement.serializer(), parsed)
+        assertEquals(source, Json.encodeToString(JsonElement.serializer(), tree))
+        val actual = Json.encodeToDynamic(JsonElement.serializer(), tree)
+        assertEquals("number", jsTypeOf(actual.count))
+        assertEquals(42.0, actual.count as Double)
+        assertEquals("number", jsTypeOf(actual.number))
+        assertEquals(1.23, actual.number as Double)
+        assertEquals("number", jsTypeOf(actual.items[0]))
+        assertEquals(1.0, actual.items[0] as Double)
+        assertEquals(false, actual.items[1] as Boolean)
+        assertNull(actual.items[2])
+        assertEquals("42", actual.items[3] as String)
+    }
+
+    @Test
+    fun testJsonPrimitiveDoubleRemainsDynamicNumberAfterTreeEncoding() {
+        val tree = Json.encodeToJsonElement(JsonPrimitive.serializer(), JsonPrimitive(42.5))
+        val actual = Json.encodeToDynamic(JsonPrimitive.serializer(), tree.jsonPrimitive)
+        assertEquals("number", jsTypeOf(actual))
+        assertEquals(42.5, actual as Double)
+    }
+
+    @Test
+    fun testNegativeZeroDynamicBehaviorAfterTreeEncoding() {
+        for (source in listOf("-0", "-0.0")) {
+            val parsed = Json.parseToJsonElement(source)
+            val tree = Json.encodeToJsonElement(JsonElement.serializer(), parsed)
+            assertEquals(source, Json.encodeToString(JsonElement.serializer(), tree))
+            val actual = Json.encodeToDynamic(JsonElement.serializer(), tree)
+            assertEquals("number", jsTypeOf(actual))
+            val expectedReciprocal = if (source == "-0.0") Double.NEGATIVE_INFINITY else Double.POSITIVE_INFINITY
+            assertEquals(expectedReciprocal, 1.0 / (actual as Double))
+        }
+    }
+
+    @Test
+    fun testNumericDynamicMapKeyRestrictionsAfterTreeEncoding() {
+        val serializer = MapSerializer(JsonPrimitive.serializer(), String.serializer())
+        for (source in listOf("1.2300", "1E+400", "9007199254740992")) {
+            val key = Json.parseToJsonElement(source).jsonPrimitive
+            val treeKey = Json.encodeToJsonElement(JsonPrimitive.serializer(), key).jsonPrimitive
+            assertFailsWith<IllegalArgumentException>(source) {
+                Json.encodeToDynamic(serializer, mapOf(treeKey to "value"))
+            }
+        }
+    }
+
+    @Test
+    fun testUnquotedLiteralRetainsDynamicStringAfterTreeEncoding() {
+        val literal = JsonUnquotedLiteral("1.2300")
+        val tree = Json.encodeToJsonElement(JsonPrimitive.serializer(), literal)
+        val actual = Json.encodeToDynamic(JsonPrimitive.serializer(), tree.jsonPrimitive)
+        assertEquals("string", jsTypeOf(actual))
+        assertEquals("1.2300", actual as String)
     }
 
     @Test

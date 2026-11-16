@@ -4,8 +4,11 @@
 
 package kotlinx.serialization.json.serializers
 
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.*
+import kotlinx.serialization.builtins.*
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.*
+import kotlinx.serialization.modules.*
 import kotlinx.serialization.test.*
 import kotlin.test.*
 
@@ -66,6 +69,94 @@ class JsonPrimitiveSerializerTest : JsonTestBase() {
                 default.decodeFromString(JsonPrimitiveWrapper.serializer(), string, jsonTestingMode),
                 "mode:$jsonTestingMode",
             )
+        }
+    }
+
+    @Test
+    fun testParsedJsonNumberPrecision() = parametrizedTest { mode ->
+        listOf(
+            "1.000000000000000000000000001",
+            "-3.141592653589793238462643383279",
+            "18446744073709551617"
+        ).forEach { source ->
+            val parsed = default.parseToJsonElement(source)
+            assertEquals(source, default.encodeToString(JsonElement.serializer(), parsed, mode), "mode:$mode")
+        }
+    }
+
+    @Test
+    fun testParsedJsonNumberScaleAndExponent() = parametrizedTest { mode ->
+        listOf("1.2300", "0.0000", "1E+3", "1e-3", "1E+400", "1E-400", "-1E+400", "-0", "-0.0").forEach { source ->
+            val parsed = default.parseToJsonElement(source)
+            assertEquals(source, default.encodeToString(JsonElement.serializer(), parsed, mode), "mode:$mode")
+        }
+    }
+
+    @Test
+    fun testParsedJsonNumberLargeExponentDigits() = parametrizedTest { mode ->
+        listOf("1e+999999999999999999999999", "-1e-999999999999999999999999").forEach { source ->
+            val parsed = default.parseToJsonElement(source)
+            assertEquals(source, default.encodeToString(JsonElement.serializer(), parsed, mode), "mode:$mode")
+        }
+    }
+
+    @Test
+    fun testNonJsonNumberSyntaxUsesExistingFallback() = parametrizedTest { mode ->
+        mapOf("01" to "1", "+1" to "1", "-01" to "-1", "1e" to "\"1e\"", "1e+" to "\"1e+\"").forEach { (source, expected) ->
+            val parsed = lenient.parseToJsonElement(source)
+            assertEquals(expected, lenient.encodeToString(JsonElement.serializer(), parsed, mode), "source:$source, mode:$mode")
+        }
+    }
+
+    @Test
+    fun testCustomJsonEncoderKeepsPrimitiveMethods() {
+        val cases = listOf(
+            Triple("42", "long", 42L),
+            Triple("-0", "long", 0L),
+            Triple("1.000000000000000000000000001", "double", 1.0),
+            Triple("true", "boolean", true),
+            Triple("\"42\"", "string", "42")
+        )
+        for ((source, kind, expected) in cases) {
+            val encoder = RecordingJsonEncoder()
+            JsonElement.serializer().serialize(encoder, default.parseToJsonElement(source))
+            assertEquals(kind, encoder.kind, source)
+            assertEquals(expected, encoder.value, source)
+        }
+    }
+
+    @Test
+    fun testParsedJsonNumberReserialization() = parametrizedTest { mode ->
+        val source = """{"number":1.000000000000000000000000001,"items":[1.2300,1E+400]}"""
+        var parsed = default.parseToJsonElement(source)
+        repeat(3) {
+            val encoded = default.encodeToString(JsonElement.serializer(), parsed, mode)
+            assertEquals(source, encoded, "mode:$mode, iteration:$it")
+            parsed = default.parseToJsonElement(encoded)
+        }
+    }
+
+    @Test
+    fun testParsedJsonNumberMapKeys() = parametrizedTest { mode ->
+        val serializer = MapSerializer(JsonPrimitive.serializer(), String.serializer())
+        listOf("1.2300", "1.000000000000000000000000001", "1E+400", "-0").forEach { source ->
+            val key = default.parseToJsonElement(source).jsonPrimitive
+            assertEquals(
+                """{"$source":"value"}""",
+                default.encodeToString(serializer, mapOf(key to "value"), mode),
+                "mode:$mode"
+            )
+        }
+    }
+
+    @Test
+    fun testParsedSpecialFloatingPointValidation() = parametrizedTest { mode ->
+        listOf("NaN", "Infinity", "-Infinity").forEach { source ->
+            val parsed = default.parseToJsonElement(source)
+            assertFailsWith<SerializationException> {
+                default.encodeToString(JsonElement.serializer(), parsed, mode)
+            }
+            assertEquals(source, lenient.encodeToString(JsonElement.serializer(), parsed, mode), "mode:$mode")
         }
     }
 
@@ -214,5 +305,37 @@ class JsonPrimitiveSerializerTest : JsonTestBase() {
             if (mode == JsonTestingMode.TREE) assertContains(it, "Failed to parse literal '\"12:34:45\"' as a long value at path: \$.a")
             else assertContains(it, "Unexpected JSON token at offset 8: Expected closing quotation mark at path: \$.a")
         })
+    }
+
+    @OptIn(SealedSerializationApi::class, ExperimentalSerializationApi::class)
+    private class RecordingJsonEncoder : AbstractEncoder(), JsonEncoder {
+        override val json: Json = Json
+        override val serializersModule: SerializersModule = EmptySerializersModule()
+        var kind: String? = null
+        var value: Any? = null
+
+        override fun encodeLong(value: Long) {
+            kind = "long"
+            this.value = value
+        }
+
+        override fun encodeDouble(value: Double) {
+            kind = "double"
+            this.value = value
+        }
+
+        override fun encodeBoolean(value: Boolean) {
+            kind = "boolean"
+            this.value = value
+        }
+
+        override fun encodeString(value: String) {
+            kind = "string"
+            this.value = value
+        }
+
+        override fun encodeJsonElement(element: JsonElement) {
+            fail("Unexpected tree encoding")
+        }
     }
 }
