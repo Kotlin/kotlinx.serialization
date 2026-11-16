@@ -1,6 +1,7 @@
 package kotlinx.serialization.json.internal
 
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.internal.newArrayCapacity
 import kotlinx.serialization.json.JsonEncodingException
 import java.io.InputStream
 import java.io.OutputStream
@@ -95,9 +96,8 @@ internal class OutputStreamJsonWriter(private val stream: OutputStream) : Intern
 
     @IgnorableReturnValue
     private fun ensureTotalCapacity(oldSize: Int, additional: Int): Int {
-        val newSize = oldSize + additional
-        if (charArray.size <= newSize) {
-            charArray = charArray.copyOf(newSize.coerceAtLeast(oldSize * 2))
+        if (charArray.size - oldSize <= additional) {
+            charArray = charArray.copyOf(newArrayCapacity(charArray.size, oldSize.toLong() + additional))
         }
         return oldSize
     }

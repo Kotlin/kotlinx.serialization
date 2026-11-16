@@ -5,6 +5,7 @@
 package kotlinx.serialization.protobuf.internal
 
 import kotlinx.serialization.*
+import kotlinx.serialization.internal.newArrayCapacity
 
 internal class ByteArrayInput(private var array: ByteArray, private val endIndex: Int = array.size) {
     private var position: Int = 0
@@ -159,10 +160,10 @@ internal class ByteArrayOutput {
     private var position: Int = 0
 
     private fun ensureCapacity(elementsToAppend: Int) {
-        if (position + elementsToAppend <= array.size) {
+        if (elementsToAppend <= array.size - position) {
             return
         }
-        val newArray = ByteArray((position + elementsToAppend).takeHighestOneBit() shl 1)
+        val newArray = ByteArray(newArrayCapacity(array.size, position.toLong() + elementsToAppend))
         array.copyInto(newArray)
         array = newArray
     }
@@ -221,12 +222,13 @@ internal class ByteArrayOutput {
 
     fun encodeVarint32(value: Int) {
         // Fast-path: unrolled loop for single byte
-        ensureCapacity(5)
         if (value and 0x7F.inv() == 0) {
+            ensureCapacity(1)
             array[position++] = value.toByte()
             return
         }
         val length = varIntLength(value.toLong())
+        ensureCapacity(length + 1)
         encodeVarint(value.toLong(), length)
     }
 
