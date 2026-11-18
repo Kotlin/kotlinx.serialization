@@ -14,10 +14,10 @@ class HoconNamingConventionTest {
     data class CaseConfig(val aCharValue: Char, val aStringValue: String)
 
     @Serializable
-    data class SerialNameConfig(@SerialName("an-id-value") val anIDValue: Int)
+    data class HoconNameConfig(@HoconName("anID-value") val anIDValue: Int)
 
     @Serializable
-    data class CaseWithInnerConfig(val caseConfig: CaseConfig, val serialNameConfig: SerialNameConfig)
+    data class CaseWithInnerConfig(val caseConfig: CaseConfig, val hoconNameConfig: HoconNameConfig)
 
     private val hocon = Hocon {
         useConfigNamingConvention = true
@@ -39,42 +39,42 @@ class HoconNamingConventionTest {
     }
 
     @Test
-    fun testDeserializeUsingSerialNameInsteadOfNamingConvention() {
-        val obj = deserializeConfig("an-id-value = 42", SerialNameConfig.serializer(), true)
+    fun testDeserializeUsingHoconNameInsteadOfNamingConvention() {
+        val obj = deserializeConfig("anID-value = 42", HoconNameConfig.serializer(), true)
         assertEquals(42, obj.anIDValue)
     }
 
     @Test
-    fun testSerializeUsingSerialNameInsteadOfNamingConvention() {
-        val obj = SerialNameConfig(anIDValue = 42)
+    fun testSerializeUsingHoconNameInsteadOfNamingConvention() {
+        val obj = HoconNameConfig(anIDValue = 42)
         val config = hocon.encodeToConfig(obj)
 
-        config.assertContains("an-id-value = 42")
+        config.assertContains("anID-value = 42")
     }
 
     @Test
     fun testDeserializeInnerValuesUsingNamingConvention() {
-        val configString = "case-config {a-char-value = b, a-string-value = bar}, serial-name-config {an-id-value = 21}"
+        val configString = "case-config {a-char-value = b, a-string-value = bar}, hocon-name-config {anID-value = 21}"
         val obj = deserializeConfig(configString, CaseWithInnerConfig.serializer(), true)
         with(obj.caseConfig) {
             assertEquals('b', aCharValue)
             assertEquals("bar", aStringValue)
         }
-        assertEquals(21, obj.serialNameConfig.anIDValue)
+        assertEquals(21, obj.hoconNameConfig.anIDValue)
     }
 
     @Test
     fun testSerializeInnerValuesUsingNamingConvention() {
         val obj = CaseWithInnerConfig(
             caseConfig = CaseConfig(aCharValue = 't', aStringValue = "test"),
-            serialNameConfig = SerialNameConfig(anIDValue = 42)
+            hoconNameConfig = HoconNameConfig(anIDValue = 42)
         )
         val config = hocon.encodeToConfig(obj)
 
         config.assertContains(
             """
                 case-config { a-char-value = t, a-string-value = test }
-                serial-name-config { an-id-value = 42 }
+                hocon-name-config { anID-value = 42 }
             """
         )
     }
