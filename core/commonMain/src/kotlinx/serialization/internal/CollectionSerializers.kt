@@ -98,6 +98,7 @@ public sealed class MapLikeSerializer<Key, Value, Collection, Builder : MutableM
 
     final override fun readElement(decoder: CompositeDecoder, index: Int, builder: Builder, checkIndex: Boolean) {
         val key: Key = decoder.decodeSerializableElement(descriptor, index, keySerializer)
+        decoder.visitKey(key)
         val vIndex = if (checkIndex) {
             decoder.decodeElementIndex(descriptor).also {
                 require(it == index + 1) { "Value must follow key in a map, index for key: $index, returned index for value: $it" }
