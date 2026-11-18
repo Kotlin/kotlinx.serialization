@@ -118,6 +118,9 @@ public sealed class Properties(
             return map.getValue(tag)
         }
 
+        final override fun decodeTaggedNotNullMark(tag: String): Boolean =
+            map.keys.any { it.startsWith(tag) && (it.length == tag.length || it[tag.length] == '.') }
+
         final override fun decodeTaggedEnum(tag: String, enumDescriptor: SerialDescriptor): Int {
             return when (val taggedValue = map.getValue(tag)) {
                 is Int -> taggedValue
@@ -136,6 +139,10 @@ public sealed class Properties(
                 if (isCollection) {
                     // if map does not contain key we look for, then indices in collection have ended
                     break
+                }
+                if (!descriptor.isElementOptional(currentIndex - 1) && descriptor.getElementDescriptor(currentIndex - 1).isNullable) {
+                    // Nulls are encoded as no keys at all, so an absent nullable property should decode as null
+                    return currentIndex - 1
                 }
             }
             return CompositeDecoder.DECODE_DONE
