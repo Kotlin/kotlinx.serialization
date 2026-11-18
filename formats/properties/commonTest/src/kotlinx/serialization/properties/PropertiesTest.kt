@@ -31,6 +31,9 @@ class PropertiesTest {
     data class DataWithMap(val map: Map<String, Int> = mapOf())
 
     @Serializable
+    data class RequiredCollections(val a: Int, val list: List<Short>, val map: Map<String, Int>)
+
+    @Serializable
     data class MultiType(
         val first: Int,
         val second: String,
@@ -112,6 +115,15 @@ class PropertiesTest {
     fun testUnitIsEmptyMapModule() {
         val module = SerializersModule {}
         assertEquals(emptyMap(), Properties(module).encodeToMap(Unit.serializer(), Unit))
+    }
+
+    @Test
+    fun testEmptyRequiredCollections() {
+        assertMappedAndRestored(
+            mapOf("a" to 1),
+            RequiredCollections(1, emptyList(), emptyMap()),
+            RequiredCollections.serializer()
+        )
     }
 
     @Test
