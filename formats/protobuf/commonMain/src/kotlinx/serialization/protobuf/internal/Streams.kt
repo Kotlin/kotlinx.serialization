@@ -39,13 +39,14 @@ internal class ByteArrayInput(private var array: ByteArray, private val endIndex
         position += bytesCount
     }
 
-    private fun ensureEnoughBytes(bytesCount: Int) {
+    fun ensureEnoughBytes(bytesCount: Int) {
         if (bytesCount > availableBytes) {
             throw SerializationException("Unexpected EOF, available $availableBytes bytes, requested: $bytesCount")
         }
     }
 
     fun readString(length: Int): String {
+        ensureEnoughBytes(length)
         val result = array.decodeToString(position, position + length)
         position += length
         return result
