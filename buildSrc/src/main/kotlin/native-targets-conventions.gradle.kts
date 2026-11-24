@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.*
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
 
@@ -8,6 +9,28 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.*
 
 plugins {
     kotlin("multiplatform")
+}
+
+// Temporary workaround for the removed macosX64, tvosX64 and watchosX64 targets, see KT-91457
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+fun KotlinMultiplatformExtension.macosX64() {
+    // Do nothing
+}
+
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+fun KotlinMultiplatformExtension.tvosX64() {
+    // Do nothing
+}
+
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+fun KotlinMultiplatformExtension.watchosX64() {
+    // Do nothing
+}
+
+// Temporary workaround for the removed watchosArm32 target, see KT-91838
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+fun KotlinMultiplatformExtension.watchosArm32() {
+    // Do nothing
 }
 
 kotlin {
