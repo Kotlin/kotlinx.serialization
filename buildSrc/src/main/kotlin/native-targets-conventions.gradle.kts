@@ -27,6 +27,12 @@ fun KotlinMultiplatformExtension.watchosX64() {
     // Do nothing
 }
 
+// Temporary workaround for the removed watchosArm32 target, see KT-91838
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+fun KotlinMultiplatformExtension.watchosArm32() {
+    // Do nothing
+}
+
 kotlin {
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     applyDefaultHierarchyTemplate {
