@@ -1,6 +1,8 @@
 import org.jetbrains.kotlin.gradle.*
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
+import kotlin.KotlinVersion as StdlibKotlinVersion
 
 /*
  * Copyright 2017-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
@@ -59,14 +61,23 @@ kotlin {
         // kotlin 2.5.0 - deprecated warning
         // kotlin 2.5.20 - deprecated error
         // kotlin 2.6.0 - removed
-        @Suppress("DEPRECATION", "DEPRECATION_ERROR")
-        androidNativeArm32()
-        @Suppress("DEPRECATION", "DEPRECATION_ERROR")
-        androidNativeArm64()
-        @Suppress("DEPRECATION", "DEPRECATION_ERROR")
-        androidNativeX86()
-        @Suppress("DEPRECATION", "DEPRECATION_ERROR")
-        androidNativeX64()
+        // Starting from 2.5.20, androidNative targets can't be built, see KT-90218.
+        // While there is a DSL to configure them, it won't let you build the targets.
+        // To prevent build failures in configurations where the project is built with the fresh Kotlin version,
+        // let's skip targets' configuration.
+        // The check compares only major.minor.patch, so 2.5.20 dev and pre-release builds also skip the targets.
+        // TODO: remove the block completely after updating to Kotlin 2.5.20
+        val (major, minor, patch) = project.getKotlinPluginVersion().substringBefore('-').split('.').map(String::toInt)
+        if (!StdlibKotlinVersion(major, minor, patch).isAtLeast(2, 5, 20)) {
+            @Suppress("DEPRECATION", "DEPRECATION_ERROR")
+            androidNativeArm32()
+            @Suppress("DEPRECATION", "DEPRECATION_ERROR")
+            androidNativeArm64()
+            @Suppress("DEPRECATION", "DEPRECATION_ERROR")
+            androidNativeX86()
+            @Suppress("DEPRECATION", "DEPRECATION_ERROR")
+            androidNativeX64()
+        }
 
         // Deprecated, but not removed
         @Suppress("DEPRECATION")
