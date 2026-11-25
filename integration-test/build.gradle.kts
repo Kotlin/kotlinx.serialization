@@ -40,13 +40,12 @@ kotlin {
             moduleKind = JsModuleKind.MODULE_UMD
         }
     }
-    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         nodejs()
     }
     @OptIn(ExperimentalWasmDsl::class)
     wasmWasi {
-        nodejs()
+        wasmtime()
     }
     jvm()
     @Suppress("DEPRECATION", "DEPRECATION_ERROR")

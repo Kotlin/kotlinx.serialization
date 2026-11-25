@@ -56,15 +56,13 @@ kotlin {
         }
     }
 
-    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         nodejs()
     }
 
     @OptIn(ExperimentalWasmDsl::class)
     wasmWasi {
-        @Suppress("DEPRECATION")
-        nodejs()
+        wasmtime()
     }
 
     sourceSets.all {
